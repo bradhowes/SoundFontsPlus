@@ -1,0 +1,630 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BD1D27832B6F13DD005C3ED0 /* SoundFonts2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27822B6F13DD005C3ED0 /* SoundFonts2App.swift */; };
+		BD1D27852B6F13DD005C3ED0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27842B6F13DD005C3ED0 /* ContentView.swift */; };
+		BD1D27872B6F13DD005C3ED0 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27862B6F13DD005C3ED0 /* Item.swift */; };
+		BD1D27892B6F13DE005C3ED0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */; };
+		BD1D278D2B6F13DE005C3ED0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */; };
+		BD1D27982B6F13DE005C3ED0 /* SoundFonts2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27972B6F13DE005C3ED0 /* SoundFonts2Tests.swift */; };
+		BD1D27A22B6F13DE005C3ED0 /* SoundFonts2UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27A12B6F13DE005C3ED0 /* SoundFonts2UITests.swift */; };
+		BD1D27A42B6F13DE005C3ED0 /* SoundFonts2UITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27A32B6F13DE005C3ED0 /* SoundFonts2UITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BD1D27942B6F13DE005C3ED0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BD1D27772B6F13DD005C3ED0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BD1D277E2B6F13DD005C3ED0;
+			remoteInfo = SoundFonts2;
+		};
+		BD1D279E2B6F13DE005C3ED0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BD1D27772B6F13DD005C3ED0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BD1D277E2B6F13DD005C3ED0;
+			remoteInfo = SoundFonts2;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		BD1D277F2B6F13DD005C3ED0 /* SoundFonts2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SoundFonts2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD1D27822B6F13DD005C3ED0 /* SoundFonts2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFonts2App.swift; sourceTree = "<group>"; };
+		BD1D27842B6F13DD005C3ED0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		BD1D27862B6F13DD005C3ED0 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
+		BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BD1D278A2B6F13DE005C3ED0 /* SoundFonts2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SoundFonts2.entitlements; sourceTree = "<group>"; };
+		BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		BD1D278E2B6F13DE005C3ED0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BD1D27932B6F13DE005C3ED0 /* SoundFonts2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoundFonts2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD1D27972B6F13DE005C3ED0 /* SoundFonts2Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFonts2Tests.swift; sourceTree = "<group>"; };
+		BD1D279D2B6F13DE005C3ED0 /* SoundFonts2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoundFonts2UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD1D27A12B6F13DE005C3ED0 /* SoundFonts2UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFonts2UITests.swift; sourceTree = "<group>"; };
+		BD1D27A32B6F13DE005C3ED0 /* SoundFonts2UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFonts2UITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BD1D277C2B6F13DD005C3ED0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD1D27902B6F13DE005C3ED0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD1D279A2B6F13DE005C3ED0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BD1D27762B6F13DD005C3ED0 = {
+			isa = PBXGroup;
+			children = (
+				BD1D27812B6F13DD005C3ED0 /* SoundFonts2 */,
+				BD1D27962B6F13DE005C3ED0 /* SoundFonts2Tests */,
+				BD1D27A02B6F13DE005C3ED0 /* SoundFonts2UITests */,
+				BD1D27802B6F13DD005C3ED0 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BD1D27802B6F13DD005C3ED0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BD1D277F2B6F13DD005C3ED0 /* SoundFonts2.app */,
+				BD1D27932B6F13DE005C3ED0 /* SoundFonts2Tests.xctest */,
+				BD1D279D2B6F13DE005C3ED0 /* SoundFonts2UITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BD1D27812B6F13DD005C3ED0 /* SoundFonts2 */ = {
+			isa = PBXGroup;
+			children = (
+				BD1D27822B6F13DD005C3ED0 /* SoundFonts2App.swift */,
+				BD1D27842B6F13DD005C3ED0 /* ContentView.swift */,
+				BD1D27862B6F13DD005C3ED0 /* Item.swift */,
+				BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */,
+				BD1D278A2B6F13DE005C3ED0 /* SoundFonts2.entitlements */,
+				BD1D278E2B6F13DE005C3ED0 /* Info.plist */,
+				BD1D278B2B6F13DE005C3ED0 /* Preview Content */,
+			);
+			path = SoundFonts2;
+			sourceTree = "<group>";
+		};
+		BD1D278B2B6F13DE005C3ED0 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		BD1D27962B6F13DE005C3ED0 /* SoundFonts2Tests */ = {
+			isa = PBXGroup;
+			children = (
+				BD1D27972B6F13DE005C3ED0 /* SoundFonts2Tests.swift */,
+			);
+			path = SoundFonts2Tests;
+			sourceTree = "<group>";
+		};
+		BD1D27A02B6F13DE005C3ED0 /* SoundFonts2UITests */ = {
+			isa = PBXGroup;
+			children = (
+				BD1D27A12B6F13DE005C3ED0 /* SoundFonts2UITests.swift */,
+				BD1D27A32B6F13DE005C3ED0 /* SoundFonts2UITestsLaunchTests.swift */,
+			);
+			path = SoundFonts2UITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BD1D277E2B6F13DD005C3ED0 /* SoundFonts2 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BD1D27A72B6F13DE005C3ED0 /* Build configuration list for PBXNativeTarget "SoundFonts2" */;
+			buildPhases = (
+				BD1D277B2B6F13DD005C3ED0 /* Sources */,
+				BD1D277C2B6F13DD005C3ED0 /* Frameworks */,
+				BD1D277D2B6F13DD005C3ED0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SoundFonts2;
+			productName = SoundFonts2;
+			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFonts2.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BD1D27922B6F13DE005C3ED0 /* SoundFonts2Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BD1D27AA2B6F13DE005C3ED0 /* Build configuration list for PBXNativeTarget "SoundFonts2Tests" */;
+			buildPhases = (
+				BD1D278F2B6F13DE005C3ED0 /* Sources */,
+				BD1D27902B6F13DE005C3ED0 /* Frameworks */,
+				BD1D27912B6F13DE005C3ED0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BD1D27952B6F13DE005C3ED0 /* PBXTargetDependency */,
+			);
+			name = SoundFonts2Tests;
+			productName = SoundFonts2Tests;
+			productReference = BD1D27932B6F13DE005C3ED0 /* SoundFonts2Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		BD1D279C2B6F13DE005C3ED0 /* SoundFonts2UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BD1D27AD2B6F13DE005C3ED0 /* Build configuration list for PBXNativeTarget "SoundFonts2UITests" */;
+			buildPhases = (
+				BD1D27992B6F13DE005C3ED0 /* Sources */,
+				BD1D279A2B6F13DE005C3ED0 /* Frameworks */,
+				BD1D279B2B6F13DE005C3ED0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BD1D279F2B6F13DE005C3ED0 /* PBXTargetDependency */,
+			);
+			name = SoundFonts2UITests;
+			productName = SoundFonts2UITests;
+			productReference = BD1D279D2B6F13DE005C3ED0 /* SoundFonts2UITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BD1D27772B6F13DD005C3ED0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1520;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					BD1D277E2B6F13DD005C3ED0 = {
+						CreatedOnToolsVersion = 15.2;
+					};
+					BD1D27922B6F13DE005C3ED0 = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = BD1D277E2B6F13DD005C3ED0;
+					};
+					BD1D279C2B6F13DE005C3ED0 = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = BD1D277E2B6F13DD005C3ED0;
+					};
+				};
+			};
+			buildConfigurationList = BD1D277A2B6F13DD005C3ED0 /* Build configuration list for PBXProject "SoundFonts2" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BD1D27762B6F13DD005C3ED0;
+			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BD1D277E2B6F13DD005C3ED0 /* SoundFonts2 */,
+				BD1D27922B6F13DE005C3ED0 /* SoundFonts2Tests */,
+				BD1D279C2B6F13DE005C3ED0 /* SoundFonts2UITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BD1D277D2B6F13DD005C3ED0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BD1D278D2B6F13DE005C3ED0 /* Preview Assets.xcassets in Resources */,
+				BD1D27892B6F13DE005C3ED0 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD1D27912B6F13DE005C3ED0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD1D279B2B6F13DE005C3ED0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BD1D277B2B6F13DD005C3ED0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BD1D27852B6F13DD005C3ED0 /* ContentView.swift in Sources */,
+				BD1D27872B6F13DD005C3ED0 /* Item.swift in Sources */,
+				BD1D27832B6F13DD005C3ED0 /* SoundFonts2App.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD1D278F2B6F13DE005C3ED0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BD1D27982B6F13DE005C3ED0 /* SoundFonts2Tests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD1D27992B6F13DE005C3ED0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BD1D27A42B6F13DE005C3ED0 /* SoundFonts2UITestsLaunchTests.swift in Sources */,
+				BD1D27A22B6F13DE005C3ED0 /* SoundFonts2UITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BD1D27952B6F13DE005C3ED0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BD1D277E2B6F13DD005C3ED0 /* SoundFonts2 */;
+			targetProxy = BD1D27942B6F13DE005C3ED0 /* PBXContainerItemProxy */;
+		};
+		BD1D279F2B6F13DE005C3ED0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BD1D277E2B6F13DD005C3ED0 /* SoundFonts2 */;
+			targetProxy = BD1D279E2B6F13DE005C3ED0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		BD1D27A52B6F13DE005C3ED0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BD1D27A62B6F13DE005C3ED0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		BD1D27A82B6F13DE005C3ED0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SoundFonts2/SoundFonts2.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"SoundFonts2/Preview Content\"";
+				DEVELOPMENT_TEAM = UP6SS5ES7E;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SoundFonts2/Info.plist;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.braysoftware.SoundFonts2;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BD1D27A92B6F13DE005C3ED0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SoundFonts2/SoundFonts2.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"SoundFonts2/Preview Content\"";
+				DEVELOPMENT_TEAM = UP6SS5ES7E;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SoundFonts2/Info.plist;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.braysoftware.SoundFonts2;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BD1D27AB2B6F13DE005C3ED0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UP6SS5ES7E;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.braysoftware.SoundFonts2Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SoundFonts2.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SoundFonts2";
+			};
+			name = Debug;
+		};
+		BD1D27AC2B6F13DE005C3ED0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UP6SS5ES7E;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.braysoftware.SoundFonts2Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SoundFonts2.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SoundFonts2";
+			};
+			name = Release;
+		};
+		BD1D27AE2B6F13DE005C3ED0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UP6SS5ES7E;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.braysoftware.SoundFonts2UITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SoundFonts2;
+			};
+			name = Debug;
+		};
+		BD1D27AF2B6F13DE005C3ED0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UP6SS5ES7E;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.braysoftware.SoundFonts2UITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SoundFonts2;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BD1D277A2B6F13DD005C3ED0 /* Build configuration list for PBXProject "SoundFonts2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD1D27A52B6F13DE005C3ED0 /* Debug */,
+				BD1D27A62B6F13DE005C3ED0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BD1D27A72B6F13DE005C3ED0 /* Build configuration list for PBXNativeTarget "SoundFonts2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD1D27A82B6F13DE005C3ED0 /* Debug */,
+				BD1D27A92B6F13DE005C3ED0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BD1D27AA2B6F13DE005C3ED0 /* Build configuration list for PBXNativeTarget "SoundFonts2Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD1D27AB2B6F13DE005C3ED0 /* Debug */,
+				BD1D27AC2B6F13DE005C3ED0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BD1D27AD2B6F13DE005C3ED0 /* Build configuration list for PBXNativeTarget "SoundFonts2UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD1D27AE2B6F13DE005C3ED0 /* Debug */,
+				BD1D27AF2B6F13DE005C3ED0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BD1D27772B6F13DD005C3ED0 /* Project object */;
+}
