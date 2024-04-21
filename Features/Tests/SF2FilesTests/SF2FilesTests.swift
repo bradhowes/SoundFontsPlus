@@ -95,6 +95,4 @@ final class SF2FilesTests: XCTestCase {
     XCTAssertEqual(presetInfo.bank(), 128)
     XCTAssertEqual(presetInfo.program(), 56)
   }
-
 }
-
