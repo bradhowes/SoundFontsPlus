@@ -7,7 +7,8 @@ let package = Package(
   name: "Features",
   platforms: [.iOS(.v16), .macOS(.v14)],
   products: [
-    .library(name: "Models", targets: ["Models"])
+    .library(name: "Models", targets: ["Models"]),
+    .library(name: "SF2Files", targets: ["SF2Files"])
   ],
   dependencies: [
     // .package(url: "https://github.com/bradhowes/SF2Lib", from: "5.0.0")
@@ -15,8 +16,6 @@ let package = Package(
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.2.0")
   ],
   targets: [
-    // Targets are the basic building blocks of a package, defining a module or a test suite.
-    // Targets can depend on other targets in this package and products from dependencies.
     .target(
       name: "SoundFonts2Lib",
       dependencies: [
@@ -24,9 +23,7 @@ let package = Package(
         .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
       ]
     ),
-    .target(
-      name: "Extensions"
-    ),
+    .target(name: "Extensions"),
     .target(
       name: "Models",
       dependencies: [
@@ -40,7 +37,12 @@ let package = Package(
       dependencies: [.product(name: "Engine", package: "SF2Lib", condition: .none)],
       swiftSettings: [.interoperabilityMode(.Cxx)]
     ),
-    .target(name: "SF2Files", resources: [.process("Resources")]),
+    .target(
+      name: "SF2Files",
+      dependencies: [.product(name: "Engine", package: "SF2Lib", condition: .none)],
+      resources: [.process("Resources")],
+      swiftSettings: [.interoperabilityMode(.Cxx)]
+    ),
     .testTarget(
       name: "SoundFonts2LibTests",
       dependencies: [
@@ -54,6 +56,15 @@ let package = Package(
         "Models",
         .product(name: "Dependencies", package: "swift-dependencies", condition: .none)
       ]
+    ),
+    .testTarget(
+      name: "SF2FilesTests",
+      dependencies: [
+        "SF2Files",
+        .product(name: "Engine", package: "SF2Lib", condition: .none),
+        .product(name: "Dependencies", package: "swift-dependencies", condition: .none)
+      ],
+      swiftSettings: [.interoperabilityMode(.Cxx)]
     )
   ]
 )

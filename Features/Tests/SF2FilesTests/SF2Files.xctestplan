@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "00F38C5D-42DA-4F9E-84B6-350CB359E464",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SF2FilesTests",
+        "name" : "SF2FilesTests"
+      }
+    }
+  ],
+  "version" : 1
+}
