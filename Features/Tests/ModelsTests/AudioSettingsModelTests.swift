@@ -5,34 +5,37 @@ import SwiftData
 @testable import Models
 
 
-@MainActor
 final class AudioSettingsModelTests: XCTestCase {
   var container: ModelContainer!
   var context: ModelContext!
 
+  @MainActor
   override func setUp() async throws {
     container = try ModelContainer(
-      for: AudioSettingsModel.self,
+      for: AudioSettings.self,
       configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
     context = container.mainContext
   }
 
-  var fetched: [AudioSettingsModel] {
-    (try? context.fetch(FetchDescriptor<AudioSettingsModel>())) ?? []
+  var fetched: [AudioSettings] {
+    (try? context.fetch(FetchDescriptor<AudioSettings>())) ?? []
   }
 
-  func makeMockAudioSettings() throws -> AudioSettingsModel {
-    let audioSettings = AudioSettingsModel()
+  @MainActor
+  func makeMockAudioSettings() throws -> AudioSettings {
+    let audioSettings = AudioSettings()
     context.insert(audioSettings)
     try context.save()
     return audioSettings
   }
 
+  @MainActor
   func testEmpty() throws {
     XCTAssertTrue(fetched.isEmpty)
   }
 
+  @MainActor
   func testCreateNew() throws {
     let entry = try makeMockAudioSettings()
     XCTAssertNil(entry.keyboardLowestNote)
@@ -49,14 +52,33 @@ final class AudioSettingsModelTests: XCTestCase {
     XCTAssertEqual(found.count, 1)
   }
 
-  func testDelete() throws {
+  @MainActor
+  func testDeleteCascades() throws {
     let entry = try makeMockAudioSettings()
+    entry.addOverride(to: 0, generator: 12, value: 3.45)
+    entry.addOverride(to: -1, generator: 24, value: -3.45)
+    entry.addOverride(to: .globalZone, generator: 25, value: 9.87)
+
+    let delayConfig = DelayConfig()
+    entry.delayConfig = delayConfig
+
+    let reverbConfig = ReverbConfig()
+    entry.reverbConfig = reverbConfig
+    try context.save()
+
     XCTAssertFalse(fetched.isEmpty)
+    XCTAssertFalse(try context.fetch(FetchDescriptor<DelayConfig>()).isEmpty)
+    XCTAssertFalse(try context.fetch(FetchDescriptor<ReverbConfig>()).isEmpty)
+
     context.delete(entry)
     try context.save()
+
     XCTAssertTrue(fetched.isEmpty)
+    XCTAssertTrue(try context.fetch(FetchDescriptor<DelayConfig>()).isEmpty)
+    XCTAssertTrue(try context.fetch(FetchDescriptor<ReverbConfig>()).isEmpty)
   }
 
+  @MainActor
   func testAddGeneratorOverrides() throws {
     let entry = try makeMockAudioSettings()
     entry.addOverride(to: 0, generator: 12, value: 3.45)
@@ -71,6 +93,7 @@ final class AudioSettingsModelTests: XCTestCase {
     XCTAssertEqual(found[0].overrides[-1]?.count, 2)
   }
 
+  @MainActor
   func testRemoveGeneratorOverrides() throws {
     let entry = try makeMockAudioSettings()
     entry.addOverride(to: 0, generator: 12, value: 3.45)
@@ -88,9 +111,16 @@ final class AudioSettingsModelTests: XCTestCase {
     XCTAssertEqual(found.overrides.count, 0)
   }
 
+  @MainActor
   func testAddDelayConfig() throws {
     let entry = try makeMockAudioSettings()
-    entry.delayConfig = .init(time: 1.2, feedback: 3.4, cutoff: 5.6, wetDryMix: 0.78)
+    let delayConfig = DelayConfig()
+    delayConfig.time = 1.2
+    delayConfig.feedback = 3.4
+    delayConfig.cutoff = 5.6
+    delayConfig.wetDryMix = 0.78
+    entry.delayConfig = delayConfig
+
     XCTAssertEqual(entry.delayConfig!.time, AUValue(1.2), accuracy: 0.001)
     XCTAssertEqual(entry.delayConfig!.feedback, AUValue(3.4), accuracy: 0.001)
     XCTAssertEqual(entry.delayConfig!.cutoff, AUValue(5.6), accuracy: 0.001)
@@ -103,20 +133,36 @@ final class AudioSettingsModelTests: XCTestCase {
     XCTAssertEqual(found.delayConfig!.wetDryMix, AUValue(0.78), accuracy: 0.001)
   }
 
+  @MainActor
   func testRemoveDelayConfig() throws {
     let entry = try makeMockAudioSettings()
-    entry.delayConfig = .init(time: 1.2, feedback: 3.4, cutoff: 5.6, wetDryMix: 0.78)
+    let delayConfig = DelayConfig()
+    delayConfig.time = 1.2
+    delayConfig.feedback = 3.4
+    delayConfig.cutoff = 5.6
+    delayConfig.wetDryMix = 0.78
+    entry.delayConfig = delayConfig
+
     try context.save()
+    XCTAssertEqual(try context.fetch(FetchDescriptor<DelayConfig>()).count, 1)
+
     var found = fetched[0]
     found.delayConfig = nil
     try context.save()
+
     found = fetched[0]
     XCTAssertNil(found.delayConfig)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<DelayConfig>()).count, 1)
   }
 
+  @MainActor
   func testAddReverbConfig() throws {
     let entry = try makeMockAudioSettings()
-    entry.reverbConfig = .init(preset: 1, wetDryMix: 0.78)
+    let reverbConfig = ReverbConfig()
+    reverbConfig.preset = 1
+    reverbConfig.wetDryMix = 0.78
+    entry.reverbConfig = reverbConfig
+
     XCTAssertEqual(entry.reverbConfig!.preset, 1)
     XCTAssertEqual(entry.reverbConfig!.wetDryMix, AUValue(0.78), accuracy: 0.001)
     try context.save()
@@ -125,15 +171,23 @@ final class AudioSettingsModelTests: XCTestCase {
     XCTAssertEqual(found.reverbConfig!.wetDryMix, AUValue(0.78), accuracy: 0.001)
   }
 
+  @MainActor
   func testRemoveReverbConfig() throws {
     let entry = try makeMockAudioSettings()
-    entry.reverbConfig = .init(preset: 1, wetDryMix: 0.78)
+    let reverbConfig = ReverbConfig()
+    reverbConfig.preset = 1
+    reverbConfig.wetDryMix = 0.78
+    entry.reverbConfig = reverbConfig
+
     try context.save()
+    XCTAssertEqual(try context.fetch(FetchDescriptor<ReverbConfig>()).count, 1)
+
     var found = fetched[0]
     found.reverbConfig = nil
     try context.save()
+
     found = fetched[0]
     XCTAssertNil(found.reverbConfig)
+    XCTAssertEqual(try context.fetch(FetchDescriptor<ReverbConfig>()).count, 1)
   }
-
 }

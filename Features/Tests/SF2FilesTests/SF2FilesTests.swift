@@ -3,7 +3,6 @@ import Engine
 
 @testable import SF2Files
 
-@MainActor
 final class SF2FilesTests: XCTestCase {
 
   func testResourcesExist() throws {
@@ -13,9 +12,9 @@ final class SF2FilesTests: XCTestCase {
     }
   }
 
-  func testResourceByName() throws {
+  func testResourceByFileName() throws {
     for name in ["RolandNicePiano", "FreeFont", "GeneralUser GS MuseScore v1.442"] {
-      let url = try SF2Files.resource(name: name)
+      let url = try SF2Files.resource(fileName: name)
       try XCTAssertTrue(url.checkResourceIsReachable())
     }
   }
@@ -26,6 +25,12 @@ final class SF2FilesTests: XCTestCase {
       XCTAssertEqual(url, tag.url)
       try XCTAssertTrue(url.checkResourceIsReachable())
     }
+  }
+
+  func testResourceNames() throws {
+    XCTAssertEqual(SF2FileTag.freeFont.name, "FreeFont")
+    XCTAssertEqual(SF2FileTag.museScore.name, "MuseScore")
+    XCTAssertEqual(SF2FileTag.rolandNicePiano.name, "Roland Piano")
   }
 
   func testFreeFontFileInfo() throws {

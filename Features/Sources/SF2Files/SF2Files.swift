@@ -13,16 +13,34 @@ public enum SF2FilesError: Error {
  Collection of unique tags for each SF2 file in the bundle
  */
 public enum SF2FileTag: Int, CaseIterable {
+
   case freeFont
   case museScore
   case rolandNicePiano
 
+  static let freeFontFileName = "FreeFont"
+  static let museScoreFileName = "GeneralUser GS MuseScore v1.442"
+  static let rolandNicePianoFileName = "RolandNicePiano"
+
   /// Obtain the name of the SF2 resource file without suffix
+  public var fileName: String {
+    switch self {
+    case .freeFont: return Self.freeFontFileName
+    case .museScore: return Self.museScoreFileName
+    case .rolandNicePiano: return Self.rolandNicePianoFileName
+    }
+  }
+
+  static let freeFontName = freeFontFileName
+  static let museScoreName = "MuseScore"
+  static let rolandNicePianoName = "Roland Piano"
+
+  /// Obtain the name of the SF2 resource
   public var name: String {
     switch self {
-    case .freeFont: return "FreeFont"
-    case .museScore: return "GeneralUser GS MuseScore v1.442"
-    case .rolandNicePiano: return "RolandNicePiano"
+    case .freeFont: return Self.freeFontName
+    case .museScore: return Self.museScoreName
+    case .rolandNicePiano: return Self.rolandNicePianoName
     }
   }
 
@@ -36,6 +54,18 @@ public enum SF2FileTag: Int, CaseIterable {
   public var fileInfo: Engine.SF2FileInfo? {
     var fileInfo = Engine.SF2FileInfo(url.path(percentEncoded: false))
     return fileInfo.load() ? fileInfo : nil
+  }
+
+  public static func from(name: String) -> SF2FileTag {
+    if name == Self.freeFontName {
+      return .freeFont
+    } else if name == Self.museScoreName {
+      return .museScore
+    } else if name == Self.rolandNicePianoName {
+      return .rolandNicePiano
+    } else {
+      fatalError("unknown display name")
+    }
   }
 }
 
@@ -51,18 +81,18 @@ public struct SF2Files {
   /// Collection of all available SF2 files in this bundle -- order the URLs here to match the order of cases in
   /// SF2FileTag
   public static let resources = SF2FileTag.allCases.map {
-    Bundle.module.url(forResource: $0.name, withExtension: sf2Extension)!
+    Bundle.module.url(forResource: $0.fileName, withExtension: sf2Extension)!
   }
 
   /**
-   Locate a specific SF2 resource by name.
+   Locate a specific SF2 resource by file name.
 
-   - parameter name: the name to look for
+   - parameter fileName: the name to look for
    - returns: the URL of the resource in the bundle
    */
-  public static func resource(name: String) throws -> URL {
-    guard let url = Bundle.module.url(forResource: name, withExtension: sf2Extension) else {
-      throw SF2FilesError.notFound(name: name)
+  public static func resource(fileName: String) throws -> URL {
+    guard let url = Bundle.module.url(forResource: fileName, withExtension: sf2Extension) else {
+      throw SF2FilesError.notFound(name: fileName)
     }
     return url
   }

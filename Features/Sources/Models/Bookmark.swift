@@ -60,15 +60,15 @@ public final class Bookmark: Codable {
   }
 }
 
-extension Bookmark {
+public extension Bookmark {
 
-  public static func from(data: Data) throws -> Bookmark {
+  static func from(data: Data) throws -> Bookmark {
     let decoder = PropertyListDecoder()
     return try decoder.decode(Bookmark.self, from: data)
   }
 
   /// Determine the availability state for a bookmarked URL
-  public var isAvailable: Bool {
+  var isAvailable: Bool {
     let secured = url.startAccessingSecurityScopedResource()
     let value = try? url.checkResourceIsReachable()
     if secured { url.stopAccessingSecurityScopedResource() }
@@ -76,10 +76,10 @@ extension Bookmark {
   }
 
   /// Determine if the file is located in an iCloud container
-  public var isUbiquitous: Bool { isUbiquitousItem(url) }
+  var isUbiquitous: Bool { isUbiquitousItem(url) }
 
   /// The various iCloud states a bookmark item may be in.
-  public enum CloudState {
+  enum CloudState {
     /// Item is on iCloud but not available locally.
     case inCloud
     /// Item is queue to be downloaded to the device
@@ -95,7 +95,7 @@ extension Bookmark {
   }
 
   /// Obtain the current iCloud state of the bookmark item
-  public var cloudState: CloudState {
+  var cloudState: CloudState {
     guard
       let values = try? url.resourceValues(forKeys: [
         .ubiquitousItemDownloadingStatusKey,
@@ -126,9 +126,9 @@ private extension URL {
   }
 }
 
-extension Bookmark {
+private extension Bookmark {
 
-  private func restore() -> URL {
+  func restore() -> URL {
     let now = CFAbsoluteTimeGetCurrent()
     if let lastRestoredUrl = self.lastRestoredUrl,
        (now - lastRestoredWhen) < 1 {
@@ -147,7 +147,7 @@ extension Bookmark {
     return resolved.url ?? original
   }
 
-  private static func resolve(from data: Data?) -> (url: URL?, stale: Bool) {
+  static func resolve(from data: Data?) -> (url: URL?, stale: Bool) {
     guard let data = data else { return (url: nil, stale: false) }
     do {
       var isStale = false

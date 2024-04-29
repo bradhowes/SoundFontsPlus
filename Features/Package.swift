@@ -20,28 +20,31 @@ let package = Package(
       name: "SoundFonts2Lib",
       dependencies: [
         .product(name: "Engine", package: "SF2Lib", condition: .none),
-        .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "Dependencies", package: "swift-dependencies", condition: .none)
       ]
     ),
-    .target(name: "Extensions"),
+    .target(
+      name: "Extensions",
+      dependencies: [
+        .product(name: "Dependencies", package: "swift-dependencies", condition: .none)
+      ]
+    ),
     .target(
       name: "Models",
       dependencies: [
         .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "SF2Files", condition: .none),
-        .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "Dependencies", package: "swift-dependencies", condition: .none)
       ]
     ),
     .target(
       name: "SF2LibAU",
-      dependencies: [.product(name: "Engine", package: "SF2Lib", condition: .none)],
-      swiftSettings: [.interoperabilityMode(.Cxx)]
+      dependencies: [.product(name: "Engine", package: "SF2Lib", condition: .none)]
     ),
     .target(
       name: "SF2Files",
       dependencies: [.product(name: "Engine", package: "SF2Lib", condition: .none)],
-      resources: [.process("Resources")],
-      swiftSettings: [.interoperabilityMode(.Cxx)]
+      resources: [.process("Resources")]
     ),
     .testTarget(
       name: "SoundFonts2LibTests",
@@ -54,17 +57,25 @@ let package = Package(
       name: "ModelsTests",
       dependencies: [
         "Models",
-        .product(name: "Dependencies", package: "swift-dependencies", condition: .none)
+        .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "Engine", package: "SF2Lib", condition: .none)
       ]
     ),
     .testTarget(
       name: "SF2FilesTests",
       dependencies: [
         "SF2Files",
-        .product(name: "Engine", package: "SF2Lib", condition: .none),
-        .product(name: "Dependencies", package: "swift-dependencies", condition: .none)
-      ],
-      swiftSettings: [.interoperabilityMode(.Cxx)]
+        .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "Engine", package: "SF2Lib", condition: .none)
+      ]
     )
   ]
 )
+
+// The SF2Lib Engine product requires this for everything it touches, so just do every target.
+for target in package.targets {
+  var settings = target.swiftSettings ?? []
+  settings.append(.interoperabilityMode(.Cxx))
+  settings.append(.enableExperimentalFeature("StrictConcurrency"))
+  target.swiftSettings = settings
+}

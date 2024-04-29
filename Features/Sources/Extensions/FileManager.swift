@@ -8,39 +8,39 @@ import XCTestDynamicOverlay
 /**
  Collection of FileManager dependencies to allow for mocking and controlling in tests.
  */
-public struct FileManagerClient {
-  public var newTemporaryFile: () throws -> URL
-  public var privateDocumentsDirectory: () -> URL
-  public var sharedDocumentsDirectory: () -> URL
-  public var sharedPathFor: (_ component: String) -> URL
-  public var sharedContents: () -> [String]
-  public var hasCloudDirectory: () -> Bool
-  public var localDocumentsDirectory: () -> URL
-  public var cloudDocumentsDirectory: () -> URL?
-  public var fileSizeOf: (_ url: URL) -> UInt64
-  public var isUbiquitousItem: (_ url: URL) -> Bool
+public struct FileManagerClient : Sendable {
+  public var newTemporaryFile: @Sendable () throws -> URL
+  public var privateDocumentsDirectory: @Sendable () -> URL
+  public var sharedDocumentsDirectory: @Sendable () -> URL
+  public var sharedPathFor: @Sendable (_ component: String) -> URL
+  public var sharedContents: @Sendable () -> [String]
+  public var hasCloudDirectory: @Sendable () -> Bool
+  public var localDocumentsDirectory: @Sendable () -> URL
+  public var cloudDocumentsDirectory: @Sendable () -> URL?
+  public var fileSizeOf: @Sendable (_ url: URL) -> UInt64
+  public var isUbiquitousItem: @Sendable (_ url: URL) -> Bool
 }
-
 
 extension FileManagerClient: DependencyKey {
 
   /// Mapping of FileManager functionality to use in "live" situations
-  public static var liveValue = Self(
-    newTemporaryFile: FileManager.default.newTemporaryFile,
+  public static var liveValue: FileManagerClient { .init(
+    newTemporaryFile: { try FileManager.default.newTemporaryFile() },
     privateDocumentsDirectory: { FileManager.default.privateDocumentsDirectory },
     sharedDocumentsDirectory: { FileManager.default.sharedDocumentsDirectory },
-    sharedPathFor: FileManager.default.sharedPath(for:),
+    sharedPathFor: { FileManager.default.sharedPath(for: $0) },
     sharedContents: { FileManager.default.sharedContents },
     hasCloudDirectory: { FileManager.default.hasCloudDirectory },
     localDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
     cloudDocumentsDirectory: { FileManager.default.cloudDocumentsDirectory },
-    fileSizeOf: FileManager.default.fileSizeOf(url:),
-    isUbiquitousItem: FileManager.default.isUbiquitousItem(at:)
+    fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
+    isUbiquitousItem: { FileManager.default.isUbiquitousItem(at: $0) }
   )
+  }
 
   /// Mapping of FileManager functionality to use in SwiftUI previews
-  public static let previewValue = Self(
-    newTemporaryFile: FileManager.default.newTemporaryFile,
+  public static var previewValue: FileManagerClient { .init(
+    newTemporaryFile: { try FileManager.default.newTemporaryFile() },
     privateDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
     sharedDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
     sharedPathFor: {_ in FileManager.default.localDocumentsDirectory},
@@ -48,12 +48,13 @@ extension FileManagerClient: DependencyKey {
     hasCloudDirectory: { false },
     localDocumentsDirectory: {FileManager.default.localDocumentsDirectory },
     cloudDocumentsDirectory: { nil },
-    fileSizeOf: FileManager.default.fileSizeOf(url:),
+    fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
     isUbiquitousItem: { _ in false }
   )
+  }
 
-  /// Mapping of FileManager functinality to use in unit tests. 
-  public static let testValue = Self(
+  /// Mapping of FileManager functinality to use in unit tests.
+  public static var testValue: FileManagerClient { .init(
     newTemporaryFile: unimplemented("\(Self.self).newTemporaryFile"),
     privateDocumentsDirectory: unimplemented("\(Self.self).privateDocumentsDirectory"),
     sharedDocumentsDirectory: unimplemented("\(Self.self).sharedDocumentsDirectory"),
@@ -65,6 +66,7 @@ extension FileManagerClient: DependencyKey {
     fileSizeOf: unimplemented("\(Self.self).fileSizeOf"),
     isUbiquitousItem: unimplemented("\(Self.self).isUbiquitousItem")
   )
+  }
 }
 
 extension DependencyValues {
