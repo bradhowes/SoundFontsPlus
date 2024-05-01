@@ -18,6 +18,13 @@
         "identifier" : "ModelsTests",
         "name" : "ModelsTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SF2FilesTests",
+        "name" : "SF2FilesTests"
+      }
     }
   ],
   "version" : 1
