@@ -10,16 +10,14 @@ extension SchemaV1 {
 
   @Model
   public final class Favorite {
-    public var soundFont: SoundFont?
     public var preset: Preset?
     public var name: String?
-
     public var notes: String?
+
     @Relationship(deleteRule: .cascade) public var audioSettings: AudioSettings?
 
-    public init(name: String, soundFont: SoundFont, preset: Preset) {
+    public init(name: String, preset: Preset) {
       self.name = name
-      self.soundFont = soundFont
       self.preset = preset
     }
   }
@@ -27,8 +25,8 @@ extension SchemaV1 {
 
 public extension ModelContext {
 
-  func createFavorite(name: String, soundFont: SoundFont, preset: Preset) throws -> Favorite {
-    let favorite = Favorite(name: name, soundFont: soundFont, preset: preset)
+  func createFavorite(name: String, preset: Preset) throws -> Favorite {
+    let favorite = Favorite(name: name, preset: preset)
     insert(favorite)
     try save()
     return favorite

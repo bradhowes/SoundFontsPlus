@@ -17,7 +17,7 @@ extension SchemaV1 {
 
     @Relationship(deleteRule: .cascade) public var info: PresetInfo?
     @Relationship(deleteRule: .cascade) public var audioSettings: AudioSettings?
-    @Relationship(deleteRule: .cascade) public var favorites: [Favorite]?
+    @Relationship(deleteRule: .cascade, inverse: \Favorite.preset) public var favorites: [Favorite]?
 
     public init(owner: SoundFont, index: Int, name: String) {
       self.owner = owner
@@ -30,6 +30,7 @@ extension SchemaV1 {
 public extension ModelContext {
 
   /// TODO: remove when cascading is fixed
+
   @MainActor
   func delete(preset: Preset) {
     if let faves = preset.favorites {

@@ -14,9 +14,9 @@ extension SchemaV1 {
   @Model
   public final class SoundFont {
     public var location: Location = Location(kind: .builtin, url: nil, raw: nil)
-    @Relationship(deleteRule: .cascade) public var presets: [Preset]?
+    @Relationship(deleteRule: .cascade, inverse: \Preset.owner) public var presets: [Preset] = []
     public var displayName: String = ""
-    public var tags: [Tag]? = [Tag]()
+    @Relationship(inverse: \Tag.tagged) public var tags: [Tag] = []
     public var visible: Bool = true
 
     public var embeddedName: String = ""
@@ -27,7 +27,6 @@ extension SchemaV1 {
     public init(location: Location, name: String) {
       self.location = location
       self.displayName = name
-      self.presets = []
     }
 
     var kind: SoundFontKind {
@@ -65,7 +64,7 @@ public extension ModelContext {
     for index in 0..<fileInfo.size() {
       let presetInfo = fileInfo[index]
       let preset: Preset = .init(owner: soundFont, index: index, name: String(presetInfo.name()))
-      soundFont.presets?.append(preset)
+      soundFont.presets.append(preset)
     }
     try save()
     return soundFont
@@ -83,11 +82,10 @@ public extension ModelContext {
   /// TODO: remove when cascading is fixed
   @MainActor
   func delete(soundFont: SoundFont) {
-    if let presets = soundFont.presets {
-      for preset in presets {
-        self.delete(preset: preset)
-      }
+    for preset in soundFont.presets {
+      self.delete(preset: preset)
     }
+
     self.delete(soundFont)
   }
 }

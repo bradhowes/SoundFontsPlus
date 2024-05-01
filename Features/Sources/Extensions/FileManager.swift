@@ -23,49 +23,53 @@ public struct FileManagerClient : Sendable {
 
 extension FileManagerClient: DependencyKey {
 
-  /// Mapping of FileManager functionality to use in "live" situations
-  public static var liveValue: FileManagerClient { .init(
-    newTemporaryFile: { try FileManager.default.newTemporaryFile() },
-    privateDocumentsDirectory: { FileManager.default.privateDocumentsDirectory },
-    sharedDocumentsDirectory: { FileManager.default.sharedDocumentsDirectory },
-    sharedPathFor: { FileManager.default.sharedPath(for: $0) },
-    sharedContents: { FileManager.default.sharedContents },
-    hasCloudDirectory: { FileManager.default.hasCloudDirectory },
-    localDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
-    cloudDocumentsDirectory: { FileManager.default.cloudDocumentsDirectory },
-    fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
-    isUbiquitousItem: { FileManager.default.isUbiquitousItem(at: $0) }
-  )
+  /// Mapping of FileManager functionality to use in "live" situations. Note that there is no state here in order 
+  /// to satisfy Sendable conformance.0
+  public static var liveValue: FileManagerClient {
+    .init(
+      newTemporaryFile: { try FileManager.default.newTemporaryFile() },
+      privateDocumentsDirectory: { FileManager.default.privateDocumentsDirectory },
+      sharedDocumentsDirectory: { FileManager.default.sharedDocumentsDirectory },
+      sharedPathFor: { FileManager.default.sharedPath(for: $0) },
+      sharedContents: { FileManager.default.sharedContents },
+      hasCloudDirectory: { FileManager.default.hasCloudDirectory },
+      localDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
+      cloudDocumentsDirectory: { FileManager.default.cloudDocumentsDirectory },
+      fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
+      isUbiquitousItem: { FileManager.default.isUbiquitousItem(at: $0) }
+    )
   }
 
   /// Mapping of FileManager functionality to use in SwiftUI previews
-  public static var previewValue: FileManagerClient { .init(
-    newTemporaryFile: { try FileManager.default.newTemporaryFile() },
-    privateDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
-    sharedDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
-    sharedPathFor: {_ in FileManager.default.localDocumentsDirectory},
-    sharedContents: { ["One", "Two", "Three"] },
-    hasCloudDirectory: { false },
-    localDocumentsDirectory: {FileManager.default.localDocumentsDirectory },
-    cloudDocumentsDirectory: { nil },
-    fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
-    isUbiquitousItem: { _ in false }
-  )
+  public static var previewValue: FileManagerClient { 
+    .init(
+      newTemporaryFile: { try FileManager.default.newTemporaryFile() },
+      privateDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
+      sharedDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
+      sharedPathFor: {_ in FileManager.default.localDocumentsDirectory},
+      sharedContents: { ["One", "Two", "Three"] },
+      hasCloudDirectory: { false },
+      localDocumentsDirectory: {FileManager.default.localDocumentsDirectory },
+      cloudDocumentsDirectory: { nil },
+      fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
+      isUbiquitousItem: { _ in false }
+    )
   }
 
   /// Mapping of FileManager functinality to use in unit tests.
-  public static var testValue: FileManagerClient { .init(
-    newTemporaryFile: unimplemented("\(Self.self).newTemporaryFile"),
-    privateDocumentsDirectory: unimplemented("\(Self.self).privateDocumentsDirectory"),
-    sharedDocumentsDirectory: unimplemented("\(Self.self).sharedDocumentsDirectory"),
-    sharedPathFor: unimplemented("\(Self.self).sharedPathFor"),
-    sharedContents: unimplemented("\(Self.self).sharedContents"),
-    hasCloudDirectory: unimplemented("\(Self.self).hasCloudDirectory"),
-    localDocumentsDirectory: unimplemented("\(Self.self).localDocumentsDirectory"),
-    cloudDocumentsDirectory: unimplemented("\(Self.self).cloudDocumentsDirectory"),
-    fileSizeOf: unimplemented("\(Self.self).fileSizeOf"),
-    isUbiquitousItem: unimplemented("\(Self.self).isUbiquitousItem")
-  )
+  public static var testValue: FileManagerClient { 
+    .init(
+      newTemporaryFile: unimplemented("\(Self.self).newTemporaryFile"),
+      privateDocumentsDirectory: unimplemented("\(Self.self).privateDocumentsDirectory"),
+      sharedDocumentsDirectory: unimplemented("\(Self.self).sharedDocumentsDirectory"),
+      sharedPathFor: unimplemented("\(Self.self).sharedPathFor"),
+      sharedContents: unimplemented("\(Self.self).sharedContents"),
+      hasCloudDirectory: unimplemented("\(Self.self).hasCloudDirectory"),
+      localDocumentsDirectory: unimplemented("\(Self.self).localDocumentsDirectory"),
+      cloudDocumentsDirectory: unimplemented("\(Self.self).cloudDocumentsDirectory"),
+      fileSizeOf: unimplemented("\(Self.self).fileSizeOf"),
+      isUbiquitousItem: unimplemented("\(Self.self).isUbiquitousItem")
+    )
   }
 }
 

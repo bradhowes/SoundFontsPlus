@@ -27,7 +27,7 @@ final class FavoriteTests: XCTestCase {
 
   @MainActor
   func makeMockFavorite(name: String) throws -> Favorite {
-    try context.createFavorite(name: name, soundFont: soundFont, preset: preset)
+    try context.createFavorite(name: name, preset: preset)
   }
 
   @MainActor
@@ -50,10 +50,13 @@ final class FavoriteTests: XCTestCase {
     _ = try makeMockFavorite(name: "New Favorite")
     _ = try makeMockFavorite(name: "New Favorite")
     let found = fetched
+
     XCTAssertEqual(found.count, 3)
     XCTAssertEqual(found[0].name, "New Favorite")
     XCTAssertEqual(found[1].name, "New Favorite")
     XCTAssertEqual(found[2].name, "New Favorite")
+
+    XCTAssertEqual(preset.favorites?.count, 3)
   }
 
   @MainActor
@@ -72,6 +75,8 @@ final class FavoriteTests: XCTestCase {
     favorite.audioSettings?.delayConfig = DelayConfig()
     try context.save()
 
+    XCTAssertFalse(preset.favorites?.isEmpty ?? true)
+
     XCTAssertFalse(fetched.isEmpty)
     XCTAssertFalse(try context.fetch(FetchDescriptor<AudioSettings>()).isEmpty)
     XCTAssertFalse(try context.fetch(FetchDescriptor<DelayConfig>()).isEmpty)
@@ -82,5 +87,7 @@ final class FavoriteTests: XCTestCase {
     XCTAssertTrue(fetched.isEmpty)
     XCTAssertTrue(try context.fetch(FetchDescriptor<AudioSettings>()).isEmpty)
     XCTAssertTrue(try context.fetch(FetchDescriptor<DelayConfig>()).isEmpty)
+
+    XCTAssertTrue(preset.favorites?.isEmpty ?? false)
   }
 }
