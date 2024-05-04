@@ -12,20 +12,8 @@ import Models
 @main
 struct SoundFonts2App: App {
   var sharedModelContainer: ModelContainer = {
-    let schema = Schema([
-      AudioSettingsModel.self,
-      DelayConfigModel.self,
-      FavoriteModel.self,
-      PresetInfoModel.self,
-      PresetModel.self,
-      ReverbConfigModel.self,
-      SoundFontModel.self,
-      TagModel.self
-    ])
-    let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-
     do {
-      return try ModelContainer(for: schema, configurations: [modelConfiguration])
+      return try ModelContainer(for: SoundFont.self)
     } catch {
       fatalError("Could not create ModelContainer: \(error)")
     }

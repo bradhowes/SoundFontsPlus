@@ -1,24 +1,16 @@
-//
-//  ContentView.swift
-//  SoundFonts2
-//
-//  Created by Brad Howes on 04/02/2024.
-//
-
-import SwiftUI
-import SwiftData
 import Models
+import SwiftData
+import SwiftUI
 
-struct ContentView: View {
-  @Environment(\.modelContext) private var modelContext
-  @Query private var soundFonts: [SoundFont]
+struct SoundFontsView: View {
+  @Query(sort: \SoundFont.displayName) var soundFonts: [SoundFont]
 
   var body: some View {
     NavigationSplitView {
       List {
         ForEach(soundFonts) { item in
           NavigationLink {
-            Text("SoundFont \(item.displayName)")
+            PresetsView(soundFont: item)
           } label: {
             Text(item.displayName)
           }
@@ -62,6 +54,16 @@ struct ContentView: View {
 }
 
 #Preview {
-  ContentView()
-    .modelContainer(for: SoundFont.self, inMemory: true)
+  let config = ModelConfiguration(isStoredInMemoryOnly: true)
+  let container = try! ModelContainer(for: SoundFont.self, configurations: config)
+  do {
+    _ = try container.mainContext.createSoundFont(resourceTag: .freeFont)
+    _ = try container.mainContext.createSoundFont(resourceTag: .museScore)
+    _ = try container.mainContext.createSoundFont(resourceTag: .rolandNicePiano)
+  } catch {
+
+  }
+
+  return SoundFontsView()
+    .modelContainer(container)
 }
