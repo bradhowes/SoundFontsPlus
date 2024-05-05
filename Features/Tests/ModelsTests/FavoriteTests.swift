@@ -23,11 +23,16 @@ final class FavoriteTests: XCTestCase {
     try context.save()
   }
 
-  var fetched: [Favorite] { (try? context.fetch(FetchDescriptor<Favorite>())) ?? [] }
+  var fetched: [Favorite] { (try? context.favorites()) ?? [] }
 
   @MainActor
-  func makeMockFavorite(name: String) throws -> Favorite {
-    try context.createFavorite(name: name, preset: preset)
+  func makeMockFavorite(name: String, index: Int? = nil) throws -> Favorite {
+    let favorite = try context.createFavorite(name: name, preset: preset)
+    if let index = index {
+      favorite.index = index
+      try context.save()
+    }
+    return favorite
   }
 
   @MainActor
@@ -45,7 +50,7 @@ final class FavoriteTests: XCTestCase {
   }
 
   @MainActor
-  func testCreateDupeFavorite() throws {
+  func testCreateDupeFavorites() throws {
     _ = try makeMockFavorite(name: "New Favorite")
     _ = try makeMockFavorite(name: "New Favorite")
     _ = try makeMockFavorite(name: "New Favorite")
@@ -89,5 +94,32 @@ final class FavoriteTests: XCTestCase {
     XCTAssertTrue(try context.fetch(FetchDescriptor<DelayConfig>()).isEmpty)
 
     XCTAssertTrue(preset.favorites?.isEmpty ?? false)
+  }
+
+  @MainActor
+  func testFetchOrderedFavorites() throws {
+    _ = try makeMockFavorite(name: "New Favorite 1")
+    _ = try makeMockFavorite(name: "New Favorite 2")
+    _ = try makeMockFavorite(name: "New Favorite 3")
+    var found = fetched
+
+    XCTAssertEqual(found.count, 3)
+    XCTAssertEqual(found[0].name, "New Favorite 1")
+    XCTAssertEqual(found[1].name, "New Favorite 2")
+    XCTAssertEqual(found[2].name, "New Favorite 3")
+
+    XCTAssertEqual(preset.favorites?.count, 3)
+
+    found[2].index = 0
+    found[0].index = 1
+    found[1].index = 2
+
+    try context.save()
+
+    found = fetched
+    XCTAssertEqual(found.count, 3)
+    XCTAssertEqual(found[0].name, "New Favorite 3")
+    XCTAssertEqual(found[1].name, "New Favorite 1")
+    XCTAssertEqual(found[2].name, "New Favorite 2")
   }
 }

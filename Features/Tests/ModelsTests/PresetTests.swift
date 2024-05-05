@@ -26,7 +26,7 @@ final class PresetTests: XCTestCase {
   func makeMockPreset(name: String, bank: Int, program: Int) throws -> Preset {
     let preset = Preset(owner: soundFont, index: 0, name: name)
     preset.info = PresetInfo(originalName: name, bank: bank, program: program)
-    preset.favorites = [Favorite(name: "Blah", preset: preset)]
+    preset.favorites = [Favorite(name: "Blah", preset: preset, index: 0)]
     preset.audioSettings = AudioSettings()
     preset.audioSettings?.reverbConfig = ReverbConfig()
     preset.audioSettings?.delayConfig = DelayConfig()
