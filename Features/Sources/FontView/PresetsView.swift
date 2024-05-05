@@ -18,11 +18,13 @@ struct PresetsView: View {
   }
 }
 
+@MainActor
 struct PresetList: View {
-  private var presets: [Preset]
+  @Environment(\.modelContext) var modelContext
+  private var presets: [Preset] = []
 
   init(soundFont: SoundFont) {
-    presets = soundFont.presets.sorted(using: KeyPathComparator(\Preset.index))
+    self.presets = modelContext.orderedPresets(for: soundFont)
   }
 
   var body: some View {
@@ -35,15 +37,8 @@ struct PresetList: View {
 }
 
 #Preview {
-  let config = ModelConfiguration(isStoredInMemoryOnly: true)
-  let container = try! ModelContainer(for: SoundFont.self, configurations: config)
-  do {
-    let soundFont = try container.mainContext.createSoundFont(resourceTag: .freeFont)
-    _ = try container.mainContext.createSoundFont(resourceTag: .museScore)
-    _ = try container.mainContext.createSoundFont(resourceTag: .rolandNicePiano)
-    return PresetsView(soundFont: soundFont)
-      .modelContainer(container)
-  } catch {
-    fatalError("Failed to create preview data")
-  }
+  let container = VersionedModelContainer.make(isTemporary: true)
+  let soundFont = container.mainContext.soundFonts()[0]
+  return PresetsView(soundFont: soundFont)
+    .modelContainer(container)
 }

@@ -91,8 +91,31 @@ public extension ModelContext {
   }
 
   @MainActor
-  func soundFonts() throws -> [SoundFont] {
-    return try fetch(FetchDescriptor<SoundFont>(sortBy: [SortDescriptor(\.displayName)]))
+  func createBuiltInSoundFonts() throws {
+    for tag in SF2FileTag.allCases {
+      _ = try createSoundFont(resourceTag: tag)
+    }
+  }
+
+  @MainActor
+  func soundFonts() -> [SoundFont] {
+    let fetchDescriptor = FetchDescriptor<SoundFont>(sortBy: [SortDescriptor(\.displayName)])
+    var found: [SoundFont] = []
+
+    do {
+      found = try fetch(fetchDescriptor)
+      if found.isEmpty {
+        try createBuiltInSoundFonts()
+        found = try fetch(fetchDescriptor)
+      }
+    } catch {
+    }
+
+    if found.isEmpty {
+      fatalError("Failed to install built-in SF2 files.")
+    }
+
+    return found
   }
 
   /// TODO: remove when cascading is fixed

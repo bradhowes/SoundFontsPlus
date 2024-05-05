@@ -10,8 +10,7 @@ import SwiftData
 import Models
 
 struct ContentView: View {
-  @Environment(\.modelContext) private var modelContext
-  @Query private var soundFonts: [SoundFont]
+  @Query(sort: \SoundFont.displayName) private var soundFonts: [SoundFont]
 
   var body: some View {
     NavigationSplitView {
@@ -63,5 +62,5 @@ struct ContentView: View {
 
 #Preview {
   ContentView()
-    .modelContainer(for: SoundFont.self, inMemory: true)
+    .modelContainer(VersionedModelContainer.make(isTemporary: true))
 }

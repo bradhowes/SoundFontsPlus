@@ -1,4 +1,5 @@
 import Models
+import SF2Files
 import SwiftData
 import SwiftUI
 
@@ -54,16 +55,7 @@ struct SoundFontsView: View {
 }
 
 #Preview {
-  let config = ModelConfiguration(isStoredInMemoryOnly: true)
-  let container = try! ModelContainer(for: SoundFont.self, configurations: config)
-  do {
-    _ = try container.mainContext.createSoundFont(resourceTag: .freeFont)
-    _ = try container.mainContext.createSoundFont(resourceTag: .museScore)
-    _ = try container.mainContext.createSoundFont(resourceTag: .rolandNicePiano)
-  } catch {
-
-  }
-
+  let container = VersionedModelContainer.make(isTemporary: true)
   return SoundFontsView()
     .modelContainer(container)
 }

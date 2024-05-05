@@ -11,9 +11,22 @@ import Models
 
 @main
 struct SoundFonts2App: App {
-  var sharedModelContainer: ModelContainer = {
+
+  @MainActor
+  static let modelContainer: ModelContainer = {
     do {
-      return try ModelContainer(for: SoundFont.self)
+      let container = try ModelContainer(for: SoundFont.self)
+      var itemsFetchDescriptor = FetchDescriptor<SoundFont>()
+      itemsFetchDescriptor.fetchLimit = 1
+
+      guard try container.mainContext.fetch(itemsFetchDescriptor).isEmpty else {
+        return container
+      }
+
+      try container.mainContext.createBuiltInSoundFonts()
+
+      return container
+
     } catch {
       fatalError("Could not create ModelContainer: \(error)")
     }
@@ -22,7 +35,6 @@ struct SoundFonts2App: App {
   var body: some Scene {
     WindowGroup {
       ContentView()
-    }
-    .modelContainer(sharedModelContainer)
+    }.modelContainer(VersionedModelContainer.make(isTemporary: true))
   }
 }

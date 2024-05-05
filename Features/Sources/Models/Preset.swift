@@ -36,11 +36,16 @@ public extension ModelContext {
    - returns: the array of Presets entities
    */
   @MainActor
-  func orderedPresets(for soundFont: SoundFont) throws -> [Preset] {
+  func orderedPresets(for soundFont: SoundFont) -> [Preset] {
     let ownerId = soundFont.persistentModelID
     let fetchDescriptor = FetchDescriptor<Preset>(predicate: #Predicate { $0.owner?.persistentModelID == ownerId },
                                                   sortBy: [SortDescriptor(\.index)])
-    return try fetch(fetchDescriptor)
+    do {
+      return try fetch(fetchDescriptor)
+    } catch {
+      // fatalError("Failed to fetch presets: \(error)")
+    }
+    return []
   }
 
   /// TODO: remove when cascading is fixed

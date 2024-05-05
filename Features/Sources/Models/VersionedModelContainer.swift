@@ -6,16 +6,33 @@ import SwiftData
 import Engine
 import SF2Files
 
+extension FetchDescriptor {
+  init(fetchLimit: Int) {
+    self.init()
+    self.fetchLimit = fetchLimit
+  }
+}
+
 public enum VersionedModelContainer {
 
-  static func make(schema: Schema, isTemporary: Bool) throws -> ModelContainer {
+  @MainActor
+  public static func make(isTemporary: Bool) -> ModelContainer {
+    let schema = Schema.init(CurrentSchema.models, version: CurrentSchema.versionIdentifier)
     let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: isTemporary)
-    return try ModelContainer(for: schema, configurations: [modelConfiguration])
-  }
+    do {
+      let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+      let detectEmptyFetchDescriptor = FetchDescriptor<SoundFont>(fetchLimit: 1)
 
-  static func make() throws -> ModelContainer {
-    try make(schema: Schema.init(CurrentSchema.models, version: CurrentSchema.versionIdentifier),
-             isTemporary: true)
+      guard try container.mainContext.fetch(detectEmptyFetchDescriptor).isEmpty else {
+        return container
+      }
+
+      try container.mainContext.createBuiltInSoundFonts()
+
+      return container
+    } catch {
+      fatalError("Could not create ModelContainer: \(error)")
+    }
   }
 }
 
@@ -67,7 +84,7 @@ public class MainContext {
 class PreviewContainer {
   static let previewContainer: ModelContainer = {
     do {
-      let container = try VersionedModelContainer.make()
+      let container = VersionedModelContainer.make(isTemporary: true)
       let context = container.mainContext
       for tag in SF2FileTag.allCases {
         _ = try context.createSoundFont(resourceTag: tag)
