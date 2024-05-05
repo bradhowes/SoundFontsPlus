@@ -24,6 +24,10 @@ extension SchemaV1 {
     public var embeddedAuthor: String = ""
     public var embeddedCopyright: String = ""
 
+    public var orderedPresets: [Preset] {
+      self.presets.sorted(by: { $0.index < $1.index })
+    }
+
     public init(location: Location, name: String) {
       self.location = location
       self.displayName = name
@@ -66,7 +70,14 @@ public extension ModelContext {
       let preset: Preset = .init(owner: soundFont, index: index, name: String(presetInfo.name()))
       soundFont.presets.append(preset)
     }
+
     try save()
+
+    soundFont.tags = try tagsFor(kind: kind)
+    soundFont.tags.forEach { $0.tag(soundFont: soundFont) }
+
+    try save()
+
     return soundFont
   }
 
@@ -79,6 +90,11 @@ public extension ModelContext {
     return try createSoundFont(name: resourceTag.name, kind: kind)
   }
 
+  @MainActor
+  func soundFonts() throws -> [SoundFont] {
+    return try fetch(FetchDescriptor<SoundFont>(sortBy: [SortDescriptor(\.displayName)]))
+  }
+
   /// TODO: remove when cascading is fixed
   @MainActor
   func delete(soundFont: SoundFont) {
@@ -87,5 +103,16 @@ public extension ModelContext {
     }
 
     self.delete(soundFont)
+  }
+
+  @MainActor
+  fileprivate func tagsFor(kind: SoundFontKind) throws -> [Tag] {
+    var tags = [try ubiquitousTag(.all)]
+    switch kind {
+    case .builtin: tags.append(try ubiquitousTag(.builtIn))
+    case .installed: tags.append(try ubiquitousTag(.user))
+    case .external: tags += [try ubiquitousTag(.user), try ubiquitousTag(.external)]
+    }
+    return tags
   }
 }

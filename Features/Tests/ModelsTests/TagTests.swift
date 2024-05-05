@@ -68,44 +68,23 @@ final class TagTests: XCTestCase {
   }
 
   @MainActor
-  func testAllTag() throws {
+  func testAllUbiquitousTags() throws {
     let ephemeral = UserDefaults.Dependency.ephemeral()
-    let tagId = try withDependencies {
+    let tagIds = try withDependencies {
       $0.userDefaults = ephemeral
     } operation: {
-      XCTAssertNil(context.findTag(name: "All"))
-      let tag = try context.allTag()
-      XCTAssertEqual(tag.name, "All")
-      return tag.persistentModelID
+      try Tag.Ubiquitous.allCases.map { try context.ubiquitousTag($0).persistentModelID }
     }
 
     try withDependencies {
       $0.userDefaults = ephemeral
     } operation: {
-      let tag = try context.allTag()
-      XCTAssertEqual(tag.name, "All")
-      XCTAssertEqual(tag.persistentModelID, tagId)
-    }
-  }
-
-  @MainActor
-  func testBuiltInTag() throws {
-    let ephemeral = UserDefaults.Dependency.ephemeral()
-    let tagId = try withDependencies {
-      $0.userDefaults = ephemeral
-    } operation: {
-      XCTAssertNil(context.findTag(name: "Built-in"))
-      let tag = try context.builtInTag()
-      XCTAssertEqual(tag.name, "Built-in")
-      return tag.persistentModelID
-    }
-
-    try withDependencies {
-      $0.userDefaults = ephemeral
-    } operation: {
-      let tag = try context.builtInTag()
-      XCTAssertEqual(tag.name, "Built-in")
-      XCTAssertEqual(tag.persistentModelID, tagId)
+      for (index, kind) in Tag.Ubiquitous.allCases.enumerated() {
+        let tag = try context.ubiquitousTag(kind)
+        XCTAssertEqual(tag.name, kind.name)
+        XCTAssertTrue(tag.tagged.isEmpty)
+        XCTAssertEqual(tag.persistentModelID, tagIds[index])
+      }
     }
   }
 }

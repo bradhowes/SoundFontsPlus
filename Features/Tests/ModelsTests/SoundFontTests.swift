@@ -1,5 +1,6 @@
 import XCTest
 import Dependencies
+import DependenciesAdditions
 import SwiftData
 import SF2Files
 
@@ -67,128 +68,194 @@ final class SoundFontModelTests: XCTestCase {
 
   @MainActor
   func testLoadingSoundFonts() throws {
-    _ = try context.createSoundFont(resourceTag: .freeFont)
-    _ = try context.createSoundFont(resourceTag: .museScore)
-    _ = try context.createSoundFont(resourceTag: .rolandNicePiano)
-
-    let found = fetched
-    XCTAssertFalse(found.isEmpty)
-    XCTAssertEqual(found.count, 3)
-
-    for font in found {
-      let tag: SF2FileTag = SF2FileTag.from(name: font.displayName)
-      XCTAssertEqual(font.displayName, tag.name)
-      XCTAssertEqual(font.location.kind, .builtin)
-      XCTAssertEqual(font.location.url, tag.url)
-
-      switch tag {
-      case .freeFont:
-        XCTAssertEqual(font.embeddedName, "Free Font GM Ver. 3.2")
-        XCTAssertEqual(font.embeddedComment, "")
-        XCTAssertEqual(font.embeddedAuthor, "")
-        XCTAssertEqual(font.embeddedCopyright, "")
-        XCTAssertEqual(font.presets.count, 235)
-
-      case .museScore:
-        XCTAssertEqual(font.embeddedName, "GeneralUser GS MuseScore version 1.442")
-        XCTAssertNotEqual(font.embeddedComment, "")
-        XCTAssertEqual(font.embeddedAuthor, "S. Christian Collins")
-        XCTAssertEqual(font.embeddedCopyright, "2012 by S. Christian Collins")
-        XCTAssertEqual(font.presets.count, 270)
-
-      case .rolandNicePiano:
-        XCTAssertEqual(font.embeddedName, "User Bank")
-        XCTAssertEqual(font.embeddedComment, "Comments Not Present")
-        XCTAssertEqual(font.embeddedAuthor, "Vienna Master")
-        XCTAssertEqual(font.embeddedCopyright, "Copyright Information Not Present")
-        XCTAssertEqual(font.presets.count, 1)
+    try withDependencies {
+      $0.userDefaults = UserDefaults.Dependency.ephemeral()
+    } operation: {
+      _ = try context.createSoundFont(resourceTag: .freeFont)
+      _ = try context.createSoundFont(resourceTag: .museScore)
+      _ = try context.createSoundFont(resourceTag: .rolandNicePiano)
+      
+      let found = fetched
+      XCTAssertFalse(found.isEmpty)
+      XCTAssertEqual(found.count, 3)
+      
+      for font in found {
+        let tag: SF2FileTag = SF2FileTag.from(name: font.displayName)
+        XCTAssertEqual(font.displayName, tag.name)
+        XCTAssertEqual(font.location.kind, .builtin)
+        XCTAssertEqual(font.location.url, tag.url)
+        
+        switch tag {
+        case .freeFont:
+          XCTAssertEqual(font.embeddedName, "Free Font GM Ver. 3.2")
+          XCTAssertEqual(font.embeddedComment, "")
+          XCTAssertEqual(font.embeddedAuthor, "")
+          XCTAssertEqual(font.embeddedCopyright, "")
+          XCTAssertEqual(font.presets.count, 235)
+          
+        case .museScore:
+          XCTAssertEqual(font.embeddedName, "GeneralUser GS MuseScore version 1.442")
+          XCTAssertNotEqual(font.embeddedComment, "")
+          XCTAssertEqual(font.embeddedAuthor, "S. Christian Collins")
+          XCTAssertEqual(font.embeddedCopyright, "2012 by S. Christian Collins")
+          XCTAssertEqual(font.presets.count, 270)
+          
+        case .rolandNicePiano:
+          XCTAssertEqual(font.embeddedName, "User Bank")
+          XCTAssertEqual(font.embeddedComment, "Comments Not Present")
+          XCTAssertEqual(font.embeddedAuthor, "Vienna Master")
+          XCTAssertEqual(font.embeddedCopyright, "Copyright Information Not Present")
+          XCTAssertEqual(font.presets.count, 1)
+        }
+        
+        XCTAssertEqual(font.tags.count, 2)
       }
-
-      let tags = try context.fetch(FetchDescriptor<Tag>())
-      XCTAssertEqual(tags.count, 0)
+      
+      let builtIn = try context.ubiquitousTag(.builtIn)
+      XCTAssertEqual(builtIn.tagged.count, 3)
     }
   }
 
   @MainActor
   func testDeletingSoundFontDeletesPresets() throws {
-    _ = try context.createSoundFont(resourceTag: .freeFont)
-    var found = fetched
-    XCTAssertFalse(found.isEmpty)
+    try withDependencies {
+      $0.userDefaults = UserDefaults.Dependency.ephemeral()
+    } operation: {
+      _ = try context.createSoundFont(resourceTag: .freeFont)
+      var found = fetched
+      XCTAssertFalse(found.isEmpty)
 
-    var presets = try context.fetch(FetchDescriptor<Preset>())
-    XCTAssertFalse(presets.isEmpty)
+      var presets = try context.fetch(FetchDescriptor<Preset>())
+      XCTAssertFalse(presets.isEmpty)
 
-    context.delete(found[0])
-    try context.save()
-  
-    found = fetched
-    XCTAssertTrue(found.isEmpty)
+      context.delete(found[0])
+      try context.save()
 
-    presets = try context.fetch(FetchDescriptor<Preset>())
-    print(presets.count)
-    try XCTSkipIf(!presets.isEmpty, "SwiftData has broken cascade")
-    // XCTAssertEqual(presets.count, 0)
+      found = fetched
+      XCTAssertTrue(found.isEmpty)
+
+      presets = try context.fetch(FetchDescriptor<Preset>())
+      print(presets.count)
+      try XCTSkipIf(!presets.isEmpty, "SwiftData has broken cascade")
+      // XCTAssertEqual(presets.count, 0)
+    }
   }
 
   @MainActor
   func testDeletingSoundFontUpdatesTags() throws {
-    let location: Location = .init(kind: .builtin, url: .currentDirectory(), raw: nil)
-    _ = try mockSoundFont(name: "Font To Delete", location: location)
-    var found = fetched
-    XCTAssertFalse(found.isEmpty)
+    try withDependencies {
+      $0.userDefaults = UserDefaults.Dependency.ephemeral()
+    } operation: {
+      let location: Location = .init(kind: .builtin, url: .currentDirectory(), raw: nil)
+      _ = try mockSoundFont(name: "Font To Delete", location: location)
+      var found = fetched
+      XCTAssertFalse(found.isEmpty)
 
-    var tags = try context.fetch(FetchDescriptor<Tag>())
-    XCTAssertFalse(tags.isEmpty)
-    XCTAssertFalse(tags[0].tagged.isEmpty)
+      var tags = try context.fetch(FetchDescriptor<Tag>())
+      XCTAssertFalse(tags.isEmpty)
+      XCTAssertFalse(tags[0].tagged.isEmpty)
 
-    context.delete(found[0])
-    try context.save()
+      context.delete(found[0])
+      try context.save()
 
-    found = fetched
-    XCTAssertTrue(found.isEmpty)
+      found = fetched
+      XCTAssertTrue(found.isEmpty)
 
-    tags = try context.fetch(FetchDescriptor<Tag>())
-    XCTAssertFalse(tags.isEmpty)
-    XCTAssertTrue(tags[0].tagged.isEmpty)
+      tags = try context.fetch(FetchDescriptor<Tag>())
+      XCTAssertFalse(tags.isEmpty)
+      XCTAssertTrue(tags[0].tagged.isEmpty)
+    }
   }
 
   @MainActor
   func testCustomDeletingSoundFontDeletesPresets() throws {
-    let location: Location = .init(kind: .builtin, url: .currentDirectory(), raw: nil)
-    _ = try mockSoundFont(name: "Font To Delete", location: location)
-    var found = fetched
-    XCTAssertFalse(found.isEmpty)
+    try withDependencies {
+      $0.userDefaults = UserDefaults.Dependency.ephemeral()
+    } operation: {
+      let location: Location = .init(kind: .builtin, url: .currentDirectory(), raw: nil)
+      _ = try mockSoundFont(name: "Font To Delete", location: location)
+      var found = fetched
+      XCTAssertFalse(found.isEmpty)
 
-    context.delete(soundFont: found[0])
-    try context.save()
+      context.delete(soundFont: found[0])
+      try context.save()
 
-    found = fetched
-    XCTAssertTrue(found.isEmpty)
+      found = fetched
+      XCTAssertTrue(found.isEmpty)
 
-    let presets = try context.fetch(FetchDescriptor<Preset>())
-    XCTAssertEqual(presets.count, 0)
+      let presets = try context.fetch(FetchDescriptor<Preset>())
+      XCTAssertEqual(presets.count, 0)
+    }
   }
 
   @MainActor
   func testCustomDeletingSoundFontUpdatesTags() throws {
-    let location: Location = .init(kind: .builtin, url: .currentDirectory(), raw: nil)
-    _ = try mockSoundFont(name: "Font To Delete", location: location)
-    var found = fetched
-    XCTAssertFalse(found.isEmpty)
+    try withDependencies {
+      $0.userDefaults = UserDefaults.Dependency.ephemeral()
+    } operation: {
+      let location: Location = .init(kind: .builtin, url: .currentDirectory(), raw: nil)
+      _ = try mockSoundFont(name: "Font To Delete", location: location)
+      var found = fetched
+      XCTAssertFalse(found.isEmpty)
+      
+      var tags = try context.fetch(FetchDescriptor<Tag>())
+      XCTAssertEqual(tags.count, 1)
+      XCTAssertFalse(tags[0].tagged.isEmpty)
+      
+      context.delete(soundFont: found[0])
+      try context.save()
+      
+      found = fetched
+      XCTAssertTrue(found.isEmpty)
+      
+      tags = try context.fetch(FetchDescriptor<Tag>())
+      XCTAssertEqual(tags.count, 1)
+      XCTAssertTrue(tags[0].tagged.isEmpty)
+    }
+  }
 
-    var tags = try context.fetch(FetchDescriptor<Tag>())
-    XCTAssertEqual(tags.count, 1)
-    XCTAssertFalse(tags[0].tagged.isEmpty)
+  @MainActor
+  func testFetchingOrderedPresetsFromSoundFont() throws {
+    try withDependencies {
+      $0.userDefaults = UserDefaults.Dependency.ephemeral()
+    } operation: {
+      let freeFont = try context.createSoundFont(resourceTag: .freeFont)
+      let museScore = try context.createSoundFont(resourceTag: .museScore)
 
-    context.delete(soundFont: found[0])
-    try context.save()
+      self.measure {
+        let freeFontPresets = freeFont.orderedPresets
+        XCTAssertEqual(freeFontPresets[0].name, "Piano 1")
+        XCTAssertEqual(freeFontPresets[1].name, "Piano 2")
+        XCTAssertEqual(freeFontPresets[2].name, "Piano 3")
 
-    found = fetched
-    XCTAssertTrue(found.isEmpty)
+        let museScorePresets = museScore.orderedPresets
+        XCTAssertEqual(museScorePresets[0].name, "Stereo Grand")
+        XCTAssertEqual(museScorePresets[1].name, "Bright Grand")
+        XCTAssertEqual(museScorePresets[2].name, "Electric Grand")
+      }
+    }
+  }
 
-    tags = try context.fetch(FetchDescriptor<Tag>())
-    XCTAssertEqual(tags.count, 1)
-    XCTAssertTrue(tags[0].tagged.isEmpty)
+  @MainActor
+  func testFetchingOrderedPresetsFromContext() throws {
+    try withDependencies {
+      $0.userDefaults = UserDefaults.Dependency.ephemeral()
+    } operation: {
+      let freeFont = try context.createSoundFont(resourceTag: .freeFont)
+      let museScore = try context.createSoundFont(resourceTag: .museScore)
+
+      self.measure {
+        let freeFontPresets = (try? self.context.orderedPresets(for: freeFont)) ?? []
+        XCTAssertEqual(freeFontPresets[0].name, "Piano 1")
+        XCTAssertEqual(freeFontPresets[1].name, "Piano 2")
+        XCTAssertEqual(freeFontPresets[2].name, "Piano 3")
+
+        let museScorePresets = (try? self.context.orderedPresets(for: museScore)) ?? []
+        XCTAssertEqual(museScorePresets[0].name, "Stereo Grand")
+        XCTAssertEqual(museScorePresets[1].name, "Bright Grand")
+        XCTAssertEqual(museScorePresets[2].name, "Electric Grand")
+      }
+    }
   }
 
   //  func testTagAddition() throws {

@@ -20,7 +20,7 @@ public enum SoundFontKind {
   /// Built-in sound font file that is comes with the app. Holds a URL to a bundle resource
   case builtin(resource: URL)
 
-  /// Sound font file that was installed by the user into the app's workind directory on the device where the app is
+  /// Sound font file that was installed by the user into the app's working directory on the device where the app is
   /// running. Holds the URL to the SF2 file.
   case installed(file: URL)
 

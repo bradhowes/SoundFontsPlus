@@ -8,6 +8,7 @@ import SwiftData
 public typealias Tag = SchemaV1.Tag
 
 public enum TagError: Error {
+  /// Thrown if attempting to create a tag with the same name as an existing one.
   case duplicateTag(name: String)
 }
 
@@ -17,20 +18,30 @@ extension SchemaV1 {
   public final class Tag {
 
     public enum Ubiquitous : CaseIterable {
+      /// Tag that represents all SoundFont entities
       case all
+      /// Tag that represents built-in SoundFont entities
       case builtIn
-
-      var userDefaultsKey: String {
-        switch self {
-        case .all: return "AllTagIdKey"
-        case .builtIn: return "BuiltInTagIdKey"
-        }
-      }
-
+      /// Tag that represents all user-installed entities
+      case user
+      /// Tag that represents all external entities (subset of 'user')
+      case external
+      /// The display name of the tag
       var name: String {
         switch self {
         case .all: return "All"
         case .builtIn: return "Built-in"
+        case .user: return "User"
+        case .external: return "External"
+        }
+      }
+      /// The key associated with the tag that holds the tag's persistent ID in UserDefaults
+      var userDefaultsKey: String {
+        switch self {
+        case .all: return "AllTagIdKey"
+        case .builtIn: return "BuiltInTagIdKey"
+        case .user: return "UserTagIdKey"
+        case .external: return "ExternalTagIdKey"
         }
       }
     }
@@ -41,34 +52,70 @@ extension SchemaV1 {
     public init(name: String) {
       self.name = name
     }
+
+    public func tag(soundFont: SoundFont) {
+      tagged.append(soundFont)
+    }
   }
 }
 
-public extension ModelContext {
+extension ModelContext {
 
+  /**
+   Obtain an ubiquitous Tag, creating if necessary.
+
+   - parameter kind: which tag to fetch
+   - returns: the Tag entity that was fetched/created
+   - throws if unable to fetch or create
+   */
   @MainActor
-  func ubiquitous(_ kind: Tag.Ubiquitous) throws -> Tag {
+  public func ubiquitousTag(_ kind: Tag.Ubiquitous) throws -> Tag {
     @Dependency(\.userDefaults) var userDefaults
-    if let rawTagIdData = userDefaults.data(forKey: kind.userDefaultsKey) {
-      return try findTag(id: PersistentIdentifier.fromData(rawTagIdData))!
+
+    if let rawTagIdData = userDefaults.data(forKey: kind.userDefaultsKey),
+       let tag = try findTag(id: rawTagIdData.decodedValue()) {
+      return tag
     }
 
-    let tag = try createTag(name: kind.name)
-    try save()
-    try userDefaults.set(tag.persistentModelID.toData(), forKey: kind.userDefaultsKey)
-    return tag
+    return try createAllUbiquitousTags(wanted: kind)
   }
 
+  /**
+   Create all ubiquitous Tag entities.
+
+   - parameter wanted: which tag to return
+   - returns: the Tag entity that was wanted
+   - throws if unable to fetch or create
+   */
   @MainActor
-  func allTag() throws -> Tag {
-    try ubiquitous(.all)
+  fileprivate func createAllUbiquitousTags(wanted: Tag.Ubiquitous) throws -> Tag {
+    @Dependency(\.userDefaults) var userDefaults
+
+    // Create all of the tags -- they will have temporary persistentModelID valuess
+    let tags = Tag.Ubiquitous.allCases.map { kind in
+      let tag = Tag(name: kind.name)
+      self.insert(tag)
+      return (kind: kind, tag: tag)
+    }
+
+    // Now tags have real and stable persistentModelID values
+    try self.save()
+
+    // Save all persistent tag IDs and return the one that was originally asked for
+    return (try tags.compactMap { kind, tag in
+      let key = kind.userDefaultsKey
+      let value = try tag.persistentModelID.encodedValue()
+      userDefaults.set(value, forKey: key)
+      return kind == wanted ? tag : nil
+    })[0]
   }
 
-  @MainActor
-  func builtInTag() throws -> Tag {
-    try ubiquitous(.builtIn)
-  }
+  /**
+   Locate the tag with the given name
 
+   - parameter name: the name to look for
+   - returns: optional Tag entity that matches the given value
+   */
   @MainActor
   func findTag(name: String) -> Tag? {
     let fetchDescriptor: FetchDescriptor<Tag> = .init(predicate: #Predicate { $0.name == name })
@@ -81,6 +128,12 @@ public extension ModelContext {
     return result[0]
   }
 
+  /**
+   Locate the tag with the given unique ID
+
+   - parameter id: the ID to look for
+   - returns: optional Tag entity that was found
+   */
   @MainActor
   func findTag(id: PersistentIdentifier) -> Tag? {
     let fetchDescriptor: FetchDescriptor<Tag> = .init(predicate: #Predicate { $0.persistentModelID == id })
@@ -93,6 +146,13 @@ public extension ModelContext {
     return result[0]
   }
 
+  /**
+   Create a new Tag entity with a given name
+
+   - parameter name: the name to assign to the tag
+   - returns: the new Tag entity
+   - throws if unable to create or if there is an existiing Tag with the same name
+   */
   @MainActor
   func createTag(name: String) throws -> Tag {
     if findTag(name: name) != nil {
