@@ -16,7 +16,8 @@ let package = Package(
     // .package(url: "https://github.com/bradhowes/SF2Lib", from: "5.0.0")
     .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.2.2"),
-    .package(url: "https://github.com/tgrapperon/swift-dependencies-additions", from: "1.0.1")
+    .package(url: "https://github.com/tgrapperon/swift-dependencies-additions", from: "1.0.1"),
+    .package(url: "https://github.com/stevengharris/SplitView", from: "3.5.2")
   ],
   targets: [
     .target(
@@ -32,7 +33,8 @@ let package = Package(
         .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2Files", condition: .none),
-        .product(name: "Dependencies", package: "swift-dependencies", condition: .none)
+        .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "SplitView", package: "SplitView", condition: .none)
       ]
     ),
     .target(
