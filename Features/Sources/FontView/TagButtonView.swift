@@ -1,6 +1,9 @@
 import SwiftUI
 import Models
 
+/**
+ A button view for a tag. Pressing it updates the collection of `SoundFont` models that are shown.
+ */
 struct TagButtonView: View {
   @Environment(\.modelContext) var modelContext
   let tag: Tag
@@ -13,8 +16,11 @@ struct TagButtonView: View {
       soundFonts = modelContext.soundFonts(with: tag)
     }, label: {
       Text(tag.name)
-        .foregroundStyle(activeTag == tag ? .indigo : .blue)
+        .foregroundStyle(labelColor)
     }).badge(tag.tagged.count)
   }
-}
 
+  var labelColor: Color {
+    activeTag == tag ? .indigo : .blue
+  }
+}

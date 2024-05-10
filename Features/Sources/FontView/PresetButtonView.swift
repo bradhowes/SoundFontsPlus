@@ -2,6 +2,8 @@ import SwiftUI
 import Models
 
 struct PresetButtonView: View {
+  @Environment(\.dismissSearch) private var dismissSearch
+
   let preset: Preset
   @State var selectedSoundFont: SoundFont?
   @Binding var activeSoundFont: SoundFont?
@@ -11,9 +13,14 @@ struct PresetButtonView: View {
     Button(action: {
       activePreset = preset
       activeSoundFont = selectedSoundFont
+      dismissSearch()
     }, label: {
       Text(preset.name)
-        .foregroundStyle(activePreset == preset ? .indigo : .blue)
-    }).id(preset)
+        .foregroundStyle(labelColor)
+    }).id(preset.index)
+  }
+
+  var labelColor: Color {
+    preset == activePreset ? .indigo : .blue
   }
 }
