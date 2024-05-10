@@ -118,6 +118,18 @@ public extension ModelContext {
     return found
   }
 
+  @MainActor
+  func soundFonts(with tag: Tag) -> [SoundFont] {
+    let tagName = tag.name
+    let fetchDescriptor: FetchDescriptor<SoundFont> = .init(
+      predicate: #Predicate { $0.tags.contains { $0.name == tagName } },
+      sortBy: [SortDescriptor(\SoundFont.displayName)]
+    )
+
+    let found = try? fetch(fetchDescriptor)
+    return found ?? []
+  }
+
   /// TODO: remove when cascading is fixed
   @MainActor
   func delete(soundFont: SoundFont) {
@@ -130,11 +142,11 @@ public extension ModelContext {
 
   @MainActor
   fileprivate func tagsFor(kind: SoundFontKind) throws -> [Tag] {
-    var tags = [try ubiquitousTag(.all)]
+    var tags = [ubiquitousTag(.all)]
     switch kind {
-    case .builtin: tags.append(try ubiquitousTag(.builtIn))
-    case .installed: tags.append(try ubiquitousTag(.user))
-    case .external: tags += [try ubiquitousTag(.user), try ubiquitousTag(.external)]
+    case .builtin: tags.append(ubiquitousTag(.builtIn))
+    case .installed: tags.append(ubiquitousTag(.user))
+    case .external: tags += [ubiquitousTag(.user), ubiquitousTag(.external)]
     }
     return tags
   }

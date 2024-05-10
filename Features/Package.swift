@@ -15,6 +15,7 @@ let package = Package(
   dependencies: [
     // .package(url: "https://github.com/bradhowes/SF2Lib", from: "5.0.0")
     .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.10.3"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.2.2"),
     .package(url: "https://github.com/tgrapperon/swift-dependencies-additions", from: "1.0.1"),
     .package(url: "https://github.com/stevengharris/SplitView", from: "3.5.2")
@@ -23,8 +24,9 @@ let package = Package(
     .target(
       name: "SoundFonts2Lib",
       dependencies: [
-        .product(name: "Engine", package: "SF2Lib", condition: .none),
-        .product(name: "Dependencies", package: "swift-dependencies", condition: .none)
+        .product(name: "Engine", package: "SF2Lib"),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),
     .target(
@@ -33,8 +35,9 @@ let package = Package(
         .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2Files", condition: .none),
-        .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
-        .product(name: "SplitView", package: "SplitView", condition: .none)
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "SplitView", package: "SplitView")
       ]
     ),
     .target(
@@ -48,18 +51,18 @@ let package = Package(
     ),
     .target(
       name: "SF2Files",
-      dependencies: [.product(name: "Engine", package: "SF2Lib", condition: .none)],
+      dependencies: [.product(name: "Engine", package: "SF2Lib")],
       resources: [.process("Resources")]
     ),
     .target(
       name: "Extensions",
       dependencies: [
-        .product(name: "Dependencies", package: "swift-dependencies", condition: .none)
+        .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),
     .target(
       name: "SF2LibAU",
-      dependencies: [.product(name: "Engine", package: "SF2Lib", condition: .none)]
+      dependencies: [.product(name: "Engine", package: "SF2Lib")]
     ),
     .testTarget(
       name: "SoundFonts2LibTests",

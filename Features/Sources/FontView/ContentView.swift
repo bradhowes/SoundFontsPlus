@@ -1,64 +1,58 @@
-
+import ComposableArchitecture
 import SwiftUI
 import SwiftData
 import SplitView
 import Models
 
 
+@MainActor
 struct ContentView: View {
-  @Query(sort: \SoundFont.displayName) var soundFonts: [SoundFont]
+  @Environment(\.modelContext) private var modelContext: ModelContext
+
+  @Query(sort: \Tag.name) private var tags: [Tag]
+
+  // Not using @query since contents depend on activeTag
+  @State private var soundFonts: [SoundFont]
 
   @State private var selectedFont: SoundFont?
   @State private var activeFont: SoundFont?
   @State private var activePreset: Preset?
+  @State private var activeTag: Tag?
+  @State private var searchText = ""
 
-  private func soundFontColor(for soundFont: SoundFont) -> Color {
-    if soundFont == activeFont { return .indigo }
-    if soundFont == selectedFont { return .white }
-    return .blue
+  init() {
+    soundFonts = []
   }
+
+  // private let store: StoreOf<MainViewFeature>
 
   var body: some View {
     Split(
       primary: {
-        List(soundFonts) { soundFont in
-          Button(action: { selectedFont = soundFont},
-                 label: {
-            Text(soundFont.displayName)
-              .foregroundStyle(soundFontColor(for: soundFont))
-          })
-          .badge(soundFont.presets.count)
-        }
-        .onAppear {
-          if activePreset == nil {
-            activeFont = soundFonts.first
-            selectedFont = activeFont
-            activePreset = soundFonts.first?.orderedPresets.first
-          }
+        NavigationStack {
+          VStack {
+            List(soundFonts) { soundFont in
+              soundFontButton(soundFont)
+            }
+            .navigationTitle("Fonts")
+            List(tags) { tag in
+              tagButton(tag)
+            }
+            .navigationTitle("Tags")
+          }.onAppear(perform: setInitialContent)
         }
       },
       secondary: {
-        ScrollViewReader { proxy in
-          List(selectedFont?.orderedPresets ?? []) { preset in
-            Button(action: {
-              activeFont = selectedFont
-              activePreset = preset
-            }, label: {
-              Text(preset.name)
-                .foregroundStyle(activePreset == preset ? .indigo : .blue)
-            }).id(preset)
-          }
-          .onChange(of: selectedFont) { _, newValue in
-            if selectedFont == activeFont {
-              withAnimation {
-                proxy.scrollTo(activePreset)
-              }
-            } else {
-              withAnimation {
-                proxy.scrollTo(selectedFont?.orderedPresets.first, anchor: .top)
-              }
+        NavigationStack {
+          ScrollViewReader { proxy in
+            List(selectedFont?.orderedPresets ?? []) {
+              presetButton($0)
             }
-          }
+            .searchable(text: $searchText)
+            .onChange(of: selectedFont) { _, newValue in
+              selectedSoundFontChanged(newValue, proxy: proxy)
+            }
+          }.navigationTitle("Presets")
         }
       }
     )
@@ -68,6 +62,84 @@ struct ContentView: View {
     .fraction(0.2)
     .border(.black)
     .padding([.leading, .trailing], 8)
+  }
+}
+
+private extension ContentView {
+
+  func soundFontButton(_ soundFont: SoundFont) -> some View {
+    Button(action: { setSelectedSoundFont(soundFont) },
+           label: { soundFontLabel(soundFont) } )
+    .badge(soundFont.presets.count)
+  }
+
+  func soundFontLabel(_ soundFont: SoundFont) -> some View {
+    Text(soundFont.displayName)
+      .foregroundStyle(soundFontColor(for: soundFont))
+  }
+
+  func soundFontColor(for soundFont: SoundFont) -> Color {
+    if soundFont == activeFont { return .indigo }
+    if soundFont == selectedFont { return .white }
+    return .blue
+  }
+
+  func setSelectedSoundFont(_ soundFont: SoundFont) {
+    selectedFont = soundFont
+  }
+
+  @MainActor
+  func setInitialContent() {
+    let tag = activeTag ?? modelContext.ubiquitousTag(.all)
+    activeTag = tag
+    soundFonts = modelContext.soundFonts(with: tag)
+
+    if activePreset == nil {
+      activeFont = soundFonts.dropFirst().first
+      selectedFont = activeFont
+      activePreset = activeFont?.orderedPresets.dropFirst(40).first
+    }
+  }
+
+  func presetButton(_ preset: Preset) -> some View {
+    Button(action: { presetButtonTapped(preset) }, label: { presetButtonLabel(preset) } )
+      .id(preset)
+  }
+
+  func presetButtonLabel(_ preset: Preset) -> some View {
+    Text(preset.name)
+      .foregroundStyle(activePreset == preset ? .indigo : .blue)
+  }
+
+  func selectedSoundFontChanged(_ newValue: SoundFont?, proxy: ScrollViewProxy) {
+    if newValue == activeFont {
+      withAnimation {
+        proxy.scrollTo(activePreset)
+      }
+    } else {
+      withAnimation {
+        proxy.scrollTo(selectedFont?.orderedPresets.first, anchor: .top)
+      }
+    }
+  }
+
+  func presetButtonTapped(_ preset: Preset) {
+    activeFont = selectedFont
+    activePreset = preset
+  }
+
+  @MainActor
+  func tagButton(_ tag: Tag) -> some View {
+    Button(action: { tagButtonTapped(tag) }, label: { tagButtonLabel(tag) })
+  }
+
+  func tagButtonLabel(_ tag: Tag) -> some View {
+    Text(tag.name).foregroundStyle(activeTag == tag ? .indigo : .blue)
+  }
+
+  func tagButtonTapped(_ tag: Tag) {
+    activeTag = tag
+    soundFonts = modelContext.soundFonts(with: tag)
   }
 }
 

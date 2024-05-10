@@ -27,7 +27,7 @@ extension SchemaV1 {
       /// Tag that represents all external entities (subset of 'user')
       case external
       /// The display name of the tag
-      var name: String {
+      public var name: String {
         switch self {
         case .all: return "All"
         case .builtIn: return "Built-in"
@@ -36,7 +36,7 @@ extension SchemaV1 {
         }
       }
       /// The key associated with the tag that holds the tag's persistent ID in UserDefaults
-      var userDefaultsKey: String {
+      public var userDefaultsKey: String {
         switch self {
         case .all: return "AllTagIdKey"
         case .builtIn: return "BuiltInTagIdKey"
@@ -69,15 +69,15 @@ extension ModelContext {
    - throws if unable to fetch or create
    */
   @MainActor
-  public func ubiquitousTag(_ kind: Tag.Ubiquitous) throws -> Tag {
+  public func ubiquitousTag(_ kind: Tag.Ubiquitous) -> Tag {
     @Dependency(\.userDefaults) var userDefaults
 
     if let rawTagIdData = userDefaults.data(forKey: kind.userDefaultsKey),
-       let tag = try findTag(id: rawTagIdData.decodedValue()) {
+       let tag: Tag = try! findExact(id: rawTagIdData.decodedValue()) {
       return tag
     }
 
-    return try createAllUbiquitousTags(wanted: kind)
+    return try! createAllUbiquitousTags(wanted: kind)
   }
 
   /**
@@ -122,24 +122,6 @@ extension ModelContext {
     guard 
       let result = try? fetch(fetchDescriptor),
       !result.isEmpty
-    else {
-      return nil
-    }
-    return result[0]
-  }
-
-  /**
-   Locate the tag with the given unique ID
-
-   - parameter id: the ID to look for
-   - returns: optional Tag entity that was found
-   */
-  @MainActor
-  func findTag(id: PersistentIdentifier) -> Tag? {
-    let fetchDescriptor: FetchDescriptor<Tag> = .init(predicate: #Predicate { $0.persistentModelID == id })
-    guard
-      let result = try? fetch(fetchDescriptor),
-      !result.isEmpty 
     else {
       return nil
     }

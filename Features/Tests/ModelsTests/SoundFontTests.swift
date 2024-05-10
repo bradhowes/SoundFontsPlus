@@ -245,12 +245,12 @@ final class SoundFontModelTests: XCTestCase {
       let museScore = try context.createSoundFont(resourceTag: .museScore)
 
       self.measure {
-        let freeFontPresets = (try? self.context.orderedPresets(for: freeFont)) ?? []
+        let freeFontPresets = self.context.orderedPresets(for: freeFont)
         XCTAssertEqual(freeFontPresets[0].name, "Piano 1")
         XCTAssertEqual(freeFontPresets[1].name, "Piano 2")
         XCTAssertEqual(freeFontPresets[2].name, "Piano 3")
 
-        let museScorePresets = (try? self.context.orderedPresets(for: museScore)) ?? []
+        let museScorePresets = self.context.orderedPresets(for: museScore)
         XCTAssertEqual(museScorePresets[0].name, "Stereo Grand")
         XCTAssertEqual(museScorePresets[1].name, "Bright Grand")
         XCTAssertEqual(museScorePresets[2].name, "Electric Grand")
