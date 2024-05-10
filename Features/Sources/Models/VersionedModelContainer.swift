@@ -89,19 +89,19 @@ public class MainContext {
     self.context = container.mainContext
   }
 }
-
-@MainActor
-class PreviewContainer {
-  static let previewContainer: ModelContainer = {
-    do {
-      let container = VersionedModelContainer.make(isTemporary: true)
-      let context = container.mainContext
-      for tag in SF2FileTag.allCases {
-        _ = try context.createSoundFont(resourceTag: tag)
-      }
-      return container
-    } catch {
-      fatalError("Failed to create model container for previewing: \(error.localizedDescription)")
-    }
-  }()
-}
+//
+//@MainActor
+//class PreviewContainer {
+//  static let previewContainer: ModelContainer = {
+//    do {
+//      let container = VersionedModelContainer.make(isTemporary: true)
+//      let context = container.mainContext
+//      for tag in SF2FileTag.allCases {
+//        _ = try context.createSoundFont(resourceTag: tag)
+//      }
+//      return container
+//    } catch {
+//      fatalError("Failed to create model container for previewing: \(error.localizedDescription)")
+//    }
+//  }()
+//}
