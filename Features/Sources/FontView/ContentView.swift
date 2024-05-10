@@ -12,17 +12,13 @@ struct ContentView: View {
   @Query(sort: \Tag.name) private var tags: [Tag]
 
   // Not using @query since contents depend on activeTag
-  @State private var soundFonts: [SoundFont]
+  @State private var soundFonts: [SoundFont] = []
 
   @State private var selectedFont: SoundFont?
   @State private var activeFont: SoundFont?
   @State private var activePreset: Preset?
   @State private var activeTag: Tag?
   @State private var searchText = ""
-
-  init() {
-    soundFonts = []
-  }
 
   // private let store: StoreOf<MainViewFeature>
 
@@ -112,13 +108,12 @@ private extension ContentView {
   }
 
   func selectedSoundFontChanged(_ newValue: SoundFont?, proxy: ScrollViewProxy) {
-    if newValue == activeFont {
+    // Delay the `scrollTo` until after the view has been populated with the new collection
+    // of presets.
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
       withAnimation {
-        proxy.scrollTo(activePreset)
-      }
-    } else {
-      withAnimation {
-        proxy.scrollTo(selectedFont?.orderedPresets.first, anchor: .top)
+        let pos = newValue == activeFont ? activePreset : selectedFont?.orderedPresets.first
+        proxy.scrollTo(pos)
       }
     }
   }
