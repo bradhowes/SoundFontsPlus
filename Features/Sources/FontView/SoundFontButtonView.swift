@@ -2,7 +2,7 @@ import SwiftUI
 import Models
 
 /**
- A button view for a `SoundFont` model. Pressing it updates the collection of `Preset` models that are shown.
+ Custom Button view for a `SoundFont` model. Pressing it updates the collection of `Preset` models that are shown.
  */
 struct SoundFontButtonView: View {
   let soundFont: SoundFont

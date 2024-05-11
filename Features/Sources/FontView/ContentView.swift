@@ -24,7 +24,7 @@ struct ContentView: View {
                         activePreset: $activePreset)
       }
     )
-    .splitter { Splitter(color: .accentColor, visibleThickness: 8) }
+    .splitter { Splitter(color: .accentColor, visibleThickness: 2) }
     .constraints(minPFraction: 0.15, minSFraction: 0.15, priority: .primary)
     .layout(LayoutHolder(.horizontal))
     .fraction(0.2)

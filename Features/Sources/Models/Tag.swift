@@ -59,7 +59,7 @@ extension SchemaV1 {
   }
 }
 
-extension ModelContext {
+public extension ModelContext {
 
   /**
    Obtain an ubiquitous Tag, creating if necessary.
@@ -69,7 +69,7 @@ extension ModelContext {
    - throws if unable to fetch or create
    */
   @MainActor
-  public func ubiquitousTag(_ kind: Tag.Ubiquitous) -> Tag {
+  func ubiquitousTag(_ kind: Tag.Ubiquitous) -> Tag {
     @Dependency(\.userDefaults) var userDefaults
 
     if let rawTagIdData = userDefaults.data(forKey: kind.userDefaultsKey),

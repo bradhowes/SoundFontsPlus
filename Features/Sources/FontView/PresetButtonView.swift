@@ -1,6 +1,9 @@
 import SwiftUI
 import Models
 
+/**
+ Custom Button view for a `Preset` model. Activating the button makes it the active preset.
+ */
 struct PresetButtonView: View {
   @Environment(\.dismissSearch) private var dismissSearch
 

@@ -2,6 +2,10 @@ import SwiftData
 import SwiftUI
 import Models
 
+/**
+ Collection of preset buttons for the selected/active sound font.
+ Supports searching based on preset name.
+ */
 struct PresetsListView: View {
   @Binding private var selectedSoundFont: SoundFont?
   @Binding private var activeSoundFont: SoundFont?
