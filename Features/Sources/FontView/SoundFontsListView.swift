@@ -10,10 +10,11 @@ struct SoundFontsListView: View {
   @Environment(\.modelContext) var modelContext: ModelContext
   @Query(sort: \Tag.name) private var tags: [Tag]
 
-  @State private var soundFonts: [SoundFont] = []
   @Binding var selectedSoundFont: SoundFont?
   @Binding var activeSoundFont: SoundFont?
   @Binding var activePreset: Preset?
+
+  @State private var soundFonts: [SoundFont] = []
   @State private var activeTag: Tag?
   @State private var activeTagName: String = "All"
 
@@ -71,3 +72,17 @@ fileprivate extension SoundFontsListView {
   }
 }
 
+
+struct SoundFontsListView_Previews: PreviewProvider {
+  static let modelContainer = VersionedModelContainer.make(isTemporary: true)
+  static var previews: some View {
+    @State var selectedSoundFont: SoundFont?
+    @State var activeSoundFont: SoundFont?
+    @State var activePreset: Preset?
+
+    SoundFontsListView(selectedSoundFont: $selectedSoundFont,
+                       activeSoundFont: $activeSoundFont,
+                       activePreset: $activePreset)
+      .environment(\.modelContext, modelContainer.mainContext)
+  }
+}

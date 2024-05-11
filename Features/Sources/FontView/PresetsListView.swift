@@ -31,7 +31,7 @@ struct PresetsListView: View {
                              activePreset: $activePreset)
           }
         }
-        .searchable(text: $searchText)
+        .searchable(text: $searchText, prompt: "Preset")
         .onChange(of: selectedSoundFont) { oldValue, newValue in
           if oldValue != newValue {
             print("new selectedSoundFont")
@@ -60,3 +60,18 @@ struct PresetsListView: View {
   }
 }
 
+struct PresetListView_Previews: PreviewProvider {
+  static let modelContainer = VersionedModelContainer.make(isTemporary: true)
+  static var soundFonts: [SoundFont] { modelContainer.mainContext.soundFonts() }
+
+  static var previews: some View {
+    @State var selectedSoundFont: SoundFont? = soundFonts.dropFirst().first
+    @State var activeSoundFont: SoundFont? = soundFonts.dropFirst().first
+    @State var activePreset: Preset? = activeSoundFont?.orderedPresets.dropFirst(40).first
+
+    PresetsListView(selectedSoundFont: $selectedSoundFont,
+                    activeSoundFont: $activeSoundFont,
+                    activePreset: $activePreset)
+    .environment(\.modelContext, modelContainer.mainContext)
+  }
+}
