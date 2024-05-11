@@ -4,7 +4,7 @@ import SwiftData
 import SplitView
 import Models
 
-struct ContentView: View {
+struct MainView: View {
   @State private var selectedSoundFont: SoundFont?
   @State private var activeSoundFont: SoundFont?
   @State private var activePreset: Preset?
@@ -27,16 +27,14 @@ struct ContentView: View {
     .splitter { Splitter(color: .accentColor, visibleThickness: 2) }
     .constraints(minPFraction: 0.15, minSFraction: 0.15, priority: .primary)
     .layout(LayoutHolder(.horizontal))
-    .fraction(0.2)
-    .border(.black)
-    .padding([.leading, .trailing], 8)
+    .fraction(0.4)
   }
 }
 
-struct ContentView_Previews: PreviewProvider {
+struct MainView_Previews: PreviewProvider {
   static let modelContainer = VersionedModelContainer.make(isTemporary: true)
   static var previews: some View {
-    ContentView()
+    MainView()
       .environment(\.modelContext, modelContainer.mainContext)
   }
 }

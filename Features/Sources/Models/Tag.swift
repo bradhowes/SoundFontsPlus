@@ -77,7 +77,7 @@ public extension ModelContext {
       return tag
     }
 
-    return try! createAllUbiquitousTags(wanted: kind)
+    return createAllUbiquitousTags(wanted: kind)
   }
 
   /**
@@ -88,7 +88,7 @@ public extension ModelContext {
    - throws if unable to fetch or create
    */
   @MainActor
-  fileprivate func createAllUbiquitousTags(wanted: Tag.Ubiquitous) throws -> Tag {
+  fileprivate func createAllUbiquitousTags(wanted: Tag.Ubiquitous) -> Tag {
     @Dependency(\.userDefaults) var userDefaults
 
     // Create all of the tags -- they will have temporary persistentModelID valuess
@@ -99,15 +99,18 @@ public extension ModelContext {
     }
 
     // Now tags have real and stable persistentModelID values
-    try self.save()
-
-    // Save all persistent tag IDs and return the one that was originally asked for
-    return (try tags.compactMap { kind, tag in
-      let key = kind.userDefaultsKey
-      let value = try tag.persistentModelID.encodedValue()
-      userDefaults.set(value, forKey: key)
-      return kind == wanted ? tag : nil
-    })[0]
+    do {
+      try self.save()
+      // Save all persistent tag IDs and return the one that was originally asked for
+      return (try tags.compactMap { kind, tag in
+        let key = kind.userDefaultsKey
+        let value = try tag.persistentModelID.encodedValue()
+        userDefaults.set(value, forKey: key)
+        return kind == wanted ? tag : nil
+      })[0]
+    } catch {
+      fatalError("Failed to save ubiquitous tags to storage.")
+    }
   }
 
   /**

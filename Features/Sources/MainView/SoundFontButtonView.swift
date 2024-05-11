@@ -19,8 +19,8 @@ struct SoundFontButtonView: View {
   }
 
   var labelColor: Color {
-    if soundFont == activeSoundFont { return .indigo }
-    if soundFont == selectedSoundFont { return .white }
-    return .blue
+    if soundFont == activeSoundFont { return .accentColor }
+    if soundFont == selectedSoundFont { return .secondary }
+    return .primary
   }
 }

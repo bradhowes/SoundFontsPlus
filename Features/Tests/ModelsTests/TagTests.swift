@@ -70,17 +70,17 @@ final class TagTests: XCTestCase {
   @MainActor
   func testAllUbiquitousTags() throws {
     let ephemeral = UserDefaults.Dependency.ephemeral()
-    let tagIds = try withDependencies {
+    let tagIds = withDependencies {
       $0.userDefaults = ephemeral
     } operation: {
-      try Tag.Ubiquitous.allCases.map { try context.ubiquitousTag($0).persistentModelID }
+      Tag.Ubiquitous.allCases.map { context.ubiquitousTag($0).persistentModelID }
     }
 
-    try withDependencies {
+    withDependencies {
       $0.userDefaults = ephemeral
     } operation: {
       for (index, kind) in Tag.Ubiquitous.allCases.enumerated() {
-        let tag = try context.ubiquitousTag(kind)
+        let tag = context.ubiquitousTag(kind)
         XCTAssertEqual(tag.name, kind.name)
         XCTAssertTrue(tag.tagged.isEmpty)
         XCTAssertEqual(tag.persistentModelID, tagIds[index])

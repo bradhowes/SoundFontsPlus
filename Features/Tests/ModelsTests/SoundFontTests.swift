@@ -2,7 +2,7 @@ import XCTest
 import Dependencies
 import DependenciesAdditions
 import SwiftData
-import SF2Files
+import SF2ResourceFiles
 
 @testable import Models
 
@@ -80,7 +80,7 @@ final class SoundFontModelTests: XCTestCase {
       XCTAssertEqual(found.count, 3)
       
       for font in found {
-        let tag: SF2FileTag = SF2FileTag.from(name: font.displayName)
+        let tag: SF2ResourceFileTag = SF2ResourceFileTag.from(name: font.displayName)
         XCTAssertEqual(font.displayName, tag.name)
         XCTAssertEqual(font.location.kind, .builtin)
         XCTAssertEqual(font.location.url, tag.url)
@@ -111,7 +111,7 @@ final class SoundFontModelTests: XCTestCase {
         XCTAssertEqual(font.tags.count, 2)
       }
       
-      let builtIn = try context.ubiquitousTag(.builtIn)
+      let builtIn = context.ubiquitousTag(.builtIn)
       XCTAssertEqual(builtIn.tagged.count, 3)
     }
   }

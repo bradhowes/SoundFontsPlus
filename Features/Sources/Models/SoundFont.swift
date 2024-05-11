@@ -5,7 +5,7 @@ import Foundation
 import SwiftData
 
 import Engine
-import SF2Files
+import SF2ResourceFiles
 
 public typealias SoundFont = SchemaV1.SoundFont
 
@@ -82,7 +82,7 @@ public extension ModelContext {
   }
 
   @MainActor
-  func createSoundFont(resourceTag: SF2FileTag) throws -> SoundFont {
+  func createSoundFont(resourceTag: SF2ResourceFileTag) throws -> SoundFont {
     var fileInfo = SF2FileInfo(resourceTag.url.path(percentEncoded: false))
     fileInfo.load()
     print("size:", fileInfo.size())
@@ -92,7 +92,7 @@ public extension ModelContext {
 
   @MainActor
   func createBuiltInSoundFonts() throws {
-    for tag in SF2FileTag.allCases {
+    for tag in SF2ResourceFileTag.allCases {
       _ = try createSoundFont(resourceTag: tag)
     }
   }

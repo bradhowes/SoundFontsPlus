@@ -5,7 +5,7 @@ import os
 
 import Dependencies
 import Extensions
-import SF2Files
+import SF2ResourceFiles
 
 /// Various error conditions for loading or working with a sound font (SF2) file
 public enum SoundFontKindError: Error {

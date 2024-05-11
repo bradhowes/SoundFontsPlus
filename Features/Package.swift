@@ -8,9 +8,9 @@ let package = Package(
   platforms: [.iOS(.v17), .macOS(.v14)],
   products: [
     .library(name: "Extensions", targets: ["Extensions"]),
-    .library(name: "FontView", targets: ["FontView"]),
+    .library(name: "MainView", targets: ["MainView"]),
     .library(name: "Models", targets: ["Models"]),
-    .library(name: "SF2Files", targets: ["SF2Files"])
+    .library(name: "SF2ResourceFiles", targets: ["SF2ResourceFiles"])
   ],
   dependencies: [
     // .package(url: "https://github.com/bradhowes/SF2Lib", from: "5.0.0")
@@ -30,13 +30,14 @@ let package = Package(
       ]
     ),
     .target(
-      name: "FontView",
+      name: "MainView",
       dependencies: [
         .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "Models", condition: .none),
-        .targetItem(name: "SF2Files", condition: .none),
+        .targetItem(name: "SF2ResourceFiles", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions"),
         .product(name: "SplitView", package: "SplitView")
       ]
     ),
@@ -44,20 +45,25 @@ let package = Package(
       name: "Models",
       dependencies: [
         .targetItem(name: "Extensions", condition: .none),
-        .targetItem(name: "SF2Files", condition: .none),
+        .targetItem(name: "SF2ResourceFiles", condition: .none),
         .product(name: "Dependencies", package: "swift-dependencies"),
         .product(name: "DependenciesAdditions", package: "swift-dependencies-additions")
       ]
     ),
     .target(
-      name: "SF2Files",
-      dependencies: [.product(name: "Engine", package: "SF2Lib")],
+      name: "SF2ResourceFiles",
+      dependencies: [
+        .product(name: "Engine", package: "SF2Lib"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions")
+      ],
       resources: [.process("Resources")]
     ),
     .target(
       name: "Extensions",
       dependencies: [
-        .product(name: "Dependencies", package: "swift-dependencies")
+        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions")
       ]
     ),
     .target(
@@ -68,7 +74,8 @@ let package = Package(
       name: "SoundFonts2LibTests",
       dependencies: [
         "SoundFonts2Lib",
-        .product(name: "Dependencies", package: "swift-dependencies", condition: .none)
+        .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions")
       ]
     ),
     .testTarget(
@@ -80,10 +87,9 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "SF2FilesTests",
+      name: "SF2ResourceFilesTests",
       dependencies: [
-        "SF2Files",
-        .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        "SF2ResourceFiles",
         .product(name: "Engine", package: "SF2Lib", condition: .none)
       ]
     )

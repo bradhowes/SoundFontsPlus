@@ -1,40 +1,40 @@
 import XCTest
 import Engine
 
-@testable import SF2Files
+@testable import SF2ResourceFiles
 
-final class SF2FilesTests: XCTestCase {
+final class SF2ResourceFilesTests: XCTestCase {
 
   func testResourcesExist() throws {
-    XCTAssertEqual(SF2Files.resources.count, 3)
-    for url in SF2Files.resources {
+    XCTAssertEqual(SF2ResourceFiles.resources.count, 3)
+    for url in SF2ResourceFiles.resources {
       try XCTAssertTrue(url.checkResourceIsReachable())
     }
   }
 
   func testResourceByFileName() throws {
     for name in ["RolandNicePiano", "FreeFont", "GeneralUser GS MuseScore v1.442"] {
-      let url = try SF2Files.resource(fileName: name)
+      let url = try SF2ResourceFiles.resource(fileName: name)
       try XCTAssertTrue(url.checkResourceIsReachable())
     }
   }
 
   func testResourceByTag() throws {
-    for tag in SF2FileTag.allCases {
-      let url = SF2Files.resources[tag.resourceIndex]
+    for tag in SF2ResourceFileTag.allCases {
+      let url = SF2ResourceFiles.resources[tag.resourceIndex]
       XCTAssertEqual(url, tag.url)
       try XCTAssertTrue(url.checkResourceIsReachable())
     }
   }
 
   func testResourceNames() throws {
-    XCTAssertEqual(SF2FileTag.freeFont.name, "FreeFont")
-    XCTAssertEqual(SF2FileTag.museScore.name, "MuseScore")
-    XCTAssertEqual(SF2FileTag.rolandNicePiano.name, "Roland Piano")
+    XCTAssertEqual(SF2ResourceFileTag.freeFont.name, "FreeFont")
+    XCTAssertEqual(SF2ResourceFileTag.museScore.name, "MuseScore")
+    XCTAssertEqual(SF2ResourceFileTag.rolandNicePiano.name, "Roland Piano")
   }
 
   func testFreeFontFileInfo() throws {
-    let fileInfo = SF2FileTag.freeFont.fileInfo!
+    let fileInfo = SF2ResourceFileTag.freeFont.fileInfo!
     XCTAssertEqual(fileInfo.embeddedName(), "Free Font GM Ver. 3.2")
     XCTAssertEqual(fileInfo.embeddedAuthor(), "")
     XCTAssertEqual(fileInfo.embeddedComment(), "")
@@ -60,7 +60,7 @@ final class SF2FilesTests: XCTestCase {
   }
 
   func testRolandNicePianoFileInfo() throws {
-    let fileInfo = SF2FileTag.rolandNicePiano.fileInfo!
+    let fileInfo = SF2ResourceFileTag.rolandNicePiano.fileInfo!
     XCTAssertEqual(fileInfo.embeddedName(), "User Bank")
     XCTAssertEqual(fileInfo.embeddedAuthor(), "Vienna Master")
     XCTAssertEqual(fileInfo.embeddedComment(), "Comments Not Present")
@@ -74,7 +74,7 @@ final class SF2FilesTests: XCTestCase {
   }
 
   func testMuseScoreFileInfo() throws {
-    let fileInfo = SF2FileTag.museScore.fileInfo!
+    let fileInfo = SF2ResourceFileTag.museScore.fileInfo!
     XCTAssertNotNil(fileInfo)
 
     XCTAssertEqual(fileInfo.embeddedName(), "GeneralUser GS MuseScore version 1.442")

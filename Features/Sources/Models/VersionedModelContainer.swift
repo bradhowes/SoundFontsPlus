@@ -5,7 +5,7 @@ import Foundation
 import SwiftData
 
 import Engine
-import SF2Files
+import SF2ResourceFiles
 
 
 extension FetchDescriptor {

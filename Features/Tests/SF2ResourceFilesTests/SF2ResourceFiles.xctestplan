@@ -15,8 +15,8 @@
     {
       "target" : {
         "containerPath" : "container:",
-        "identifier" : "SF2FilesTests",
-        "name" : "SF2FilesTests"
+        "identifier" : "SF2ResourceFilesTests",
+        "name" : "SF2ResourceFilesTests"
       }
     }
   ],
