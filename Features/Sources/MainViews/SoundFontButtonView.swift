@@ -15,12 +15,26 @@ struct SoundFontButtonView: View {
     }, label: {
       Text(soundFont.displayName)
         .foregroundStyle(labelColor)
-    }).badge(soundFont.presets.count)
+    }).badge(Text("\(soundFont.presets.count)")
+      .font(.caption))
   }
 
   var labelColor: Color {
     if soundFont == activeSoundFont { return .accentColor }
     if soundFont == selectedSoundFont { return .secondary }
     return .primary
+  }
+}
+
+struct SoundFontButton_Previews: PreviewProvider {
+  static let modelContainer = VersionedModelContainer.make(isTemporary: true)
+  static var previews: some View {
+    let soundFont = modelContainer.mainContext.soundFonts()[0]
+    @State var activeSoundFont: SoundFont? = soundFont
+    @State var selectedSoundFont: SoundFont? = soundFont
+    List {
+      SoundFontButtonView(soundFont: soundFont, activeSoundFont: $activeSoundFont, selectedSoundFont: $selectedSoundFont)
+    }
+    .environment(\.modelContext, modelContainer.mainContext)
   }
 }

@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BD10A7E92BEFDD57001ACF04 /* Extensions in Frameworks */ = {isa = PBXBuildFile; productRef = BD10A7E82BEFDD57001ACF04 /* Extensions */; };
+		BD10A7EB2BEFDD57001ACF04 /* MainViews in Frameworks */ = {isa = PBXBuildFile; productRef = BD10A7EA2BEFDD57001ACF04 /* MainViews */; };
+		BD10A7ED2BEFDD57001ACF04 /* SF2ResourceFiles in Frameworks */ = {isa = PBXBuildFile; productRef = BD10A7EC2BEFDD57001ACF04 /* SF2ResourceFiles */; };
 		BD1D27832B6F13DD005C3ED0 /* SoundFonts2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27822B6F13DD005C3ED0 /* SoundFonts2App.swift */; };
-		BD1D27852B6F13DD005C3ED0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27842B6F13DD005C3ED0 /* ContentView.swift */; };
 		BD1D27892B6F13DE005C3ED0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */; };
 		BD1D278D2B6F13DE005C3ED0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */; };
 		BD1D27982B6F13DE005C3ED0 /* SoundFonts2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27972B6F13DE005C3ED0 /* SoundFonts2Tests.swift */; };
@@ -38,7 +40,6 @@
 /* Begin PBXFileReference section */
 		BD1D277F2B6F13DD005C3ED0 /* SoundFonts2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SoundFonts2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD1D27822B6F13DD005C3ED0 /* SoundFonts2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFonts2App.swift; sourceTree = "<group>"; };
-		BD1D27842B6F13DD005C3ED0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BD1D278A2B6F13DE005C3ED0 /* SoundFonts2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SoundFonts2.entitlements; sourceTree = "<group>"; };
 		BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -56,6 +57,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD10A7E92BEFDD57001ACF04 /* Extensions in Frameworks */,
+				BD10A7EB2BEFDD57001ACF04 /* MainViews in Frameworks */,
+				BD10A7ED2BEFDD57001ACF04 /* SF2ResourceFiles in Frameworks */,
 				BD5DBE8A2B8020560023D83A /* Models in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -103,7 +107,6 @@
 			isa = PBXGroup;
 			children = (
 				BD1D27822B6F13DD005C3ED0 /* SoundFonts2App.swift */,
-				BD1D27842B6F13DD005C3ED0 /* ContentView.swift */,
 				BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */,
 				BD1D278A2B6F13DE005C3ED0 /* SoundFonts2.entitlements */,
 				BD1D278E2B6F13DE005C3ED0 /* Info.plist */,
@@ -162,6 +165,9 @@
 			name = SoundFonts2;
 			packageProductDependencies = (
 				BD5DBE892B8020560023D83A /* Models */,
+				BD10A7E82BEFDD57001ACF04 /* Extensions */,
+				BD10A7EA2BEFDD57001ACF04 /* MainViews */,
+				BD10A7EC2BEFDD57001ACF04 /* SF2ResourceFiles */,
 			);
 			productName = SoundFonts2;
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFonts2.app */;
@@ -281,7 +287,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BD1D27852B6F13DD005C3ED0 /* ContentView.swift in Sources */,
 				BD1D27832B6F13DD005C3ED0 /* SoundFonts2App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -674,6 +679,18 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		BD10A7E82BEFDD57001ACF04 /* Extensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Extensions;
+		};
+		BD10A7EA2BEFDD57001ACF04 /* MainViews */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MainViews;
+		};
+		BD10A7EC2BEFDD57001ACF04 /* SF2ResourceFiles */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SF2ResourceFiles;
+		};
 		BD5DBE892B8020560023D83A /* Models */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Models;

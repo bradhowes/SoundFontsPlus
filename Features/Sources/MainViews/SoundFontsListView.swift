@@ -28,7 +28,7 @@ struct SoundFontsListView: View {
       }
       .navigationTitle("Fonts")
       .toolbar {
-        pickerView()
+        pickerView
         Button(LocalizedStringKey("Add"), systemImage: "plus", action: addSoundFont)
       }
     }.onAppear(perform: setInitialContent)
@@ -51,7 +51,7 @@ fileprivate extension SoundFontsListView {
   }
 
   @MainActor
-  func pickerView() -> some View {
+  var pickerView: some View {
     Picker("Tag", selection: $activeTagName) {
       ForEach(tags) { tag in
         Text(tag.name)

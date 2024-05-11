@@ -4,14 +4,22 @@ import SwiftData
 import SplitView
 import Models
 
-struct MainView: View {
+/**
+ The main view that shows the list of available SF2 files, and the list of presets for the active or selected
+ SF2 file.
+ */
+public struct MainView: View {
   @State private var selectedSoundFont: SoundFont?
   @State private var activeSoundFont: SoundFont?
   @State private var activePreset: Preset?
 
+  @Shared(.appStorage("splitterPosition")) var splitterPosition = 0.4
+
+  public init() {}
+
   // private let store: StoreOf<MainViewFeature>
 
-  var body: some View {
+  public var body: some View {
     Split(
       primary: {
         SoundFontsListView(selectedSoundFont: $selectedSoundFont,
@@ -26,8 +34,15 @@ struct MainView: View {
     )
     .splitter { Splitter(color: .accentColor, visibleThickness: 2) }
     .constraints(minPFraction: 0.30, minSFraction: 0.30, priority: .primary)
-    .layout(LayoutHolder(.horizontal))
-    .fraction(0.4)
+    .fraction(splitterPositionProvder)
+  }
+
+  private var splitterPositionProvder: FractionHolder {
+    FractionHolder(getter: {
+      CGFloat(self.splitterPosition)
+    }, setter: {
+      self.splitterPosition = Double($0)
+    })
   }
 }
 

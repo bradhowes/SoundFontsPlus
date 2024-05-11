@@ -8,7 +8,7 @@ let package = Package(
   platforms: [.iOS(.v17), .macOS(.v14)],
   products: [
     .library(name: "Extensions", targets: ["Extensions"]),
-    .library(name: "MainView", targets: ["MainView"]),
+    .library(name: "MainViews", targets: ["MainViews"]),
     .library(name: "Models", targets: ["Models"]),
     .library(name: "SF2ResourceFiles", targets: ["SF2ResourceFiles"])
   ],
@@ -30,7 +30,7 @@ let package = Package(
       ]
     ),
     .target(
-      name: "MainView",
+      name: "MainViews",
       dependencies: [
         .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "Models", condition: .none),

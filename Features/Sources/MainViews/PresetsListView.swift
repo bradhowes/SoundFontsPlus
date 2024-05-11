@@ -34,14 +34,12 @@ struct PresetsListView: View {
         .searchable(text: $searchText, prompt: "Preset")
         .onChange(of: selectedSoundFont) { oldValue, newValue in
           if oldValue != newValue {
-            print("new selectedSoundFont")
-            showPreset(proxy: proxy)
+            scrollToActivePreset(proxy: proxy)
           }
         }
         .onChange(of: activePreset) { oldValue, newValue in
           if oldValue != newValue {
-            print("new activePreset")
-            showPreset(proxy: proxy)
+            scrollToActivePreset(proxy: proxy)
           }
         }
       }.navigationTitle("Presets")
@@ -49,12 +47,11 @@ struct PresetsListView: View {
   }
 
   @MainActor
-  func showPreset(proxy: ScrollViewProxy) {
+  func scrollToActivePreset(proxy: ScrollViewProxy) {
     // Delay the `scrollTo` until after the view has been populated with the new collection
     // of presets.
     let pos = selectedSoundFont == activeSoundFont ? (activePreset?.index ?? 0) : 0
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-      print("scrollTo", pos)
       proxy.scrollTo(pos)
     }
   }
