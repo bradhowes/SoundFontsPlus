@@ -10,6 +10,8 @@ struct PresetsListView: View {
   @Binding private var selectedSoundFont: SoundFont?
   @Binding private var activeSoundFont: SoundFont?
   @Binding private var activePreset: Preset?
+
+  @State private var isPresented = false
   @State private var searchText = ""
 
   init(selectedSoundFont: Binding<SoundFont?>,
@@ -31,7 +33,7 @@ struct PresetsListView: View {
                              activePreset: $activePreset)
           }
         }
-        .searchable(text: $searchText, prompt: "Preset")
+        .searchable(text: $searchText, isPresented: $isPresented, placement: .navigationBarDrawer, prompt: "Preset")
         .onChange(of: selectedSoundFont) { oldValue, newValue in
           if oldValue != newValue {
             scrollToActivePreset(proxy: proxy)
@@ -42,7 +44,11 @@ struct PresetsListView: View {
             scrollToActivePreset(proxy: proxy)
           }
         }
-      }.navigationTitle("Presets")
+      }
+      .navigationTitle("Presets")
+      .toolbar {
+        Button(LocalizedStringKey("Search"), systemImage: "magnifyingglass", action: { self.isPresented = true })
+        }
     }
   }
 

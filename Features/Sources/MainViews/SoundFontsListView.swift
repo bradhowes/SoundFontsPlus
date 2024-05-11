@@ -31,7 +31,8 @@ struct SoundFontsListView: View {
         pickerView
         Button(LocalizedStringKey("Add"), systemImage: "plus", action: addSoundFont)
       }
-    }.onAppear(perform: setInitialContent)
+    }
+    .onAppear(perform: setInitialContent)
   }
 }
 
@@ -140,7 +141,6 @@ fileprivate extension SoundFontsListView {
 //  }
 //
 //}
-
 
 struct SoundFontsListView_Previews: PreviewProvider {
   static let modelContainer = VersionedModelContainer.make(isTemporary: true)
