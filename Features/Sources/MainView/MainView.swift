@@ -25,7 +25,7 @@ struct MainView: View {
       }
     )
     .splitter { Splitter(color: .accentColor, visibleThickness: 2) }
-    .constraints(minPFraction: 0.15, minSFraction: 0.15, priority: .primary)
+    .constraints(minPFraction: 0.30, minSFraction: 0.30, priority: .primary)
     .layout(LayoutHolder(.horizontal))
     .fraction(0.4)
   }

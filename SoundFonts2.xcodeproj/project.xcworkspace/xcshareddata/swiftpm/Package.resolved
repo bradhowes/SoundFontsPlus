@@ -21,7 +21,7 @@
     {
       "identity" : "splitview",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/stevengharris/SplitView",
+      "location" : "https://github.com/bradhowes/SplitView",
       "state" : {
         "revision" : "b37d559fd334cd5403433a29a5da6fe78f80714a",
         "version" : "3.5.2"
