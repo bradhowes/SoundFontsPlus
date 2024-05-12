@@ -37,7 +37,7 @@ public enum VersionedModelContainer {
       }
 
       log.debug("make - installing built-in SF2 files")
-      try container.mainContext.createBuiltInSoundFonts()
+      try container.mainContext.addBuiltInSoundFonts()
       return container
     } catch {
       log.error("make - could not create ModelContainer - \(error)")

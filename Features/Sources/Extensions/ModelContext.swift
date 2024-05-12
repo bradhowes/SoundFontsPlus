@@ -13,7 +13,7 @@ public extension ModelContext {
   @MainActor
   func findExact<T: PersistentModel>(id: PersistentIdentifier) -> T? {
 
-    // Handle the (common?) case where the mdoel is known to the modelContext.
+    // Handle the (common?) case where the model is known to the modelContext.
     if let exact: T = registeredModel(for: id) {
       return exact
     }

@@ -8,12 +8,12 @@ struct PresetButtonView: View {
   @Environment(\.dismissSearch) private var dismissSearch
 
   private let preset: Preset
-  @State private var selectedSoundFont: SoundFont?
-  @Binding private var activeSoundFont: SoundFont?
-  @Binding private var activePreset: Preset?
+  @State private var selectedSoundFont: SoundFont
+  @Binding private var activeSoundFont: SoundFont
+  @Binding private var activePreset: Preset
 
-  init(preset: Preset, selectedSoundFont: SoundFont?, activeSoundFont: Binding<SoundFont?>,
-       activePreset: Binding<Preset?>) {
+  init(preset: Preset, selectedSoundFont: SoundFont, activeSoundFont: Binding<SoundFont>,
+       activePreset: Binding<Preset>) {
     self.preset = preset
     self.selectedSoundFont = selectedSoundFont
     self._activeSoundFont = activeSoundFont

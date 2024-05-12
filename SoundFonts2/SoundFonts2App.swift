@@ -1,12 +1,7 @@
-//
-//  SoundFonts2App.swift
-//  SoundFonts2
-//
-//  Created by Brad Howes on 04/02/2024.
-//
-
+import ComposableArchitecture
 import SwiftUI
 import SwiftData
+
 import Models
 import MainViews
 
@@ -14,8 +9,10 @@ import MainViews
 struct SoundFonts2App: App {
 
   var body: some Scene {
+    let initialState = InitialState()
     WindowGroup {
-      MainView()
-    }.modelContainer(VersionedModelContainer.make(isTemporary: false))
+      MainView(activeSoundFont: initialState.activeSoundFont,
+               activePreset: initialState.activePreset)
+    }.modelContainer(initialState.modelContainer)
   }
 }

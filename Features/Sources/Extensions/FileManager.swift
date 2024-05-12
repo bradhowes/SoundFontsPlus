@@ -81,7 +81,7 @@ extension DependencyValues {
 }
 
 
-private extension FileManager {
+public extension FileManager {
 
   var groupIdentifier: String { "group.com.braysoftware.SoundFontsShare" }
 

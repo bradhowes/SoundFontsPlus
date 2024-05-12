@@ -71,10 +71,10 @@ final class SoundFontModelTests: XCTestCase {
     try withDependencies {
       $0.userDefaults = UserDefaults.Dependency.ephemeral()
     } operation: {
-      _ = try context.createSoundFont(resourceTag: .freeFont)
-      _ = try context.createSoundFont(resourceTag: .museScore)
-      _ = try context.createSoundFont(resourceTag: .rolandNicePiano)
-      
+      _ = try context.addSoundFont(resourceTag: .freeFont)
+      _ = try context.addSoundFont(resourceTag: .museScore)
+      _ = try context.addSoundFont(resourceTag: .rolandNicePiano)
+
       let found = fetched
       XCTAssertFalse(found.isEmpty)
       XCTAssertEqual(found.count, 3)
@@ -121,7 +121,7 @@ final class SoundFontModelTests: XCTestCase {
     try withDependencies {
       $0.userDefaults = UserDefaults.Dependency.ephemeral()
     } operation: {
-      _ = try context.createSoundFont(resourceTag: .freeFont)
+      _ = try context.addSoundFont(resourceTag: .freeFont)
       var found = fetched
       XCTAssertFalse(found.isEmpty)
 
@@ -219,8 +219,8 @@ final class SoundFontModelTests: XCTestCase {
     try withDependencies {
       $0.userDefaults = UserDefaults.Dependency.ephemeral()
     } operation: {
-      let freeFont = try context.createSoundFont(resourceTag: .freeFont)
-      let museScore = try context.createSoundFont(resourceTag: .museScore)
+      let freeFont = try context.addSoundFont(resourceTag: .freeFont)
+      let museScore = try context.addSoundFont(resourceTag: .museScore)
 
       self.measure {
         let freeFontPresets = freeFont.orderedPresets
@@ -241,8 +241,8 @@ final class SoundFontModelTests: XCTestCase {
     try withDependencies {
       $0.userDefaults = UserDefaults.Dependency.ephemeral()
     } operation: {
-      let freeFont = try context.createSoundFont(resourceTag: .freeFont)
-      let museScore = try context.createSoundFont(resourceTag: .museScore)
+      let freeFont = try context.addSoundFont(resourceTag: .freeFont)
+      let museScore = try context.addSoundFont(resourceTag: .museScore)
 
       self.measure {
         let freeFontPresets = self.context.orderedPresets(for: freeFont)

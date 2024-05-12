@@ -24,6 +24,12 @@ extension SchemaV1 {
       self.index = index
       self.name = name
     }
+
+    public static func fetchDescriptor(for owner: SoundFont) -> FetchDescriptor<Preset> {
+      let ownerId = owner.persistentModelID
+      return FetchDescriptor<Preset>(predicate: #Predicate { $0.owner?.persistentModelID == ownerId },
+                                     sortBy: [SortDescriptor(\.index)])
+    }
   }
 }
 
@@ -37,11 +43,8 @@ public extension ModelContext {
    */
   @MainActor
   func orderedPresets(for soundFont: SoundFont) -> [Preset] {
-    let ownerId = soundFont.persistentModelID
-    let fetchDescriptor = FetchDescriptor<Preset>(predicate: #Predicate { $0.owner?.persistentModelID == ownerId },
-                                                  sortBy: [SortDescriptor(\.index)])
     do {
-      return try fetch(fetchDescriptor)
+      return try fetch(Preset.fetchDescriptor(for: soundFont))
     } catch {
       // fatalError("Failed to fetch presets: \(error)")
     }

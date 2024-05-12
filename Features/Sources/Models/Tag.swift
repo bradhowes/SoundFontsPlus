@@ -73,7 +73,7 @@ public extension ModelContext {
     @Dependency(\.userDefaults) var userDefaults
 
     if let rawTagIdData = userDefaults.data(forKey: kind.userDefaultsKey),
-       let tag: Tag = try! findExact(id: rawTagIdData.decodedValue()) {
+       let tag: Tag = try? findExact(id: rawTagIdData.decodedValue()) {
       return tag
     }
 
@@ -91,7 +91,7 @@ public extension ModelContext {
   fileprivate func createAllUbiquitousTags(wanted: Tag.Ubiquitous) -> Tag {
     @Dependency(\.userDefaults) var userDefaults
 
-    // Create all of the tags -- they will have temporary persistentModelID valuess
+    // Create all of the tags -- they will have temporary persistentModelID values until saved.
     let tags = Tag.Ubiquitous.allCases.map { kind in
       let tag = Tag(name: kind.name)
       self.insert(tag)
