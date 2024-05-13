@@ -1,3 +1,5 @@
+// Copyright © 2024 Brad Howes. All rights reserved.
+
 import Foundation
 import SwiftData
 import SwiftUI
@@ -36,17 +38,5 @@ struct TagFilteredSoundFontListView: View {
                           activeSoundFont: $activeSoundFont,
                           selectedSoundFont: $selectedSoundFont)
     }
-    // .onAppear(perform: setInitialContent)
-  }
-
-  @MainActor
-  func setInitialContent() {
-//
-//    // TODO: restore these from persistent storage
-//    if activePreset == nil {
-//      activeSoundFont = soundFonts.dropFirst().first
-//      selectedSoundFont = activeSoundFont
-//      activePreset = activeSoundFont?.orderedPresets.first
-//    }
   }
 }

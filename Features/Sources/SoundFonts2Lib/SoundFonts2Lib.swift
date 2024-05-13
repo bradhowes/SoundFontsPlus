@@ -1,5 +1,4 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+// Copyright © 2024 Brad Howes. All rights reserved.
 
 import Engine
 

@@ -1,4 +1,4 @@
-// Copyright © 2019 Brad Howes. All rights reserved.
+// Copyright © 2024 Brad Howes. All rights reserved.
 
 import Foundation
 import os
@@ -19,6 +19,7 @@ public struct FileManagerClient : Sendable {
   public var cloudDocumentsDirectory: @Sendable () -> URL?
   public var fileSizeOf: @Sendable (_ url: URL) -> UInt64
   public var isUbiquitousItem: @Sendable (_ url: URL) -> Bool
+  public var copyItem: @Sendable (_ src: URL, _ dst: URL) throws -> Void
 }
 
 extension FileManagerClient: DependencyKey {
@@ -36,7 +37,8 @@ extension FileManagerClient: DependencyKey {
       localDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
       cloudDocumentsDirectory: { FileManager.default.cloudDocumentsDirectory },
       fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
-      isUbiquitousItem: { FileManager.default.isUbiquitousItem(at: $0) }
+      isUbiquitousItem: { FileManager.default.isUbiquitousItem(at: $0) },
+      copyItem: { try FileManager.default.copyItem(at: $0, to: $1) }
     )
   }
 
@@ -46,13 +48,14 @@ extension FileManagerClient: DependencyKey {
       newTemporaryFile: { try FileManager.default.newTemporaryFile() },
       privateDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
       sharedDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
-      sharedPathFor: {_ in FileManager.default.localDocumentsDirectory},
+      sharedPathFor: { _ in FileManager.default.localDocumentsDirectory},
       sharedContents: { ["One", "Two", "Three"] },
       hasCloudDirectory: { false },
-      localDocumentsDirectory: {FileManager.default.localDocumentsDirectory },
+      localDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
       cloudDocumentsDirectory: { nil },
       fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
-      isUbiquitousItem: { _ in false }
+      isUbiquitousItem: { _ in false },
+      copyItem: { _, _ in }
     )
   }
 
@@ -68,7 +71,8 @@ extension FileManagerClient: DependencyKey {
       localDocumentsDirectory: unimplemented("\(Self.self).localDocumentsDirectory"),
       cloudDocumentsDirectory: unimplemented("\(Self.self).cloudDocumentsDirectory"),
       fileSizeOf: unimplemented("\(Self.self).fileSizeOf"),
-      isUbiquitousItem: unimplemented("\(Self.self).isUbiquitousItem")
+      isUbiquitousItem: unimplemented("\(Self.self).isUbiquitousItem"),
+      copyItem: unimplemented("\(Self.self).copyItem")
     )
   }
 }

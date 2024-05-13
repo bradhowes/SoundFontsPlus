@@ -1,3 +1,6 @@
+// Copyright © 2024 Brad Howes. All rights reserved.
+
+import Dependencies
 import Foundation
 import SwiftData
 import SwiftUI
@@ -8,8 +11,16 @@ import Models
 
 struct SF2Picker: UIViewControllerRepresentable {
   @Environment(\.modelContext) var modelContext
-  @Binding var showingPicker: Bool
-  let copyFilesWhenAdding = true
+
+  @Binding private var showingPicker: Bool
+  @Binding private var pickerResults: PickerResults?
+
+  private let copyFilesWhenAdding = true
+
+  init(showingPicker: Binding<Bool>, pickerResults: Binding<PickerResults?>) {
+    self._showingPicker = showingPicker
+    self._pickerResults = pickerResults
+  }
 
   func makeUIViewController(context: Context) -> some UIViewController {
     let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
@@ -21,30 +32,46 @@ struct SF2Picker: UIViewControllerRepresentable {
   }
 
   func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
-
   }
 
   func makeCoordinator() -> Coordinator {
-    Coordinator(modelContext: modelContext, showingPicker: $showingPicker, copyFilesWhenAdding: copyFilesWhenAdding)
+    Coordinator(modelContext: modelContext, copyFilesWhenAdding: copyFilesWhenAdding, showingPicker: $showingPicker,
+                pickerResults: $pickerResults)
+  }
+}
+
+public struct PickerResults {
+  public let oks: [String]
+  public let failures: [SF2LoadFailure]
+
+  public init(oks: [String], failures: [SF2LoadFailure]) {
+    self.oks = oks
+    self.failures = failures
   }
 }
 
 class Coordinator: NSObject, UIDocumentPickerDelegate {
 
-  let modelContext: ModelContext
-  @Binding var showingPicker: Bool
-  let copyFilesWhenAdding: Bool
+  private let modelContext: ModelContext
+  private let copyFilesWhenAdding: Bool
 
-  init(modelContext: ModelContext, showingPicker: Binding<Bool>, copyFilesWhenAdding: Bool) {
+  @Binding private var showingPicker: Bool
+  @Binding private var pickerResults: PickerResults?
+
+  init(modelContext: ModelContext, 
+       copyFilesWhenAdding: Bool,
+       showingPicker: Binding<Bool>,
+       pickerResults: Binding<PickerResults?>) {
     self.modelContext = modelContext
-    self._showingPicker = showingPicker
     self.copyFilesWhenAdding = copyFilesWhenAdding
+    self._showingPicker = showingPicker
+    self._pickerResults = pickerResults
   }
 
   func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
     showingPicker = false
 
-    var ok = [String]()
+    var oks = [String]()
     var failures = [SF2LoadFailure]()
 
     for url in urls {
@@ -66,19 +93,18 @@ class Coordinator: NSObject, UIDocumentPickerDelegate {
         continue
       }
 
-      ok.append(fileName)
+      oks.append(fileName)
     }
+
+    pickerResults = .init(oks: oks, failures: failures)
   }
 }
 
 private func copyToAppFolder(source: URL, destination: URL) throws {
-  print("SF2 source: \(source.absoluteString)")
-  print("SF2 destination: \(destination.absoluteString)")
   let secured = source.startAccessingSecurityScopedResource()
   defer { if secured { source.stopAccessingSecurityScopedResource() } }
   try FileManager.default.copyItem(at: source, to: destination)
 }
-
 
 //    guard !urls.isEmpty else { return }
 //

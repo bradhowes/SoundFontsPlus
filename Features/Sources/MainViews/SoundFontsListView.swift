@@ -1,5 +1,8 @@
+// Copyright © 2024 Brad Howes. All rights reserved.
+
 import SwiftData
 import SwiftUI
+
 import Models
 
 /**
@@ -17,6 +20,7 @@ struct SoundFontsListView: View {
   // @State private var soundFonts: [SoundFont] = []
   @State private var activeTag: Tag?
   @State private var addSoundFont: Bool = false
+  @State private var pickerResults: PickerResults?
 
   var body: some View {
     NavigationStack {
@@ -27,9 +31,8 @@ struct SoundFontsListView: View {
         TagPickerView(activeTag: $activeTag)
         Button(LocalizedStringKey("Add"), systemImage: "plus", action: { addSoundFont = true })
       }
-    }
-    .sheet(isPresented: $addSoundFont) {
-      SF2Picker(showingPicker: $addSoundFont)
+    }.sheet(isPresented: $addSoundFont) {
+      SF2Picker(showingPicker: $addSoundFont, pickerResults: $pickerResults)
     }
   }
 }

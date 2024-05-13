@@ -1,3 +1,5 @@
+// Copyright © 2024 Brad Howes. All rights reserved.
+
 import ComposableArchitecture
 import SwiftUI
 import SwiftData
@@ -8,8 +10,17 @@ import MainViews
 @main
 struct SoundFonts2App: App {
 
+  var body: some Scene {
+    let initialState = makeInitialMainViewState()
+
+    WindowGroup {
+      MainView(activeSoundFont: initialState.activeSoundFont,
+               activePreset: initialState.activePreset)
+    }.modelContainer(initialState.modelContainer)
+  }
+
   @MainActor
-  static func makeInitialMainViewState() -> InitialMainViewState {
+  func makeInitialMainViewState() -> InitialMainViewState {
 #if DEBUG
     if CommandLine.arguments.contains("enable-testing") {
       return InitialMainViewState(isTemporary: true)
@@ -18,13 +29,4 @@ struct SoundFonts2App: App {
     return InitialMainViewState(isTemporary: false)
   }
 
-  var body: some Scene {
-
-    let initialState = Self.makeInitialMainViewState()
-
-    WindowGroup {
-      MainView(activeSoundFont: initialState.activeSoundFont,
-               activePreset: initialState.activePreset)
-    }.modelContainer(initialState.modelContainer)
-  }
 }
