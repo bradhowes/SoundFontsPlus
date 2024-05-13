@@ -17,9 +17,15 @@ public struct InitialMainViewState {
     let modelContainer = VersionedModelContainer.make(isTemporary: isTemporary)
     self.modelContainer = modelContainer
 
-    let activeSoundFont = modelContainer.mainContext.soundFonts()[0]
+    let activeSoundFont = modelContainer.mainContext.allSoundFonts()[0]
     self.activeSoundFont = activeSoundFont
     self.activePreset = activeSoundFont.orderedPresets[0]
+
+    for soundFont in modelContainer.mainContext.allSoundFonts() {
+      soundFont.visible = true
+    }
+
+    try? modelContainer.mainContext.save()
   }
 }
 

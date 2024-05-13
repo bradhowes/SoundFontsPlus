@@ -19,37 +19,64 @@ struct SoundFontsListView: View {
 
   // @State private var soundFonts: [SoundFont] = []
   @State private var activeTag: Tag?
-  @State private var addSoundFont: Bool = false
-  @State private var pickerResults: PickerResults?
+  @State private var addingSoundFont: Bool = false
+
+  @State private var pickerResults: [URL] = []
+  @State private var showingAddedSummary: Bool = false
+  @State private var addedSummary: LocalizedStringKey = "" {
+    didSet {
+      showingAddedSummary = addedSummary != ""
+    }
+  }
 
   var body: some View {
     NavigationStack {
       TagFilteredSoundFontListView(tag: activeTag, activeSoundFont: $activeSoundFont, selectedSoundFont: $selectedSoundFont,
-                      activePreset: $activePreset)
+                                   activePreset: $activePreset)
       .navigationTitle("Files")
       .toolbar {
         TagPickerView(activeTag: $activeTag)
-        Button(LocalizedStringKey("Add"), systemImage: "plus", action: { addSoundFont = true })
+        Button(LocalizedStringKey("Add"), systemImage: "plus", action: { addingSoundFont = true })
       }
-    }.sheet(isPresented: $addSoundFont) {
-      SF2Picker(showingPicker: $addSoundFont, pickerResults: $pickerResults)
+    }.sheet(isPresented: $addingSoundFont) {
+      SF2Picker(pickerResults: $pickerResults)
+    }.onChange(of: pickerResults) { _, newValue in
+      if !newValue.isEmpty {
+        addSoundFonts(urls: newValue)
+      }
+    }.alert("Add Complete", isPresented: $showingAddedSummary) {
+      // add buttons here
+    } message: {
+      Text(addedSummary)
     }
   }
 }
 
-fileprivate extension SoundFontsListView {
+private extension SoundFontsListView {
 
   @MainActor
-  func setInitialContent() {
-    let tag = activeTag ?? modelContext.ubiquitousTag(.all)
-    activeTag = tag
+  func addSoundFonts(urls: [URL]) {
+    let result = modelContext.picked(urls: urls)
+    addedSummary = generateResultMessage(result: result)
+    pickerResults = []
+  }
+
+  @MainActor
+  func generateResultMessage(result: ModelContext.PickedStatus) -> LocalizedStringKey {
+    if result.bad.isEmpty {
+      return "^[Successfuly added \(result.good) file](inflect: true)."
+    } else if result.good == 0 {
+      return "^[Failed to add \(result.bad.count) file](inflect: true)."
+    } else {
+      return "^[Successfully added \(result.good) file but, failed to add \(result.bad.count)](inflect: true)."
+    }
   }
 }
 
 struct SoundFontsListView_Previews: PreviewProvider {
   static let modelContainer = VersionedModelContainer.make(isTemporary: true)
   static var previews: some View {
-    let soundFont = modelContainer.mainContext.soundFonts()[0]
+    let soundFont = modelContainer.mainContext.allSoundFonts()[0]
 
     @State var selectedSoundFont: SoundFont = soundFont
     @State var activeSoundFont: SoundFont = soundFont

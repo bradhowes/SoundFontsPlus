@@ -31,7 +31,7 @@ struct SoundFontButtonView: View {
 struct SoundFontButton_Previews: PreviewProvider {
   static let modelContainer = VersionedModelContainer.make(isTemporary: true)
   static var previews: some View {
-    let soundFont = modelContainer.mainContext.soundFonts()[0]
+    let soundFont = modelContainer.mainContext.allSoundFonts()[0]
     @State var activeSoundFont: SoundFont = soundFont
     @State var selectedSoundFont: SoundFont = soundFont
     List {

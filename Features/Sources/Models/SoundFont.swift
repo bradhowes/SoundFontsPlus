@@ -1,6 +1,7 @@
 // Copyright © 2024 Brad Howes. All rights reserved.
 
 import AVFoundation
+import ComposableArchitecture
 import Foundation
 import SwiftData
 
@@ -17,8 +18,8 @@ extension SchemaV1 {
     @Relationship(deleteRule: .cascade, inverse: \Preset.owner) public var presets: [Preset] = []
     public var displayName: String = ""
     @Relationship(inverse: \Tag.tagged) public var tags: [Tag] = []
-    public var visible: Bool = true
-    
+    public var visible: Bool = true // NOT USED
+
     public var embeddedName: String = ""
     public var embeddedComment: String = ""
     public var embeddedAuthor: String = ""
@@ -56,12 +57,16 @@ extension SchemaV1 {
      - returns: the FetchDescriptor to assign to a Query
      */
     public static func fetchDescriptor(by tag: Tag?) -> FetchDescriptor<SoundFont> {
-      let name = tag?.name ?? ""
-      let predicate: Predicate<SoundFont>? = name.isEmpty ? nil : (#Predicate { $0.tags.contains { $0.name == name } })
+      let name = tag?.name ?? "All"
+      let predicate: Predicate<SoundFont> = #Predicate { $0.tags.contains { $0.name == name } }
       return FetchDescriptor<SoundFont>(predicate: predicate,
                                         sortBy: [SortDescriptor(\SoundFont.displayName)])
     }
   }
+}
+
+public enum SF2FileError: Error {
+  case loadFailure(name: String)
 }
 
 public extension ModelContext {
@@ -71,7 +76,9 @@ public extension ModelContext {
     let location = kind.asLocation
     guard let url = location.url else { fatalError("Unexpected nil URL for SoundFont file")}
     var fileInfo = SF2FileInfo(url.path(percentEncoded: false))
-    fileInfo.load()
+    if !fileInfo.load() {
+      throw SF2FileError.loadFailure(name: name)
+    }
 
     let soundFont = SoundFont(location: location, name: name)
     insert(soundFont)
@@ -79,7 +86,7 @@ public extension ModelContext {
     soundFont.embeddedAuthor = String(fileInfo.embeddedAuthor())
     soundFont.embeddedComment = String(fileInfo.embeddedComment())
     soundFont.embeddedCopyright = String(fileInfo.embeddedCopyright())
-    
+
     for index in 0..<fileInfo.size() {
       let presetInfo = fileInfo[index]
       let preset: Preset = .init(owner: soundFont, index: index, name: String(presetInfo.name()))
@@ -113,17 +120,14 @@ public extension ModelContext {
   }
 
   @MainActor
-  func soundFonts() -> [SoundFont] {
+  func allSoundFonts() -> [SoundFont] {
     let fetchDescriptor = FetchDescriptor<SoundFont>(sortBy: [SortDescriptor(\.displayName)])
     var found: [SoundFont] = []
 
-    do {
-      found = try fetch(fetchDescriptor)
-      if found.isEmpty {
-        try addBuiltInSoundFonts()
-        found = try fetch(fetchDescriptor)
-      }
-    } catch {
+    found = (try? fetch(fetchDescriptor)) ?? []
+    if found.isEmpty {
+      try? addBuiltInSoundFonts()
+      found = (try? fetch(fetchDescriptor)) ?? []
     }
 
     if found.isEmpty {
@@ -135,19 +139,29 @@ public extension ModelContext {
 
   @MainActor
   func soundFonts(with tag: Tag) -> [SoundFont] {
-    let tagName = tag.name
-    let fetchDescriptor: FetchDescriptor<SoundFont> = .init(
-      predicate: #Predicate { $0.tags.contains { $0.name == tagName } },
-      sortBy: [SortDescriptor(\SoundFont.displayName)]
-    )
-
-    let found = try? fetch(fetchDescriptor)
-    return found ?? []
+    let fetchDescriptor = SoundFont.fetchDescriptor(by: tag)
+    return (try? fetch(fetchDescriptor)) ?? []
   }
 
   /// TODO: remove when cascading is fixed
   @MainActor
   func delete(soundFont: SoundFont) {
+    @Dependency(\.fileManager) var fileManager
+
+    switch soundFont.kind {
+    case .builtin: break
+    case .external: break
+    case .installed(let url):
+      do {
+        try fileManager.removeItem(url)
+        for (index, path) in FileManager.default.sharedContents.enumerated() {
+          print(index, path)
+        }
+      } catch {
+        print("failed to remove \(url) - \(error)")
+      }
+    }
+
     for preset in soundFont.presets {
       self.delete(preset: preset)
     }
@@ -164,5 +178,54 @@ public extension ModelContext {
     case .external: tags += [ubiquitousTag(.user), ubiquitousTag(.external)]
     }
     return tags
+  }
+
+  struct PickedStatus {
+    public let good: Int
+    public let bad: [String]
+
+    public init(good: Int, bad: [String]) {
+      self.good = good
+      self.bad = bad
+    }
+  }
+
+  @MainActor
+  func picked(urls: [URL]) -> PickedStatus {
+    var good = 0
+    var bad = [String]()
+
+    for url in urls {
+      let fileName = url.lastPathComponent
+      let displayName = String(fileName[fileName.startIndex..<(fileName.lastIndex(of: ".") ?? fileName.endIndex)])
+      let destination = FileManager.default.sharedPath(for: fileName)
+
+      do {
+        try FileManager.default.moveItem(at: url, to: destination)
+      } catch let err as NSError {
+        if err.code != NSFileWriteFileExistsError {
+          bad.append(fileName)
+          continue
+        }
+      }
+
+      do {
+        _ = try addSoundFont(name: displayName, kind: .installed(file: destination))
+      } catch SF2FileError.loadFailure {
+        bad.append(fileName)
+        continue
+      } catch {
+        bad.append(fileName)
+        continue
+      }
+
+      good += 1
+    }
+
+    for (index, path) in FileManager.default.sharedContents.enumerated() {
+      print(index, path)
+    }
+
+    return .init(good: good, bad: bad)
   }
 }

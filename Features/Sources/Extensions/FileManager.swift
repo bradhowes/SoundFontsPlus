@@ -20,6 +20,7 @@ public struct FileManagerClient : Sendable {
   public var fileSizeOf: @Sendable (_ url: URL) -> UInt64
   public var isUbiquitousItem: @Sendable (_ url: URL) -> Bool
   public var copyItem: @Sendable (_ src: URL, _ dst: URL) throws -> Void
+  public var removeItem: @Sendable (_ at: URL) throws -> Void
 }
 
 extension FileManagerClient: DependencyKey {
@@ -38,7 +39,8 @@ extension FileManagerClient: DependencyKey {
       cloudDocumentsDirectory: { FileManager.default.cloudDocumentsDirectory },
       fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
       isUbiquitousItem: { FileManager.default.isUbiquitousItem(at: $0) },
-      copyItem: { try FileManager.default.copyItem(at: $0, to: $1) }
+      copyItem: { try FileManager.default.copyItem(at: $0, to: $1) },
+      removeItem: { try FileManager.default.removeItem(at: $0) }
     )
   }
 
@@ -55,7 +57,8 @@ extension FileManagerClient: DependencyKey {
       cloudDocumentsDirectory: { nil },
       fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
       isUbiquitousItem: { _ in false },
-      copyItem: { _, _ in }
+      copyItem: { _, _ in },
+      removeItem: { _ in }
     )
   }
 
@@ -72,7 +75,8 @@ extension FileManagerClient: DependencyKey {
       cloudDocumentsDirectory: unimplemented("\(Self.self).cloudDocumentsDirectory"),
       fileSizeOf: unimplemented("\(Self.self).fileSizeOf"),
       isUbiquitousItem: unimplemented("\(Self.self).isUbiquitousItem"),
-      copyItem: unimplemented("\(Self.self).copyItem")
+      copyItem: unimplemented("\(Self.self).copyItem"),
+      removeItem: unimplemented("\(Self.self).removeItem")
     )
   }
 }

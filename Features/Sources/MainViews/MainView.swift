@@ -61,7 +61,7 @@ public struct MainView: View {
 struct MainView_Previews: PreviewProvider {
   static let modelContainer = VersionedModelContainer.make(isTemporary: true)
   static var previews: some View {
-    let soundFont = modelContainer.mainContext.soundFonts()[0]
+    let soundFont = modelContainer.mainContext.allSoundFonts()[0]
 
     MainView(activeSoundFont: soundFont, activePreset: soundFont.orderedPresets[0])
       .environment(\.modelContext, modelContainer.mainContext)

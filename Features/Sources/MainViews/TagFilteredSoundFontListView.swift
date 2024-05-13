@@ -10,11 +10,15 @@ import Models
  Shows a list of SoundFont entities that all have the current active Tag entity
  */
 struct TagFilteredSoundFontListView: View {
+  @Environment(\.modelContext) var modelContext
   @Query private var soundFonts: [SoundFont]
 
   @Binding private var activeSoundFont: SoundFont
   @Binding private var selectedSoundFont: SoundFont
   @Binding private var activePreset: Preset
+
+  @State private var pendingDeletion: SoundFont?
+  @State private var confirmDeletion: Bool = false
 
   /**
    Set properties for the view.
@@ -33,10 +37,57 @@ struct TagFilteredSoundFontListView: View {
   }
 
   var body: some View {
-    List(soundFonts) { soundFont in
-      SoundFontButtonView(soundFont: soundFont,
-                          activeSoundFont: $activeSoundFont,
-                          selectedSoundFont: $selectedSoundFont)
+    List {
+      ForEach(soundFonts) { soundFont in
+        SoundFontButtonView(soundFont: soundFont,
+                            activeSoundFont: $activeSoundFont,
+                            selectedSoundFont: $selectedSoundFont)
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+          if !soundFont.kind.isBuiltin {
+            Button(role: .destructive) {
+              pendingDeletion = soundFont
+              confirmDeletion = true
+            } label: {
+              Label("Delete", systemImage: "trash.fill")
+            }
+          }
+        }
+      }
+    }.alert("Confirm Deletion", isPresented: $confirmDeletion) {
+      Button(role: .destructive) {
+        delete(soundFont: pendingDeletion!)
+        confirmDeletion = false
+      } label: {
+        Text("Delete")
+      }
+      Button(role: .cancel) {
+        pendingDeletion = nil
+        confirmDeletion = false
+      } label: {
+        Text("Cancel")
+      }
+    } message: {
+      let name = pendingDeletion?.displayName ?? "???"
+      Text("Really delete \(name)? This cannot be undone.")
+    }
+  }
+
+  @MainActor
+  private func delete(soundFont: SoundFont) {
+    let updateActiveSoundFont = soundFont == activeSoundFont
+    let updateSelectedSoundFont = soundFont == selectedSoundFont
+
+    modelContext.delete(soundFont: soundFont)
+
+    try! modelContext.save()
+
+    if updateActiveSoundFont {
+      activeSoundFont = modelContext.allSoundFonts()[0]
+      activePreset = activeSoundFont.orderedPresets[0]
+    }
+
+    if updateSelectedSoundFont {
+      selectedSoundFont = activeSoundFont
     }
   }
 }

@@ -71,7 +71,7 @@ struct PresetsListView: View {
 
 struct PresetListView_Previews: PreviewProvider {
   static let modelContainer = VersionedModelContainer.make(isTemporary: true)
-  static var soundFonts: [SoundFont] { modelContainer.mainContext.soundFonts() }
+  static var soundFonts: [SoundFont] { modelContainer.mainContext.allSoundFonts() }
 
   static var previews: some View {
     let soundFont = soundFonts[0]
