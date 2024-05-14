@@ -174,8 +174,8 @@ public extension ModelContext {
     var tags = [ubiquitousTag(.all)]
     switch kind {
     case .builtin: tags.append(ubiquitousTag(.builtIn))
-    case .installed: tags.append(ubiquitousTag(.user))
-    case .external: tags += [ubiquitousTag(.user), ubiquitousTag(.external)]
+    case .installed: tags.append(ubiquitousTag(.added))
+    case .external: tags += [ubiquitousTag(.added), ubiquitousTag(.external)]
     }
     return tags
   }

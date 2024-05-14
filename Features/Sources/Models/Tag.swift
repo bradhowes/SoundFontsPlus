@@ -23,15 +23,15 @@ extension SchemaV1 {
       /// Tag that represents built-in SoundFont entities
       case builtIn
       /// Tag that represents all user-installed entities
-      case user
-      /// Tag that represents all external entities (subset of 'user')
+      case added
+      /// Tag that represents all external entities (subset of `added`)
       case external
       /// The display name of the tag
       public var name: String {
         switch self {
         case .all: return "All"
         case .builtIn: return "Built-in"
-        case .user: return "User"
+        case .added: return "Added"
         case .external: return "External"
         }
       }
@@ -40,7 +40,7 @@ extension SchemaV1 {
         switch self {
         case .all: return "AllTagIdKey"
         case .builtIn: return "BuiltInTagIdKey"
-        case .user: return "UserTagIdKey"
+        case .added: return "UserTagIdKey"
         case .external: return "ExternalTagIdKey"
         }
       }
