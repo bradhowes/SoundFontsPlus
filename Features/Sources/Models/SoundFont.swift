@@ -1,7 +1,7 @@
 // Copyright © 2024 Brad Howes. All rights reserved.
 
 import AVFoundation
-import ComposableArchitecture
+import Dependencies
 import Foundation
 import SwiftData
 

@@ -35,15 +35,6 @@ extension SchemaV1 {
         case .external: return "External"
         }
       }
-      /// The key associated with the tag that holds the tag's persistent ID in UserDefaults
-      public var userDefaultsKey: String {
-        switch self {
-        case .all: return "AllTagIdKey"
-        case .builtIn: return "BuiltInTagIdKey"
-        case .added: return "UserTagIdKey"
-        case .external: return "ExternalTagIdKey"
-        }
-      }
     }
 
     public var name: String = ""
@@ -70,14 +61,12 @@ public extension ModelContext {
    */
   @MainActor
   func ubiquitousTag(_ kind: Tag.Ubiquitous) -> Tag {
-    @Dependency(\.userDefaults) var userDefaults
-
-    if let rawTagIdData = userDefaults.data(forKey: kind.userDefaultsKey),
-       let tag: Tag = try? findExact(id: rawTagIdData.decodedValue()) {
-      return tag
+    let found = findTagByName(name: kind.name)
+    if !found.isEmpty {
+      return found[0]
     }
 
-    return createAllUbiquitousTags(wanted: kind)
+    return findTagByName(name: kind.name)[0]
   }
 
   /**
@@ -88,26 +77,36 @@ public extension ModelContext {
    - throws if unable to fetch or create
    */
   @MainActor
-  fileprivate func createAllUbiquitousTags(wanted: Tag.Ubiquitous) -> Tag {
-    @Dependency(\.userDefaults) var userDefaults
+  fileprivate func createAllUbiquitousTags() {
+    var created: [(Tag.Ubiquitous, Tag)] = []
+    for ubiTag in Tag.Ubiquitous.allCases {
+      let existing = findTagByName(name: ubiTag.name)
+      if existing.count > 1 {
+        for tag in existing {
+          if tag.tagged.isEmpty {
+            self.delete(tag)
+          }
+        }
 
-    // Create all of the tags -- they will have temporary persistentModelID values until saved.
-    let tags = Tag.Ubiquitous.allCases.map { kind in
-      let tag = Tag(name: kind.name)
+        let remaining = existing.filter { !$0.isDeleted }
+        if remaining.count == 2 {
+          self.delete(remaining[1])
+        } else {
+          precondition(remaining.count < 2, "Unexpected duplicate values after filtering.")
+        }
+
+        if !remaining.isEmpty {
+          continue
+        }
+      }
+
+      let tag = Tag(name: ubiTag.name)
       self.insert(tag)
-      return (kind: kind, tag: tag)
+      created.append((ubiTag, tag))
     }
 
-    // Now tags have real and stable persistentModelID values
     do {
       try self.save()
-      // Save all persistent tag IDs and return the one that was originally asked for
-      return (try tags.compactMap { kind, tag in
-        let key = kind.userDefaultsKey
-        let value = try tag.persistentModelID.encodedValue()
-        userDefaults.set(value, forKey: key)
-        return kind == wanted ? tag : nil
-      })[0]
     } catch {
       fatalError("Failed to save ubiquitous tags to storage.")
     }
@@ -120,15 +119,9 @@ public extension ModelContext {
    - returns: optional Tag entity that matches the given value
    */
   @MainActor
-  func findTag(name: String) -> Tag? {
+  func findTagByName(name: String) -> [Tag] {
     let fetchDescriptor: FetchDescriptor<Tag> = .init(predicate: #Predicate { $0.name == name })
-    guard 
-      let result = try? fetch(fetchDescriptor),
-      !result.isEmpty
-    else {
-      return nil
-    }
-    return result[0]
+    return (try? fetch(fetchDescriptor)) ?? []
   }
 
   /**
@@ -140,7 +133,7 @@ public extension ModelContext {
    */
   @MainActor
   func createTag(name: String) throws -> Tag {
-    if findTag(name: name) != nil {
+    if !findTagByName(name: name).isEmpty {
       throw TagError.duplicateTag(name: name)
     }
 
@@ -150,7 +143,20 @@ public extension ModelContext {
   }
 
   @MainActor
-  func tags() throws -> [Tag] {
-    return try fetch(FetchDescriptor<Tag>(sortBy: [SortDescriptor(\.name)]))
+  func tags() -> [Tag] {
+    let fetchDescriptor = FetchDescriptor<Tag>(sortBy: [SortDescriptor(\.name)])
+    if let found = try? fetch(fetchDescriptor),
+       !found.isEmpty {
+      return found
+    }
+
+    createAllUbiquitousTags()
+
+    guard let found = try? fetch(fetchDescriptor),
+          !found.isEmpty else {
+      fatalError("Unable to fetch any tags")
+    }
+
+    return found
   }
 }

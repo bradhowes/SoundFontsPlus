@@ -17,15 +17,27 @@ public struct InitialMainViewState {
     let modelContainer = VersionedModelContainer.make(isTemporary: isTemporary)
     self.modelContainer = modelContainer
 
+    let tags = modelContainer.mainContext.tags()
     let activeSoundFont = modelContainer.mainContext.allSoundFonts()[0]
     self.activeSoundFont = activeSoundFont
     self.activePreset = activeSoundFont.orderedPresets[0]
+
+#if DEBUG
 
     for soundFont in modelContainer.mainContext.allSoundFonts() {
       soundFont.visible = true
     }
 
-    try? modelContainer.mainContext.save()
+    do {
+      _ = try modelContainer.mainContext.tags()
+      let old = modelContainer.mainContext.findTagByName(name: "User")
+      old.forEach { modelContainer.mainContext.delete($0) }
+      try modelContainer.mainContext.save()
+    } catch {
+      fatalError("Unable to update/save the models")
+    }
+    
+#endif
   }
 }
 

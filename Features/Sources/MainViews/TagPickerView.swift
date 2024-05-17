@@ -26,10 +26,7 @@ struct TagPickerView: View {
           .tag(tag.name)
       }
     }.onChange(of: activeTagName) { oldValue, newValue in
-      guard let tag = modelContext.findTag(name: newValue) else {
-        fatalError("Unexpected nil value from fiindTag")
-      }
-      activeTag = tag
+      activeTag = modelContext.findTagByName(name: newValue)[0]
     }
   }
 }

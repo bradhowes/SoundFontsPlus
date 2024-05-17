@@ -18,6 +18,7 @@
 		BD1D27A42B6F13DE005C3ED0 /* SoundFonts2UITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27A32B6F13DE005C3ED0 /* SoundFonts2UITestsLaunchTests.swift */; };
 		BD5DBE8A2B8020560023D83A /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = BD5DBE892B8020560023D83A /* Models */; };
 		BD6E7D9E2B6FC2EE004201F2 /* Features in Resources */ = {isa = PBXBuildFile; fileRef = BD6E7D9D2B6FC2EE004201F2 /* Features */; };
+		BD720EBB2BF5603400C7A6B6 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = BD720EBA2BF5603400C7A6B6 /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD720EBB2BF5603400C7A6B6 /* ComposableArchitecture in Frameworks */,
 				BD10A7E92BEFDD57001ACF04 /* Extensions in Frameworks */,
 				BD10A7EB2BEFDD57001ACF04 /* MainViews in Frameworks */,
 				BD10A7ED2BEFDD57001ACF04 /* SF2ResourceFiles in Frameworks */,
@@ -168,6 +170,7 @@
 				BD10A7E82BEFDD57001ACF04 /* Extensions */,
 				BD10A7EA2BEFDD57001ACF04 /* MainViews */,
 				BD10A7EC2BEFDD57001ACF04 /* SF2ResourceFiles */,
+				BD720EBA2BF5603400C7A6B6 /* ComposableArchitecture */,
 			);
 			productName = SoundFonts2;
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFonts2.app */;
@@ -694,6 +697,11 @@
 		BD5DBE892B8020560023D83A /* Models */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Models;
+		};
+		BD720EBA2BF5603400C7A6B6 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD1D27B52B6FB396005C3ED0 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
