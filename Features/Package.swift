@@ -7,15 +7,20 @@ let package = Package(
   name: "Features",
   platforms: [.iOS(.v17), .macOS(.v14)],
   products: [
+    .library(name: "AppFeature", targets: ["AppFeature"]),
+    .library(name: "SoundFontListFeature", targets: ["SoundFontListFeature"]),
+    .library(name: "PresetListFeature", targets: ["PresetListFeature"]),
+    .library(name: "SoundFontEditorFeature", targets: ["SoundFontEditorFeature"]),
     .library(name: "Extensions", targets: ["Extensions"]),
-    .library(name: "MainViews", targets: ["MainViews"]),
+    .library(name: "SF2Picker", targets: ["SF2Picker"]),
     .library(name: "Models", targets: ["Models"]),
-    .library(name: "SF2ResourceFiles", targets: ["SF2ResourceFiles"])
+    .library(name: "SF2ResourceFiles", targets: ["SF2ResourceFiles"]),
+    .library(name: "SwiftUISupport", targets: ["SwiftUISupport"])
   ],
   dependencies: [
     // .package(url: "https://github.com/bradhowes/SF2Lib", from: "5.0.0")
     .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib"),
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.10.3"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.10.4"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.2.2"),
     .package(url: "https://github.com/tgrapperon/swift-dependencies-additions", from: "1.0.1"),
     .package(url: "https://github.com/bradhowes/SplitView", from: "3.5.2")
@@ -30,7 +35,7 @@ let package = Package(
       ]
     ),
     .target(
-      name: "MainViews",
+      name: "SF2Picker",
       dependencies: [
         .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "Models", condition: .none),
@@ -38,7 +43,57 @@ let package = Package(
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
         .product(name: "DependenciesAdditions", package: "swift-dependencies-additions"),
+      ]
+    ),
+    .target(
+      name: "AppFeature",
+      dependencies: [
+        .targetItem(name: "SoundFontListFeature", condition: .none),
+        .targetItem(name: "PresetListFeature", condition: .none),
+        .targetItem(name: "Models", condition: .none),
+        .targetItem(name: "SF2ResourceFiles", condition: .none),
+        .targetItem(name: "SwiftUISupport", condition: .none),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions"),
         .product(name: "SplitView", package: "SplitView")
+      ]
+    ),
+    .target(
+      name: "SoundFontListFeature",
+      dependencies: [
+        .targetItem(name: "Models", condition: .none),
+        .targetItem(name: "SF2Picker", condition: .none),
+        .targetItem(name: "SF2ResourceFiles", condition: .none),
+        .targetItem(name: "SwiftUISupport", condition: .none),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions"),
+      ]
+    ),
+    .target(
+      name: "PresetListFeature",
+      dependencies: [
+        .targetItem(name: "Models", condition: .none),
+        .targetItem(name: "SF2ResourceFiles", condition: .none),
+        .targetItem(name: "SwiftUISupport", condition: .none),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions"),
+      ]
+    ),
+    .target(
+      name: "SoundFontEditorFeature",
+      dependencies: [
+        .targetItem(name: "Models", condition: .none),
+        .targetItem(name: "SF2ResourceFiles", condition: .none),
+        .targetItem(name: "SwiftUISupport", condition: .none),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ]
+    ),
+    .target(
+      name: "SwiftUISupport",
+      dependencies: [
       ]
     ),
     .target(
@@ -63,6 +118,7 @@ let package = Package(
       name: "Extensions",
       dependencies: [
         .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "DependenciesMacros", package: "swift-dependencies"),
         .product(name: "DependenciesAdditions", package: "swift-dependencies-additions")
       ]
     ),

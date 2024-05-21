@@ -8,13 +8,12 @@ final class PresetTests: XCTestCase {
   var context: ModelContext!
   var soundFont: SoundFont!
 
-  @MainActor
   override func setUp() async throws {
     container = try ModelContainer(
       for: Preset.self,
       configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
-    context = container.mainContext
+    context = .init(container)
     soundFont = SoundFont(location: .init(kind: .builtin, url: nil, raw: nil), name: "Blah Blah")
     context.insert(soundFont)
     try context.save()
@@ -22,7 +21,6 @@ final class PresetTests: XCTestCase {
 
   var fetched: [Preset] { (try? context.fetch(FetchDescriptor<Preset>())) ?? [] }
 
-  @MainActor
   func makeMockPreset(name: String, bank: Int, program: Int) throws -> Preset {
     let preset = Preset(owner: soundFont, index: 0, name: name)
     preset.info = PresetInfo(originalName: name, bank: bank, program: program)
@@ -35,12 +33,10 @@ final class PresetTests: XCTestCase {
     return preset
   }
 
-  @MainActor
   func testEmpty() {
     XCTAssertTrue(fetched.isEmpty)
   }
 
-  @MainActor
   func testCreateNewPresets() throws {
     let preset = try makeMockPreset(name: "Preset", bank: 1, program: 2)
     XCTAssertEqual(preset.name, "Preset")
@@ -56,7 +52,6 @@ final class PresetTests: XCTestCase {
     XCTAssertEqual(entry[0].presets.count, 4)
   }
 
-  @MainActor
   func testNameChange() throws {
     let preset = try makeMockPreset(name: "Preset", bank: 1, program: 2)
     var found = fetched[0]
@@ -68,7 +63,6 @@ final class PresetTests: XCTestCase {
     XCTAssertEqual(found.info?.originalName, "Preset")
   }
 
-  @MainActor
   func testDeletingPresetCascades() async throws {
     _ = try makeMockPreset(name: "Preset", bank: 1, program: 2)
     try context.save()
@@ -84,7 +78,6 @@ final class PresetTests: XCTestCase {
     try XCTSkipUnless(faves.isEmpty, "SwiftData has broken cascade")
   }
 
-  @MainActor
   func testCustomDeletingPresetCascades() async throws {
     _ = try makeMockPreset(name: "Preset", bank: 1, program: 2)
     try context.save()

@@ -10,13 +10,12 @@ final class FavoriteTests: XCTestCase {
   var soundFont: SoundFont!
   var preset: Preset!
 
-  @MainActor
   override func setUp() async throws {
     container = try ModelContainer(
       for: Favorite.self,
       configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
-    context = container.mainContext
+    context = .init(container)
     soundFont = SoundFont(location: .init(kind: .builtin, url: nil, raw: nil), name: "Blah Blah")
     preset = Preset(owner: soundFont, index: 0, name: name)
     context.insert(preset)
@@ -25,7 +24,6 @@ final class FavoriteTests: XCTestCase {
 
   var fetched: [Favorite] { (try? context.favorites()) ?? [] }
 
-  @MainActor
   func makeMockFavorite(name: String, index: Int? = nil) throws -> Favorite {
     let favorite = try context.createFavorite(name: name, preset: preset)
     if let index = index {
@@ -35,12 +33,10 @@ final class FavoriteTests: XCTestCase {
     return favorite
   }
 
-  @MainActor
   func testEmpty() throws {
     XCTAssertTrue(fetched.isEmpty)
   }
 
-  @MainActor
   func testCreateNewFavorite() throws {
     let favorite = try makeMockFavorite(name: "New Favorite")
     XCTAssertEqual(favorite.name, "New Favorite")
@@ -49,7 +45,6 @@ final class FavoriteTests: XCTestCase {
     XCTAssertEqual(found[0].name, "New Favorite")
   }
 
-  @MainActor
   func testCreateDupeFavorites() throws {
     _ = try makeMockFavorite(name: "New Favorite")
     _ = try makeMockFavorite(name: "New Favorite")
@@ -64,7 +59,6 @@ final class FavoriteTests: XCTestCase {
     XCTAssertEqual(preset.favorites?.count, 3)
   }
 
-  @MainActor
   func testChangeFavoriteName() throws {
     let favorite = try makeMockFavorite(name: "New Favorite")
     XCTAssertEqual(fetched[0].name, favorite.name)
@@ -73,7 +67,6 @@ final class FavoriteTests: XCTestCase {
     XCTAssertEqual(fetched[0].name, "Changed Favorite")
   }
 
-  @MainActor
   func testDeleteFavoriteCascades() throws {
     let favorite = try makeMockFavorite(name: "New Favorite")
     favorite.audioSettings = AudioSettings()
@@ -96,7 +89,6 @@ final class FavoriteTests: XCTestCase {
     XCTAssertTrue(preset.favorites?.isEmpty ?? false)
   }
 
-  @MainActor
   func testFetchOrderedFavorites() throws {
     _ = try makeMockFavorite(name: "New Favorite 1")
     _ = try makeMockFavorite(name: "New Favorite 2")

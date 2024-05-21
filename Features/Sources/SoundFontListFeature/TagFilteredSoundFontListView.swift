@@ -51,6 +51,10 @@ struct TagFilteredSoundFontListView: View {
               Label("Delete", systemImage: "trash.fill")
             }
           }
+          Button(role: .none) {
+          } label: {
+            Label("Edit", systemImage: "pencil")
+          }
         }
       }
     }.alert("Confirm Deletion", isPresented: $confirmDeletion) {

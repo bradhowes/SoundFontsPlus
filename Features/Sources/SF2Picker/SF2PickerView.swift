@@ -9,7 +9,7 @@ import UniformTypeIdentifiers
 
 import Models
 
-struct SF2Picker: UIViewControllerRepresentable {
+struct SF2PickerView: UIViewControllerRepresentable {
   @Binding var pickerResults: [URL]
 
   init(pickerResults: Binding<[URL]>) {
@@ -33,14 +33,13 @@ struct SF2Picker: UIViewControllerRepresentable {
 }
 
 class Coordinator: NSObject, UIDocumentPickerDelegate {
-  var parent: SF2Picker
+  var parent: SF2PickerView
 
-  init(parent: SF2Picker) {
+  init(parent: SF2PickerView) {
     self.parent = parent
   }
 
   func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-    print("SF2Picker urls: \(urls)")
     parent.pickerResults = urls
   }
 }

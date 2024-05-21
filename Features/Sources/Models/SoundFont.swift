@@ -13,13 +13,14 @@ public typealias SoundFont = SchemaV1.SoundFont
 extension SchemaV1 {
 
   @Model
-  public final class SoundFont {
+  public final class SoundFont : Identifiable {
     public var location: Location = Location(kind: .builtin, url: nil, raw: nil)
     @Relationship(deleteRule: .cascade, inverse: \Preset.owner) public var presets: [Preset] = []
     public var displayName: String = ""
     @Relationship(inverse: \Tag.tagged) public var tags: [Tag] = []
     public var visible: Bool = true // NOT USED
 
+    public var originalName: String = ""
     public var embeddedName: String = ""
     public var embeddedComment: String = ""
     public var embeddedAuthor: String = ""
@@ -32,6 +33,7 @@ extension SchemaV1 {
     public init(location: Location, name: String) {
       self.location = location
       self.displayName = name
+      self.originalName = name
     }
     
     /// Computed property to obtain the SoundFontKind from the properties of a SoundFont model.
@@ -71,17 +73,10 @@ public enum SF2FileError: Error {
 
 public extension ModelContext {
 
-  @MainActor
-  func addSoundFont(name: String, kind: SoundFontKind) throws -> SoundFont {
-    let location = kind.asLocation
-    guard let url = location.url else { fatalError("Unexpected nil URL for SoundFont file")}
-    var fileInfo = SF2FileInfo(url.path(percentEncoded: false))
-    if !fileInfo.load() {
-      throw SF2FileError.loadFailure(name: name)
-    }
-
+  func addSoundFont(name: String, location: Location, fileInfo: SF2FileInfo) throws -> SoundFont {
     let soundFont = SoundFont(location: location, name: name)
-    insert(soundFont)
+    self.insert(soundFont)
+
     soundFont.embeddedName = String(fileInfo.embeddedName())
     soundFont.embeddedAuthor = String(fileInfo.embeddedAuthor())
     soundFont.embeddedComment = String(fileInfo.embeddedComment())
@@ -95,7 +90,7 @@ public extension ModelContext {
 
     try save()
 
-    soundFont.tags = try tagsFor(kind: kind)
+    soundFont.tags = try tagsFor(kind: location.kind)
     soundFont.tags.forEach { $0.tag(soundFont: soundFont) }
 
     try save()
@@ -103,30 +98,40 @@ public extension ModelContext {
     return soundFont
   }
 
-  @MainActor
+  func addSoundFont(name: String, kind: SoundFontKind) throws -> SoundFont {
+    let location = kind.asLocation
+    var fileInfo = SF2FileInfo(location.path)
+    guard fileInfo.load() else {
+      throw SF2FileError.loadFailure(name: name)
+    }
+
+    return try addSoundFont(name: name, location: location, fileInfo: fileInfo)
+  }
+
   func addSoundFont(resourceTag: SF2ResourceFileTag) throws -> SoundFont {
     var fileInfo = SF2FileInfo(resourceTag.url.path(percentEncoded: false))
     fileInfo.load()
-    print("size:", fileInfo.size())
     let kind: SoundFontKind = .builtin(resource: resourceTag.url)
     return try addSoundFont(name: resourceTag.name, kind: kind)
   }
 
-  @MainActor
-  func addBuiltInSoundFonts() throws {
-    for tag in SF2ResourceFileTag.allCases {
-      _ = try addSoundFont(resourceTag: tag)
+  func addBuiltInSoundFonts() {
+    do {
+      for tag in SF2ResourceFileTag.allCases {
+        _ = try addSoundFont(resourceTag: tag)
+      }
+    } catch {
+      fatalError("Failed to install built-in SF2 resources")
     }
   }
 
-  @MainActor
   func allSoundFonts() -> [SoundFont] {
     let fetchDescriptor = FetchDescriptor<SoundFont>(sortBy: [SortDescriptor(\.displayName)])
     var found: [SoundFont] = []
 
     found = (try? fetch(fetchDescriptor)) ?? []
     if found.isEmpty {
-      try? addBuiltInSoundFonts()
+      addBuiltInSoundFonts()
       found = (try? fetch(fetchDescriptor)) ?? []
     }
 
@@ -137,14 +142,12 @@ public extension ModelContext {
     return found
   }
 
-  @MainActor
   func soundFonts(with tag: Tag) -> [SoundFont] {
     let fetchDescriptor = SoundFont.fetchDescriptor(by: tag)
     return (try? fetch(fetchDescriptor)) ?? []
   }
 
   /// TODO: remove when cascading is fixed
-  @MainActor
   func delete(soundFont: SoundFont) {
     @Dependency(\.fileManager) var fileManager
 
@@ -169,8 +172,7 @@ public extension ModelContext {
     self.delete(soundFont)
   }
 
-  @MainActor
-  fileprivate func tagsFor(kind: SoundFontKind) throws -> [Tag] {
+  fileprivate func tagsFor(kind: Location.Kind) throws -> [Tag] {
     var tags = [ubiquitousTag(.all)]
     switch kind {
     case .builtin: tags.append(ubiquitousTag(.builtIn))
@@ -190,7 +192,6 @@ public extension ModelContext {
     }
   }
 
-  @MainActor
   func picked(urls: [URL]) -> PickedStatus {
     var good = 0
     var bad = [String]()

@@ -37,6 +37,5 @@ struct SoundFontButton_Previews: PreviewProvider {
     List {
       SoundFontButtonView(soundFont: soundFont, activeSoundFont: $activeSoundFont, selectedSoundFont: $selectedSoundFont)
     }
-    .environment(\.modelContext, modelContainer.mainContext)
   }
 }

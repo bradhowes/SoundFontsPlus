@@ -4,6 +4,7 @@ import SwiftData
 import SwiftUI
 
 import Models
+import SF2Picker
 
 /**
  Collection of SoundFont model buttons. Activating a button will show the presets associated with the SoundFont, but
@@ -39,7 +40,7 @@ struct SoundFontsListView: View {
         Button(LocalizedStringKey("Add"), systemImage: "plus", action: { addingSoundFont = true })
       }
     }.sheet(isPresented: $addingSoundFont) {
-      SF2Picker(pickerResults: $pickerResults)
+      SF2PickerView(pickerResults: $pickerResults)
     }.onChange(of: pickerResults) { _, newValue in
       if !newValue.isEmpty {
         addSoundFonts(urls: newValue)

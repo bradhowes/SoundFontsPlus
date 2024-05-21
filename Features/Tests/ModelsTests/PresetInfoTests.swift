@@ -15,14 +15,13 @@ class PresetInfoTests: XCTestCase {
       for: Favorite.self,
       configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
-    context = container.mainContext
+    context = .init(container)
   }
 
   var fetched: [PresetInfo] {
     (try? context.fetch(FetchDescriptor<PresetInfo>(sortBy: [SortDescriptor(\.originalName)]))) ?? []
   }
 
-  @MainActor
   func makeMockPresetInfo(name: String) throws -> PresetInfo {
     let presetInfo = PresetInfo(originalName: name, bank: 1, program: 2)
     context.insert(presetInfo)
@@ -30,13 +29,11 @@ class PresetInfoTests: XCTestCase {
     return presetInfo
   }
 
-  @MainActor
   func testEmpty() async throws {
     let presetInfos = try context.presetInfos()
     XCTAssertTrue(presetInfos.isEmpty)
   }
 
-  @MainActor
   func testCreateNew() async throws {
     _ = try context.createPresetInfo(originalName: "foo", bank: 1, program: 2)
     _ = try context.createPresetInfo(originalName: "bar", bank: 1, program: 3)
@@ -51,7 +48,6 @@ class PresetInfoTests: XCTestCase {
     XCTAssertEqual(presetInfos[1].program, 2)
   }
 
-  @MainActor
   func testDelete() async throws {
     _ = try context.createPresetInfo(originalName: "foo", bank: 1, program: 2)
     _ = try context.createPresetInfo(originalName: "bar", bank: 1, program: 3)
@@ -69,7 +65,6 @@ class PresetInfoTests: XCTestCase {
     XCTAssertEqual(presetInfos[0].program, 2)
   }
 
-  @MainActor
   func testDeleteById() async throws {
     _ = try context.createPresetInfo(originalName: "foo", bank: 1, program: 2)
     _ = try context.createPresetInfo(originalName: "bar", bank: 1, program: 3)
@@ -94,7 +89,6 @@ class PresetInfoTests: XCTestCase {
     XCTAssertEqual(presetInfos.count, 0)
   }
 
-  @MainActor
   func testDupes() async throws {
     _ = try context.createPresetInfo(originalName: "foo", bank: 1, program: 2)
     _ = try context.createPresetInfo(originalName: "foo", bank: 1, program: 2)

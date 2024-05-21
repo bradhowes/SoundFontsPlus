@@ -9,7 +9,7 @@ public typealias Preset = SchemaV1.Preset
 extension SchemaV1 {
 
   @Model
-  public final class Preset {
+  public final class Preset : Identifiable {
     public var owner: SoundFont?
     public var index: Int = -1
     public var name: String = ""
@@ -25,10 +25,9 @@ extension SchemaV1 {
       self.name = name
     }
 
-    public static func fetchDescriptor(for owner: SoundFont) -> FetchDescriptor<Preset> {
-      let ownerId = owner.persistentModelID
-      return FetchDescriptor<Preset>(predicate: #Predicate { $0.owner?.persistentModelID == ownerId },
-                                     sortBy: [SortDescriptor(\.index)])
+    public static func fetchDescriptor(for ownerId: SoundFont.ID) -> FetchDescriptor<Preset> {
+      let predicate: Predicate<Preset> = #Predicate { $0.owner?.persistentModelID == ownerId }
+      return FetchDescriptor<Preset>(predicate: predicate, sortBy: [SortDescriptor(\.index)])
     }
   }
 }
@@ -41,10 +40,9 @@ public extension ModelContext {
    - parameter soundFont: the SoundFont to query for
    - returns: the array of Presets entities
    */
-  @MainActor
   func orderedPresets(for soundFont: SoundFont) -> [Preset] {
     do {
-      return try fetch(Preset.fetchDescriptor(for: soundFont))
+      return try fetch(Preset.fetchDescriptor(for: soundFont.persistentModelID))
     } catch {
       // fatalError("Failed to fetch presets: \(error)")
     }
@@ -53,7 +51,6 @@ public extension ModelContext {
 
   /// TODO: remove when cascading is fixed
 
-  @MainActor
   func delete(preset: Preset) {
     if let faves = preset.favorites {
       for favorite in faves {

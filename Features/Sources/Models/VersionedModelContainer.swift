@@ -3,6 +3,10 @@
 import OSLog
 import Foundation
 import SwiftData
+import SwiftUI
+import Dependencies
+import DependenciesMacros
+import XCTestDynamicOverlay
 
 import Engine
 import SF2ResourceFiles
@@ -17,10 +21,9 @@ extension FetchDescriptor {
 
 public enum VersionedModelContainer {
   
-  @MainActor
-  static let log = Logger(subsystem: "com.braysoftware.SoundFonts2.Models", category: "VersionedModelContainer")
+  static let log: Logger = Logger(subsystem: "com.braysoftware.SoundFonts2.Models",
+                                  category: "VersionedModelContainer")
 
-  @MainActor
   public static func make(isTemporary: Bool) -> ModelContainer {
     log.debug("make - isTemporary: \(isTemporary)")
     let schema = Schema.init(CurrentSchema.models, version: CurrentSchema.versionIdentifier)
@@ -32,26 +35,44 @@ public enum VersionedModelContainer {
 
     do {
       log.debug("make - creating container")
-      let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
-
-      // container.mainContext.container.deleteAllData()
-
-      log.debug("make - creating tags if necessary")
-      let _ = container.mainContext.tags()
-
-      log.debug("make - checking for non-empty SoundFont collection")
-      let detectEmptyFetchDescriptor = FetchDescriptor<SoundFont>(fetchLimit: 1)
-      guard try container.mainContext.fetch(detectEmptyFetchDescriptor).isEmpty else {
-        log.debug("make - not empty")
-        return container
-      }
-
-      log.debug("make - installing built-in SF2 files")
-      try container.mainContext.addBuiltInSoundFonts()
-      return container
+      return try ModelContainer(for: schema, configurations: [modelConfiguration])
     } catch {
       log.error("make - could not create ModelContainer - \(error, privacy: .public)")
       fatalError("Could not create ModelContainer: \(error)")
     }
+  }
+}
+
+extension Logger: @unchecked Sendable {}
+
+@DependencyClient
+public struct ModelContextProvider: Sendable {
+
+  public var generate: @Sendable () throws -> ModelContext
+
+  public init(provider: @Sendable @escaping () -> ModelContext) {
+    self.generate = provider
+  }
+}
+
+extension ModelContextProvider: DependencyKey {
+
+  public static func make(isTemporary: Bool) -> Self {
+    // Create a new container and use it for future context creations
+    let container = VersionedModelContainer.make(isTemporary: isTemporary)
+    return Self { ModelContext(container) }
+  }
+
+  /// Create factory to use for live data (one-time container creation)
+  public static let liveValue: ModelContextProvider = make(isTemporary: false)
+
+  /// Create factory to use for tests data (many container creations, not shared)
+  public static var testValue: ModelContextProvider { make(isTemporary: true) }
+}
+
+extension DependencyValues {
+  public var modelContextProvider: ModelContextProvider {
+    get { self[ModelContextProvider.self] }
+    set { self[ModelContextProvider.self] = newValue }
   }
 }

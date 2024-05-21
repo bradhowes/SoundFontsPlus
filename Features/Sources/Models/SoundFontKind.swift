@@ -42,7 +42,7 @@ public extension SoundFontKind {
   }
 
   /// The String representation of the fileURL
-  var path: String { return url.path }
+  var path: String { return url.path(percentEncoded: false) }
 
   /// True if built-in resource
   var isBuiltin: Bool {

@@ -59,12 +59,13 @@ public extension ModelContext {
    - returns: the Tag entity that was fetched/created
    - throws if unable to fetch or create
    */
-  @MainActor
   func ubiquitousTag(_ kind: Tag.Ubiquitous) -> Tag {
     let found = findTagByName(name: kind.name)
     if !found.isEmpty {
       return found[0]
     }
+
+    createAllUbiquitousTags()
 
     return findTagByName(name: kind.name)[0]
   }
@@ -76,8 +77,7 @@ public extension ModelContext {
    - returns: the Tag entity that was wanted
    - throws if unable to fetch or create
    */
-  @MainActor
-  fileprivate func createAllUbiquitousTags() {
+  func createAllUbiquitousTags() {
     var created: [(Tag.Ubiquitous, Tag)] = []
     for ubiTag in Tag.Ubiquitous.allCases {
       let existing = findTagByName(name: ubiTag.name)
@@ -118,7 +118,6 @@ public extension ModelContext {
    - parameter name: the name to look for
    - returns: optional Tag entity that matches the given value
    */
-  @MainActor
   func findTagByName(name: String) -> [Tag] {
     let fetchDescriptor: FetchDescriptor<Tag> = .init(predicate: #Predicate { $0.name == name })
     return (try? fetch(fetchDescriptor)) ?? []
@@ -142,7 +141,6 @@ public extension ModelContext {
     return tag
   }
 
-  @MainActor
   func tags() -> [Tag] {
     let fetchDescriptor = FetchDescriptor<Tag>(sortBy: [SortDescriptor(\.name)])
     if let found = try? fetch(fetchDescriptor),

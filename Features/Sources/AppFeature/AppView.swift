@@ -5,28 +5,26 @@ import SwiftUI
 import SwiftData
 import SplitView
 import Models
+import SoundFontList
+import PresetList
 
 public extension String {
-  static var splitterPosition: String { "splitterPosition" }
-  static var activeSoundFont: String { "activeSoundFont" }
-  static var activePreset: String { "activePreset" }
+  static var splitterPositionKey: String { "splitterPosition" }
+  static var activeSoundFontKey: String { "activeSoundFont" }
+  static var activePresetKey: String { "activePreset" }
 }
 
 /**
  The main view that shows the list of available SF2 files, and the list of presets for the active or selected
  SF2 file.
  */
-public struct MainView: View {
-  @State private var selectedSoundFont: SoundFont
-  @State private var activeSoundFont: SoundFont
-  @State private var activePreset: Preset
+public struct AppView: View {
+  let store: StoreOf<AppFeature>
 
-  @Shared(.appStorage(.splitterPosition)) var splitterPosition = 0.4
+  @Shared(.appStorage(.splitterPositionKey)) var splitterPosition = 0.4
 
-  public init(activeSoundFont: SoundFont, activePreset: Preset) {
-    self.selectedSoundFont = activeSoundFont
-    self.activeSoundFont = activeSoundFont
-    self.activePreset = activePreset
+  public init(store: StoreOf<AppFeature>) {
+    self.store = store
   }
 
   // private let store: StoreOf<MainViewFeature>
@@ -34,14 +32,14 @@ public struct MainView: View {
   public var body: some View {
     Split(
       primary: {
-        SoundFontsListView(selectedSoundFont: $selectedSoundFont,
-                           activeSoundFont: $activeSoundFont,
-                           activePreset: $activePreset)
+        SoundFontsListView(selectedSoundFont: store.selectedSoundFontId,
+                           activeSoundFont: store.activeSoundFontId,
+                           activePreset: store.activePresetId)
       },
       secondary: {
-        PresetsListView(selectedSoundFont: $selectedSoundFont,
-                        activeSoundFont: $activeSoundFont,
-                        activePreset: $activePreset)
+        PresetsListView(selectedSoundFont: $store.selectedSoundFont,
+                        activeSoundFont: $store.activeSoundFont,
+                        activePreset: $store.activePreset)
       }
     )
     .splitter { Splitter(color: .accentColor, visibleThickness: 2) }
@@ -63,7 +61,7 @@ struct MainView_Previews: PreviewProvider {
   static var previews: some View {
     let soundFont = modelContainer.mainContext.allSoundFonts()[0]
 
-    MainView(activeSoundFont: soundFont, activePreset: soundFont.orderedPresets[0])
+    AppView(activeSoundFont: soundFont, activePreset: soundFont.orderedPresets[0])
       .environment(\.modelContext, modelContainer.mainContext)
   }
 }
