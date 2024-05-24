@@ -1,21 +1,17 @@
 import ComposableArchitecture
+import OSLog
 import SwiftData
 import SwiftUI
+
+import Extensions
 import Models
+
 
 @Reducer
 public struct PresetListFeature {
 
-  //  @Reducer(state: .equatable)
-  //  enum Path {
-  //    case soundFontDetail(SoundFontDetail)
-  //    case presetDetail(PresetDetail)
-  //    case tagManager
-  //  }
-
   @ObservableState
   public struct State: Equatable {
-    // var path = StackState<Path.State>()
 
     var activeSoundFontId: SoundFont.ID
     var selectedSoundFontId: SoundFont.ID
@@ -55,6 +51,7 @@ public struct PresetListFeature {
         state.searchText = state.lastSearchText
         state.isSearchPresented = true
         return .none
+
       case .binding:
         return .none
       }
@@ -68,8 +65,7 @@ public struct PresetListView: View {
 
   public init(store: StoreOf<PresetListFeature>) {
     self.store = store
-    self._presets = Query(Preset.fetchDescriptor(for: store.selectedSoundFontId),
-                          animation: .default)
+    self._presets = Query(Preset.fetchDescriptor(for: store.selectedSoundFontId), animation: .default)
   }
 
   public var body: some View {
@@ -126,7 +122,9 @@ struct PresetListView_Previews: PreviewProvider {
   static let modelContainer = VersionedModelContainer.make(isTemporary: true)
   static var soundFonts: [SoundFont] { modelContainer.mainContext.allSoundFonts() }
 
-  @State static var store = Store(initialState: PresetListFeature.State(soundFontId: soundFonts[0].persistentModelID, presetId: soundFonts[0].orderedPresets[0].persistentModelID)) {
+  @State static var store = Store(initialState: .init(
+    soundFontId: soundFonts[0].persistentModelID,
+    presetId: soundFonts[0].orderedPresets[0].persistentModelID)) {
     PresetListFeature()
   }
 

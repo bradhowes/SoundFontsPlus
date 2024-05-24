@@ -12,7 +12,6 @@ let package = Package(
     .library(name: "PresetListFeature", targets: ["PresetListFeature"]),
     .library(name: "SoundFontEditorFeature", targets: ["SoundFontEditorFeature"]),
     .library(name: "Extensions", targets: ["Extensions"]),
-    .library(name: "SF2Picker", targets: ["SF2Picker"]),
     .library(name: "Models", targets: ["Models"]),
     .library(name: "SF2ResourceFiles", targets: ["SF2ResourceFiles"]),
     .library(name: "SwiftUISupport", targets: ["SwiftUISupport"])
@@ -35,17 +34,6 @@ let package = Package(
       ]
     ),
     .target(
-      name: "SF2Picker",
-      dependencies: [
-        .targetItem(name: "Extensions", condition: .none),
-        .targetItem(name: "Models", condition: .none),
-        .targetItem(name: "SF2ResourceFiles", condition: .none),
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Dependencies", package: "swift-dependencies"),
-        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions"),
-      ]
-    ),
-    .target(
       name: "AppFeature",
       dependencies: [
         .targetItem(name: "SoundFontListFeature", condition: .none),
@@ -63,7 +51,6 @@ let package = Package(
       name: "SoundFontListFeature",
       dependencies: [
         .targetItem(name: "Models", condition: .none),
-        .targetItem(name: "SF2Picker", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
@@ -94,6 +81,7 @@ let package = Package(
     .target(
       name: "SwiftUISupport",
       dependencies: [
+        .target(name: "Models")
       ]
     ),
     .target(

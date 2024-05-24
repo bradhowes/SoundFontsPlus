@@ -9,6 +9,7 @@ import DependenciesMacros
 import XCTestDynamicOverlay
 
 import Engine
+import Extensions
 import SF2ResourceFiles
 
 
@@ -21,8 +22,7 @@ extension FetchDescriptor {
 
 public enum VersionedModelContainer {
   
-  static let log: Logger = Logger(subsystem: "com.braysoftware.SoundFonts2.Models",
-                                  category: "VersionedModelContainer")
+  static let log = Logger.models
 
   public static func make(isTemporary: Bool) -> ModelContainer {
     log.debug("make - isTemporary: \(isTemporary)")
@@ -42,8 +42,6 @@ public enum VersionedModelContainer {
     }
   }
 }
-
-extension Logger: @unchecked Sendable {}
 
 @DependencyClient
 public struct ModelContextProvider: Sendable {

@@ -78,31 +78,9 @@ public extension ModelContext {
    - throws if unable to fetch or create
    */
   func createAllUbiquitousTags() {
-    var created: [(Tag.Ubiquitous, Tag)] = []
     for ubiTag in Tag.Ubiquitous.allCases {
-      let existing = findTagByName(name: ubiTag.name)
-      if existing.count > 1 {
-        for tag in existing {
-          if tag.tagged.isEmpty {
-            self.delete(tag)
-          }
-        }
-
-        let remaining = existing.filter { !$0.isDeleted }
-        if remaining.count == 2 {
-          self.delete(remaining[1])
-        } else {
-          precondition(remaining.count < 2, "Unexpected duplicate values after filtering.")
-        }
-
-        if !remaining.isEmpty {
-          continue
-        }
-      }
-
       let tag = Tag(name: ubiTag.name)
       self.insert(tag)
-      created.append((ubiTag, tag))
     }
 
     do {

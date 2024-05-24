@@ -1,97 +1,260 @@
 // Copyright © 2024 Brad Howes. All rights reserved.
 
+import ComposableArchitecture
 import Foundation
+import Models
 import SwiftData
 import SwiftUI
 
-import Models
 
-/**
- Shows a list of SoundFont entities that all have the current active Tag entity
- */
+@Reducer
+struct TagFilteredSoundFontListFeature {
+
+  @ObservableState
+  struct State: Equatable {
+    @Shared var selectedSoundFontId: SoundFont.ID
+    @SharedReader var activeSoundFontId: SoundFont.ID
+    @SharedReader var activePresetId: Preset.ID
+
+    var tagPicker: TagPickerFeature.State
+
+    var pendingDeletion: SoundFont?
+    var confirmDeletion: Bool = false
+  }
+
+  enum Action: BindableAction {
+    case binding(BindingAction<State>)
+    case soundFontButtonTapped(soundFontId: SoundFont.ID)
+    case deleteSwiped(soundFontId: SoundFont.ID)
+    case editSwiped(soundFontId: SoundFont.ID)
+    case showAll
+  }
+
+  var body: some ReducerOf<Self> {
+    BindingReducer()
+    Reduce { state, action in
+      switch action {
+      case let .soundFontButtonTapped(soundFontId):
+        state.selectedSoundFontId = soundFontId
+        return .none
+      case let .deleteSwiped(soundFontId):
+        deleteSoundFont(state: &state, soundFontId: soundFontId)
+        return .none
+      case let .editSwiped(soundFontId):
+        editSoundFont(state: &state, soundFontId: soundFontId)
+        return .none
+      case .binding:
+        return .none
+      case .showAll:
+        return TagPickerFeature().reduce(into: &state.tagPicker, action: .showAll)
+          .map { _ in Action.showAll }
+      }
+    }
+  }
+
+  func deleteSoundFont(state: inout State, soundFontId: SoundFont.ID) {
+  }
+
+  func editSoundFont(state: inout State, soundFontId: SoundFont.ID) {
+  }
+}
+
 struct TagFilteredSoundFontListView: View {
   @Environment(\.modelContext) var modelContext
-  @Query private var soundFonts: [SoundFont]
+  @Query(sort: \SoundFont.displayName) private var soundFonts: [SoundFont]
 
-  @Binding private var activeSoundFont: SoundFont
-  @Binding private var selectedSoundFont: SoundFont
-  @Binding private var activePreset: Preset
+  @Bindable private var store: StoreOf<TagFilteredSoundFontListFeature>
 
-  @State private var pendingDeletion: SoundFont?
-  @State private var confirmDeletion: Bool = false
-
-  /**
-   Set properties for the view.
-
-   - parameter tag: the tag to filter with
-   - parameter activeSoundFont: bindings to the active SoundFont of the parent
-   - parameter selectedSoundFont: bindings to the selected SoundFont of the parent
-   - parameter activePreset: bindings to the active Preset of the parent
-   */
-  init(tag: Tag?, activeSoundFont: Binding<SoundFont>, selectedSoundFont: Binding<SoundFont>,
-       activePreset: Binding<Preset>) {
-    self._activeSoundFont = activeSoundFont
-    self._selectedSoundFont = selectedSoundFont
-    self._activePreset = activePreset
-    _soundFonts = Query(SoundFont.fetchDescriptor(by: tag), animation: .default)
+  init(store: StoreOf<TagFilteredSoundFontListFeature>) {
+    self.store = store
   }
 
-  var body: some View {
+  public var body: some View {
     List {
       ForEach(soundFonts) { soundFont in
-        SoundFontButtonView(soundFont: soundFont,
-                            activeSoundFont: $activeSoundFont,
-                            selectedSoundFont: $selectedSoundFont)
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-          if !soundFont.kind.isBuiltin {
-            Button(role: .destructive) {
-              pendingDeletion = soundFont
-              confirmDeletion = true
-            } label: {
-              Label("Delete", systemImage: "trash.fill")
+        if soundFont.tagged(with: store.tagPicker.activeTagId) {
+          SoundFontButtonView(store: makeButtonStore(soundFont: soundFont))
+            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+              if !soundFont.location.isBuiltin {
+                Button(role: .destructive) {
+                  store.send(.deleteSwiped(soundFontId: soundFont.persistentModelID))
+                } label: {
+                  Label("Delete", systemImage: "trash.fill")
+                }
+              }
+              Button(role: .none) {
+                store.send(.editSwiped(soundFontId: soundFont.persistentModelID))
+              } label: {
+                Label("Edit", systemImage: "pencil")
+              }
             }
-          }
-          Button(role: .none) {
-          } label: {
-            Label("Edit", systemImage: "pencil")
-          }
         }
       }
-    }.alert("Confirm Deletion", isPresented: $confirmDeletion) {
-      Button(role: .destructive) {
-        delete(soundFont: pendingDeletion!)
-        confirmDeletion = false
-      } label: {
-        Text("Delete")
-      }
-      Button(role: .cancel) {
-        pendingDeletion = nil
-        confirmDeletion = false
-      } label: {
-        Text("Cancel")
-      }
-    } message: {
-      let name = pendingDeletion?.displayName ?? "???"
-      Text("Really delete \(name)? This cannot be undone.")
+    }.animation(.default)
+
+    //      .alert("Confirm Deletion", isPresented: $confirmDeletion) {
+    //      Button(role: .destructive) {
+    //        delete(soundFont: pendingDeletion!)
+    //        confirmDeletion = false
+    //      } label: {
+    //        Text("Delete")
+    //      }
+    //      Button(role: .cancel) {
+    //        pendingDeletion = nil
+    //        confirmDeletion = false
+    //      } label: {
+    //        Text("Cancel")
+    //      }
+    //    } message: {
+    //      let name = pendingDeletion?.displayName ?? "???"
+    //      Text("Really delete \(name)? This cannot be undone.")
+    //    }
+  }
+
+  private func makeButtonStore(soundFont: SoundFont) -> StoreOf<SoundFontButtonFeature> {
+    .init(
+      initialState: .init(
+        soundFontId: soundFont.persistentModelID,
+        name: soundFont.displayName,
+        presetCount: soundFont.presets.count,
+        activeSoundFontId: store.$activeSoundFontId,
+        selectedSoundFontId: store.$selectedSoundFontId
+      )
+    ) {
+      SoundFontButtonFeature()
     }
   }
 
+  //  @MainActor
+  //  private func delete(soundFont: SoundFont) {
+  //    let deletingActiveSoundFont = soundFont.persistentModelID == activeSoundFontId
+  //    let deletingSelectedSoundFont = soundFont.persistentModelID == selectedSoundFontId
+  //
+  //    modelContext.delete(soundFont: soundFont)
+  //
+  //    try! modelContext.save()
+  //
+  //    if deletingActiveSoundFont {
+  //      let soundFont = modelContext.allSoundFonts()[0]
+  //      activeSoundFontId = soundFont.persistentModelID
+  //      activePresetId = soundFont.orderedPresets[0].persistentModelID
+  //    }
+  //
+  //    if deletingSelectedSoundFont {
+  //      selectedSoundFontId = activeSoundFontId
+  //    }
+  //  }
+}
+
+struct TagFilteredSoundFontList_Previews: PreviewProvider {
+  static let modelContainer = VersionedModelContainer.make(isTemporary: true)
+
   @MainActor
-  private func delete(soundFont: SoundFont) {
-    let updateActiveSoundFont = soundFont == activeSoundFont
-    let updateSelectedSoundFont = soundFont == selectedSoundFont
+  struct PreviewState {
+    let allSoundFonts: [SoundFont]
+    let tags: [Tag]
+    let activeSoundFont: SoundFont
+    let selectedSoundFont: SoundFont
+    let otherSoundFont: SoundFont
+    let allTagId: Tag.ID
 
-    modelContext.delete(soundFont: soundFont)
+    @Shared var activeSoundFontId: SoundFont.ID
+    @Shared var selectedSoundFontId: SoundFont.ID
+    @Shared var activeTagId: Tag.ID
+    @Shared var activePresetId: Preset.ID
 
-    try! modelContext.save()
+    init() {
+      let tags = modelContainer.mainContext.tags()
+      let allSoundFonts = modelContainer.mainContext.allSoundFonts()
 
-    if updateActiveSoundFont {
-      activeSoundFont = modelContext.allSoundFonts()[0]
-      activePreset = activeSoundFont.orderedPresets[0]
+      self.allSoundFonts = allSoundFonts
+      self.tags = tags
+      self.activeSoundFont = allSoundFonts[0]
+      self.selectedSoundFont = allSoundFonts[1]
+      self.otherSoundFont = allSoundFonts[2]
+      self.allTagId = (tags.first(where: { $0.name == "All" })!).persistentModelID
+
+      _activeSoundFontId = Shared(allSoundFonts[0].persistentModelID)
+      _selectedSoundFontId = Shared(allSoundFonts[1].persistentModelID)
+      _activeTagId = Shared(tags[1].persistentModelID)
+      _activePresetId = Shared(allSoundFonts[0].orderedPresets[0].persistentModelID)
+
+      _ = modelContainer.mainContext.mockSoundFont(name: "Foo", kind: .installed)
+      _ = modelContainer.mainContext.mockSoundFont(name: "Bar", kind: .installed)
+      _ = modelContainer.mainContext.mockSoundFont(name: "Bar External", kind: .external)
     }
 
-    if updateSelectedSoundFont {
-      selectedSoundFont = activeSoundFont
+    func makeStore() -> StoreOf<TagFilteredSoundFontListFeature> {
+      .init(
+        initialState: .init(
+          selectedSoundFontId: $selectedSoundFontId,
+          activeSoundFontId: SharedReader($activeSoundFontId),
+          activePresetId: SharedReader($activePresetId),
+          tagPicker: makeTagPickerState()
+        )
+      ) {
+        TagFilteredSoundFontListFeature()
+      }
     }
+
+    func makeTagPickerState() -> TagPickerFeature.State { 
+      .init(activeTagId: $activeTagId, allTagId: allTagId) }
+  }
+
+  static var previewState = PreviewState()
+  static var store = previewState.makeStore()
+
+  static var previews: some View {
+
+    NavigationStack {
+      TagFilteredSoundFontListView(store: store)
+        .navigationTitle("SoundFonts")
+        .toolbar {
+          ToolbarItemGroup {
+            TagPickerView(store: Store(
+              initialState: .init(
+                activeTagId: store.tagPicker.$activeTagId, 
+                allTagId: store.tagPicker.allTagId)) {
+                  TagPickerFeature()
+                })
+            Button(LocalizedStringKey("Add"),
+                   systemImage: "plus",
+                   action: {})
+          }
+        }
+    }
+    .onTapGesture(count: 2) {
+      store.send(.showAll)
+    }
+    .modelContainer(modelContainer)
+    .modelContext(modelContainer.mainContext)
+  }
+}
+
+extension ModelContext {
+
+  fileprivate func mockSoundFont(name: String, kind: Location.Kind) -> SoundFont {
+    let location: Location = .init(kind: kind, url: .currentDirectory(), raw: nil)
+    let soundFont = SoundFont(location: location, name: name)
+
+    self.insert(soundFont)
+
+    let presets = [
+      Preset(owner: soundFont, index: 0, name: "One"),
+      Preset(owner: soundFont, index: 1, name: "Two"),
+      Preset(owner: soundFont, index: 2, name: "Three")
+    ]
+
+    for preset in presets {
+      soundFont.presets.append(preset)
+    }
+
+    try? self.save()
+
+    soundFont.addDefaultTags()
+
+    try? self.save()
+
+    return soundFont
   }
 }

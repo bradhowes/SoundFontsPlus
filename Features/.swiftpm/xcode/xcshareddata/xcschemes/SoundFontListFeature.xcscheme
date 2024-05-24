@@ -24,9 +24,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "PresetListFeature"
-               BuildableName = "PresetListFeature"
-               BlueprintName = "PresetListFeature"
+               BlueprintIdentifier = "SoundFontListFeature"
+               BuildableName = "SoundFontListFeature"
+               BlueprintName = "SoundFontListFeature"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -59,9 +59,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "PresetListFeature"
-            BuildableName = "PresetListFeature"
-            BlueprintName = "PresetListFeature"
+            BlueprintIdentifier = "SoundFontListFeature"
+            BuildableName = "SoundFontListFeature"
+            BlueprintName = "SoundFontListFeature"
             ReferencedContainer = "container:">
          </BuildableReference>
       </MacroExpansion>

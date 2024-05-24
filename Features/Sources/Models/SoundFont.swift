@@ -52,17 +52,36 @@ extension SchemaV1 {
       }
     }
 
-    /**
-     Create a FetchDescriptor that returns all SoundFont entities which belong to the given Tag entity.
+    public func addDefaultTags() {
+      self.tags = self.modelContext?.tagsFor(kind: location.kind) ?? []
+      self.tags.forEach { $0.tag(soundFont: self) }
+    }
 
-     - parameter tag: the Tag to filter with
-     - returns: the FetchDescriptor to assign to a Query
-     */
-    public static func fetchDescriptor(by tag: Tag?) -> FetchDescriptor<SoundFont> {
-      let name = tag?.name ?? "All"
-      let predicate: Predicate<SoundFont> = #Predicate { $0.tags.contains { $0.name == name } }
-      return FetchDescriptor<SoundFont>(predicate: predicate,
-                                        sortBy: [SortDescriptor(\SoundFont.displayName)])
+    public func tagged(with tag: Tag) -> Bool {
+      tags.contains { $0.persistentModelID == tag.persistentModelID }
+    }
+
+    public func tagged(with tagId: PersistentIdentifier) -> Bool {
+      tags.contains { $0.persistentModelID == tagId }
+    }
+
+    public static func fetchDescriptor(by tag: Tag) -> FetchDescriptor<SoundFont> {
+      return fetchDescriptor(by: tag.persistentModelID)
+    }
+
+    public static func fetchDescriptor(by tagName: String) -> FetchDescriptor<SoundFont> {
+      return fetchDescriptor(with: #Predicate { soundFont in
+        soundFont.tags.contains { $0.name == tagName }
+      })
+    }
+
+    public static func fetchDescriptor(by tagId: PersistentIdentifier) -> FetchDescriptor<SoundFont> {
+      return fetchDescriptor(with: #Predicate { soundFont in
+        soundFont.tags.contains { $0.persistentModelID == tagId } })
+    }
+
+    public static func fetchDescriptor(with predicate: Predicate<SoundFont>) -> FetchDescriptor<SoundFont> {
+      FetchDescriptor<SoundFont>(predicate: predicate, sortBy: [SortDescriptor(\SoundFont.displayName)])
     }
   }
 }
@@ -90,8 +109,7 @@ public extension ModelContext {
 
     try save()
 
-    soundFont.tags = try tagsFor(kind: location.kind)
-    soundFont.tags.forEach { $0.tag(soundFont: soundFont) }
+    soundFont.addDefaultTags()
 
     try save()
 
@@ -143,36 +161,36 @@ public extension ModelContext {
   }
 
   func soundFonts(with tag: Tag) -> [SoundFont] {
-    let fetchDescriptor = SoundFont.fetchDescriptor(by: tag)
+    let fetchDescriptor = SoundFont.fetchDescriptor(by: tag.name)
     return (try? fetch(fetchDescriptor)) ?? []
   }
 
   /// TODO: remove when cascading is fixed
-  func delete(soundFont: SoundFont) {
-    @Dependency(\.fileManager) var fileManager
+//  func delete(soundFont: SoundFont) {
+//    @Dependency(\.fileManager) var fileManager
+//
+//    switch soundFont.kind {
+//    case .builtin: break
+//    case .external: break
+//    case .installed(let url):
+//      do {
+//        try fileManager.removeItem(url)
+//        for (index, path) in FileManager.default.sharedContents.enumerated() {
+//          print(index, path)
+//        }
+//      } catch {
+//        print("failed to remove \(url) - \(error)")
+//      }
+//    }
+//
+//    for preset in soundFont.presets {
+//      self.delete(preset: preset)
+//    }
+//
+//    self.delete(soundFont)
+//  }
 
-    switch soundFont.kind {
-    case .builtin: break
-    case .external: break
-    case .installed(let url):
-      do {
-        try fileManager.removeItem(url)
-        for (index, path) in FileManager.default.sharedContents.enumerated() {
-          print(index, path)
-        }
-      } catch {
-        print("failed to remove \(url) - \(error)")
-      }
-    }
-
-    for preset in soundFont.presets {
-      self.delete(preset: preset)
-    }
-
-    self.delete(soundFont)
-  }
-
-  fileprivate func tagsFor(kind: Location.Kind) throws -> [Tag] {
+  fileprivate func tagsFor(kind: Location.Kind) -> [Tag] {
     var tags = [ubiquitousTag(.all)]
     switch kind {
     case .builtin: tags.append(ubiquitousTag(.builtIn))

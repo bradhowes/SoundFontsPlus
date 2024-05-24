@@ -18,10 +18,34 @@ public struct Location: Codable, Equatable {
   /// that is currently not available, such as an external drive or an iCloud file that requires downloading.
   public let raw: Data?
 
+  public init(kind: Kind, url: URL?, raw: Data?) {
+    self.kind = kind
+    self.url = url
+    self.raw = raw
+  }
+
   /// Full path to the file reference by the location. Currently, this is not supported for `external`
   /// locations.
   public var path: String {
-    guard let url = self.url else { fatalError("Unexpected nil URL") }
+    guard let url = self.url else { return "Unexpected nil URL" }
     return url.path(percentEncoded: false)
+  }
+
+  /// True if built-in resource
+  public var isBuiltin: Bool {
+    if case .builtin = kind { return true }
+    return false
+  }
+
+  /// True if added file is a reference
+  public var isInstalled: Bool {
+    if case .installed = kind { return true }
+    return false
+  }
+
+  /// True if added file is a reference to an external file
+  public var isExternal: Bool {
+    if case .external = kind { return true }
+    return false
   }
 }

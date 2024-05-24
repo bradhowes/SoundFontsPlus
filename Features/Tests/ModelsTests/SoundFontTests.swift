@@ -23,7 +23,7 @@ final class SoundFontModelTests: XCTestCase {
   }
 
   func addSoundFonts() {
-    try? context.addBuiltInSoundFonts()
+    context.addBuiltInSoundFonts()
   }
 
   func mockSoundFont(name: String, location: Location) throws -> SoundFont {
@@ -137,7 +137,6 @@ final class SoundFontModelTests: XCTestCase {
     XCTAssertTrue(found.isEmpty)
 
     presets = try context.fetch(FetchDescriptor<Preset>())
-    print(presets.count)
     try XCTSkipIf(!presets.isEmpty, "SwiftData has broken cascade")
   }
 
