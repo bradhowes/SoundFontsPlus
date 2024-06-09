@@ -136,3 +136,7 @@ public extension ModelContext {
     return found
   }
 }
+
+extension SchemaV1.Tag : Identifiable {
+  public var id: PersistentIdentifier { persistentModelID }
+}

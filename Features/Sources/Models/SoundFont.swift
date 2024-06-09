@@ -13,7 +13,7 @@ public typealias SoundFont = SchemaV1.SoundFont
 extension SchemaV1 {
 
   @Model
-  public final class SoundFont : Identifiable {
+  public final class SoundFont {
     public var location: Location = Location(kind: .builtin, url: nil, raw: nil)
     @Relationship(deleteRule: .cascade, inverse: \Preset.owner) public var presets: [Preset] = []
     public var displayName: String = ""
@@ -165,30 +165,35 @@ public extension ModelContext {
     return (try? fetch(fetchDescriptor)) ?? []
   }
 
-  /// TODO: remove when cascading is fixed
-//  func delete(soundFont: SoundFont) {
-//    @Dependency(\.fileManager) var fileManager
-//
-//    switch soundFont.kind {
-//    case .builtin: break
-//    case .external: break
-//    case .installed(let url):
-//      do {
-//        try fileManager.removeItem(url)
-//        for (index, path) in FileManager.default.sharedContents.enumerated() {
-//          print(index, path)
-//        }
-//      } catch {
-//        print("failed to remove \(url) - \(error)")
-//      }
-//    }
-//
-//    for preset in soundFont.presets {
-//      self.delete(preset: preset)
-//    }
-//
-//    self.delete(soundFont)
-//  }
+  func soundFonts(with tagId: PersistentIdentifier) -> [SoundFont] {
+    let fetchDescriptor = SoundFont.fetchDescriptor(by: tagId)
+    return (try? fetch(fetchDescriptor)) ?? []
+  }
+
+  // TODO: remove when cascading is fixed
+  func delete(soundFont: SoundFont) {
+    @Dependency(\.fileManager) var fileManager
+
+    switch soundFont.kind {
+    case .builtin: break
+    case .external: break
+    case .installed(let url):
+      do {
+        try fileManager.removeItem(url)
+        for (index, path) in FileManager.default.sharedContents.enumerated() {
+          print(index, path)
+        }
+      } catch {
+        print("failed to remove \(url) - \(error)")
+      }
+    }
+
+    for preset in soundFont.presets {
+      self.delete(preset: preset)
+    }
+
+    self.delete(soundFont)
+  }
 
   fileprivate func tagsFor(kind: Location.Kind) -> [Tag] {
     var tags = [ubiquitousTag(.all)]
@@ -247,4 +252,8 @@ public extension ModelContext {
 
     return .init(good: good, bad: bad)
   }
+}
+
+extension SchemaV1.SoundFont : Identifiable {
+  public var id: PersistentIdentifier { persistentModelID }
 }

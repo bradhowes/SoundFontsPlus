@@ -57,3 +57,7 @@ public extension ModelContext {
     try fetch(FetchDescriptor<Favorite>(sortBy: [SortDescriptor(\.index)]))
   }
 }
+
+extension SchemaV1.Favorite : Identifiable {
+  public var id: PersistentIdentifier { persistentModelID }
+}

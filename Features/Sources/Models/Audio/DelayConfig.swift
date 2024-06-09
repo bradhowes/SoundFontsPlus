@@ -19,3 +19,7 @@ extension SchemaV1 {
     public init() {}
   }
 }
+
+extension SchemaV1.DelayConfig : Identifiable {
+  public var id: PersistentIdentifier { persistentModelID }
+}

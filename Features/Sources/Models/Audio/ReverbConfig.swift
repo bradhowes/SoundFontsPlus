@@ -17,3 +17,7 @@ extension SchemaV1 {
     public init() {}
   }
 }
+
+extension SchemaV1.ReverbConfig : Identifiable {
+  public var id: PersistentIdentifier { persistentModelID }
+}

@@ -35,3 +35,7 @@ extension ModelContext {
     return try self.fetch(fetchDescriptor ?? FetchDescriptor<PresetInfo>())
   }
 }
+
+extension SchemaV1.PresetInfo : Identifiable {
+  public var id: PersistentIdentifier { persistentModelID }
+}

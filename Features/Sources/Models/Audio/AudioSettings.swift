@@ -89,3 +89,7 @@ extension SchemaV1 {
 public extension Int {
   static let globalZone: Int = -1
 }
+
+extension SchemaV1.AudioSettings : Identifiable {
+  public var id: PersistentIdentifier { persistentModelID }
+}

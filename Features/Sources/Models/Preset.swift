@@ -9,7 +9,7 @@ public typealias Preset = SchemaV1.Preset
 extension SchemaV1 {
 
   @Model
-  public final class Preset : Identifiable {
+  public final class Preset {
     public var owner: SoundFont?
     public var index: Int = -1
     public var name: String = ""
@@ -59,4 +59,8 @@ public extension ModelContext {
     }
     delete(preset)
   }
+}
+
+extension SchemaV1.Preset : Identifiable {
+  public var id: PersistentIdentifier { persistentModelID }
 }
