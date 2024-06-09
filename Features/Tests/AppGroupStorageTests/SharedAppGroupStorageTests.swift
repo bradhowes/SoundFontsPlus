@@ -1,10 +1,10 @@
 import XCTest
-@testable import UserDefaultsStorage
+@testable import AppGroupStorage
 
 import ComposableArchitecture
 import XCTest
 
-final class SharedUserDefaultsStorageTests: XCTestCase {
+final class SharedAppGroupStorageTests: XCTestCase {
 
   @MainActor
   func testBasics() async {
@@ -26,7 +26,7 @@ final class SharedUserDefaultsStorageTests: XCTestCase {
     await store.send(.incrementButtonTapped) {
       $0.count = 1
     }
-    @Dependency(\.defaultUserDefaultsStorage) var userDefaults
+    @Dependency(\.defaultAppGroupStore) var userDefaults
     userDefaults.setValue(42, forKey: "count")
     await Task.yield()
     await store.send(.incrementButtonTapped) {
@@ -113,7 +113,7 @@ private struct ParentFeature {
 private struct Feature {
   @ObservableState
   struct State: Equatable {
-    @Shared(.udStore("count")) var count = 0
+    @Shared(.appGroupStore("count", store: \.defaultAppGroupStore)) var count = 0
   }
   enum Action {
     case incrementButtonTapped

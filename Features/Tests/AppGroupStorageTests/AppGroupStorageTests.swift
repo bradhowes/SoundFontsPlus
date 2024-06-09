@@ -1,12 +1,14 @@
 @_spi(Internals) import ComposableArchitecture
 import Perception
 import XCTest
-import UserDefaultsStorage
+import AppGroupStorage
 
-final class UserDefaultsStorageTests: XCTestCase {
+
+final class AppGroupStorageTests: XCTestCase {
+
   func testBasics() {
-    @Dependency(\.defaultUserDefaultsStorage) var defaults
-    @Shared(.udStore("count")) var count = 0
+    @Dependency(\.defaultAppGroupStore) var defaults
+    @Shared(.appGroupStore("count")) var count = 0
     XCTAssertEqual(count, 0)
     XCTAssertEqual(defaults.integer(forKey: "count"), 0)
 
@@ -16,8 +18,8 @@ final class UserDefaultsStorageTests: XCTestCase {
   }
 
   func testDefaultsRegistered() {
-    @Dependency(\.defaultUserDefaultsStorage) var defaults
-    @Shared(.udStore("count")) var count = 42
+    @Dependency(\.defaultAppGroupStore) var defaults
+    @Shared(.appGroupStore("count")) var count = 42
     XCTAssertEqual(defaults.integer(forKey: "count"), 42)
 
     count += 1
@@ -26,8 +28,8 @@ final class UserDefaultsStorageTests: XCTestCase {
   }
 
   func testDefaultsRegistered_Optional() {
-    @Dependency(\.defaultUserDefaultsStorage) var defaults
-    @Shared(.udStore("data")) var data: Data?
+    @Dependency(\.defaultAppGroupStore) var defaults
+    @Shared(.appGroupStore("data")) var data: Data?
     XCTAssertEqual(defaults.data(forKey: "data"), nil)
 
     data = Data()
@@ -39,20 +41,30 @@ final class UserDefaultsStorageTests: XCTestCase {
     enum Direction: String, CaseIterable {
       case north, south, east, west
     }
-    @Dependency(\.defaultUserDefaultsStorage) var defaults
-    @Shared(.udStore("direction")) var direction: Direction = .north
+    @Dependency(\.defaultAppGroupStore) var defaults
+    @Shared(.appGroupStore("direction")) var direction: Direction = .north
     XCTAssertEqual(defaults.string(forKey: "direction"), "north")
 
     direction = .south
     XCTAssertEqual(defaults.string(forKey: "direction"), "south")
   }
 
+  func testDefaultsRegistered_Codable() {
+    @Dependency(\.defaultAppGroupStore) var defaults
+    @Shared(.appGroupStore("codable")) var codable: CodableCheck = CodableCheck()
+    XCTAssertEqual(try? defaults.data(forKey: "codable")?.decodedValue(), CodableCheck())
+
+    let update = CodableCheck(a: 234, b: "222", c: 2.1718)
+    codable = update
+    XCTAssertEqual(try? defaults.data(forKey: "codable")?.decodedValue(), update)
+  }
+
   func testDefaultsRegistered_Optional_RawRepresentable() {
     enum Direction: String, CaseIterable {
       case north, south, east, west
     }
-    @Dependency(\.defaultUserDefaultsStorage) var defaults
-    @Shared(.udStore("direction")) var direction: Direction?
+    @Dependency(\.defaultAppGroupStore) var defaults
+    @Shared(.appGroupStore("direction")) var direction: Direction?
     XCTAssertEqual(defaults.string(forKey: "direction"), nil)
 
     direction = .south
@@ -64,20 +76,20 @@ final class UserDefaultsStorageTests: XCTestCase {
     defaults.removePersistentDomain(forName: "tests")
 
     withDependencies {
-      $0.defaultUserDefaultsStorage = defaults
+      $0.defaultAppGroupStore = defaults
     } operation: {
-      @Shared(.udStore("count")) var count = 0
+      @Shared(.appGroupStore("count")) var count = 0
       count += 1
       XCTAssertEqual(defaults.integer(forKey: "count"), 1)
     }
 
-    @Dependency(\.defaultUserDefaultsStorage) var defaultUserDefaultsStorage
+    @Dependency(\.defaultAppGroupStore) var defaultUserDefaultsStorage
     XCTAssertNotEqual(defaultUserDefaultsStorage, defaults)
     XCTAssertEqual(defaultUserDefaultsStorage.integer(forKey: "count"), 0)
   }
 
   func testObservation_DirectMutation() {
-    @Shared(.udStore("count")) var count = 0
+    @Shared(.appGroupStore("count")) var count = 0
     let countDidChange = self.expectation(description: "countDidChange")
     withObservationTracking {
       _ = count
@@ -89,8 +101,8 @@ final class UserDefaultsStorageTests: XCTestCase {
   }
 
   func testObservation_ExternalMutation() {
-    @Dependency(\.defaultUserDefaultsStorage) var defaults
-    @Shared(.udStore("count")) var count = 0
+    @Dependency(\.defaultAppGroupStore) var defaults
+    @Shared(.appGroupStore("count")) var count = 0
     let didChange = self.expectation(description: "didChange")
 
     withObservationTracking {
@@ -106,8 +118,8 @@ final class UserDefaultsStorageTests: XCTestCase {
   }
 
   func testChangeUserDefaultsDirectly() {
-    @Dependency(\.defaultUserDefaultsStorage) var defaults
-    @Shared(.udStore("count")) var count = 0
+    @Dependency(\.defaultAppGroupStore) var defaults
+    @Shared(.appGroupStore("count")) var count = 0
     defaults.setValue(count + 42, forKey: "count")
     XCTAssertEqual(count, 42)
   }
@@ -116,62 +128,62 @@ final class UserDefaultsStorageTests: XCTestCase {
     enum Direction: String, CaseIterable {
       case north, south, east, west
     }
-    @Dependency(\.defaultUserDefaultsStorage) var defaults
-    @Shared(.udStore("direction")) var direction: Direction = .south
+    @Dependency(\.defaultAppGroupStore) var defaults
+    @Shared(.appGroupStore("direction")) var direction: Direction = .south
     defaults.set("east", forKey: "direction")
     XCTAssertEqual(direction, .east)
   }
 
   func testChangeUserDefaultsDirectly_KeyWithPeriod() {
-    @Dependency(\.defaultUserDefaultsStorage) var defaults
-    @Shared(.udStore("pointfreeco.count")) var count = 0
+    @Dependency(\.defaultAppGroupStore) var defaults
+    @Shared(.appGroupStore("pointfreeco.count")) var count = 0
     defaults.setValue(count + 42, forKey: "pointfreeco.count")
     XCTAssertEqual(count, 42)
   }
 
   func testDeleteUserDefault() {
-    @Dependency(\.defaultUserDefaultsStorage) var defaults
-    @Shared(.udStore("count")) var count = 0
+    @Dependency(\.defaultAppGroupStore) var defaults
+    @Shared(.appGroupStore("count")) var count = 0
     count = 42
     defaults.removeObject(forKey: "count")
     XCTAssertEqual(count, 0)
   }
 
   func testKeyPath() {
-    @Dependency(\.defaultUserDefaultsStorage) var defaults
-    @Shared(.udStore(\.count)) var count = 0
+    @Dependency(\.defaultAppGroupStore) var defaults
+    @Shared(.appGroupStore(\.count)) var count = 0
     defaults.count += 1
     XCTAssertEqual(count, 1)
   }
 
   func testOptionalInitializers() {
-    @Shared(.udStore("count1")) var count1: Int?
+    @Shared(.appGroupStore("count1")) var count1: Int?
     XCTAssertEqual(count1, nil)
-    @Shared(.udStore("count")) var count2: Int? = nil
+    @Shared(.appGroupStore("count")) var count2: Int? = nil
     XCTAssertEqual(count2, nil)
   }
 
   func testSpecWithDefaultStore() {
-    @Shared(.udStore(.count1)) var count1: Int?
+    @Shared(.appGroupStore(.count1)) var count1: Int?
     XCTAssertEqual(count1, nil)
-    @Shared(.udStore(.count)) var count2: Int? = nil
+    @Shared(.appGroupStore(.count)) var count2: Int? = nil
     XCTAssertEqual(count2, nil)
   }
 
   func testSpecWithCustomStore() {
-    @Shared(.udStore(.count1Alt)) var count1: Int?
+    @Shared(.appGroupStore(.count1Alt)) var count1: Int?
     XCTAssertEqual(count1, nil)
-    @Shared(.udStore(.countAlt)) var count2: Int? = nil
+    @Shared(.appGroupStore(.countAlt)) var count2: Int? = nil
     XCTAssertEqual(count2, nil)
   }
 
   func testSpecWIthCustomStoresHoldSeparateValues() {
-    @Dependency(\.defaultUserDefaultsStorage) var defaults
-    @Dependency(\.customUserDefaultsStore) var defaultsAlt
+    @Dependency(\.defaultAppGroupStore) var defaults
+    @Dependency(\.customStore) var defaultsAlt
 
-    @Shared(.udStore(.count)) var count: Int?
+    @Shared(.appGroupStore(.count)) var count: Int?
     XCTAssertEqual(count, nil)
-    @Shared(.udStore(.countAlt)) var countAlt: Int?
+    @Shared(.appGroupStore(.countAlt)) var countAlt: Int?
     XCTAssertEqual(count, nil)
 
     count = 123
@@ -185,14 +197,14 @@ final class UserDefaultsStorageTests: XCTestCase {
   }
 }
 
-extension UserDefaultsKeyStoreSpec {
-  static var count: UserDefaultsKeyStoreSpec<Optional<Int>> { .init("count") }
-  static var countAlt: UserDefaultsKeyStoreSpec<Optional<Int>> { .init("count", store: \.customUserDefaultsStore) }
-  static var count1: UserDefaultsKeyStoreSpec<Optional<Int>> { .init("count1") }
-  static var count1Alt: UserDefaultsKeyStoreSpec<Optional<Int>> { .init("count1", store: \.customUserDefaultsStore) }
+extension AppGroupStoreSpec {
+  static var count: AppGroupStoreSpec<Optional<Int>> { .init("count", store: \.defaultAppGroupStore) }
+  static var countAlt: AppGroupStoreSpec<Optional<Int>> { .init("count", store: \.customStore) }
+  static var count1: AppGroupStoreSpec<Optional<Int>> { .init("count1", store: \.defaultAppGroupStore) }
+  static var count1Alt: AppGroupStoreSpec<Optional<Int>> { .init("count1", store: \.customStore) }
 }
 
-private enum CustomUserDefaultsStoreKey: DependencyKey {
+private enum CustomStoreKey: DependencyKey {
 
   // Provide a unique container for every test
   static var testValue: UncheckedSendable<UserDefaults> {
@@ -214,19 +226,22 @@ private enum CustomUserDefaultsStoreKey: DependencyKey {
   }
 }
 
-
 extension DependencyValues {
-  public var customUserDefaultsStore: UserDefaults {
-    get { self[CustomUserDefaultsStoreKey.self].value }
-    set { self[CustomUserDefaultsStoreKey.self].value = newValue }
+  public var customStore: UserDefaults {
+    get { self[CustomStoreKey.self].value }
+    set { self[CustomStoreKey.self].value = newValue }
   }
 }
-
-
 
 extension UserDefaults {
   @objc fileprivate dynamic var count: Int {
     get { integer(forKey: "count") }
     set { set(newValue, forKey: "count") }
   }
+}
+
+fileprivate struct CodableCheck: Codable, Equatable {
+  var a: Int = 1
+  var b: String = "two"
+  var c: Double = 3.14159
 }
