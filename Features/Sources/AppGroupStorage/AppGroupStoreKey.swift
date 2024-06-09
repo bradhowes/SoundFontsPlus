@@ -1,6 +1,8 @@
 import ComposableArchitecture
 import Dependencies
+import Extensions
 import Foundation
+
 
 public struct AppGroupStoreSpec<Value> where Value: Sendable {
   fileprivate let key: String
@@ -219,6 +221,20 @@ extension PersistenceReaderKey {
   where Value.RawValue == String, Self == AppGroupStoreKey<Value?> {
     AppGroupStoreKey(spec)
   }
+
+  public static func appGroupStore<Value: Codable>(
+    _ key: String,
+    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
+  ) -> Self where Self == AppGroupStoreKey<Value>, Value: Sendable {
+    AppGroupStoreKey(.init(key, store: store))
+  }
+
+  public static func appGroupStore<Value: Codable>(
+    _ key: String,
+    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
+  ) -> Self where Self == AppGroupStoreKey<Value?>, Value: Sendable {
+    AppGroupStoreKey(.init(key, store: store))
+  }
 }
 
 extension UserDefaults: @unchecked Sendable {}
@@ -294,6 +310,10 @@ public struct AppGroupStoreKey<Value: Sendable> : Sendable {
 
   public init<R: RawRepresentable>(_ spec: AppGroupStoreSpec<Value>) where R.RawValue == String, Value == R? {
     self.init(shim: OptionalShim(base: RawRepresentableShim(base: CastableShim())), spec: spec)
+  }
+
+  public init(_ spec: AppGroupStoreSpec<Value>) where Value: Codable {
+    self.init(shim: CodableShim(), spec: spec)
   }
 
   private init(shim: any Shim<Value>, spec: AppGroupStoreSpec<Value>) where Value: Sendable {
@@ -394,6 +414,26 @@ private protocol Shim<Value> : Sendable {
   func loadValue(from store: UserDefaults, at key: String, default defaultValue: Value?) -> Value?
 
   func saveValue(_ newValue: Value, to store: UserDefaults, at key: String)
+}
+
+private struct CodableShim<Value: Codable>: Shim {
+
+  func loadValue(from store: UserDefaults, at key: String, default defaultValue: Value?) -> Value? {
+    guard let data = store.object(forKey: key) as? Data else {
+      SharedAppGroupStoreLocal.$isSetting.withValue(true) {
+        let data = try! defaultValue.encodedValue()
+        store.setValue(data, forKey: key)
+      }
+      return defaultValue
+    }
+    return try! data.decodedValue()
+  }
+
+  func saveValue(_ newValue: Value, to store: UserDefaults, at key: String) {
+    SharedAppGroupStoreLocal.$isSetting.withValue(true) {
+      store.setValue(try! newValue.encodedValue(), forKey: key)
+    }
+  }
 }
 
 private struct CastableShim<Value>: Shim {

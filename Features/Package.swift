@@ -8,6 +8,7 @@ let package = Package(
   platforms: [.iOS(.v17), .macOS(.v14)],
   products: [
     .library(name: "AppFeature", targets: ["AppFeature"]),
+    .library(name: "AppGroupStorage", targets: ["AppGroupStorage"]),
     .library(name: "SoundFontListFeature", targets: ["SoundFontListFeature"]),
     .library(name: "PresetListFeature", targets: ["PresetListFeature"]),
     .library(name: "SoundFontEditorFeature", targets: ["SoundFontEditorFeature"]),
@@ -34,8 +35,17 @@ let package = Package(
       ]
     ),
     .target(
+      name: "AppGroupStorage",
+      dependencies: [
+        .targetItem(name: "Extensions", condition: .none),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies")
+      ]
+    ),
+    .target(
       name: "AppFeature",
       dependencies: [
+        .targetItem(name: "AppGroupStorage", condition: .none),
         .targetItem(name: "SoundFontListFeature", condition: .none),
         .targetItem(name: "PresetListFeature", condition: .none),
         .targetItem(name: "Models", condition: .none),
@@ -81,7 +91,8 @@ let package = Package(
     .target(
       name: "SwiftUISupport",
       dependencies: [
-        .target(name: "Models")
+        .target(name: "Models"),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
     .target(
@@ -113,6 +124,14 @@ let package = Package(
     .target(
       name: "SF2LibAU",
       dependencies: [.product(name: "Engine", package: "SF2Lib")]
+    ),
+    .testTarget(
+      name: "AppGroupStorageTests",
+      dependencies: [
+        "AppGroupStorage",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies")
+      ]
     ),
     .testTarget(
       name: "SoundFonts2LibTests",
