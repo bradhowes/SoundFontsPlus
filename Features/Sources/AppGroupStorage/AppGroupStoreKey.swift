@@ -4,98 +4,148 @@ import Extensions
 import Foundation
 
 
-public struct AppGroupStoreSpec<Value> where Value: Sendable {
+public struct AppGroupStoreSpec<Value>: Sendable where Value: Sendable {
   fileprivate let key: String
-  fileprivate let store: KeyPath<DependencyValues, UserDefaults>
+  fileprivate let store: UserDefaults
 
   public init(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) {
+    @Dependency(store) var storage
     self.key = key
-    self.store = store
+    self.store = storage
+  }
+
+  public static func spec(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) -> Self {
+    .init(key, store: store)
   }
 }
 
 extension PersistenceReaderKey {
 
-  public static func appGroupStore(
-    _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self where Self == AppGroupStoreKey<Bool> {
-    AppGroupStoreKey(.init(key, store: store))
-  }
+  // MARK: - Bool values
 
-  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self
+  public static func appGroupStore(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) -> Self
   where Self == AppGroupStoreKey<Bool> {
+    AppGroupStoreKey(.init(key, store: store))
+  }
+
+  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self where Self == AppGroupStoreKey<Bool> {
     AppGroupStoreKey(spec)
   }
 
-  public static func appGroupStore(
-    _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self
+  public static func appGroupStore(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) -> Self
+  where Self == AppGroupStoreKey<Bool?> {
+    AppGroupStoreKey(.init(key, store: store))
+  }
+
+  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self where Self == AppGroupStoreKey<Bool?> {
+    AppGroupStoreKey(spec)
+  }
+
+  // MARK: - Int values
+
+  public static func appGroupStore(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) -> Self
   where Self == AppGroupStoreKey<Int> {
     AppGroupStoreKey(.init(key, store: store))
   }
 
-  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self
-  where Self == AppGroupStoreKey<Int> {
+  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self where Self == AppGroupStoreKey<Int> {
     AppGroupStoreKey(spec)
   }
 
-  public static func appGroupStore(
-    _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self
+  public static func appGroupStore(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) -> Self
+  where Self == AppGroupStoreKey<Int?> {
+    AppGroupStoreKey(.init(key, store: store))
+  }
+
+  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self where Self == AppGroupStoreKey<Int?> {
+    AppGroupStoreKey(spec)
+  }
+
+  // MARK: - Double values
+
+  public static func appGroupStore(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) -> Self
   where Self == AppGroupStoreKey<Double> {
     AppGroupStoreKey(.init(key, store: store))
   }
 
-  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self
-  where Self == AppGroupStoreKey<Double> {
+  public static func appGroupStore(_ spec: AppGroupStoreSpec<Double>) -> Self where Self == AppGroupStoreKey<Double> {
     AppGroupStoreKey(spec)
   }
 
-  public static func appGroupStore(
-    _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self
+  public static func appGroupStore(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) -> Self
+  where Self == AppGroupStoreKey<Double?> {
+    AppGroupStoreKey(.init(key, store: store))
+  }
+
+  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self where Self == AppGroupStoreKey<Double?> {
+    AppGroupStoreKey(spec)
+  }
+
+  // MARK: - String values
+
+  public static func appGroupStore(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) -> Self
   where Self == AppGroupStoreKey<String> {
     AppGroupStoreKey(.init(key, store: store))
   }
 
-  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self
-  where Self == AppGroupStoreKey<String> {
+  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self where Self == AppGroupStoreKey<String> {
     AppGroupStoreKey(spec)
   }
 
-  public static func appGroupStore(
-    _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self
+  public static func appGroupStore(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) -> Self
+  where Self == AppGroupStoreKey<String?> {
+    AppGroupStoreKey(.init(key, store: store))
+  }
+
+  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self where Self == AppGroupStoreKey<String?> {
+    AppGroupStoreKey(spec)
+  }
+
+  // MARK: - URL values
+
+  public static func appGroupStore(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) -> Self
   where Self == AppGroupStoreKey<URL> {
     AppGroupStoreKey(.init(key, store: store))
   }
 
-  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self
-  where Self == AppGroupStoreKey<URL> {
+  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self where Self == AppGroupStoreKey<URL> {
     AppGroupStoreKey(spec)
   }
 
-  public static func appGroupStore(
-    _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self
+  public static func appGroupStore(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) -> Self
+  where Self == AppGroupStoreKey<URL?> {
+    AppGroupStoreKey(.init(key, store: store))
+  }
+
+  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self where Self == AppGroupStoreKey<URL?> {
+    AppGroupStoreKey(spec)
+  }
+
+  // MARK: - Data values
+
+  public static func appGroupStore(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) -> Self
   where Self == AppGroupStoreKey<Data> {
     AppGroupStoreKey(.init(key, store: store))
   }
 
-  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self
-  where Self == AppGroupStoreKey<Data> {
+  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self where Self == AppGroupStoreKey<Data> {
     AppGroupStoreKey(spec)
   }
+
+  public static func appGroupStore(_ key: String, store: KeyPath<DependencyValues, UserDefaults>) -> Self
+  where Self == AppGroupStoreKey<Data?> {
+    AppGroupStoreKey(.init(key, store: store))
+  }
+
+  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self where Self == AppGroupStoreKey<Data?> {
+    AppGroupStoreKey(spec)
+  }
+
+  // MARK: - RawRepresentable/Int values
 
   public static func appGroupStore<Value: RawRepresentable>(
     _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
+    store: KeyPath<DependencyValues, UserDefaults>
   ) -> Self
   where Value.RawValue == Int, Self == AppGroupStoreKey<Value>, Value: Sendable {
     AppGroupStoreKey(.init(key, store: store))
@@ -108,97 +158,7 @@ extension PersistenceReaderKey {
 
   public static func appGroupStore<Value: RawRepresentable>(
     _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self
-  where Value.RawValue == String, Self == AppGroupStoreKey<Value>, Value: Sendable {
-    AppGroupStoreKey(.init(key, store: store))
-  }
-
-  public static func appGroupStore<Value: RawRepresentable>(_ spec: AppGroupStoreSpec<Value>) -> Self
-  where Value.RawValue == String, Self == AppGroupStoreKey<Value> {
-    AppGroupStoreKey(spec)
-  }
-
-  public static func appGroupStore(
-    _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self
-  where Self == AppGroupStoreKey<Bool?> {
-    AppGroupStoreKey(.init(key, store: store))
-  }
-
-  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self
-  where Self == AppGroupStoreKey<Bool?> {
-    AppGroupStoreKey(spec)
-  }
-
-  public static func appGroupStore(
-    _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self
-  where Self == AppGroupStoreKey<Int?> {
-    AppGroupStoreKey(.init(key, store: store))
-  }
-
-  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self
-  where Self == AppGroupStoreKey<Int?> {
-    AppGroupStoreKey(spec)
-  }
-
-  public static func appGroupStore(
-    _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore) -> Self
-  where Self == AppGroupStoreKey<Double?> {
-    AppGroupStoreKey(.init(key, store: store))
-  }
-
-  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self
-  where Self == AppGroupStoreKey<Double?> {
-    AppGroupStoreKey(spec)
-  }
-
-  public static func appGroupStore(
-    _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self
-  where Self == AppGroupStoreKey<String?> {
-    AppGroupStoreKey(.init(key, store: store))
-  }
-
-  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self
-  where Self == AppGroupStoreKey<String?> {
-    AppGroupStoreKey(spec)
-  }
-
-  public static func appGroupStore(
-    _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self
-  where Self == AppGroupStoreKey<URL?> {
-    AppGroupStoreKey(.init(key, store: store))
-  }
-
-  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self
-  where Self == AppGroupStoreKey<URL?> {
-    AppGroupStoreKey(spec)
-  }
-
-  public static func appGroupStore(
-    _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self
-  where Self == AppGroupStoreKey<Data?> {
-    AppGroupStoreKey(.init(key, store: store))
-  }
-
-  public static func appGroupStore(_ spec: AppGroupStoreSpec<Value>) -> Self
-  where Self == AppGroupStoreKey<Data?> {
-    AppGroupStoreKey(spec)
-  }
-
-  public static func appGroupStore<Value: RawRepresentable>(
-    _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
+    store: KeyPath<DependencyValues, UserDefaults>
   ) -> Self
   where Value.RawValue == Int, Self == AppGroupStoreKey<Value?>, Value: Sendable {
     AppGroupStoreKey(.init(key, store: store))
@@ -209,9 +169,24 @@ extension PersistenceReaderKey {
     AppGroupStoreKey(spec)
   }
 
+  // MARK: - RawRepresentable/String values
+
   public static func appGroupStore<Value: RawRepresentable>(
     _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
+    store: KeyPath<DependencyValues, UserDefaults>
+  ) -> Self
+  where Value.RawValue == String, Self == AppGroupStoreKey<Value>, Value: Sendable {
+    AppGroupStoreKey(.init(key, store: store))
+  }
+
+  public static func appGroupStore<Value: RawRepresentable>(_ spec: AppGroupStoreSpec<Value>) -> Self
+  where Value.RawValue == String, Self == AppGroupStoreKey<Value> {
+    AppGroupStoreKey(spec)
+  }
+
+  public static func appGroupStore<Value: RawRepresentable>(
+    _ key: String,
+    store: KeyPath<DependencyValues, UserDefaults>
   ) -> Self
   where Value.RawValue == String, Self == AppGroupStoreKey<Value?>, Value: Sendable {
     AppGroupStoreKey(.init(key, store: store))
@@ -222,18 +197,32 @@ extension PersistenceReaderKey {
     AppGroupStoreKey(spec)
   }
 
+  // MARK: - Codable values
+
   public static func appGroupStore<Value: Codable>(
     _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self where Self == AppGroupStoreKey<Value>, Value: Sendable {
+    store: KeyPath<DependencyValues, UserDefaults>
+  ) -> Self
+  where Self == AppGroupStoreKey<Value>, Value: Sendable {
     AppGroupStoreKey(.init(key, store: store))
+  }
+
+  public static func appGroupStore<Value: Codable>(_ spec: AppGroupStoreSpec<Value>) -> Self
+  where Self == AppGroupStoreKey<Value>, Value: Sendable {
+    AppGroupStoreKey(spec)
   }
 
   public static func appGroupStore<Value: Codable>(
     _ key: String,
-    store: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
-  ) -> Self where Self == AppGroupStoreKey<Value?>, Value: Sendable {
+    store: KeyPath<DependencyValues, UserDefaults>
+  ) -> Self
+  where Self == AppGroupStoreKey<Value?>, Value: Sendable {
     AppGroupStoreKey(.init(key, store: store))
+  }
+
+  public static func appGroupStore<Value: Codable>(_ spec: AppGroupStoreSpec<Value?>) -> Self
+  where Self == AppGroupStoreKey<Value?>, Value: Sendable {
+    AppGroupStoreKey(spec)
   }
 }
 
@@ -241,11 +230,10 @@ extension UserDefaults: @unchecked Sendable {}
 
 public struct AppGroupStoreKey<Value: Sendable> : Sendable {
   private let shim: any Shim<Value>
-  private let key: String
-  private let store: UserDefaults
+  private let spec: AppGroupStoreSpec<Value>
 
   public var id: AnyHashable {
-    AppGroupStoreKeyID(key: self.key, store: self.store)
+    AppGroupStoreKeyID(key: spec.key, store: spec.store)
   }
 
   public init(_ spec: AppGroupStoreSpec<Value>) where Value == Bool {
@@ -280,6 +268,12 @@ public struct AppGroupStoreKey<Value: Sendable> : Sendable {
     self.init(shim: RawRepresentableShim(base: CastableShim()), spec: spec)
   }
 
+  public init(_ spec: AppGroupStoreSpec<Value>) where Value: Codable {
+    self.init(shim: CodableShim(), spec: spec)
+  }
+
+  // MARK: - Optional Types
+
   public init(_ spec: AppGroupStoreSpec<Value>) where Value == Bool? {
     self.init(shim: OptionalShim(base: CastableShim()), spec: spec)
   }
@@ -312,26 +306,20 @@ public struct AppGroupStoreKey<Value: Sendable> : Sendable {
     self.init(shim: OptionalShim(base: RawRepresentableShim(base: CastableShim())), spec: spec)
   }
 
-  public init(_ spec: AppGroupStoreSpec<Value>) where Value: Codable {
-    self.init(shim: CodableShim(), spec: spec)
-  }
-
   private init(shim: any Shim<Value>, spec: AppGroupStoreSpec<Value>) where Value: Sendable {
-    @Dependency(spec.store) var store
     self.shim = shim
-    self.key = spec.key
-    self.store = store
+    self.spec = spec
   }
 }
 
 extension AppGroupStoreKey: PersistenceKey {
 
   public func load(initialValue: Value?) -> Value? {
-    self.shim.loadValue(from: self.store, at: self.key, default: initialValue)
+    self.shim.loadValue(from: self.spec.store, at: self.spec.key, default: initialValue)
   }
 
   public func save(_ value: Value) {
-    self.shim.saveValue(value, to: self.store, at: self.key)
+    self.shim.saveValue(value, to: self.spec.store, at: self.spec.key)
   }
 
   public func subscribe(
@@ -340,7 +328,7 @@ extension AppGroupStoreKey: PersistenceKey {
   ) -> Shared<Value>.Subscription {
     let userDefaultsDidChange = NotificationCenter.default.addObserver(
       forName: UserDefaults.didChangeNotification,
-      object: self.store,
+      object: self.spec.store,
       queue: nil
     ) { _ in
       guard !SharedAppGroupStoreLocal.isSetting else { return }
@@ -374,32 +362,30 @@ private struct AppGroupStoreKeyID: Hashable {
   let store: UserDefaults
 }
 
-private enum DefaultAppGroupStoreKey: DependencyKey {
+private var temporarySuiteName: String { "\(NSTemporaryDirectory())com.braysoftware.\(UUID().uuidString)" }
+private var temporarySuite: UserDefaults { UserDefaults(suiteName: temporarySuiteName)! }
 
-  // Provide a unique container for every test
-  static var testValue: UncheckedSendable<UserDefaults> {
-    UncheckedSendable(
-      UserDefaults(
-        suiteName:
-          "\(NSTemporaryDirectory())com.braysoftware.\(UUID().uuidString)"
-      )!
-    )
-  }
+private enum DefaultPrivateAppGroupStoreKey: DependencyKey {
+  static var testValue: UncheckedSendable<UserDefaults> { UncheckedSendable(temporarySuite) }
+  static var previewValue: UncheckedSendable<UserDefaults> { Self.testValue }
+  static var liveValue: UncheckedSendable<UserDefaults> { UncheckedSendable(UserDefaults.standard) }
+}
 
-  // Provide a unique container for every preview
-  static var previewValue: UncheckedSendable<UserDefaults> {
-    Self.testValue
-  }
-
-  static var liveValue: UncheckedSendable<UserDefaults> {
-    UncheckedSendable(UserDefaults.standard)
-  }
+private enum DefaultSharedAppGroupStoreKey: DependencyKey {
+  static var testValue: UncheckedSendable<UserDefaults> { UncheckedSendable(temporarySuite) }
+  static var previewValue: UncheckedSendable<UserDefaults> { Self.testValue }
+  static var liveValue: UncheckedSendable<UserDefaults> { unimplemented("liveValue") }
 }
 
 extension DependencyValues {
-  public var defaultAppGroupStore: UserDefaults {
-    get { self[DefaultAppGroupStoreKey.self].value }
-    set { self[DefaultAppGroupStoreKey.self].value = newValue }
+  public var defaultPrivateAppGroupStore: UserDefaults {
+    get { self[DefaultPrivateAppGroupStoreKey.self].value }
+    set { self[DefaultPrivateAppGroupStoreKey.self].value = newValue }
+  }
+
+  public var defaultSharedAppGroupStore: UserDefaults {
+    get { self[DefaultSharedAppGroupStoreKey.self].value }
+    set { self[DefaultSharedAppGroupStoreKey.self].value = newValue }
   }
 }
 
@@ -421,8 +407,9 @@ private struct CodableShim<Value: Codable>: Shim {
   func loadValue(from store: UserDefaults, at key: String, default defaultValue: Value?) -> Value? {
     guard let data = store.object(forKey: key) as? Data else {
       SharedAppGroupStoreLocal.$isSetting.withValue(true) {
-        let data = try! defaultValue.encodedValue()
-        store.setValue(data, forKey: key)
+        if let data = try? defaultValue.encodedValue() {
+          store.setValue(data, forKey: key)
+        }
       }
       return defaultValue
     }

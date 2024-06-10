@@ -7,9 +7,9 @@ extension PersistenceReaderKey {
 
   public static func appGroupStore<Value>(
     _ keyPath: ReferenceWritableKeyPath<UserDefaults, Value>,
-    storeKeyPath: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore
+    store: KeyPath<DependencyValues, UserDefaults>
   ) -> Self where Self == AppGroupStoreKeyPathKey<Value> {
-    AppGroupStoreKeyPathKey(keyPath, storeKeyPath: storeKeyPath)
+    AppGroupStoreKeyPathKey(keyPath, store: store)
   }
 }
 
@@ -17,15 +17,18 @@ public struct AppGroupStoreKeyPathKey<Value> where Value: Sendable {
   private let keyPath: ReferenceWritableKeyPath<UserDefaults, Value>
   private let store: UserDefaults
 
-  public init(_ keyPath: ReferenceWritableKeyPath<UserDefaults, Value>,
-              storeKeyPath: KeyPath<DependencyValues, UserDefaults> = \.defaultAppGroupStore) {
-    @Dependency(storeKeyPath) var store
+  public init(
+    _ keyPath: ReferenceWritableKeyPath<UserDefaults, Value>,
+    store: KeyPath<DependencyValues, UserDefaults>
+  ) {
+    @Dependency(store) var storage
     self.keyPath = keyPath
-    self.store = store
+    self.store = storage
   }
 }
 
 extension AppGroupStoreKeyPathKey: PersistenceKey, Hashable {
+
   public func load(initialValue _: Value?) -> Value? {
     self.store[keyPath: self.keyPath]
   }

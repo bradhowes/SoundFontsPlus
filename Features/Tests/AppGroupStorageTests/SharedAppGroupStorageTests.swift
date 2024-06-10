@@ -26,7 +26,7 @@ final class SharedAppGroupStorageTests: XCTestCase {
     await store.send(.incrementButtonTapped) {
       $0.count = 1
     }
-    @Dependency(\.defaultAppGroupStore) var userDefaults
+    @Dependency(\.defaultSharedAppGroupStore) var userDefaults
     userDefaults.setValue(42, forKey: "count")
     await Task.yield()
     await store.send(.incrementButtonTapped) {
@@ -113,7 +113,7 @@ private struct ParentFeature {
 private struct Feature {
   @ObservableState
   struct State: Equatable {
-    @Shared(.appGroupStore("count", store: \.defaultAppGroupStore)) var count = 0
+    @Shared(.appGroupStore("count", store: \.defaultSharedAppGroupStore)) var count = 0
   }
   enum Action {
     case incrementButtonTapped
