@@ -74,7 +74,7 @@ final class TagTests: XCTestCase {
   }
 
   func testUbiquitousTagCreation() throws {
-    try withNewContext(ActiveSchema.self) { context in
+    try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
       _ = try TagModel.ubiquitous(.all)
       let tags = try context.fetch(TagModel.fetchDescriptor())
       XCTAssertEqual(tags.count, TagModel.Ubiquitous.allCases.count)
@@ -83,7 +83,9 @@ final class TagTests: XCTestCase {
 
   func testAllUbiquitousTags() throws {
     try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
-      let tags = try TagModel.tags()
+      var tags = try TagModel.tags()
+      XCTAssertEqual(tags.count, TagModel.Ubiquitous.allCases.count)
+      tags = try TagModel.tags()
       XCTAssertEqual(tags.count, TagModel.Ubiquitous.allCases.count)
 
       for kind in TagModel.Ubiquitous.allCases {
@@ -148,6 +150,24 @@ final class TagTests: XCTestCase {
       tag = try TagModel.ubiquitous(.external)
       fonts = tag.orderedFonts
       XCTAssertTrue(fonts.isEmpty)
+    }
+  }
+
+  func testTagsFor() throws {
+    try withNewContext(ActiveSchema.self) { context in
+      XCTAssertEqual(try TagModel.tagsFor(kind: .builtin), [
+        try TagModel.ubiquitous(.all),
+        try TagModel.ubiquitous(.builtIn)
+      ])
+      XCTAssertEqual(try TagModel.tagsFor(kind: .installed), [
+        try TagModel.ubiquitous(.all),
+        try TagModel.ubiquitous(.added)
+      ])
+      XCTAssertEqual(try TagModel.tagsFor(kind: .external), [
+        try TagModel.ubiquitous(.all),
+        try TagModel.ubiquitous(.added),
+        try TagModel.ubiquitous(.external)
+      ])
     }
   }
 }
