@@ -7,7 +7,6 @@ public typealias AudioSettingsModel = ActiveSchema.AudioSettingsModel
 public typealias DelayConfigModel = ActiveSchema.DelayConfigModel
 public typealias FavoriteModel = ActiveSchema.FavoriteModel
 public typealias PresetModel = ActiveSchema.PresetModel
-public typealias PresetInfoModel = ActiveSchema.PresetInfoModel
 public typealias ReverbConfigModel = ActiveSchema.ReverbConfigModel
 public typealias SoundFontModel = ActiveSchema.SoundFontModel
 public typealias SoundFontInfoModel = ActiveSchema.SoundFontInfoModel

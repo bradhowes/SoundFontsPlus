@@ -82,7 +82,7 @@ extension XCTestCase {
     context.container.deleteAllData()
   }
 
-  func withNewContext(
+   func withNewContext(
     _ verseionedSchema: any VersionedSchema.Type,
     migrationPlan: (any SchemaMigrationPlan.Type)? = nil,
     storage: URL? = nil,
@@ -91,6 +91,7 @@ extension XCTestCase {
     let context = makeContext(verseionedSchema, migrationPlan: migrationPlan, storage: storage)
     defer { if storage == nil { cleanup(context) } }
     try withDependencies {
+      $0.uuid = .incrementing
       $0.modelContextProvider = context
     } operation: {
       try block(context)

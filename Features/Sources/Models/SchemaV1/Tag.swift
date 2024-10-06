@@ -5,14 +5,6 @@ import Foundation
 import Dependencies
 import SwiftData
 
-public enum TagError: Error {
-  /// Thrown if attempting to create a tag with the same name as an existing one.
-  case duplicateTag(name: String)
-  case failedToSave(name: String)
-  case failedToFetch(name: String)
-  case failedToFetchAny
-}
-
 extension SchemaV1 {
 
   @Model
@@ -73,7 +65,7 @@ public extension SchemaV1.TagModel {
     try createUbiquitous()
 
     guard let found = findByName(name: kind.name) else {
-      throw TagError.failedToFetch(name: kind.name)
+      throw ModelError.failedToFetch(name: kind.name)
     }
 
     return found
@@ -117,7 +109,7 @@ public extension SchemaV1.TagModel {
   static func create(name: String) throws -> SchemaV1.TagModel {
     @Dependency(\.modelContextProvider) var context
     if findByName(name: name) != nil {
-      throw TagError.duplicateTag(name: name)
+      throw ModelError.duplicateTag(name: name)
     }
 
     let tag = Self(name: name)
@@ -137,7 +129,7 @@ public extension SchemaV1.TagModel {
 
     guard let found = try? context.fetch(fetchDescriptor()),
           !found.isEmpty else {
-      throw TagError.failedToFetchAny
+      throw ModelError.failedToFetchAny
     }
 
     return found

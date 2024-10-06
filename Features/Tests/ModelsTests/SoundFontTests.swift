@@ -37,19 +37,18 @@ final class SoundFontModelTests: XCTestCase {
       XCTAssertEqual(fonts[3].presets.count, 3)
 
       for font in fonts {
-        XCTAssertEqual(font.orderedPresets.map(\.name),
+        XCTAssertEqual(font.orderedPresets.map(\.displayName),
                        (1...font.presets.count).map { "\(font.displayName) Preset \($0)" })
       }
 
       let preset = fonts[0].orderedPresets[0]
-      let favorite = FavoriteModel(name: "My Favorite", preset: preset)
+      let favorite = FavoriteModel(
+        soundFontPresetId: preset.soundFontPresetId,
+        displayName: "My Favorite"
+      )
+
       context.insert(favorite)
       preset.favorites = [favorite]
-      try! context.save()
-
-      let presetInfo = PresetInfoModel(originalName: preset.name)
-      context.insert(presetInfo)
-      preset.info = presetInfo
       try! context.save()
 
       XCTAssertEqual(fonts[0].tags.map(\.name).sorted(), ["All", "Funk"])

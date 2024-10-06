@@ -7,29 +7,28 @@ extension SchemaV1 {
 
   @Model
   public final class PresetModel {
-    public var name: String
-    public var index: Int
-    public var owner: SoundFontModel?
+    public var soundFontPresetId: SoundFontPresetId
+    public var displayName: String
     public var bank: Int
     public var program: Int
     public var visible: Bool
 
-    @Relationship(deleteRule: .cascade)
-    public var info: PresetInfoModel?
+    public var originalName: String
+    public var notes: String?
 
     @Relationship(deleteRule: .cascade)
     public var audioSettings: AudioSettingsModel?
 
-    @Relationship(deleteRule: .cascade, inverse: \FavoriteModel.preset)
+    @Relationship(deleteRule: .cascade)
     public var favorites: [FavoriteModel]?
 
-    public init(owner: SoundFontModel, name: String, index: Int, bank: Int, program: Int) {
-      self.name = name
-      self.index = index
-      self.owner = owner
+    public init(soundFontPresetId: SoundFontPresetId, name: String, bank: Int, program: Int) {
+      self.soundFontPresetId = soundFontPresetId
+      self.displayName = name
       self.bank = bank
       self.program = program
       self.visible = true
+      self.originalName = name
     }
   }
 }

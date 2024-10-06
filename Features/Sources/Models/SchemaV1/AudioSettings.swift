@@ -84,6 +84,22 @@ extension SchemaV1 {
     func removeAllOverrides() {
       self.overrides.removeAll()
     }
+
+    func duplicate() -> AudioSettingsModel {
+      let copy = AudioSettingsModel()
+      copy.keyboardLowestNote = self.keyboardLowestNote
+      copy.keyboardLowestNoteEnabled = self.keyboardLowestNoteEnabled
+      copy.pitchBendRange = self.pitchBendRange
+      copy.gain = self.gain
+      copy.pan = self.pan
+      copy.presetTuning = self.presetTuning
+      copy.presetTranspose = self.presetTranspose
+
+      // Is this safe to do in SwiftData, sharing and relying on COW? Should be.
+      copy.overrides = self.overrides
+
+      return copy
+    }
   }
 }
 

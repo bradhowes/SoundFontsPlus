@@ -11,12 +11,18 @@ import SF2ResourceFiles
 
 extension SchemaV1 {
 
+  public struct SoundFontPresetId: Codable {
+    public let soundFont: UUID
+    public let preset: Int
+  }
+
   @Model
   public final class SoundFontModel {
+    public var uuid: UUID
     public var displayName: String
     public var location: Location
 
-    @Relationship(deleteRule: .cascade, inverse: \PresetModel.owner)
+    @Relationship(deleteRule: .cascade)
     public var presets: [PresetModel]
 
     @Relationship(inverse: \TagModel.tagged)
@@ -25,13 +31,17 @@ extension SchemaV1 {
     public var info: SoundFontInfoModel
     public var visible: Bool
 
-    public var orderedPresets: [PresetModel] { presets.sorted(by: { $0.index < $1.index }) }
+    public var orderedPresets: [PresetModel] {
+      presets.sorted(by: { $0.soundFontPresetId.preset < $1.soundFontPresetId.preset })
+    }
 
     public init(
+      uuid: UUID,
       name: String,
       location: Location,
       info: SoundFontInfoModel
     ) {
+      self.uuid = uuid
       self.displayName = name
       self.location = location
       self.presets = []

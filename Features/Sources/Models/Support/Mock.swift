@@ -1,3 +1,4 @@
+import Dependencies
 import Fakery
 import Foundation
 import SwiftData
@@ -10,7 +11,9 @@ enum Mock {
     presetNames: [String],
     tags: [TagModel] = []
   ) throws -> SoundFontModel {
+    @Dependency(\.uuid) var uuid
     let soundFont = SoundFontModel(
+      uuid: uuid(),
       name: name,
       location: .init(kind: .external, url: nil, raw: nil),
       info: .init(
@@ -43,9 +46,8 @@ enum Mock {
   static func makePreset(context: ModelContext, owner: SoundFontModel, name: String) -> PresetModel {
     let index = owner.presets.count
     let preset = PresetModel(
-      owner: owner,
+      soundFontPresetId: .init(soundFont: owner.uuid, preset: index),
       name: name,
-      index: index,
       bank: index / 100,
       program: index % 100
     )

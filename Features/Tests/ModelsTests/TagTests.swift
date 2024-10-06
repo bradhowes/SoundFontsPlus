@@ -60,7 +60,7 @@ final class TagTests: XCTestCase {
     try withNewContext(ActiveSchema.self) { context in
       let tag = try ActiveSchema.TagModel.create(name: "New Tag")
       let soundFont = try Mock.makeSoundFont(context: context, name: "Foobar", presetNames: ["one", "two", "three"],
-                                             tags: [tag])
+                                               tags: [tag])
       XCTAssertEqual(soundFont.tags.count, 1)
 
       let tags = try ActiveSchema.TagModel.tags()

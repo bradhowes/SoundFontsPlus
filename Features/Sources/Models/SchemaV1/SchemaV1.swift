@@ -9,10 +9,8 @@ public enum SchemaV1: VersionedSchema {
   public static var models: [any PersistentModel.Type] {
     [
       AudioSettingsModel.self,
-      DelayConfigModel.self,
       FavoriteModel.self,
       PresetModel.self,
-      ReverbConfigModel.self,
       SoundFontModel.self,
       TagModel.self
     ]
