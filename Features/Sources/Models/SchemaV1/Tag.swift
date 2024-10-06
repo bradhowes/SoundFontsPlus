@@ -33,6 +33,8 @@ extension SchemaV1 {
     public var name: String
     public var tagged: [SoundFontModel]
 
+    public var orderedFonts: [SoundFontModel] { tagged.sorted(by: { $0.displayName < $1.displayName }) }
+
     public init(name: String) {
       self.name = name
       self.tagged = []
@@ -41,6 +43,7 @@ extension SchemaV1 {
     public func tag(soundFont: SoundFontModel) {
       tagged.append(soundFont)
     }
+
 
     static func fetchDescriptor(predicate: Predicate<TagModel>? = nil) -> FetchDescriptor<TagModel> {
       .init(predicate: predicate, sortBy: [SortDescriptor(\.name)])

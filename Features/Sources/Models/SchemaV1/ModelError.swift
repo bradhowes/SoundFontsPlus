@@ -6,4 +6,6 @@ public enum ModelError: Error {
   case failedToFetch(name: String)
   case failedToFetchAny
   case loadFailure(name: String)
+  case invalidLocation(name: String)
+  case invalidBookmark(name: String)
 }

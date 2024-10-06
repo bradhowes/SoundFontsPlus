@@ -103,6 +103,7 @@ final class SoundFontModelTests: XCTestCase {
           XCTAssertEqual(font.info.embeddedAuthor, "")
           XCTAssertEqual(font.info.embeddedCopyright, "")
           XCTAssertEqual(font.presets.count, 235)
+          XCTAssertEqual(try font.kind(), .builtin(resource: tag.url))
 
         case .museScore:
           XCTAssertEqual(font.info.embeddedName, "GeneralUser GS MuseScore version 1.442")
@@ -110,6 +111,7 @@ final class SoundFontModelTests: XCTestCase {
           XCTAssertEqual(font.info.embeddedAuthor, "S. Christian Collins")
           XCTAssertEqual(font.info.embeddedCopyright, "2012 by S. Christian Collins")
           XCTAssertEqual(font.presets.count, 270)
+          XCTAssertEqual(try font.kind(), .builtin(resource: tag.url))
 
         case .rolandNicePiano:
           XCTAssertEqual(font.info.embeddedName, "User Bank")
@@ -117,6 +119,7 @@ final class SoundFontModelTests: XCTestCase {
           XCTAssertEqual(font.info.embeddedAuthor, "Vienna Master")
           XCTAssertEqual(font.info.embeddedCopyright, "Copyright Information Not Present")
           XCTAssertEqual(font.presets.count, 1)
+          XCTAssertEqual(try font.kind(), .builtin(resource: tag.url))
         }
 
         XCTAssertEqual(font.tags.count, 2)
@@ -176,6 +179,50 @@ final class SoundFontModelTests: XCTestCase {
         XCTAssertEqual(museScorePresets[1].displayName, "Bright Grand")
         XCTAssertEqual(museScorePresets[2].displayName, "Electric Grand")
       }
+    }
+  }
+
+  func testAddFailure() throws {
+    try withNewContext(ActiveSchema.self, addBuiltInFonts: false) { context in
+      XCTAssertThrowsError(try SoundFontModel.add(name: "Hubba", kind: .installed(file: URL(filePath: "/a/b/c")), tags: []))
+    }
+  }
+
+  func testLocationDecoding() throws {
+    try withNewContext(ActiveSchema.self, addBuiltInFonts: false) { context in
+
+      let freeFont = try SoundFontModel.add(resourceTag: .freeFont)
+      XCTAssertEqual(try freeFont.kind(), .builtin(resource: SF2ResourceFileTag.freeFont.url))
+
+      freeFont.location = .init(kind: .builtin, url: nil , raw: nil)
+      XCTAssertThrowsError(try freeFont.kind())
+
+      freeFont.location = .init(kind: .installed, url: nil , raw: nil)
+      XCTAssertThrowsError(try freeFont.kind())
+
+      freeFont.location = .init(kind: .installed, url: SF2ResourceFileTag.freeFont.url , raw: nil)
+      XCTAssertEqual(try freeFont.kind(), .installed(file: SF2ResourceFileTag.freeFont.url))
+
+      freeFont.location = .init(kind: .external, url: nil, raw: nil)
+      XCTAssertThrowsError(try freeFont.kind())
+
+      let bookmark = Bookmark(url: SF2ResourceFileTag.freeFont.url, name: "FreeFont")
+      freeFont.location = .init(kind: .external, url: nil , raw: bookmark.bookmark)
+      XCTAssertThrowsError(try freeFont.kind())
+    }
+  }
+
+  func testInitialWith() throws {
+    try withNewContext(ActiveSchema.self, addBuiltInFonts: false) { context in
+      let fonts = try SoundFontModel.with(tag: TagModel.ubiquitous(.all))
+      XCTAssertEqual(fonts.count, 3)
+    }
+  }
+
+  func testWith() throws {
+    try withNewContext(ActiveSchema.self) { context in
+      let fonts = try SoundFontModel.with(tag: TagModel.ubiquitous(.builtIn))
+      XCTAssertEqual(fonts.count, 3)
     }
   }
 }

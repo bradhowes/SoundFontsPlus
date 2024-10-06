@@ -15,7 +15,7 @@ public enum SoundFontKindError: Error {
 }
 
 /// Indicators for the various types of SoundFont installs
-public enum SoundFontKind {
+public enum SoundFontKind: Equatable {
 
   /// Built-in sound font file that is comes with the app. Holds a URL to a bundle resource
   case builtin(resource: URL)

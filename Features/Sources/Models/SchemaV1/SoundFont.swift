@@ -48,19 +48,27 @@ extension SchemaV1 {
       self.info = info
     }
 
-    /// Computed property to obtain the SoundFontKind from the properties of a SoundFont model.
-    public var kind: SoundFontKind {
+    public func kind() throws -> SoundFontKind {
       switch location.kind {
       case .builtin:
-        return .builtin(resource: location.url!)
-      case .installed:
-        return .installed(file: location.url!)
-      case .external:
-        guard let bookmark = try? Bookmark.from(data: location.raw!) else {
-          // FIXME: properly handle this
-          fatalError("invalid Bookmark")
+        guard let url = location.url else {
+          throw ModelError.invalidLocation(name: self.displayName)
         }
-        return .external(bookmark: bookmark)
+        return .builtin(resource: url)
+      case .installed:
+        guard let url = location.url else {
+          throw ModelError.invalidLocation(name: self.displayName)
+        }
+        return .installed(file: url)
+      case .external:
+        guard let data = location.raw else {
+          throw ModelError.invalidLocation(name: self.displayName)
+        }
+        do {
+          return .external(bookmark: try Bookmark.from(data: data))
+        } catch {
+          throw ModelError.invalidBookmark(name: self.displayName)
+        }
       }
     }
 
@@ -74,7 +82,7 @@ extension SchemaV1 {
 
 extension SchemaV1.SoundFontModel {
 
-  static func create(
+  public static func create(
     name: String,
     location: Location,
     fileInfo: SF2FileInfo,
@@ -126,7 +134,7 @@ extension SchemaV1.SoundFontModel {
     return soundFont
   }
 
-  static func add(name: String, kind: SoundFontKind, tags: [TagModel]) throws -> SoundFontModel {
+  public static func add(name: String, kind: SoundFontKind, tags: [TagModel]) throws -> SoundFontModel {
     let location = kind.asLocation
     var fileInfo = SF2FileInfo(location.path)
     guard fileInfo.load() else {
@@ -136,7 +144,7 @@ extension SchemaV1.SoundFontModel {
     return try create(name: name, location: location, fileInfo: fileInfo, tags: tags)
   }
 
-  static func add(resourceTag: SF2ResourceFileTag) throws -> SoundFontModel {
+  public static func add(resourceTag: SF2ResourceFileTag) throws -> SoundFontModel {
     var fileInfo = SF2FileInfo(resourceTag.url.path(percentEncoded: false))
     fileInfo.load()
     let kind: SoundFontKind = .builtin(resource: resourceTag.url)
@@ -147,29 +155,20 @@ extension SchemaV1.SoundFontModel {
     )
   }
 
-  static func addBuiltIn() throws -> [SoundFontModel] {
+  public static func addBuiltIn() throws -> [SoundFontModel] {
     try SF2ResourceFileTag.allCases.map { try add(resourceTag: $0) }
   }
 }
 
 extension SchemaV1.SoundFontModel {
 
-  static func all() throws -> [SoundFontModel] {
-    @Dependency(\.modelContextProvider) var context
-
-    let fetchDescriptor = SoundFontModel.fetchDescriptor()
-    let found = try context.fetch(fetchDescriptor)
+  public static func with(tag: TagModel) throws -> [SoundFontModel] {
+    let found = tag.orderedFonts
     if !found.isEmpty {
       return found
     }
-
-    return try addBuiltIn()
-  }
-
-  static func with(tag: TagModel) throws -> [SoundFontModel] {
-    @Dependency(\.modelContextProvider) var context
-    let fetchDescriptor = SoundFontModel.fetchDescriptor(by: tag.name)
-    return try context.fetch(fetchDescriptor)
+    _ = try addBuiltIn()
+    return tag.orderedFonts
   }
 }
 
@@ -227,9 +226,6 @@ extension SchemaV1.SoundFontModel {
 //  }
 //}
 //
-//extension SchemaV1.SoundFont : Identifiable {
-//  public var id: PersistentIdentifier { persistentModelID }
-//}
 //
 //extension PersistenceReaderKey {
 //  static public func soundFontKey(_ key: String) -> Self where Self == ModelIdentifierStorageKey<SoundFont.ID?> {
