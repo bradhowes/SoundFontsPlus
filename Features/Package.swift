@@ -8,7 +8,6 @@ let package = Package(
   platforms: [.iOS(.v17), .macOS(.v14)],
   products: [
     .library(name: "AppFeature", targets: ["AppFeature"]),
-    .library(name: "AppGroupStorage", targets: ["AppGroupStorage"]),
     .library(name: "SoundFontListFeature", targets: ["SoundFontListFeature"]),
     .library(name: "PresetListFeature", targets: ["PresetListFeature"]),
     .library(name: "SoundFontEditorFeature", targets: ["SoundFontEditorFeature"]),
@@ -20,24 +19,18 @@ let package = Package(
   dependencies: [
     // .package(url: "https://github.com/bradhowes/SF2Lib", from: "5.0.0")
     .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib"),
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.10.4"),
-    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.2.2"),
-    .package(url: "https://github.com/tgrapperon/swift-dependencies-additions", from: "1.0.1"),
-    .package(url: "https://github.com/bradhowes/SplitView", from: "3.5.2")
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.13.1"),
+    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.3.8"),
+    .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.17.4"),
+    // .package(url: "https://github.com/tgrapperon/swift-dependencies-additions", from: "1.0.1"),
+    .package(url: "https://github.com/bradhowes/SplitView", from: "3.5.2"),
+    .package(url: "https://github.com/vadymmarkov/Fakery", from: "5.0.0")
   ],
   targets: [
     .target(
       name: "SoundFonts2Lib",
       dependencies: [
-        .product(name: "Engine", package: "SF2Lib"),
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Dependencies", package: "swift-dependencies")
-      ]
-    ),
-    .target(
-      name: "AppGroupStorage",
-      dependencies: [
-        .targetItem(name: "Extensions", condition: .none),
+        // .product(name: "Engine", package: "SF2Lib"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies")
       ]
@@ -45,7 +38,6 @@ let package = Package(
     .target(
       name: "AppFeature",
       dependencies: [
-        .targetItem(name: "AppGroupStorage", condition: .none),
         .targetItem(name: "SoundFontListFeature", condition: .none),
         .targetItem(name: "PresetListFeature", condition: .none),
         .targetItem(name: "Models", condition: .none),
@@ -53,7 +45,6 @@ let package = Package(
         .targetItem(name: "SwiftUISupport", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
-        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions"),
         .product(name: "SplitView", package: "SplitView")
       ]
     ),
@@ -64,8 +55,7 @@ let package = Package(
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Dependencies", package: "swift-dependencies"),
-        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions"),
+        .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),
     .target(
@@ -76,7 +66,6 @@ let package = Package(
         .targetItem(name: "SwiftUISupport", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
-        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions"),
       ]
     ),
     .target(
@@ -100,8 +89,9 @@ let package = Package(
       dependencies: [
         .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
-        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions")
+        .product(name: "Fakery", package: "Fakery")
       ]
     ),
     .target(
@@ -109,7 +99,6 @@ let package = Package(
       dependencies: [
         .product(name: "Engine", package: "SF2Lib"),
         .product(name: "Dependencies", package: "swift-dependencies"),
-        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions")
       ],
       resources: [.process("Resources")]
     ),
@@ -118,27 +107,18 @@ let package = Package(
       dependencies: [
         .product(name: "Dependencies", package: "swift-dependencies"),
         .product(name: "DependenciesMacros", package: "swift-dependencies"),
-        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions")
       ]
     ),
-    .target(
-      name: "SF2LibAU",
-      dependencies: [.product(name: "Engine", package: "SF2Lib")]
-    ),
-    .testTarget(
-      name: "AppGroupStorageTests",
-      dependencies: [
-        "AppGroupStorage",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Dependencies", package: "swift-dependencies")
-      ]
-    ),
+//    .target(
+//      name: "SF2LibAU",
+//      dependencies: [.product(name: "Engine", package: "SF2Lib")]
+//    ),
+    // Tests
     .testTarget(
       name: "SoundFonts2LibTests",
       dependencies: [
         "SoundFonts2Lib",
         .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
-        .product(name: "DependenciesAdditions", package: "swift-dependencies-additions")
       ]
     ),
     .testTarget(
@@ -146,14 +126,14 @@ let package = Package(
       dependencies: [
         "Models",
         .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
-        .product(name: "Engine", package: "SF2Lib", condition: .none)
+        // .product(name: "Engine", package: "SF2Lib", condition: .none)
       ]
     ),
     .testTarget(
       name: "SF2ResourceFilesTests",
       dependencies: [
         "SF2ResourceFiles",
-        .product(name: "Engine", package: "SF2Lib", condition: .none)
+        // .product(name: "Engine", package: "SF2Lib", condition: .none)
       ]
     )
   ]

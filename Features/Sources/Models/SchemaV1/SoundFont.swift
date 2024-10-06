@@ -1,0 +1,278 @@
+// Copyright © 2024 Brad Howes. All rights reserved.
+
+import AVFoundation
+import ComposableArchitecture
+import Dependencies
+import Foundation
+import SwiftData
+
+import Engine
+import SF2ResourceFiles
+
+extension SchemaV1 {
+
+  @Model
+  public final class SoundFontModel {
+    public var displayName: String
+    public var location: Location
+
+    @Relationship(deleteRule: .cascade, inverse: \PresetModel.owner)
+    public var presets: [PresetModel]
+
+    @Relationship(inverse: \TagModel.tagged)
+    public var tags: [TagModel]
+
+    public var info: SoundFontInfoModel
+    public var visible: Bool
+
+    public var orderedPresets: [PresetModel] { presets.sorted(by: { $0.index < $1.index }) }
+
+    public init(
+      name: String,
+      location: Location,
+      info: SoundFontInfoModel
+    ) {
+      self.displayName = name
+      self.location = location
+      self.presets = []
+      self.tags = []
+      self.info = info
+      self.visible = true
+    }
+
+    /// Computed property to obtain the SoundFontKind from the properties of a SoundFont model.
+    public var kind: SoundFontKind {
+      switch location.kind {
+      case .builtin:
+        return .builtin(resource: location.url!)
+      case .installed:
+        return .installed(file: location.url!)
+      case .external:
+        guard let bookmark = try? Bookmark.from(data: location.raw!) else {
+          // FIXME: properly handle this
+          fatalError("invalid Bookmark")
+        }
+        return .external(bookmark: bookmark)
+      }
+    }
+
+    public static func fetchDescriptor(with predicate: Predicate<SoundFontModel>? = nil) -> FetchDescriptor<SoundFontModel> {
+      .init(predicate: predicate, sortBy: [SortDescriptor(\.displayName)])
+    }
+  }
+}
+
+//    public func addDefaultTags() {
+//      self.tags = self.modelContext?.tagsFor(kind: location.kind) ?? []
+//      self.tags.forEach { $0.tag(soundFont: self) }
+//    }
+
+//    public func tagged(with tag: Tag) -> Bool {
+//      tags.contains { $0.persistentModelID == tag.persistentModelID }
+//    }
+//
+//    public func tagged(with tagId: PersistentIdentifier) -> Bool {
+//      tags.contains { $0.persistentModelID == tagId }
+//    }
+//
+//    public static func fetchDescriptor(by tag: Tag) -> FetchDescriptor<SoundFont> {
+//      return fetchDescriptor(by: tag.persistentModelID)
+//    }
+//
+//    public static func fetchDescriptor(by tagName: String) -> FetchDescriptor<SoundFont> {
+//      return fetchDescriptor(with: #Predicate { soundFont in
+//        soundFont.tags.contains { $0.name == tagName }
+//      })
+//    }
+//
+//    public static func fetchDescriptor(by tagId: PersistentIdentifier) -> FetchDescriptor<SoundFont> {
+//      return fetchDescriptor(with: #Predicate { soundFont in
+//        soundFont.tags.contains { $0.persistentModelID == tagId } })
+//    }
+//
+//    public static func fetchDescriptor(with predicate: Predicate<SoundFont>) -> FetchDescriptor<SoundFont> {
+//      FetchDescriptor<SoundFont>(predicate: predicate, sortBy: [SortDescriptor(\SoundFont.displayName)])
+//    }
+//  }
+
+//public enum SF2FileError: Error {
+//  case loadFailure(name: String)
+//}
+//
+//public extension ModelContext {
+//
+//  func addSoundFont(name: String, location: Location, fileInfo: SF2FileInfo) throws -> SoundFont {
+//    let soundFont = SoundFont(location: location, name: name)
+//    self.insert(soundFont)
+//
+//    soundFont.embeddedName = String(fileInfo.embeddedName())
+//    soundFont.embeddedAuthor = String(fileInfo.embeddedAuthor())
+//    soundFont.embeddedComment = String(fileInfo.embeddedComment())
+//    soundFont.embeddedCopyright = String(fileInfo.embeddedCopyright())
+//
+//    for index in 0..<fileInfo.size() {
+//      let presetInfo = fileInfo[index]
+//      let preset: Preset = .init(owner: soundFont, index: index, name: String(presetInfo.name()))
+//      soundFont.presets.append(preset)
+//    }
+//
+//    try save()
+//
+//    soundFont.addDefaultTags()
+//
+//    try save()
+//
+//    return soundFont
+//  }
+//
+//  func addSoundFont(name: String, kind: SoundFontKind) throws -> SoundFont {
+//    let location = kind.asLocation
+//    var fileInfo = SF2FileInfo(location.path)
+//    guard fileInfo.load() else {
+//      throw SF2FileError.loadFailure(name: name)
+//    }
+//
+//    return try addSoundFont(name: name, location: location, fileInfo: fileInfo)
+//  }
+//
+//  func addSoundFont(resourceTag: SF2ResourceFileTag) throws -> SoundFont {
+//    var fileInfo = SF2FileInfo(resourceTag.url.path(percentEncoded: false))
+//    fileInfo.load()
+//    let kind: SoundFontKind = .builtin(resource: resourceTag.url)
+//    return try addSoundFont(name: resourceTag.name, kind: kind)
+//  }
+//
+//  func addBuiltInSoundFonts() {
+//    do {
+//      for tag in SF2ResourceFileTag.allCases {
+//        _ = try addSoundFont(resourceTag: tag)
+//      }
+//    } catch {
+//      fatalError("Failed to install built-in SF2 resources")
+//    }
+//  }
+//
+//  func allSoundFonts() -> [SoundFont] {
+//    let fetchDescriptor = FetchDescriptor<SoundFont>(sortBy: [SortDescriptor(\.displayName)])
+//    var found: [SoundFont] = []
+//
+//    found = (try? fetch(fetchDescriptor)) ?? []
+//    if found.isEmpty {
+//      addBuiltInSoundFonts()
+//      found = (try? fetch(fetchDescriptor)) ?? []
+//    }
+//
+//    if found.isEmpty {
+//      fatalError("Failed to install built-in SF2 files.")
+//    }
+//
+//    return found
+//  }
+//
+//  func soundFonts(with tag: Tag) -> [SoundFont] {
+//    let fetchDescriptor = SoundFont.fetchDescriptor(by: tag.name)
+//    return (try? fetch(fetchDescriptor)) ?? []
+//  }
+//
+//  func soundFonts(with tagId: PersistentIdentifier) -> [SoundFont] {
+//    let fetchDescriptor = SoundFont.fetchDescriptor(by: tagId)
+//    return (try? fetch(fetchDescriptor)) ?? []
+//  }
+//
+//  // TODO: remove when cascading is fixed
+//  func delete(soundFont: SoundFont) {
+//    @Dependency(\.fileManager) var fileManager
+//
+//    switch soundFont.kind {
+//    case .builtin: break
+//    case .external: break
+//    case .installed(let url):
+//      do {
+//        try fileManager.removeItem(url)
+//        for (index, path) in FileManager.default.sharedContents.enumerated() {
+//          print(index, path)
+//        }
+//      } catch {
+//        print("failed to remove \(url) - \(error)")
+//      }
+//    }
+//
+//    for preset in soundFont.presets {
+//      self.delete(preset: preset)
+//    }
+//
+//    self.delete(soundFont)
+//  }
+//
+//  fileprivate func tagsFor(kind: Location.Kind) -> [Tag] {
+//    var tags = [ubiquitousTag(.all)]
+//    switch kind {
+//    case .builtin: tags.append(ubiquitousTag(.builtIn))
+//    case .installed: tags.append(ubiquitousTag(.added))
+//    case .external: tags += [ubiquitousTag(.added), ubiquitousTag(.external)]
+//    }
+//    return tags
+//  }
+//
+//  struct PickedStatus {
+//    public let good: Int
+//    public let bad: [String]
+//
+//    public init(good: Int, bad: [String]) {
+//      self.good = good
+//      self.bad = bad
+//    }
+//  }
+//
+//  func picked(urls: [URL]) -> PickedStatus {
+//    var good = 0
+//    var bad = [String]()
+//
+//    for url in urls {
+//      let fileName = url.lastPathComponent
+//      let displayName = String(fileName[fileName.startIndex..<(fileName.lastIndex(of: ".") ?? fileName.endIndex)])
+//      let destination = FileManager.default.sharedPath(for: fileName)
+//
+//      do {
+//        try FileManager.default.moveItem(at: url, to: destination)
+//      } catch let err as NSError {
+//        if err.code != NSFileWriteFileExistsError {
+//          bad.append(fileName)
+//          continue
+//        }
+//      }
+//
+//      do {
+//        _ = try addSoundFont(name: displayName, kind: .installed(file: destination))
+//      } catch SF2FileError.loadFailure {
+//        bad.append(fileName)
+//        continue
+//      } catch {
+//        bad.append(fileName)
+//        continue
+//      }
+//
+//      good += 1
+//    }
+//
+//    for (index, path) in FileManager.default.sharedContents.enumerated() {
+//      print(index, path)
+//    }
+//
+//    return .init(good: good, bad: bad)
+//  }
+//}
+//
+//extension SchemaV1.SoundFont : Identifiable {
+//  public var id: PersistentIdentifier { persistentModelID }
+//}
+//
+//extension PersistenceReaderKey {
+//  static public func soundFontKey(_ key: String) -> Self where Self == ModelIdentifierStorageKey<SoundFont.ID?> {
+//    ModelIdentifierStorageKey(key)
+//  }
+//}
+//
+//extension PersistenceReaderKey where Self == ModelIdentifierStorageKey<SoundFont.ID?> {
+//  static public var selectedSoundFont: Self { tagKey("selectedSoundFont") }
+//}

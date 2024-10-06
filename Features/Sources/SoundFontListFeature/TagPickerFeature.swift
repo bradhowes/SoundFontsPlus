@@ -7,28 +7,28 @@ import SwiftUI
 import Models
 
 @Reducer
-struct TagPickerFeature: Reducer {
+public struct TagPickerFeature: Reducer {
 
   @ObservableState
-  struct State: Equatable {
-    @Shared var activeTagId: Tag.ID
-    let allTagId: Tag.ID
+  public struct State {
+    @Shared(.activeTag) var activeTag: Tag.ID? = nil
   }
 
-  enum Action: BindableAction {
+  public enum Action: BindableAction {
     case showAll
     case binding(BindingAction<State>)
   }
 
-  var body: some ReducerOf<Self> {
+  public var body: some ReducerOf<Self> {
     BindingReducer()
 
     Reduce<State, Action> { state, action in
       switch action {
       case .showAll:
+        state.activeTag = state.allTagId
         return .none
 
-      case .binding(\.activeTagId):
+      case .binding(\._activeTagId):
         print("tag changed")
         return .none
 
@@ -40,7 +40,7 @@ struct TagPickerFeature: Reducer {
   }
 }
 
-struct TagPickerView: View {
+public struct TagPickerView: View {
   @Environment(\.modelContext) private var modelContext
   @Query(sort: \Tag.name) private var tags: [Tag]
 
@@ -50,8 +50,8 @@ struct TagPickerView: View {
     self.store = store
   }
 
-  var body: some View {
-    Picker("Tag", selection: $store.activeTagId) {
+  public var body: some View {
+    Picker("Tag", selection: $store._activeTagId) {
       ForEach(tags) { tag in
         Text(tag.name)
           .tag(tag.persistentModelID)
@@ -112,10 +112,7 @@ struct TagPicker_Previews: PreviewProvider {
 
     func makeTagPickerStore() -> StoreOf<TagPickerFeature> {
       .init(
-        initialState: .init(
-          activeTagId: $activeTagId,
-          allTagId: allTagId
-        )
+        initialState: .init(allTagId: allTagId)
       ) {
         TagPickerFeature()
       }

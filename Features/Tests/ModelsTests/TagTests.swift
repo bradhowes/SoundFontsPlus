@@ -5,71 +5,92 @@ import SwiftData
 @testable import Models
 
 final class TagTests: XCTestCase {
-  var container: ModelContainer!
-  var context: ModelContext!
+  typealias ActiveSchema = SchemaV1
 
-  override func setUp() async throws {
-    container = try ModelContainer(
-      for: Tag.self,
-      configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-    )
-    context = .init(container)
-  }
-
-  var fetched: [Tag] { (try? context.fetch(FetchDescriptor<Tag>())) ?? [] }
-
-  func makeMockTag(name: String) throws -> Tag {
-    let tag = Tag(name: name)
-    context.insert(tag)
-    try context.save()
-    return tag
-  }
+//  func makeMockTag(name: String) throws -> Tag {
+//    let tag = Tag(name: name)
+//    context.insert(tag)
+//    try context.save()
+//    return tag
+//  }
 
   func testEmpty() throws {
-    XCTAssertTrue(fetched.isEmpty)
+    try withNewContext(ActiveSchema.self) { context in
+      let found = try context.fetch(FetchDescriptor<TagModel>())
+      XCTAssertTrue(found.isEmpty)
+    }
+  }
+
+  func testTagsCreatesUbiquitous() throws {
+    try withNewContext(ActiveSchema.self) { _ in
+      let found = try ActiveSchema.TagModel.tags()
+      XCTAssertEqual(found.count, ActiveSchema.TagModel.Ubiquitous.allCases.count)
+    }
   }
 
   func testCreateNewTag() throws {
-    let tag = try makeMockTag(name: "New Tag")
-    let found = fetched
-    XCTAssertFalse(found.isEmpty)
-    XCTAssertEqual(found[0].name, tag.name)
+    try withNewContext(ActiveSchema.self) { context in
+      let tag = try ActiveSchema.TagModel.create(name: "New Tag")
+      let found = try context.fetch(ActiveSchema.TagModel.fetchDescriptor())
+      XCTAssertFalse(found.isEmpty)
+      XCTAssertEqual(found[0].name, tag.name)
+    }
+  }
+
+  func testCreateDuplicateTagThrows() throws {
+    try withNewContext(ActiveSchema.self) { context in
+      _ = try ActiveSchema.TagModel.create(name: "New Tag")
+      XCTAssertThrowsError(try ActiveSchema.TagModel.create(name: "New Tag"))
+    }
   }
 
   func testChangeTagName() throws {
-    let tag = try makeMockTag(name: "New Tag")
-    XCTAssertEqual(fetched[0].name, tag.name)
-    fetched[0].name = "Changed Tag"
-    try context.save()
-    XCTAssertEqual(fetched[0].name, "Changed Tag")
+    try withNewContext(ActiveSchema.self) { context in
+      let tag = try ActiveSchema.TagModel.create(name: "New Tag")
+      var tags = try ActiveSchema.TagModel.tags()
+      XCTAssertEqual(tags[0].name, tag.name)
+      tags[0].name = "Changed Tag"
+      try context.save()
+      tags = try ActiveSchema.TagModel.tags()
+      XCTAssertEqual(tags[0].name, "Changed Tag")
+    }
   }
 
   func testDeleteTagUpdatesSoundFont() throws {
-    let soundFont = SoundFont(location: .init(kind: .builtin, url: nil, raw: nil), name: "Blah Blah")
-    context.insert(soundFont)
+    try withNewContext(ActiveSchema.self) { context in
+      let tag = try ActiveSchema.TagModel.create(name: "New Tag")
+      let soundFont = try Mock.makeSoundFont(context: context, name: "Foobar", presetNames: ["one", "two", "three"],
+                                             tags: [tag])
+      XCTAssertEqual(soundFont.tags.count, 1)
 
-    let tag = try makeMockTag(name: "New Tag")
-    soundFont.tags = [tag]
-    try context.save()
+      let tags = try ActiveSchema.TagModel.tags()
+      XCTAssertEqual(tags.count, 1)
 
-    XCTAssertFalse(fetched.isEmpty)
+      context.delete(tags[0])
+      try context.save()
 
-    context.delete(tag)
-    try context.save()
-    XCTAssertTrue(fetched.isEmpty)
+      XCTAssertEqual(soundFont.tags, [])
+    }
+  }
 
-    XCTAssertEqual(soundFont.tags, [])
+  func testUbiquitousTagCreation() throws {
+    try withNewContext(ActiveSchema.self) { context in
+      _ = try ActiveSchema.TagModel.ubiquitous(.all)
+      let tags = try context.fetch(ActiveSchema.TagModel.fetchDescriptor())
+      XCTAssertEqual(tags.count, ActiveSchema.TagModel.Ubiquitous.allCases.count)
+    }
   }
 
   func testAllUbiquitousTags() throws {
-    let tagIds = Tag.Ubiquitous.allCases.map { context.ubiquitousTag($0).persistentModelID
-    }
+    try withNewContext(ActiveSchema.self) { context in
+      let tags = try ActiveSchema.TagModel.tags()
+      XCTAssertEqual(tags.count, ActiveSchema.TagModel.Ubiquitous.allCases.count)
 
-    for (index, kind) in Tag.Ubiquitous.allCases.enumerated() {
-      let tag = context.ubiquitousTag(kind)
-      XCTAssertEqual(tag.name, kind.name)
-      XCTAssertTrue(tag.tagged.isEmpty)
-      XCTAssertEqual(tag.persistentModelID, tagIds[index])
+      for kind in ActiveSchema.TagModel.Ubiquitous.allCases {
+        let tag = try ActiveSchema.TagModel.ubiquitous(kind)
+        XCTAssertEqual(tag.name, kind.name)
+        XCTAssertTrue(tag.tagged.isEmpty)
+      }
     }
   }
 }

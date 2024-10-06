@@ -11,7 +11,7 @@ extension Data {
    - throws if unable to decode contents
    */
   public func decodedValue<T: Decodable>() throws -> T {
-    let decoder = PropertyListDecoder()
+    let decoder = JSONDecoder()
     return try decoder.decode(T.self, from: self)
   }
 }
@@ -25,7 +25,7 @@ extension Encodable {
    - throws if unable to encode contents
    */
   public func encodedValue() throws -> Data {
-    let encoder = PropertyListEncoder()
+    let encoder = JSONEncoder()
     return try encoder.encode(self)
   }
 }

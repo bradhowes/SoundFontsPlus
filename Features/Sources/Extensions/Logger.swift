@@ -11,5 +11,5 @@ extension Logger {
 
 
 #if compiler(<6.0) || !hasFeature(InferSendableFromCaptures)
-extension Logger: @unchecked Sendable {}
+extension Logger: @unchecked @retroactive Sendable {}
 #endif

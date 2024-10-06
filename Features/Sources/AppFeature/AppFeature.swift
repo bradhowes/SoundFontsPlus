@@ -1,43 +1,32 @@
 import ComposableArchitecture
 import SwiftUI
 import Models
+import SwiftData
+import SoundFontListFeature
+import PresetListFeature
+
 
 @Reducer
 public struct AppFeature {
 
-//  @Reducer(state: .equatable)
-//  enum Path {
-//    case soundFontDetail(SoundFontDetail)
-//    case presetDetail(PresetDetail)
-//    case tagManager
-//  }
+  @Reducer(state: .equatable)
+  enum Path {
+    case soundFontDetail
+    case presetDetail
+  }
 
   @Dependency(\.modelContextProvider) var contextProvider
 
   @ObservableState
   public struct State: Equatable {
-    // var path = StackState<Path.State>()
-
-    var activeSoundFont: SoundFont
-    var selectedSoundFont: SoundFont
-    var activePreset: Preset
-
-    public init(soundFont: SoundFont, preset: Preset) {
-      activeSoundFont = soundFont
-      selectedSoundFont = soundFont
-      activePreset = preset
-    }
+    @Shared(.activePreset) var activePreset: Preset.ID? = nil
+    @Shared(.selectedSoundFont) var selectedSoundFont: SoundFont.ID? = nil
   }
 
   enum Action {
-//    case path(StackActionOf<Path>)
-//    case soundFontList(SoundFontList.Action)
-//    case presetList(PresetList.Action)
-//    case addSoundFonts
-//    case removeSoundFont(SoundFont.ID)
-//    case editSoundFontInfo(SoundFont.ID)
-//    case hideSoundFont(SoundFont.ID)
-//    case editPresetInfo(Preset.ID)
+    case path(StackActionOf<Path>)
+    // case soundFontList(SoundFontListFeature.Action)
+    case presetList(PresetListFeature.Action)
   }
 
   var body: some ReducerOf<Self> {

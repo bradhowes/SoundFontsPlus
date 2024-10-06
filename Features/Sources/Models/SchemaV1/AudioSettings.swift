@@ -1,33 +1,34 @@
-// Copyright © 2024 Brad Howes. All rights reserved.
-
 import AVFoundation
-import Foundation
 import SwiftData
-
-public typealias AudioSettings = SchemaV1.AudioSettings
 
 extension SchemaV1 {
 
   @Model
-  public final class AudioSettings {
+  public final class AudioSettingsModel {
     public var keyboardLowestNote: Int?
-    public var keyboardLowestNoteEnabled: Bool = false
+    public var keyboardLowestNoteEnabled: Bool
     public var pitchBendRange: Int?
-    public var gain: Float = 0.0
-    public var pan: Float = 0.0
-    public var presetTuning: Float = 0.0
+    public var gain: Float
+    public var pan: Float
+    public var presetTuning: Float
     public var presetTranspose: Int?
 
     public typealias GeneratorOverrides = [Int:AUValue]
     public typealias ZoneOverrides = [Int:GeneratorOverrides]
 
     /// Mapping of instrument zone indices and a mapping of generator overrides
-    public var overrides: ZoneOverrides = [:]
+    public var overrides: ZoneOverrides
 
-    @Relationship(deleteRule: .cascade) public var reverbConfig: ReverbConfig?
-    @Relationship(deleteRule: .cascade) public var delayConfig: DelayConfig?
+    @Relationship(deleteRule: .cascade) public var delayConfig: DelayConfigModel?
+    @Relationship(deleteRule: .cascade) public var reverbConfig: ReverbConfigModel?
 
-    public init() {}
+    public init() {
+      keyboardLowestNoteEnabled = false
+      gain = 1.0
+      pan = 0.0
+      presetTuning = 0.0
+      overrides = .init()
+    }
 
     /**
      Access the generator mapping associated with the given zone index for reading and writing.
@@ -86,10 +87,6 @@ extension SchemaV1 {
   }
 }
 
-public extension Int {
-  static let globalZone: Int = -1
-}
-
-extension SchemaV1.AudioSettings : Identifiable {
-  public var id: PersistentIdentifier { persistentModelID }
+extension Int {
+  public static var globalZone: Int { 0 }
 }

@@ -5,8 +5,9 @@ import SwiftUI
 import SwiftData
 import SplitView
 import Models
-import SoundFontList
-import PresetList
+import SoundFontListFeature
+import PresetListFeature
+
 
 public extension String {
   static var splitterPositionKey: String { "splitterPosition" }
@@ -32,14 +33,14 @@ public struct AppView: View {
   public var body: some View {
     Split(
       primary: {
-        SoundFontsListView(selectedSoundFont: store.selectedSoundFontId,
-                           activeSoundFont: store.activeSoundFontId,
-                           activePreset: store.activePresetId)
+        SoundFontListView(selectedSoundFont: store.selectedSoundFontId,
+                          activeSoundFont: store.activeSoundFontId,
+                          activePreset: store.activePresetId)
       },
       secondary: {
-        PresetsListView(selectedSoundFont: $store.selectedSoundFont,
-                        activeSoundFont: $store.activeSoundFont,
-                        activePreset: $store.activePreset)
+        PresetListView(selectedSoundFont: $store.selectedSoundFont,
+                       activeSoundFont: $store.activeSoundFont,
+                       activePreset: $store.activePreset)
       }
     )
     .splitter { Splitter(color: .accentColor, visibleThickness: 2) }

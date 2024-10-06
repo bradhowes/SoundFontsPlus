@@ -7,41 +7,65 @@ import SwiftData
 import SwiftUI
 
 
+public struct ModelItem: Equatable {
+  let modelContainer: ModelContainer
+  let modelId: PersistentIdentifier
+  let displayName: String
+
+  public init(soundFont: SoundFont) {
+    self.modelContainer = soundFont.modelContext!.container
+    self.modelId = soundFont.persistentModelID
+    self.displayName = soundFont.displayName
+  }
+
+  func delete() {
+    let modelContext = ModelContext(modelContainer)
+    guard let model: SoundFont = modelContext.registeredModel(for: modelId) else { return }
+    modelContext.delete(soundFont: model)
+    try? modelContext.save()
+  }
+}
+
 @Reducer
-struct TagFilteredSoundFontListFeature {
+public struct TagFilteredSoundFontListFeature {
 
   @ObservableState
-  struct State: Equatable {
+  public struct State: Equatable {
     @Shared var selectedSoundFontId: SoundFont.ID
     @SharedReader var activeSoundFontId: SoundFont.ID
     @SharedReader var activePresetId: Preset.ID
-
     var tagPicker: TagPickerFeature.State
 
-    var pendingDeletion: SoundFont?
-    var confirmDeletion: Bool = false
+    var pendingDeletion: ModelItem? { didSet { showConfirmDeletion = (pendingDeletion != nil) } }
+    var showConfirmDeletion: Bool = false
   }
 
-  enum Action: BindableAction {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case soundFontButtonTapped(soundFontId: SoundFont.ID)
-    case deleteSwiped(soundFontId: SoundFont.ID)
-    case editSwiped(soundFontId: SoundFont.ID)
+    case deleteButtonTapped(modelItem: ModelItem)
+    case confirmDeleteButtonTapped(confirmed: Bool)
+    case editButtonTapped(modelItem: ModelItem)
     case showAll
   }
 
-  var body: some ReducerOf<Self> {
+  public var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {
       case let .soundFontButtonTapped(soundFontId):
         state.selectedSoundFontId = soundFontId
         return .none
-      case let .deleteSwiped(soundFontId):
-        deleteSoundFont(state: &state, soundFontId: soundFontId)
+      case let .deleteButtonTapped(modelItem):
+        state.pendingDeletion = modelItem
         return .none
-      case let .editSwiped(soundFontId):
-        editSoundFont(state: &state, soundFontId: soundFontId)
+      case let .confirmDeleteButtonTapped(confirmed):
+        if confirmed {
+          state.pendingDeletion?.delete()
+        }
+        state.pendingDeletion = nil
+        return .none
+      case .editButtonTapped(_):
         return .none
       case .binding:
         return .none
@@ -52,14 +76,11 @@ struct TagFilteredSoundFontListFeature {
     }
   }
 
-  func deleteSoundFont(state: inout State, soundFontId: SoundFont.ID) {
-  }
-
   func editSoundFont(state: inout State, soundFontId: SoundFont.ID) {
   }
 }
 
-struct TagFilteredSoundFontListView: View {
+public struct TagFilteredSoundFontListView: View {
   @Environment(\.modelContext) var modelContext
   @Query(sort: \SoundFont.displayName) private var soundFonts: [SoundFont]
 
@@ -76,39 +97,37 @@ struct TagFilteredSoundFontListView: View {
           SoundFontButtonView(store: makeButtonStore(soundFont: soundFont))
             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
               if !soundFont.location.isBuiltin {
-                Button(role: .destructive) {
-                  store.send(.deleteSwiped(soundFontId: soundFont.persistentModelID))
+                Button(role: .none) {
+                  store.send(.deleteButtonTapped(modelItem: .init(soundFont: soundFont)))
                 } label: {
                   Label("Delete", systemImage: "trash.fill")
+                    .tint(.red)
                 }
               }
               Button(role: .none) {
-                store.send(.editSwiped(soundFontId: soundFont.persistentModelID))
+                store.send(.editButtonTapped(modelItem: .init(soundFont: soundFont)))
               } label: {
                 Label("Edit", systemImage: "pencil")
               }
             }
         }
       }
-    }.animation(.default)
-
-    //      .alert("Confirm Deletion", isPresented: $confirmDeletion) {
-    //      Button(role: .destructive) {
-    //        delete(soundFont: pendingDeletion!)
-    //        confirmDeletion = false
-    //      } label: {
-    //        Text("Delete")
-    //      }
-    //      Button(role: .cancel) {
-    //        pendingDeletion = nil
-    //        confirmDeletion = false
-    //      } label: {
-    //        Text("Cancel")
-    //      }
-    //    } message: {
-    //      let name = pendingDeletion?.displayName ?? "???"
-    //      Text("Really delete \(name)? This cannot be undone.")
-    //    }
+    }
+    .alert("Confirm Deletion", isPresented: $store.showConfirmDeletion) {
+          Button(role: .destructive) {
+            store.send(.confirmDeleteButtonTapped(confirmed: true))
+          } label: {
+            Text("Delete")
+          }
+          Button(role: .cancel) {
+            store.send(.confirmDeleteButtonTapped(confirmed: false))
+          } label: {
+            Text("Cancel")
+          }
+        } message: {
+          let name = store.pendingDeletion?.displayName ?? "???"
+          Text("Really delete \(name)? This cannot be undone.")
+        }
   }
 
   private func makeButtonStore(soundFont: SoundFont) -> StoreOf<SoundFontButtonFeature> {
@@ -197,8 +216,8 @@ struct TagFilteredSoundFontList_Previews: PreviewProvider {
       }
     }
 
-    func makeTagPickerState() -> TagPickerFeature.State { 
-      .init(activeTagId: $activeTagId, allTagId: allTagId) }
+    func makeTagPickerState() -> TagPickerFeature.State {
+      .init(allTagId: allTagId) }
   }
 
   static var previewState = PreviewState()
@@ -212,11 +231,9 @@ struct TagFilteredSoundFontList_Previews: PreviewProvider {
         .toolbar {
           ToolbarItemGroup {
             TagPickerView(store: Store(
-              initialState: .init(
-                activeTagId: store.tagPicker.$activeTagId, 
-                allTagId: store.tagPicker.allTagId)) {
-                  TagPickerFeature()
-                })
+              initialState: .init(allTagId: store.tagPicker.allTagId)) {
+                TagPickerFeature()
+              })
             Button(LocalizedStringKey("Add"),
                    systemImage: "plus",
                    action: {})

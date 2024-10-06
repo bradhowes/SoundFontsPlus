@@ -62,21 +62,23 @@ extension FileManagerClient: DependencyKey {
     )
   }
 
+  private static var bogus: URL { URL(fileURLWithPath: "bogus") }
+
   /// Mapping of FileManager functinality to use in unit tests.
-  public static var testValue: FileManagerClient { 
+  public static var testValue: FileManagerClient {
     .init(
-      newTemporaryFile: unimplemented("\(Self.self).newTemporaryFile"),
-      privateDocumentsDirectory: unimplemented("\(Self.self).privateDocumentsDirectory"),
-      sharedDocumentsDirectory: unimplemented("\(Self.self).sharedDocumentsDirectory"),
-      sharedPathFor: unimplemented("\(Self.self).sharedPathFor"),
-      sharedContents: unimplemented("\(Self.self).sharedContents"),
-      hasCloudDirectory: unimplemented("\(Self.self).hasCloudDirectory"),
-      localDocumentsDirectory: unimplemented("\(Self.self).localDocumentsDirectory"),
-      cloudDocumentsDirectory: unimplemented("\(Self.self).cloudDocumentsDirectory"),
-      fileSizeOf: unimplemented("\(Self.self).fileSizeOf"),
-      isUbiquitousItem: unimplemented("\(Self.self).isUbiquitousItem"),
-      copyItem: unimplemented("\(Self.self).copyItem"),
-      removeItem: unimplemented("\(Self.self).removeItem")
+      newTemporaryFile: { unimplemented("newTemporaryFile", placeholder: bogus) },
+      privateDocumentsDirectory: { unimplemented("privateDocumentDirectory", placeholder: bogus) },
+      sharedDocumentsDirectory: { unimplemented("sharedDocumentsDirectory", placeholder: bogus) },
+      sharedPathFor: { _ in unimplemented("sharedPathFor", placeholder: bogus) },
+      sharedContents: { unimplemented("sharedContents", placeholder: []) },
+      hasCloudDirectory: { unimplemented("hasCloudDirectory", placeholder: false) },
+      localDocumentsDirectory: { unimplemented("localDocumentsDirectory", placeholder: bogus) },
+      cloudDocumentsDirectory: { unimplemented("cloudDocumentsDirectory", placeholder: nil) },
+      fileSizeOf: { _ in unimplemented("fileSizeOf", placeholder: 0) },
+      isUbiquitousItem: { _ in unimplemented("isUbiquitousItem", placeholder: false) },
+      copyItem: { _, _ in unimplemented("copyItem", placeholder: ()) },
+      removeItem: { _ in unimplemented("removeItem", placeholder: ()) }
     )
   }
 }
