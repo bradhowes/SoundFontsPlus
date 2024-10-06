@@ -15,21 +15,21 @@ final class TagTests: XCTestCase {
 //  }
 
   func testEmpty() throws {
-    try withNewContext(ActiveSchema.self) { context in
+    try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
       let found = try context.fetch(FetchDescriptor<TagModel>())
       XCTAssertTrue(found.isEmpty)
     }
   }
 
   func testTagsCreatesUbiquitous() throws {
-    try withNewContext(ActiveSchema.self) { _ in
+    try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { _ in
       let found = try ActiveSchema.TagModel.tags()
       XCTAssertEqual(found.count, ActiveSchema.TagModel.Ubiquitous.allCases.count)
     }
   }
 
   func testCreateNewTag() throws {
-    try withNewContext(ActiveSchema.self) { context in
+    try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
       let tag = try ActiveSchema.TagModel.create(name: "New Tag")
       let found = try context.fetch(ActiveSchema.TagModel.fetchDescriptor())
       XCTAssertFalse(found.isEmpty)
@@ -38,14 +38,14 @@ final class TagTests: XCTestCase {
   }
 
   func testCreateDuplicateTagThrows() throws {
-    try withNewContext(ActiveSchema.self) { context in
+    try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
       _ = try ActiveSchema.TagModel.create(name: "New Tag")
       XCTAssertThrowsError(try ActiveSchema.TagModel.create(name: "New Tag"))
     }
   }
 
   func testChangeTagName() throws {
-    try withNewContext(ActiveSchema.self) { context in
+    try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
       let tag = try ActiveSchema.TagModel.create(name: "New Tag")
       var tags = try ActiveSchema.TagModel.tags()
       XCTAssertEqual(tags[0].name, tag.name)
@@ -57,7 +57,7 @@ final class TagTests: XCTestCase {
   }
 
   func testDeleteTagUpdatesSoundFont() throws {
-    try withNewContext(ActiveSchema.self) { context in
+    try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
       let tag = try ActiveSchema.TagModel.create(name: "New Tag")
       let soundFont = try Mock.makeSoundFont(context: context, name: "Foobar", presetNames: ["one", "two", "three"],
                                                tags: [tag])
@@ -82,7 +82,7 @@ final class TagTests: XCTestCase {
   }
 
   func testAllUbiquitousTags() throws {
-    try withNewContext(ActiveSchema.self) { context in
+    try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
       let tags = try ActiveSchema.TagModel.tags()
       XCTAssertEqual(tags.count, ActiveSchema.TagModel.Ubiquitous.allCases.count)
 

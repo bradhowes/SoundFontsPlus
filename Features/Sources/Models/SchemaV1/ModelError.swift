@@ -5,5 +5,5 @@ public enum ModelError: Error {
   case failedToSave(name: String)
   case failedToFetch(name: String)
   case failedToFetchAny
+  case loadFailure(name: String)
 }
-

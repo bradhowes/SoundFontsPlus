@@ -29,7 +29,6 @@ extension SchemaV1 {
     public var tags: [TagModel]
 
     public var info: SoundFontInfoModel
-    public var visible: Bool
 
     public var orderedPresets: [PresetModel] {
       presets.sorted(by: { $0.soundFontPresetId.preset < $1.soundFontPresetId.preset })
@@ -47,7 +46,6 @@ extension SchemaV1 {
       self.presets = []
       self.tags = []
       self.info = info
-      self.visible = true
     }
 
     /// Computed property to obtain the SoundFontKind from the properties of a SoundFont model.
@@ -66,162 +64,118 @@ extension SchemaV1 {
       }
     }
 
-    public static func fetchDescriptor(with predicate: Predicate<SoundFontModel>? = nil) -> FetchDescriptor<SoundFontModel> {
+    public static func fetchDescriptor(
+      with predicate: Predicate<SoundFontModel>? = nil
+    ) -> FetchDescriptor<SoundFontModel> {
       .init(predicate: predicate, sortBy: [SortDescriptor(\.displayName)])
     }
   }
 }
 
-//    public func addDefaultTags() {
-//      self.tags = self.modelContext?.tagsFor(kind: location.kind) ?? []
-//      self.tags.forEach { $0.tag(soundFont: self) }
-//    }
+extension SchemaV1.SoundFontModel {
 
-//    public func tagged(with tag: Tag) -> Bool {
-//      tags.contains { $0.persistentModelID == tag.persistentModelID }
-//    }
-//
-//    public func tagged(with tagId: PersistentIdentifier) -> Bool {
-//      tags.contains { $0.persistentModelID == tagId }
-//    }
-//
-//    public static func fetchDescriptor(by tag: Tag) -> FetchDescriptor<SoundFont> {
-//      return fetchDescriptor(by: tag.persistentModelID)
-//    }
-//
-//    public static func fetchDescriptor(by tagName: String) -> FetchDescriptor<SoundFont> {
-//      return fetchDescriptor(with: #Predicate { soundFont in
-//        soundFont.tags.contains { $0.name == tagName }
-//      })
-//    }
-//
-//    public static func fetchDescriptor(by tagId: PersistentIdentifier) -> FetchDescriptor<SoundFont> {
-//      return fetchDescriptor(with: #Predicate { soundFont in
-//        soundFont.tags.contains { $0.persistentModelID == tagId } })
-//    }
-//
-//    public static func fetchDescriptor(with predicate: Predicate<SoundFont>) -> FetchDescriptor<SoundFont> {
-//      FetchDescriptor<SoundFont>(predicate: predicate, sortBy: [SortDescriptor(\SoundFont.displayName)])
-//    }
-//  }
+  static func create(
+    name: String,
+    location: Location,
+    fileInfo: SF2FileInfo,
+    tags: [TagModel]
+  ) throws -> SoundFontModel {
+    @Dependency(\.modelContextProvider) var context
+    @Dependency(\.uuid) var uuid
 
-//public enum SF2FileError: Error {
-//  case loadFailure(name: String)
-//}
-//
-//public extension ModelContext {
-//
-//  func addSoundFont(name: String, location: Location, fileInfo: SF2FileInfo) throws -> SoundFont {
-//    let soundFont = SoundFont(location: location, name: name)
-//    self.insert(soundFont)
-//
-//    soundFont.embeddedName = String(fileInfo.embeddedName())
-//    soundFont.embeddedAuthor = String(fileInfo.embeddedAuthor())
-//    soundFont.embeddedComment = String(fileInfo.embeddedComment())
-//    soundFont.embeddedCopyright = String(fileInfo.embeddedCopyright())
-//
-//    for index in 0..<fileInfo.size() {
-//      let presetInfo = fileInfo[index]
-//      let preset: Preset = .init(owner: soundFont, index: index, name: String(presetInfo.name()))
-//      soundFont.presets.append(preset)
-//    }
-//
-//    try save()
-//
-//    soundFont.addDefaultTags()
-//
-//    try save()
-//
-//    return soundFont
-//  }
-//
-//  func addSoundFont(name: String, kind: SoundFontKind) throws -> SoundFont {
-//    let location = kind.asLocation
-//    var fileInfo = SF2FileInfo(location.path)
-//    guard fileInfo.load() else {
-//      throw SF2FileError.loadFailure(name: name)
-//    }
-//
-//    return try addSoundFont(name: name, location: location, fileInfo: fileInfo)
-//  }
-//
-//  func addSoundFont(resourceTag: SF2ResourceFileTag) throws -> SoundFont {
-//    var fileInfo = SF2FileInfo(resourceTag.url.path(percentEncoded: false))
-//    fileInfo.load()
-//    let kind: SoundFontKind = .builtin(resource: resourceTag.url)
-//    return try addSoundFont(name: resourceTag.name, kind: kind)
-//  }
-//
-//  func addBuiltInSoundFonts() {
-//    do {
-//      for tag in SF2ResourceFileTag.allCases {
-//        _ = try addSoundFont(resourceTag: tag)
-//      }
-//    } catch {
-//      fatalError("Failed to install built-in SF2 resources")
-//    }
-//  }
-//
-//  func allSoundFonts() -> [SoundFont] {
-//    let fetchDescriptor = FetchDescriptor<SoundFont>(sortBy: [SortDescriptor(\.displayName)])
-//    var found: [SoundFont] = []
-//
-//    found = (try? fetch(fetchDescriptor)) ?? []
-//    if found.isEmpty {
-//      addBuiltInSoundFonts()
-//      found = (try? fetch(fetchDescriptor)) ?? []
-//    }
-//
-//    if found.isEmpty {
-//      fatalError("Failed to install built-in SF2 files.")
-//    }
-//
-//    return found
-//  }
-//
-//  func soundFonts(with tag: Tag) -> [SoundFont] {
-//    let fetchDescriptor = SoundFont.fetchDescriptor(by: tag.name)
-//    return (try? fetch(fetchDescriptor)) ?? []
-//  }
-//
+    let soundFontInfo = SoundFontInfoModel(
+      originalName: name,
+      embeddedName: String(fileInfo.embeddedName()),
+      embeddedComment: String(fileInfo.embeddedComment()),
+      embeddedAuthor: String(fileInfo.embeddedAuthor()),
+      embeddedCopyright: String(fileInfo.embeddedCopyright())
+    )
+
+    context.insert(soundFontInfo)
+
+    let soundFont = SoundFontModel(
+      uuid: uuid(),
+      name: name,
+      location: location,
+      info: soundFontInfo
+    )
+
+    context.insert(soundFont)
+
+    let presets = (0..<fileInfo.size()).map { index in
+      let presetInfo = fileInfo[index]
+      let preset = PresetModel(
+        soundFontPresetId: .init(soundFont: soundFont.uuid, preset: index),
+        name: String(presetInfo.name()),
+        bank: Int(presetInfo.bank()),
+        program: Int(presetInfo.bank())
+      )
+      context.insert(preset)
+      return preset
+    }
+
+    for tag in tags {
+      tag.tag(soundFont: soundFont)
+    }
+
+    soundFont.tags = tags
+    soundFont.presets = presets
+
+    try context.save()
+
+    return soundFont
+  }
+
+  static func add(name: String, kind: SoundFontKind, tags: [TagModel]) throws -> SoundFontModel {
+    let location = kind.asLocation
+    var fileInfo = SF2FileInfo(location.path)
+    guard fileInfo.load() else {
+      throw ModelError.loadFailure(name: name)
+    }
+
+    return try create(name: name, location: location, fileInfo: fileInfo, tags: tags)
+  }
+
+  static func add(resourceTag: SF2ResourceFileTag) throws -> SoundFontModel {
+    var fileInfo = SF2FileInfo(resourceTag.url.path(percentEncoded: false))
+    fileInfo.load()
+    let kind: SoundFontKind = .builtin(resource: resourceTag.url)
+    return try add(
+      name: resourceTag.name,
+      kind: kind,
+      tags: [TagModel.ubiquitous(.all), TagModel.ubiquitous(.builtIn)]
+    )
+  }
+
+  static func addBuiltIn() throws -> [SoundFontModel] {
+    try SF2ResourceFileTag.allCases.map { try add(resourceTag: $0) }
+  }
+}
+
+extension SchemaV1.SoundFontModel {
+
+  static func all() throws -> [SoundFontModel] {
+    @Dependency(\.modelContextProvider) var context
+
+    let fetchDescriptor = SoundFontModel.fetchDescriptor()
+    let found = try context.fetch(fetchDescriptor)
+    if !found.isEmpty {
+      return found
+    }
+
+    return try addBuiltIn()
+  }
+
+  static func with(tag: TagModel) throws -> [SoundFontModel] {
+    @Dependency(\.modelContextProvider) var context
+    let fetchDescriptor = SoundFontModel.fetchDescriptor(by: tag.name)
+    return try context.fetch(fetchDescriptor)
+  }
+}
+
 //  func soundFonts(with tagId: PersistentIdentifier) -> [SoundFont] {
 //    let fetchDescriptor = SoundFont.fetchDescriptor(by: tagId)
 //    return (try? fetch(fetchDescriptor)) ?? []
-//  }
-//
-//  // TODO: remove when cascading is fixed
-//  func delete(soundFont: SoundFont) {
-//    @Dependency(\.fileManager) var fileManager
-//
-//    switch soundFont.kind {
-//    case .builtin: break
-//    case .external: break
-//    case .installed(let url):
-//      do {
-//        try fileManager.removeItem(url)
-//        for (index, path) in FileManager.default.sharedContents.enumerated() {
-//          print(index, path)
-//        }
-//      } catch {
-//        print("failed to remove \(url) - \(error)")
-//      }
-//    }
-//
-//    for preset in soundFont.presets {
-//      self.delete(preset: preset)
-//    }
-//
-//    self.delete(soundFont)
-//  }
-//
-//  fileprivate func tagsFor(kind: Location.Kind) -> [Tag] {
-//    var tags = [ubiquitousTag(.all)]
-//    switch kind {
-//    case .builtin: tags.append(ubiquitousTag(.builtIn))
-//    case .installed: tags.append(ubiquitousTag(.added))
-//    case .external: tags += [ubiquitousTag(.added), ubiquitousTag(.external)]
-//    }
-//    return tags
 //  }
 //
 //  struct PickedStatus {

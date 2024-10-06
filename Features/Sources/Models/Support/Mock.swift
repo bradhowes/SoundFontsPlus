@@ -12,6 +12,7 @@ enum Mock {
     tags: [TagModel] = []
   ) throws -> SoundFontModel {
     @Dependency(\.uuid) var uuid
+
     let soundFont = SoundFontModel(
       uuid: uuid(),
       name: name,

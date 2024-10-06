@@ -30,6 +30,10 @@ extension SchemaV1 {
       self.visible = true
       self.originalName = name
     }
+
+    public static func fetchDescriptor(with predicate: Predicate<PresetModel>? = nil) -> FetchDescriptor<PresetModel> {
+      .init(predicate: predicate, sortBy: [])
+    }
   }
 }
 

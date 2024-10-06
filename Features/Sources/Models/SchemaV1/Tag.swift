@@ -136,6 +136,19 @@ public extension SchemaV1.TagModel {
   }
 }
 
+extension SchemaV1.TagModel {
+
+  static func tagsFor(kind: Location.Kind) throws -> [TagModel] {
+    var tags: [TagModel.Ubiquitous] = [.all]
+    switch kind {
+    case .builtin: tags.append(.builtIn)
+    case .installed: tags.append(.added)
+    case .external: tags += [.added, .external]
+    }
+    return try tags.map { try ubiquitous($0) }
+  }
+}
+
 //
 //extension SchemaV1.Tag : Identifiable {
 //  public var id: PersistentIdentifier { persistentModelID }

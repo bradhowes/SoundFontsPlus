@@ -84,6 +84,8 @@ extension XCTestCase {
 
    func withNewContext(
     _ verseionedSchema: any VersionedSchema.Type,
+    makeUbiquitousTags: Bool = true,
+    addBuiltInFonts: Bool = true,
     migrationPlan: (any SchemaMigrationPlan.Type)? = nil,
     storage: URL? = nil,
     block: (ModelContext) throws -> Void
@@ -94,6 +96,12 @@ extension XCTestCase {
       $0.uuid = .incrementing
       $0.modelContextProvider = context
     } operation: {
+      if makeUbiquitousTags {
+        try ActiveSchema.TagModel.createUbiquitous()
+      }
+      if addBuiltInFonts {
+        _ = try ActiveSchema.SoundFontModel.addBuiltIn()
+      }
       try block(context)
     }
   }
