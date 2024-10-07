@@ -52,7 +52,7 @@ public extension SchemaV1.FavoriteModel {
     context.insert(favorite)
 
     if let audioSettings = preset.audioSettings {
-      let dupe = audioSettings.duplicate()
+      let dupe = try audioSettings.duplicate()
       context.insert(dupe)
       favorite.audioSettings = dupe
     }

@@ -1,4 +1,5 @@
 import AVFoundation
+import Dependencies
 import SwiftData
 
 extension SchemaV1 {
@@ -16,7 +17,10 @@ extension SchemaV1 {
     }
 
     public func duplicate() -> ReverbConfigModel {
-      .init(preset: preset, wetDryMix: wetDryMix, enabled: enabled)
+      @Dependency(\.modelContextProvider) var context
+      let dupe = ReverbConfigModel(preset: preset, wetDryMix: wetDryMix, enabled: enabled)
+      context.insert(dupe)
+      return dupe
     }
   }
 }

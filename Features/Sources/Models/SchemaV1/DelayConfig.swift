@@ -1,4 +1,5 @@
 import AVFoundation
+import Dependencies
 import SwiftData
 
 extension SchemaV1 {
@@ -26,13 +27,16 @@ extension SchemaV1 {
     }
 
     public func duplicate() -> DelayConfigModel {
-      .init(
+      @Dependency(\.modelContextProvider) var context
+      let dupe = DelayConfigModel(
         time: self.time,
         feedback: self.feedback,
         cutoff: self.cutoff,
         wetDryMix: self.wetDryMix,
         enabled: self.enabled
       )
+      context.insert(dupe)
+      return dupe
     }
   }
 }

@@ -60,6 +60,15 @@ final class AudioSettingsModelTests: XCTestCase {
     }
   }
 
+  func testDuplication() throws {
+    try withNewContext(ActiveSchema.self) { context in
+      let entry = try makeMockAudioSettings(context: context)
+      let dupe = try entry.duplicate()
+      XCTAssertNil(dupe.delayConfig)
+      XCTAssertNil(dupe.reverbConfig)
+    }
+  }
+
   func testAddGeneratorOverrides() throws {
     try withNewContext(ActiveSchema.self) { context in
       let entry = try makeMockAudioSettings(context: context)

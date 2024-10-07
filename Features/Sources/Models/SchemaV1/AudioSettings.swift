@@ -1,4 +1,5 @@
 import AVFoundation
+import Dependencies
 import SwiftData
 
 extension SchemaV1 {
@@ -82,8 +83,11 @@ extension SchemaV1 {
       self.overrides = nil
     }
 
-    public func duplicate() -> AudioSettingsModel {
+    public func duplicate() throws -> AudioSettingsModel {
+      @Dependency(\.modelContextProvider) var context
       let copy = AudioSettingsModel()
+      context.insert(copy)
+
       copy.keyboardLowestNote = self.keyboardLowestNote
       copy.keyboardLowestNoteEnabled = self.keyboardLowestNoteEnabled
       copy.pitchBendRange = self.pitchBendRange
@@ -94,6 +98,8 @@ extension SchemaV1 {
       copy.overrides = self.overrides
       copy.delayConfig = self.delayConfig?.duplicate()
       copy.reverbConfig = self.reverbConfig?.duplicate()
+
+      try context.save()
 
       return copy
     }
