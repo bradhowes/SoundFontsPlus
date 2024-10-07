@@ -1,95 +1,59 @@
-//import XCTest
-//import SwiftData
-//
-//@testable import Models
-//
-//final class PresetTests: XCTestCase {
-//  var container: ModelContainer!
-//  var context: ModelContext!
-//  var soundFont: SoundFont!
-//
-//  override func setUp() async throws {
-//    container = try ModelContainer(
-//      for: Preset.self,
-//      configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-//    )
-//    context = .init(container)
-//    soundFont = SoundFont(location: .init(kind: .builtin, url: nil, raw: nil), name: "Blah Blah")
-//    context.insert(soundFont)
-//    try context.save()
-//  }
-//
-//  var fetched: [Preset] { (try? context.fetch(FetchDescriptor<Preset>())) ?? [] }
-//
-//  func makeMockPreset(name: String, bank: Int, program: Int) throws -> Preset {
-//    let preset = Preset(owner: soundFont, index: 0, name: name)
-//    preset.info = PresetInfo(originalName: name, bank: bank, program: program)
-//    preset.favorites = [Favorite(name: "Blah", preset: preset, index: 0)]
-//    preset.audioSettings = AudioSettings()
-//    preset.audioSettings?.reverbConfig = ReverbConfig()
-//    preset.audioSettings?.delayConfig = DelayConfig()
-//    context.insert(preset)
-//    try context.save()
-//    return preset
-//  }
-//
-//  func testEmpty() {
-//    XCTAssertTrue(fetched.isEmpty)
-//  }
-//
-//  func testCreateNewPresets() throws {
-//    let preset = try makeMockPreset(name: "Preset", bank: 1, program: 2)
-//    XCTAssertEqual(preset.name, "Preset")
-//    let found = fetched[0]
-//    XCTAssertEqual(found.name, preset.name)
-//    _ = try makeMockPreset(name: "Preset 1", bank: 1, program: 2)
-//    _ = try makeMockPreset(name: "Preset 2", bank: 1, program: 2)
-//    _ = try makeMockPreset(name: "Preset 3", bank: 1, program: 2)
-//    try context.save()
-//
-//    XCTAssertEqual(fetched.count, 4)
-//    let entry = try context.fetch(FetchDescriptor<SoundFont>())
-//    XCTAssertEqual(entry[0].presets.count, 4)
-//  }
-//
-//  func testNameChange() throws {
-//    let preset = try makeMockPreset(name: "Preset", bank: 1, program: 2)
-//    var found = fetched[0]
-//    XCTAssertEqual(found.name, preset.name)
-//    found.name = "New Name"
-//    try context.save()
-//    found = fetched[0]
-//    XCTAssertEqual(found.name, "New Name")
-//    XCTAssertEqual(found.info?.originalName, "Preset")
-//  }
-//
-//  func testDeletingPresetCascades() async throws {
-//    _ = try makeMockPreset(name: "Preset", bank: 1, program: 2)
-//    try context.save()
-//    let found = fetched[0]
-//    context.delete(found)
-//    try context.save()
-//
-//    XCTAssertTrue(try context.fetch(FetchDescriptor<PresetInfo>()).isEmpty)
-//    XCTAssertTrue(try context.fetch(FetchDescriptor<AudioSettings>()).isEmpty)
-//    XCTAssertTrue(try context.fetch(FetchDescriptor<ReverbConfig>()).isEmpty)
-//
-//    let faves = try context.fetch(FetchDescriptor<Favorite>())
-//    try XCTSkipUnless(faves.isEmpty, "SwiftData has broken cascade")
-//  }
-//
-//  func testCustomDeletingPresetCascades() async throws {
-//    _ = try makeMockPreset(name: "Preset", bank: 1, program: 2)
-//    try context.save()
-//    let found = fetched[0]
-//    context.delete(preset: found)
-//    try context.save()
-//
-//    XCTAssertTrue(try context.fetch(FetchDescriptor<PresetInfo>()).isEmpty)
-//    XCTAssertTrue(try context.fetch(FetchDescriptor<AudioSettings>()).isEmpty)
-//    XCTAssertTrue(try context.fetch(FetchDescriptor<ReverbConfig>()).isEmpty)
-//
-//    let faves = try context.fetch(FetchDescriptor<Favorite>())
-//    XCTAssertTrue(faves.isEmpty)
-//  }
-//}
+import XCTest
+import SwiftData
+
+@testable import Models
+
+final class PresetTests: XCTestCase {
+
+  func testEmpty() throws {
+    try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
+      XCTAssertTrue((try context.fetch(PresetModel.fetchDescriptor()).isEmpty))
+    }
+  }
+
+  func testCreateNewPresets() throws {
+    try withNewContext(ActiveSchema.self, addBuiltInFonts: false) { context in
+      _ = try Mock.makeSoundFont(name: "My Font", presetNames: ["Foo", "Bar"], tags: [.ubiquitous(.all)])
+      try context.save()
+      let fonts = try SoundFontModel.with(tag: .ubiquitous(.all))
+      XCTAssertEqual(fonts[0].presets.count, 2)
+    }
+  }
+
+  func testNameChange() throws {
+    try withNewContext(ActiveSchema.self) { context in
+      var fonts = try SoundFontModel.with(tag: .ubiquitous(.builtIn))
+      let preset = fonts[0].orderedPresets[0]
+      preset.displayName = "My New Name"
+      try context.save()
+
+      fonts = try SoundFontModel.with(tag: .ubiquitous(.builtIn))
+      XCTAssertEqual(fonts[0].orderedPresets[0].displayName, "My New Name")
+    }
+  }
+
+  func testDeletingPresetCascades() async throws {
+    try withNewContext(ActiveSchema.self, addBuiltInFonts: false) { context in
+      _ = try SoundFontModel.add(resourceTag: .freeFont)
+      try context.save()
+
+      var found = try context.fetch(SoundFontModel.fetchDescriptor())
+      XCTAssertEqual(found.count, 1)
+      XCTAssertEqual(found[0].presets.count, 235)
+
+      let fav1 = try FavoriteModel.create(preset: found[0].orderedPresets[0])
+      XCTAssertEqual(fav1.basis, found[0].orderedPresets[0])
+
+      let fav2 = try FavoriteModel.create(preset: found[0].orderedPresets[0])
+      XCTAssertEqual(fav2.basis, found[0].orderedPresets[0])
+
+      context.delete(found[0])
+      try context.save()
+
+      found = try context.fetch(SoundFontModel.fetchDescriptor())
+      XCTAssertEqual(found.count, 0)
+
+      XCTAssertEqual(try context.fetch(FavoriteModel.fetchDescriptor()).count, 0)
+    }
+  }
+}

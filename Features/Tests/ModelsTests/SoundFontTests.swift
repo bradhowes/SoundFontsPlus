@@ -17,7 +17,6 @@ final class SoundFontModelTests: XCTestCase {
 
       _ = try ["Foo", "Bar", "Bizz", "Buzz"].enumerated().map { index, name in
         try Mock.makeSoundFont(
-          context: context,
           name: name,
           presetNames: (1...(3 + index * 2)).map { "\(name) Preset \($0)" },
           tags: Array(tags[0..<min(index + 1, tags.count)])
@@ -67,7 +66,6 @@ final class SoundFontModelTests: XCTestCase {
   func testCreateSoundFont() throws {
     try withNewContext(ActiveSchema.self, makeUbiquitousTags: true, addBuiltInFonts: false) { context in
       _ = try Mock.makeSoundFont(
-        context: context,
         name: "Foo",
         presetNames: ["One", "Two", "Three"],
         tags: [ActiveSchema.TagModel.ubiquitous(.all)]
@@ -135,6 +133,8 @@ final class SoundFontModelTests: XCTestCase {
       _ = try SoundFontModel.add(resourceTag: .freeFont)
       var found = try context.fetch(SoundFontModel.fetchDescriptor())
       XCTAssertEqual(found.count, 1)
+      XCTAssertEqual(try context.fetch(PresetModel.fetchDescriptor()).count, 235)
+
       context.delete(found[0])
       try context.save()
 

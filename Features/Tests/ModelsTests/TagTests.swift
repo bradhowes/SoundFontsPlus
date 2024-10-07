@@ -52,8 +52,8 @@ final class TagTests: XCTestCase {
   func testDeleteTagUpdatesSoundFont() throws {
     try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
       let tag = try TagModel.create(name: "New Tag")
-      let soundFont = try Mock.makeSoundFont(context: context, name: "Foobar", presetNames: ["one", "two", "three"],
-                                               tags: [tag])
+      let soundFont = try Mock.makeSoundFont(name: "Foobar", presetNames: ["one", "two", "three"],
+                                             tags: [tag])
       XCTAssertEqual(soundFont.tags.count, 1)
 
       let tags = try TagModel.tags()
@@ -93,7 +93,6 @@ final class TagTests: XCTestCase {
     try withNewContext(ActiveSchema.self) { context in
       _ = try ["Alpha", "Beta", "Zeta"].map {
         try Mock.makeSoundFont(
-          context: context,
           name: $0,
           presetNames: ["one", "two", "three"],
           tags: [

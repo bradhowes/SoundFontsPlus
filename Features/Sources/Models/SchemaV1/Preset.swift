@@ -20,12 +20,10 @@ extension SchemaV1 {
     public var audioSettings: AudioSettingsModel?
 
     @Relationship(deleteRule: .cascade)
-    public var favorites: [FavoriteModel]?
+    public var favorites: [FavoriteModel]
 
-    @Transient
-    public var orderedFavorites: [FavoriteModel]? {
-      guard let faves = favorites else { return nil }
-      return faves.sorted(by: { $0.displayName < $1.displayName })
+    public var orderedFavorites: [FavoriteModel] {
+      return favorites.sorted(by: { $0.displayName < $1.displayName })
     }
 
     public init(soundFontPresetId: SoundFontPresetId, name: String, bank: Int, program: Int) {
@@ -35,53 +33,11 @@ extension SchemaV1 {
       self.program = program
       self.visible = true
       self.originalName = name
+      self.favorites = []
     }
 
     public static func fetchDescriptor(with predicate: Predicate<PresetModel>? = nil) -> FetchDescriptor<PresetModel> {
-      .init(predicate: predicate, sortBy: [])
+      .init(predicate: predicate, sortBy: [SortDescriptor(\.soundFontPresetId.preset)])
     }
   }
 }
-
-//public extension ModelContext {
-//
-//  /**
-//   Obtain the collection of presets for a given SoundFont entity. The presets will be ordered by their `index` value.
-//
-//   - parameter soundFont: the SoundFont to query for
-//   - returns: the array of Presets entities
-//   */
-//  func orderedPresets(for soundFont: SoundFont) -> [Preset] {
-//    do {
-//      return try fetch(Preset.fetchDescriptor(for: soundFont.persistentModelID))
-//    } catch {
-//      // fatalError("Failed to fetch presets: \(error)")
-//    }
-//    return []
-//  }
-//
-//  /// TODO: remove when cascading is fixed
-//
-//  func delete(preset: Preset) {
-//    if let faves = preset.favorites {
-//      for favorite in faves {
-//        delete(favorite)
-//      }
-//    }
-//    delete(preset)
-//  }
-//}
-//
-//extension SchemaV1.Preset : Identifiable {
-//  public var id: PersistentIdentifier { persistentModelID }
-//}
-//
-//extension PersistenceReaderKey {
-//  static public func presetKey(_ key: String) -> Self where Self == ModelIdentifierStorageKey<Preset.ID?> {
-//    ModelIdentifierStorageKey(key)
-//  }
-//}
-//
-//extension PersistenceReaderKey where Self == ModelIdentifierStorageKey<Tag.ID?> {
-//  static public var activePreset: Self { tagKey("activePreset") }
-//}

@@ -6,11 +6,11 @@ import SwiftData
 enum Mock {
 
   static func makeSoundFont(
-    context: ModelContext,
     name: String,
     presetNames: [String],
     tags: [TagModel] = []
   ) throws -> SoundFontModel {
+    @Dependency(\.modelContextProvider) var context
     @Dependency(\.uuid) var uuid
 
     let soundFont = SoundFontModel(
@@ -27,6 +27,7 @@ enum Mock {
     )
 
     context.insert(soundFont)
+    try? context.save()
 
     for tag in tags {
       tag.tag(soundFont: soundFont)
@@ -35,7 +36,7 @@ enum Mock {
     soundFont.tags = tags
 
     for presetName in presetNames {
-      let preset = makePreset(context: context, owner: soundFont, name: presetName)
+      let preset = makePreset(owner: soundFont, name: presetName)
       soundFont.presets.append(preset)
     }
 
@@ -44,7 +45,8 @@ enum Mock {
     return soundFont
   }
 
-  static func makePreset(context: ModelContext, owner: SoundFontModel, name: String) -> PresetModel {
+  static func makePreset(owner: SoundFontModel, name: String) -> PresetModel {
+    @Dependency(\.modelContextProvider) var context
     let index = owner.presets.count
     let preset = PresetModel(
       soundFontPresetId: .init(soundFont: owner.uuid, preset: index),
@@ -66,7 +68,7 @@ enum Mock {
       let presetNames = (0..<faker.number.randomInt(min: 10, max: 20)).map { _ in
         faker.lorem.sentences(amount: faker.number.randomInt(min: 1, max: 5))
       }
-      _ = try makeSoundFont(context: context, name: name, presetNames: presetNames)
+      _ = try makeSoundFont(name: name, presetNames: presetNames)
     }
     return context
   }

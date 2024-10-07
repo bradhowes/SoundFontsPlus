@@ -17,8 +17,7 @@ extension SchemaV1 {
     @Relationship(deleteRule: .cascade)
     public var audioSettings: AudioSettingsModel?
 
-    @Relationship(inverse: \PresetModel.favorites)
-    public var basis: PresetModel?
+    public var basis: PresetModel
 
     public init(preset: PresetModel, displayName: String) {
       self.basis = preset
@@ -44,7 +43,7 @@ public extension SchemaV1.FavoriteModel {
   static func create(preset: PresetModel) throws -> FavoriteModel {
     @Dependency(\.modelContextProvider) var context
 
-    let newName = preset.displayName + " - \((preset.favorites?.count ?? 0) + 1)"
+    let newName = preset.displayName + " - \(preset.favorites.count + 1)"
     let favorite = FavoriteModel(
       preset: preset,
       displayName: newName
@@ -58,14 +57,17 @@ public extension SchemaV1.FavoriteModel {
       favorite.audioSettings = dupe
     }
 
-    if preset.favorites == nil {
-      preset.favorites = [favorite]
-    } else {
-      preset.favorites?.append(favorite)
-    }
+    preset.favorites.append(favorite)
 
     try context.save()
 
     return favorite
+  }
+
+  func delete() throws {
+    @Dependency(\.modelContextProvider) var context
+    basis.favorites.remove(at: basis.favorites.firstIndex(of: self)!)
+    context.delete(self)
+    try context.save()
   }
 }

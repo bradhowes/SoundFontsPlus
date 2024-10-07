@@ -22,11 +22,11 @@ final class FavoriteTests: XCTestCase {
       let font = try SoundFontModel.with(tag: .ubiquitous(.all))[0]
       let preset = font.orderedPresets[0]
       let fav1 = try FavoriteModel.create(preset: preset)
-      XCTAssertEqual(fav1.basis?.soundFontPresetId, preset.soundFontPresetId)
+      XCTAssertEqual(fav1.basis.soundFontPresetId, preset.soundFontPresetId)
       XCTAssertEqual(fav1.displayName, preset.displayName + " - 1")
 
       let fav2 = try FavoriteModel.create(preset: preset)
-      XCTAssertEqual(fav2.basis?.soundFontPresetId, preset.soundFontPresetId)
+      XCTAssertEqual(fav2.basis.soundFontPresetId, preset.soundFontPresetId)
       XCTAssertEqual(fav2.displayName, preset.displayName + " - 2")
     }
   }
@@ -94,19 +94,18 @@ final class FavoriteTests: XCTestCase {
 
       var fetched = try context.fetch(FetchDescriptor<FavoriteModel>())
       XCTAssertNotNil(fetched[0].basis)
-      XCTAssertEqual(fetched[0].basis?.favorites?.count, 1)
+      XCTAssertEqual(fetched[0].basis.favorites.count, 1)
       XCTAssertFalse(try context.fetch(FetchDescriptor<AudioSettingsModel>()).isEmpty)
       XCTAssertFalse(try context.fetch(FetchDescriptor<DelayConfigModel>()).isEmpty)
 
-      context.delete(fav)
-      try context.save()
+      try fav.delete()
 
       fetched = try context.fetch(FetchDescriptor<FavoriteModel>())
       XCTAssertTrue(fetched.isEmpty)
       XCTAssertTrue(try context.fetch(FetchDescriptor<AudioSettingsModel>()).isEmpty)
       XCTAssertTrue(try context.fetch(FetchDescriptor<DelayConfigModel>()).isEmpty)
 
-      XCTAssertTrue(preset.favorites?.isEmpty ?? true)
+      XCTAssertTrue(preset.favorites.isEmpty)
     }
   }
 
@@ -126,10 +125,10 @@ final class FavoriteTests: XCTestCase {
       try context.save()
 
       let ordered = preset.orderedFavorites
-      XCTAssertEqual(ordered?.count, 3)
-      XCTAssertEqual(ordered?[0].displayName, "All good")
-      XCTAssertEqual(ordered?[1].displayName, fav3.displayName)
-      XCTAssertEqual(ordered?[2].displayName, "Zero Effort")
+      XCTAssertEqual(ordered.count, 3)
+      XCTAssertEqual(ordered[0].displayName, "All good")
+      XCTAssertEqual(ordered[1].displayName, fav3.displayName)
+      XCTAssertEqual(ordered[2].displayName, "Zero Effort")
     }
   }
   //}
