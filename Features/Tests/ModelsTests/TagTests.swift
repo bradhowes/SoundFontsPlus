@@ -7,13 +7,6 @@ import SwiftData
 final class TagTests: XCTestCase {
   typealias ActiveSchema = SchemaV1
 
-//  func makeMockTag(name: String) throws -> Tag {
-//    let tag = Tag(name: name)
-//    context.insert(tag)
-//    try context.save()
-//    return tag
-//  }
-
   func testEmpty() throws {
     try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
       let found = try context.fetch(FetchDescriptor<TagModel>())

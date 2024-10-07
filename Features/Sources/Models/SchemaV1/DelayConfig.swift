@@ -11,12 +11,28 @@ extension SchemaV1 {
     public var wetDryMix: AUValue
     public var enabled: Bool
 
-    public init() {
-      time = 0.0
-      feedback = 0.0
-      cutoff = 0.0
-      wetDryMix = 0.5
-      enabled = true
+    public init(
+      time: AUValue = 0.0,
+      feedback: AUValue = 0.0,
+      cutoff: AUValue = 0.0,
+      wetDryMix: AUValue = 0.5,
+      enabled: Bool = true
+    ) {
+      self.time = time
+      self.feedback = feedback
+      self.cutoff = cutoff
+      self.wetDryMix = wetDryMix
+      self.enabled = enabled
+    }
+
+    public func duplicate() -> DelayConfigModel {
+      .init(
+        time: self.time,
+        feedback: self.feedback,
+        cutoff: self.cutoff,
+        wetDryMix: self.wetDryMix,
+        enabled: self.enabled
+      )
     }
   }
 }

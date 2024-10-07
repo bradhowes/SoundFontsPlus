@@ -9,7 +9,6 @@ extension SchemaV1 {
 
   @Model
   public final class FavoriteModel {
-    public var soundFontPresetId: SoundFontPresetId
     public var displayName: String
 
     /// Optional notation for the favorite
@@ -18,8 +17,11 @@ extension SchemaV1 {
     @Relationship(deleteRule: .cascade)
     public var audioSettings: AudioSettingsModel?
 
-    public init(soundFontPresetId: SoundFontPresetId, displayName: String) {
-      self.soundFontPresetId = soundFontPresetId
+    @Relationship(inverse: \PresetModel.favorites)
+    public var basis: PresetModel?
+
+    public init(preset: PresetModel, displayName: String) {
+      self.basis = preset
       self.displayName = displayName
     }
 
@@ -39,12 +41,13 @@ public extension SchemaV1.FavoriteModel {
    - returns: the new Favorite entity
    - throws if error creating new entity
    */
-  func create(preset: PresetModel) throws -> FavoriteModel {
+  static func create(preset: PresetModel) throws -> FavoriteModel {
     @Dependency(\.modelContextProvider) var context
 
+    let newName = preset.displayName + " - \((preset.favorites?.count ?? 0) + 1)"
     let favorite = FavoriteModel(
-      soundFontPresetId: preset.soundFontPresetId,
-      displayName: preset.displayName
+      preset: preset,
+      displayName: newName
     )
 
     context.insert(favorite)
@@ -53,6 +56,12 @@ public extension SchemaV1.FavoriteModel {
       let dupe = audioSettings.duplicate()
       context.insert(dupe)
       favorite.audioSettings = dupe
+    }
+
+    if preset.favorites == nil {
+      preset.favorites = [favorite]
+    } else {
+      preset.favorites?.append(favorite)
     }
 
     try context.save()

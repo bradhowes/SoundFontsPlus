@@ -17,28 +17,19 @@ extension SchemaV1 {
     public typealias ZoneOverrides = [Int:GeneratorOverrides]
 
     /// Mapping of instrument zone indices and a mapping of generator overrides
-    public var overrides: ZoneOverrides
+    public var overrides: ZoneOverrides?
 
-    @Relationship(deleteRule: .cascade) public var delayConfig: DelayConfigModel?
-    @Relationship(deleteRule: .cascade) public var reverbConfig: ReverbConfigModel?
+    @Relationship(deleteRule: .cascade)
+    public var delayConfig: DelayConfigModel?
+
+    @Relationship(deleteRule: .cascade)
+    public var reverbConfig: ReverbConfigModel?
 
     public init() {
       keyboardLowestNoteEnabled = false
       gain = 1.0
       pan = 0.0
       presetTuning = 0.0
-      overrides = .init()
-    }
-
-    /**
-     Access the generator mapping associated with the given zone index for reading and writing.
-
-     - parameter index: the zone index to find
-     - returns: the mapping for the zone if it exists, otherwise nil.
-     */
-    subscript(_ index: Int) -> GeneratorOverrides? {
-      get { self.overrides[index] }
-      set { self.overrides[index] = newValue }
     }
 
     /**
@@ -48,10 +39,16 @@ extension SchemaV1 {
      - parameter index: the generator index to set
      - parameter value: the value to use for the generator
      */
-    func addOverride(to zone: Int, generator index: Int, value: AUValue) {
-      self.overrides[zone, default: .init()][index] = value
+    public func addOverride(zone: Int, generator index: Int, value: AUValue) {
+      if self.overrides == nil {
+        self.overrides = .init()
+      }
+      self.overrides?[zone, default: .init()][index] = value
     }
 
+    public func override(zone: Int, generator: Int) -> AUValue? {
+      self.overrides?[zone]?[generator]
+    }
     /**
      Remove a generator override from the given zone if one was set. if no more overrides exist, the
      (empty) collection for the zone will be removed as well.
@@ -59,13 +56,13 @@ extension SchemaV1 {
      - parameter zone: the zone to modify
      - parameter index: the generator index to remove
      */
-    func removeOverride(from zone: Int, generator: Int) {
-      guard var zoneOverrides = self.overrides[zone] else { return }
+    public func removeOverride(zone: Int, generator: Int) {
+      guard var zoneOverrides = self.overrides?[zone] else { return }
       zoneOverrides.removeValue(forKey: generator)
       if zoneOverrides.isEmpty {
-        self.overrides.removeValue(forKey: zone)
+        self.overrides?.removeValue(forKey: zone)
       } else {
-        self.overrides[zone] = zoneOverrides
+        self.overrides?[zone] = zoneOverrides
       }
     }
 
@@ -74,18 +71,18 @@ extension SchemaV1 {
 
      - parameter zone: the zone to modify
      */
-    func removeAllOverrides(from zone: Int) {
-      self.overrides.removeValue(forKey: zone)
+    public func removeAllOverrides(zone: Int) {
+      self.overrides?.removeValue(forKey: zone)
     }
 
     /**
      Remove all zone overrides.
      */
-    func removeAllOverrides() {
-      self.overrides.removeAll()
+    public func removeAllOverrides() {
+      self.overrides = nil
     }
 
-    func duplicate() -> AudioSettingsModel {
+    public func duplicate() -> AudioSettingsModel {
       let copy = AudioSettingsModel()
       copy.keyboardLowestNote = self.keyboardLowestNote
       copy.keyboardLowestNoteEnabled = self.keyboardLowestNoteEnabled
@@ -94,9 +91,9 @@ extension SchemaV1 {
       copy.pan = self.pan
       copy.presetTuning = self.presetTuning
       copy.presetTranspose = self.presetTranspose
-
-      // Is this safe to do in SwiftData, sharing and relying on COW? Should be.
       copy.overrides = self.overrides
+      copy.delayConfig = self.delayConfig?.duplicate()
+      copy.reverbConfig = self.reverbConfig?.duplicate()
 
       return copy
     }

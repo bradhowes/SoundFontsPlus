@@ -9,10 +9,14 @@ extension SchemaV1 {
     public var wetDryMix: AUValue
     public var enabled: Bool
 
-    public init() {
-      preset = 0
-      wetDryMix = 0.5
-      enabled = true
+    public init(preset: Int = 0, wetDryMix: AUValue = 0.5, enabled: Bool = true) {
+      self.preset = preset
+      self.wetDryMix = wetDryMix
+      self.enabled = enabled
+    }
+
+    public func duplicate() -> ReverbConfigModel {
+      .init(preset: preset, wetDryMix: wetDryMix, enabled: enabled)
     }
   }
 }

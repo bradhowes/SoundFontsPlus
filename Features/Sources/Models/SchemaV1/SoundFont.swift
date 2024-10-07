@@ -11,7 +11,7 @@ import SF2ResourceFiles
 
 extension SchemaV1 {
 
-  public struct SoundFontPresetId: Codable {
+  public struct SoundFontPresetId: Codable, Equatable {
     public let soundFont: UUID
     public let preset: Int
   }
@@ -30,6 +30,7 @@ extension SchemaV1 {
 
     public var info: SoundFontInfoModel
 
+    @Transient
     public var orderedPresets: [PresetModel] {
       presets.sorted(by: { $0.soundFontPresetId.preset < $1.soundFontPresetId.preset })
     }

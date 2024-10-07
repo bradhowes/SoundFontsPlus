@@ -22,6 +22,12 @@ extension SchemaV1 {
     @Relationship(deleteRule: .cascade)
     public var favorites: [FavoriteModel]?
 
+    @Transient
+    public var orderedFavorites: [FavoriteModel]? {
+      guard let faves = favorites else { return nil }
+      return faves.sorted(by: { $0.displayName < $1.displayName })
+    }
+
     public init(soundFontPresetId: SoundFontPresetId, name: String, bank: Int, program: Int) {
       self.soundFontPresetId = soundFontPresetId
       self.displayName = name

@@ -43,7 +43,7 @@ final class SoundFontModelTests: XCTestCase {
 
       let preset = fonts[0].orderedPresets[0]
       let favorite = FavoriteModel(
-        soundFontPresetId: preset.soundFontPresetId,
+        preset: preset,
         displayName: "My Favorite"
       )
 
