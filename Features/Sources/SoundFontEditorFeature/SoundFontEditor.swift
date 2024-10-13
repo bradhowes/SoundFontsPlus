@@ -12,13 +12,12 @@ public struct SoundFontEditorFeature {
 
   @ObservableState
   public struct State: Equatable, Sendable {
-    var soundFont: SoundFont.ID
+    var soundFont: SoundFontModel
     var focus: Field?
-
     var hasFocus: Bool { focus == Field.displayName }
 
-    public init(soundFont: SoundFont, focus: Field?) {
-      self.soundFont = soundFont.persistentModelID
+    public init(soundFont: SoundFontModel, focus: Field?) {
+      self.soundFont = soundFont
       self.focus = focus
     }
   }

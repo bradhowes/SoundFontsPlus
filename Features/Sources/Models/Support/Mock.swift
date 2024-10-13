@@ -14,7 +14,7 @@ enum Mock {
     @Dependency(\.uuid) var uuid
 
     let soundFont = SoundFontModel(
-      uuid: uuid(),
+      fileHash: name,
       name: name,
       location: .init(kind: .external, url: nil, raw: nil),
       info: .init(
@@ -49,7 +49,7 @@ enum Mock {
     @Dependency(\.modelContextProvider) var context
     let index = owner.presets.count
     let preset = PresetModel(
-      soundFontPresetId: .init(soundFont: owner.uuid, preset: index),
+      presetIndex: index,
       name: name,
       bank: index / 100,
       program: index % 100

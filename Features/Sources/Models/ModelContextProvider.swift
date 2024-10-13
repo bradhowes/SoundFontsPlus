@@ -2,6 +2,8 @@ import Dependencies
 import Foundation
 import SwiftData
 
+public typealias SoundFontId = String
+
 public typealias ActiveSchema = SchemaV1
 public typealias AudioSettingsModel = ActiveSchema.AudioSettingsModel
 public typealias DelayConfigModel = ActiveSchema.DelayConfigModel
@@ -46,9 +48,22 @@ public enum ModelContextKey: DependencyKey {
 
 extension ModelContextKey: TestDependencyKey {
   public static var previewValue: ModelContext { previewContext() }
-  public static var testValue: ModelContext {
-    unimplemented("ModelContextProvider testValue", placeholder: ModelContextKey.testValue)
+  public static var testValue: ModelContext { previewContext() }
+//    unimplemented("ModelContextProvider testValue", placeholder: ModelContextKey.testValue)
+//  }
+}
+
+@MainActor internal let liveContext: (() -> ModelContext) = {
+  if ProcessInfo.processInfo.arguments.contains("UITEST") {
+    print("UITEST context")
+    return makeTestContext()
   }
+  return liveContainer.mainContext
+}
+
+@MainActor private let previewContext: (() -> ModelContext) = {
+  print("previewContext")
+  return makeTestContext()
 }
 
 /// Create a ModelContainer to be used in a live environment.
@@ -64,16 +79,18 @@ private let liveContainer: ModelContainer = makeLiveContainer(
   dbFile: URL.applicationSupportDirectory.appending(path: "Models.sqlite")
 )
 
-internal func makeTestContext(mockCount: Int = 0) throws -> ModelContext {
-  try makeMockContext(mockCount: mockCount)
-}
-
-internal func makeMockContext(mockCount: Int) throws -> ModelContext {
-  let context = try ModelContext(makeInMemoryContainer())
-  return try Mock.generateMocks(context: context, count: mockCount)
+internal func makeTestContext() -> ModelContext {
+  print("makeTestContainer")
+  do {
+    let context = try ModelContext(makeInMemoryContainer())
+    return context
+  } catch {
+    fatalError(error.localizedDescription)
+  }
 }
 
 internal func makeInMemoryContainer() throws -> ModelContainer {
+  print("makeInMemoryContainer")
   let schema = Schema(versionedSchema: ActiveSchema.self)
   let config = ModelConfiguration(
     schema: schema,
@@ -82,23 +99,6 @@ internal func makeInMemoryContainer() throws -> ModelContainer {
     cloudKitDatabase: .none
   )
   return try ModelContainer(for: schema, migrationPlan: nil, configurations: config)
-}
-
-@MainActor internal let liveContext: (() -> ModelContext) = {
-  if ProcessInfo.processInfo.arguments.contains("UITEST") {
-    return makeContext(mockCount: 2)
-  }
-  return liveContainer.mainContext
-}
-
-@MainActor private let previewContext: (() -> ModelContext) = {
-  makeContext(mockCount: 32)
-}
-
-@MainActor private func makeContext(mockCount: Int) -> ModelContext {
-  // swiftlint:disable force_try
-  try! makeMockContext(mockCount: mockCount)
-  // swiftlint:enable force_try
 }
 
 #if hasFeature(RetroactiveAttribute)

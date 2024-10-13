@@ -3,6 +3,7 @@
 import AVFoundation
 import ComposableArchitecture
 import Dependencies
+import FileHash
 import Foundation
 import SwiftData
 
@@ -11,14 +12,9 @@ import SF2ResourceFiles
 
 extension SchemaV1 {
 
-  public struct SoundFontPresetId: Codable, Equatable {
-    public let soundFont: UUID
-    public let preset: Int
-  }
-
   @Model
   public final class SoundFontModel {
-    public var uuid: UUID
+    public var soundFontId: SoundFontId
     public var displayName: String
     public var location: Location
 
@@ -30,18 +26,15 @@ extension SchemaV1 {
 
     public var info: SoundFontInfoModel
 
-    @Transient
-    public var orderedPresets: [PresetModel] {
-      presets.sorted(by: { $0.soundFontPresetId.preset < $1.soundFontPresetId.preset })
-    }
+    public var orderedPresets: [PresetModel] { presets.sorted(by: { $0.presetIndex < $1.presetIndex }) }
 
     public init(
-      uuid: UUID,
+      fileHash: String,
       name: String,
       location: Location,
       info: SoundFontInfoModel
     ) {
-      self.uuid = uuid
+      self.soundFontId = fileHash
       self.displayName = name
       self.location = location
       self.presets = []
@@ -103,7 +96,7 @@ extension SchemaV1.SoundFontModel {
     context.insert(soundFontInfo)
 
     let soundFont = SoundFontModel(
-      uuid: uuid(),
+      fileHash: "",
       name: name,
       location: location,
       info: soundFontInfo
@@ -114,7 +107,7 @@ extension SchemaV1.SoundFontModel {
     let presets = (0..<fileInfo.size()).map { index in
       let presetInfo = fileInfo[index]
       let preset = PresetModel(
-        soundFontPresetId: .init(soundFont: soundFont.uuid, preset: index),
+        presetIndex: index,
         name: String(presetInfo.name()),
         bank: Int(presetInfo.bank()),
         program: Int(presetInfo.bank())
@@ -163,15 +156,18 @@ extension SchemaV1.SoundFontModel {
 
 extension SchemaV1.SoundFontModel {
 
-  public static func with(tag: TagModel) throws -> [SoundFontModel] {
-    let found = tag.orderedFonts
+  public static func tagged(with tag: TagModel.Ubiquitous) throws -> [SoundFontModel] {
+    let tagModel = try TagModel.ubiquitous(tag)
+    let found = tagModel.orderedFonts
     if !found.isEmpty {
       return found
     }
     _ = try addBuiltIn()
-    return tag.orderedFonts
+    return tagModel.orderedFonts
   }
 }
+
+extension SoundFontModel: @unchecked Sendable {}
 
 //  func soundFonts(with tagId: PersistentIdentifier) -> [SoundFont] {
 //    let fetchDescriptor = SoundFont.fetchDescriptor(by: tagId)

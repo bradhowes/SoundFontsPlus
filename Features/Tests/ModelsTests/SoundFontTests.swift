@@ -133,7 +133,7 @@ final class SoundFontModelTests: XCTestCase {
       _ = try SoundFontModel.add(resourceTag: .freeFont)
       var found = try context.fetch(SoundFontModel.fetchDescriptor())
       XCTAssertEqual(found.count, 1)
-      XCTAssertEqual(try context.fetch(PresetModel.fetchDescriptor()).count, 235)
+      XCTAssertEqual(try context.fetch(FetchDescriptor<PresetModel>()).count, 235)
 
       context.delete(found[0])
       try context.save()
@@ -141,7 +141,7 @@ final class SoundFontModelTests: XCTestCase {
       found = try context.fetch(SoundFontModel.fetchDescriptor())
       XCTAssertTrue(found.isEmpty)
 
-      let presets = try context.fetch(PresetModel.fetchDescriptor())
+      let presets = try context.fetch(FetchDescriptor<PresetModel>())
       XCTAssertTrue(presets.isEmpty)
     }
   }
@@ -214,14 +214,14 @@ final class SoundFontModelTests: XCTestCase {
 
   func testInitialWith() throws {
     try withNewContext(ActiveSchema.self, addBuiltInFonts: false) { context in
-      let fonts = try SoundFontModel.with(tag: TagModel.ubiquitous(.all))
+      let fonts = try SoundFontModel.tagged(with: .all)
       XCTAssertEqual(fonts.count, 3)
     }
   }
 
   func testWith() throws {
     try withNewContext(ActiveSchema.self) { context in
-      let fonts = try SoundFontModel.with(tag: TagModel.ubiquitous(.builtIn))
+      let fonts = try SoundFontModel.tagged(with: .builtIn)
       XCTAssertEqual(fonts.count, 3)
     }
   }

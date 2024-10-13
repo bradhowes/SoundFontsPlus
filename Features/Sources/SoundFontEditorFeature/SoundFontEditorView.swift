@@ -1,5 +1,6 @@
 // Copyright © 2024 Brad Howes. All rights reserved.
 
+import Dependencies
 import Foundation
 import SwiftData
 import SwiftUI
@@ -10,18 +11,17 @@ import SwiftUISupport
  Shows a list of SoundFont entities that all have the current active Tag entity
  */
 public struct SoundFontEditorView: View {
-  @Environment(\.modelContext) var modelContext
-
-  @State private var soundFont: SoundFont
+  @State private var soundFont: SoundFontModel
   @FocusState private var displayNameFieldIsFocused: Bool
+  private let path: String
 
-  public init(soundFont: SoundFont) {
+  public init(soundFont: SoundFontModel) {
     self.soundFont = soundFont
+    self.path = (try? soundFont.kind())?.url.absoluteString ?? "N/A"
     self.displayNameFieldIsFocused = true
   }
 
   public var body: some View {
-
     NavigationStack {
       Form {
         Section(header: Text("Name")) {
@@ -63,7 +63,7 @@ public struct SoundFontEditorView: View {
                 }
               )
             },
-            label: { Text(soundFont.originalName) }
+            label: { Text(soundFont.info.originalName) }
           )
         }
         Section(header: Text("Embedded Name")) {
@@ -76,23 +76,23 @@ public struct SoundFontEditorView: View {
                 }
               )
             },
-            label: { Text(soundFont.embeddedName) }
+            label: { Text(soundFont.info.embeddedName) }
           )
         }
         Section(header: Text("Author")) {
-          Text(soundFont.embeddedAuthor)
+          Text(soundFont.info.embeddedAuthor)
         }
         Section(header: Text("Copyright")) {
-          Text(soundFont.embeddedCopyright)
+          Text(soundFont.info.embeddedCopyright)
         }
         Section(header: Text("Comment")) {
-          Text(soundFont.embeddedComment)
+          Text(soundFont.info.embeddedComment)
         }
         Section(header: Text("Kind")) {
           Text("file copy")
         }
         Section(header: Text("Path")) {
-          Text("\(soundFont.kind.url)")
+          Text("\(try! soundFont.kind().url)")
         }
       }
     }
@@ -109,10 +109,10 @@ extension SoundFontEditorView {
 }
 
 struct SoundFontEditorView_Previews: PreviewProvider {
-  static let modelContainer = VersionedModelContainer.make(isTemporary: true)
   static var previews: some View {
-    let soundFont = modelContainer.mainContext.allSoundFonts()[0]
-    SoundFontEditorView(soundFont: soundFont)
-      .environment(\.modelContext, modelContainer.mainContext)
+    @Dependency(\.modelContextProvider) var context
+    let fonts = try! SoundFontModel.tagged(with: .all)
+    SoundFontEditorView(soundFont: fonts[0])
+      .modelContext(context)
   }
 }

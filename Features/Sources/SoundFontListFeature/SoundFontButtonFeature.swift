@@ -14,16 +14,16 @@ struct SoundFontButtonFeature: Reducer {
 
   @ObservableState
   struct State: Equatable {
-    var soundFontId: SoundFont.ID
+    var soundFontId: SoundFontId
     var name: String
     var presetCount: Int
 
-    @SharedReader var activeSoundFontId: SoundFont.ID
-    @Shared var selectedSoundFontId: SoundFont.ID
+    @Shared(.activeSoundFont) var activeSoundFont
+    @Shared(.selectedSoundFont) var selectedSoundFont
 
     var nameColor: Color {
-      if soundFontId == activeSoundFontId { return .accentColor }
-      if soundFontId == selectedSoundFontId { return .secondary }
+      if soundFontId == activeSoundFont { return .accentColor }
+      if soundFontId == selectedSoundFont { return .secondary }
       return .primary
     }
   }
@@ -36,7 +36,7 @@ struct SoundFontButtonFeature: Reducer {
     Reduce<State, Action> { state, action in
       switch action {
       case .buttonTapped:
-        state.selectedSoundFontId = state.soundFontId
+        state.selectedSoundFont = state.soundFontId
         return .none
       }
     }
@@ -59,54 +59,52 @@ struct SoundFontButtonView: View {
   }
 }
 
-struct SoundFontButton_Previews: PreviewProvider {
-  static let modelContainer = VersionedModelContainer.make(isTemporary: true)
-
-  @MainActor
-  struct PreviewState {
-    let soundFonts: [SoundFont]
-    let activeSoundFont: SoundFont
-    let selectedSoundFont: SoundFont
-    let otherSoundFont: SoundFont
-
-    @Shared var activeSoundFontId: SoundFont.ID
-    @Shared var selectedSoundFontId: SoundFont.ID
-
-    init() {
-      let soundFonts = modelContainer.mainContext.allSoundFonts()
-
-      self.soundFonts = soundFonts
-      self.activeSoundFont = soundFonts[0]
-      self.selectedSoundFont = soundFonts[1]
-      self.otherSoundFont = soundFonts[2]
-
-      _activeSoundFontId = Shared(soundFonts[0].persistentModelID)
-      _selectedSoundFontId = Shared(soundFonts[1].persistentModelID)
-    }
-
-    func makeStore(index: Int) -> StoreOf<SoundFontButtonFeature> {
-      .init(initialState:
-          .init(
-            soundFontId: soundFonts[index].persistentModelID,
-            name: soundFonts[index].displayName,
-            presetCount: soundFonts[index].presets.count,
-            activeSoundFontId: SharedReader($activeSoundFontId),
-            selectedSoundFontId: $selectedSoundFontId
-          )) {
-            SoundFontButtonFeature()
-          }
-    }
-  }
-
-  static var previewState = PreviewState()
-
-  static var previews: some View {
-    List {
-      SoundFontButtonView(store: previewState.makeStore(index: 0))
-      SoundFontButtonView(store: previewState.makeStore(index: 1))
-      SoundFontButtonView(store: previewState.makeStore(index: 2))
-    }
-    .modelContainer(modelContainer)
-    .modelContext(modelContainer.mainContext)
-  }
-}
+//struct SoundFontButton_Previews: PreviewProvider {
+//  @MainActor
+//  struct PreviewState {
+//    let soundFonts: [SoundFont]
+//    let activeSoundFont: SoundFont
+//    let selectedSoundFont: SoundFont
+//    let otherSoundFont: SoundFont
+//
+//    @Shared var activeSoundFontId: SoundFont.ID
+//    @Shared var selectedSoundFontId: SoundFont.ID
+//
+//    init() {
+//      let soundFonts = modelContainer.mainContext.allSoundFonts()
+//
+//      self.soundFonts = soundFonts
+//      self.activeSoundFont = soundFonts[0]
+//      self.selectedSoundFont = soundFonts[1]
+//      self.otherSoundFont = soundFonts[2]
+//
+//      _activeSoundFontId = Shared(soundFonts[0].persistentModelID)
+//      _selectedSoundFontId = Shared(soundFonts[1].persistentModelID)
+//    }
+//
+//    func makeStore(index: Int) -> StoreOf<SoundFontButtonFeature> {
+//      .init(initialState:
+//          .init(
+//            soundFontId: soundFonts[index].persistentModelID,
+//            name: soundFonts[index].displayName,
+//            presetCount: soundFonts[index].presets.count,
+//            activeSoundFontId: SharedReader($activeSoundFontId),
+//            selectedSoundFontId: $selectedSoundFontId
+//          )) {
+//            SoundFontButtonFeature()
+//          }
+//    }
+//  }
+//
+//  static var previewState = PreviewState()
+//
+//  static var previews: some View {
+//    List {
+//      SoundFontButtonView(store: previewState.makeStore(index: 0))
+//      SoundFontButtonView(store: previewState.makeStore(index: 1))
+//      SoundFontButtonView(store: previewState.makeStore(index: 2))
+//    }
+//    .modelContainer(modelContainer)
+//    .modelContext(modelContainer.mainContext)
+//  }
+//}

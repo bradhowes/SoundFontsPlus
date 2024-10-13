@@ -27,6 +27,7 @@ final class TagTests: XCTestCase {
       let found = try context.fetch(TagModel.fetchDescriptor())
       XCTAssertFalse(found.isEmpty)
       XCTAssertEqual(found[0].name, tag.name)
+      XCTAssertFalse(found[0].ubiquitous)
     }
   }
 
@@ -52,17 +53,16 @@ final class TagTests: XCTestCase {
   func testDeleteTagUpdatesSoundFont() throws {
     try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
       let tag = try TagModel.create(name: "New Tag")
-      let soundFont = try Mock.makeSoundFont(name: "Foobar", presetNames: ["one", "two", "three"],
-                                             tags: [tag])
+      let soundFont = try Mock.makeSoundFont(name: "Foobar", presetNames: ["one", "two", "three"], tags: [tag])
       XCTAssertEqual(soundFont.tags.count, 1)
 
       let tags = try TagModel.tags()
       XCTAssertEqual(tags.count, 1)
 
-      context.delete(tags[0])
-      try context.save()
-
+      try TagModel.delete(tag: tags[0].uuid)
       XCTAssertEqual(soundFont.tags, [])
+
+      try TagModel.delete(tag: tags[0].uuid)
     }
   }
 
@@ -85,6 +85,7 @@ final class TagTests: XCTestCase {
         let tag = try TagModel.ubiquitous(kind)
         XCTAssertEqual(tag.name, kind.name)
         XCTAssertTrue(tag.tagged.isEmpty)
+        XCTAssertTrue(tag.ubiquitous)
       }
     }
   }

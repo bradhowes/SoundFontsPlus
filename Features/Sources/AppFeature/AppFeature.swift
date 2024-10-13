@@ -15,17 +15,19 @@ public struct AppFeature {
     case presetDetail
   }
 
-  @Dependency(\.modelContextProvider) var contextProvider
+  @Dependency(\.modelContextProvider) var context
 
   @ObservableState
   public struct State: Equatable {
-    @Shared(.activePreset) var activePreset: Preset.ID? = nil
-    @Shared(.selectedSoundFont) var selectedSoundFont: SoundFont.ID? = nil
+    @Shared(.activePreset) var activePreset
+    @Shared(.activeSoundFont) var activeSoundFont
+    @Shared(.activeTag) var activeTag
+    @Shared(.selectedSoundFont) var selectedSoundFont
   }
 
   enum Action {
     case path(StackActionOf<Path>)
-    // case soundFontList(SoundFontListFeature.Action)
+    case soundFontList(SoundFontListFeature.Action)
     case presetList(PresetListFeature.Action)
   }
 

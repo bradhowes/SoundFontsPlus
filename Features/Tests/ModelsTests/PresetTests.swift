@@ -7,7 +7,7 @@ final class PresetTests: XCTestCase {
 
   func testEmpty() throws {
     try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
-      XCTAssertTrue((try context.fetch(PresetModel.fetchDescriptor()).isEmpty))
+      XCTAssertTrue((try context.fetch(FetchDescriptor<PresetModel>()).isEmpty))
     }
   }
 
@@ -15,19 +15,19 @@ final class PresetTests: XCTestCase {
     try withNewContext(ActiveSchema.self, addBuiltInFonts: false) { context in
       _ = try Mock.makeSoundFont(name: "My Font", presetNames: ["Foo", "Bar"], tags: [.ubiquitous(.all)])
       try context.save()
-      let fonts = try SoundFontModel.with(tag: .ubiquitous(.all))
+      let fonts = try SoundFontModel.tagged(with: .all)
       XCTAssertEqual(fonts[0].presets.count, 2)
     }
   }
 
   func testNameChange() throws {
     try withNewContext(ActiveSchema.self) { context in
-      var fonts = try SoundFontModel.with(tag: .ubiquitous(.builtIn))
+      var fonts = try SoundFontModel.tagged(with: .builtIn)
       let preset = fonts[0].orderedPresets[0]
       preset.displayName = "My New Name"
       try context.save()
 
-      fonts = try SoundFontModel.with(tag: .ubiquitous(.builtIn))
+      fonts = try SoundFontModel.tagged(with: .builtIn)
       XCTAssertEqual(fonts[0].orderedPresets[0].displayName, "My New Name")
     }
   }

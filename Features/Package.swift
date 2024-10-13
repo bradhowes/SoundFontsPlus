@@ -1,16 +1,17 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
   name: "Features",
-  platforms: [.iOS(.v17), .macOS(.v14)],
+  platforms: [.iOS(.v18), .macOS(.v14)],
   products: [
     .library(name: "AppFeature", targets: ["AppFeature"]),
     .library(name: "SoundFontListFeature", targets: ["SoundFontListFeature"]),
     .library(name: "PresetListFeature", targets: ["PresetListFeature"]),
     .library(name: "SoundFontEditorFeature", targets: ["SoundFontEditorFeature"]),
+    .library(name: "TagFeature", targets: ["TagFeature"]),
     .library(name: "Extensions", targets: ["Extensions"]),
     .library(name: "Models", targets: ["Models"]),
     .library(name: "SF2ResourceFiles", targets: ["SF2ResourceFiles"]),
@@ -19,12 +20,13 @@ let package = Package(
   dependencies: [
     // .package(url: "https://github.com/bradhowes/SF2Lib", from: "5.0.0")
     .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib"),
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.13.1"),
-    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.3.8"),
-    .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.17.4"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.15.0"),
+    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.4.1"),
+    .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.17.5"),
     // .package(url: "https://github.com/tgrapperon/swift-dependencies-additions", from: "1.0.1"),
     .package(url: "https://github.com/bradhowes/SplitView", from: "3.5.2"),
-    .package(url: "https://github.com/vadymmarkov/Fakery", from: "5.0.0")
+    .package(url: "https://github.com/vadymmarkov/Fakery", from: "5.0.0"),
+    .package(url: "https://github.com/CrazyFanFan/FileHash", from: "0.0.1")
   ],
   targets: [
     .target(
@@ -50,6 +52,16 @@ let package = Package(
     ),
     .target(
       name: "SoundFontListFeature",
+      dependencies: [
+        .targetItem(name: "Models", condition: .none),
+        .targetItem(name: "SF2ResourceFiles", condition: .none),
+        .targetItem(name: "SwiftUISupport", condition: .none),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies")
+      ]
+    ),
+    .target(
+      name: "TagFeature",
       dependencies: [
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
@@ -91,7 +103,8 @@ let package = Package(
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
-        .product(name: "Fakery", package: "Fakery")
+        .product(name: "Fakery", package: "Fakery"),
+        .product(name: "FileHash", package: "FileHash")
       ]
     ),
     .target(
@@ -105,6 +118,7 @@ let package = Package(
     .target(
       name: "Extensions",
       dependencies: [
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
         .product(name: "DependenciesMacros", package: "swift-dependencies"),
       ]

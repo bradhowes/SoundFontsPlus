@@ -28,8 +28,6 @@ public final class Bookmark: Codable {
   private var lastRestoredUrl: URL?
   private var lastRestoredWhen: CFTimeInterval
 
-  @Dependency(\.fileManager.isUbiquitousItem) var isUbiquitousItem
-
   /**
    Construct a new bookmark
 
@@ -76,7 +74,10 @@ public extension Bookmark {
   }
 
   /// Determine if the file is located in an iCloud container
-  var isUbiquitous: Bool { isUbiquitousItem(url) }
+  var isUbiquitous: Bool {
+    @Dependency(\.fileManager.isUbiquitousItem) var isUbiquitousItem
+    return isUbiquitousItem(url)
+  }
 
   /// The various iCloud states a bookmark item may be in.
   enum CloudState {
@@ -159,14 +160,7 @@ private extension Bookmark {
   }
 }
 
-extension Bookmark: Hashable {
-
-  /**
-   Provide a hash for a bookmark. Relies on the bookmark hash value.
-
-   - parameter hasher: the object to hash into
-   */
-  public func hash(into hasher: inout Hasher) { hasher.combine(bookmark) }
+extension Bookmark: Equatable {
 
   /**
    Allow comparison operator for bookmarks

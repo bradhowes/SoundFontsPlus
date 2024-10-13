@@ -82,7 +82,7 @@ extension XCTestCase {
     context.container.deleteAllData()
   }
 
-   func withNewContext(
+  func withNewContext(
     _ verseionedSchema: any VersionedSchema.Type,
     makeUbiquitousTags: Bool = true,
     addBuiltInFonts: Bool = true,
@@ -103,6 +103,14 @@ extension XCTestCase {
         _ = try ActiveSchema.SoundFontModel.addBuiltIn()
       }
       try block(context)
+    }
+  }
+
+  func withTestAppStorage(block: () throws -> Void) throws {
+    try withDependencies {
+      $0.defaultAppStorage = UserDefaults(suiteName: "\(NSTemporaryDirectory())\(UUID().uuidString)")!
+    } operation: {
+      try block()
     }
   }
 }

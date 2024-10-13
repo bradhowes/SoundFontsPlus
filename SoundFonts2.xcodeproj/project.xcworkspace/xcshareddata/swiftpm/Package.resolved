@@ -1,4 +1,5 @@
 {
+  "originHash" : "0a3b6ea233cccfb08ccaf6e8097242bfc4bb3be84687bac9b15dba762d04ff86",
   "pins" : [
     {
       "identity" : "auv3support",
@@ -25,6 +26,15 @@
       "state" : {
         "revision" : "71cb3bf36a808534659d1248780c2bf3c4c4fc91",
         "version" : "5.1.0"
+      }
+    },
+    {
+      "identity" : "filehash",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/CrazyFanFan/FileHash",
+      "state" : {
+        "revision" : "bf08e120ffb3d9f784dcc40fcb4a606ee9a5e78e",
+        "version" : "0.0.1"
       }
     },
     {
@@ -59,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections",
       "state" : {
-        "revision" : "94cf62b3ba8d4bed62680a282d4c25f9c63c2efb",
-        "version" : "1.1.0"
+        "revision" : "671108c96644956dddcd89dd59c203dcdb36cec7",
+        "version" : "1.1.4"
       }
     },
     {
@@ -77,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-concurrency-extras",
       "state" : {
-        "revision" : "bb5059bde9022d69ac516803f4f227d8ac967f71",
-        "version" : "1.1.0"
+        "revision" : "6054df64b55186f08b6d0fd87152081b8ad8d613",
+        "version" : "1.2.0"
       }
     },
     {
@@ -113,8 +123,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
-        "revision" : "d1bdbd8a5d1d1dfd2e4bb1f5e2f6facb631404d4",
-        "version" : "2.2.1"
+        "revision" : "16a27ab7ae0abfefbbcba73581b3e2380b47a579",
+        "version" : "2.2.2"
       }
     },
     {
@@ -140,8 +150,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax",
       "state" : {
-        "revision" : "303e5c5c36d6a558407d364878df131c3546fad8",
-        "version" : "510.0.2"
+        "revision" : "0687f71944021d616d34d922343dcef086855920",
+        "version" : "600.0.1"
       }
     },
     {
@@ -154,5 +164,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
