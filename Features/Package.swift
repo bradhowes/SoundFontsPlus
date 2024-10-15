@@ -5,13 +5,13 @@ import PackageDescription
 
 let package = Package(
   name: "Features",
-  platforms: [.iOS(.v18), .macOS(.v14)],
+  platforms: [.iOS(.v18), .macOS(.v15)],
   products: [
     .library(name: "AppFeature", targets: ["AppFeature"]),
     .library(name: "SoundFontListFeature", targets: ["SoundFontListFeature"]),
     .library(name: "PresetListFeature", targets: ["PresetListFeature"]),
     .library(name: "SoundFontEditorFeature", targets: ["SoundFontEditorFeature"]),
-    .library(name: "TagFeature", targets: ["TagFeature"]),
+    .library(name: "TagsFeature", targets: ["TagsFeature"]),
     .library(name: "Extensions", targets: ["Extensions"]),
     .library(name: "Models", targets: ["Models"]),
     .library(name: "SF2ResourceFiles", targets: ["SF2ResourceFiles"]),
@@ -22,9 +22,8 @@ let package = Package(
     .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib"),
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.15.0"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.4.1"),
-    .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.17.5"),
-    // .package(url: "https://github.com/tgrapperon/swift-dependencies-additions", from: "1.0.1"),
-    .package(url: "https://github.com/bradhowes/SplitView", from: "3.5.2"),
+    .package(url: "https://github.com/pointfreeco/swift-tagged", from: "0.10.0"),
+    // .package(url: "https://github.com/bradhowes/SplitView", from: "3.5.2"),
     .package(url: "https://github.com/vadymmarkov/Fakery", from: "5.0.0"),
     .package(url: "https://github.com/CrazyFanFan/FileHash", from: "0.0.1")
   ],
@@ -40,14 +39,12 @@ let package = Package(
     .target(
       name: "AppFeature",
       dependencies: [
-        .targetItem(name: "SoundFontListFeature", condition: .none),
-        .targetItem(name: "PresetListFeature", condition: .none),
+        .targetItem(name: "TagsFeature", condition: .none),
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
-        .product(name: "SplitView", package: "SplitView")
       ]
     ),
     .target(
@@ -61,13 +58,14 @@ let package = Package(
       ]
     ),
     .target(
-      name: "TagFeature",
+      name: "TagsFeature",
       dependencies: [
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Dependencies", package: "swift-dependencies")
+        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "Tagged", package: "swift-tagged")
       ]
     ),
     .target(
@@ -104,7 +102,8 @@ let package = Package(
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
         .product(name: "Fakery", package: "Fakery"),
-        .product(name: "FileHash", package: "FileHash")
+        .product(name: "FileHash", package: "FileHash"),
+        .product(name: "Tagged", package: "swift-tagged")
       ]
     ),
     .target(

@@ -2,8 +2,6 @@ import Dependencies
 import Foundation
 import SwiftData
 
-public typealias SoundFontId = String
-
 public typealias ActiveSchema = SchemaV1
 public typealias AudioSettingsModel = ActiveSchema.AudioSettingsModel
 public typealias DelayConfigModel = ActiveSchema.DelayConfigModel

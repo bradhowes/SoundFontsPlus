@@ -1,13 +1,19 @@
 // Copyright © 2024 Brad Howes. All rights reserved.
 
+import ComposableArchitecture
 import Foundation
 import SwiftData
+import Tagged
 
 extension SchemaV1 {
 
   @Model
   public final class PresetModel {
-    public var presetIndex: Int
+    public typealias Key = Tagged<PresetModel, Int>
+
+    public var internalKey: Int
+    public var key: Key { .init(internalKey) }
+
     public var displayName: String
     public var bank: Int
     public var program: Int
@@ -27,7 +33,7 @@ extension SchemaV1 {
     }
 
     public init(presetIndex: Int, name: String, bank: Int, program: Int) {
-      self.presetIndex = presetIndex
+      self.internalKey = presetIndex
       self.displayName = name
       self.bank = bank
       self.program = program
@@ -37,3 +43,14 @@ extension SchemaV1 {
     }
   }
 }
+
+extension PersistenceReaderKey where Self == CodableAppStorageKey<PresetModel.Key> {
+  public static var activePresetKey: Self {
+    .init(.appStorage("activePresetKey"))
+  }
+}
+
+extension PersistenceReaderKey where Self == PersistenceKeyDefault<CodableAppStorageKey<PresetModel.Key>> {
+  public static var activePresetKey: Self { PersistenceKeyDefault(.activePresetKey, .init(-1)) }
+}
+

@@ -50,7 +50,7 @@ final class SoundFontModelTests: XCTestCase {
       preset.favorites = [favorite]
       try! context.save()
 
-      XCTAssertEqual(fonts[0].tags.map(\.name).sorted(), ["All", "Funk"])
+      XCTAssertEqual(fonts[0].tags.map(\.name).sorted(), ["All", "Jazz"])
       XCTAssertEqual(fonts[1].tags.map(\.name).sorted(), ["All", "Funk", "Jazz"])
       XCTAssertEqual(fonts[2].tags.map(\.name).sorted(), ["All", "Funk", "Jazz"])
       XCTAssertEqual(fonts[3].tags.map(\.name).sorted(), ["All"])
@@ -214,14 +214,14 @@ final class SoundFontModelTests: XCTestCase {
 
   func testInitialWith() throws {
     try withNewContext(ActiveSchema.self, addBuiltInFonts: false) { context in
-      let fonts = try SoundFontModel.tagged(with: .all)
+      let fonts = try SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
       XCTAssertEqual(fonts.count, 3)
     }
   }
 
   func testWith() throws {
     try withNewContext(ActiveSchema.self) { context in
-      let fonts = try SoundFontModel.tagged(with: .builtIn)
+      let fonts = try SoundFontModel.tagged(with: TagModel.Ubiquitous.builtIn.key)
       XCTAssertEqual(fonts.count, 3)
     }
   }

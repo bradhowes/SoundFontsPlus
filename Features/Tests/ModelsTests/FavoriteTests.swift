@@ -19,7 +19,7 @@ final class FavoriteTests: XCTestCase {
       let found = try context.fetch(FetchDescriptor<FavoriteModel>())
       XCTAssertTrue(found.isEmpty)
 
-      let font = try SoundFontModel.tagged(with: .all)[0]
+      let font = try SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)[0]
       let preset = font.orderedPresets[0]
       let fav1 = try FavoriteModel.create(preset: preset)
       XCTAssertEqual(fav1.basis, preset)
@@ -36,7 +36,7 @@ final class FavoriteTests: XCTestCase {
       let found = try context.fetch(FetchDescriptor<FavoriteModel>())
       XCTAssertTrue(found.isEmpty)
 
-      let font = try SoundFontModel.tagged(with: .all)[0]
+      let font = try SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)[0]
       let preset = font.orderedPresets[0]
       let fav1 = try FavoriteModel.create(preset: preset)
 
@@ -55,7 +55,7 @@ final class FavoriteTests: XCTestCase {
       let found = try context.fetch(FetchDescriptor<FavoriteModel>())
       XCTAssertTrue(found.isEmpty)
 
-      let font = try SoundFontModel.tagged(with: .all)[0]
+      let font = try SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)[0]
       let preset = font.orderedPresets[0]
       preset.audioSettings = AudioSettingsModel()
       preset.audioSettings?.addOverride(zone: 1, generator: 23, value: 1.0)
@@ -84,7 +84,7 @@ final class FavoriteTests: XCTestCase {
 
   func testDeleteFavoriteCascades() throws {
     try withNewContext(ActiveSchema.self) { context in
-      let font = try SoundFontModel.tagged(with: .all)[0]
+      let font = try SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)[0]
       let preset = font.orderedPresets[0]
       let fav = try FavoriteModel.create(preset: preset)
       fav.audioSettings = AudioSettingsModel()
@@ -114,7 +114,7 @@ final class FavoriteTests: XCTestCase {
       let found = try context.fetch(FetchDescriptor<FavoriteModel>())
       XCTAssertTrue(found.isEmpty)
 
-      let font = try SoundFontModel.tagged(with: .all)[0]
+      let font = try SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)[0]
       let preset = font.orderedPresets[0]
       let fav1 = try FavoriteModel.create(preset: preset)
       let fav2 = try FavoriteModel.create(preset: preset)

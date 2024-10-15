@@ -31,13 +31,6 @@ final class TagTests: XCTestCase {
     }
   }
 
-  func testCreateDuplicateTagThrows() throws {
-    try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
-      _ = try TagModel.create(name: "New Tag")
-      XCTAssertThrowsError(try TagModel.create(name: "New Tag"))
-    }
-  }
-
   func testChangeTagName() throws {
     try withNewContext(ActiveSchema.self, makeUbiquitousTags: false, addBuiltInFonts: false) { context in
       let tag = try TagModel.create(name: "New Tag")
@@ -59,10 +52,10 @@ final class TagTests: XCTestCase {
       let tags = try TagModel.tags()
       XCTAssertEqual(tags.count, 1)
 
-      try TagModel.delete(tag: tags[0].uuid)
+      try TagModel.delete(key: tags[0].key)
       XCTAssertEqual(soundFont.tags, [])
 
-      try TagModel.delete(tag: tags[0].uuid)
+      try TagModel.delete(key: tags[0].key)
     }
   }
 

@@ -5,14 +5,11 @@ import SwiftUI
 import SwiftData
 
 import Models
-import MainViews
+import AppFeature
 
 @main
 struct SoundFonts2App: App {
-
   var body: some Scene {
-    let initialState = makeInitialMainViewState()
-
     WindowGroup {
       MainView(activeSoundFont: initialState.activeSoundFont,
                activePreset: initialState.activePreset)

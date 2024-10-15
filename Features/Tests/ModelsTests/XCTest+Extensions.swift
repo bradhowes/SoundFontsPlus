@@ -97,7 +97,8 @@ extension XCTestCase {
       $0.modelContextProvider = context
     } operation: {
       if makeUbiquitousTags {
-        try ActiveSchema.TagModel.createUbiquitous()
+        // A side-effect of asking for ant ubiquitous tag is that all of them are created
+        _ = try ActiveSchema.TagModel.ubiquitous(.all)
       }
       if addBuiltInFonts {
         _ = try ActiveSchema.SoundFontModel.addBuiltIn()

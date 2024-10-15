@@ -250,6 +250,7 @@
 			packageReferences = (
 				BD89D64D2CB7AFF60016BC25 /* XCRemoteSwiftPackageReference "FileHash" */,
 				BD89D64E2CBBD12A0016BC25 /* XCLocalSwiftPackageReference "../SF2Lib" */,
+				BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */,
 			);
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
 			projectDirPath = "";
@@ -678,6 +679,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-tagged";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.10.0;
+			};
+		};
 		BD89D64D2CB7AFF60016BC25 /* XCRemoteSwiftPackageReference "FileHash" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/CrazyFanFan/FileHash";

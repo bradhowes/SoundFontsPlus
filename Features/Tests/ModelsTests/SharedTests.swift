@@ -1,6 +1,5 @@
 import XCTest
 import ComposableArchitecture
-import Dependencies
 import Foundation
 
 @testable import Models
@@ -11,14 +10,14 @@ final class SharedTests: XCTestCase {
   func testSelectedSoundFont() throws {
     try withNewContext(ActiveSchema.self) { context in
       try withTestAppStorage {
-        @Shared(.selectedSoundFont) var foo
+        @Shared(.selectedSoundFontKey) var foo
         XCTAssertNil(foo)
 
         let fonts = try! context.fetch(SoundFontModel.fetchDescriptor())
-        foo = fonts[0].soundFontId
+        foo = fonts[0].key
 
-        @Shared(.selectedSoundFont) var bar
-        XCTAssertEqual(bar, fonts[0].soundFontId)
+        @Shared(.selectedSoundFontKey) var bar
+        XCTAssertEqual(bar, fonts[0].key)
 
         bar = nil
         XCTAssertNil(foo)
@@ -29,14 +28,14 @@ final class SharedTests: XCTestCase {
   func testActiveSoundFont() throws {
     try withNewContext(ActiveSchema.self) { context in
       try withTestAppStorage {
-        @Shared(.activeSoundFont) var foo
+        @Shared(.activeSoundFontKey) var foo
         XCTAssertNil(foo)
 
         let fonts = try! context.fetch(SoundFontModel.fetchDescriptor())
-        foo = fonts[0].soundFontId
+        foo = fonts[0].key
 
-        @Shared(.activeSoundFont) var bar
-        XCTAssertEqual(bar, fonts[0].soundFontId)
+        @Shared(.activeSoundFontKey) var bar
+        XCTAssertEqual(bar, fonts[0].key)
 
         bar = nil
         XCTAssertNil(foo)
@@ -47,12 +46,12 @@ final class SharedTests: XCTestCase {
   func testActivePreset() throws {
     try withNewContext(ActiveSchema.self) { context in
       try withTestAppStorage {
-        @Shared(.activePreset) var foo
-        XCTAssertEqual(foo, 0)
+        @Shared(.activePresetKey) var foo
+        XCTAssertEqual(foo, -1)
 
         foo = 123
 
-        @Shared(.activePreset) var bar
+        @Shared(.activePresetKey) var bar
         XCTAssertEqual(bar, 123)
 
         bar = -1
@@ -64,16 +63,13 @@ final class SharedTests: XCTestCase {
   func testActiveTag() throws {
     try withNewContext(ActiveSchema.self) { context in
       try withTestAppStorage {
-        @Shared(.activeTag) var foo
-        XCTAssertNil(foo)
+        @Shared(.activeTagKey) var foo
+        XCTAssertEqual(foo, TagModel.Ubiquitous.all.key)
 
-        foo = try TagModel.ubiquitous(.all).uuid
+        foo = TagModel.Ubiquitous.external.key
 
-        @Shared(.activeTag) var bar
-        XCTAssertEqual(bar, foo)
-
-        bar = nil
-        XCTAssertNil(foo)
+        @Shared(.activeTagKey) var bar
+        XCTAssertEqual(bar, TagModel.Ubiquitous.external.key)
       }
     }
   }

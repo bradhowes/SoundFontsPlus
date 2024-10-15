@@ -1,20 +1,23 @@
 // Copyright © 2024 Brad Howes. All rights reserved.
 
-import AVFoundation
 import ComposableArchitecture
 import Dependencies
+import Engine
 import FileHash
 import Foundation
-import SwiftData
-
-import Engine
 import SF2ResourceFiles
+import SwiftData
+import Tagged
 
 extension SchemaV1 {
 
   @Model
   public final class SoundFontModel {
-    public var soundFontId: SoundFontId
+    public typealias Key = Tagged<SoundFontModel, String>
+
+    public var internalKey: String
+    public var key: Key { .init(internalKey) }
+
     public var displayName: String
     public var location: Location
 
@@ -26,7 +29,7 @@ extension SchemaV1 {
 
     public var info: SoundFontInfoModel
 
-    public var orderedPresets: [PresetModel] { presets.sorted(by: { $0.presetIndex < $1.presetIndex }) }
+    public var orderedPresets: [PresetModel] { presets.sorted(by: { $0.key < $1.key }) }
 
     public init(
       fileHash: String,
@@ -34,7 +37,7 @@ extension SchemaV1 {
       location: Location,
       info: SoundFontInfoModel
     ) {
-      self.soundFontId = fileHash
+      self.internalKey = fileHash
       self.displayName = name
       self.location = location
       self.presets = []
@@ -156,8 +159,8 @@ extension SchemaV1.SoundFontModel {
 
 extension SchemaV1.SoundFontModel {
 
-  public static func tagged(with tag: TagModel.Ubiquitous) throws -> [SoundFontModel] {
-    let tagModel = try TagModel.ubiquitous(tag)
+  public static func tagged(with key: TagModel.Key) throws -> [SoundFontModel] {
+    let tagModel = try TagModel.fetch(key: key)
     let found = tagModel.orderedFonts
     if !found.isEmpty {
       return found
@@ -168,6 +171,26 @@ extension SchemaV1.SoundFontModel {
 }
 
 extension SoundFontModel: @unchecked Sendable {}
+
+extension PersistenceReaderKey where Self == CodableAppStorageKey<SoundFontModel.Key?> {
+  public static var activeSoundFontKey: Self {
+    .init(.appStorage("activeSoundFontKey"))
+  }
+}
+
+extension PersistenceReaderKey where Self == PersistenceKeyDefault<CodableAppStorageKey<SoundFontModel.Key?>> {
+  public static var activeSoundFontKey: Self { PersistenceKeyDefault(.activeSoundFontKey, nil) }
+}
+
+extension PersistenceReaderKey where Self == CodableAppStorageKey<SoundFontModel.Key?> {
+  public static var selectedSoundFontKey: Self {
+    .init(.appStorage("selectedSoundFontKey"))
+  }
+}
+
+extension PersistenceReaderKey where Self == PersistenceKeyDefault<CodableAppStorageKey<SoundFontModel.Key?>> {
+  public static var selectedSoundFontKey: Self { PersistenceKeyDefault(.selectedSoundFontKey, nil) }
+}
 
 //  func soundFonts(with tagId: PersistentIdentifier) -> [SoundFont] {
 //    let fetchDescriptor = SoundFont.fetchDescriptor(by: tagId)

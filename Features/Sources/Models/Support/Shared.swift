@@ -1,46 +1,86 @@
 import ComposableArchitecture
 import Foundation
+import Tagged
 
-extension PersistenceReaderKey where Self == AppStorageKey<String?> {
-  /// Setting for the selected font if not the active one
-  public static var selectedSoundFont: Self { appStorage("selectedSoundFont") }
-  /// Setting for the active font
-  public static var activeSoundFont: Self { appStorage("activeSoundFont") }
+public struct CustomAppStorageKey<Value: Sendable, Stored: Sendable> : Sendable {
+  private let wrapped: AppStorageKey<Stored>
+  private let encoder: @Sendable (Value) -> Stored
+  private let decoder: @Sendable (Stored) -> Value
+
+  public init(
+    _ wrapped: AppStorageKey<Stored>,
+    encoder: @escaping @Sendable (Value)-> Stored,
+    decoder: @escaping @Sendable (Stored) -> Value
+  ) {
+    self.wrapped = wrapped
+    self.encoder = encoder
+    self.decoder = decoder
+  }
 }
 
-extension PersistenceReaderKey where Self == AppStorageKey<Int> {
-  /// Setting for the active preset -- the one that is active in the synth
-  public static var activePreset: Self { appStorage("activePreset") }
-}
+extension CustomAppStorageKey : PersistenceKey {
+  public var id: AnyHashable { wrapped.id }
 
-extension PersistenceReaderKey where Self == AppStorageKey<UUID?> {
-  /// Setting for the active tag that controls what fonts to show
-  public static var activeTag: Self { appStorage("activeTag") }
-}
+  public func load(initialValue: Value?) -> Value? {
+    wrapped.load(initialValue: initialValue.flatMap(encoder)).flatMap(decoder)
+  }
 
-extension PersistenceReaderKey where Self == PersistenceKeyDefault<AppStorageKey<String?>> {
-  public static var selectedSoundFont: Self { PersistenceKeyDefault(.selectedSoundFont, nil) }
-  public static var activeSoundFont: Self { PersistenceKeyDefault(.activeSoundFont, nil) }
-}
+  public func save(_ value: Value) {
+    wrapped.save(encoder(value))
+  }
 
-extension PersistenceReaderKey where Self == PersistenceKeyDefault<AppStorageKey<Int>> {
-  public static var activePreset: Self { PersistenceKeyDefault(.activePreset, 0) }
-}
-
-extension PersistenceReaderKey where Self == PersistenceKeyDefault<AppStorageKey<UUID?>> {
-  public static var activeTag: Self { PersistenceKeyDefault(.activeTag, nil) }
-}
-
-extension UUID: @retroactive RawRepresentable {
-  public typealias RawValue = String
-
-  public var rawValue: String { self.uuidString }
-
-  public init?(rawValue: String) {
-    if let value = UUID(uuidString: rawValue) {
-      self = value
-    } else {
-      return nil
+  public func subscribe(
+    initialValue: Value?,
+    didSet: @escaping @Sendable (_ newValue: Value?) -> Void
+  ) -> Shared<Value>.Subscription {
+    let subscription = wrapped.subscribe(initialValue: initialValue.flatMap(encoder)) { newValue in
+      didSet(newValue.flatMap(decoder))
     }
+    return Shared<Value>.Subscription {
+      subscription.cancel()
+    }
+  }
+}
+
+public struct CodableAppStorageKey<Value: Sendable & Codable> : Sendable {
+  private let wrapped: AppStorageKey<Data>
+
+  public init(_ wrapped: AppStorageKey<Data>) {
+    self.wrapped = wrapped
+  }
+}
+
+extension CodableAppStorageKey : PersistenceKey {
+  public var id: AnyHashable { wrapped.id }
+
+  public func load(initialValue: Value?) -> Value? {
+    wrapped.load(initialValue: initialValue.flatMap(Self.encoder)).flatMap(Self.decoder)
+  }
+
+  public func save(_ value: Value) {
+    wrapped.save(Self.encoder(value))
+  }
+
+  public func subscribe(
+    initialValue: Value?,
+    didSet: @escaping @Sendable (_ newValue: Value?) -> Void
+  ) -> Shared<Value>.Subscription {
+    let subscription = wrapped.subscribe(initialValue: initialValue.flatMap(Self.encoder)) { newValue in
+      didSet(newValue.flatMap(Self.decoder))
+    }
+    return Shared<Value>.Subscription {
+      subscription.cancel()
+    }
+  }
+}
+
+extension CodableAppStorageKey {
+
+  private static func encoder(_ value: Value) -> Data {
+    (try? JSONEncoder().encode(value)) ?? Data()
+  }
+
+  private static func decoder(_ value: Data) -> Value? {
+    try? JSONDecoder().decode(Value.self, from: value)
   }
 }

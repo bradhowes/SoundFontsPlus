@@ -8,8 +8,6 @@ import SwiftUI
  Custom Button view for a `Preset` model. Activating the button makes it the active preset.
  */
 struct PresetButtonView: View {
-  @Environment(\.dismissSearch) private var dismissSearch
-
   private let preset: PresetModel
   // private let activePresetId: PresetModel.ID
   private let action: () -> Void
@@ -27,6 +25,6 @@ struct PresetButtonView: View {
   }
 
   var labelColor: Color {
-    preset.persistentModelID == activePresetId ? .accentColor : .primary
+    .primary // preset.persistentModelID == activePresetId ? .accentColor : .primary
   }
 }

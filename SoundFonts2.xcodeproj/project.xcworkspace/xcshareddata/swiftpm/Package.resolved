@@ -1,5 +1,5 @@
 {
-  "originHash" : "0a3b6ea233cccfb08ccaf6e8097242bfc4bb3be84687bac9b15dba762d04ff86",
+  "originHash" : "b219effd62832595a8dfb6b85af0487307b83fd4b90ec47dcb646a782305a74a",
   "pins" : [
     {
       "identity" : "auv3support",
@@ -35,15 +35,6 @@
       "state" : {
         "revision" : "bf08e120ffb3d9f784dcc40fcb4a606ee9a5e78e",
         "version" : "0.0.1"
-      }
-    },
-    {
-      "identity" : "splitview",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bradhowes/SplitView",
-      "state" : {
-        "revision" : "b37d559fd334cd5403433a29a5da6fe78f80714a",
-        "version" : "3.5.2"
       }
     },
     {
@@ -137,21 +128,21 @@
       }
     },
     {
-      "identity" : "swift-snapshot-testing",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pointfreeco/swift-snapshot-testing",
-      "state" : {
-        "revision" : "7b0bbbae90c41f848f90ac7b4df6c4f50068256d",
-        "version" : "1.17.5"
-      }
-    },
-    {
       "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax",
       "state" : {
         "revision" : "0687f71944021d616d34d922343dcef086855920",
         "version" : "600.0.1"
+      }
+    },
+    {
+      "identity" : "swift-tagged",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-tagged",
+      "state" : {
+        "revision" : "3907a9438f5b57d317001dc99f3f11b46882272b",
+        "version" : "0.10.0"
       }
     },
     {
