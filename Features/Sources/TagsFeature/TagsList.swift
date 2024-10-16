@@ -11,11 +11,11 @@ public struct TagsListFeature {
   @Reducer(action: .sendable)
   public enum Destination {
     case alert(AlertState<Alert>)
-    case edit(TagsEditorFeature)
+    case edit(TagsEditor)
 
     @CasePathable
     public enum Alert: Equatable, Sendable {
-      case confirmDeletion(tag: UUID)
+      case confirmDeletion(key: TagModel.Key)
     }
   }
 
@@ -23,24 +23,24 @@ public struct TagsListFeature {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
     var tags: IdentifiedArrayOf<TagModel>
-    var activeTag: UUID
+    var activeTagKey: TagModel.Key
 
-    public init(tags: IdentifiedArrayOf<TagModel>, activeTag: UUID) {
+    public init(tags: IdentifiedArrayOf<TagModel>, activeTagKey: TagModel.Key) {
       self.tags = tags
-      self.activeTag = activeTag
+      self.activeTagKey = activeTagKey
     }
   }
 
   public enum Action: Sendable {
     case addButtonTapped
     case cancelEditButtonTapped
-    case confirmDeletion(tag: UUID)
-    case deleteButtonTapped(tag: UUID, name: String)
+    case confirmDeletion(key: TagModel.Key)
+    case deleteButtonTapped(key: TagModel.Key, name: String)
     case destination(PresentationAction<Destination.Action>)
     case doneEditingButtonTapped
     case fetchTags
     case longPressGestureFired
-    case tagButtonTapped(tag: UUID)
+    case tagButtonTapped(key: TagModel.Key)
   }
 
   public init() {}
@@ -58,22 +58,22 @@ public struct TagsListFeature {
         fetchTags(&state)
         return .none
 
-      case .confirmDeletion(let tag):
-        deleteTag(&state, tag: tag)
+      case .confirmDeletion(let key):
+        deleteTag(&state, key: key)
         return .run { _ in
           @Dependency(\.dismiss) var dismiss
           await dismiss()
         }
 
-      case let .deleteButtonTapped(tag, name):
-        print("deleteButtonTapped \(tag)")
-        state.destination = .alert(.deleteTag(tag, name: name))
+      case let .deleteButtonTapped(key, name):
+        print("deleteButtonTapped \(key)")
+        state.destination = .alert(.deleteTag(key, name: name))
         return .none
 
       case .destination(.presented(.alert(let alertAction))):
         switch alertAction {
-        case .confirmDeletion(let tag):
-          deleteTag(&state, tag: tag)
+        case .confirmDeletion(let key):
+          deleteTag(&state, key: key)
         }
         return .none
 
@@ -89,12 +89,12 @@ public struct TagsListFeature {
         return .none
 
       case .longPressGestureFired:
-        state.destination = .edit(TagsEditorFeature.State(tags: state.tags))
+        state.destination = .edit(TagsEditor.State(tags: state.tags))
         return .none
 
-      case .tagButtonTapped(let tag):
-        state.activeTag = tag
-        @Shared(.activeTag) var activeTag = tag
+      case .tagButtonTapped(let key):
+        state.activeTagKey = key
+        @Shared(.activeTagKey) var activeTagKey = key
         return .none
 
       @unknown default:
@@ -119,20 +119,16 @@ extension TagsListFeature {
   }
 
   private func fetchTags(_ state: inout State) {
-    do {
-      state.tags = .init(uniqueElements: try TagModel.tags())
-    } catch {
-      print("failed to get tags")
-    }
+    state.tags = .init(uniqueElements: (try? TagModel.tags()) ?? [])
   }
 
-  private func deleteTag(_ state: inout State, tag: UUID) {
+  private func deleteTag(_ state: inout State, key: TagModel.Key) {
     do {
-      if state.activeTag == tag {
-        state.activeTag = TagModel.Ubiquitous.all.uuid
+      if state.activeTagKey == key {
+        state.activeTagKey = TagModel.Ubiquitous.all.key
       }
-      state.tags = state.tags.filter { $0.uuid != tag }
-      try TagModel.delete(tag: tag)
+      state.tags = state.tags.filter { $0.key != key }
+      try TagModel.delete(key: key)
     } catch {
       print("duplicate tags are not allowed")
     }
@@ -140,11 +136,11 @@ extension TagsListFeature {
 }
 
 extension AlertState where Action == TagsListFeature.Destination.Alert {
-  public static func deleteTag(_ tag: UUID, name: String) -> Self {
+  public static func deleteTag(_ key: TagModel.Key, name: String) -> Self {
     .init {
       TextState("Delete?")
     } actions: {
-      ButtonState(role: .destructive, action: .confirmDeletion(tag: tag)) {
+      ButtonState(role: .destructive, action: .confirmDeletion(key: key)) {
         TextState("Yes")
       }
       ButtonState(role: .cancel) {
@@ -164,13 +160,13 @@ public struct TagsListView: View {
   }
 
   public var body: some View {
-    List(store.tags, id: \.uuid) { tag in
+    List(store.tags, id: \.key) { tag in
       TagButtonView(
         name: tag.name,
-        tag: tag.uuid,
-        isActive: tag.uuid == store.activeTag
+        tag: tag.key,
+        isActive: tag.key == store.activeTagKey
       ) {
-        store.send(.tagButtonTapped(tag: tag.uuid))
+        store.send(.tagButtonTapped(key: tag.key))
       }
       .onCustomLongPressGesture {
         store.send(.longPressGestureFired)
@@ -178,7 +174,7 @@ public struct TagsListView: View {
       .swipeActions(allowsFullSwipe: false) {
         if !tag.ubiquitous {
           Button(role: .destructive) {
-            store.send(.deleteButtonTapped(tag: tag.uuid, name: tag.name))
+            store.send(.deleteButtonTapped(key: tag.key, name: tag.name))
           } label: {
             Label("Delete", systemImage: "trash")
           }
@@ -231,7 +227,7 @@ extension TagsListView {
       store: Store(
         initialState: .init(
           tags: .init(uniqueElements: tags),
-          activeTag: TagModel.Ubiquitous.all.uuid
+          activeTagKey: TagModel.Ubiquitous.all.key
       )) {
         TagsListFeature()
       }
