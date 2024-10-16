@@ -5,25 +5,22 @@ import SwiftUI
 import SwiftData
 
 import Models
-import AppFeature
+import TagsFeature
 
 @main
 struct SoundFonts2App: App {
   var body: some Scene {
     WindowGroup {
-      MainView(activeSoundFont: initialState.activeSoundFont,
-               activePreset: initialState.activePreset)
-    }.modelContainer(initialState.modelContainer)
-  }
-
-  @MainActor
-  func makeInitialMainViewState() -> InitialMainViewState {
-#if DEBUG
-    if CommandLine.arguments.contains("enable-testing") {
-      return InitialMainViewState(isTemporary: true)
+      let tags = (try? TagModel.tags()) ?? []
+      TagsListView(
+        store: Store(
+          initialState: .init(
+            tags: .init(uniqueElements: tags),
+            activeTagKey: TagModel.Ubiquitous.all.key
+          )) {
+            TagsList()
+          }
+      )
     }
-#endif
-    return InitialMainViewState(isTemporary: false)
   }
-
 }

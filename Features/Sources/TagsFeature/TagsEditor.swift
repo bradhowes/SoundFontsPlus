@@ -20,7 +20,6 @@ public struct TagsEditor {
     case deleteButtonTapped(IndexSet)
     case rows(IdentifiedActionOf<TagNameEditor>)
     case tagMoved(at: IndexSet, to: Int)
-    case tagNameChanged
   }
 
   public var body: some ReducerOf<Self> {
@@ -34,26 +33,22 @@ public struct TagsEditor {
         deleteTag(&state, at: indices)
         return .none
 
-      case .rows:
+      case .rows(.element(let id, .nameChanged(let name))):
+        if let index = state.rows.index(id: id) {
+          state.rows[index].name = name
+          saveNameChange(state, for: index)
+        }
         return .none
 
       case let .tagMoved(indices, offset):
         moveTag(&state, at: indices, to: offset)
         return .none
-
-      case .tagNameChanged:
-        saveChanges(state)
-        return .none
       }
-    }
+    }._printChanges()
   }
 
   private func addTag(_ state: inout State) {
     do {
-      for var each in state.rows where each.hasFocus {
-        each.hasFocus = false
-      }
-
       let tag = try TagModel.create(name: "New Tag")
       state.rows.append(.init(tag: tag))
     } catch {
@@ -92,22 +87,20 @@ public struct TagsEditor {
     }
   }
 
-  private func saveChanges(_ state: State) {
+  private func saveNameChange(_ state: State, for index: Int) {
     @Dependency(\.modelContextProvider) var context
-    for tagInfo in state.rows.elements {
-      do {
-        let tag = try TagModel.fetch(key: tagInfo.key)
-        tag.name = tagInfo.name
-      } catch {
-        print("failed to fetch tag \(tagInfo.key)")
-      }
+    do {
+      let tag = try TagModel.fetch(key: state.rows[index].key)
+      tag.name = state.rows[index].name
+      try context.save()
+    } catch {
+      print("failed to update tag \(state.rows[index].key) name")
     }
-    try? context.save()
   }
 }
 
 public struct TagsEditorView: View {
-  @Bindable private var store: StoreOf<TagsEditor>
+  private var store: StoreOf<TagsEditor>
 
   public init(store: StoreOf<TagsEditor>) {
     self.store = store

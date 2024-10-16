@@ -9,13 +9,13 @@ import Models
  */
 public struct TagButtonView: View {
   let name: String
-  let tag: UUID
+  let tag: TagModel.Key
   let isActive: Bool
   let activator: () -> Void
 
   public init(
     name: String,
-    tag: UUID,
+    tag: TagModel.Key,
     isActive: Bool,
     activator: @escaping () -> Void
   ) {
@@ -39,13 +39,13 @@ public struct TagButtonView: View {
   List {
     TagButtonView(
       name: "Inactive Foobar",
-      tag: UUID(0),
+      tag: .init(.init(0)),
       isActive: true,
       activator: {}
     )
     TagButtonView(
       name: "Active Blah",
-      tag: UUID(1),
+      tag: .init(.init(1)),
       isActive: false,
       activator: {}
     )

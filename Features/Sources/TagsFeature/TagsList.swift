@@ -6,7 +6,7 @@ import SwiftUI
 import Models
 
 @Reducer
-public struct TagsListFeature {
+public struct TagsList {
 
   @Reducer(action: .sendable)
   public enum Destination {
@@ -31,8 +31,9 @@ public struct TagsListFeature {
     }
   }
 
-  public enum Action: Sendable {
+  public enum Action: BindableAction, Sendable {
     case addButtonTapped
+    case binding(BindingAction<State>)
     case cancelEditButtonTapped
     case confirmDeletion(key: TagModel.Key)
     case deleteButtonTapped(key: TagModel.Key, name: String)
@@ -46,11 +47,15 @@ public struct TagsListFeature {
   public init() {}
 
   public var body: some ReducerOf<Self> {
+    BindingReducer()
     Reduce<State, Action> { state, action in
       switch action {
 
       case .addButtonTapped:
         addTag(&state)
+        return .none
+
+      case .binding:
         return .none
 
       case .cancelEditButtonTapped:
@@ -102,12 +107,13 @@ public struct TagsListFeature {
       }
     }
     .ifLet(\.$destination, action: \.destination)
+    ._printChanges()
   }
 }
 
-extension TagsListFeature.Destination.State: Equatable {}
+extension TagsList.Destination.State: Equatable {}
 
-extension TagsListFeature {
+extension TagsList {
 
   private func addTag(_ state: inout State) {
     do {
@@ -135,7 +141,7 @@ extension TagsListFeature {
   }
 }
 
-extension AlertState where Action == TagsListFeature.Destination.Alert {
+extension AlertState where Action == TagsList.Destination.Alert {
   public static func deleteTag(_ key: TagModel.Key, name: String) -> Self {
     .init {
       TextState("Delete?")
@@ -153,9 +159,9 @@ extension AlertState where Action == TagsListFeature.Destination.Alert {
 }
 
 public struct TagsListView: View {
-  @Bindable private var store: StoreOf<TagsListFeature>
+  @Bindable private var store: StoreOf<TagsList>
 
-  public init(store: StoreOf<TagsListFeature>) {
+  public init(store: StoreOf<TagsList>) {
     self.store = store
   }
 
@@ -229,7 +235,7 @@ extension TagsListView {
           tags: .init(uniqueElements: tags),
           activeTagKey: TagModel.Ubiquitous.all.key
       )) {
-        TagsListFeature()
+        TagsList()
       }
     )
   }

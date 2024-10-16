@@ -164,8 +164,7 @@ extension SchemaV1.TagModel {
     return tag
   }
 
-  static func tags() throws -> [SchemaV1.TagModel] {
-    print("TagModel.tags")
+  public static func tags() throws -> [SchemaV1.TagModel] {
     @Dependency(\.modelContextProvider) var context
     if let found = try? context.fetch(fetchDescriptor()),
        !found.isEmpty {
