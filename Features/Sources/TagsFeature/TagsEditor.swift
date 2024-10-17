@@ -6,8 +6,14 @@ import SwiftUINavigation
 @Reducer
 public struct TagsEditor {
 
+  @Reducer(action: .sendable)
+  public enum Destination {
+    case alert(AlertState<Support.Alert>)
+  }
+
   @ObservableState
   public struct State: Equatable {
+    @Presents var destination: Destination.State?
     var rows: IdentifiedArrayOf<TagNameEditor.State>
 
     public init(tags: IdentifiedArrayOf<TagModel>) {
@@ -15,22 +21,53 @@ public struct TagsEditor {
     }
   }
 
-  public enum Action: Equatable, Sendable {
+  public enum Action: BindableAction, Sendable {
     case addButtonTapped
-    case deleteButtonTapped(IndexSet)
+    case binding(BindingAction<State>)
+    case confirmedDeletion(key: TagModel.Key)
+    case deleteButtonSwiped(key: TagModel.Key, name: String)
+    case deleteButtonTapped(at: IndexSet)
+    case destination(PresentationAction<Destination.Action>)
     case rows(IdentifiedActionOf<TagNameEditor>)
     case tagMoved(at: IndexSet, to: Int)
   }
 
   public var body: some ReducerOf<Self> {
+    BindingReducer()
     Reduce { state, action in
       switch action {
       case .addButtonTapped:
         addTag(&state)
         return .none
 
+      case .binding:
+        return .none
+
+      case .confirmedDeletion(let key):
+        deleteTag(&state, key: key)
+        return .run { _ in
+          @Dependency(\.dismiss) var dismiss
+          await dismiss()
+        }
+
+      case let .deleteButtonSwiped(key, name):
+        state.destination = .alert(.confirmTagDeletion(key, name: name))
+        return .none
+
       case let .deleteButtonTapped(indices):
-        deleteTag(&state, at: indices)
+        if let index = indices.first {
+          state.destination = .alert(.confirmTagDeletion(state.rows[index].key, name: state.rows[index].name))
+        }
+        return .none
+
+      case .destination(.presented(.alert(let alertAction))):
+        switch alertAction {
+        case .confirmedDeletion(let key):
+          deleteTag(&state, key: key)
+        }
+        return .none
+
+      case .destination:
         return .none
 
       case .rows(.element(let id, .nameChanged(let name))):
@@ -44,8 +81,14 @@ public struct TagsEditor {
         moveTag(&state, at: indices, to: offset)
         return .none
       }
-    }._printChanges()
+    }
+    .ifLet(\.$destination, action: \.destination)
   }
+}
+
+extension TagsEditor.Destination.State: Equatable {}
+
+extension TagsEditor {
 
   private func addTag(_ state: inout State) {
     do {
@@ -56,15 +99,14 @@ public struct TagsEditor {
     }
   }
 
-  private func deleteTag(_ state: inout State, at indices: IndexSet) {
-    if let index = indices.first {
-      let key = state.rows[index].key
-      state.rows.remove(atOffsets: indices)
-      do {
+  private func deleteTag(_ state: inout State, key: TagModel.Key) {
+    do {
+      if let index = state.rows.index(id: key) {
+        state.rows.remove(at: index)
         try TagModel.delete(key: key)
-      } catch {
-        print("failed to delete tag \(key)")
       }
+    } catch {
+      print("failed to delete tag \(key)")
     }
   }
 
@@ -100,7 +142,7 @@ public struct TagsEditor {
 }
 
 public struct TagsEditorView: View {
-  private var store: StoreOf<TagsEditor>
+  @Bindable private var store: StoreOf<TagsEditor>
 
   public init(store: StoreOf<TagsEditor>) {
     self.store = store
@@ -109,11 +151,21 @@ public struct TagsEditorView: View {
   public var body: some View {
     let _ = Self._printChanges()
     List {
-      ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.key) { store in
-        TagNameEditorView(store: store)
+      ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.key) { rowStore in
+        TagNameEditorView(store: rowStore)
+          .swipeActions(allowsFullSwipe: false) {
+            if rowStore.editable {
+              Button(role: .destructive) {
+                store.send(.deleteButtonSwiped(key: rowStore.key, name: rowStore.name))
+              } label: {
+                Label("Delete", systemImage: "trash")
+              }
+            }
+          }
       }
       .onMove { store.send(.tagMoved(at: $0, to: $1)) }
-      .onDelete { store.send(.deleteButtonTapped($0)) }
+      .onDelete { store.send(.deleteButtonTapped(at: $0)) }
+      .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     }
   }
 }

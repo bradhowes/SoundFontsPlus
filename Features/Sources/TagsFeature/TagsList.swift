@@ -10,13 +10,8 @@ public struct TagsList {
 
   @Reducer(action: .sendable)
   public enum Destination {
-    case alert(AlertState<Alert>)
+    case alert(AlertState<Support.Alert>)
     case edit(TagsEditor)
-
-    @CasePathable
-    public enum Alert: Equatable, Sendable {
-      case confirmDeletion(key: TagModel.Key)
-    }
   }
 
   @ObservableState
@@ -34,8 +29,8 @@ public struct TagsList {
   public enum Action: BindableAction, Sendable {
     case addButtonTapped
     case binding(BindingAction<State>)
-    case cancelEditButtonTapped
-    case confirmDeletion(key: TagModel.Key)
+    case dismissButtonTapped
+    case confirmedDeletion(key: TagModel.Key)
     case deleteButtonTapped(key: TagModel.Key, name: String)
     case destination(PresentationAction<Destination.Action>)
     case doneEditingButtonTapped
@@ -58,12 +53,12 @@ public struct TagsList {
       case .binding:
         return .none
 
-      case .cancelEditButtonTapped:
+      case .dismissButtonTapped:
         state.destination = nil
         fetchTags(&state)
         return .none
 
-      case .confirmDeletion(let key):
+      case .confirmedDeletion(let key):
         deleteTag(&state, key: key)
         return .run { _ in
           @Dependency(\.dismiss) var dismiss
@@ -71,13 +66,12 @@ public struct TagsList {
         }
 
       case let .deleteButtonTapped(key, name):
-        print("deleteButtonTapped \(key)")
-        state.destination = .alert(.deleteTag(key, name: name))
+        state.destination = .alert(.confirmTagDeletion(key, name: name))
         return .none
 
       case .destination(.presented(.alert(let alertAction))):
         switch alertAction {
-        case .confirmDeletion(let key):
+        case .confirmedDeletion(let key):
           deleteTag(&state, key: key)
         }
         return .none
@@ -107,7 +101,6 @@ public struct TagsList {
       }
     }
     .ifLet(\.$destination, action: \.destination)
-    ._printChanges()
   }
 }
 
@@ -124,10 +117,6 @@ extension TagsList {
     }
   }
 
-  private func fetchTags(_ state: inout State) {
-    state.tags = .init(uniqueElements: (try? TagModel.tags()) ?? [])
-  }
-
   private func deleteTag(_ state: inout State, key: TagModel.Key) {
     do {
       if state.activeTagKey == key {
@@ -136,25 +125,12 @@ extension TagsList {
       state.tags = state.tags.filter { $0.key != key }
       try TagModel.delete(key: key)
     } catch {
-      print("duplicate tags are not allowed")
+      print("failed to delete tag \(key)")
     }
   }
-}
 
-extension AlertState where Action == TagsList.Destination.Alert {
-  public static func deleteTag(_ key: TagModel.Key, name: String) -> Self {
-    .init {
-      TextState("Delete?")
-    } actions: {
-      ButtonState(role: .destructive, action: .confirmDeletion(key: key)) {
-        TextState("Yes")
-      }
-      ButtonState(role: .cancel) {
-        TextState("No")
-      }
-    } message: {
-      TextState("Are you sure you want to delete tag \"\(name)\"?")
-    }
+  private func fetchTags(_ state: inout State) {
+    state.tags = .init(uniqueElements: (try? TagModel.tags()) ?? [])
   }
 }
 
@@ -178,7 +154,7 @@ public struct TagsListView: View {
         store.send(.longPressGestureFired)
       }
       .swipeActions(allowsFullSwipe: false) {
-        if !tag.ubiquitous {
+        if tag.isUserDefined {
           Button(role: .destructive) {
             store.send(.deleteButtonTapped(key: tag.key, name: tag.name))
           } label: {
@@ -186,8 +162,8 @@ public struct TagsListView: View {
           }
         }
       }
-      .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     }
+    .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     HStack {
       Button {
         _ = store.send(.addButtonTapped)
@@ -207,7 +183,7 @@ public struct TagsListView: View {
           .toolbar {
             ToolbarItem(placement: .cancellationAction) {
               Button("Dismiss") {
-                store.send(.cancelEditButtonTapped)
+                store.send(.dismissButtonTapped)
               }
             }
             ToolbarItem(placement: .automatic) {
