@@ -28,6 +28,7 @@ public struct TagsEditor {
     case deleteButtonSwiped(key: TagModel.Key, name: String)
     case deleteButtonTapped(at: IndexSet)
     case destination(PresentationAction<Destination.Action>)
+    case dismissButtonTapped
     case rows(IdentifiedActionOf<TagNameEditor>)
     case tagMoved(at: IndexSet, to: Int)
   }
@@ -56,7 +57,7 @@ public struct TagsEditor {
 
       case let .deleteButtonTapped(indices):
         if let index = indices.first {
-          state.destination = .alert(.confirmTagDeletion(state.rows[index].key, name: state.rows[index].name))
+          deleteTag(&state, key: state.rows[index].key)
         }
         return .none
 
@@ -68,6 +69,9 @@ public struct TagsEditor {
         return .none
 
       case .destination:
+        return .none
+
+      case .dismissButtonTapped:
         return .none
 
       case .rows(.element(let id, .nameChanged(let name))):
@@ -111,7 +115,8 @@ extension TagsEditor {
   }
 
   private func moveTag(_ state: inout State, at indices: IndexSet, to offset: Int) {
-    @Dependency(\.modelContextProvider) var context
+    defer { save() }
+
     state.rows.move(fromOffsets: indices, toOffset: offset)
     for (index, tagInfo) in state.rows.elements.enumerated() {
       do {
@@ -121,22 +126,24 @@ extension TagsEditor {
         print("failed to fetch tag \(tagInfo.key)")
       }
     }
+  }
 
+  private func saveNameChange(_ state: State, for index: Int) {
+    defer { save() }
+    do {
+      let tag = try TagModel.fetch(key: state.rows[index].key)
+      tag.name = state.rows[index].name
+    } catch {
+      print("failed to update tag \(state.rows[index].key) name")
+    }
+  }
+
+  private func save() {
+    @Dependency(\.modelContextProvider) var context
     do {
       try context.save()
     } catch {
       print("failed to save changes")
-    }
-  }
-
-  private func saveNameChange(_ state: State, for index: Int) {
-    @Dependency(\.modelContextProvider) var context
-    do {
-      let tag = try TagModel.fetch(key: state.rows[index].key)
-      tag.name = state.rows[index].name
-      try context.save()
-    } catch {
-      print("failed to update tag \(state.rows[index].key) name")
     }
   }
 }
@@ -149,23 +156,46 @@ public struct TagsEditorView: View {
   }
 
   public var body: some View {
-    let _ = Self._printChanges()
     List {
       ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.key) { rowStore in
-        TagNameEditorView(store: rowStore)
-          .swipeActions(allowsFullSwipe: false) {
-            if rowStore.editable {
-              Button(role: .destructive) {
-                store.send(.deleteButtonSwiped(key: rowStore.key, name: rowStore.name))
-              } label: {
-                Label("Delete", systemImage: "trash")
-              }
-            }
-          }
+        // withSwipeActions(rowStore: rowStore) {
+          TagNameEditorView(store: rowStore)
+      //}
       }
       .onMove { store.send(.tagMoved(at: $0, to: $1)) }
       .onDelete { store.send(.deleteButtonTapped(at: $0)) }
       .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     }
+    .navigationTitle("Tags")
+    .toolbar {
+      ToolbarItem(placement: .cancellationAction) {
+        Button("Dismiss") {
+          store.send(.dismissButtonTapped)
+        }
+      }
+      ToolbarItem(placement: .automatic) {
+        Button {
+          store.send(.addButtonTapped)
+        } label: {
+          Image(systemName: "plus")
+        }
+      }
+      ToolbarItem(placement: .automatic) {
+        EditButton()
+      }
+    }
+  }
+
+  private func withSwipeActions<T>(rowStore: StoreOf<TagNameEditor>, @ViewBuilder content: () -> T) -> some View where T: View {
+    content()
+      .swipeActions {
+        if rowStore.state.editable {
+          Button(role: .destructive) {
+            store.send(.deleteButtonSwiped(key: rowStore.state.key, name: rowStore.state.name))
+          } label: {
+            Label("Delete", systemImage: "trash")
+          }
+        }
+      }
   }
 }
