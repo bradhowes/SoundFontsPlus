@@ -54,5 +54,7 @@ struct TagNameEditorView: View {
       .disabled(store.readOnly)
       .deleteDisabled(store.readOnly)
       .textFieldStyle(.roundedBorder)
+      .font(.headline)
+      .foregroundStyle(.blue)
   }
 }
