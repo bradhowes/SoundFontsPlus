@@ -157,14 +157,7 @@ public struct TagsEditorView: View {
 
   public var body: some View {
     List {
-      ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.key) { rowStore in
-        // withSwipeActions(rowStore: rowStore) {
-          TagNameEditorView(store: rowStore)
-      //}
-      }
-      .onMove { store.send(.tagMoved(at: $0, to: $1)) }
-      .onDelete { store.send(.deleteButtonTapped(at: $0)) }
-      .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
+      TagEditorRowsView(store: store)
     }
     .navigationTitle("Tags")
     .toolbar {
@@ -183,6 +176,38 @@ public struct TagsEditorView: View {
       ToolbarItem(placement: .automatic) {
         EditButton()
       }
+    }
+  }
+}
+
+public struct TagEditorRowsView: View {
+  @Environment(\.editMode) var editMode
+  @Bindable private var store: StoreOf<TagsEditor>
+
+  public init(store: StoreOf<TagsEditor>) {
+    self.store = store
+  }
+
+  public var body: some View {
+
+    // When in editing mode, we do not want to have a swipe-to-delete item and we want to enable the onMove and
+    // onDelete actions. There is no confirmation shown for any deletions.
+    if editMode?.wrappedValue.isEditing ?? false {
+      return ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.key) { rowStore in
+        TagNameEditorView(store: rowStore)
+      }
+      .onMove { store.send(.tagMoved(at: $0, to: $1)) }
+      .onDelete { store.send(.deleteButtonTapped(at: $0)) }
+      .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
+    } else {
+
+      // When not in editing mode, allow for swipe-to-delete + confirmation of intent
+      return ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.key) { rowStore in
+        withSwipeActions(rowStore: rowStore) {
+          TagNameEditorView(store: rowStore)
+        }
+      }
+      .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     }
   }
 
