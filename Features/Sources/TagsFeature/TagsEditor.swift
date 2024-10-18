@@ -163,7 +163,7 @@ public struct TagsEditorView: View {
     .toolbar {
       ToolbarItem(placement: .cancellationAction) {
         Button("Dismiss") {
-          store.send(.dismissButtonTapped)
+          store.send(.dismissButtonTapped, animation: .default)
         }
       }
       ToolbarItem(placement: .automatic) {
@@ -203,7 +203,7 @@ public struct TagEditorRowsView: View {
 
       // When not in editing mode, allow for swipe-to-delete + confirmation of intent
       return ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.key) { rowStore in
-        withSwipeActions(rowStore: rowStore) {
+        withDeleteSwipeActions(rowStore: rowStore) {
           TagNameEditorView(store: rowStore)
         }
       }
@@ -211,7 +211,10 @@ public struct TagEditorRowsView: View {
     }
   }
 
-  private func withSwipeActions<T>(rowStore: StoreOf<TagNameEditor>, @ViewBuilder content: () -> T) -> some View where T: View {
+  private func withDeleteSwipeActions<T>(
+    rowStore: StoreOf<TagNameEditor>,
+    @ViewBuilder content: () -> T
+  ) -> some View where T: View {
     content()
       .swipeActions {
         if rowStore.state.editable {

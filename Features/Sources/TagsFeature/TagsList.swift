@@ -29,7 +29,7 @@ public struct TagsList {
   public enum Action: BindableAction, Sendable {
     case addButtonTapped
     case binding(BindingAction<State>)
-    case dismissButtonTapped
+    case confirmedDeleteTag(key: TagModel.Key)
     case deleteButtonTapped(key: TagModel.Key, name: String)
     case destination(PresentationAction<Destination.Action>)
     case fetchTags
@@ -51,17 +51,12 @@ public struct TagsList {
       case .binding:
         return .none
 
-      case .dismissButtonTapped:
-        state.destination = nil
-        fetchTags(&state)
+      case .confirmedDeleteTag(let key):
+        deleteTag(&state, key: key)
         return .none
 
       case let .deleteButtonTapped(key, name):
         state.destination = .alert(.confirmTagDeletion(key, name: name))
-        return .none
-
-      case .destination(.presented(.alert(.confirmedDeletion(let key)))):
-        deleteTag(&state, key: key)
         return .none
 
       case .destination(.presented(.edit(.dismissButtonTapped))):
@@ -134,10 +129,9 @@ public struct TagsListView: View {
     List(store.tags, id: \.key) { tag in
       tagButton(tag: tag)
     }
-    .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     HStack {
       Button {
-        _ = store.send(.addButtonTapped)
+        _ = store.send(.addButtonTapped, animation: .default)
       } label: {
         Image(systemName: "plus")
       }
@@ -153,23 +147,31 @@ public struct TagsListView: View {
       }
     }
   }
+}
+
+extension TagsListView {
 
   private func tagButton(tag: TagModel) -> some View {
-    withSwipeActions(tag: tag) {
-      TagButtonView(
-        name: tag.name,
-        tag: tag.key,
-        isActive: tag.key == store.activeTagKey
-      ) {
-        store.send(.tagButtonTapped(key: tag.key))
-      }
-      .onCustomLongPressGesture {
-        store.send(.longPressGestureFired)
-      }
+    let deleteAction: ((TagModel.Key) -> Void)?
+    if tag.isUserDefined {
+      deleteAction = { store.send(.confirmedDeleteTag(key: $0), animation: .default) }
+    } else {
+      deleteAction = nil
+    }
+
+    return TagButtonView(
+      name: tag.name,
+      tag: tag.key,
+      isActive: tag.key == store.activeTagKey,
+      activateAction: { store.send(.tagButtonTapped(key: $0), animation: .default) },
+      deleteAction: deleteAction
+    )
+    .onCustomLongPressGesture {
+      store.send(.longPressGestureFired)
     }
   }
 
-  private func withSwipeActions<T>(tag: TagModel, @ViewBuilder content: () -> T) -> some View where T: View {
+  private func withDeleteSwipeAction<T>(tag: TagModel, @ViewBuilder content: () -> T) -> some View where T: View {
     content()
       .swipeActions {
         if tag.isUserDefined {
