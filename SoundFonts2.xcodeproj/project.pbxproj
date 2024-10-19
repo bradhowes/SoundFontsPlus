@@ -17,9 +17,9 @@
 		BD1D27A42B6F13DE005C3ED0 /* SoundFonts2UITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27A32B6F13DE005C3ED0 /* SoundFonts2UITestsLaunchTests.swift */; };
 		BD22650F2C3D080900A975E8 /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = BD22650E2C3D080900A975E8 /* AppFeature */; };
 		BD2265112C3D080900A975E8 /* PresetListFeature in Frameworks */ = {isa = PBXBuildFile; productRef = BD2265102C3D080900A975E8 /* PresetListFeature */; };
-		BD2265132C3D080900A975E8 /* SoundFontListFeature in Frameworks */ = {isa = PBXBuildFile; productRef = BD2265122C3D080900A975E8 /* SoundFontListFeature */; };
 		BD5DBE8A2B8020560023D83A /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = BD5DBE892B8020560023D83A /* Models */; };
 		BD6E7D9E2B6FC2EE004201F2 /* Features in Resources */ = {isa = PBXBuildFile; fileRef = BD6E7D9D2B6FC2EE004201F2 /* Features */; };
+		BD9608C52CC41F8300A6C1C7 /* SoundFontsFeature in Frameworks */ = {isa = PBXBuildFile; productRef = BD9608C42CC41F8300A6C1C7 /* SoundFontsFeature */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,8 +61,8 @@
 			files = (
 				BD2265112C3D080900A975E8 /* PresetListFeature in Frameworks */,
 				BD22650F2C3D080900A975E8 /* AppFeature in Frameworks */,
+				BD9608C52CC41F8300A6C1C7 /* SoundFontsFeature in Frameworks */,
 				BD10A7E92BEFDD57001ACF04 /* Extensions in Frameworks */,
-				BD2265132C3D080900A975E8 /* SoundFontListFeature in Frameworks */,
 				BD10A7ED2BEFDD57001ACF04 /* SF2ResourceFiles in Frameworks */,
 				BD5DBE8A2B8020560023D83A /* Models in Frameworks */,
 			);
@@ -173,7 +173,7 @@
 				BD10A7EC2BEFDD57001ACF04 /* SF2ResourceFiles */,
 				BD22650E2C3D080900A975E8 /* AppFeature */,
 				BD2265102C3D080900A975E8 /* PresetListFeature */,
-				BD2265122C3D080900A975E8 /* SoundFontListFeature */,
+				BD9608C42CC41F8300A6C1C7 /* SoundFontsFeature */,
 			);
 			productName = SoundFonts2;
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFonts2.app */;
@@ -714,13 +714,13 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = PresetListFeature;
 		};
-		BD2265122C3D080900A975E8 /* SoundFontListFeature */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SoundFontListFeature;
-		};
 		BD5DBE892B8020560023D83A /* Models */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Models;
+		};
+		BD9608C42CC41F8300A6C1C7 /* SoundFontsFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SoundFontsFeature;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

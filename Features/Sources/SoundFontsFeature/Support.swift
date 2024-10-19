@@ -1,0 +1,39 @@
+import ComposableArchitecture
+import Models
+import SwiftUI
+
+public enum Support {
+
+}
+
+extension View {
+  func swipeToDeleteSoundFont(
+    enabled: Bool,
+    showingConfirmation: Binding<Bool>,
+    key: SoundFontModel.Key,
+    name: String,
+    action: @escaping () -> Void
+  ) -> some View {
+    self.swipeActions {
+      if enabled {
+        Button {
+          showingConfirmation.wrappedValue = true
+        } label: {
+          Label("Delete", systemImage: "trash")
+            .tint(.red)
+        }
+      }
+    }.confirmationDialog(
+      "Are you sure you want to delete \(name)?",
+      isPresented: showingConfirmation,
+      titleVisibility: .visible
+    ) {
+      Button("Confirm", role: .destructive) {
+        action()
+      }
+      Button("Cancel", role: .cancel) {
+        showingConfirmation.wrappedValue = false
+      }
+    }
+  }
+}

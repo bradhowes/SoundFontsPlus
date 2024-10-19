@@ -47,9 +47,7 @@ extension SchemaV1 {
     }
 
     public var internalKey: UUID
-
     public var key: Key { .init(internalKey) }
-
     public var ordering: Int
 
     public var name: String {
@@ -90,36 +88,32 @@ extension SchemaV1 {
 
 extension SchemaV1.TagModel {
 
-  private static func fetchOptional(key: Key) -> SchemaV1.TagModel? {
+  public static func fetchOptional(key: Key) -> SchemaV1.TagModel? {
     @Dependency(\.modelContextProvider) var context
     return (try? context.fetch(fetchDescriptor(predicate: #Predicate { $0.internalKey == key.rawValue })))?.first
   }
 
-  static func fetch(ubiquitous: Ubiquitous) -> SchemaV1.TagModel? {
-    fetchOptional(key: ubiquitous.key)
-  }
-
   public static func fetch(key: Key) throws -> SchemaV1.TagModel {
     @Dependency(\.modelContextProvider) var context
+    if Ubiquitous.contains(key: key) {
+      return try ubiquitous(key: key)
+    }
     return try context.fetch(fetchDescriptor(predicate: #Predicate { $0.internalKey == key.rawValue }))[0]
   }
 
-  /**
-   Obtain an ubiquitous Tag, creating if necessary.
+  public static func ubiquitous(_ kind: Ubiquitous) throws -> SchemaV1.TagModel {
+    try ubiquitous(key: kind.key)
+  }
 
-   - parameter kind: which tag to fetch
-   - returns: the Tag entity that was fetched/created
-   - throws if unable to fetch or create
-   */
-  public static func ubiquitous(_ kind: SchemaV1.TagModel.Ubiquitous) throws -> SchemaV1.TagModel {
-    if let found = fetch(ubiquitous: kind) {
+  public static func ubiquitous(key: SchemaV1.TagModel.Key) throws -> SchemaV1.TagModel {
+    if let found = fetchOptional(key: key) {
       return found
     }
 
     try createUbiquitous()
 
-    guard let found = fetch(ubiquitous: kind) else {
-      throw ModelError.failedToFetch(name: kind.name)
+    guard let found = fetchOptional(key: key) else {
+      throw ModelError.failedToFetch(key: key.rawValue.uuidString)
     }
 
     return found

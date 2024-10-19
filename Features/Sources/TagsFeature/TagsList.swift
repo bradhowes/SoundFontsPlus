@@ -17,11 +17,10 @@ public struct TagsList {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
     var tags: IdentifiedArrayOf<TagModel>
-    var activeTagKey: TagModel.Key
+    @Shared(.activeState) var activeState = .init()
 
     public init(tags: IdentifiedArrayOf<TagModel>, activeTagKey: TagModel.Key) {
       self.tags = tags
-      self.activeTagKey = activeTagKey
     }
   }
 
@@ -65,8 +64,7 @@ public struct TagsList {
         return .none
 
       case .tagButtonTapped(let key):
-        state.activeTagKey = key
-        @Shared(.activeTagKey) var activeTagKey = key
+        state.activeState.setActiveTagKey(key)
         return .none
       }
     }
@@ -90,8 +88,8 @@ extension TagsList {
   private func deleteTag(_ state: inout State, key: TagModel.Key) {
     precondition(!TagModel.Ubiquitous.contains(key: key))
     do {
-      if state.activeTagKey == key {
-        state.activeTagKey = TagModel.Ubiquitous.all.key
+      if state.activeState.activeTagKey == key {
+        state.activeState.setActiveTagKey(TagModel.Ubiquitous.all.key)
       }
       state.tags = state.tags.filter { $0.key != key }
       try TagModel.delete(key: key)
@@ -140,7 +138,7 @@ extension TagsListView {
     TagButtonView(
       name: tag.name,
       key: tag.key,
-      isActive: tag.key == store.activeTagKey,
+      isActive: tag.key == store.activeState.activeTagKey,
       activateAction: { store.send(.tagButtonTapped(key: $0), animation: .default) },
       deleteAction: deleteAction(tag: tag)
     )

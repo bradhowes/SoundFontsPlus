@@ -6,7 +6,6 @@ import Models
 import SwiftData
 import SwiftUI
 
-
 //public struct ModelItem: Equatable {
 //  let modelContainer: ModelContainer
 //  let modelId: PersistentIdentifier

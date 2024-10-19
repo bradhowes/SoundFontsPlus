@@ -3,13 +3,36 @@
 import SwiftUI
 
 struct IndicatorModifier: ViewModifier {
-  let shown: Bool
+
+  enum State: CaseIterable {
+    case none
+    case selected
+    case active
+
+    var labelColor: Color {
+      switch self {
+      case .none: return .blue
+      case .active: return .indigo
+      case .selected: return .purple
+      }
+    }
+
+    var indicatorColor: Color {
+      switch self {
+      case .none: return .clear
+      case .active: return .indigo
+      case .selected: return .clear
+      }
+    }
+  }
+
+  let state: State
 
   private var indicatorWidth: CGFloat { 6 }
   private var cornerRadius: CGFloat { indicatorWidth / 2.0 }
   private var offset: CGFloat { -2.0 * indicatorWidth }
-  private var indicator: Color { shown ? .indigo : .clear }
-  private var labelColor: Color { shown ? .indigo : .blue }
+  private var indicator: Color { state.indicatorColor }
+  private var labelColor: Color { state.labelColor }
 
   func body(content: Content) -> some View {
     ZStack(alignment: .leading) {
@@ -28,7 +51,7 @@ struct IndicatorModifier: ViewModifier {
 }
 
 extension View {
-  public func indicator(_ shown: Bool) -> some View {
-    modifier(IndicatorModifier(shown: shown))
+  func indicator(_ state: IndicatorModifier.State) -> some View {
+    modifier(IndicatorModifier(state: state))
   }
 }

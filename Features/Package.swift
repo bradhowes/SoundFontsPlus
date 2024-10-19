@@ -8,7 +8,7 @@ let package = Package(
   platforms: [.iOS(.v18), .macOS(.v15)],
   products: [
     .library(name: "AppFeature", targets: ["AppFeature"]),
-    .library(name: "SoundFontListFeature", targets: ["SoundFontListFeature"]),
+    .library(name: "SoundFontsFeature", targets: ["SoundFontsFeature"]),
     .library(name: "PresetListFeature", targets: ["PresetListFeature"]),
     .library(name: "SoundFontEditorFeature", targets: ["SoundFontEditorFeature"]),
     .library(name: "TagsFeature", targets: ["TagsFeature"]),
@@ -48,7 +48,7 @@ let package = Package(
       ]
     ),
     .target(
-      name: "SoundFontListFeature",
+      name: "SoundFontsFeature",
       dependencies: [
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),

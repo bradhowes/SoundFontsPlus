@@ -13,9 +13,9 @@ extension SchemaV1 {
 
   @Model
   public final class SoundFontModel {
-    public typealias Key = Tagged<SoundFontModel, String>
+    public typealias Key = Tagged<SoundFontModel, UUID>
 
-    public var internalKey: String
+    public var internalKey: UUID
     public var key: Key { .init(internalKey) }
 
     public var displayName: String
@@ -31,13 +31,8 @@ extension SchemaV1 {
 
     public var orderedPresets: [PresetModel] { presets.sorted(by: { $0.key < $1.key }) }
 
-    public init(
-      fileHash: String,
-      name: String,
-      location: Location,
-      info: SoundFontInfoModel
-    ) {
-      self.internalKey = fileHash
+    public init(key: Key, name: String, location: Location, info: SoundFontInfoModel) {
+      self.internalKey = key.rawValue
       self.displayName = name
       self.location = location
       self.presets = []
@@ -99,7 +94,7 @@ extension SchemaV1.SoundFontModel {
     context.insert(soundFontInfo)
 
     let soundFont = SoundFontModel(
-      fileHash: "",
+      key: .init(uuid()),
       name: name,
       location: location,
       info: soundFontInfo
@@ -160,7 +155,7 @@ extension SchemaV1.SoundFontModel {
 extension SchemaV1.SoundFontModel {
 
   public static func tagged(with key: TagModel.Key) throws -> [SoundFontModel] {
-    let tagModel = try TagModel.fetch(key: key)
+    let tagModel = try TagModel.fetchOptional(key: key) ?? TagModel.ubiquitous(.all)
     let found = tagModel.orderedFonts
     if !found.isEmpty {
       return found

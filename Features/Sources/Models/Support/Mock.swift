@@ -14,7 +14,7 @@ enum Mock {
     @Dependency(\.uuid) var uuid
 
     let soundFont = SoundFontModel(
-      fileHash: name,
+      key: .init(uuid()),
       name: name,
       location: .init(kind: .external, url: nil, raw: nil),
       info: .init(
