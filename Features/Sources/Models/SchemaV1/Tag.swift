@@ -133,7 +133,6 @@ extension SchemaV1.TagModel {
    - throws if unable to fetch or create
    */
   private static func createUbiquitous() throws {
-    print("TagModel.createUbiquitous")
     @Dependency(\.modelContextProvider) var context
 
     for (index, ubiTag) in SchemaV1.TagModel.Ubiquitous.allCases.enumerated() {

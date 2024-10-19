@@ -53,14 +53,12 @@ extension ModelContextKey: TestDependencyKey {
 
 @MainActor internal let liveContext: (() -> ModelContext) = {
   if ProcessInfo.processInfo.arguments.contains("UITEST") {
-    print("UITEST context")
     return makeTestContext()
   }
   return liveContainer.mainContext
 }
 
 @MainActor private let previewContext: (() -> ModelContext) = {
-  print("previewContext")
   return makeTestContext()
 }
 
@@ -78,7 +76,6 @@ private let liveContainer: ModelContainer = makeLiveContainer(
 )
 
 internal func makeTestContext() -> ModelContext {
-  print("makeTestContainer")
   do {
     let context = try ModelContext(makeInMemoryContainer())
     return context
@@ -88,7 +85,6 @@ internal func makeTestContext() -> ModelContext {
 }
 
 internal func makeInMemoryContainer() throws -> ModelContainer {
-  print("makeInMemoryContainer")
   let schema = Schema(versionedSchema: ActiveSchema.self)
   let config = ModelConfiguration(
     schema: schema,

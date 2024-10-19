@@ -1,34 +1,12 @@
 import ComposableArchitecture
 import Models
+import SwiftUI
 
 public enum Support {
 
   @CasePathable
-  public enum Alert: Equatable, Sendable {
-    case confirmedDeletion(key: TagModel.Key)
-  }
-
-  @CasePathable
   public enum ConfirmationDialog: Equatable, Sendable {
     case confirmedDeletion(key: TagModel.Key)
-  }
-}
-
-extension AlertState where Action == Support.Alert {
-
-  public static func confirmTagDeletion(_ key: TagModel.Key, name: String) -> Self {
-    .init {
-      TextState("Delete?")
-    } actions: {
-      ButtonState(role: .destructive, action: .confirmedDeletion(key: key)) {
-        TextState("Yes")
-      }
-      ButtonState(role: .cancel) {
-        TextState("No")
-      }
-    } message: {
-      TextState("Are you sure you want to delete tag \"\(name)\"?")
-    }
   }
 }
 
@@ -46,6 +24,39 @@ extension ConfirmationDialogState where Action == Support.ConfirmationDialog {
       }
     } message: {
       TextState("Are you sure you want to delete tag \"\(name)\"?")
+    }
+  }
+}
+
+extension View {
+  func swipeToDeleteTag(
+    enabled: Bool,
+    showingConfirmation: Binding<Bool>,
+    key: TagModel.Key,
+    name: String,
+    action: @escaping () -> Void
+  ) -> some View {
+    self.swipeActions {
+      if enabled {
+        Button {
+          showingConfirmation.wrappedValue = true
+        } label: {
+          Label("Delete", systemImage: "trash")
+            .tint(.red)
+        }
+      }
+    }.confirmationDialog(
+      "Are you sure you want to delete tag \(name)?",
+      isPresented: showingConfirmation,
+      titleVisibility: .visible
+    ) {
+      Button("Confirm", role: .destructive) {
+        precondition(!TagModel.Ubiquitous.contains(key: key))
+        action()
+      }
+      Button("Cancel", role: .cancel) {
+        showingConfirmation.wrappedValue = false
+      }
     }
   }
 }

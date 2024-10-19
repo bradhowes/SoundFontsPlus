@@ -17,7 +17,6 @@ public struct TagNameEditor {
       self.key = tag.key
       self.name = tag.name
       self.takeFocus = takeFocus
-      print("key: \(key) takeFocus: \(takeFocus)")
     }
   }
 
@@ -47,7 +46,7 @@ struct TagNameEditorView: View {
   let deleteAction: ((TagModel.Key) -> Void)?
 
   @FocusState var hasFocus: Bool
-  @State var confirmingDeletion: Bool = false
+  @State var confirmingTagDeletion: Bool = false
 
   public init(store: StoreOf<TagNameEditor>, canSwipe: Bool, deleteAction: ((TagModel.Key) -> Void)?) {
     self.store = store
@@ -63,28 +62,13 @@ struct TagNameEditorView: View {
       .deleteDisabled(deleteAction == nil)
       .font(.headline)
       .foregroundStyle(.blue)
-      .swipeActions {
-        if canSwipe && deleteAction != nil {
-          Button {
-            confirmingDeletion = true
-          } label: {
-            Label("Delete", systemImage: "trash")
-              .tint(.red)
-          }
-        }
-      }
-      .confirmationDialog(
-        "Are you sure you want to delete tag \(store.state.name)?",
-        isPresented: $confirmingDeletion,
-        titleVisibility: .visible
+      .swipeToDeleteTag(
+        enabled: canSwipe && deleteAction != nil,
+        showingConfirmation: $confirmingTagDeletion,
+        key: store.state.key,
+        name: store.state.name
       ) {
-        Button("Confirm", role: .destructive) {
-          precondition(!TagModel.Ubiquitous.contains(key: store.state.key))
-          deleteAction?(store.state.key)
-        }
-        Button("Cancel", role: .cancel) {
-          confirmingDeletion = false
-        }
+        deleteAction?(store.state.key)
       }
       .task {
         if store.takeFocus {
@@ -95,14 +79,4 @@ struct TagNameEditorView: View {
         }
       }
   }
-//
-//  func withConfirmationDialog(state: ConfirmationDialogState, content: () -> View) -> some View {
-//    content()
-//      .confirmationDialog(
-//        state.title,
-//        isPresented: $confirmationDeletion,
-//        titleVisibility: true
-//      )
-//
-//  }
 }

@@ -83,7 +83,7 @@ extension TagsList {
       _ = try TagModel.create(name: "New Tag")
       fetchTags(&state)
     } catch {
-      print("duplicate tags are not allowed")
+      print("failed to create new tag")
     }
   }
 
@@ -139,7 +139,7 @@ extension TagsListView {
   private func tagButton(tag: TagModel) -> some View {
     TagButtonView(
       name: tag.name,
-      tag: tag.key,
+      key: tag.key,
       isActive: tag.key == store.activeTagKey,
       activateAction: { store.send(.tagButtonTapped(key: $0), animation: .default) },
       deleteAction: deleteAction(tag: tag)

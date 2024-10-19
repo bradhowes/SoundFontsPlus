@@ -136,7 +136,7 @@ public struct TagsEditorView: View {
     List {
       TagsEditorRowsView(store: store)
     }
-    .navigationTitle("Tags")
+    .navigationTitle("Tag Editor")
     .toolbar {
       ToolbarItem(placement: .cancellationAction) {
         Button("Dismiss") {
@@ -183,6 +183,7 @@ private struct TagsEditorRowsView: View {
 
   var body: some View {
     if editing {
+      // When in editing mode, there is not confirmation of deletion, and no swipe button.
       ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.key) { rowStore in
         TagNameEditorView(store: rowStore, canSwipe: false, deleteAction: deleteAction(key: rowStore.state.key))
       }
