@@ -10,7 +10,6 @@ public struct TagsList {
 
   @Reducer(action: .sendable)
   public enum Destination {
-    case alert(AlertState<Support.Alert>)
     case edit(TagsEditor)
   }
 
@@ -26,11 +25,9 @@ public struct TagsList {
     }
   }
 
-  public enum Action: BindableAction, Sendable {
+  public enum Action: Sendable {
     case addButtonTapped
-    case binding(BindingAction<State>)
-    case confirmedDeleteTag(key: TagModel.Key)
-    case deleteButtonTapped(key: TagModel.Key, name: String)
+    case confirmedDeletion(key: TagModel.Key)
     case destination(PresentationAction<Destination.Action>)
     case fetchTags
     case longPressGestureFired
@@ -40,7 +37,6 @@ public struct TagsList {
   public init() {}
 
   public var body: some ReducerOf<Self> {
-    BindingReducer()
     Reduce<State, Action> { state, action in
       switch action {
 
@@ -48,25 +44,18 @@ public struct TagsList {
         addTag(&state)
         return .none
 
-      case .binding:
-        return .none
-
-      case .confirmedDeleteTag(let key):
+      case .confirmedDeletion(let key):
         deleteTag(&state, key: key)
         return .none
 
-      case let .deleteButtonTapped(key, name):
-        state.destination = .alert(.confirmTagDeletion(key, name: name))
-        return .none
-
-      case .destination(.presented(.edit(.dismissButtonTapped))):
+      case .destination(.dismiss):
         state.destination = nil
         fetchTags(&state)
         return .none
 
       case .destination:
         return .none
-  
+
       case .fetchTags:
         fetchTags(&state)
         return .none
@@ -78,9 +67,6 @@ public struct TagsList {
       case .tagButtonTapped(let key):
         state.activeTagKey = key
         @Shared(.activeTagKey) var activeTagKey = key
-        return .none
-
-      @unknown default:
         return .none
       }
     }
@@ -102,6 +88,7 @@ extension TagsList {
   }
 
   private func deleteTag(_ state: inout State, key: TagModel.Key) {
+    precondition(!TagModel.Ubiquitous.contains(key: key))
     do {
       if state.activeTagKey == key {
         state.activeTagKey = TagModel.Ubiquitous.all.key
@@ -130,10 +117,8 @@ public struct TagsListView: View {
       tagButton(tag: tag)
     }
     HStack {
-      Button {
-        _ = store.send(.addButtonTapped, animation: .default)
-      } label: {
-        Image(systemName: "plus")
+      Button("Add Tag", systemImage: "plus") {
+        store.send(.addButtonTapped, animation: .default)
       }
     }
     .onAppear() {
@@ -152,36 +137,20 @@ public struct TagsListView: View {
 extension TagsListView {
 
   private func tagButton(tag: TagModel) -> some View {
-    let deleteAction: ((TagModel.Key) -> Void)?
-    if tag.isUserDefined {
-      deleteAction = { store.send(.confirmedDeleteTag(key: $0), animation: .default) }
-    } else {
-      deleteAction = nil
-    }
-
-    return TagButtonView(
+    TagButtonView(
       name: tag.name,
       tag: tag.key,
       isActive: tag.key == store.activeTagKey,
       activateAction: { store.send(.tagButtonTapped(key: $0), animation: .default) },
-      deleteAction: deleteAction
+      deleteAction: deleteAction(tag: tag)
     )
     .onCustomLongPressGesture {
-      store.send(.longPressGestureFired)
+      store.send(.longPressGestureFired, animation: .default)
     }
   }
 
-  private func withDeleteSwipeAction<T>(tag: TagModel, @ViewBuilder content: () -> T) -> some View where T: View {
-    content()
-      .swipeActions {
-        if tag.isUserDefined {
-          Button(role: .destructive) {
-            store.send(.deleteButtonTapped(key: tag.key, name: tag.name))
-          } label: {
-            Label("Delete", systemImage: "trash")
-          }
-        }
-      }
+  private func deleteAction(tag: TagModel) -> ((TagModel.Key) -> Void)? {
+    tag.isUserDefined ? { store.send(.confirmedDeletion(key: $0), animation: .default) } : nil
   }
 }
 

@@ -40,6 +40,10 @@ extension SchemaV1 {
         case .external: return .init(.init(3))
         }
       }
+
+      public static func contains(key: Key) -> Bool {
+        allCases.contains { $0.key == key }
+      }
     }
 
     public var internalKey: UUID
@@ -185,8 +189,8 @@ extension SchemaV1.TagModel {
     @Dependency(\.modelContextProvider) var context
     let fetchDescriptor = TagModel.fetchDescriptor(predicate: #Predicate { $0.internalKey == key.rawValue })
     let found = try context.fetch(fetchDescriptor)
-
     if found.count == 1 {
+      precondition(found[0].isUserDefined)
       context.delete(found[0])
       try context.save()
     }

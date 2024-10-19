@@ -35,7 +35,7 @@ extension AlertState where Action == Support.Alert {
 extension ConfirmationDialogState where Action == Support.ConfirmationDialog {
 
   public static func tagDeletion(_ key: TagModel.Key, name: String) -> Self {
-    .init {
+    .init(titleVisibility: .visible) {
       TextState("Delete?")
     } actions: {
       ButtonState(role: .destructive, action: .confirmedDeletion(key: key)) {

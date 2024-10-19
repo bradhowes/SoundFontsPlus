@@ -4,9 +4,6 @@ import ComposableArchitecture
 import SwiftUI
 import Models
 
-/**
- A button view for a tag. Pressing it updates the collection of `SoundFont` models that are shown.
- */
 public struct TagButtonView: View {
   let name: String
   let tag: TagModel.Key
@@ -83,4 +80,3 @@ public struct TagButtonView: View {
     }
   }
 }
-
