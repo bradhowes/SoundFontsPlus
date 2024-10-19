@@ -3,9 +3,9 @@ import Fakery
 import Foundation
 import SwiftData
 
-enum Mock {
+public enum Mock {
 
-  static func makeSoundFont(
+  public static func makeSoundFont(
     name: String,
     presetNames: [String],
     tags: [TagModel] = []
@@ -45,7 +45,7 @@ enum Mock {
     return soundFont
   }
 
-  static func makePreset(owner: SoundFontModel, name: String) -> PresetModel {
+  public static func makePreset(owner: SoundFontModel, name: String) -> PresetModel {
     @Dependency(\.modelContextProvider) var context
     let index = owner.presets.count
     let preset = PresetModel(
@@ -61,7 +61,7 @@ enum Mock {
     return preset
   }
 
-  static func generateMocks(context: ModelContext, count: Int) throws -> ModelContext {
+  public static func generateMocks(context: ModelContext, count: Int) throws -> ModelContext {
     let faker = Faker(locale: "en-US")
     for _ in 0..<count {
       let name = faker.name.name()

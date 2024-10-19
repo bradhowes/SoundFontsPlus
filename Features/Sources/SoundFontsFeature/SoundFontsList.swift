@@ -4,6 +4,7 @@ import ComposableArchitecture
 import SwiftData
 import SwiftUI
 import Models
+import TagsFeature
 
 @Reducer
 public struct SoundFontEditor {
@@ -160,10 +161,27 @@ extension SoundFontsListView {
 
 extension SoundFontsListView {
   static var preview: some View {
+    let tags = try! TagModel.tags()
+    _ = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
+    _ = [
+      try! Mock.makeSoundFont(name: "Mommy", presetNames: ["One", "Two", "Three", "Four"], tags: [tags[0], tags[2]]),
+      try! Mock.makeSoundFont(name: "Daddy", presetNames: ["One", "Two", "Three", "Four"], tags: [tags[0], tags[3]]),
+    ]
     let soundFonts = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
-    return SoundFontsListView(store: Store(initialState: .init(soundFonts: .init(uniqueElements: soundFonts))) {
-      SoundFontsList()
-    })
+    return VStack {
+      SoundFontsListView(store: Store(initialState: .init(soundFonts: .init(uniqueElements: soundFonts))) {
+        SoundFontsList()
+      })
+      TagsListView(
+        store: Store(
+          initialState: .init(
+            tags: .init(uniqueElements: tags),
+            activeTagKey: TagModel.Ubiquitous.all.key
+          )) {
+            TagsList()
+          }
+      )
+    }
   }
 }
 

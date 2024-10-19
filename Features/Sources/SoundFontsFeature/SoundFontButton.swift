@@ -13,6 +13,10 @@ public struct SoundFontButton {
     public var soundFont: SoundFontModel
     public var id: SoundFontModel.Key { soundFont.key }
     @Shared(.activeState) var activeState = ActiveState()
+
+    public init(soundFont: SoundFontModel) {
+      self.soundFont = soundFont
+    }
   }
 
   public enum Action: Sendable {
@@ -78,25 +82,15 @@ struct SoundFontButtonView: View {
   }
 }
 
-//#Preview {
-//  List {
-//    SoundFontButtonView(
-//      name: "None",
-//      key: .init(.init(0)),
-//      selectAction: {_ in},
-//      deleteAction: nil
-//    )
-//    SoundFontButtonView(
-//      name: "Selected",
-//      key: .init(.init(1)),
-//      selectAction: {_ in},
-//      deleteAction: nil
-//    )
-//    SoundFontButtonView(
-//      name: "Active",
-//      key: .init(.init(2)),
-//      selectAction: {_ in},
-//      deleteAction: nil
-//    )
-//  }
-//}
+#Preview {
+  let soundFonts = [
+    try! Mock.makeSoundFont(name: "First One", presetNames: ["A", "B", "C"], tags: []),
+    try! Mock.makeSoundFont(name: "Second", presetNames: ["A", "B", "C"], tags: []),
+    try! Mock.makeSoundFont(name: "Third", presetNames: ["A", "B", "C"], tags: []),
+  ]
+  List {
+    SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[0])) { SoundFontButton() })
+    SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[1])) { SoundFontButton() })
+    SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[2])) { SoundFontButton() })
+  }
+}

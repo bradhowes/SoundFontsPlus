@@ -10,15 +10,14 @@ import TagsFeature
 
 @main
 struct SoundFonts2App: App {
+
   var body: some Scene {
     WindowGroup {
-      let tags = try! TagModel.tags()
-      let soundFonts = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
       VStack {
         SoundFontsListView(
           store: Store(
             initialState: .init(
-              soundFonts: .init(uniqueElements: soundFonts)
+              soundFonts: .init(uniqueElements: soundFonts())
             )) {
               SoundFontsList()
             }
@@ -26,7 +25,7 @@ struct SoundFonts2App: App {
         TagsListView(
           store: Store(
             initialState: .init(
-              tags: .init(uniqueElements: tags),
+              tags: .init(uniqueElements: tags()),
               activeTagKey: TagModel.Ubiquitous.all.key
             )) {
               TagsList()
@@ -34,5 +33,18 @@ struct SoundFonts2App: App {
         )
       }
     }
+  }
+
+  func tags() -> [TagModel] { try! TagModel.tags() }
+
+  func soundFonts() -> [SoundFontModel] {
+    let tags = self.tags()
+    var soundFonts = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
+    if soundFonts.count == 3 {
+      let _ = try! Mock.makeSoundFont(name: "Mommy", presetNames: ["One", "Two", "Three", "Four"], tags: [tags[0], tags[2]])
+      let _ = try! Mock.makeSoundFont(name: "Daddy", presetNames: ["One", "Two", "Three", "Four"], tags: [tags[0], tags[3]])
+      soundFonts = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
+    }
+    return soundFonts
   }
 }
