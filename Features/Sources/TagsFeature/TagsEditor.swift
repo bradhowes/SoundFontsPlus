@@ -10,7 +10,7 @@ public struct TagsEditor {
   public struct State: Equatable {
     var rows: IdentifiedArrayOf<TagNameEditor.State>
 
-    public init(tags: IdentifiedArrayOf<TagModel>) {
+    public init(tags: [TagModel]) {
       self.rows = .init(uniqueElements: tags.map{ .init(tag: $0, takeFocus: false) })
     }
   }

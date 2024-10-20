@@ -34,7 +34,7 @@ extension View {
     showingConfirmation: Binding<Bool>,
     key: TagModel.Key,
     name: String,
-    action: @escaping () -> Void
+    confirmationAction: @escaping () -> Void
   ) -> some View {
     self.swipeActions {
       if enabled {
@@ -52,7 +52,7 @@ extension View {
     ) {
       Button("Confirm", role: .destructive) {
         precondition(!TagModel.Ubiquitous.contains(key: key))
-        action()
+        confirmationAction()
       }
       Button("Cancel", role: .cancel) {
         showingConfirmation.wrappedValue = false

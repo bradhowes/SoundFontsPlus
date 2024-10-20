@@ -20,16 +20,33 @@ public struct SoundFontButton {
   }
 
   public enum Action: Sendable {
-    case buttonTapped(key: SoundFontModel.Key)
+    case buttonTapped
+    case confirmedDeletion
+    case delegate(Delegate)
+    case longPressGestureFired
+  }
+
+  @CasePathable
+  public enum Delegate: Sendable {
+    case deleteSoundFont
+    case editSoundFont
+    case selectSoundFont
   }
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .buttonTapped(let key):
-        print("buttonTapped - \(key)")
-        state.activeState.setSelectedSoundFontKey(key)
+      case .buttonTapped:
+        return .send(.delegate(.selectSoundFont))
+
+      case .confirmedDeletion:
+        return .send(.delegate(.deleteSoundFont))
+
+      case .delegate:
         return .none
+
+      case .longPressGestureFired:
+        return .send(.delegate(.editSoundFont))
       }
     }
   }
@@ -43,20 +60,15 @@ struct SoundFontButtonView: View {
 
   var displayName: String { store.soundFont.displayName }
   var key: SoundFontModel.Key { store.soundFont.key }
-
+  var canDelete: Bool { store.soundFont.location.isBuiltin == false }
   var state: IndicatorModifier.State {
-    print("activeState - \(store.activeState)")
-
     if store.activeState.activeSoundFontKey == key {
-      print("\(key) - active")
       return .active
     }
     else if store.activeState.selectedSoundFontKey == key {
-      print("\(key) - selected")
       return .selected
     }
     else {
-      print("\(key) - none")
       return .none
     }
   }
@@ -69,17 +81,20 @@ struct SoundFontButtonView: View {
 
   public var body: some View {
     Button {
-      store.send(.buttonTapped(key: key), animation: .default)
+      store.send(.buttonTapped, animation: .default)
     } label: {
       Text(displayName)
         .indicator(state)
     }
+    .onCustomLongPressGesture {
+      store.send(.longPressGestureFired, animation: .default)
+    }
     .swipeToDeleteSoundFont(
-      enabled: false,
+      enabled: canDelete,
       showingConfirmation: $confirmingDeletion,
       key: key,
-      name: displayName) {}
-  }
+      name: displayName) { store.send(.confirmedDeletion) }
+    }
 }
 
 #Preview {

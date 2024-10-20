@@ -14,23 +14,8 @@ struct SoundFonts2App: App {
   var body: some Scene {
     WindowGroup {
       VStack {
-        SoundFontsListView(
-          store: Store(
-            initialState: .init(
-              soundFonts: .init(uniqueElements: soundFonts())
-            )) {
-              SoundFontsList()
-            }
-        )
-        TagsListView(
-          store: Store(
-            initialState: .init(
-              tags: .init(uniqueElements: tags()),
-              activeTagKey: TagModel.Ubiquitous.all.key
-            )) {
-              TagsList()
-            }
-        )
+        SoundFontsListView(store: Store(initialState: .init(soundFonts: soundFonts())) { SoundFontsList() })
+        TagsListView(store: Store(initialState: .init(tags: tags())) { TagsList() })
       }
     }
   }
@@ -41,8 +26,10 @@ struct SoundFonts2App: App {
     let tags = self.tags()
     var soundFonts = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
     if soundFonts.count == 3 {
-      let _ = try! Mock.makeSoundFont(name: "Mommy", presetNames: ["One", "Two", "Three", "Four"], tags: [tags[0], tags[2]])
-      let _ = try! Mock.makeSoundFont(name: "Daddy", presetNames: ["One", "Two", "Three", "Four"], tags: [tags[0], tags[3]])
+      let _ = try! Mock.makeSoundFont(name: "Mommy", presetNames: ["One", "Two", "Three", "Four"],
+                                      tags: [tags[0], tags[2]])
+      let _ = try! Mock.makeSoundFont(name: "Daddy", presetNames: ["One", "Two", "Three", "Four"],
+                                      tags: [tags[0], tags[3]])
       soundFonts = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
     }
     return soundFonts

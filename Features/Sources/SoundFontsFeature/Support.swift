@@ -12,7 +12,7 @@ extension View {
     showingConfirmation: Binding<Bool>,
     key: SoundFontModel.Key,
     name: String,
-    action: @escaping () -> Void
+    confirmationAction: @escaping () -> Void
   ) -> some View {
     self.swipeActions {
       if enabled {
@@ -24,12 +24,12 @@ extension View {
         }
       }
     }.confirmationDialog(
-      "Are you sure you want to delete \(name)?",
+      "Are you sure you want to delete \(name)? You will lose all customizations for this sound font.",
       isPresented: showingConfirmation,
       titleVisibility: .visible
     ) {
       Button("Confirm", role: .destructive) {
-        action()
+        confirmationAction()
       }
       Button("Cancel", role: .cancel) {
         showingConfirmation.wrappedValue = false

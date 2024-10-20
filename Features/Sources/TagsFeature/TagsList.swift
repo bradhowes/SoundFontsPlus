@@ -16,21 +16,19 @@ public struct TagsList {
   @ObservableState
   public struct State: Equatable {
     @Presents var destination: Destination.State?
-    var tags: IdentifiedArrayOf<TagModel>
+    var rows: IdentifiedArrayOf<TagsListButton.State>
     @Shared(.activeState) var activeState = .init()
 
-    public init(tags: IdentifiedArrayOf<TagModel>, activeTagKey: TagModel.Key) {
-      self.tags = tags
+    public init(tags: [TagModel]) {
+      self.rows = .init(uniqueElements: tags.map { .init(tag: $0) })
     }
   }
 
   public enum Action: Sendable {
     case addButtonTapped
-    case confirmedDeletion(key: TagModel.Key)
     case destination(PresentationAction<Destination.Action>)
     case fetchTags
-    case longPressGestureFired
-    case tagButtonTapped(key: TagModel.Key)
+    case rows(IdentifiedActionOf<TagsListButton>)
   }
 
   public init() {}
@@ -43,12 +41,8 @@ public struct TagsList {
         addTag(&state)
         return .none
 
-      case .confirmedDeletion(let key):
-        deleteTag(&state, key: key)
-        return .none
-
       case .destination(.dismiss):
-        state.destination = nil
+        // state.destination = nil
         fetchTags(&state)
         return .none
 
@@ -59,14 +53,24 @@ public struct TagsList {
         fetchTags(&state)
         return .none
 
-      case .longPressGestureFired:
-        state.destination = .edit(TagsEditor.State(tags: state.tags))
+      case .rows(.element(let key, .delegate(.deleteTag))):
+        deleteTag(&state, key: key)
         return .none
 
-      case .tagButtonTapped(let key):
+      case .rows(.element(_, .delegate(.editTags))):
+        state.destination = .edit(TagsEditor.State(tags: state.rows.map(\.tag)))
+        return .none
+
+      case .rows(.element(let key, .delegate(.selectTag))):
         state.activeState.setActiveTagKey(key)
         return .none
+
+      case .rows:
+        return .none
       }
+    }
+    .forEach(\.rows, action: \.rows) {
+      TagsListButton()
     }
     .ifLet(\.$destination, action: \.destination)
   }
@@ -91,7 +95,7 @@ extension TagsList {
       if state.activeState.activeTagKey == key {
         state.activeState.setActiveTagKey(TagModel.Ubiquitous.all.key)
       }
-      state.tags = state.tags.filter { $0.key != key }
+      state.rows = state.rows.filter { $0.tag.key != key }
       try TagModel.delete(key: key)
     } catch {
       print("failed to delete tag \(key)")
@@ -99,7 +103,7 @@ extension TagsList {
   }
 
   private func fetchTags(_ state: inout State) {
-    state.tags = .init(uniqueElements: (try? TagModel.tags()) ?? [])
+    state.rows = .init(uniqueElements: ((try? TagModel.tags()) ?? []).map { .init(tag: $0) })
   }
 }
 
@@ -111,8 +115,10 @@ public struct TagsListView: View {
   }
 
   public var body: some View {
-    List(store.tags, id: \.key) { tag in
-      tagButton(tag: tag)
+    List {
+      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+        TagsListButtonView(store: rowStore)
+      }
     }
     HStack {
       Button("Add Tag", systemImage: "plus") {
@@ -133,37 +139,9 @@ public struct TagsListView: View {
 }
 
 extension TagsListView {
-
-  private func tagButton(tag: TagModel) -> some View {
-    TagButtonView(
-      name: tag.name,
-      key: tag.key,
-      isActive: tag.key == store.activeState.activeTagKey,
-      activateAction: { store.send(.tagButtonTapped(key: $0), animation: .default) },
-      deleteAction: deleteAction(tag: tag)
-    )
-    .onCustomLongPressGesture {
-      store.send(.longPressGestureFired, animation: .default)
-    }
-  }
-
-  private func deleteAction(tag: TagModel) -> ((TagModel.Key) -> Void)? {
-    tag.isUserDefined ? { store.send(.confirmedDeletion(key: $0), animation: .default) } : nil
-  }
-}
-
-extension TagsListView {
   static var preview: some View {
     let tags = (try? TagModel.tags()) ?? []
-    return TagsListView(
-      store: Store(
-        initialState: .init(
-          tags: .init(uniqueElements: tags),
-          activeTagKey: TagModel.Ubiquitous.all.key
-      )) {
-        TagsList()
-      }
-    )
+    return TagsListView(store: Store(initialState: .init(tags: tags)) { TagsList() })
   }
 }
 

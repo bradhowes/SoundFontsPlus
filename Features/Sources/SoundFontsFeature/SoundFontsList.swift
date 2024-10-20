@@ -26,23 +26,19 @@ public struct SoundFontsList {
   @ObservableState
   public struct State: Equatable {
     @Presents var destination: Destination.State?
-
     var rows: IdentifiedArrayOf<SoundFontButton.State>
-
     @Shared(.activeState) var activeState = ActiveState()
 
-    public init(soundFonts: IdentifiedArrayOf<SoundFontModel>) {
+    public init(soundFonts: [SoundFontModel]) {
       self.rows = .init(uniqueElements: soundFonts.map { .init(soundFont: $0) })
     }
   }
 
   public enum Action: Sendable {
     case addButtonTapped
-    case confirmedDeletion(key: SoundFontModel.Key)
     case destination(PresentationAction<Destination.Action>)
     case fetchSoundFonts
     case rows(IdentifiedActionOf<SoundFontButton>)
-    case swipedToEdit(key: SoundFontModel.Key)
   }
 
   public init() {}
@@ -54,12 +50,8 @@ public struct SoundFontsList {
       case .addButtonTapped:
         return .none
 
-      case .confirmedDeletion(let key):
-        deleteSoundFont(&state, key: key)
-        return .none
-
       case .destination(.dismiss):
-        state.destination = nil
+        // state.destination = nil
         fetchSoundFonts(&state)
         return .none
 
@@ -70,13 +62,19 @@ public struct SoundFontsList {
         fetchSoundFonts(&state)
         return .none
 
-      case .rows(.element(_, .buttonTapped(let key))):
+      case .rows(.element(let key, .delegate(.deleteSoundFont))):
+        deleteSoundFont(&state, key: key)
         return .none
 
-      case .swipedToEdit(let key):
-//        if let soundFont = state.soundFonts.first(where: {$0.key == key}) {
-//          state.destination = .edit(SoundFontEditor.State(soundFont: soundFont))
-//        }
+      case .rows(.element(let key, .delegate(.editSoundFont))):
+        print("TODO edit soundFont")
+        return .none
+
+      case .rows(.element(let key, .delegate(.selectSoundFont))):
+        state.activeState.setSelectedSoundFontKey(key)
+        return .none
+
+      case .rows:
         return .none
       }
     }
@@ -92,6 +90,7 @@ extension SoundFontsList.Destination.State: Equatable {}
 extension SoundFontsList {
 
   private func deleteSoundFont(_ state: inout State, key: SoundFontModel.Key) {
+
 //    precondition(!TagModel.Ubiquitous.contains(key: key))
 //    do {
 //      if state.activeTagKey == key {
@@ -153,15 +152,8 @@ public struct SoundFontsListView: View {
 }
 
 extension SoundFontsListView {
-
-  private func deleteAction(soundFont: SoundFontModel) -> ((SoundFontModel.Key) -> Void)? {
-    soundFont.location.kind == .builtin ? nil : { store.send(.confirmedDeletion(key: $0), animation: .default) }
-  }
-}
-
-extension SoundFontsListView {
   static var preview: some View {
-    let tags = try! TagModel.tags()
+    let tags = (try? TagModel.tags()) ?? []
     _ = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
     _ = [
       try! Mock.makeSoundFont(name: "Mommy", presetNames: ["One", "Two", "Three", "Four"], tags: [tags[0], tags[2]]),
@@ -169,18 +161,8 @@ extension SoundFontsListView {
     ]
     let soundFonts = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
     return VStack {
-      SoundFontsListView(store: Store(initialState: .init(soundFonts: .init(uniqueElements: soundFonts))) {
-        SoundFontsList()
-      })
-      TagsListView(
-        store: Store(
-          initialState: .init(
-            tags: .init(uniqueElements: tags),
-            activeTagKey: TagModel.Ubiquitous.all.key
-          )) {
-            TagsList()
-          }
-      )
+      SoundFontsListView(store: Store(initialState: .init(soundFonts: soundFonts)) { SoundFontsList() })
+      TagsListView(store: Store(initialState: .init(tags: tags)) { TagsList() })
     }
   }
 }
