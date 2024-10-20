@@ -1,0 +1,64 @@
+// Copyright © 2024 Brad Howes. All rights reserved.
+
+import Algorithms
+import ComposableArchitecture
+import SwiftData
+import SwiftUI
+import Models
+
+@Reducer
+public struct PresetsListSection {
+
+  @ObservableState
+  public struct State: Equatable, Identifiable {
+    public var id: Int { section }
+
+    let section: Int
+    var rows: IdentifiedArrayOf<PresetButton.State>
+
+    public init(section: Int, presets: [PresetModel]) {
+      self.section = section
+      self.rows = .init(uniqueElements: presets.map { .init(preset: $0) })
+    }
+  }
+
+  public enum Action {
+    case rows(IdentifiedActionOf<PresetButton>)
+  }
+
+  public init() {}
+
+  public var body: some ReducerOf<Self> {
+    Reduce<State, Action> { state, action in
+      switch action {
+      case .rows:
+        return .none
+      }
+    }
+    .forEach(\.rows, action: \.rows) {
+      PresetButton()
+    }
+    ._printChanges()
+  }
+}
+
+public struct PresetsListSectionView: View {
+  @Bindable private var store: StoreOf<PresetsListSection>
+  @Shared(.activeState) var activeState = .init()
+
+  public init(store: StoreOf<PresetsListSection>) {
+    self.store = store
+  }
+
+  public var body: some View {
+    Section(header: Text(store.section == 0 ? "" : "\(store.section)")) {
+      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+        PresetButtonView(store: rowStore)
+      }
+    }
+  }
+}
+
+#Preview {
+  PresetsListView.preview
+}

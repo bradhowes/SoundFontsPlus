@@ -5,6 +5,7 @@ import SwiftUI
 import SwiftData
 
 import Models
+import PresetsFeature
 import SoundFontsFeature
 import TagsFeature
 
@@ -13,10 +14,11 @@ struct SoundFonts2App: App {
 
   var body: some Scene {
     WindowGroup {
-      VStack {
-        SoundFontsListView(store: Store(initialState: .init(soundFonts: soundFonts())) { SoundFontsList() })
-        TagsListView(store: Store(initialState: .init(tags: tags())) { TagsList() })
-      }
+//      VStack {
+//        SoundFontsListView(store: Store(initialState: .init(soundFonts: soundFonts())) { SoundFontsList() })
+//        TagsListView(store: Store(initialState: .init(tags: tags())) { TagsList() })
+//      }
+      PresetsListView(store: Store(initialState: .init(presets: soundFonts()[1].orderedPresets)) { PresetsList() })
     }
   }
 

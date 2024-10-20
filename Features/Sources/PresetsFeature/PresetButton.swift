@@ -30,20 +30,20 @@ public struct PresetButton {
 
   @CasePathable
   public enum Delegate {
-    case editPreset
-    case hidePreset
-    case selectPreset
-    case createFavorite
+    case editPreset(PresetModel)
+    case hidePreset(PresetModel)
+    case selectPreset(PresetModel)
+    case createFavorite(PresetModel)
   }
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .buttonTapped: return .send(.delegate(.selectPreset))
-      case .confirmedHiding: return .send(.delegate(.hidePreset))
+      case .buttonTapped: return .send(.delegate(.selectPreset(state.preset)))
+      case .confirmedHiding: return .send(.delegate(.hidePreset(state.preset)))
       case .delegate: return .none
       case .hideButtonTapped: return .none
-      case .longPressGestureFired: return .send(.delegate(.editPreset))
+      case .longPressGestureFired: return .send(.delegate(.editPreset(state.preset)))
       }
     }
   }
@@ -89,15 +89,13 @@ struct PresetButtonView: View {
   }
 }
 
-//#Preview {
-//  let soundFonts = [
-//    try! Mock.makeSoundFont(name: "First One", presetNames: ["A", "B", "C"], tags: []),
-//    try! Mock.makeSoundFont(name: "Second", presetNames: ["A", "B", "C"], tags: []),
-//    try! Mock.makeSoundFont(name: "Third", presetNames: ["A", "B", "C"], tags: []),
-//  ]
-//  List {
-//    SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[0])) { SoundFontButton() })
-//    SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[1])) { SoundFontButton() })
-//    SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[2])) { SoundFontButton() })
-//  }
-//}
+#Preview {
+  let soundFonts = [
+    try! Mock.makeSoundFont(name: "First One", presetNames: ["A", "B", "C"], tags: [])
+  ]
+  List {
+    PresetButtonView(store: Store(initialState: .init(preset: soundFonts[0].orderedPresets[0])) { PresetButton() })
+    PresetButtonView(store: Store(initialState: .init(preset: soundFonts[0].orderedPresets[1])) { PresetButton() })
+    PresetButtonView(store: Store(initialState: .init(preset: soundFonts[0].orderedPresets[2])) { PresetButton() })
+  }
+}
