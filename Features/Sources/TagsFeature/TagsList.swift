@@ -42,7 +42,6 @@ public struct TagsList {
         return .none
 
       case .destination(.dismiss):
-        // state.destination = nil
         fetchTags(&state)
         return .none
 

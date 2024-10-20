@@ -36,14 +36,10 @@ public struct TagsListButton {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .buttonTapped:
-        return .send(.delegate(.selectTag))
-      case .confirmedDeletion:
-        return .send(.delegate(.deleteTag))
-      case .delegate:
-        return .none
-      case .longPressGestureFired:
-        return .send(.delegate(.editTags))
+      case .buttonTapped: return .send(.delegate(.selectTag))
+      case .confirmedDeletion: return .send(.delegate(.deleteTag))
+      case .delegate: return .none
+      case .longPressGestureFired: return .send(.delegate(.editTags))
       }
     }
   }
@@ -57,9 +53,7 @@ public struct TagsListButtonView: View {
   var name: String { store.tag.name }
   var key: TagModel.Key { store.tag.key }
 
-  public init(
-    store: StoreOf<TagsListButton>
-  ) {
+  public init(store: StoreOf<TagsListButton>) {
     self.store = store
   }
 
@@ -67,8 +61,12 @@ public struct TagsListButtonView: View {
     Button {
       store.send(.buttonTapped)
     } label: {
-      Text(store.tag.name)
-        .indicator(isActive)
+      HStack {
+        Text(store.tag.name)
+        Spacer()
+        Text("\(store.tag.tagged.count)")
+      }
+      .indicator(isActive)
     }
     .onCustomLongPressGesture {
       store.send(.longPressGestureFired, animation: .default)
@@ -77,7 +75,7 @@ public struct TagsListButtonView: View {
       enabled: store.tag.isUserDefined,
       showingConfirmation: $confirmingDeletion,
       key: key,
-      name: name) { store.send(.confirmedDeletion) }
+      name: name) { store.send(.confirmedDeletion, animation: .default) }
   }
 }
 
