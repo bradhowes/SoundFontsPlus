@@ -66,13 +66,7 @@ extension SoundFontTagsEditor {
   private func updateTags(_ state: inout State, key: TagModel.Key, isMember: Bool) {
     if let index = state.rows.index(id: key) {
       let tag = state.rows[index].tag
-      if isMember {
-        state.soundFont.tags.append(tag)
-        tag.tagged.append(state.soundFont)
-      } else {
-        state.soundFont.tags.removeAll(where: { $0 == tag })
-        tag.tagged.removeAll(where: { $0 == state.soundFont })
-      }
+      SoundFontModel.proposeTagMembershipChange(soundFont: state.soundFont, tag: tag, isMember: isMember)
     }
   }
 }

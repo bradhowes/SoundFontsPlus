@@ -36,17 +36,10 @@ public struct SoundFontButton {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .buttonTapped:
-        return .send(.delegate(.selectSoundFont))
-
-      case .confirmedDeletion:
-        return .send(.delegate(.deleteSoundFont))
-
-      case .delegate:
-        return .none
-
-      case .longPressGestureFired:
-        return .send(.delegate(.editSoundFont))
+      case .buttonTapped: return .send(.delegate(.selectSoundFont))
+      case .confirmedDeletion: return .send(.delegate(.deleteSoundFont))
+      case .delegate: return .none
+      case .longPressGestureFired: return .send(.delegate(.editSoundFont))
       }
     }
   }
@@ -65,17 +58,10 @@ struct SoundFontButtonView: View {
     if store.activeState.activeSoundFontKey == key {
       return .active
     }
-    else if store.activeState.selectedSoundFontKey == key {
-      return .selected
-    }
-    else {
-      return .none
-    }
+    return store.activeState.selectedSoundFontKey == key ? .selected : .none
   }
 
-  init(
-    store: StoreOf<SoundFontButton>
-  ) {
+  init(store: StoreOf<SoundFontButton>) {
     self.store = store
   }
 

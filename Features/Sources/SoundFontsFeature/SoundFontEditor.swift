@@ -48,7 +48,7 @@ public struct SoundFontEditor {
 
       case .nameChanged(let name):
         if name != state.displayName {
-          // setName(&state, name: name)
+          setName(&state, name: name)
         }
         return .none
 

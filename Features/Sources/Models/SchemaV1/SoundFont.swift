@@ -163,6 +163,21 @@ extension SchemaV1.SoundFontModel {
     _ = try addBuiltIn()
     return tagModel.orderedFonts
   }
+
+  public static func proposeTagMembershipChange(soundFont: SoundFontModel, tag: TagModel, isMember: Bool) {
+    if isMember {
+      if !soundFont.tags.contains(tag) {
+        soundFont.tags.append(tag)
+        tag.tagged.append(soundFont)
+      }
+    } else {
+      if soundFont.tags.contains(tag) {
+        soundFont.tags.removeAll(where: { $0 === tag })
+        tag.tagged.removeAll(where: { $0 === soundFont })
+      }
+    }
+    // NOTE: do not save here
+  }
 }
 
 extension SoundFontModel: @unchecked Sendable {}
