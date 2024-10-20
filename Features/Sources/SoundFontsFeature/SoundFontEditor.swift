@@ -13,10 +13,12 @@ public struct SoundFontEditor {
     var path = StackState<SoundFontTagsEditor.State>()
     var soundFont: SoundFontModel
     var displayName: String
+    var tagsList: String
 
     public init(soundFont: SoundFontModel) {
       self.soundFont = soundFont
       self.displayName = soundFont.displayName
+      self.tagsList = Support.generateTagsList(from: soundFont)
     }
   }
 
@@ -37,7 +39,7 @@ public struct SoundFontEditor {
 
       case .dismissButtonTapped:
         let dismiss = dismiss
-        // save(&state)
+        save(&state)
         return .run { _ in await dismiss() }
 
       case .editTagsButtonTapped:
@@ -48,6 +50,10 @@ public struct SoundFontEditor {
         if name != state.displayName {
           // setName(&state, name: name)
         }
+        return .none
+
+      case .path(.element(id: _, action:.delegate(.updateTags))):
+        updateTags(&state)
         return .none
 
       case .path:
@@ -85,6 +91,10 @@ extension SoundFontEditor {
       print("error encountered saving change to sound font - \(error.localizedDescription)")
     }
   }
+
+  private func updateTags(_ state: inout State) {
+    state.tagsList = Support.generateTagsList(from: state.soundFont)
+  }
 }
 
 public struct SoundFontEditorView: View {
@@ -101,7 +111,7 @@ public struct SoundFontEditorView: View {
         }
         Section(header: Text("Tags")) {
           HStack {
-            Text("<tag names>")
+            Text(store.tagsList)
             Spacer()
             Button {
               store.send(.editTagsButtonTapped)

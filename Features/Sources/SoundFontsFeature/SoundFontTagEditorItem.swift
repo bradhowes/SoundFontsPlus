@@ -42,6 +42,7 @@ struct SoundFontTagsEditorItemView: View {
 
   public var body: some View {
     Toggle(store.tag.name, isOn: $store.soundFontTag.sending(\.soundFontTagChanged))
+      .disabled(!store.tag.isUserDefined)
       .toggleStyle(CheckToggleStyle())
   }
 }

@@ -24,8 +24,14 @@ public struct SoundFontTagsEditor {
   }
 
   public enum Action {
+    case delegate(Delegate)
     case dismissButtonTapped
     case rows(IdentifiedActionOf<SoundFontTagsEditorItem>)
+  }
+
+  @CasePathable
+  public enum Delegate {
+    case updateTags
   }
 
   @Dependency(\.dismiss) var dismiss
@@ -34,10 +40,16 @@ public struct SoundFontTagsEditor {
     Reduce { state, action in
       switch action {
 
+      case .delegate:
+        return .none
+
       case .dismissButtonTapped:
         let dismiss = dismiss
-        // save(&state)
         return .run { _ in await dismiss() }
+
+      case let .rows(.element(id: key, action: .soundFontTagChanged(change))):
+        updateTags(&state, key: key, isMember: change)
+        return .send(.delegate(.updateTags))
 
       case .rows:
         return .none
@@ -51,6 +63,18 @@ public struct SoundFontTagsEditor {
 
 extension SoundFontTagsEditor {
 
+  private func updateTags(_ state: inout State, key: TagModel.Key, isMember: Bool) {
+    if let index = state.rows.index(id: key) {
+      let tag = state.rows[index].tag
+      if isMember {
+        state.soundFont.tags.append(tag)
+        tag.tagged.append(state.soundFont)
+      } else {
+        state.soundFont.tags.removeAll(where: { $0 == tag })
+        tag.tagged.removeAll(where: { $0 == state.soundFont })
+      }
+    }
+  }
 }
 
 public struct SoundFontTagsEditorView: View {
