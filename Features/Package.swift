@@ -9,8 +9,7 @@ let package = Package(
   products: [
     .library(name: "AppFeature", targets: ["AppFeature"]),
     .library(name: "SoundFontsFeature", targets: ["SoundFontsFeature"]),
-    .library(name: "PresetListFeature", targets: ["PresetListFeature"]),
-    .library(name: "SoundFontEditorFeature", targets: ["SoundFontEditorFeature"]),
+    .library(name: "PresetsFeature", targets: ["PresetsFeature"]),
     .library(name: "TagsFeature", targets: ["TagsFeature"]),
     .library(name: "Extensions", targets: ["Extensions"]),
     .library(name: "Models", targets: ["Models"]),
@@ -69,22 +68,13 @@ let package = Package(
       ]
     ),
     .target(
-      name: "PresetListFeature",
+      name: "PresetsFeature",
       dependencies: [
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
-      ]
-    ),
-    .target(
-      name: "SoundFontEditorFeature",
-      dependencies: [
-        .targetItem(name: "Models", condition: .none),
-        .targetItem(name: "SF2ResourceFiles", condition: .none),
-        .targetItem(name: "SwiftUISupport", condition: .none),
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
     .target(

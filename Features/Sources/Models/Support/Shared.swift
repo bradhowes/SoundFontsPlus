@@ -6,7 +6,7 @@ public struct ActiveState: Codable, Equatable, Sendable {
 
   public private(set) var activeSoundFontKey: SoundFontModel.Key?
   public private(set) var selectedSoundFontKey: SoundFontModel.Key?
-  public private(set) var activePresetIndex: Int = -1
+  public private(set) var activePresetKey: PresetModel.Key?
   public private(set) var activeTagKey: TagModel.Key?
 
   public init() {}
@@ -19,8 +19,8 @@ public struct ActiveState: Codable, Equatable, Sendable {
     selectedSoundFontKey = key
   }
 
-  public mutating func setActivePresetIndex(_ index: Int) {
-    activePresetIndex = index
+  public mutating func setActivePresetKey(_ key: PresetModel.Key) {
+    activePresetKey = key
   }
 
   public mutating func setActiveTagKey(_ key: TagModel.Key) {
@@ -33,7 +33,6 @@ extension PersistenceReaderKey where Self == InMemoryKey<ActiveState> {
     inMemory("activeState")
   }
 }
-
 
 public struct CustomAppStorageKey<Value: Sendable, Stored: Sendable> : Sendable {
   private let wrapped: AppStorageKey<Stored>

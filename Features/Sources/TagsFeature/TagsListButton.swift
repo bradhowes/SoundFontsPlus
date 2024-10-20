@@ -2,6 +2,7 @@
 
 import ComposableArchitecture
 import SwiftUI
+import SwiftUISupport
 import Models
 import Tagged
 
@@ -71,11 +72,13 @@ public struct TagsListButtonView: View {
     .onCustomLongPressGesture {
       store.send(.longPressGestureFired, animation: .default)
     }
-    .swipeToDeleteTag(
+    .swipeActionWithConfirmation(
+      "Are you sure you want to delete \(store.tag.name)?",
       enabled: store.tag.isUserDefined,
-      showingConfirmation: $confirmingDeletion,
-      key: key,
-      name: name) { store.send(.confirmedDeletion, animation: .default) }
+      showingConfirmation: $confirmingDeletion
+    ) {
+      store.send(.confirmedDeletion, animation: .default)
+    }
   }
 }
 

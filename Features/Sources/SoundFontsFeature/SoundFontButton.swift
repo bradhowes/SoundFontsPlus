@@ -3,6 +3,7 @@
 import ComposableArchitecture
 import SwiftUI
 import Models
+import SwiftUISupport
 import Tagged
 
 @Reducer
@@ -22,6 +23,7 @@ public struct SoundFontButton {
   public enum Action {
     case buttonTapped
     case confirmedDeletion
+    case editButtonTapped
     case delegate(Delegate)
     case longPressGestureFired
   }
@@ -39,6 +41,7 @@ public struct SoundFontButton {
       case .buttonTapped: return .send(.delegate(.selectSoundFont))
       case .confirmedDeletion: return .send(.delegate(.deleteSoundFont))
       case .delegate: return .none
+      case .editButtonTapped: return .send(.delegate(.editSoundFont))
       case .longPressGestureFired: return .send(.delegate(.editSoundFont))
       }
     }
@@ -75,11 +78,12 @@ struct SoundFontButtonView: View {
     .onCustomLongPressGesture {
       store.send(.longPressGestureFired, animation: .default)
     }
-    .swipeToDeleteSoundFont(
+    .swipeActionWithConfirmation(
+      "Are you sure you want to delete \(displayName)? You will lose all preset customizations.",
       enabled: canDelete,
-      showingConfirmation: $confirmingDeletion,
-      key: key,
-      name: displayName) { store.send(.confirmedDeletion) }
+      showingConfirmation: $confirmingDeletion
+    ) {
+      store.send(.confirmedDeletion) }
     }
 }
 

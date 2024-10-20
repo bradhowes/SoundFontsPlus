@@ -2,9 +2,9 @@
 
 import SwiftUI
 
-struct IndicatorModifier: ViewModifier {
+public struct IndicatorModifier: ViewModifier {
 
-  enum State: CaseIterable {
+  public enum State: CaseIterable {
     case none
     case selected
     case active
@@ -34,7 +34,7 @@ struct IndicatorModifier: ViewModifier {
   private var indicator: Color { state.indicatorColor }
   private var labelColor: Color { state.labelColor }
 
-  func body(content: Content) -> some View {
+  public func body(content: Content) -> some View {
     ZStack(alignment: .leading) {
       Rectangle()
         .fill(indicator.gradient)
@@ -51,7 +51,12 @@ struct IndicatorModifier: ViewModifier {
 }
 
 extension View {
-  func indicator(_ state: IndicatorModifier.State) -> some View {
+
+  public func indicator(_ state: IndicatorModifier.State) -> some View {
     modifier(IndicatorModifier(state: state))
+  }
+
+  public func indicator(_ shown: Bool) -> some View {
+    modifier(IndicatorModifier(state: shown ? .active : .none))
   }
 }

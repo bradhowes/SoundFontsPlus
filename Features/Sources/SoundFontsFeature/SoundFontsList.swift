@@ -4,7 +4,6 @@ import ComposableArchitecture
 import SwiftData
 import SwiftUI
 import Models
-import TagsFeature
 
 @Reducer
 public struct SoundFontsList {
@@ -154,7 +153,6 @@ extension SoundFontsListView {
     let soundFonts = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
     return VStack {
       SoundFontsListView(store: Store(initialState: .init(soundFonts: soundFonts)) { SoundFontsList() })
-      TagsListView(store: Store(initialState: .init(tags: tags)) { TagsList() })
     }
   }
 }

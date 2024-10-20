@@ -62,11 +62,10 @@ struct TagNameEditorView: View {
       .deleteDisabled(deleteAction == nil)
       .font(.headline)
       .foregroundStyle(.blue)
-      .swipeToDeleteTag(
+      .swipeActionWithConfirmation(
+        "Are you sure you want to delete \(store.name)?",
         enabled: canSwipe && deleteAction != nil,
-        showingConfirmation: $confirmingTagDeletion,
-        key: store.state.key,
-        name: store.state.name
+        showingConfirmation: $confirmingTagDeletion
       ) {
         deleteAction?(store.state.key)
       }

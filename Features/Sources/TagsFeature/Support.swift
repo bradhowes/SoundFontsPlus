@@ -28,35 +28,34 @@ extension ConfirmationDialogState where Action == Support.ConfirmationDialog {
   }
 }
 
-extension View {
-  func swipeToDeleteTag(
-    enabled: Bool,
-    showingConfirmation: Binding<Bool>,
-    key: TagModel.Key,
-    name: String,
-    confirmationAction: @escaping () -> Void
-  ) -> some View {
-    self.swipeActions {
-      if enabled {
-        Button {
-          showingConfirmation.wrappedValue = true
-        } label: {
-          Label("Delete", systemImage: "trash")
-            .tint(.red)
-        }
-      }
-    }.confirmationDialog(
-      "Are you sure you want to delete tag \(name)?",
-      isPresented: showingConfirmation,
-      titleVisibility: .visible
-    ) {
-      Button("Confirm", role: .destructive) {
-        precondition(!TagModel.Ubiquitous.contains(key: key))
-        confirmationAction()
-      }
-      Button("Cancel", role: .cancel) {
-        showingConfirmation.wrappedValue = false
-      }
-    }
-  }
-}
+//extension View {
+//
+//  func swipeToDelete(
+//    enabled: Bool,
+//    showingConfirmation: Binding<Bool>,
+//    name: String,
+//    confirmationAction: @escaping () -> Void
+//  ) -> some View {
+//    self.swipeActions {
+//      if enabled {
+//        Button {
+//          showingConfirmation.wrappedValue = true
+//        } label: {
+//          Label("Delete", systemImage: "trash")
+//            .tint(.red)
+//        }
+//      }
+//    }.confirmationDialog(
+//      "Are you sure you want to delete tag \(name)?",
+//      isPresented: showingConfirmation,
+//      titleVisibility: .visible
+//    ) {
+//      Button("Confirm", role: .destructive) {
+//        confirmationAction()
+//      }
+//      Button("Cancel", role: .cancel) {
+//        showingConfirmation.wrappedValue = false
+//      }
+//    }
+//  }
+//}
