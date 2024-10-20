@@ -19,7 +19,7 @@ public struct SoundFontButton {
     }
   }
 
-  public enum Action: Sendable {
+  public enum Action {
     case buttonTapped
     case confirmedDeletion
     case delegate(Delegate)
@@ -27,7 +27,7 @@ public struct SoundFontButton {
   }
 
   @CasePathable
-  public enum Delegate: Sendable {
+  public enum Delegate {
     case deleteSoundFont
     case editSoundFont
     case selectSoundFont

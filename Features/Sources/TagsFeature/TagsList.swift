@@ -8,7 +8,7 @@ import Models
 @Reducer
 public struct TagsList {
 
-  @Reducer(action: .sendable)
+  @Reducer
   public enum Destination {
     case edit(TagsEditor)
   }
@@ -24,7 +24,7 @@ public struct TagsList {
     }
   }
 
-  public enum Action: Sendable {
+  public enum Action {
     case addButtonTapped
     case destination(PresentationAction<Destination.Action>)
     case fetchTags

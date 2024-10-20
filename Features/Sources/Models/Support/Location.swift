@@ -27,8 +27,7 @@ public struct Location: Codable, Equatable {
   /// Full path to the file reference by the location. Currently, this is not supported for `external`
   /// locations.
   public var path: String {
-    guard let url = self.url else { return "Unexpected nil URL" }
-    return url.path(percentEncoded: false)
+    return url?.path(percentEncoded: false) ?? ""
   }
 
   /// True if built-in resource

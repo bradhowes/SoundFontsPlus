@@ -7,18 +7,9 @@ import Models
 import TagsFeature
 
 @Reducer
-public struct SoundFontEditor {
-  public struct State: Equatable {
-    let soundFont: SoundFontModel
-  }
-  public enum Action: Sendable {
-  }
-}
-
-@Reducer
 public struct SoundFontsList {
 
-  @Reducer(action: .sendable)
+  @Reducer
   public enum Destination {
     case edit(SoundFontEditor)
   }
@@ -34,7 +25,7 @@ public struct SoundFontsList {
     }
   }
 
-  public enum Action: Sendable {
+  public enum Action {
     case addButtonTapped
     case destination(PresentationAction<Destination.Action>)
     case fetchSoundFonts
@@ -67,7 +58,9 @@ public struct SoundFontsList {
         return .none
 
       case .rows(.element(let key, .delegate(.editSoundFont))):
-        print("TODO edit soundFont")
+        if let index = state.rows.index(id: key) {
+          state.destination = .edit(SoundFontEditor.State(soundFont: state.rows[index].soundFont))
+        }
         return .none
 
       case .rows(.element(let key, .delegate(.selectSoundFont))):
@@ -82,6 +75,7 @@ public struct SoundFontsList {
       SoundFontButton()
     }
     .ifLet(\.$destination, action: \.destination)
+    ._printChanges()
   }
 }
 
@@ -115,7 +109,7 @@ extension SoundFontsList {
 }
 
 public struct SoundFontsListView: View {
-  private var store: StoreOf<SoundFontsList>
+  @Bindable private var store: StoreOf<SoundFontsList>
   @Shared(.activeState) var activeState = .init()
   private var activeTagKey: TagModel.Key {
     activeState.activeTagKey ?? TagModel.Ubiquitous.all.key
@@ -141,13 +135,11 @@ public struct SoundFontsListView: View {
     .onAppear() {
       _ = store.send(.fetchSoundFonts)
     }
-//    .sheet(
-//      item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
-//    ) { tagEditStore in
-//
-//        SoundEditorView(store: tagEditStore)
-//      }
-//    }
+    .sheet(
+      item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
+    ) { editorStore in
+      SoundFontEditorView(store: editorStore)
+    }
   }
 }
 

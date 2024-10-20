@@ -20,7 +20,7 @@ public struct TagNameEditor {
     }
   }
 
-  public enum Action: Equatable, Sendable {
+  public enum Action {
     case clearTakeFocus
     case nameChanged(String)
   }

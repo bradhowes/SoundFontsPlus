@@ -15,7 +15,7 @@ public struct TagsEditor {
     }
   }
 
-  public enum Action: Sendable {
+  public enum Action {
     case addButtonTapped
     case confirmedDeletion(key: TagModel.Key)
     case deleteButtonTapped(at: IndexSet)
