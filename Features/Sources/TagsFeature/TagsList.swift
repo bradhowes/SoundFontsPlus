@@ -94,7 +94,7 @@ extension TagsList {
       if state.activeState.activeTagKey == key {
         state.activeState.setActiveTagKey(TagModel.Ubiquitous.all.key)
       }
-      state.rows = state.rows.filter { $0.tag.key != key }
+      state.rows = state.rows.filter { $0.key != key }
       try TagModel.delete(key: key)
     } catch {
       print("failed to delete tag \(key)")

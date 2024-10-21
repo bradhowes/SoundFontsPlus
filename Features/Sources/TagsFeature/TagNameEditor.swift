@@ -62,12 +62,27 @@ struct TagNameEditorView: View {
       .deleteDisabled(deleteAction == nil)
       .font(.headline)
       .foregroundStyle(.blue)
-      .swipeActionWithConfirmation(
+      .swipeActions(edge: .trailing) {
+        if canSwipe && deleteAction != nil {
+          Button {
+            confirmingTagDeletion = true
+          } label: {
+            Image(systemName: "trash")
+              .tint(.red)
+          }
+        }
+      }
+      .confirmationDialog(
         "Are you sure you want to delete \(store.name)?",
-        enabled: canSwipe && deleteAction != nil,
-        showingConfirmation: $confirmingTagDeletion
+        isPresented: $confirmingTagDeletion,
+        titleVisibility: .visible
       ) {
-        deleteAction?(store.state.key)
+        Button("Confirm", role: .destructive) {
+          deleteAction?(store.key)
+        }
+        Button("Cancel", role: .cancel) {
+          confirmingTagDeletion = false
+        }
       }
       .task {
         if store.takeFocus {

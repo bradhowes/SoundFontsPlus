@@ -11,12 +11,20 @@ public struct TagsListButton {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    var tag: TagModel
-    public var id: TagModel.Key { tag.key }
+    public var id: TagModel.Key { key }
+    let tag: TagModel
+    let name: String
+    let key: TagModel.Key
+    let count: Int
+    let isUserDefined: Bool
     @Shared(.activeState) var activeState = ActiveState()
 
     public init(tag: TagModel) {
       self.tag = tag
+      self.name = tag.name
+      self.key = tag.key
+      self.count = tag.tagged.count
+      self.isUserDefined = tag.isUserDefined
     }
   }
 
@@ -37,10 +45,18 @@ public struct TagsListButton {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .buttonTapped: return .send(.delegate(.selectTag))
-      case .confirmedDeletion: return .send(.delegate(.deleteTag))
-      case .delegate: return .none
-      case .longPressGestureFired: return .send(.delegate(.editTags))
+
+      case .buttonTapped:
+        return .send(.delegate(.selectTag))
+
+      case .confirmedDeletion:
+        return .send(.delegate(.deleteTag))
+
+      case .delegate:
+        return .none
+
+      case .longPressGestureFired:
+        return .send(.delegate(.editTags))
       }
     }
   }
@@ -50,9 +66,11 @@ public struct TagsListButtonView: View {
   private var store: StoreOf<TagsListButton>
   @State var confirmingDeletion: Bool = false
 
-  var isActive: Bool { store.activeState.activeTagKey == store.tag.key }
-  var name: String { store.tag.name }
-  var key: TagModel.Key { store.tag.key }
+  var isActive: Bool { store.activeState.activeTagKey == store.key }
+  var name: String { store.name }
+  var key: TagModel.Key { store.key }
+  var count: Int { store.count }
+  var isUserDefined: Bool { store.isUserDefined }
 
   public init(store: StoreOf<TagsListButton>) {
     self.store = store
@@ -63,21 +81,36 @@ public struct TagsListButtonView: View {
       store.send(.buttonTapped)
     } label: {
       HStack {
-        Text(store.tag.name)
+        Text(name)
         Spacer()
-        Text("\(store.tag.tagged.count)")
+        Text("\(count)")
       }
       .indicator(isActive)
     }
     .onCustomLongPressGesture {
       store.send(.longPressGestureFired, animation: .default)
     }
-    .swipeActionWithConfirmation(
-      "Are you sure you want to delete \(store.tag.name)?",
-      enabled: store.tag.isUserDefined,
-      showingConfirmation: $confirmingDeletion
+    .swipeActions(edge: .trailing) {
+      if isUserDefined {
+        Button {
+          confirmingDeletion = true
+        } label: {
+          Image(systemName: "trash")
+            .tint(.red)
+        }
+      }
+    }
+    .confirmationDialog(
+      "Are you sure you want to delete \(name)?",
+      isPresented: $confirmingDeletion,
+      titleVisibility: .visible
     ) {
-      store.send(.confirmedDeletion, animation: .default)
+      Button("Confirm", role: .destructive) {
+        store.send(.confirmedDeletion, animation: .default)
+      }
+      Button("Cancel", role: .cancel) {
+        confirmingDeletion = false
+      }
     }
   }
 }
