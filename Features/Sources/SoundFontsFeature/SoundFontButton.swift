@@ -78,13 +78,28 @@ struct SoundFontButtonView: View {
     .onCustomLongPressGesture {
       store.send(.longPressGestureFired, animation: .default)
     }
-    .swipeActionWithConfirmation(
-      "Are you sure you want to delete \(displayName)? You will lose all preset customizations.",
-      enabled: canDelete,
-      showingConfirmation: $confirmingDeletion
-    ) {
-      store.send(.confirmedDeletion) }
+    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+      Button {
+        confirmingDeletion = true
+      } label: {
+        Image(systemName: "trash")
+          .tint(.gray)
+      }
     }
+    .confirmationDialog(
+      "Are you sure you want to delete \"\(store.soundFont.displayName)\"?\n\n" +
+      "You will lose all preset customizations.",
+      isPresented: $confirmingDeletion,
+      titleVisibility: .visible
+    ) {
+      Button("Confirm", role: .destructive) {
+        store.send(.confirmedDeletion, animation: .default)
+      }
+      Button("Cancel", role: .cancel) {
+        confirmingDeletion = false
+      }
+    }
+  }
 }
 
 #Preview {
