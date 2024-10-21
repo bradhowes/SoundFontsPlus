@@ -30,6 +30,7 @@ extension SchemaV1 {
     public var info: SoundFontInfoModel
 
     public var orderedPresets: [PresetModel] { presets.sorted(by: { $0.key < $1.key }) }
+    public var orderedVisiblePresets: [PresetModel] { presets.filter(\.visible).sorted(by: { $0.key < $1.key }) }
 
     public init(key: Key, name: String, location: Location, info: SoundFontInfoModel) {
       self.internalKey = key.rawValue
