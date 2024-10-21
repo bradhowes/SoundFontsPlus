@@ -51,7 +51,10 @@ public struct PresetsListSectionView: View {
   }
 
   public var body: some View {
-    Section(header: Text(store.section == 0 ? "" : "\(store.section)")) {
+    let header = Text(store.section == 0 ? "" : "\(store.section)")
+      .foregroundStyle(.indigo)
+
+    Section(header: header) {
       ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
         PresetButtonView(store: rowStore)
       }
