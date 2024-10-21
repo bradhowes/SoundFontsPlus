@@ -58,9 +58,9 @@ private struct Demo: View {
     Section(header: Text("Name")) {
       TextField("Display Name", text: $text)
         .clearButton(text: $text, hasFocus: $displayNameFieldIsFocused)
+        .textInputAutocapitalization(.never)
         .textFieldStyle(.roundedBorder)
         .focused($displayNameFieldIsFocused)
-        .textInputAutocapitalization(.never)
         .disableAutocorrection(true)
     }
   }
