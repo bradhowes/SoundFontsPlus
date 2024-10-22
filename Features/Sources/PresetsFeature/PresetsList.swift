@@ -68,7 +68,6 @@ public struct PresetsList {
       PresetsListSection()
     }
     .ifLet(\.$destination, action: \.destination)
-    ._printChanges()
   }
 }
 

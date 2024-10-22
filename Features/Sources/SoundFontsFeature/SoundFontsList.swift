@@ -82,7 +82,6 @@ public struct SoundFontsList {
       SoundFontButton()
     }
     .ifLet(\.$destination, action: \.destination)
-    ._printChanges()
   }
 }
 
@@ -120,7 +119,8 @@ extension SoundFontsList {
       state.rows = .init(uniqueElements: try SoundFontModel.tagged(with: key).map { .init(soundFont: $0) })
     } catch {
       state.rows = []
-      print("failed to fetch sound fonts tagged with \(state.activeState.activeTagKey)")
+      let activeTagKeyValue = state.activeState.activeTagKey?.uuidString ?? "???"
+      print("failed to fetch sound fonts tagged with \(activeTagKeyValue)")
     }
   }
 }

@@ -38,7 +38,6 @@ public struct PresetsListSection {
     .forEach(\.rows, action: \.rows) {
       PresetButton()
     }
-    ._printChanges()
   }
 }
 
