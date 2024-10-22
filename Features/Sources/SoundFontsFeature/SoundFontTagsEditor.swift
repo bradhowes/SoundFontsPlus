@@ -2,24 +2,19 @@ import ComposableArchitecture
 import Models
 import SwiftUI
 import SwiftUINavigation
+import Tagged
 
 @Reducer
 public struct SoundFontTagsEditor {
 
   @ObservableState
   public struct State: Equatable {
-    let soundFont: SoundFontModel
     var rows: IdentifiedArrayOf<SoundFontTagsEditorItem.State>
 
-    public init(soundFont: SoundFontModel) {
-      self.soundFont = soundFont
-      do {
-        let tags = try TagModel.tags()
-        self.rows = .init(uniqueElements: tags.map{ .init(tag: $0, soundFontTag: soundFont.tags.contains($0)) })
-      } catch {
-        print("Error fetching tags: \(error)")
-        self.rows = []
-      }
+    public init(tagging: [TagModel: Bool]) {
+      self.rows = .init(uniqueElements: tagging.map { .init(tag: $0, tagState: $1) }
+        .sorted(by: { $0.tag.ordering < $1.tag.ordering })
+      )
     }
   }
 
@@ -31,7 +26,8 @@ public struct SoundFontTagsEditor {
 
   @CasePathable
   public enum Delegate {
-    case updateTags
+    case addTag(TagModel)
+    case removeTag(TagModel)
   }
 
   @Dependency(\.dismiss) var dismiss
@@ -45,11 +41,20 @@ public struct SoundFontTagsEditor {
 
       case .dismissButtonTapped:
         let dismiss = dismiss
-        return .run { _ in await dismiss() }
+        return .run { send in
+          await dismiss()
+        }
 
-      case let .rows(.element(id: key, action: .soundFontTagChanged(change))):
-        updateTags(&state, key: key, isMember: change)
-        return .send(.delegate(.updateTags))
+      case let .rows(.element(id: key, action: .tagStateChanged(value))):
+        if let index = state.rows.index(id: key) {
+          let tag = state.rows[index].tag
+          if value {
+            return .send(.delegate(.addTag(tag)))
+          } else {
+            return .send(.delegate(.removeTag(tag)))
+          }
+        }
+        return .none
 
       case .rows:
         return .none
@@ -57,16 +62,6 @@ public struct SoundFontTagsEditor {
     }
     .forEach(\.rows, action: \.rows) {
       SoundFontTagsEditorItem()
-    }
-  }
-}
-
-extension SoundFontTagsEditor {
-
-  private func updateTags(_ state: inout State, key: TagModel.Key, isMember: Bool) {
-    if let index = state.rows.index(id: key) {
-      let tag = state.rows[index].tag
-      SoundFontModel.proposeTagMembershipChange(soundFont: state.soundFont, tag: tag, isMember: isMember)
     }
   }
 }

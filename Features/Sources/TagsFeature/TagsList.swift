@@ -3,6 +3,7 @@
 import ComposableArchitecture
 import SwiftData
 import SwiftUI
+import SwiftUISupport
 import Models
 
 @Reducer
@@ -28,7 +29,9 @@ public struct TagsList {
     case addButtonTapped
     case destination(PresentationAction<Destination.Action>)
     case fetchTags
+    case onAppear
     case rows(IdentifiedActionOf<TagsListButton>)
+    case task
   }
 
   public init() {}
@@ -52,6 +55,10 @@ public struct TagsList {
         fetchTags(&state)
         return .none
 
+      case .onAppear:
+        fetchTags(&state)
+        return .none
+
       case .rows(.element(let key, .delegate(.deleteTag))):
         deleteTag(&state, key: key)
         return .none
@@ -63,6 +70,14 @@ public struct TagsList {
       case .rows(.element(let key, .delegate(.selectTag))):
         state.activeState.setActiveTagKey(key)
         return .none
+
+      case .task:
+        @Dependency(\.tagsChanged) var tagsChanged
+        return .run { send in
+          for await _ in await tagsChanged() {
+            await send(.fetchTags)
+          }
+        }
 
       case .rows:
         return .none
@@ -106,6 +121,21 @@ extension TagsList {
   }
 }
 
+extension DependencyValues {
+  public var tagsChanged: @Sendable () async -> any AsyncSequence<Void, Never> {
+    get { self[TagsChangedKey.self] }
+    set { self[TagsChangedKey.self] = newValue }
+  }
+}
+
+private enum TagsChangedKey: DependencyKey {
+  static let liveValue: @Sendable () async -> any AsyncSequence<Void, Never> = {
+    NotificationCenter.default
+      .notifications(named: Notifications.tagsChanged)
+      .map { _ in }
+  }
+}
+
 public struct TagsListView: View {
   @Bindable private var store: StoreOf<TagsList>
 
@@ -124,9 +154,8 @@ public struct TagsListView: View {
         store.send(.addButtonTapped, animation: .default)
       }
     }
-    .onAppear() {
-      _ = store.send(.fetchTags)
-    }
+    .task { await store.send(.task).finish() }
+    .onAppear { _ = store.send(.fetchTags) }
     .sheet(
       item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
     ) { tagEditStore in

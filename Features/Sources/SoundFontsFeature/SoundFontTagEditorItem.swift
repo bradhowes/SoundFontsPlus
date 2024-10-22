@@ -11,23 +11,23 @@ public struct SoundFontTagsEditorItem {
   public struct State: Equatable, Identifiable {
     public var id: TagModel.Key { tag.key }
     let tag: TagModel
-    var soundFontTag: Bool
+    var tagState: Bool
 
-    public init(tag: TagModel, soundFontTag: Bool) {
+    public init(tag: TagModel, tagState: Bool) {
       self.tag = tag
-      self.soundFontTag = soundFontTag
+      self.tagState = tagState
     }
   }
 
   public enum Action {
-    case soundFontTagChanged(Bool)
+    case tagStateChanged(Bool)
   }
 
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
-      case .soundFontTagChanged(let value):
-        state.soundFontTag = value
+      case .tagStateChanged(let value):
+        state.tagState = value
         return .none
       }
     }
@@ -42,8 +42,8 @@ struct SoundFontTagsEditorItemView: View {
   }
 
   public var body: some View {
-    Toggle(store.tag.name, isOn: $store.soundFontTag.sending(\.soundFontTagChanged))
-      .disabled(!store.tag.isUserDefined)
+    Toggle(store.tag.name, isOn: $store.tagState.sending(\.tagStateChanged))
+      .disabled(store.tag.isUbiquitous)
       .toggleStyle(CheckToggleStyle())
   }
 }

@@ -11,12 +11,17 @@ public struct SoundFontButton {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    public var soundFont: SoundFontModel
-    public var id: SoundFontModel.Key { soundFont.key }
+    public var id: SoundFontModel.Key { key }
+    public let key: SoundFontModel.Key
+    public let displayName: String
+    public let canDelete: Bool
+
     @Shared(.activeState) var activeState = ActiveState()
 
     public init(soundFont: SoundFontModel) {
-      self.soundFont = soundFont
+      self.key = soundFont.key
+      self.displayName = soundFont.displayName
+      self.canDelete = soundFont.location.isBuiltin == false
     }
   }
 
@@ -30,19 +35,19 @@ public struct SoundFontButton {
 
   @CasePathable
   public enum Delegate {
-    case deleteSoundFont
-    case editSoundFont
-    case selectSoundFont
+    case deleteSoundFont(key: SoundFontModel.Key)
+    case editSoundFont(key: SoundFontModel.Key)
+    case selectSoundFont(key: SoundFontModel.Key)
   }
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .buttonTapped: return .send(.delegate(.selectSoundFont))
-      case .confirmedDeletion: return .send(.delegate(.deleteSoundFont))
+      case .buttonTapped: return .send(.delegate(.selectSoundFont(key: state.key)))
+      case .confirmedDeletion: return .send(.delegate(.deleteSoundFont(key: state.key)))
       case .delegate: return .none
-      case .editButtonTapped: return .send(.delegate(.editSoundFont))
-      case .longPressGestureFired: return .send(.delegate(.editSoundFont))
+      case .editButtonTapped: return .send(.delegate(.editSoundFont(key: state.key)))
+      case .longPressGestureFired: return .send(.delegate(.editSoundFont(key: state.key)))
       }
     }
   }
@@ -54,9 +59,9 @@ struct SoundFontButtonView: View {
   private var store: StoreOf<SoundFontButton>
   @State var confirmingDeletion: Bool = false
 
-  var displayName: String { store.soundFont.displayName }
-  var key: SoundFontModel.Key { store.soundFont.key }
-  var canDelete: Bool { store.soundFont.location.isBuiltin == false }
+  var displayName: String { store.displayName }
+  var key: SoundFontModel.Key { store.key }
+  var canDelete: Bool { store.canDelete }
   var state: IndicatorModifier.State {
     if store.activeState.activeSoundFontKey == key {
       return .active
@@ -87,7 +92,7 @@ struct SoundFontButtonView: View {
       }
     }
     .confirmationDialog(
-      "Are you sure you want to delete \"\(store.soundFont.displayName)\"?\n\n" +
+      "Are you sure you want to delete \"\(store.displayName)\"?\n\n" +
       "You will lose all preset customizations.",
       isPresented: $confirmingDeletion,
       titleVisibility: .visible

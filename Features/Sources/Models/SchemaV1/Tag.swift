@@ -188,9 +188,6 @@ extension SchemaV1.TagModel {
       try context.save()
     }
   }
-}
-
-extension SchemaV1.TagModel {
 
   public static func activeTag() -> TagModel {
     @Shared(.activeTagKey) var tagKey

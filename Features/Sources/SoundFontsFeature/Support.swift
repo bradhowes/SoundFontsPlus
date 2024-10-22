@@ -4,7 +4,7 @@ import SwiftUI
 
 public enum Support {
 
-  static func generateTagsList(from soundFont: SoundFontModel) -> String {
-    soundFont.tags.map(\.name).sorted().joined(separator: ", ")
+  static func generateTagsList(from tags: [TagModel]) -> String {
+    tags.map(\.name).sorted().joined(separator: ", ")
   }
 }

@@ -25,9 +25,11 @@ public struct SoundFontsList {
   }
 
   public enum Action {
+    case activeTagKeyChanged(TagModel.Key?)
     case addButtonTapped
     case destination(PresentationAction<Destination.Action>)
     case fetchSoundFonts
+    case onAppear
     case rows(IdentifiedActionOf<SoundFontButton>)
   }
 
@@ -37,32 +39,38 @@ public struct SoundFontsList {
     Reduce<State, Action> { state, action in
       switch action {
 
+      case .activeTagKeyChanged(let activeTagKey):
+        fetchSoundFonts(&state, key: activeTagKey)
+        return .none
+
       case .addButtonTapped:
         return .none
 
       case .destination(.dismiss):
-        // state.destination = nil
-        fetchSoundFonts(&state)
+        fetchSoundFonts(&state, key: state.activeState.activeTagKey)
         return .none
 
       case .destination:
         return .none
 
       case .fetchSoundFonts:
-        fetchSoundFonts(&state)
+        fetchSoundFonts(&state, key: state.activeState.activeTagKey)
         return .none
 
-      case .rows(.element(let key, .delegate(.deleteSoundFont))):
+      case .onAppear:
+        return .publisher {
+          state.$activeState.activeTagKey.publisher.map { Action.activeTagKeyChanged($0) }
+        }
+
+      case .rows(.element(_, .delegate(.deleteSoundFont(let key)))):
         deleteSoundFont(&state, key: key)
         return .none
 
-      case .rows(.element(let key, .delegate(.editSoundFont))):
-        if let index = state.rows.index(id: key) {
-          state.destination = .edit(SoundFontEditor.State(soundFont: state.rows[index].soundFont))
-        }
+      case .rows(.element(_, .delegate(.editSoundFont(let key)))):
+        editSoundFont(&state, key: key)
         return .none
 
-      case .rows(.element(let key, .delegate(.selectSoundFont))):
+      case .rows(.element(_, .delegate(.selectSoundFont(let key)))):
         state.activeState.setSelectedSoundFontKey(key)
         return .none
 
@@ -96,13 +104,23 @@ extension SoundFontsList {
 //    }
   }
 
-  private func fetchSoundFonts(_ state: inout State) {
-    @Shared(.activeTagKey) var activeTagKey
+  private func editSoundFont(_ state: inout State, key: SoundFontModel.Key) {
     do {
-      state.rows = .init(uniqueElements: try SoundFontModel.tagged(with: activeTagKey).map { .init(soundFont: $0) })
+      let soundFont = try SoundFontModel.fetch(key: key)
+      let tags = try TagModel.tags()
+      state.destination = .edit(SoundFontEditor.State(soundFont: soundFont, tags: tags))
+    } catch {
+      print("failed to locate soundfont with key \(key)")
+    }
+  }
+
+  private func fetchSoundFonts(_ state: inout State, key: TagModel.Key?) {
+    do {
+      let key = key ?? TagModel.Ubiquitous.all.key
+      state.rows = .init(uniqueElements: try SoundFontModel.tagged(with: key).map { .init(soundFont: $0) })
     } catch {
       state.rows = []
-      print("failed to fetch sound fonts tagged with \(activeTagKey)")
+      print("failed to fetch sound fonts tagged with \(state.activeState.activeTagKey)")
     }
   }
 }
@@ -121,9 +139,9 @@ public struct SoundFontsListView: View {
   public var body: some View {
     List {
       ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-        if rowStore.soundFont.tags.map(\.key).contains(activeTagKey) {
+//        if rowStore.soundFont.tags.map(\.key).contains(activeTagKey) {
           SoundFontButtonView(store: rowStore)
-        }
+//        }
       }
     }
     HStack {
@@ -138,6 +156,9 @@ public struct SoundFontsListView: View {
       item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
     ) { editorStore in
       SoundFontEditorView(store: editorStore)
+    }
+    .onAppear {
+      store.send(.onAppear)
     }
   }
 }

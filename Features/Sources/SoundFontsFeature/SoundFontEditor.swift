@@ -1,8 +1,9 @@
 // Copyright © 2024 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
-import SwiftUI
 import Models
+import SwiftUI
+import SwiftUISupport
 import Tagged
 
 @Reducer
@@ -10,23 +11,31 @@ public struct SoundFontEditor {
 
   @ObservableState
   public struct State: Equatable {
+    let soundFont: SoundFontModel
+    let tags: [TagModel]
+
     var path = StackState<SoundFontTagsEditor.State>()
-    var soundFont: SoundFontModel
     var displayName: String
+    var tagging: [TagModel: Bool]
     var tagsList: String
 
-    public init(soundFont: SoundFontModel) {
+    var activeTags: [TagModel] { tagging.compactMap { $1 ? $0 : nil } }
+
+    public init(soundFont: SoundFontModel, tags: [TagModel]) {
       self.soundFont = soundFont
+      self.tags = tags
       self.displayName = soundFont.displayName
-      self.tagsList = Support.generateTagsList(from: soundFont)
+      self.tagging = tags.reduce(into: [:]) { $0[$1] = soundFont.tags.contains($1) }
+      self.tagsList = Support.generateTagsList(from: soundFont.tags)
     }
   }
 
   public enum Action {
-    case dismissButtonTapped
+    case cancelButtonTapped
     case editTagsButtonTapped
     case nameChanged(String)
     case path(StackActionOf<SoundFontTagsEditor>)
+    case saveButtonTapped
     case useEmbeddedNameTapped
     case useOriginalNameTapped
   }
@@ -37,13 +46,12 @@ public struct SoundFontEditor {
     Reduce { state, action in
       switch action {
 
-      case .dismissButtonTapped:
+      case .cancelButtonTapped:
         let dismiss = dismiss
-        save(&state)
         return .run { _ in await dismiss() }
 
       case .editTagsButtonTapped:
-        state.path.append(.init(soundFont: state.soundFont))
+        editTags(&state)
         return .none
 
       case .nameChanged(let name):
@@ -52,12 +60,24 @@ public struct SoundFontEditor {
         }
         return .none
 
-      case .path(.element(id: _, action:.delegate(.updateTags))):
-        updateTags(&state)
+      case let .path(.element(id: _, action: .delegate(.addTag(tag)))):
+        addTag(&state, tag: tag)
+        state.tagging[tag] = true
+        state.tagsList = Support.generateTagsList(from: state.activeTags)
+        return .none
+
+      case let .path(.element(id: _, action: .delegate(.removeTag(tag)))):
+        state.tagging[tag] = false
+        state.tagsList = Support.generateTagsList(from: state.activeTags)
         return .none
 
       case .path:
         return .none
+
+      case .saveButtonTapped:
+        save(&state)
+        let dismiss = dismiss
+        return .run { _ in await dismiss() }
 
       case .useEmbeddedNameTapped:
         setName(&state, name: state.soundFont.info.embeddedName)
@@ -78,6 +98,20 @@ public struct SoundFontEditor {
 
 extension SoundFontEditor {
 
+  private func addTag(_ state: inout State, tag: TagModel) {
+    state.tagging[tag] = true
+    state.tagsList = Support.generateTagsList(from: state.tagging.compactMap { $1 ? $0 : nil })
+  }
+
+  private func removeTag(_ state: inout State, tag: TagModel) {
+    state.tagging[tag] = false
+    state.tagsList = Support.generateTagsList(from: state.tagging.compactMap { $1 ? $0 : nil })
+  }
+
+  func editTags(_ state: inout State) {
+    state.path.append(.init(tagging: state.tagging))
+  }
+
   private func setName(_ state: inout State, name: String) {
     state.displayName = name
   }
@@ -85,15 +119,25 @@ extension SoundFontEditor {
   private func save(_ state: inout State) {
     @Dependency(\.modelContextProvider) var context
     state.soundFont.displayName = state.displayName
+    state.soundFont.tags = []
+    for (tag, tagState) in state.tagging {
+      if tagState {
+        state.soundFont.tags.append(tag)
+        if !tag.tagged.contains(state.soundFont) {
+          tag.tagged.append(state.soundFont)
+        }
+      } else {
+        if tag.tagged.contains(state.soundFont) {
+          tag.tagged.removeAll { $0 == state.soundFont }
+        }
+      }
+    }
+    NotificationCenter.default.post(name: Notifications.tagsChanged, object: nil)
     do {
       try context.save()
     } catch {
       print("error encountered saving change to sound font - \(error.localizedDescription)")
     }
-  }
-
-  private func updateTags(_ state: inout State) {
-    state.tagsList = Support.generateTagsList(from: state.soundFont)
   }
 }
 
@@ -165,8 +209,13 @@ public struct SoundFontEditorView: View {
       .navigationTitle("SoundFont")
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button("Done") {
-            store.send(.dismissButtonTapped, animation: .default)
+          Button("Cancel") {
+            store.send(.cancelButtonTapped, animation: .default)
+          }
+        }
+        ToolbarItem(placement: .confirmationAction) {
+          Button("Save") {
+            store.send(.saveButtonTapped, animation: .default)
           }
         }
       }

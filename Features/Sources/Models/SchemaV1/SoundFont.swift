@@ -151,33 +151,22 @@ extension SchemaV1.SoundFontModel {
   public static func addBuiltIn() throws -> [SoundFontModel] {
     try SF2ResourceFileTag.allCases.map { try add(resourceTag: $0) }
   }
-}
 
-extension SchemaV1.SoundFontModel {
+  public static func fetch(key: SoundFontModel.Key) throws -> SoundFontModel {
+    @Dependency(\.modelContextProvider) var context
+    let fetchDescriptor = SoundFontModel.fetchDescriptor(with: #Predicate{ $0.internalKey == key.rawValue })
+    return try context.fetch(fetchDescriptor)[0]
+  }
 
   public static func tagged(with key: TagModel.Key) throws -> [SoundFontModel] {
     let tagModel = try TagModel.fetchOptional(key: key) ?? TagModel.ubiquitous(.all)
     let found = tagModel.orderedFonts
     if !found.isEmpty {
       return found
+    } else if tagModel.key == TagModel.Ubiquitous.all.key {
+      _ = try addBuiltIn()
     }
-    _ = try addBuiltIn()
     return tagModel.orderedFonts
-  }
-
-  public static func proposeTagMembershipChange(soundFont: SoundFontModel, tag: TagModel, isMember: Bool) {
-    if isMember {
-      if !soundFont.tags.contains(tag) {
-        soundFont.tags.append(tag)
-        tag.tagged.append(soundFont)
-      }
-    } else {
-      if soundFont.tags.contains(tag) {
-        soundFont.tags.removeAll(where: { $0 === tag })
-        tag.tagged.removeAll(where: { $0 === soundFont })
-      }
-    }
-    // NOTE: do not save here
   }
 }
 
