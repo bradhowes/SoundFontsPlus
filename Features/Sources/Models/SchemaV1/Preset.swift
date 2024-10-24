@@ -22,6 +22,8 @@ extension SchemaV1 {
     public var originalName: String
     public var notes: String?
 
+    public var owner: SoundFontModel?
+
     @Relationship(deleteRule: .cascade)
     public var audioSettings: AudioSettingsModel?
 
@@ -32,7 +34,8 @@ extension SchemaV1 {
       return favorites.sorted(by: { $0.displayName < $1.displayName })
     }
 
-    public init(presetIndex: Int, name: String, bank: Int, program: Int) {
+    public init(owner: SoundFontModel, presetIndex: Int, name: String, bank: Int, program: Int) {
+      self.owner = owner
       self.internalKey = presetIndex
       self.displayName = name
       self.bank = bank

@@ -17,7 +17,7 @@ public struct SoundFontsList {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
     var rows: IdentifiedArrayOf<SoundFontButton.State>
-    @Shared(.activeState) var activeState = ActiveState()
+    @Shared(.activeState) var activeState = .init()
 
     public init(soundFonts: [SoundFontModel]) {
       self.rows = .init(uniqueElements: soundFonts.map { .init(soundFont: $0) })
@@ -71,6 +71,7 @@ public struct SoundFontsList {
         return .none
 
       case .rows(.element(_, .delegate(.selectSoundFont(let key)))):
+        print("soundFontsList selectSoundFont - \(key)")
         state.activeState.setSelectedSoundFontKey(key)
         return .none
 

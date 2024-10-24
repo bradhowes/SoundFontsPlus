@@ -85,6 +85,7 @@ public struct TagsListButtonView: View {
         Spacer()
         Text("\(count)")
       }
+      .font(Font.custom("Eurostile", size: 20))
       .indicator(isActive)
     }
     .onCustomLongPressGesture {

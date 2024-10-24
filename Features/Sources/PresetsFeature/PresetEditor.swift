@@ -126,6 +126,7 @@ public struct PresetEditorView: View {
             Text("Adjust Keyboard")
             Spacer()
             Toggle("Adjust Keyboard", isOn: $store.audioSettings.keyboardLowestNoteEnabled)
+              .labelsHidden()
           }
         }
       }

@@ -60,12 +60,13 @@ struct PresetButtonView: View {
   @State var confirmingHiding: Bool = false
 
   var displayName: String { store.preset.displayName }
+  var soundFontKey: SoundFontModel.Key? { store.preset.owner?.key }
   var key: PresetModel.Key { store.preset.key }
   var state: IndicatorModifier.State {
-    if store.activeState.activePresetKey == key {
+    if store.activeState.activeSoundFontKey == soundFontKey && store.activeState.activePresetKey == key {
       return .active
     }
-    return store.activeState.activePresetKey == key ? .active : .none
+    return .none
   }
 
   init(store: StoreOf<PresetButton>) {
@@ -77,6 +78,7 @@ struct PresetButtonView: View {
       store.send(.buttonTapped, animation: .default)
     } label: {
       Text(displayName)
+        .font(.buttonFont)
         .indicator(state)
     }
     .onCustomLongPressGesture {

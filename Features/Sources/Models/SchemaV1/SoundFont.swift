@@ -21,7 +21,7 @@ extension SchemaV1 {
     public var displayName: String
     public var location: Location
 
-    @Relationship(deleteRule: .cascade)
+    @Relationship(deleteRule: .cascade, inverse: \PresetModel.owner)
     public var presets: [PresetModel]
 
     @Relationship(inverse: \TagModel.tagged)
@@ -106,6 +106,7 @@ extension SchemaV1.SoundFontModel {
     let presets = (0..<fileInfo.size()).map { index in
       let presetInfo = fileInfo[index]
       let preset = PresetModel(
+        owner: soundFont,
         presetIndex: index,
         name: String(presetInfo.name()),
         bank: Int(presetInfo.bank()),

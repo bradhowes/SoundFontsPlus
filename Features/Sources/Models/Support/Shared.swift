@@ -11,11 +11,11 @@ public struct ActiveState: Codable, Equatable, Sendable {
 
   public init() {}
 
-  public mutating func setActiveSoundFontKey(_ key: SoundFontModel.Key) {
+  public mutating func setActiveSoundFontKey(_ key: SoundFontModel.Key?) {
     activeSoundFontKey = key
   }
 
-  public mutating func setSelectedSoundFontKey(_ key: SoundFontModel.Key) {
+  public mutating func setSelectedSoundFontKey(_ key: SoundFontModel.Key?) {
     selectedSoundFontKey = key
   }
 

@@ -28,8 +28,11 @@ public struct PresetsList {
   }
 
   public enum Action {
+    case selectedSoundFontKeyChanged(SoundFontModel.Key?)
     case changeVisibility
     case destination(PresentationAction<Destination.Action>)
+    case fetchSoundFonts
+    case onAppear
     case rows(IdentifiedActionOf<PresetsListSection>)
   }
 
@@ -48,6 +51,18 @@ public struct PresetsList {
       case .destination:
         return .none
 
+      case .fetchSoundFonts:
+        fetchPresets(&state, key: state.activeState.activeSoundFontKey)
+        return .none
+
+      case .onAppear:
+        print("onAppear")
+        return .publisher {
+          state.$activeState.selectedSoundFontKey.publisher.map {
+            print("selectedSoundFontKeyChanged")
+            return Action.selectedSoundFontKeyChanged($0) }
+        }
+
       case let .rows(.element(id: _, action: .rows(.element(id: _, action: .delegate(.editPreset(preset)))))):
         state.destination = .edit(PresetEditor.State(preset: preset))
         return .none
@@ -58,9 +73,15 @@ public struct PresetsList {
 
       case let .rows(.element(id: _, action: .rows(.element(id: _, action: .delegate(.selectPreset(preset)))))):
         state.activeState.setActivePresetKey(preset.key)
+        state.activeState.setActiveSoundFontKey(preset.owner?.key)
         return .none
 
       case .rows:
+        return .none
+
+      case .selectedSoundFontKeyChanged(let key):
+        print("presetsList selectedSoundFontChanged- \(key)")
+        fetchPresets(&state, key: key)
         return .none
       }
     }
@@ -82,6 +103,17 @@ private func generatePresetSections(soundFont: SoundFontModel) -> IdentifiedArra
 }
 
 extension PresetsList {
+
+  private func fetchPresets(_ state: inout State, key: SoundFontModel.Key?) {
+    guard let key else { return }
+    do {
+      let soundFont = try SoundFontModel.fetch(key: key)
+      state.rows = generatePresetSections(soundFont: soundFont)
+    } catch {
+      state.rows = []
+      print("failed to fetch sound font key \(key)")
+    }
+  }
 
   private func hidePreset(_ state: inout State, preset: PresetModel) {
     @Dependency(\.modelContextProvider) var context
@@ -118,27 +150,28 @@ public struct PresetsListView: View {
   }
 
   public var body: some View {
-    VStack(spacing: 8.0) {
-      List {
-        ForEach(store.scope(state: \.rows, action: \.rows), id: \.id) { rowStore in
-          PresetsListSectionView(store: rowStore)
-        }
+    List {
+      ForEach(store.scope(state: \.rows, action: \.rows), id: \.id) { rowStore in
+        PresetsListSectionView(store: rowStore)
       }
-      .listSectionSpacing(.custom(-14.0))
-      .sheet(
-        item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
-      ) { editorStore in
-        PresetEditorView(store: editorStore)
+    }
+    .listSectionSpacing(.custom(-14.0))
+    .onAppear {
+      store.send(.onAppear)
+    }
+    .sheet(
+      item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
+    ) { editorStore in
+      PresetEditorView(store: editorStore)
+    }
+    HStack{
+      Spacer()
+      Button {
+        store.send(.changeVisibility)
+      } label: {
+        Label("", systemImage: "checklist")
       }
-      HStack{
-        Spacer()
-        Button {
-          store.send(.changeVisibility)
-        } label: {
-          Label("", systemImage: "checklist")
-        }
-      }
-    }.padding(.bottom, 16.0)
+    }
   }
 }
 

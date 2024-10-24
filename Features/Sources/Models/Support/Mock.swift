@@ -49,6 +49,7 @@ public enum Mock {
     @Dependency(\.modelContextProvider) var context
     let index = owner.presets.count
     let preset = PresetModel(
+      owner: owner,
       presetIndex: index,
       name: name,
       bank: index / 100,

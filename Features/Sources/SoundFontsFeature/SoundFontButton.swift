@@ -78,6 +78,7 @@ struct SoundFontButtonView: View {
       store.send(.buttonTapped, animation: .default)
     } label: {
       Text(displayName)
+        .font(Font.custom("Eurostile", size: 20))
         .indicator(state)
     }
     .onCustomLongPressGesture {
