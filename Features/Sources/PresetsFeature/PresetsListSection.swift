@@ -43,7 +43,7 @@ public struct PresetsListSection {
 
 public struct PresetsListSectionView: View {
   @Bindable private var store: StoreOf<PresetsListSection>
-  @Shared(.activeState) var activeState = .init()
+  @Shared(.activeState) var activeState
 
   public init(store: StoreOf<PresetsListSection>) {
     self.store = store

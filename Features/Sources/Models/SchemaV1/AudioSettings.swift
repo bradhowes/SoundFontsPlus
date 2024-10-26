@@ -103,6 +103,12 @@ extension SchemaV1 {
 
       return copy
     }
+
+    public static func fetchDescriptor(
+      with predicate: Predicate<AudioSettingsModel>? = nil
+    ) -> FetchDescriptor<AudioSettingsModel> {
+      .init(predicate: predicate, sortBy: [])
+    }
   }
 }
 

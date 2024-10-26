@@ -44,16 +44,9 @@ extension SchemaV1 {
       self.originalName = name
       self.favorites = []
     }
+
+    public static func fetchDescriptor(predicate: Predicate<PresetModel>? = nil) -> FetchDescriptor<PresetModel> {
+      .init(predicate: predicate, sortBy: [])
+    }
   }
 }
-
-extension PersistenceReaderKey where Self == CodableAppStorageKey<PresetModel.Key> {
-  public static var activePresetKey: Self {
-    .init(.appStorage("activePresetKey"))
-  }
-}
-
-extension PersistenceReaderKey where Self == PersistenceKeyDefault<CodableAppStorageKey<PresetModel.Key>> {
-  public static var activePresetKey: Self { PersistenceKeyDefault(.activePresetKey, .init(-1)) }
-}
-

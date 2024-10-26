@@ -40,3 +40,7 @@ extension SchemaV1 {
     }
   }
 }
+
+extension SchemaV1.DelayConfigModel {
+}
+

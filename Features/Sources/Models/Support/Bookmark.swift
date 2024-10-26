@@ -58,7 +58,7 @@ public final class Bookmark: Codable {
   }
 }
 
-public extension Bookmark {
+extension Bookmark {
 
   static func from(data: Data) throws -> Bookmark {
     let decoder = PropertyListDecoder()
@@ -66,39 +66,51 @@ public extension Bookmark {
   }
 
   /// Determine the availability state for a bookmarked URL
-  var isAvailable: Bool {
-    let secured = url.startAccessingSecurityScopedResource()
-    let value = try? url.checkResourceIsReachable()
-    if secured { url.stopAccessingSecurityScopedResource() }
-    return value ?? false
+  public var isAvailable: Bool {
+    if url.startAccessingSecurityScopedResource() {
+      defer { url.stopAccessingSecurityScopedResource() }
+      return (try? url.checkResourceIsReachable()) ?? false
+    }
+    return false
   }
 
   /// Determine if the file is located in an iCloud container
-  var isUbiquitous: Bool {
+  public var isUbiquitous: Bool {
     @Dependency(\.fileManager.isUbiquitousItem) var isUbiquitousItem
-    return isUbiquitousItem(url)
+    if url.startAccessingSecurityScopedResource() {
+      defer { url.stopAccessingSecurityScopedResource() }
+      return isUbiquitousItem(url)
+    }
+    return false
   }
 
   /// The various iCloud states a bookmark item may be in.
-  enum CloudState {
+  public enum CloudState {
+    /// Item is local and not synced to iCloud.
+    case local
     /// Item is on iCloud but not available locally.
     case inCloud
-    /// Item is queue to be downloaded to the device
+    /// Item is queued to be downloaded to the device.
     case downloadRequested
-    /// Item is currently being downloaded to the device
+    /// Item is currently being downloaded to the device.
     case downloading
-    /// Item has been downloaded and is available locally
+    /// Item has been downloaded and is available locally.
     case downloaded
-    /// Problem downloading the file from iCloud
+    /// Problem downloading the file from iCloud.
     case downloadError
-    /// Unknown state
+    /// Unknown state.
     case unknown
   }
 
   /// Obtain the current iCloud state of the bookmark item
-  var cloudState: CloudState {
+  public var cloudState: CloudState {
+    let secured = url.startAccessingSecurityScopedResource()
+    defer { if secured { url.stopAccessingSecurityScopedResource() } }
+
     guard
       let values = try? url.resourceValues(forKeys: [
+        .isUbiquitousItemKey,
+        .ubiquitousItemDownloadRequestedKey,
         .ubiquitousItemDownloadingStatusKey,
         .ubiquitousItemIsDownloadingKey,
         .ubiquitousItemDownloadingErrorKey
@@ -106,20 +118,25 @@ public extension Bookmark {
     else {
       return .unknown
     }
+
+    let isUbiquitous = (values.isUbiquitousItem ?? false)
+    if !isUbiquitous { return .local }
+
     guard values.ubiquitousItemDownloadingError == nil else { return .downloadError }
-    guard let status = values.ubiquitousItemDownloadingStatus else { return .unknown }
+
+    guard let status = values.ubiquitousItemDownloadingStatus else { return .inCloud }
     switch status {
     case .current: return .downloaded
     case .downloaded: return .downloading
     case .notDownloaded: return .inCloud
-    default: return .unknown
+    default: return .inCloud
     }
   }
 }
 
-private extension URL {
+extension URL {
 
-  var secureBookmarkData: Data? {
+  fileprivate var secureBookmarkData: Data? {
     let secured = self.startAccessingSecurityScopedResource()
     let data = try? self.bookmarkData(options: .minimalBookmark, includingResourceValuesForKeys: nil, relativeTo: nil)
     if secured { self.stopAccessingSecurityScopedResource() }
@@ -127,9 +144,9 @@ private extension URL {
   }
 }
 
-private extension Bookmark {
+extension Bookmark {
 
-  func restore() -> URL {
+  private func restore() -> URL {
     let now = CFAbsoluteTimeGetCurrent()
     if let lastRestoredUrl = self.lastRestoredUrl,
        (now - lastRestoredWhen) < 1 {
@@ -148,7 +165,7 @@ private extension Bookmark {
     return resolved.url ?? original
   }
 
-  static func resolve(from data: Data?) -> (url: URL?, stale: Bool) {
+  private static func resolve(from data: Data?) -> (url: URL?, stale: Bool) {
     guard let data = data else { return (url: nil, stale: false) }
     do {
       var isStale = false

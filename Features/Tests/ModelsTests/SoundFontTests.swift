@@ -182,6 +182,36 @@ final class SoundFontModelTests: XCTestCase {
     }
   }
 
+  func testFetchingOrderedVisiblePresetsFromSoundFont() throws {
+    try withNewContext(ActiveSchema.self, addBuiltInFonts: false) { context in
+
+      let freeFont = try SoundFontModel.add(resourceTag: .freeFont)
+      freeFont.orderedPresets[0].visible = false
+      freeFont.orderedPresets[2].visible = false
+      let museScore = try SoundFontModel.add(resourceTag: .museScore)
+      museScore.orderedPresets[1].visible = false
+      museScore.orderedPresets[2].visible = false
+      self.measure {
+        let freeFontPresets = freeFont.orderedVisiblePresets
+        XCTAssertEqual(freeFontPresets[0].displayName, "Piano 2")
+        XCTAssertEqual(freeFontPresets[1].displayName, "Honky-tonk")
+        XCTAssertEqual(freeFontPresets[2].displayName, "E.Piano 1")
+
+        let museScorePresets = museScore.orderedVisiblePresets
+        XCTAssertEqual(museScorePresets[0].displayName, "Stereo Grand")
+        XCTAssertEqual(museScorePresets[1].displayName, "Honky-Tonk")
+        XCTAssertEqual(museScorePresets[2].displayName, "Tine Electric Piano")
+      }
+    }
+  }
+
+  func testFetchingSpecifcSoundFont() throws {
+    try withNewContext(ActiveSchema.self, addBuiltInFonts: false) { context in
+      let freeFont = try SoundFontModel.add(resourceTag: .freeFont)
+      _ = try ActiveSchema.SoundFontModel.fetch(key: freeFont.key)
+    }
+  }
+
   func testAddFailure() throws {
     try withNewContext(ActiveSchema.self, addBuiltInFonts: false) { context in
       XCTAssertThrowsError(try SoundFontModel.add(name: "Hubba", kind: .installed(file: URL(filePath: "/a/b/c")), tags: []))
@@ -219,9 +249,43 @@ final class SoundFontModelTests: XCTestCase {
     }
   }
 
-  func testWith() throws {
+  func testTaggedWith() throws {
     try withNewContext(ActiveSchema.self) { context in
       let fonts = try SoundFontModel.tagged(with: TagModel.Ubiquitous.builtIn.key)
+      XCTAssertEqual(fonts.count, 3)
+    }
+  }
+
+  func testTaggedWithInvalidTag() throws {
+    try withNewContext(ActiveSchema.self) { context in
+      let font = try SoundFontModel.tagged(with: TagModel.Ubiquitous.builtIn.key)[0]
+
+      let tag = try withDependencies {
+        $0.uuid = .constant(.init(123))
+      } operation: {
+        let tag = try TagModel.create(name: "blah")
+        font.tag(with: tag)
+        try context.save()
+        return tag
+      }
+
+      XCTAssertTrue(font.tags.contains(tag))
+      XCTAssertTrue(tag.tagged.contains(font))
+
+      do {
+        let tag = try TagModel.fetch(key: tag.key)
+        XCTAssertEqual(tag.name, "blah")
+        XCTAssertTrue(tag.tagged.contains(font))
+      }
+
+      var fonts = try SoundFontModel.tagged(with: tag.key)
+      XCTAssertEqual(fonts.count, 1)
+
+      let tagKey = tag.key
+      context.delete(tag)
+      try context.save()
+
+      fonts = try SoundFontModel.tagged(with: tagKey)
       XCTAssertEqual(fonts.count, 3)
     }
   }

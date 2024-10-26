@@ -18,7 +18,7 @@ public struct TagsList {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
     var rows: IdentifiedArrayOf<TagsListButton.State>
-    @Shared(.activeState) var activeState = .init()
+    @Shared(.activeState) var activeState
 
     public init(tags: [TagModel]) {
       self.rows = .init(uniqueElements: tags.map { .init(tag: $0) })

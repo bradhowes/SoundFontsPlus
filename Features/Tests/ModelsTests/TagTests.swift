@@ -1,4 +1,5 @@
 import XCTest
+import ComposableArchitecture
 import Dependencies
 import SwiftData
 
@@ -141,19 +142,37 @@ final class TagTests: XCTestCase {
 
   func testTagsFor() throws {
     try withNewContext(ActiveSchema.self) { context in
-      XCTAssertEqual(try TagModel.tagsFor(kind: .builtin), [
-        try TagModel.ubiquitous(.all),
-        try TagModel.ubiquitous(.builtIn)
-      ])
-      XCTAssertEqual(try TagModel.tagsFor(kind: .installed), [
-        try TagModel.ubiquitous(.all),
-        try TagModel.ubiquitous(.added)
-      ])
-      XCTAssertEqual(try TagModel.tagsFor(kind: .external), [
-        try TagModel.ubiquitous(.all),
-        try TagModel.ubiquitous(.added),
-        try TagModel.ubiquitous(.external)
-      ])
+      try withTestAppStorage {
+        let userDefined = try withDependencies {
+          $0.uuid = .constant(.init(123))
+        } operation: {
+          try TagModel.create(name: "blah")
+        }
+
+        XCTAssertEqual(try TagModel.tagsFor(kind: .builtin), [
+          try TagModel.ubiquitous(.all),
+          try TagModel.ubiquitous(.builtIn)
+        ])
+        XCTAssertEqual(try TagModel.tagsFor(kind: .installed), [
+          try TagModel.ubiquitous(.all),
+          try TagModel.ubiquitous(.added)
+        ])
+        XCTAssertEqual(try TagModel.tagsFor(kind: .external), [
+          try TagModel.ubiquitous(.all),
+          try TagModel.ubiquitous(.added),
+          try TagModel.ubiquitous(.external)
+        ])
+
+        @Shared(.activeState) var activeState
+        activeState.setActiveTagKey(userDefined.key)
+
+        XCTAssertEqual(try TagModel.tagsFor(kind: .external), [
+          try TagModel.ubiquitous(.all),
+          try TagModel.ubiquitous(.added),
+          try TagModel.ubiquitous(.external),
+          userDefined
+        ])
+      }
     }
   }
 }

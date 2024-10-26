@@ -10,17 +10,17 @@ final class SharedTests: XCTestCase {
   func testSelectedSoundFont() throws {
     try withNewContext(ActiveSchema.self) { context in
       try withTestAppStorage {
-        @Shared(.selectedSoundFontKey) var foo
-        XCTAssertNil(foo)
+        @Shared(.activeState) var foo
+        XCTAssertNil(foo.selectedSoundFontKey)
 
         let fonts = try! context.fetch(SoundFontModel.fetchDescriptor())
-        foo = fonts[0].key
+        foo.setSelectedSoundFontKey(fonts[0].key)
 
-        @Shared(.selectedSoundFontKey) var bar
-        XCTAssertEqual(bar, fonts[0].key)
+        @Shared(.activeState) var bar
+        XCTAssertEqual(bar.selectedSoundFontKey, fonts[0].key)
 
-        bar = nil
-        XCTAssertNil(foo)
+        bar.setSelectedSoundFontKey(nil)
+        XCTAssertNil(foo.selectedSoundFontKey)
       }
     }
   }
@@ -28,17 +28,17 @@ final class SharedTests: XCTestCase {
   func testActiveSoundFont() throws {
     try withNewContext(ActiveSchema.self) { context in
       try withTestAppStorage {
-        @Shared(.activeSoundFontKey) var foo
-        XCTAssertNil(foo)
+        @Shared(.activeState) var foo
+        XCTAssertNil(foo.activeSoundFontKey)
 
         let fonts = try! context.fetch(SoundFontModel.fetchDescriptor())
-        foo = fonts[0].key
+        foo.setActiveSoundFontKey(fonts[0].key)
 
-        @Shared(.activeSoundFontKey) var bar
-        XCTAssertEqual(bar, fonts[0].key)
+        @Shared(.activeState) var bar
+        XCTAssertEqual(bar.activeSoundFontKey, fonts[0].key)
 
-        bar = nil
-        XCTAssertNil(foo)
+        bar.setActiveSoundFontKey(nil)
+        XCTAssertNil(foo.activeSoundFontKey)
       }
     }
   }
@@ -46,16 +46,16 @@ final class SharedTests: XCTestCase {
   func testActivePreset() throws {
     try withNewContext(ActiveSchema.self) { context in
       try withTestAppStorage {
-        @Shared(.activePresetKey) var foo
-        XCTAssertEqual(foo, -1)
+        @Shared(.activeState) var foo
+        XCTAssertNil(foo.activePresetKey)
 
-        foo = 123
+        foo.setActivePresetKey(.init(20))
 
-        @Shared(.activePresetKey) var bar
-        XCTAssertEqual(bar, 123)
+        @Shared(.activeState) var bar
+        XCTAssertEqual(bar.activePresetKey, .init(20))
 
-        bar = -1
-        XCTAssertEqual(foo, -1)
+        bar.setActivePresetKey(nil)
+        XCTAssertNil(foo.activePresetKey)
       }
     }
   }
@@ -63,13 +63,13 @@ final class SharedTests: XCTestCase {
   func testActiveTag() throws {
     try withNewContext(ActiveSchema.self) { context in
       try withTestAppStorage {
-        @Shared(.activeTagKey) var foo
-        XCTAssertEqual(foo, TagModel.Ubiquitous.all.key)
+        @Shared(.activeState) var foo
+        XCTAssertNil(foo.activeTagKey)
 
-        foo = TagModel.Ubiquitous.external.key
+        foo.setActiveTagKey(TagModel.Ubiquitous.external.key)
 
-        @Shared(.activeTagKey) var bar
-        XCTAssertEqual(bar, TagModel.Ubiquitous.external.key)
+        @Shared(.activeState) var bar
+        XCTAssertEqual(bar.activeTagKey, TagModel.Ubiquitous.external.key)
       }
     }
   }

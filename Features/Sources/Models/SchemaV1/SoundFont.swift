@@ -65,6 +65,11 @@ extension SchemaV1 {
       }
     }
 
+    public func tag(with tag: TagModel) {
+      self.tags.append(tag)
+      tag.tag(soundFont: self)
+    }
+
     public static func fetchDescriptor(
       with predicate: Predicate<SoundFontModel>? = nil
     ) -> FetchDescriptor<SoundFontModel> {
@@ -153,6 +158,21 @@ extension SchemaV1.SoundFontModel {
     try SF2ResourceFileTag.allCases.map { try add(resourceTag: $0) }
   }
 
+  public static func delete(key: Key) throws {
+    @Dependency(\.modelContextProvider) var context
+    let fetchDescriptor = SoundFontModel.fetchDescriptor(with: #Predicate { $0.internalKey == key.rawValue })
+    let found = try context.fetch(fetchDescriptor)
+    if found.count == 1 {
+      let font = found[0]
+      if font.location.isInstalled,
+         let url = font.location.url {
+        try FileManager.default.removeItem(at: url)
+      }
+      context.delete(found[0])
+      try context.save()
+    }
+  }
+
   public static func fetch(key: SoundFontModel.Key) throws -> SoundFontModel {
     @Dependency(\.modelContextProvider) var context
     let fetchDescriptor = SoundFontModel.fetchDescriptor(with: #Predicate{ $0.internalKey == key.rawValue })
@@ -172,26 +192,6 @@ extension SchemaV1.SoundFontModel {
 }
 
 extension SoundFontModel: @unchecked Sendable {}
-
-extension PersistenceReaderKey where Self == CodableAppStorageKey<SoundFontModel.Key?> {
-  public static var activeSoundFontKey: Self {
-    .init(.appStorage("activeSoundFontKey"))
-  }
-}
-
-extension PersistenceReaderKey where Self == PersistenceKeyDefault<CodableAppStorageKey<SoundFontModel.Key?>> {
-  public static var activeSoundFontKey: Self { PersistenceKeyDefault(.activeSoundFontKey, nil) }
-}
-
-extension PersistenceReaderKey where Self == CodableAppStorageKey<SoundFontModel.Key?> {
-  public static var selectedSoundFontKey: Self {
-    .init(.appStorage("selectedSoundFontKey"))
-  }
-}
-
-extension PersistenceReaderKey where Self == PersistenceKeyDefault<CodableAppStorageKey<SoundFontModel.Key?>> {
-  public static var selectedSoundFontKey: Self { PersistenceKeyDefault(.selectedSoundFontKey, nil) }
-}
 
 //  func soundFonts(with tagId: PersistentIdentifier) -> [SoundFont] {
 //    let fetchDescriptor = SoundFont.fetchDescriptor(by: tagId)

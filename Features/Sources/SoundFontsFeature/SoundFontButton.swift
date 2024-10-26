@@ -16,7 +16,7 @@ public struct SoundFontButton {
     public let displayName: String
     public let canDelete: Bool
 
-    @Shared(.activeState) var activeState = ActiveState()
+    @Shared(.activeState) var activeState
 
     public init(soundFont: SoundFontModel) {
       self.key = soundFont.key

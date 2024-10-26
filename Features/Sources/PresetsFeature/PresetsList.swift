@@ -19,7 +19,7 @@ public struct PresetsList {
     @Presents var destination: Destination.State?
     let soundFont: SoundFontModel
     var rows: IdentifiedArrayOf<PresetsListSection.State>
-    @Shared(.activeState) var activeState = .init()
+    @Shared(.activeState) var activeState
 
     public init(soundFont: SoundFontModel) {
       self.soundFont = soundFont

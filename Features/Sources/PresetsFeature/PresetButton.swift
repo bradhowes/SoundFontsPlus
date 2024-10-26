@@ -13,7 +13,7 @@ public struct PresetButton {
   public struct State: Equatable, Identifiable {
     public var preset: PresetModel
     public var id: PresetModel.Key { preset.key }
-    @Shared(.activeState) var activeState = ActiveState()
+    @Shared(.activeState) var activeState
 
     public init(preset: PresetModel) {
       self.preset = preset

@@ -76,7 +76,8 @@ extension SchemaV1 {
       self.tagged = []
     }
 
-    public func tag(soundFont: SoundFontModel) {
+    // NOTE: public API is SoundFontModel.tag(with:)
+    internal func tag(soundFont: SoundFontModel) {
       tagged.append(soundFont)
     }
 
@@ -88,9 +89,9 @@ extension SchemaV1 {
 
 extension SchemaV1.TagModel {
 
-  public static func fetchOptional(key: Key) -> SchemaV1.TagModel? {
+  public static func fetchOptional(key: Key) throws -> SchemaV1.TagModel? {
     @Dependency(\.modelContextProvider) var context
-    return (try? context.fetch(fetchDescriptor(predicate: #Predicate { $0.internalKey == key.rawValue })))?.first
+    return (try context.fetch(fetchDescriptor(predicate: #Predicate { $0.internalKey == key.rawValue }))).first
   }
 
   public static func fetch(key: Key) throws -> SchemaV1.TagModel {
@@ -106,13 +107,13 @@ extension SchemaV1.TagModel {
   }
 
   public static func ubiquitous(key: SchemaV1.TagModel.Key) throws -> SchemaV1.TagModel {
-    if let found = fetchOptional(key: key) {
+    if let found = try fetchOptional(key: key) {
       return found
     }
 
     try createUbiquitous()
 
-    guard let found = fetchOptional(key: key) else {
+    guard let found = try fetchOptional(key: key) else {
       throw ModelError.failedToFetch(key: key.rawValue.uuidString)
     }
 
@@ -190,8 +191,10 @@ extension SchemaV1.TagModel {
   }
 
   public static func activeTag() -> TagModel {
-    @Shared(.activeTagKey) var tagKey
-    if let tag = try? fetch(key: tagKey) {
+    @Shared(.activeState) var activeState
+
+    let tagKey = activeState.activeTagKey ?? TagModel.Ubiquitous.all.key
+    if let tag = try? fetchOptional(key: tagKey) {
       return tag
     }
 
@@ -220,28 +223,3 @@ extension SchemaV1.TagModel {
     return tags
   }
 }
-
-extension PersistenceReaderKey where Self == CodableAppStorageKey<TagModel.Key> {
-  public static var activeTagKey: Self {
-    .init(.appStorage("activeTagKey"))
-  }
-}
-
-extension PersistenceReaderKey where Self == PersistenceKeyDefault<CodableAppStorageKey<TagModel.Key>> {
-  public static var activeTagKey: Self { PersistenceKeyDefault(.activeTagKey, TagModel.Ubiquitous.all.key) }
-}
-
-//
-//extension SchemaV1.Tag : Identifiable {
-//  public var id: PersistentIdentifier { persistentModelID }
-//}
-//
-//extension PersistenceReaderKey {
-//  static public func tagKey(_ key: String) -> Self where Self == ModelIdentifierStorageKey<Tag.ID?> {
-//    ModelIdentifierStorageKey(key)
-//  }
-//}
-//
-//extension PersistenceReaderKey where Self == ModelIdentifierStorageKey<Tag.ID?> {
-//  static public var activeTag: Self { tagKey("activeTag") }
-//}

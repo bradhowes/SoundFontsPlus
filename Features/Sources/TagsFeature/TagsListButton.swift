@@ -17,7 +17,7 @@ public struct TagsListButton {
     let key: TagModel.Key
     let count: Int
     let isUserDefined: Bool
-    @Shared(.activeState) var activeState = ActiveState()
+    @Shared(.activeState) var activeState
 
     public init(tag: TagModel) {
       self.tag = tag

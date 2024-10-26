@@ -17,7 +17,7 @@ public struct SoundFontsList {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
     var rows: IdentifiedArrayOf<SoundFontButton.State>
-    @Shared(.activeState) var activeState = .init()
+    @Shared(.activeState) var activeState
 
     public init(soundFonts: [SoundFontModel]) {
       self.rows = .init(uniqueElements: soundFonts.map { .init(soundFont: $0) })
@@ -64,7 +64,7 @@ public struct SoundFontsList {
 
       case .rows(.element(_, .delegate(.deleteSoundFont(let key)))):
         deleteSoundFont(&state, key: key)
-        return .none
+        return .send(.fetchSoundFonts)
 
       case .rows(.element(_, .delegate(.editSoundFont(let key)))):
         editSoundFont(&state, key: key)
@@ -91,17 +91,11 @@ extension SoundFontsList.Destination.State: Equatable {}
 extension SoundFontsList {
 
   private func deleteSoundFont(_ state: inout State, key: SoundFontModel.Key) {
-
-//    precondition(!TagModel.Ubiquitous.contains(key: key))
-//    do {
-//      if state.activeTagKey == key {
-//        state.activeTagKey = TagModel.Ubiquitous.all.key
-//      }
-//      state.tags = state.tags.filter { $0.key != key }
-//      try TagModel.delete(key: key)
-//    } catch {
-//      print("failed to delete tag \(key)")
-//    }
+    do {
+      try SoundFontModel.delete(key: key)
+    } catch {
+      print("failed to delete font \(key) - \(error.localizedDescription)")
+    }
   }
 
   private func editSoundFont(_ state: inout State, key: SoundFontModel.Key) {
@@ -128,9 +122,10 @@ extension SoundFontsList {
 
 public struct SoundFontsListView: View {
   @Bindable private var store: StoreOf<SoundFontsList>
-  @Shared(.activeState) var activeState = .init()
+  // @Shared(.activeState) var activeState
+
   private var activeTagKey: TagModel.Key {
-    activeState.activeTagKey ?? TagModel.Ubiquitous.all.key
+    store.activeState.activeTagKey ?? TagModel.Ubiquitous.all.key
   }
 
   public init(store: StoreOf<SoundFontsList>) {
@@ -140,9 +135,7 @@ public struct SoundFontsListView: View {
   public var body: some View {
     List {
       ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-//        if rowStore.soundFont.tags.map(\.key).contains(activeTagKey) {
-          SoundFontButtonView(store: rowStore)
-//        }
+        SoundFontButtonView(store: rowStore)
       }
     }
     HStack {

@@ -1,4 +1,5 @@
 import XCTest
+import ComposableArchitecture
 import SwiftData
 
 @testable import Models
@@ -47,13 +48,23 @@ final class PresetTests: XCTestCase {
       let fav2 = try FavoriteModel.create(preset: found[0].orderedPresets[0])
       XCTAssertEqual(fav2.basis, found[0].orderedPresets[0])
 
+      let aus = AudioSettingsModel()
+      found[0].orderedPresets[0].audioSettings = aus
+      try context.save()
+
+      XCTAssertEqual(try context.fetch(AudioSettingsModel.fetchDescriptor()).count, 1)
+      XCTAssertEqual(try context.fetch(FavoriteModel.fetchDescriptor()).count, 2)
+      XCTAssertEqual(try context.fetch(PresetModel.fetchDescriptor(predicate: #Predicate { $0.favorites.count > 0 })).count, 1)
+
       context.delete(found[0])
       try context.save()
 
       found = try context.fetch(SoundFontModel.fetchDescriptor())
       XCTAssertEqual(found.count, 0)
 
+      XCTAssertEqual(try context.fetch(PresetModel.fetchDescriptor(predicate: #Predicate { $0.favorites.count > 0 })).count, 0)
       XCTAssertEqual(try context.fetch(FavoriteModel.fetchDescriptor()).count, 0)
+      XCTAssertEqual(try context.fetch(AudioSettingsModel.fetchDescriptor()).count, 0)
     }
   }
 }
