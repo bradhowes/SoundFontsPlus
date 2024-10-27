@@ -11,6 +11,7 @@ public struct SoundFontsList {
   @Reducer
   public enum Destination {
     case edit(SoundFontEditor)
+    case picker(SoundFontPicker)
   }
 
   @ObservableState
@@ -30,6 +31,8 @@ public struct SoundFontsList {
     case destination(PresentationAction<Destination.Action>)
     case fetchSoundFonts
     case onAppear
+    case pickerDismissed
+    case pickerSelected([URL])
     case rows(IdentifiedActionOf<SoundFontButton>)
   }
 
@@ -44,6 +47,7 @@ public struct SoundFontsList {
         return .none
 
       case .addButtonTapped:
+        state.destination = .picker(SoundFontPicker.State())
         return .none
 
       case .destination(.dismiss):
@@ -61,6 +65,14 @@ public struct SoundFontsList {
         return .publisher {
           state.$activeState.activeTagKey.publisher.map { Action.activeTagKeyChanged($0) }
         }
+
+      case .pickerDismissed:
+        state.destination = nil
+        return .none
+
+      case .pickerSelected(let urls):
+        print(urls)
+        return .none
 
       case .rows(.element(_, .delegate(.deleteSoundFont(let key)))):
         deleteSoundFont(&state, key: key)
@@ -122,7 +134,6 @@ extension SoundFontsList {
 
 public struct SoundFontsListView: View {
   @Bindable private var store: StoreOf<SoundFontsList>
-  // @Shared(.activeState) var activeState
 
   private var activeTagKey: TagModel.Key {
     store.activeState.activeTagKey ?? TagModel.Ubiquitous.all.key
@@ -150,6 +161,15 @@ public struct SoundFontsListView: View {
       item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
     ) { editorStore in
       SoundFontEditorView(store: editorStore)
+    }
+    .sheet(
+      item: $store.scope(state: \.destination?.picker, action: \.destination.picker)
+    ) { _ in
+      SoundFontPickerView {
+        store.send(.pickerDismissed)
+      } onSuccess: {
+        store.send(.pickerSelected($0))
+      }
     }
     .onAppear {
       store.send(.onAppear)
