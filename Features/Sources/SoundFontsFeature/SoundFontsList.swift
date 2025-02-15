@@ -11,21 +11,26 @@ public struct SoundFontsList {
   @Reducer
   public enum Destination {
     case edit(SoundFontEditor)
-    case picker(SoundFontPicker)
+    // case picker(SoundFontPicker)
   }
 
   @ObservableState
   public struct State: Equatable {
     @Presents var destination: Destination.State?
-    var rows: IdentifiedArrayOf<SoundFontButton.State>
     @Shared(.activeState) var activeState
+
+    var rows: IdentifiedArrayOf<SoundFontButton.State>
+    var addingSoundFonts: Bool = false
+    var showingAddedSummary: Bool = false
+    var addedSummary: String = ""
 
     public init(soundFonts: [SoundFontModel]) {
       self.rows = .init(uniqueElements: soundFonts.map { .init(soundFont: $0) })
     }
   }
 
-  public enum Action {
+  public enum Action: BindableAction {
+    case binding(BindingAction<State>)
     case activeTagKeyChanged(TagModel.Key?)
     case addButtonTapped
     case destination(PresentationAction<Destination.Action>)
@@ -39,7 +44,8 @@ public struct SoundFontsList {
   public init() {}
 
   public var body: some ReducerOf<Self> {
-    Reduce<State, Action> { state, action in
+    BindingReducer()
+    Reduce { state, action in
       switch action {
 
       case .activeTagKeyChanged(let activeTagKey):
@@ -47,7 +53,10 @@ public struct SoundFontsList {
         return .none
 
       case .addButtonTapped:
-        state.destination = .picker(SoundFontPicker.State())
+        state.addingSoundFonts = true
+        return .none
+
+      case .binding:
         return .none
 
       case .destination(.dismiss):
@@ -62,6 +71,7 @@ public struct SoundFontsList {
         return .none
 
       case .onAppear:
+        fetchSoundFonts(&state, key: state.activeState.activeTagKey)
         return .publisher {
           state.$activeState.activeTagKey.publisher.map { Action.activeTagKeyChanged($0) }
         }
@@ -71,7 +81,7 @@ public struct SoundFontsList {
         return .none
 
       case .pickerSelected(let urls):
-        print(urls)
+        addSoundFonts(&state, urls: urls)
         return .none
 
       case .rows(.element(_, .delegate(.deleteSoundFont(let key)))):
@@ -83,7 +93,6 @@ public struct SoundFontsList {
         return .none
 
       case .rows(.element(_, .delegate(.selectSoundFont(let key)))):
-        print("soundFontsList selectSoundFont - \(key)")
         state.activeState.setSelectedSoundFontKey(key)
         return .none
 
@@ -101,6 +110,31 @@ public struct SoundFontsList {
 extension SoundFontsList.Destination.State: Equatable {}
 
 extension SoundFontsList {
+
+  private func addSoundFonts(_ state: inout State, urls: [URL]) {
+    guard !urls.isEmpty,
+          let result = Support.addSoundFonts(urls: urls)
+    else {
+      return
+    }
+
+    if result.bad.isEmpty {
+      if result.good.count == 1 {
+        state.addedSummary = "Added sound font \(result.good[0].displayName)."
+      } else {
+        state.addedSummary = "Added all of the sound fonts."
+      }
+    } else {
+      if urls.count == 1 {
+        state.addedSummary = "Failed to add sound font."
+      } else if result.good.isEmpty {
+        state.addedSummary = "Failed to add any sound fonts."
+      } else {
+        state.addedSummary = "Added \(result.good.count) out of \(urls.count) sound fonts."
+      }
+    }
+    state.showingAddedSummary = true
+  }
 
   private func deleteSoundFont(_ state: inout State, key: SoundFontModel.Key) {
     do {
@@ -149,25 +183,32 @@ public struct SoundFontsListView: View {
         SoundFontButtonView(store: rowStore)
       }
     }
-    HStack {
-      Button("Add SoundFont", systemImage: "plus") {
-        store.send(.addButtonTapped, animation: .default)
+    .navigationTitle("SoundFonts")
+    .toolbar {
+      Button {
+      } label: {
+        Image(systemName: "tag")
+      }
+      Button {
+        store.send(.addButtonTapped)
+      } label: {
+        Image(systemName: "plus")
       }
     }
-    .onAppear() {
-      _ = store.send(.fetchSoundFonts)
+    .alert("Add Complete", isPresented: $store.showingAddedSummary) {
+      Button("OK") {}
+    } message: {
+      Text(store.addedSummary)
     }
     .sheet(
       item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
     ) { editorStore in
       SoundFontEditorView(store: editorStore)
     }
-    .sheet(
-      item: $store.scope(state: \.destination?.picker, action: \.destination.picker)
-    ) { _ in
-      SoundFontPickerView {
+    .sheet(isPresented: $store.addingSoundFonts) {
+      SF2PickerView {
         store.send(.pickerDismissed)
-      } onSuccess: {
+      } onOpen: {
         store.send(.pickerSelected($0))
       }
     }

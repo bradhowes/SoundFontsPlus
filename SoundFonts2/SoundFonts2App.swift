@@ -14,9 +14,10 @@ struct SoundFonts2App: App {
 
   var body: some Scene {
     WindowGroup {
-      Form {
+      NavigationSplitView {
         SoundFontsListView(store: Store(initialState: .init(soundFonts: soundFonts())) { SoundFontsList() })
-        TagsListView(store: Store(initialState: .init(tags: tags())) { TagsList() })
+        //TagsListView(store: Store(initialState: .init(tags: tags())) { TagsList() })
+      } detail: {
         PresetsListView(store: Store(initialState: .init(soundFont: soundFonts()[1])) { PresetsList() })
       }
     }

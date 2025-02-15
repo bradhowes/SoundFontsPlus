@@ -41,30 +41,30 @@ extension SchemaV1 {
       self.info = info
     }
 
-    public func kind() throws -> SoundFontKind {
-      switch location.kind {
-      case .builtin:
-        guard let url = location.url else {
-          throw ModelError.invalidLocation(name: self.displayName)
-        }
-        return .builtin(resource: url)
-      case .installed:
-        guard let url = location.url else {
-          throw ModelError.invalidLocation(name: self.displayName)
-        }
-        return .installed(file: url)
-      case .external:
-        guard let data = location.raw else {
-          throw ModelError.invalidLocation(name: self.displayName)
-        }
-        do {
-          return .external(bookmark: try Bookmark.from(data: data))
-        } catch {
-          throw ModelError.invalidBookmark(name: self.displayName)
-        }
-      }
-    }
-
+//    public func kind() throws -> SoundFontKind {
+//      switch location.kind {
+//      case .builtin:
+//        guard let url = location.url else {
+//          throw ModelError.invalidLocation(name: self.displayName)
+//        }
+//        return .builtin(resource: url)
+//      case .installed:
+//        guard let url = location.url else {
+//          throw ModelError.invalidLocation(name: self.displayName)
+//        }
+//        return .installed(file: url)
+//      case .external:
+//        guard let data = location.raw else {
+//          throw ModelError.invalidLocation(name: self.displayName)
+//        }
+//        do {
+//          return .external(bookmark: try Bookmark.from(data: data))
+//        } catch {
+//          throw ModelError.invalidBookmark(name: self.displayName)
+//        }
+//      }
+//    }
+//
     public func tag(with tag: TagModel) {
       self.tags.append(tag)
       tag.tag(soundFont: self)
@@ -80,6 +80,7 @@ extension SchemaV1 {
 
 extension SchemaV1.SoundFontModel {
 
+  @discardableResult
   public static func create(
     name: String,
     location: Location,
@@ -133,8 +134,7 @@ extension SchemaV1.SoundFontModel {
     return soundFont
   }
 
-  public static func add(name: String, kind: SoundFontKind, tags: [TagModel]) throws -> SoundFontModel {
-    let location = kind.asLocation
+  public static func add(name: String, location: Location, tags: [TagModel]) throws -> SoundFontModel {
     var fileInfo = SF2FileInfo(location.path)
     guard fileInfo.load() else {
       throw ModelError.loadFailure(name: name)
@@ -146,10 +146,9 @@ extension SchemaV1.SoundFontModel {
   public static func add(resourceTag: SF2ResourceFileTag) throws -> SoundFontModel {
     var fileInfo = SF2FileInfo(resourceTag.url.path(percentEncoded: false))
     fileInfo.load()
-    let kind: SoundFontKind = .builtin(resource: resourceTag.url)
     return try add(
       name: resourceTag.name,
-      kind: kind,
+      location: .init(kind: .builtin, url: resourceTag.url, raw: nil),
       tags: [TagModel.ubiquitous(.all), TagModel.ubiquitous(.builtIn)]
     )
   }
@@ -192,68 +191,3 @@ extension SchemaV1.SoundFontModel {
 }
 
 extension SoundFontModel: @unchecked Sendable {}
-
-//  func soundFonts(with tagId: PersistentIdentifier) -> [SoundFont] {
-//    let fetchDescriptor = SoundFont.fetchDescriptor(by: tagId)
-//    return (try? fetch(fetchDescriptor)) ?? []
-//  }
-//
-//  struct PickedStatus {
-//    public let good: Int
-//    public let bad: [String]
-//
-//    public init(good: Int, bad: [String]) {
-//      self.good = good
-//      self.bad = bad
-//    }
-//  }
-//
-//  func picked(urls: [URL]) -> PickedStatus {
-//    var good = 0
-//    var bad = [String]()
-//
-//    for url in urls {
-//      let fileName = url.lastPathComponent
-//      let displayName = String(fileName[fileName.startIndex..<(fileName.lastIndex(of: ".") ?? fileName.endIndex)])
-//      let destination = FileManager.default.sharedPath(for: fileName)
-//
-//      do {
-//        try FileManager.default.moveItem(at: url, to: destination)
-//      } catch let err as NSError {
-//        if err.code != NSFileWriteFileExistsError {
-//          bad.append(fileName)
-//          continue
-//        }
-//      }
-//
-//      do {
-//        _ = try addSoundFont(name: displayName, kind: .installed(file: destination))
-//      } catch SF2FileError.loadFailure {
-//        bad.append(fileName)
-//        continue
-//      } catch {
-//        bad.append(fileName)
-//        continue
-//      }
-//
-//      good += 1
-//    }
-//
-//    for (index, path) in FileManager.default.sharedContents.enumerated() {
-//      print(index, path)
-//    }
-//
-//    return .init(good: good, bad: bad)
-//  }
-//}
-//
-//
-//extension PersistenceReaderKey {
-//  static public func soundFontKey(_ key: String) -> Self where Self == ModelIdentifierStorageKey<SoundFont.ID?> {
-//    ModelIdentifierStorageKey(key)
-//  }
-//}
-//
-//extension PersistenceReaderKey where Self == ModelIdentifierStorageKey<SoundFont.ID?> {
-//  static public var selectedSoundFont: Self { tagKey("selectedSoundFont") }
-//}

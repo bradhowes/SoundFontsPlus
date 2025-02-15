@@ -80,7 +80,6 @@ public struct PresetsList {
         return .none
 
       case .selectedSoundFontKeyChanged(let key):
-        print("presetsList selectedSoundFontChanged- \(key)")
         fetchPresets(&state, key: key)
         return .none
       }
@@ -164,12 +163,15 @@ public struct PresetsListView: View {
     ) { editorStore in
       PresetEditorView(store: editorStore)
     }
-    HStack{
-      Spacer()
+    .navigationTitle("Presets")
+    .toolbar {
       Button {
-        store.send(.changeVisibility)
       } label: {
-        Label("", systemImage: "checklist")
+        Image(systemName: "checklist")
+      }
+      Button {
+      } label: {
+        Image(systemName: "magnifyingglass")
       }
     }
   }

@@ -89,7 +89,7 @@ struct SoundFontButtonView: View {
         confirmingDeletion = true
       } label: {
         Image(systemName: "trash")
-          .tint(.gray)
+          .tint(.red)
       }
     }
     .confirmationDialog(

@@ -205,21 +205,7 @@ extension SchemaV1.TagModel {
     fatalError("unexpected nil activeTag")
   }
 
-  public static func tagsFor(kind: Location.Kind) throws -> [TagModel] {
-    var ubiTags: [TagModel.Ubiquitous] = [.all]
-    switch kind {
-    case .builtin: ubiTags.append(.builtIn)
-    case .installed: ubiTags.append(.added)
-    case .external: ubiTags += [.added, .external]
-    }
-
-    var tags = try ubiTags.map { try ubiquitous($0) }
-
-    let tag = activeTag()
-    if tag.isUserDefined {
-      tags.append(tag)
-    }
-
-    return tags
+  public static func tagsFor(_ location: Location) throws -> [TagModel] {
+    location.tags
   }
 }

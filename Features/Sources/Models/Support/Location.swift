@@ -23,6 +23,9 @@ public struct Location: Codable, Equatable {
     self.url = url
     self.raw = raw
   }
+}
+
+extension Location {
 
   /// Full path to the file reference by the location. Currently, this is not supported for `external`
   /// locations.
@@ -46,5 +49,31 @@ public struct Location: Codable, Equatable {
   public var isExternal: Bool {
     if case .external = kind { return true }
     return false
+  }
+}
+
+extension Location {
+
+  public var tags: [TagModel] {
+    var ubiTags: [TagModel.Ubiquitous] = [.all]
+    switch kind {
+    case .builtin: ubiTags.append(.builtIn)
+    case .installed: ubiTags.append(.added)
+    case .external: ubiTags += [.added, .external]
+    }
+
+    var tags = [TagModel]()
+    do {
+      tags = try ubiTags.map { try TagModel.ubiquitous($0) }
+    } catch {
+      print("failed to load ubiquitous tags: \(error.localizedDescription)")
+    }
+
+    let tag = TagModel.activeTag()
+    if tag.isUserDefined {
+      tags.append(tag)
+    }
+
+    return tags
   }
 }

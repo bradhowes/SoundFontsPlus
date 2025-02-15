@@ -1,5 +1,6 @@
 import SwiftUI
 
+#if os(iOS)
 private struct VisibilityEditMode: EnvironmentKey {
   static let defaultValue: EditMode = .inactive
 }
@@ -16,3 +17,4 @@ extension View {
     environment(\.visibilityEditMode, editMode)
   }
 }
+#endif

@@ -44,7 +44,7 @@ public enum SF2ResourceFileTag: Int, CaseIterable {
   /// Obtain the URL for an SF2 file in the bundle
   public var url: URL { SF2ResourceFiles.resources[resourceIndex] }
 
-  /// Obtain a info and preset info about an SF2 file
+  /// Obtain info and preset info about an SF2 file
   public var fileInfo: Engine.SF2FileInfo? {
     var fileInfo = Engine.SF2FileInfo(url.path(percentEncoded: false))
     return fileInfo.load() ? fileInfo : nil
