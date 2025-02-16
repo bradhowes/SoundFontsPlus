@@ -1,6 +1,7 @@
 // swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
+import CompilerPluginSupport
 import PackageDescription
 
 let package = Package(
@@ -18,14 +19,17 @@ let package = Package(
   ],
   dependencies: [
     // .package(url: "https://github.com/bradhowes/SF2Lib", from: "5.0.0")
+    // .package(url: "https://github.com/bradhowes/SplitView", from: "3.5.2"),
     .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib"),
+    .package(url: "https://github.com/groue/GRDB.swift", from: "7.0.0"),
     .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.15.0"),
+    // .package(url: "https://github.com/pointfreeco/sharing-grdb", from: "0.1.0"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.17.0"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.4.1"),
     .package(url: "https://github.com/pointfreeco/swift-tagged", from: "0.10.0"),
-    // .package(url: "https://github.com/bradhowes/SplitView", from: "3.5.2"),
     .package(url: "https://github.com/vadymmarkov/Fakery", from: "5.0.0"),
-    .package(url: "https://github.com/CrazyFanFan/FileHash", from: "0.0.1")
+    .package(url: "https://github.com/CrazyFanFan/FileHash", from: "0.0.1"),
+    .package(url: "https://github.com/swiftlang/swift-syntax", "509.0.0"..<"601.0.0")
   ],
   targets: [
     .target(
@@ -89,15 +93,24 @@ let package = Package(
     .target(
       name: "Models",
       dependencies: [
+//        "GRDBMacros",
         .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "GRDB", package: "GRDB.swift"),
+        // .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
         .product(name: "Fakery", package: "Fakery"),
         .product(name: "FileHash", package: "FileHash"),
         .product(name: "Tagged", package: "swift-tagged")
       ]
     ),
+//    .macro(
+//      name: "GRDBMacros",
+//      dependencies: [
+//        .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+//        .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+//      ]
+//    ),
     .target(
       name: "SF2ResourceFiles",
       dependencies: [

@@ -2,9 +2,9 @@
 
 import Foundation
 
-public struct Location: Codable, Equatable {
+public struct Location: Equatable, Sendable {
 
-  public enum Kind: String, Codable, CaseIterable {
+  public enum Kind: String, Codable, CaseIterable, Sendable {
     case builtin
     case installed
     case external
@@ -54,26 +54,14 @@ extension Location {
 
 extension Location {
 
-  public var tags: [TagModel] {
-    var ubiTags: [TagModel.Ubiquitous] = [.all]
+  public var tagIds: [Tag.ID] {
+    var ubiTags: [Tag.Ubiquitous] = [.all]
     switch kind {
     case .builtin: ubiTags.append(.builtIn)
     case .installed: ubiTags.append(.added)
     case .external: ubiTags += [.added, .external]
     }
 
-    var tags = [TagModel]()
-    do {
-      tags = try ubiTags.map { try TagModel.ubiquitous($0) }
-    } catch {
-      print("failed to load ubiquitous tags: \(error.localizedDescription)")
-    }
-
-    let tag = TagModel.activeTag()
-    if tag.isUserDefined {
-      tags.append(tag)
-    }
-
-    return tags
+    return ubiTags.map { $0.id }
   }
 }

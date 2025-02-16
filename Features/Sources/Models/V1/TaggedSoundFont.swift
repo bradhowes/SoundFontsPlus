@@ -1,0 +1,25 @@
+// Copyright © 2025 Brad Howes. All rights reserved.
+
+import Foundation
+import Dependencies
+import GRDB
+import Tagged
+
+public struct TaggedSoundFont: Codable, FetchableRecord, MutablePersistableRecord, TableCreator {
+  public let soundFontId: SoundFont.ID
+  public let tagId: Tag.ID
+
+  static func createTable(in db: Database) throws {
+    try db.create(table: databaseTableName) { table in
+      table.primaryKey {
+        table.belongsTo(SoundFont.databaseTableName, onDelete: .cascade)
+        table.belongsTo(Tag.databaseTableName, onDelete: .cascade)
+      }
+    }
+  }
+}
+
+extension TaggedSoundFont {
+  static let soundFont = belongsTo(SoundFont.self)
+  static let tag = belongsTo(Tag.self)
+}

@@ -6,7 +6,7 @@ import Engine
 /**
  Collection of unique tags for each SF2 file in the bundle
  */
-public enum SF2ResourceFileTag: Int, CaseIterable {
+public enum SF2ResourceFileTag: Int, CaseIterable, Sendable {
 
   case freeFont
   case museScore
