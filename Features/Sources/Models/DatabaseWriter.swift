@@ -38,8 +38,7 @@ public extension DatabaseWriter where Self == DatabaseQueue {
             _  = try SoundFont.make(
               in: db,
               displayName: tag.fileName,
-              location: Location(kind: .builtin, url: tag.url, raw: nil),
-              fileInfo: fileInfo
+              location: Location(kind: .builtin, url: tag.url, raw: nil)
             )
           }
         }

@@ -1,5 +1,6 @@
 // Copyright © 2024 Brad Howes. All rights reserved.
 
+import Engine
 import Foundation
 
 public struct Location: Equatable, Sendable {
@@ -50,6 +51,31 @@ extension Location {
     if case .external = kind { return true }
     return false
   }
+
+  public var fileInfo: SF2FileInfo? {
+    switch kind {
+    case .builtin: return fileInfo(from: url)
+    case .installed: return fileInfo(from: url)
+    case .external: return fileInfo(from: raw)
+    }
+  }
+
+  private func fileInfo(from url: URL?) -> SF2FileInfo? {
+    guard let url = url else { return nil }
+    var fileInfo = SF2FileInfo(url.path(percentEncoded: false))
+    return fileInfo.load() ? fileInfo : nil
+  }
+
+  private func fileInfo(from raw: Data?) -> SF2FileInfo? {
+    guard let raw = raw else { return nil }
+    guard let bookmark = try? Bookmark.from(data: raw) else { return nil }
+    var fileInfo = SF2FileInfo(bookmark.url.absoluteString)
+    return fileInfo.load() ? fileInfo : nil
+  }
+}
+
+extension Location : CustomStringConvertible {
+  public var description: String { url?.path(percentEncoded: false) ?? raw?.description ?? "<unknown>" }
 }
 
 extension Location {

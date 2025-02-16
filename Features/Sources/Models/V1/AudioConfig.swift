@@ -20,8 +20,9 @@ public struct AudioConfig: Codable, FetchableRecord, MutablePersistableRecord {
   }
 }
 
-extension AudioConfig: TableCreator {
+extension AudioConfig: Sendable {}
 
+extension AudioConfig: TableCreator {
   enum Columns {
     static let id = Column(CodingKeys.id)
     static let keyboardLowestNote = Column(CodingKeys.keyboardLowestNote)
@@ -42,8 +43,15 @@ extension AudioConfig: TableCreator {
       table.column(Columns.pan, .double).notNull()
       table.column(Columns.presetTuning, .double).notNull()
       table.column(Columns.presetTranspose, .integer)
+      table.belongsTo(DelayConfig.databaseTableName, onDelete: .cascade)
+      table.belongsTo(ReverbConfig.databaseTableName, onDelete: .cascade)
     }
   }
+}
+
+extension AudioConfig {
+  static let delayConfig = belongsTo(DelayConfig.self)
+  static let reverbConfig = belongsTo(ReverbConfig.self)
 }
 
 struct PendingAudioConfig: Codable, FetchableRecord, PersistableRecord {

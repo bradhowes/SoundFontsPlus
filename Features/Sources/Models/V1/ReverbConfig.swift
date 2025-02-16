@@ -24,6 +24,8 @@ public struct ReverbConfig: Codable, FetchableRecord, MutablePersistableRecord {
   }
 }
 
+extension ReverbConfig: Sendable {}
+
 extension ReverbConfig: TableCreator {
   public static let databaseTableName = "ReverbConfig"
 
@@ -42,6 +44,10 @@ extension ReverbConfig: TableCreator {
       table.column(Columns.enabled, .boolean).notNull()
     }
   }
+}
+
+extension ReverbConfig {
+  static let auioConfig = hasOne(AudioConfig.self)
 }
 
 struct PendingReverbConfig: Codable, FetchableRecord, PersistableRecord {

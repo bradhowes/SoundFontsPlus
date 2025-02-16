@@ -6,12 +6,12 @@ enum V1 {
   static let version = "SchemaV1"
   static let tables: [TableCreator.Type] = [
     // NOTE: order is important
+    DelayConfig.self,
+    ReverbConfig.self,
+    AudioConfig.self,
     SoundFont.self,
     Preset.self,
-    AudioConfig.self,
-    DelayConfig.self,
     Favorite.self,
-    ReverbConfig.self,
     Tag.self,
     TaggedSoundFont.self
   ]

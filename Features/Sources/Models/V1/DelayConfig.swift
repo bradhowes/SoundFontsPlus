@@ -34,6 +34,8 @@ public struct DelayConfig: Codable, FetchableRecord, MutablePersistableRecord {
   }
 }
 
+extension DelayConfig: Sendable {}
+
 extension DelayConfig: TableCreator {
 
   enum Columns {
@@ -55,6 +57,10 @@ extension DelayConfig: TableCreator {
       table.column(Columns.enabled, .boolean).notNull()
     }
   }
+}
+
+extension DelayConfig {
+  static let audioConfig = hasOne(AudioConfig.self)
 }
 
 struct PendingDelayConfig: Codable, FetchableRecord, PersistableRecord {

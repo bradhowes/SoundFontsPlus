@@ -18,6 +18,7 @@ public struct Preset: Codable, Identifiable, FetchableRecord, MutablePersistable
   public let originalName: String
   public var notes: String
 
+  @discardableResult
   public static func make(
     in db: Database,
     soundFont: SoundFont.ID,
@@ -63,6 +64,7 @@ extension Preset: TableCreator {
       table.column(Columns.originalName, .text).notNull()
       table.column(Columns.notes, .text).notNull()
       table.belongsTo(SoundFont.databaseTableName, onDelete: .cascade).notNull()
+      table.belongsTo(AudioConfig.databaseTableName, onDelete: .cascade)
     }
 
     // Create associated table used for full-text searching of the preset display names
@@ -73,8 +75,17 @@ extension Preset: TableCreator {
   }
 }
 
-extension Preset: Hashable, Sendable {}
-public typealias PresetCollection = IdentifiedArrayOf<Preset>
+extension Preset: Sendable {}
+
+extension Preset {
+  /// Association of sound font to preset
+  public static let favorites = hasMany(Favorite.self)
+
+  /// Query to get all visible presets of sound font, ordered by index
+  public var favorites: QueryInterfaceRequest<Favorite> {
+    request(for: Self.favorites).order(Favorite.Columns.id)
+  }
+}
 
 struct PendingPreset: Codable, FetchableRecord, PersistableRecord {
   public let displayName: String

@@ -24,16 +24,22 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
   public var notes: String
 
   public var location: Location { .init(kind: kind, url: url, raw: raw) }
+  public var source: SoundFontKind? { try? .init(location: location) }
 }
 
 extension SoundFont: Sendable {
+
+  /// Create a new SoundFont entry for a file.
   public static func make(
     in db: Database,
     displayName: String,
-    location: Location,
-    fileInfo: SF2FileInfo
+    location: Location
   ) throws -> SoundFont {
-    try PendingSoundFont(
+    guard let fileInfo = location.fileInfo else {
+      throw ModelError.invalidLocation(name: location.description)
+    }
+
+    let soundFont = try PendingSoundFont(
       displayName: displayName,
       kind: location.kind,
       url: location.url,
@@ -45,19 +51,9 @@ extension SoundFont: Sendable {
       embeddedCopyright: String(fileInfo.embeddedCopyright()),
       notes: ""
     ).insertAndFetch(db, as: SoundFont.self)
-  }
-
-  public static func add(
-    in db: Database,
-    displayName: String,
-    location: Location,
-    fileInfo: SF2FileInfo
-  ) throws -> SoundFont {
-    let soundFont = try make(in: db, displayName: displayName, location: location, fileInfo: fileInfo)
 
     for presetIndex in 0..<fileInfo.size() {
-      let presetInfo = fileInfo[presetIndex]
-      _ = try Preset.make(in: db, soundFont: soundFont.id, index: presetIndex, presetInfo: presetInfo)
+      try Preset.make(in: db, soundFont: soundFont.id, index: presetIndex, presetInfo: fileInfo[presetIndex])
     }
 
     for tagId in location.tagIds {
@@ -101,16 +97,32 @@ extension SoundFont: TableCreator {
 }
 
 extension SoundFont {
+
+  /// Query to get all sound fonts in order of their name
+  public static var all: QueryInterfaceRequest<Self> { all().order(Self.Columns.displayName) }
+
+  /// Association of sound font to preset
   public static let presets = hasMany(Preset.self)
 
+  /// Query to get all visible presets of sound font, ordered by index
   public var presets: QueryInterfaceRequest<Preset> {
+    request(for: Self.presets).order(Preset.Columns.index).filter(Preset.Columns.visible)
+  }
+
+  /// Query to get all presets of sound font, ordered by index
+  public var allPresets: QueryInterfaceRequest<Preset> {
     request(for: Self.presets).order(Preset.Columns.index)
   }
 
+  /// Association of sound font to tagged table
   static let soundFontTags = hasMany(TaggedSoundFont.self)
+
+  /// Association of sound font to tags
   static let tags = hasMany(Tag.self, through: soundFontTags, using: TaggedSoundFont.tag)
 
-  public var tags: QueryInterfaceRequest<Tag> { request(for: Self.tags) }
+  /// Query to get all tags of a sound font.
+  public var tags: QueryInterfaceRequest<Tag> {
+    request(for: Self.tags).order(Tag.Columns.ordering) }
 }
 
 struct PendingSoundFont: Codable, FetchableRecord, PersistableRecord {
