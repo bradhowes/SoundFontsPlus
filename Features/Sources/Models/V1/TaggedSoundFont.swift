@@ -13,12 +13,15 @@ public struct TaggedSoundFont: Codable, FetchableRecord, MutablePersistableRecor
     try db.create(table: databaseTableName) { table in
       table.primaryKey {
         table.belongsTo(SoundFont.databaseTableName, onDelete: .cascade)
+          .notNull()
         table.belongsTo(Tag.databaseTableName, onDelete: .cascade)
+          .notNull()
       }
     }
   }
 }
 
+// MARK: SoundFont and Tag associations
 extension TaggedSoundFont {
   static let soundFont = belongsTo(SoundFont.self)
   static let tag = belongsTo(Tag.self)

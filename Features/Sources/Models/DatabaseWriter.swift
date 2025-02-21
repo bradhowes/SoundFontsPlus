@@ -34,13 +34,11 @@ public extension DatabaseWriter where Self == DatabaseQueue {
     if addMocks {
       try databaseQueue.write { db in
         for tag in SF2ResourceFileTag.allCases {
-          if let fileInfo = tag.fileInfo {
-            _  = try SoundFont.make(
-              in: db,
-              displayName: tag.fileName,
-              location: Location(kind: .builtin, url: tag.url, raw: nil)
-            )
-          }
+          _  = try SoundFont.make(
+            db,
+            displayName: tag.fileName,
+            location: Location(kind: .builtin, url: tag.url, raw: nil)
+          )
         }
       }
     }

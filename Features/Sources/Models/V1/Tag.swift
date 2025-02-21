@@ -6,7 +6,7 @@ import GRDB
 import Tagged
 
 public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRecord {
-  public typealias ID = Tagged<Tag, Int64>
+  public typealias ID = Tagged<Self, Int64>
 
   public enum Ubiquitous: Codable, CaseIterable {
     /// Tag that represents all SoundFont entities
@@ -40,19 +40,25 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
 
   public let id: ID
   public var name: String
-  public let ordering: Int
-  public let ubiquitous: Bool
+  public var ordering: Int
 
-  public var isUbiquitous: Bool { ubiquitous }
-  public var isUserDefined: Bool { !ubiquitous }
+  public var isUbiquitous: Bool { id.rawValue < Ubiquitous.allCases.count }
+  public var isUserDefined: Bool { !isUbiquitous }
 
-  public static func make(in db: Database, name: String) throws -> Tag {
-    try PendingTag(name: name, ordering: Tag.fetchCount(db), ubiquitous: false).insertAndFetch(db, as: Tag.self)
+  public static func make(_ db: Database, name: String) throws -> Tag {
+    try PendingTag(name: name, ordering: Tag.fetchCount(db)).insertAndFetch(db, as: Tag.self)
   }
 
-  static func make(in db: Database, name: String, ordering: Int, ubiquitous: Bool = false) throws -> Tag {
-    try PendingTag(name: name, ordering: ordering, ubiquitous: ubiquitous).insertAndFetch(db, as: Tag.self)
+  static func make(_ db: Database, name: String, ordering: Int) throws -> Tag {
+    try PendingTag(name: name, ordering: ordering).insertAndFetch(db, as: Tag.self)
   }
+}
+
+private struct PendingTag: Codable, PersistableRecord {
+  let name: String
+  let ordering: Int
+
+  static let databaseTableName = Tag.databaseTableName
 }
 
 extension Tag: Sendable {}
@@ -62,7 +68,6 @@ extension Tag: TableCreator {
     static let id = Column(CodingKeys.id)
     static let name = Column(CodingKeys.name)
     static let ordering = Column(CodingKeys.ordering)
-    static let ubiquitous = Column(CodingKeys.ubiquitous)
   }
 
   static func createTable(in db: Database) throws {
@@ -70,26 +75,22 @@ extension Tag: TableCreator {
       table.autoIncrementedPrimaryKey(Columns.id)
       table.column(Columns.name, .text).notNull()
       table.column(Columns.ordering, .integer).notNull()
-      table.column(Columns.ubiquitous, .boolean).notNull()
     }
 
     for tag in Ubiquitous.allCases.enumerated() {
-      _ = try Tag.make(in: db, name: tag.1.name, ordering: tag.0, ubiquitous: true)
+      _ = try Tag.make(_: db, name: tag.1.name, ordering: tag.0)
     }
   }
 }
 
+// MARK: TaggedSoundFont association
 extension Tag {
   static let taggedSoundFonts = hasMany(TaggedSoundFont.self)
+}
+
+// MARK: SoundFont association
+extension Tag {
   static let soundFonts = hasMany(SoundFont.self, through: taggedSoundFonts, using: TaggedSoundFont.soundFont)
 
   public var soundFonts: QueryInterfaceRequest<SoundFont> { request(for: Self.soundFonts) }
-}
-
-struct PendingTag: Codable, FetchableRecord, PersistableRecord {
-  let name: String
-  let ordering: Int
-  let ubiquitous: Bool
-
-  public static let databaseTableName = Tag.databaseTableName
 }

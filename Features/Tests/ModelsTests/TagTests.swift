@@ -1,3 +1,58 @@
+import Dependencies
+import Foundation
+import GRDB
+import SF2ResourceFiles
+import Testing
+
+@testable import Models
+
+@Suite("Tag") struct TagTests {
+
+  @Test("migration") func migration() async throws {
+    let (db, soundFonts, tags) = try await setup()
+    #expect(soundFonts.count == 3)
+    #expect(tags.count == Tag.Ubiquitous.allCases.count)
+
+    for sf in soundFonts {
+      let t = try await db.read { try sf.tags.fetchAll($0) }
+      #expect(t.count == 2) // all and builtin
+    }
+
+    for t in tags {
+      let s = try await db.read { try t.soundFonts.fetchCount($0) }
+      print(t.name, s)
+      if t.name == Tag.Ubiquitous.all.name || t.name == Tag.Ubiquitous.builtIn.name {
+        #expect(s == 3)
+      } else {
+        #expect(s == 0)
+      }
+    }
+  }
+
+  private func setup() async throws -> (DatabaseQueue, [SoundFont], [Models.Tag]) {
+    let db = try await setupDatabase()
+    let tags = try await db.read { try Tag.fetchAll($0) }
+    let soundFonts = try await db.read { try SoundFont.fetchAll($0) }
+    return (db, soundFonts, tags)
+  }
+}
+
+private func setupDatabase() async throws -> DatabaseQueue {
+  let db = try DatabaseQueue.appDatabase()
+  for tag in SF2ResourceFileTag.allCases {
+    try await db.write {
+      _  = try SoundFont.make(
+        $0,
+        displayName: tag.name,
+        location: Location(kind: .builtin, url: tag.url, raw: nil)
+      )
+    }
+  }
+
+  return db
+}
+
+
 //import XCTest
 //import ComposableArchitecture
 //import Dependencies

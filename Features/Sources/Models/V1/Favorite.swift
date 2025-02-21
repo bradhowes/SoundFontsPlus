@@ -5,18 +5,16 @@ import Dependencies
 import GRDB
 import Tagged
 
-public struct Favorite: Codable, FetchableRecord, MutablePersistableRecord {
+public struct Favorite: Codable, Identifiable, FetchableRecord, MutablePersistableRecord {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
   public var displayName: String
   public var notes: String
+  public var presetId: Preset.ID
 
-  public var audioConfig: AudioConfig?
-  public var delayConfig: DelayConfig?
-  public var reverbConfig: ReverbConfig?
-
-  static func make(db: Database, preset: Preset) throws -> Favorite {
+  @discardableResult
+  static func make(_ db: Database, preset: Preset) throws -> Favorite {
     try PendingFavorite(
       displayName: preset.displayName,
       notes: "",
@@ -25,13 +23,17 @@ public struct Favorite: Codable, FetchableRecord, MutablePersistableRecord {
   }
 }
 
+private struct PendingFavorite: Codable, PersistableRecord {
+  let displayName: String
+  let notes: String
+  let presetId: Preset.ID
+
+  static let databaseTableName = Favorite.databaseTableName
+}
+
+extension Favorite: Sendable {}
+
 extension Favorite: TableCreator {
-  public static let preset = belongsTo(Preset.self)
-
-  public var preset: QueryInterfaceRequest<Preset> {
-    request(for: Self.preset)
-  }
-
   enum Columns {
     static let id = Column(CodingKeys.id)
     static let displayName = Column(CodingKeys.displayName)
@@ -43,15 +45,20 @@ extension Favorite: TableCreator {
       table.autoIncrementedPrimaryKey(Columns.id)
       table.column(Columns.displayName, .text).notNull()
       table.column(Columns.notes, .text).notNull()
+
       table.belongsTo(Preset.databaseTableName, onDelete: .cascade).notNull()
     }
   }
 }
 
-struct PendingFavorite: Codable, FetchableRecord, PersistableRecord {
-  let displayName: String
-  let notes: String
-  let presetId: Preset.ID
+extension Favorite {
+  public static let audioConfig = hasOne(AudioConfig.self)
 
-  static let databaseTableName = Favorite.databaseTableName
+  public var audioConfig: QueryInterfaceRequest<AudioConfig> { request(for: Self.audioConfig) }
+}
+
+extension Favorite {
+  public static let preset = belongsTo(Preset.self)
+
+  public var preset: QueryInterfaceRequest<Preset> { request(for: Self.preset) }
 }

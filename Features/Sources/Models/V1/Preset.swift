@@ -9,7 +9,7 @@ import Tagged
 public struct Preset: Codable, Identifiable, FetchableRecord, MutablePersistableRecord {
   public typealias ID = Tagged<Self, Int64>
 
-  public let id: ID
+  public var id: ID
   public var displayName: String
   public let index: Int
   public let bank: Int
@@ -17,16 +17,17 @@ public struct Preset: Codable, Identifiable, FetchableRecord, MutablePersistable
   public var visible: Bool
   public let originalName: String
   public var notes: String
+  public var soundFontId: SoundFont.ID
 
   @discardableResult
   public static func make(
-    in db: Database,
-    soundFont: SoundFont.ID,
+    _ db: Database,
+    soundFontId: SoundFont.ID,
     index: Int,
     presetInfo: SF2PresetInfo
   ) throws -> Preset {
     try PendingPreset(
-      soundFont: soundFont,
+      soundFontId: soundFontId,
       displayName: String(presetInfo.name()),
       index: index,
       bank: Int(presetInfo.bank()),
@@ -35,13 +36,33 @@ public struct Preset: Codable, Identifiable, FetchableRecord, MutablePersistable
   }
 }
 
-extension Preset: TableCreator {
-  public static let soundFont = belongsTo(SoundFont.self)
+private struct PendingPreset: Codable, PersistableRecord {
+  let displayName: String
+  let index: Int
+  let bank: Int
+  let program: Int
+  let visible: Bool
+  let originalName: String
+  let notes: String
+  let soundFontId: SoundFont.ID
 
-  public var soundFont: QueryInterfaceRequest<SoundFont> {
-    request(for: Self.soundFont)
+  init(soundFontId: SoundFont.ID, displayName: String, index: Int, bank: Int, program: Int) {
+    self.soundFontId = soundFontId
+    self.displayName = displayName
+    self.index = index
+    self.bank = bank
+    self.program = program
+    self.visible = true
+    self.originalName = displayName
+    self.notes = ""
   }
 
+  static let databaseTableName = Preset.databaseTableName
+}
+
+extension Preset: Sendable {}
+
+extension Preset: TableCreator {
   enum Columns {
     static let id = Column(CodingKeys.id)
     static let displayName = Column(CodingKeys.displayName)
@@ -63,8 +84,9 @@ extension Preset: TableCreator {
       table.column(Columns.visible, .boolean).notNull()
       table.column(Columns.originalName, .text).notNull()
       table.column(Columns.notes, .text).notNull()
-      table.belongsTo(SoundFont.databaseTableName, onDelete: .cascade).notNull()
-      table.belongsTo(AudioConfig.databaseTableName, onDelete: .cascade)
+
+      table.belongsTo(SoundFont.databaseTableName, onDelete: .cascade)
+        .notNull()
     }
 
     // Create associated table used for full-text searching of the preset display names
@@ -75,10 +97,18 @@ extension Preset: TableCreator {
   }
 }
 
-extension Preset: Sendable {}
-
+// MARK: AudioConfig association
 extension Preset {
-  /// Association of sound font to preset
+  public static let audioConfig = hasOne(AudioConfig.self)
+
+  /// Query to get the audio config of a preset
+  public var audioConfig: QueryInterfaceRequest<AudioConfig> {
+    request(for: Self.audioConfig)
+  }
+}
+
+// MARK: Favorite association
+extension Preset {
   public static let favorites = hasMany(Favorite.self)
 
   /// Query to get all visible presets of sound font, ordered by index
@@ -87,26 +117,3 @@ extension Preset {
   }
 }
 
-struct PendingPreset: Codable, FetchableRecord, PersistableRecord {
-  public let displayName: String
-  public let index: Int
-  public let bank: Int
-  public let program: Int
-  public let visible: Bool
-  public let originalName: String
-  public let notes: String
-  public let soundFontId: SoundFont.ID
-
-  init(soundFont: SoundFont.ID, displayName: String, index: Int, bank: Int, program: Int) {
-    self.soundFontId = soundFont
-    self.displayName = displayName
-    self.index = index
-    self.bank = bank
-    self.program = program
-    self.visible = true
-    self.originalName = displayName
-    self.notes = ""
-  }
-
-  public static let databaseTableName = Preset.databaseTableName
-}

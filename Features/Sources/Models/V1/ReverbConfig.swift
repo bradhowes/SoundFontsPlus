@@ -10,25 +10,40 @@ public struct ReverbConfig: Codable, FetchableRecord, MutablePersistableRecord {
   public var preset: Int
   public var wetDryMix: AUValue
   public var enabled: Bool
+  public let audioConfigId: AudioConfig.ID
 
-  static func make(db: Database) throws -> ReverbConfig {
-    try PendingReverbConfig(preset: 0, wetDryMix: 0.5, enabled: true).insertAndFetch(db, as: ReverbConfig.self)
+  static func make(_ db: Database, for audioConfigId: AudioConfig.ID) throws -> ReverbConfig {
+    try PendingReverbConfig(
+      preset: 0,
+      wetDryMix: 0.5,
+      enabled: true,
+      audioConfigId: audioConfigId
+    ).insertAndFetch(db, as: Self.self)
   }
 
-  func duplicate(db: Database) throws -> DelayConfig {
+  @discardableResult
+  func duplicate(_ db: Database, for audioConfigId: AudioConfig.ID) throws -> ReverbConfig {
     try PendingReverbConfig(
       preset: preset,
       wetDryMix: wetDryMix,
-      enabled: enabled
-    ).insertAndFetch(db, as: DelayConfig.self)
+      enabled: enabled,
+      audioConfigId: audioConfigId
+    ).insertAndFetch(db, as: Self.self)
   }
+}
+
+private struct PendingReverbConfig: Codable, PersistableRecord {
+  let preset: Int
+  let wetDryMix: AUValue
+  let enabled: Bool
+  let audioConfigId: AudioConfig.ID?
+
+  static let databaseTableName = ReverbConfig.databaseTableName
 }
 
 extension ReverbConfig: Sendable {}
 
 extension ReverbConfig: TableCreator {
-  public static let databaseTableName = "ReverbConfig"
-
   enum Columns {
     static let id = Column(CodingKeys.id)
     static let preset = Column(CodingKeys.preset)
@@ -42,18 +57,17 @@ extension ReverbConfig: TableCreator {
       table.column(Columns.preset, .integer).notNull()
       table.column(Columns.wetDryMix, .double).notNull()
       table.column(Columns.enabled, .boolean).notNull()
+
+      table.belongsTo(AudioConfig.databaseTableName, onDelete: .cascade)
+        .notNull()
+        .unique()
     }
   }
 }
 
+// MARK: AudioConfig association
 extension ReverbConfig {
-  static let auioConfig = hasOne(AudioConfig.self)
-}
+  static let audioConfig = belongsTo(AudioConfig.self)
 
-struct PendingReverbConfig: Codable, FetchableRecord, PersistableRecord {
-  let preset: Int
-  let wetDryMix: AUValue
-  let enabled: Bool
-
-  public static let databaseTableName = ReverbConfig.databaseTableName
+  var audioConfig: QueryInterfaceRequest<AudioConfig> { request(for: Self.audioConfig) }
 }
