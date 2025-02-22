@@ -94,7 +94,7 @@ import Testing
   }
 
   @Test("delete cascades") func deletingSoundFontDeletesPresets() async throws {
-    let db = try await setupDatabase()
+    let db = try await setupDatabase(all: true)
 
     var soundFonts = try await db.read {
       try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id }
@@ -120,8 +120,59 @@ import Testing
     #expect(presetCount2 < presetCount1)
   }
 
-  @Test("delete updates tags") func deletingSoundFontUpdatesTags() async throws {
+  @Test("tagging") func tagging() async throws {
     let db = try await setupDatabase()
+    let soundFonts = try await db.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
+    let newTag = try await db.write { try Tag.make($0, name: "new") }
+    let soundFont = soundFonts[0]
+    try await db.write { try soundFont.tag($0, tagId: newTag.id) }
+    let tagged = try await db.read { try newTag.soundFonts.fetchAll($0) }
+    #expect(tagged.count == 1)
+    await #expect(throws: ModelError.self) {
+      try await db.write { try soundFont.tag($0, tagId: newTag.id) }
+    }
+  }
+
+  @Test("untagging") func untagging() async throws {
+    let db = try await setupDatabase()
+    let soundFonts = try await db.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
+    let newTag = try await db.write { try Tag.make($0, name: "new") }
+    let soundFont = soundFonts[0]
+    try await db.write { try soundFont.tag($0, tagId: newTag.id) }
+    var tagged = try await db.read { try newTag.soundFonts.fetchAll($0) }
+    #expect(tagged.count == 1)
+
+    try await db.write { try soundFont.untag($0, tagId: newTag.id) }
+    tagged = try await db.read { try newTag.soundFonts.fetchAll($0) }
+    #expect(tagged.count == 0)
+
+    await #expect(throws: ModelError.self) {
+      try await db.write { try soundFont.untag($0, tagId: newTag.id) }
+    }
+  }
+
+  @Test("tagging with ubiquitous") func taggingWithUbiquitousFails() async throws {
+    let db = try await setupDatabase(all: true)
+    let soundFonts = try await db.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
+    let soundFont = soundFonts[0]
+    let allTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.all.id) }
+    await #expect(throws: ModelError.self) {
+      try await db.write { try soundFont.tag($0, tagId: allTag.id) }
+    }
+  }
+
+  @Test("untagging with ubiquitous") func untaggingWithUbiquitousFails() async throws {
+    let db = try await setupDatabase(all: true)
+    let soundFonts = try await db.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
+    let soundFont = soundFonts[0]
+    let allTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.all.id) }
+    await #expect(throws: ModelError.self) {
+      try await db.write { try soundFont.untag($0, tagId: allTag.id) }
+    }
+  }
+
+  @Test("delete updates tags") func deletingSoundFontUpdatesTags() async throws {
+    let db = try await setupDatabase(all: true)
 
     let allTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.all.id) }
     let builtInTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.builtIn.id) }
@@ -151,7 +202,7 @@ import Testing
   }
 
   @Test("presets ordered by index") func presetsFromSoundFontAreOrderedByIndex() async throws {
-    let db = try await setupDatabase()
+    let db = try await setupDatabase(all: true)
     let soundFonts = try await db.read {
       try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id }
     }
@@ -195,30 +246,32 @@ import Testing
       }
     }
 
-    let soundFonts = try await db.read {
-      try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id }
-    }
+    // Insertion order
+    let soundFonts = try await db.read { try SoundFont.all().order(SoundFont.Columns.id).fetchAll($0) }
 
-    let presets = try await db.read { try soundFonts[0].visiblePresets.fetchAll($0) }
-
+    var presets = try await db.read { try soundFonts[0].visiblePresets.fetchAll($0) }
     #expect(presets[0].index == 0)
     #expect(presets[0].displayName == "Piano 1")
     #expect(presets[1].index == 2)
     #expect(presets[1].displayName == "Piano 3")
     #expect(presets[2].index == 4)
     #expect(presets[2].displayName == "E.Piano 1")
+    var allPresets = try await db.read { try soundFonts[0].allPresets.fetchAll($0) }
+    #expect(presets.count < allPresets.count)
 
-    let museScorePresets = try await db.read { try soundFonts[1].visiblePresets.fetchAll($0) }
-    #expect(museScorePresets[0].index == 0)
-    #expect(museScorePresets[0].displayName == "Stereo Grand")
-    #expect(museScorePresets[1].index == 2)
-    #expect(museScorePresets[1].displayName == "Electric Grand")
-    #expect(museScorePresets[2].index == 4)
-    #expect(museScorePresets[2].displayName == "Tine Electric Piano")
+    presets = try await db.read { try soundFonts[1].visiblePresets.fetchAll($0) }
+    #expect(presets[0].index == 0)
+    #expect(presets[0].displayName == "Stereo Grand")
+    #expect(presets[1].index == 2)
+    #expect(presets[1].displayName == "Electric Grand")
+    #expect(presets[2].index == 4)
+    #expect(presets[2].displayName == "Tine Electric Piano")
+    allPresets = try await db.read { try soundFonts[1].allPresets.fetchAll($0) }
+    #expect(presets.count < allPresets.count)
   }
 
   @Test("fetch by id") func fetchingSpecificSoundFont() async throws {
-    let db = try await setupDatabase()
+    let db = try await setupDatabase(all: true)
     let soundFont = try await db.read { try SoundFont.fetchOne($0, id: .init(2)) }
     #expect(soundFont != nil)
     #expect(soundFont?.displayName == "MuseScore")
@@ -240,21 +293,6 @@ import Testing
   @Test("location decoding") func testLocationDecoding() async throws {
     // let db = try await setupDatabase()
   }
-}
-
-private func setupDatabase() async throws -> DatabaseQueue {
-  let db = try DatabaseQueue.appDatabase()
-  for tag in SF2ResourceFileTag.allCases {
-    try await db.write {
-      _  = try SoundFont.make(
-        $0,
-        displayName: tag.name,
-        location: Location(kind: .builtin, url: tag.url, raw: nil)
-      )
-    }
-  }
-
-  return db
 }
 
 //

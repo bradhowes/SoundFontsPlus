@@ -37,6 +37,11 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
       case .external: return .init(4)
       }
     }
+
+    static func isUbiquitous(id: ID) -> Bool {
+      guard let last = Self.allCases.last else { fatalError() }
+      return id <= last.id
+    }
   }
 
   public let id: ID

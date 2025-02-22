@@ -69,16 +69,3 @@ import Testing
     return (db, presets, rc)
   }
 }
-
-private func setupDatabase() async throws -> DatabaseQueue {
-  let db = try DatabaseQueue.appDatabase()
-  let tag = SF2ResourceFileTag.freeFont
-  try await db.write {
-    _  = try SoundFont.make(
-      $0,
-      displayName: tag.name,
-      location: Location(kind: .builtin, url: tag.url, raw: nil)
-    )
-  }
-  return db
-}

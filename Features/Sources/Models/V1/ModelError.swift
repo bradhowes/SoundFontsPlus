@@ -9,4 +9,8 @@ public enum ModelError: Error {
   case loadFailure(name: String)
   case invalidLocation(name: String)
   case invalidBookmark(name: String)
+  case taggingUbiquitous
+  case untaggingUbiquitous
+  case alreadyTagged
+  case notTagged
 }

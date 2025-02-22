@@ -41,23 +41,8 @@ import Testing
   }
 
   private func setup() async throws -> (DatabaseQueue, [Preset]) {
-    let db = try await setupDatabase()
+    let db = try await setupDatabase(all: true)
     let presets = try await db.read { try Preset.fetchAll($0) }
     return (db, presets)
   }
-}
-
-private func setupDatabase() async throws -> DatabaseQueue {
-  let db = try DatabaseQueue.appDatabase()
-  for tag in SF2ResourceFileTag.allCases {
-    try await db.write {
-      _  = try SoundFont.make(
-        $0,
-        displayName: tag.name,
-        location: Location(kind: .builtin, url: tag.url, raw: nil)
-      )
-    }
-  }
-
-  return db
 }

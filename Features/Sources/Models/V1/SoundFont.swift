@@ -23,7 +23,7 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
   public let embeddedCopyright: String
   public var notes: String
 
-  public var location: Location { .init(kind: kind, url: url, raw: raw) }
+  internal var location: Location { .init(kind: kind, url: url, raw: raw) }
   public var source: SoundFontKind? { try? .init(location: location) }
 
   @discardableResult
@@ -58,6 +58,28 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
     }
 
     return soundFont
+  }
+
+  public func tag(_ db: Database, tagId: Tag.ID) throws {
+    if Tag.Ubiquitous.isUbiquitous(id: tagId) {
+      throw ModelError.taggingUbiquitous
+    }
+    do {
+      _ = try TaggedSoundFont(soundFontId: id, tagId: tagId).insertAndFetch(db)
+    } catch {
+      throw ModelError.alreadyTagged
+    }
+  }
+
+  public func untag(_ db: Database, tagId: Tag.ID) throws {
+    if Tag.Ubiquitous.isUbiquitous(id: tagId) {
+      throw ModelError.untaggingUbiquitous
+    }
+    if let found = try soundFontTags.filter(TaggedSoundFont.Columns.tagId == tagId).fetchOne(db) {
+      try found.delete(db)
+    } else {
+      throw ModelError.notTagged
+    }
   }
 }
 
@@ -111,7 +133,6 @@ extension SoundFont: TableCreator {
 }
 
 // MARK: Preset association
-
 extension SoundFont {
 
   /// Association of sound font to preset
@@ -128,12 +149,6 @@ extension SoundFont {
   }
 }
 
-extension SoundFont {
-
-  /// Query to get all sound fonts in order of their name
-  public static var all: QueryInterfaceRequest<Self> { all().order(Self.Columns.displayName) }
-}
-
 // MARK: Tag association
 extension SoundFont {
 
@@ -145,4 +160,6 @@ extension SoundFont {
 
   /// Query to get all tags of a sound font.
   public var tags: QueryInterfaceRequest<Tag> { request(for: Self.tags).order(Tag.Columns.ordering) }
+
+  public var soundFontTags: QueryInterfaceRequest<TaggedSoundFont> { request(for: Self.soundFontTags) }
 }

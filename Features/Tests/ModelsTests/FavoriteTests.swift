@@ -23,6 +23,8 @@ import Testing
     #expect(favorite.displayName == preset.displayName)
     let forPreset = try await db.read { try preset.favorites.fetchAll($0) }
     #expect(forPreset.count == 1)
+    let favoritePreset = try await db.read { try favorite.preset.fetchOne($0) }
+    #expect(favoritePreset?.id == preset.id)
   }
 
   @Test("create multiple") func createMultiple() async throws {
@@ -68,20 +70,6 @@ import Testing
     let presets = try await db.read { try Preset.fetchAll($0) }
     return (db, presets)
   }
-}
-
-private func setupDatabase() async throws -> DatabaseQueue {
-  let db = try DatabaseQueue.appDatabase()
-  let tag = SF2ResourceFileTag.freeFont
-  try await db.write {
-    _ = try SoundFont.make(
-      $0,
-      displayName: tag.name,
-      location: Location(kind: .builtin, url: tag.url, raw: nil)
-    )
-  }
-
-  return db
 }
 
 //import XCTest
