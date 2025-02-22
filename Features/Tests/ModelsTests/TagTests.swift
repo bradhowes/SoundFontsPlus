@@ -1,6 +1,7 @@
 import Dependencies
 import Foundation
 import GRDB
+import IdentifiedCollections
 import SF2ResourceFiles
 import Testing
 
@@ -27,6 +28,71 @@ import Testing
         #expect(s == 0)
       }
     }
+  }
+
+  @Test("create") func create() async throws {
+    let (db, _, tags) = try await setup()
+    let newTag = try await db.write { try Tag.make($0, name: "new") }
+    #expect(newTag.name == "new")
+    let orderedTags = try await db.read { try Tag.allOrdered($0) }
+    #expect(orderedTags.count == tags.count + 1)
+    #expect(orderedTags.last!.name == "new")
+  }
+
+  @Test("delete") func delete() async throws {
+    let (db, _, _) = try await setup()
+    let newTag = try await db.write { try Tag.make($0, name: "new") }
+    let result = try await db.write { try newTag.delete($0) }
+    #expect(result)
+  }
+
+  @Test("rename") func rename() async throws {
+    let (db, _, _) = try await setup()
+    let newTag = try await db.write { try Tag.make($0, name: "new") }
+    let changed = try await db.write {
+      var tmp = newTag
+      try tmp.updateChanges($0) {
+        $0.name = "renamed"
+      }
+      return tmp
+    }
+    #expect(changed.name == "renamed")
+  }
+
+  @Test("rename ubiquitous") func renameUbiquitous() async throws {
+    let (db, _, tags) = try await setup()
+    let first = tags[0]
+    try await db.write {
+      var tmp = first
+      try tmp.updateChanges($0) {
+        $0.name = "renamed"
+      }
+    }
+  }
+
+  @Test("delete ubuquitous") func deleteUbiquitous() async throws {
+    let (db, _, tags) = try await setup()
+    await #expect(throws: ModelError.self) {
+      _ = try await db.write { try tags[0].delete($0) }
+    }
+  }
+
+  @Test("create with invalid name") func createWithInvalidName() async throws {
+    let (db, _, _) = try await setup()
+    await #expect(throws: ModelError.self) {
+      try await db.write { try Tag.make($0, name: Tag.Ubiquitous.all.name) }
+    }
+  }
+
+  @Test("reorder") func reorder() async throws {
+    let (db, _, tags) = try await setup()
+    let newTag = try await db.write { try Tag.make($0, name: "new") }
+    #expect(newTag.name == "new")
+    _ = try await db.read { try Tag.allOrdered($0) }
+    try await db.write { try Tag.reorder($0, tags: [newTag, tags[1], tags[0], tags[2]]) }
+    let reorderedTags = try await db.read { try Tag.allOrdered($0) }
+    #expect(reorderedTags.first!.name == "new")
+    #expect(reorderedTags.last!.name == Tag.Ubiquitous.external.name)
   }
 
   private func setup() async throws -> (DatabaseQueue, [SoundFont], [Models.Tag]) {

@@ -3,6 +3,7 @@
 import Foundation
 import Dependencies
 import GRDB
+import IdentifiedCollections
 import Tagged
 
 public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRecord {
@@ -45,12 +46,28 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
   public var isUbiquitous: Bool { id.rawValue < Ubiquitous.allCases.count }
   public var isUserDefined: Bool { !isUbiquitous }
 
-  public static func make(_ db: Database, name: String) throws -> Tag {
-    try PendingTag(name: name, ordering: Tag.fetchCount(db)).insertAndFetch(db, as: Tag.self)
+  public func willDelete(_ db: Database) throws {
+    if isUbiquitous {
+      throw ModelError.deleteUbiquitous(name: self.name)
+    }
   }
 
-  static func make(_ db: Database, name: String, ordering: Int) throws -> Tag {
-    try PendingTag(name: name, ordering: ordering).insertAndFetch(db, as: Tag.self)
+  public static func make(_ db: Database, name: String) throws -> Tag {
+    do {
+      return try PendingTag(name: name, ordering: Tag.fetchCount(db)).insertAndFetch(db, as: Tag.self)
+    } catch is DatabaseError {
+      throw ModelError.duplicateTag(name: name)
+    }
+  }
+
+  public static func allOrdered(_ db: Database) throws -> IdentifiedArrayOf<Tag> {
+    try .init(uncheckedUniqueElements: Tag.order(Tag.Columns.ordering).fetchAll(db))
+  }
+
+  public static func reorder(_ db: Database, tags: [Tag]) throws {
+    for var tag in tags.enumerated() {
+      try tag.1.updateChanges(db) { $0.ordering = tag.0 }
+    }
   }
 }
 
@@ -73,13 +90,17 @@ extension Tag: TableCreator {
   static func createTable(in db: Database) throws {
     try db.create(table: databaseTableName) { table in
       table.autoIncrementedPrimaryKey(Columns.id)
-      table.column(Columns.name, .text).notNull()
+      table.column(Columns.name, .text).notNull().unique()
       table.column(Columns.ordering, .integer).notNull()
     }
 
     for tag in Ubiquitous.allCases.enumerated() {
       _ = try Tag.make(_: db, name: tag.1.name, ordering: tag.0)
     }
+  }
+
+  private static func make(_ db: Database, name: String, ordering: Int) throws -> Tag {
+    try PendingTag(name: name, ordering: ordering).insertAndFetch(db, as: Tag.self)
   }
 }
 

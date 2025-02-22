@@ -85,8 +85,7 @@ extension Preset: TableCreator {
       table.column(Columns.originalName, .text).notNull()
       table.column(Columns.notes, .text).notNull()
 
-      table.belongsTo(SoundFont.databaseTableName, onDelete: .cascade)
-        .notNull()
+      table.belongsTo(SoundFont.databaseTableName, onDelete: .cascade).notNull()
     }
 
     // Create associated table used for full-text searching of the preset display names
