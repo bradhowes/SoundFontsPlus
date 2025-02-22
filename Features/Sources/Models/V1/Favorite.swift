@@ -15,11 +15,17 @@ public struct Favorite: Codable, Identifiable, FetchableRecord, MutablePersistab
 
   @discardableResult
   static func make(_ db: Database, preset: Preset) throws -> Favorite {
-    try PendingFavorite(
+    let favorite = try PendingFavorite(
       displayName: preset.displayName,
       notes: "",
       presetId: preset.id
     ).insertAndFetch(db, as: Favorite.self)
+
+    if let ac = try preset.audioConfig.fetchOne(db) {
+      try ac.duplicate(db, favoriteId: favorite.id)
+    }
+
+    return favorite
   }
 }
 

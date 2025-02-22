@@ -93,6 +93,8 @@ extension AudioConfig: TableCreator {
     static let pitchBendRange = Column(CodingKeys.pitchBendRange)
     static let presetTuning = Column(CodingKeys.presetTuning)
     static let presetTranspose = Column(CodingKeys.presetTranspose)
+    static let presetId = Column(CodingKeys.presetId)
+    static let favoriteId = Column(CodingKeys.favoriteId)
   }
 
   static func createTable(in db: Database) throws {
@@ -107,10 +109,11 @@ extension AudioConfig: TableCreator {
       table.column(Columns.presetTuning, .double)
       table.column(Columns.presetTranspose, .integer)
 
+      // One AudioConfig belongs to either a preset or a favorite, but never both. So, either can be NULL but not
+      // both.
+      table.uniqueKey([Columns.presetId.name, Columns.favoriteId.name])
       table.belongsTo(Favorite.databaseTableName, onDelete: .cascade)
-        .unique()
       table.belongsTo(Preset.databaseTableName, onDelete: .cascade)
-        .unique()
     }
   }
 }

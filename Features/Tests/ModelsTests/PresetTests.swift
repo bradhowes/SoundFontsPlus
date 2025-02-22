@@ -9,16 +9,12 @@ import Testing
 @Suite("Preset") struct PresetTests {
 
   @Test("migration") func migration() async throws {
-    let db = try await setupDatabase()
-    let presets = try await db.read { try Preset.fetchAll($0) }
+    let (_, presets) = try await setup()
     #expect(presets.count == 506)
   }
 
   @Test("adding audioConfig") func addingAudioConfig() async throws {
-    let db = try await setupDatabase()
-    let presets = try await db.read { try Preset.fetchAll($0) }
-    #expect(presets.isEmpty == false)
-
+    let (db, presets) = try await setup()
     let preset = presets[0]
     _ = try await db.write { try AudioConfig.make($0, presetId: preset.id) }
     let audioConfig = try await db.read { try preset.audioConfig.fetchOne($0) }
@@ -41,6 +37,7 @@ import Testing
 
     var found = try await db.read { try AudioConfig.fetchCount($0) }
     found += try await db.read { try Favorite.fetchCount($0) }
+    #expect(found == 0)
   }
 
   private func setup() async throws -> (DatabaseQueue, [Preset]) {
