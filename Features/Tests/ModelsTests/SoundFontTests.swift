@@ -20,21 +20,14 @@ import Testing
   @Test("creation") func soundFontTable() async throws {
     let db = try DatabaseQueue.appDatabase()
     let tag = SF2ResourceFileTag.freeFont
-    try await db.write {
-      _  = try SoundFont.make(
-        $0,
-        displayName: tag.fileName,
-        location: Location(kind: .builtin, url: tag.url, raw: nil)
-      )
-    }
+    _ = try await db.write { try SoundFont.make($0, builtin: tag) }
 
     let query = SoundFont.all()
     let soundFonts = try await db.read { try query.fetchAll($0) }
     #expect(soundFonts.count == 1)
     #expect(soundFonts[0].displayName == "FreeFont")
     #expect(soundFonts[0].id.rawValue == 1)
-    #expect(soundFonts[0].location.kind == .builtin)
-    #expect(soundFonts[0].source?.isBuiltin == true)
+    #expect(try soundFonts[0].source().isBuiltin)
     #expect(soundFonts[0].embeddedName == "Free Font GM Ver. 3.2")
     #expect(soundFonts[0].embeddedComment == "")
     #expect(soundFonts[0].embeddedAuthor == "")
@@ -53,14 +46,7 @@ import Testing
 
     for (index, tag) in SF2ResourceFileTag.allCases.enumerated() {
       let fileInfo = tag.fileInfo!
-      try await db.write {
-        _  = try SoundFont.make(
-          $0,
-          displayName: tag.name,
-          location: Location(kind: .builtin, url: tag.url, raw: nil)
-        )
-      }
-
+      _  = try await db.write { try SoundFont.make($0, builtin: tag) }
       let soundFonts = try await db.read {
         try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id }
       }
@@ -68,8 +54,7 @@ import Testing
       #expect(soundFonts.count == index + 1)
       #expect(soundFonts[index].displayName == tag.name)
       #expect(soundFonts[index].id.rawValue == index + 1)
-      #expect(soundFonts[index].location.kind == .builtin)
-      #expect(soundFonts[index].source?.isBuiltin == true)
+      #expect(try soundFonts[index].source().isBuiltin)
       #expect(soundFonts[index].notes == "")
 
       var tagged = try await db.read { try allTag.soundFonts.fetchAll($0) }
@@ -230,13 +215,7 @@ import Testing
     for tag in SF2ResourceFileTag.allCases.enumerated() {
       let fileInfo = tag.1.fileInfo!
       if fileInfo.size() == 1 { continue }
-      let sf = try await db.write {
-        try SoundFont.make(
-          $0,
-          displayName: tag.1.name,
-          location: Location(kind: .builtin, url: tag.1.url, raw: nil)
-        )
-      }
+      let sf = try await db.write { try SoundFont.make($0, builtin: tag.1) }
       try await db.write {
         var presets = try sf.visiblePresets.fetchAll($0)
         presets[1].visible = false
@@ -281,11 +260,8 @@ import Testing
     let db = try DatabaseQueue.appDatabase()
     await #expect(throws: ModelError.self) {
       try await db.write {
-        try SoundFont.make(
-          $0,
-          displayName: "Blah blah",
-          location: Location(kind: .builtin, url: URL(filePath: "/a/b/c"), raw: nil)
-        )
+        let data = URL(filePath: "/a/b/c").absoluteString.data(using: .utf8)!
+        try SoundFont.make($0, displayName: "Blah blah", soundFontKind: .init(kind: .builtin, location: data))
       }
     }
   }

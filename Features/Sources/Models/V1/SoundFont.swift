@@ -1,9 +1,10 @@
 // Copyright © 2024 Brad Howes. All rights reserved.
 
-import Foundation
 import Engine
+import Foundation
 import GRDB
 import IdentifiedCollections
+import SF2ResourceFiles
 import Tagged
 
 public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersistableRecord {
@@ -12,9 +13,14 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
   public let id: ID
   public var displayName: String
 
-  private let kind: Location.Kind
-  private let url: URL?
-  private let raw: Data?
+  public enum Kind: String, Codable, CaseIterable, Sendable {
+    case builtin
+    case installed
+    case external
+  }
+
+  private let kind: Kind
+  private let location: Data
 
   public let originalName: String
   public let embeddedName: String
@@ -23,24 +29,23 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
   public let embeddedCopyright: String
   public var notes: String
 
-  internal var location: Location { .init(kind: kind, url: url, raw: raw) }
-  public var source: SoundFontKind? { try? .init(location: location) }
+  @discardableResult
+  public static func make(_ db: Database, builtin: SF2ResourceFileTag) throws -> SoundFont {
+    return try make(db, displayName: builtin.name, soundFontKind: .builtin(resource: builtin.url))
+  }
 
   @discardableResult
   public static func make(
     _ db: Database,
     displayName: String,
-    location: Location
+    soundFontKind: SoundFontKind
   ) throws -> SoundFont {
-    guard let fileInfo = location.fileInfo else {
-      throw ModelError.invalidLocation(name: location.description)
-    }
-
+    let fileInfo = try soundFontKind.fileInfo()
+    let (kind, location) = try soundFontKind.data()
     let soundFont = try PendingSoundFont(
       displayName: displayName,
-      kind: location.kind,
-      url: location.url,
-      raw: location.raw,
+      kind: kind,
+      location: location,
       originalName: displayName,
       embeddedName: String(fileInfo.embeddedName()),
       embeddedComment: String(fileInfo.embeddedComment()),
@@ -53,7 +58,7 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
       try Preset.make(db, soundFontId: soundFont.id, index: presetIndex, presetInfo: fileInfo[presetIndex])
     }
 
-    for tagId in location.tagIds {
+    for tagId in soundFontKind.tagIds {
       _ = try TaggedSoundFont(soundFontId: soundFont.id, tagId: tagId).insertAndFetch(db)
     }
 
@@ -81,13 +86,16 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
       throw ModelError.notTagged
     }
   }
+
+  public func source() throws -> SoundFontKind {
+    try SoundFontKind(kind: kind, location: location)
+  }
 }
 
 private struct PendingSoundFont: Codable, PersistableRecord {
   let displayName: String
-  let kind: Location.Kind
-  let url: URL?
-  let raw: Data?
+  let kind: SoundFont.Kind
+  let location: Data
   let originalName: String
   let embeddedName: String
   let embeddedComment: String
@@ -105,8 +113,7 @@ extension SoundFont: TableCreator {
     static let id = Column(CodingKeys.id)
     static let displayName = Column(CodingKeys.displayName)
     static let kind = Column(CodingKeys.kind)
-    static let url = Column(CodingKeys.url)
-    static let raw = Column(CodingKeys.raw)
+    static let location = Column(CodingKeys.location)
     static let originalName = Column(CodingKeys.originalName)
     static let embeddedName = Column(CodingKeys.embeddedName)
     static let embeddedComment = Column(CodingKeys.embeddedComment)
@@ -120,8 +127,7 @@ extension SoundFont: TableCreator {
       table.autoIncrementedPrimaryKey(Columns.id)
       table.column(Columns.displayName, .text).notNull()
       table.column(Columns.kind, .text).notNull()
-      table.column(Columns.url, .blob)
-      table.column(Columns.raw, .blob)
+      table.column(Columns.location, .blob)
       table.column(Columns.originalName, .text).notNull()
       table.column(Columns.embeddedName, .text).notNull()
       table.column(Columns.embeddedComment, .text).notNull()

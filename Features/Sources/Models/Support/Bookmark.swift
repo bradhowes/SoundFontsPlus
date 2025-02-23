@@ -4,7 +4,6 @@ import Dependencies
 import Extensions
 import Foundation
 
-
 extension Notification.Name {
   static let bookmarkChanged = Self("SoundFonts.bookmarkChanged")
 }
@@ -66,6 +65,11 @@ extension Bookmark {
     return try decoder.decode(Bookmark.self, from: data)
   }
 
+  func toData() throws -> Data {
+    let encoder = PropertyListEncoder()
+    return try encoder.encode(self)
+  }
+
   /// Determine the availability state for a bookmarked URL
   public var isAvailable: Bool {
     if url.startAccessingSecurityScopedResource() {
@@ -109,13 +113,15 @@ extension Bookmark {
     defer { if secured { url.stopAccessingSecurityScopedResource() } }
 
     guard
-      let values = try? url.resourceValues(forKeys: [
-        .isUbiquitousItemKey,
-        .ubiquitousItemDownloadRequestedKey,
-        .ubiquitousItemDownloadingStatusKey,
-        .ubiquitousItemIsDownloadingKey,
-        .ubiquitousItemDownloadingErrorKey
-      ])
+      let values = try? url.resourceValues(
+        forKeys: [
+          .isUbiquitousItemKey,
+          .ubiquitousItemDownloadRequestedKey,
+          .ubiquitousItemDownloadingStatusKey,
+          .ubiquitousItemIsDownloadingKey,
+          .ubiquitousItemDownloadingErrorKey
+        ]
+      )
     else {
       return .unknown
     }

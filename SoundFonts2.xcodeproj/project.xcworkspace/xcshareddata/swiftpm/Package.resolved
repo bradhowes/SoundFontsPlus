@@ -1,5 +1,5 @@
 {
-  "originHash" : "8be4b82b3a896881bfa564038d63a67f38ab6e8db34b5a128749ef4432c8b6cc",
+  "originHash" : "1ca3fbf2308b4817646a0c77ba8e32834af1558c773e6dd92d101f54c97e7ad6",
   "pins" : [
     {
       "identity" : "auv3support",
@@ -44,6 +44,15 @@
       "state" : {
         "revision" : "c7205b172f38439e7ee62c208d1d76fa353c0a81",
         "version" : "7.2.0"
+      }
+    },
+    {
+      "identity" : "sharing-grdb",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/sharing-grdb",
+      "state" : {
+        "revision" : "8c848635c0495795ecffcac740cfae6f761cb712",
+        "version" : "0.1.0"
       }
     },
     {
