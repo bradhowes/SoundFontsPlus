@@ -1,9 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import Dependencies
 import Engine
 import Foundation
 import GRDB
 import IdentifiedCollections
+import SharingGRDB
 import SF2ResourceFiles
 import Tagged
 
@@ -65,6 +67,39 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
     return soundFont
   }
 
+  @discardableResult
+  public static func mock(
+    _ db: Database,
+    name: String,
+    presetNames: [String],
+    tags: [String]
+  ) throws -> SoundFont {
+    let location = URL(filePath: "")
+    let (kind, data) = try SoundFontKind.installed(file: location).data()
+    let soundFont = try PendingSoundFont(
+      displayName: name,
+      kind: kind,
+      location: data,
+      originalName: name,
+      embeddedName: "Embedded Name",
+      embeddedComment: "Embedded Comment",
+      embeddedAuthor: "Embedded Author",
+      embeddedCopyright: "Embedded Copyright",
+      notes: "My Notes"
+    ).insertAndFetch(db, as: SoundFont.self)
+
+    for presetName in presetNames.enumerated() {
+      try Preset.mock(db, soundFontId: soundFont.id, name: presetName.1, index: presetName.0)
+    }
+
+    for tagName in tags {
+      let tag = try Tag.make(db, name: tagName)
+      _ = try TaggedSoundFont(soundFontId: soundFont.id, tagId: tag.id).insertAndFetch(db)
+    }
+
+    return soundFont
+  }
+
   public func tag(_ db: Database, tagId: Tag.ID) throws {
     if Tag.Ubiquitous.isUbiquitous(id: tagId) {
       throw ModelError.taggingUbiquitous
@@ -90,6 +125,17 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
   public func source() throws -> SoundFontKind {
     try SoundFontKind(kind: kind, location: location)
   }
+
+  public var presets: [Preset] {
+    @Dependency(\.defaultDatabase) var database
+    do {
+      return try database.read {
+        try self.visiblePresetsQuery.fetchAll($0)
+      }
+    } catch {
+      fatalError("failed to fetch presets")
+    }
+  }
 }
 
 private struct PendingSoundFont: Codable, PersistableRecord {
@@ -106,7 +152,7 @@ private struct PendingSoundFont: Codable, PersistableRecord {
   static let databaseTableName = SoundFont.databaseTableName
 }
 
-extension SoundFont: Sendable {}
+extension SoundFont: Equatable, Sendable {}
 
 extension SoundFont: TableCreator {
   enum Columns {
@@ -145,12 +191,12 @@ extension SoundFont {
   public static let presets = hasMany(Preset.self)
 
   /// Query to get all visible presets of sound font, ordered by index
-  public var visiblePresets: QueryInterfaceRequest<Preset> {
+  public var visiblePresetsQuery: QueryInterfaceRequest<Preset> {
     request(for: Self.presets).order(Preset.Columns.index).filter(Preset.Columns.visible)
   }
 
   /// Query to get all presets of sound font, ordered by index
-  public var allPresets: QueryInterfaceRequest<Preset> {
+  public var allPresetsQuery: QueryInterfaceRequest<Preset> {
     request(for: Self.presets).order(Preset.Columns.index)
   }
 }

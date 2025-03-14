@@ -83,7 +83,7 @@ private struct PendingTag: Codable, PersistableRecord {
   static let databaseTableName = Tag.databaseTableName
 }
 
-extension Tag: Sendable {}
+extension Tag: Equatable, Sendable {}
 
 extension Tag: TableCreator {
   enum Columns {

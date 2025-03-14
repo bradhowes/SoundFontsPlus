@@ -33,9 +33,7 @@ public extension DatabaseWriter where Self == DatabaseQueue {
 
     if addMocks {
       try databaseQueue.write { db in
-        for tag in SF2ResourceFileTag.allCases {
-          _  = try SoundFont.make(db, builtin: tag)
-        }
+        _ = try SoundFont.make(db, builtin: SF2ResourceFileTag.freeFont)
       }
     }
 

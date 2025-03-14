@@ -73,7 +73,7 @@ import Testing
       var presets = try await db.read { try Preset.all().fetchAll($0) }
       #expect(presets.count == total)
 
-      presets = try await db.read { try soundFonts[index].visiblePresets.fetchAll($0) }
+      presets = try await db.read { try soundFonts[index].visiblePresetsQuery.fetchAll($0) }
       #expect(presets.count == fileInfo.size())
     }
   }
@@ -192,7 +192,7 @@ import Testing
       try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id }
     }
 
-    let presets = try await db.read { try soundFonts[0].visiblePresets.fetchAll($0) }
+    let presets = try await db.read { try soundFonts[0].visiblePresetsQuery.fetchAll($0) }
 
     #expect(presets[0].index == 0)
     #expect(presets[0].displayName == "Piano 1")
@@ -201,7 +201,7 @@ import Testing
     #expect(presets[2].index == 2)
     #expect(presets[2].displayName == "Piano 3")
 
-    let museScorePresets = try await db.read { try soundFonts[1].visiblePresets.fetchAll($0) }
+    let museScorePresets = try await db.read { try soundFonts[1].visiblePresetsQuery.fetchAll($0) }
     #expect(museScorePresets[0].index == 0)
     #expect(museScorePresets[0].displayName == "Stereo Grand")
     #expect(museScorePresets[1].index == 1)
@@ -217,7 +217,7 @@ import Testing
       if fileInfo.size() == 1 { continue }
       let sf = try await db.write { try SoundFont.make($0, builtin: tag.1) }
       try await db.write {
-        var presets = try sf.visiblePresets.fetchAll($0)
+        var presets = try sf.visiblePresetsQuery.fetchAll($0)
         presets[1].visible = false
         try presets[1].update($0)
         presets[3].visible = false
@@ -228,24 +228,24 @@ import Testing
     // Insertion order
     let soundFonts = try await db.read { try SoundFont.all().order(SoundFont.Columns.id).fetchAll($0) }
 
-    var presets = try await db.read { try soundFonts[0].visiblePresets.fetchAll($0) }
+    var presets = try await db.read { try soundFonts[0].visiblePresetsQuery.fetchAll($0) }
     #expect(presets[0].index == 0)
     #expect(presets[0].displayName == "Piano 1")
     #expect(presets[1].index == 2)
     #expect(presets[1].displayName == "Piano 3")
     #expect(presets[2].index == 4)
     #expect(presets[2].displayName == "E.Piano 1")
-    var allPresets = try await db.read { try soundFonts[0].allPresets.fetchAll($0) }
+    var allPresets = try await db.read { try soundFonts[0].allPresetsQuery.fetchAll($0) }
     #expect(presets.count < allPresets.count)
 
-    presets = try await db.read { try soundFonts[1].visiblePresets.fetchAll($0) }
+    presets = try await db.read { try soundFonts[1].visiblePresetsQuery.fetchAll($0) }
     #expect(presets[0].index == 0)
     #expect(presets[0].displayName == "Stereo Grand")
     #expect(presets[1].index == 2)
     #expect(presets[1].displayName == "Electric Grand")
     #expect(presets[2].index == 4)
     #expect(presets[2].displayName == "Tine Electric Piano")
-    allPresets = try await db.read { try soundFonts[1].allPresets.fetchAll($0) }
+    allPresets = try await db.read { try soundFonts[1].allPresetsQuery.fetchAll($0) }
     #expect(presets.count < allPresets.count)
   }
 

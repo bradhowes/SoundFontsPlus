@@ -10,13 +10,11 @@ public struct PresetEditor {
 
   @ObservableState
   public struct State: Equatable {
-    var preset: PresetModel
-    var audioSettings: AudioSettingsModel
+    var preset: Preset
     var displayName: String
 
-    public init(preset: PresetModel) {
+    public init(preset: Preset) {
       self.preset = preset
-      self.audioSettings = preset.audioSettings ?? .init()
       self.displayName = preset.displayName
     }
   }
@@ -88,12 +86,14 @@ extension PresetEditor {
   }
 
   private func save(_ state: inout State) {
-    @Dependency(\.modelContextProvider) var context
-    state.preset.displayName = state.displayName
+    @Dependency(\.defaultDatabase) var db
     do {
-      try context.save()
+      try db.write {
+        state.preset.displayName = state.displayName
+        try state.preset.save($0)
+      }
     } catch {
-      print("error encountered saving changes to preset - \(error.localizedDescription)")
+      fatalError()
     }
   }
 }
@@ -125,8 +125,8 @@ public struct PresetEditorView: View {
           HStack {
             Text("Adjust Keyboard")
             Spacer()
-            Toggle("Adjust Keyboard", isOn: $store.audioSettings.keyboardLowestNoteEnabled)
-              .labelsHidden()
+//            Toggle("Adjust Keyboard", isOn: $store.audioSettings.keyboardLowestNoteEnabled)
+//              .labelsHidden()
           }
         }
       }

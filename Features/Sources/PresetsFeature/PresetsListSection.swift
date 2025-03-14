@@ -10,13 +10,13 @@ import Models
 public struct PresetsListSection {
 
   @ObservableState
-  public struct State: Equatable, Identifiable {
+  public struct State: Identifiable {
     public var id: Int { section }
 
     let section: Int
     var rows: IdentifiedArrayOf<PresetButton.State>
 
-    public init(section: Int, presets: [PresetModel]) {
+    public init(section: Int, presets: [Preset]) {
       self.section = section
       self.rows = .init(uniqueElements: presets.map { .init(preset: $0) })
     }

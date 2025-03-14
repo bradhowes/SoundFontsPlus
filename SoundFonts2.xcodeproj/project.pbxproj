@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -255,7 +255,6 @@
 			mainGroup = BD1D27762B6F13DD005C3ED0;
 			packageReferences = (
 				BD89D64D2CB7AFF60016BC25 /* XCRemoteSwiftPackageReference "FileHash" */,
-				BD89D64E2CBBD12A0016BC25 /* XCLocalSwiftPackageReference "../SF2Lib" */,
 				BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */,
 			);
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
@@ -677,13 +676,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCLocalSwiftPackageReference section */
-		BD89D64E2CBBD12A0016BC25 /* XCLocalSwiftPackageReference "../SF2Lib" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../SF2Lib;
-		};
-/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
 		BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */ = {

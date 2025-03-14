@@ -15,25 +15,25 @@ public struct PresetsList {
   }
 
   @ObservableState
-  public struct State: Equatable {
+  public struct State {
     @Presents var destination: Destination.State?
-    let soundFont: SoundFontModel
+    let soundFont: SoundFont
     var rows: IdentifiedArrayOf<PresetsListSection.State>
     @Shared(.activeState) var activeState
 
-    public init(soundFont: SoundFontModel) {
+    public init(soundFont: SoundFont) {
       self.soundFont = soundFont
       self.rows = generatePresetSections(soundFont: soundFont)
     }
   }
 
   public enum Action {
-    case selectedSoundFontKeyChanged(SoundFontModel.Key?)
     case changeVisibility
     case destination(PresentationAction<Destination.Action>)
     case fetchSoundFonts
     case onAppear
     case rows(IdentifiedActionOf<PresetsListSection>)
+    case selectedSoundFontIdChanged(SoundFont.ID?)
   }
 
   public init() {}
@@ -52,15 +52,15 @@ public struct PresetsList {
         return .none
 
       case .fetchSoundFonts:
-        fetchPresets(&state, key: state.activeState.activeSoundFontKey)
+        fetchPresets(&state, key: state.activeState.activeSoundFontId)
         return .none
 
       case .onAppear:
         print("onAppear")
         return .publisher {
-          state.$activeState.selectedSoundFontKey.publisher.map {
+          state.$activeState.selectedSoundFontId.publisher.map {
             print("selectedSoundFontKeyChanged")
-            return Action.selectedSoundFontKeyChanged($0) }
+            return Action.selectedSoundFontIdChanged($0) }
         }
 
       case let .rows(.element(id: _, action: .rows(.element(id: _, action: .delegate(.editPreset(preset)))))):
@@ -72,14 +72,16 @@ public struct PresetsList {
         return .none
 
       case let .rows(.element(id: _, action: .rows(.element(id: _, action: .delegate(.selectPreset(preset)))))):
-        state.activeState.setActivePresetKey(preset.key)
-        state.activeState.setActiveSoundFontKey(preset.owner?.key)
+        state.$activeState.withLock {
+          $0.setActivePresetId(preset.id)
+          $0.setActiveSoundFontId(preset.soundFontId)
+        }
         return .none
 
       case .rows:
         return .none
 
-      case .selectedSoundFontKeyChanged(let key):
+      case .selectedSoundFontIdChanged(let key):
         fetchPresets(&state, key: key)
         return .none
       }
@@ -91,11 +93,11 @@ public struct PresetsList {
   }
 }
 
-extension PresetsList.Destination.State: Equatable {}
+// extension PresetsList.Destination.State: Equatable {}
 
-private func generatePresetSections(soundFont: SoundFontModel) -> IdentifiedArrayOf<PresetsListSection.State> {
+private func generatePresetSections(soundFont: SoundFont) -> IdentifiedArrayOf<PresetsListSection.State> {
   let grouping = 10
-  let presets = soundFont.orderedVisiblePresets
+  let presets = soundFont.presets
   return .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map { range in
     PresetsListSection.State(section: range.lowerBound, presets: Array(presets[range]))
   })
@@ -103,41 +105,57 @@ private func generatePresetSections(soundFont: SoundFontModel) -> IdentifiedArra
 
 extension PresetsList {
 
-  private func fetchPresets(_ state: inout State, key: SoundFontModel.Key?) {
+  private func fetchPresets(_ state: inout State, key: SoundFont.ID?) {
     guard let key else { return }
+    @Dependency(\.defaultDatabase) var database
     do {
-      let soundFont = try SoundFontModel.fetch(key: key)
-      state.rows = generatePresetSections(soundFont: soundFont)
+      let soundFont = try database.read { try SoundFont.fetchOne($0, id: key) }
+      if let soundFont {
+        state.rows = generatePresetSections(soundFont: soundFont)
+      } else {
+        state.rows = []
+      }
     } catch {
       state.rows = []
       print("failed to fetch sound font key \(key)")
     }
   }
 
-  private func hidePreset(_ state: inout State, preset: PresetModel) {
-    @Dependency(\.modelContextProvider) var context
-    if preset.key == state.activeState.activePresetKey {
+  private func setActivePresetId(_ state: inout State, _ presetId: Preset.ID?) {
+    state.$activeState.withLock {
+      $0.setActivePresetId(presetId)
+    }
+  }
+
+  private func hidePreset(_ state: inout State, preset: Preset) {
+    @Dependency(\.defaultDatabase) var database
+    if preset.id == state.activeState.activePresetId {
       // Locate the first preset that is not hidden to become the active one
-      let presets = state.soundFont.orderedVisiblePresets
-      if let found = (0..<preset.key.rawValue).last(where: { presets[$0].visible }) {
+      let presets = state.soundFont.presets
+      if let found = (0..<Int(preset.id.rawValue)).last(where: { presets[$0].visible }) {
         print("before - \(found)")
-        state.activeState.setActivePresetKey(presets[found].key)
-      } else if let found = ((preset.key.rawValue + 1)..<presets.count).first(where: { presets[$0].visible }) {
+        setActivePresetId(&state, presets[found].id)
+      } else if let found = (Int(preset.id.rawValue + 1)..<presets.count).first(where: { presets[$0].visible }) {
         print("after - \(found)")
-        state.activeState.setActivePresetKey(presets[found].key)
+        setActivePresetId(&state, presets[found].id)
       } else {
         print("nothing found")
-        state.activeState.setActivePresetKey(.init(-1))
+        setActivePresetId(&state, nil)
       }
     }
 
-    preset.visible = false
-    state.rows = generatePresetSections(soundFont: state.soundFont)
+    var preset = preset
     do {
-      try context.save()
+      let rc = try database.write {
+        try preset.updateChanges($0) {
+          $0.visible = false
+        }
+      }
     } catch {
-      print("failed to save preset change: \(error)")
+
     }
+
+    state.rows = generatePresetSections(soundFont: state.soundFont)
   }
 }
 
@@ -177,11 +195,26 @@ public struct PresetsListView: View {
   }
 }
 
+private func mockSoundFont() -> (SoundFont, [Preset]) {
+  @Dependency(\.defaultDatabase) var database
+  do {
+    let soundFont = try database.write {
+      try SoundFont.mock($0, name: "First One", presetNames: ["A", "B", "C"], tags: [])
+    }
+    let presets = try database.read {
+      try soundFont.visiblePresetsQuery.fetchAll($0)
+    }
+    return (soundFont, presets)
+  } catch {
+    fatalError()
+  }
+}
+
 extension PresetsListView {
   static var preview: some View {
-    let soundFonts = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
+    let (soundFont, _) = mockSoundFont()
     return VStack {
-      PresetsListView(store: Store(initialState: .init(soundFont: soundFonts[0])) { PresetsList() })
+      PresetsListView(store: Store(initialState: .init(soundFont: soundFont)) { PresetsList() })
     }
   }
 }

@@ -37,7 +37,7 @@ private struct PendingFavorite: Codable, PersistableRecord {
   static let databaseTableName = Favorite.databaseTableName
 }
 
-extension Favorite: Sendable {}
+extension Favorite: Equatable, Sendable {}
 
 extension Favorite: TableCreator {
   enum Columns {

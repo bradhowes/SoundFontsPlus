@@ -34,6 +34,22 @@ public struct Preset: Codable, Identifiable, FetchableRecord, MutablePersistable
       program: Int(presetInfo.program())
     ).insertAndFetch(db, as: Preset.self)
   }
+
+  @discardableResult
+  public static func mock(
+    _ db: Database,
+    soundFontId: SoundFont.ID,
+    name: String,
+    index: Int
+  ) throws -> Preset {
+    try PendingPreset(
+      soundFontId: soundFontId,
+      displayName: name,
+      index: index,
+      bank: 1,
+      program: index + 1
+    ).insertAndFetch(db, as: Preset.self)
+  }
 }
 
 private struct PendingPreset: Codable, PersistableRecord {
@@ -60,7 +76,7 @@ private struct PendingPreset: Codable, PersistableRecord {
   static let databaseTableName = Preset.databaseTableName
 }
 
-extension Preset: Sendable {}
+extension Preset: Equatable, Sendable {}
 
 extension Preset: TableCreator {
   enum Columns {
@@ -115,4 +131,3 @@ extension Preset {
     request(for: Self.favorites).order(Favorite.Columns.id)
   }
 }
-

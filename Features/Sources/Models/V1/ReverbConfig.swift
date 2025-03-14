@@ -41,7 +41,7 @@ private struct PendingReverbConfig: Codable, PersistableRecord {
   static let databaseTableName = ReverbConfig.databaseTableName
 }
 
-extension ReverbConfig: Sendable {}
+extension ReverbConfig: Equatable, Sendable {}
 
 extension ReverbConfig: TableCreator {
   enum Columns {

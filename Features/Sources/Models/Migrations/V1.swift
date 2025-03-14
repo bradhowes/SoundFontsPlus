@@ -26,7 +26,7 @@ enum V1 {
 
 extension DatabaseWriter {
 
-  func migrate() throws {
+  public func migrate() throws {
     var migrator = DatabaseMigrator()
 
 #if DEBUG

@@ -49,16 +49,4 @@ public enum SF2ResourceFileTag: Int, CaseIterable, Sendable {
     var fileInfo = Engine.SF2FileInfo(url.path(percentEncoded: false))
     return fileInfo.load() ? fileInfo : nil
   }
-
-  public static func from(name: String) -> SF2ResourceFileTag {
-    if name == Self.freeFontName {
-      return .freeFont
-    } else if name == Self.museScoreName {
-      return .museScore
-    } else if name == Self.rolandNicePianoName {
-      return .rolandNicePiano
-    } else {
-      fatalError("unknown display name")
-    }
-  }
 }

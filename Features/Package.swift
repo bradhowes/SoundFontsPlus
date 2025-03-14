@@ -27,9 +27,7 @@ let package = Package(
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.17.0"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.4.1"),
     .package(url: "https://github.com/pointfreeco/swift-tagged", from: "0.10.0"),
-    .package(url: "https://github.com/vadymmarkov/Fakery", from: "5.0.0"),
-    .package(url: "https://github.com/CrazyFanFan/FileHash", from: "0.0.1"),
-    .package(url: "https://github.com/swiftlang/swift-syntax", "509.0.0"..<"601.0.0")
+    .package(url: "https://github.com/CrazyFanFan/FileHash", from: "0.0.1")
   ],
   targets: [
     .target(
@@ -75,12 +73,15 @@ let package = Package(
     .target(
       name: "PresetsFeature",
       dependencies: [
+        .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
+        .product(name: "Algorithms", package: "swift-algorithms"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
-        .product(name: "Algorithms", package: "swift-algorithms")
+        .product(name: "GRDB", package: "GRDB.swift"),
+        .product(name: "SharingGRDB", package: "sharing-grdb"),
       ]
     ),
     .target(
@@ -93,22 +94,13 @@ let package = Package(
     .target(
       name: "Models",
       dependencies: [
-        "GRDBMacros",
         .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
-        .product(name: "GRDB", package: "GRDB.swift"),
-        // .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
-        .product(name: "Fakery", package: "Fakery"),
         .product(name: "FileHash", package: "FileHash"),
+        .product(name: "GRDB", package: "GRDB.swift"),
+        .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none),
         .product(name: "Tagged", package: "swift-tagged")
-      ]
-    ),
-    .macro(
-      name: "GRDBMacros",
-      dependencies: [
-        .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-        .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
       ]
     ),
     .target(
@@ -127,11 +119,6 @@ let package = Package(
         .product(name: "DependenciesMacros", package: "swift-dependencies"),
       ]
     ),
-//    .target(
-//      name: "SF2LibAU",
-//      dependencies: [.product(name: "Engine", package: "SF2Lib")]
-//    ),
-    // Tests
     .testTarget(
       name: "SoundFonts2LibTests",
       dependencies: [
@@ -144,6 +131,7 @@ let package = Package(
       dependencies: [
         "Models",
         .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none)
         // .product(name: "Engine", package: "SF2Lib", condition: .none)
       ]
     ),

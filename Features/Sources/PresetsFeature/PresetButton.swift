@@ -1,8 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
-import SwiftUI
+import Dependencies
+import SharingGRDB
 import Models
+import SF2ResourceFiles
+import SwiftUI
 import SwiftUISupport
 import Tagged
 
@@ -10,12 +13,12 @@ import Tagged
 public struct PresetButton {
 
   @ObservableState
-  public struct State: Equatable, Identifiable {
-    public var preset: PresetModel
-    public var id: PresetModel.Key { preset.key }
+  public struct State: Identifiable {
+    public var preset: Preset
+    public var id: Preset.ID { preset.id }
     @Shared(.activeState) var activeState
 
-    public init(preset: PresetModel) {
+    public init(preset: Preset) {
       self.preset = preset
     }
   }
@@ -32,10 +35,10 @@ public struct PresetButton {
 
   @CasePathable
   public enum Delegate {
-    case createFavorite(PresetModel)
-    case editPreset(PresetModel)
-    case hidePreset(PresetModel)
-    case selectPreset(PresetModel)
+    case createFavorite(Preset)
+    case editPreset(Preset)
+    case hidePreset(Preset)
+    case selectPreset(Preset)
   }
 
   public var body: some ReducerOf<Self> {
@@ -60,10 +63,10 @@ struct PresetButtonView: View {
   @State var confirmingHiding: Bool = false
 
   var displayName: String { store.preset.displayName }
-  var soundFontKey: SoundFontModel.Key? { store.preset.owner?.key }
-  var key: PresetModel.Key { store.preset.key }
+  var soundFontId: SoundFont.ID? { store.preset.soundFontId }
+  var presetId: Preset.ID { store.preset.id }
   var state: IndicatorModifier.State {
-    if store.activeState.activeSoundFontKey == soundFontKey && store.activeState.activePresetKey == key {
+    if store.activeState.activeSoundFontId == soundFontId && store.activeState.activePresetId == presetId {
       return .active
     }
     return .none
@@ -122,13 +125,27 @@ struct PresetButtonView: View {
   }
 }
 
+extension DatabaseWriter where Self == DatabaseQueue {
+  static var previewDatabase: Self {
+    let databaseQueue = try! DatabaseQueue()
+    try! databaseQueue.migrate()
+    try! databaseQueue.write { db in
+      _ = try! SoundFont.make(db, builtin: .freeFont)
+      // _ = try! SoundFont.mock(db, name: "Mock", presetNames: ["Preset 1", "Preset 2", "Preset 3"], tags: [])
+    }
+    return databaseQueue
+  }
+}
+
 #Preview {
-  let soundFonts = [
-    try! Mock.makeSoundFont(name: "First One", presetNames: ["A", "B", "C"], tags: [])
-  ]
+  let _ = prepareDependencies {
+    $0.defaultDatabase = .previewDatabase
+  }
+  @Dependency(\.defaultDatabase) var db
+  let presets = try! db.read { try! Preset.fetchAll($0) }
   List {
-    PresetButtonView(store: Store(initialState: .init(preset: soundFonts[0].orderedPresets[0])) { PresetButton() })
-    PresetButtonView(store: Store(initialState: .init(preset: soundFonts[0].orderedPresets[1])) { PresetButton() })
-    PresetButtonView(store: Store(initialState: .init(preset: soundFonts[0].orderedPresets[2])) { PresetButton() })
+    PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
+//    PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
+//    PresetButtonView(store: Store(initialState: .init(preset: presets[2])) { PresetButton() })
   }
 }

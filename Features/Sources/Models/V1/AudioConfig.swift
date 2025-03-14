@@ -81,7 +81,7 @@ private struct PendingAudioConfig: Codable, PersistableRecord {
   static let databaseTableName = AudioConfig.databaseTableName
 }
 
-extension AudioConfig: Sendable {}
+extension AudioConfig: Equatable, Sendable {}
 
 extension AudioConfig: TableCreator {
   enum Columns {

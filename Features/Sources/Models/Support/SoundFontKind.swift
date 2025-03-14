@@ -102,7 +102,8 @@ public extension SoundFontKind {
 }
 
 private func dataToUrl(_ data: Data) throws -> URL {
-  guard let url = URL(dataRepresentation: data, relativeTo: nil, isAbsolute: true) else {
+  guard let path = String(data: data, encoding: .utf8),
+        let url = URL(string: path, encodingInvalidCharacters: false) else {
     throw ModelError.dataIsNotValidURL(data: data)
   }
   return url

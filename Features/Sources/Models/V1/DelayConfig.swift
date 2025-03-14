@@ -49,7 +49,7 @@ private struct PendingDelayConfig: Codable, PersistableRecord {
   static let databaseTableName = DelayConfig.databaseTableName
 }
 
-extension DelayConfig: Sendable {}
+extension DelayConfig: Equatable, Sendable {}
 
 extension DelayConfig: TableCreator {
 
