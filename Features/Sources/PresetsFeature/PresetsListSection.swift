@@ -40,7 +40,8 @@ public struct PresetsListSection {
 
 public struct PresetsListSectionView: View {
   @Bindable private var store: StoreOf<PresetsListSection>
-  @Shared(.activeState) var activeState
+  @Shared(.activeState) private var activeState
+  @Environment(\.editMode) private var editMode
 
   public init(store: StoreOf<PresetsListSection>) {
     self.store = store
@@ -52,8 +53,22 @@ public struct PresetsListSectionView: View {
       .foregroundStyle(.indigo)
 
     Section(header: header) {
-      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-        PresetButtonView(store: rowStore)
+      if editMode?.wrappedValue.isEditing == true {
+        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+          HStack {
+            PresetButtonView(store: rowStore)
+            Spacer()
+            Image(systemName: rowStore.isVisible ? "checkmark" : "circle")
+              .foregroundStyle(.blue)
+              .onTapGesture {
+                rowStore.send(.toggleVisibility, animation: .default)
+              }
+          }
+        }
+      } else {
+        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+          PresetButtonView(store: rowStore)
+        }
       }
     }
   }

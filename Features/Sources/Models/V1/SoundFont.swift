@@ -136,6 +136,17 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
       fatalError("failed to fetch presets")
     }
   }
+
+  public var allPresets: [Preset] {
+    @Dependency(\.defaultDatabase) var database
+    do {
+      return try database.read {
+        try self.allPresetsQuery.fetchAll($0)
+      }
+    } catch {
+      fatalError("failed to fetch presets")
+    }
+  }
 }
 
 private struct PendingSoundFont: Codable, PersistableRecord {

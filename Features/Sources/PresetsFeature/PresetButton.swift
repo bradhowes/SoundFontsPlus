@@ -18,9 +18,11 @@ public struct PresetButton {
     public var presetId: Preset.ID { preset.id }
     public var soundFontId: SoundFont.ID { preset.soundFontId }
     public var displayName: String { preset.displayName }
+    public var isVisible: Bool
 
     public init(preset: Preset) {
       self.preset = preset
+      self.isVisible = preset.visible
     }
   }
 
@@ -32,6 +34,7 @@ public struct PresetButton {
     case favoriteButtonTapped
     case hideButtonTapped
     case longPressGestureFired
+    case toggleVisibility
   }
 
   @CasePathable
@@ -52,13 +55,23 @@ public struct PresetButton {
       case .favoriteButtonTapped: return .send(.delegate(.createFavorite(state.preset)))
       case .hideButtonTapped: return .none
       case .longPressGestureFired: return .send(.delegate(.editPreset(state.preset)))
+      case .toggleVisibility:
+        state.isVisible.toggle()
+        var preset = state.preset
+        preset.visible.toggle()
+        @Dependency(\.defaultDatabase) var database
+        do {
+          try database.write { try preset.save($0) }
+        } catch {
+          print("failed to save preset change to isVisible: \(error)")
+        }
+        return .none
       }
     }
   }
 
   public init() {}
 }
-
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var stopConfirmingPresetHiding: Self {
@@ -71,6 +84,7 @@ public struct PresetButtonView: View {
   @State var confirmingHiding: Bool = false
   @Shared(.activeState) var activeState
   @Shared(.stopConfirmingPresetHiding) var stopConfirmingPresetHiding
+  @Environment(\.editMode) private var editMode
 
   var state: IndicatorModifier.State {
     activeState.activeSoundFontId == store.soundFontId && activeState.activePresetId == store.presetId ?
@@ -79,7 +93,11 @@ public struct PresetButtonView: View {
 
   public var body: some View {
     Button {
-      store.send(.buttonTapped, animation: .default)
+      if editMode?.wrappedValue.isEditing == true {
+        store.send(.toggleVisibility, animation: .default)
+      } else {
+        store.send(.buttonTapped, animation: .default)
+      }
     } label: {
       Text(store.displayName)
         .font(.buttonFont)

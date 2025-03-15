@@ -23,14 +23,14 @@ public struct PresetsList {
 
     public init(soundFont: SoundFont) {
       self.soundFont = soundFont
-      self.rows = generatePresetSections(soundFont: soundFont)
+      self.rows = generatePresetSections(soundFont: soundFont, editing: false)
     }
   }
 
   public enum Action {
     case changeVisibility
     case destination(PresentationAction<Destination.Action>)
-    case fetchSoundFonts
+    case fetchPresets(Bool)
     case onAppear
     case rows(IdentifiedActionOf<PresetsListSection>)
     case selectedSoundFontIdChanged(SoundFont.ID?)
@@ -49,13 +49,13 @@ public struct PresetsList {
 
       case .destination(.presented(.edit(.acceptButtonTapped))):
         // We should be able to just update the row that is being edited
-        return fetchPresets(&state, key: activeState.activeSoundFontId)
+        return fetchPresets(&state, key: activeState.activeSoundFontId, editing: false)
 
       case .destination:
         return .none
 
-      case .fetchSoundFonts:
-        return fetchPresets(&state, key: activeState.activeSoundFontId)
+      case .fetchPresets(let editing):
+        return fetchPresets(&state, key: activeState.activeSoundFontId, editing: editing)
 
       case .onAppear:
         return .publisher {
@@ -82,7 +82,8 @@ public struct PresetsList {
         return .none
 
       case .selectedSoundFontIdChanged(let key):
-        return fetchPresets(&state, key: key)
+        
+        return fetchPresets(&state, key: key, editing: false)
       }
     }
     .forEach(\.rows, action: \.rows) {
@@ -94,9 +95,9 @@ public struct PresetsList {
 
 // extension PresetsList.Destination.State: Equatable {}
 
-private func generatePresetSections(soundFont: SoundFont) -> IdentifiedArrayOf<PresetsListSection.State> {
+private func generatePresetSections(soundFont: SoundFont, editing: Bool) -> IdentifiedArrayOf<PresetsListSection.State> {
   let grouping = 10
-  let presets = soundFont.presets
+  let presets = editing ? soundFont.allPresets : soundFont.presets
   return .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map { range in
     PresetsListSection.State(section: range.lowerBound, presets: Array(presets[range]))
   })
@@ -104,13 +105,14 @@ private func generatePresetSections(soundFont: SoundFont) -> IdentifiedArrayOf<P
 
 extension PresetsList {
 
-  private func fetchPresets(_ state: inout State, key: SoundFont.ID?) -> Effect<Action> {
+  private func fetchPresets(_ state: inout State, key: SoundFont.ID?, editing: Bool) -> Effect<Action> {
+    print("fetchPresets")
     guard let key else { return .none }
     @Dependency(\.defaultDatabase) var database
     do {
       let soundFont = try database.read { try SoundFont.fetchOne($0, id: key) }
       if let soundFont {
-        state.rows = generatePresetSections(soundFont: soundFont)
+        state.rows = generatePresetSections(soundFont: soundFont, editing: editing)
       } else {
         state.rows = []
       }
@@ -153,7 +155,7 @@ extension PresetsList {
     } catch {
     }
 
-    state.rows = generatePresetSections(soundFont: state.soundFont)
+    state.rows = generatePresetSections(soundFont: state.soundFont, editing: false)
 
     if newActive != activeState.activePresetId {
       setActivePresetId(&state, newActive)
@@ -163,6 +165,7 @@ extension PresetsList {
 
 public struct PresetsListView: View {
   @Bindable private var store: StoreOf<PresetsList>
+  @Environment(\.editMode) private var editMode
 
   public init(store: StoreOf<PresetsList>) {
     self.store = store
@@ -177,6 +180,9 @@ public struct PresetsListView: View {
     .listSectionSpacing(.custom(-14.0))
     .onAppear {
       store.send(.onAppear)
+    }
+    .onChange(of: editMode?.wrappedValue.isEditing) {
+      store.send(.fetchPresets(editMode?.wrappedValue == EditMode.active), animation: .default)
     }
     .sheet(
       item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
@@ -225,12 +231,14 @@ extension PresetsListView {
 
   static var preview: some View {
     let _ = prepareDependencies { $0.defaultDatabase = .previewDatabase }
-
     @Dependency(\.defaultDatabase) var db
     let soundFonts = try! db.read { try! SoundFont.orderByPrimaryKey().fetchAll($0) }
 
     return VStack {
-      PresetsListView(store: Store(initialState: .init(soundFont: soundFonts[0])) { PresetsList() })
+      EditButton()
+      PresetsListView(store: Store(initialState: .init(soundFont: soundFonts[0])) {
+        PresetsList()
+      })
     }
   }
 }
