@@ -22,7 +22,7 @@ let package = Package(
     // .package(url: "https://github.com/bradhowes/SplitView", from: "3.5.2"),
     .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib"),
     .package(url: "https://github.com/groue/GRDB.swift", from: "7.0.0"),
-    .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
+    // .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
     .package(url: "https://github.com/pointfreeco/sharing-grdb", from: "0.1.0"),
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.17.0"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.4.1"),
@@ -73,15 +73,11 @@ let package = Package(
     .target(
       name: "PresetsFeature",
       dependencies: [
-        .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
-        .product(name: "Algorithms", package: "swift-algorithms"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Dependencies", package: "swift-dependencies"),
-        .product(name: "GRDB", package: "GRDB.swift"),
-        .product(name: "SharingGRDB", package: "sharing-grdb"),
+        .product(name: "GRDB", package: "GRDB.swift")
       ]
     ),
     .target(

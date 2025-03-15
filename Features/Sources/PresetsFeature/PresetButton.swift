@@ -1,8 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
-import Dependencies
-import SharingGRDB
+import GRDB
 import Models
 import SF2ResourceFiles
 import SwiftUI
@@ -13,14 +12,11 @@ import Tagged
 public struct PresetButton {
 
   @ObservableState
-  public struct State: Identifiable {
-    public var preset: Preset
-    public var id: Preset.ID { preset.id }
-    @Shared(.activeState) var activeState
-
-    public init(preset: Preset) {
-      self.preset = preset
-    }
+  public struct State: Equatable, Identifiable {
+    public var id: Preset.ID { presetId }
+    public let presetId: Preset.ID
+    public let soundFontId: SoundFont.ID
+    public let displayName: String
   }
 
   public enum Action {
@@ -35,22 +31,22 @@ public struct PresetButton {
 
   @CasePathable
   public enum Delegate {
-    case createFavorite(Preset)
-    case editPreset(Preset)
-    case hidePreset(Preset)
-    case selectPreset(Preset)
+    case createFavorite(Preset.ID)
+    case editPreset(Preset.ID)
+    case hidePreset(Preset.ID)
+    case selectPreset(Preset.ID, SoundFont.ID)
   }
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .buttonTapped: return .send(.delegate(.selectPreset(state.preset)))
-      case .confirmedHiding: return .send(.delegate(.hidePreset(state.preset)))
+      case .buttonTapped: return .send(.delegate(.selectPreset(state.presetId, state.soundFontId)))
+      case .confirmedHiding: return .send(.delegate(.hidePreset(state.presetId)))
       case .delegate: return .none
-      case .editButtonTapped: return .send(.delegate(.editPreset(state.preset)))
-      case .favoriteButtonTapped: return .send(.delegate(.createFavorite(state.preset)))
+      case .editButtonTapped: return .send(.delegate(.editPreset(state.presetId)))
+      case .favoriteButtonTapped: return .send(.delegate(.createFavorite(state.presetId)))
       case .hideButtonTapped: return .none
-      case .longPressGestureFired: return .send(.delegate(.editPreset(state.preset)))
+      case .longPressGestureFired: return .send(.delegate(.editPreset(state.presetId)))
       }
     }
   }
@@ -58,29 +54,21 @@ public struct PresetButton {
   public init() {}
 }
 
-struct PresetButtonView: View {
-  private var store: StoreOf<PresetButton>
+public struct PresetButtonView: View {
+  let store: StoreOf<PresetButton>
   @State var confirmingHiding: Bool = false
+  @Shared(.activeState) var activeState
 
-  var displayName: String { store.preset.displayName }
-  var soundFontId: SoundFont.ID? { store.preset.soundFontId }
-  var presetId: Preset.ID { store.preset.id }
   var state: IndicatorModifier.State {
-    if store.activeState.activeSoundFontId == soundFontId && store.activeState.activePresetId == presetId {
-      return .active
-    }
-    return .none
-  }
-
-  init(store: StoreOf<PresetButton>) {
-    self.store = store
+    activeState.activeSoundFontId == store.soundFontId && activeState.activePresetId == store.presetId ?
+      .active : .none
   }
 
   public var body: some View {
     Button {
       store.send(.buttonTapped, animation: .default)
     } label: {
-      Text(displayName)
+      Text(store.displayName)
         .font(.buttonFont)
         .indicator(state)
     }
@@ -110,7 +98,7 @@ struct PresetButtonView: View {
       }
     }
     .confirmationDialog(
-      "Are you sure you want to hide \"\(store.preset.displayName)\" preset?\n\n" +
+      "Are you sure you want to hide \"\(store.displayName)\" preset?\n\n" +
       "Once hidden It will no longer be visible here but you can restore visibility using the edit visibility control.",
       isPresented: $confirmingHiding,
       titleVisibility: .visible
@@ -131,8 +119,18 @@ extension DatabaseWriter where Self == DatabaseQueue {
     try! databaseQueue.migrate()
     try! databaseQueue.write { db in
       _ = try! SoundFont.make(db, builtin: .freeFont)
-      // _ = try! SoundFont.mock(db, name: "Mock", presetNames: ["Preset 1", "Preset 2", "Preset 3"], tags: [])
+      _ = try! SoundFont.make(db, builtin: .rolandNicePiano)
     }
+
+    let presets = try! databaseQueue.read { try! Preset.fetchAll($0) }
+
+    @Shared(.activeState) var activeState
+    $activeState.withLock {
+      $0.activePresetId = presets[0].id
+      $0.activeSoundFontId = presets[0].soundFontId
+      $0.selectedSoundFontId = presets.last!.soundFontId
+    }
+
     return databaseQueue
   }
 }
@@ -141,11 +139,25 @@ extension DatabaseWriter where Self == DatabaseQueue {
   let _ = prepareDependencies {
     $0.defaultDatabase = .previewDatabase
   }
+
   @Dependency(\.defaultDatabase) var db
   let presets = try! db.read { try! Preset.fetchAll($0) }
+
   List {
-    PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
-//    PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
-//    PresetButtonView(store: Store(initialState: .init(preset: presets[2])) { PresetButton() })
+    PresetButtonView(store: Store(initialState: .init(
+      presetId: presets[0].id,
+      soundFontId: presets[0].soundFontId,
+      displayName: presets[0].displayName
+    )) { PresetButton() })
+    PresetButtonView(store: Store(initialState: .init(
+      presetId: presets[1].id,
+      soundFontId: presets[1].soundFontId,
+      displayName: presets[1].displayName
+    )) { PresetButton() })
+    PresetButtonView(store: Store(initialState: .init(
+      presetId: presets.last!.id,
+      soundFontId: presets.last!.soundFontId,
+      displayName: presets.last!.displayName
+    )) { PresetButton() })
   }
 }
