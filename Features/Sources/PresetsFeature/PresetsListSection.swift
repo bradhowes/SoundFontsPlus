@@ -4,6 +4,9 @@ import ComposableArchitecture
 import SwiftUI
 import Models
 
+/**
+ Minor feature that represents section of presets where each section has up to 10 entries in it.
+ */
 @Reducer
 public struct PresetsListSection {
 
@@ -53,7 +56,7 @@ public struct PresetsListSectionView: View {
       .foregroundStyle(.indigo)
 
     Section(header: header) {
-      if editMode?.wrappedValue.isEditing == true {
+      if editMode?.wrappedValue == EditMode.active {
         ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
           HStack {
             PresetButtonView(store: rowStore)
