@@ -47,15 +47,15 @@ public struct PresetsList {
       case .changeVisibility:
         return .none
 
-      case .destination(.dismiss):
-        return .none
+      case .destination(.presented(.edit(.acceptButtonTapped))):
+        // We should be able to just update the row that is being edited
+        return fetchPresets(&state, key: activeState.activeSoundFontId)
 
       case .destination:
         return .none
 
       case .fetchSoundFonts:
-        fetchPresets(&state, key: activeState.activeSoundFontId)
-        return .none
+        return fetchPresets(&state, key: activeState.activeSoundFontId)
 
       case .onAppear:
         return .publisher {
@@ -82,8 +82,7 @@ public struct PresetsList {
         return .none
 
       case .selectedSoundFontIdChanged(let key):
-        fetchPresets(&state, key: key)
-        return .none
+        return fetchPresets(&state, key: key)
       }
     }
     .forEach(\.rows, action: \.rows) {
@@ -105,8 +104,8 @@ private func generatePresetSections(soundFont: SoundFont) -> IdentifiedArrayOf<P
 
 extension PresetsList {
 
-  private func fetchPresets(_ state: inout State, key: SoundFont.ID?) {
-    guard let key else { return }
+  private func fetchPresets(_ state: inout State, key: SoundFont.ID?) -> Effect<Action> {
+    guard let key else { return .none }
     @Dependency(\.defaultDatabase) var database
     do {
       let soundFont = try database.read { try SoundFont.fetchOne($0, id: key) }
@@ -119,6 +118,8 @@ extension PresetsList {
       state.rows = []
       print("failed to fetch sound font key \(key)")
     }
+
+    return .none
   }
 
   private func setActivePresetId(_ state: inout State, _ presetId: Preset.ID?) {

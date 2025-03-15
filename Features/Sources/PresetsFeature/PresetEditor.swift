@@ -23,7 +23,6 @@ public struct PresetEditor {
     case acceptButtonTapped
     case binding(BindingAction<State>)
     case dismissButtonTapped
-
     case nameChanged(String)
     case useOriginalNameTapped
 

@@ -29,8 +29,7 @@ public struct PresetsListSection {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .rows:
-        return .none
+      case .rows: return .none
       }
     }
     .forEach(\.rows, action: \.rows) {
