@@ -13,8 +13,8 @@ public struct PresetButton {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
+    public var preset: Preset
     public var id: Preset.ID { preset.id }
-    public let preset: Preset
     public var presetId: Preset.ID { preset.id }
     public var soundFontId: SoundFont.ID { preset.soundFontId }
     public var displayName: String { preset.displayName }
@@ -26,7 +26,7 @@ public struct PresetButton {
     }
   }
 
-  public enum Action {
+  public enum Action: Equatable {
     case buttonTapped
     case confirmedHiding
     case delegate(Delegate)
@@ -38,7 +38,7 @@ public struct PresetButton {
   }
 
   @CasePathable
-  public enum Delegate {
+  public enum Delegate: Equatable {
     case createFavorite(Preset)
     case editPreset(Preset)
     case hidePreset(Preset)

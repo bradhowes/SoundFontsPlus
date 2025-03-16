@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "ABF99FB5-35BA-4624-B9AC-E3D157C3E71C",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "PresetsFeatureTests",
+        "name" : "PresetsFeatureTests"
+      }
+    }
+  ],
+  "version" : 1
+}

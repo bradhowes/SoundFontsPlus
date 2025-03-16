@@ -11,15 +11,26 @@ import Models
 public struct PresetsListSection {
 
   @ObservableState
-  public struct State: Identifiable {
+  public struct State: Equatable, Identifiable {
     public var id: Int { section }
-
     let section: Int
     var rows: IdentifiedArrayOf<PresetButton.State>
 
     public init(section: Int, presets: [Preset]) {
       self.section = section
       self.rows = .init(uniqueElements: presets.map { .init(preset: $0) })
+    }
+
+    /**
+     Update any row that is showing the given preset
+
+     - parameter preset: the preset to update with
+     - returns: true if updated
+     */
+    mutating func update(preset: Preset) -> Bool {
+      guard let index = rows.firstIndex(where: { $0.presetId == preset.id }) else { return false }
+      rows[index].preset = preset
+      return true
     }
   }
 

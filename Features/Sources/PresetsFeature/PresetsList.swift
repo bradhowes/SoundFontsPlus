@@ -10,83 +10,101 @@ import Models
 @Reducer
 public struct PresetsList {
 
-  @Reducer
+  @Reducer(state: .equatable, .sendable)
   public enum Destination {
     case edit(PresetEditor)
   }
 
   @ObservableState
-  public struct State {
+  public struct State: Equatable {
     @Presents var destination: Destination.State?
-    let soundFont: SoundFont
-    var rows: IdentifiedArrayOf<PresetsListSection.State>
+    var soundFont: SoundFont?
+    var sections: IdentifiedArrayOf<PresetsListSection.State>
 
-    public init(soundFont: SoundFont) {
+    public init(soundFont: SoundFont?) {
       self.soundFont = soundFont
-      self.rows = generatePresetSections(soundFont: soundFont, editing: false)
+      if let soundFont {
+        self.sections = generatePresetSections(soundFont: soundFont, editing: false)
+      } else {
+        self.sections = []
+      }
+    }
+
+    /**
+     Update any group that is showing the given preset
+
+     - parameter preset: the preset to update with
+     - returns: true if updated
+     */
+    mutating func update(preset: Preset) {
+      for var section in sections where section.update(preset: preset) {
+        sections[section.section] = section
+        break
+      }
     }
   }
 
   public enum Action {
-    case changeVisibility
     case destination(PresentationAction<Destination.Action>)
     case fetchPresets(Bool)
     case onAppear
-    case rows(IdentifiedActionOf<PresetsListSection>)
+    case sections(IdentifiedActionOf<PresetsListSection>)
     case selectedSoundFontIdChanged(SoundFont.ID?)
+    case stop
   }
 
   public init() {}
 
   @Shared(.activeState) var activeState
+  private let pubisherCancelId = "selectedSoundFontChangedPublisher"
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
 
-      case .changeVisibility:
-        return .none
-
       case .destination(.presented(.edit(.acceptButtonTapped))):
-        // We should be able to just update the row that is being edited
-        return fetchPresets(&state, key: activeState.activeSoundFontId, editing: false)
+        // Update the row with the preset that was edited.
+        guard case let Destination.State.edit(editorState)? = state.destination else { return .none }
+        state.update(preset: editorState.preset)
+        return .none
 
       case .destination:
         return .none
 
       case .fetchPresets(let editing):
-        return fetchPresets(&state, key: activeState.activeSoundFontId, editing: editing)
+        return fetchPresets(&state, soundFontId: activeState.activeSoundFontId, editing: editing)
 
       case .onAppear:
         return .publisher {
           $activeState.selectedSoundFontId.publisher.map {
             return Action.selectedSoundFontIdChanged($0) }
-        }
+        }.cancellable(id: pubisherCancelId)
 
-      case let .rows(.element(id: _, action: .rows(.element(id: _, action: .delegate(.editPreset(preset)))))):
+      case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(.editPreset(preset)))))):
         state.destination = .edit(PresetEditor.State(preset: preset))
         return .none
 
-      case let .rows(.element(id: _, action: .rows(.element(id: _, action: .delegate(.hidePreset(preset)))))):
+      case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(.hidePreset(preset)))))):
         hidePreset(&state, preset: preset)
         return .none
 
-      case let .rows(.element(id: _, action: .rows(.element(id: _, action: .delegate(.selectPreset(preset)))))):
+      case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(.selectPreset(preset)))))):
         $activeState.withLock {
           $0.activePresetId = preset.id
           $0.activeSoundFontId = preset.soundFontId
         }
         return .none
 
-      case .rows:
+      case .sections:
         return .none
 
-      case .selectedSoundFontIdChanged(let key):
-        
-        return fetchPresets(&state, key: key, editing: false)
+      case .selectedSoundFontIdChanged(let soundFontId):
+        return fetchPresets(&state, soundFontId: soundFontId, editing: false)
+
+      case .stop: return .cancel(id: pubisherCancelId)
       }
     }
-    .forEach(\.rows, action: \.rows) {
+    .forEach(\.sections, action: \.sections) {
       PresetsListSection()
     }
     .ifLet(\.$destination, action: \.destination)
@@ -95,7 +113,7 @@ public struct PresetsList {
 
 // extension PresetsList.Destination.State: Equatable {}
 
-private func generatePresetSections(soundFont: SoundFont, editing: Bool) -> IdentifiedArrayOf<PresetsListSection.State> {
+func generatePresetSections(soundFont: SoundFont, editing: Bool) -> IdentifiedArrayOf<PresetsListSection.State> {
   let grouping = 10
   let presets = editing ? soundFont.allPresets : soundFont.presets
   return .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map { range in
@@ -105,20 +123,25 @@ private func generatePresetSections(soundFont: SoundFont, editing: Bool) -> Iden
 
 extension PresetsList {
 
-  private func fetchPresets(_ state: inout State, key: SoundFont.ID?, editing: Bool) -> Effect<Action> {
-    print("fetchPresets")
-    guard let key else { return .none }
+  private func fetchPresets(_ state: inout State, soundFontId: SoundFont.ID?, editing: Bool) -> Effect<Action> {
+    guard let soundFontId else {
+      state.soundFont = nil
+      state.sections = []
+      return .none
+    }
+
     @Dependency(\.defaultDatabase) var database
     do {
-      let soundFont = try database.read { try SoundFont.fetchOne($0, id: key) }
+      let soundFont = try database.read { try SoundFont.fetchOne($0, id: soundFontId) }
       if let soundFont {
-        state.rows = generatePresetSections(soundFont: soundFont, editing: editing)
+        state.soundFont = soundFont
+        state.sections = generatePresetSections(soundFont: soundFont, editing: editing)
       } else {
-        state.rows = []
+        state.sections = []
       }
     } catch {
-      state.rows = []
-      print("failed to fetch sound font key \(key)")
+      state.sections = []
+      print("failed to fetch sound font key \(soundFontId)")
     }
 
     return .none
@@ -131,11 +154,14 @@ extension PresetsList {
   }
 
   private func hidePreset(_ state: inout State, preset: Preset) {
+    guard let soundFont = state.soundFont else {
+      fatalError("unexpected nil soundFont")
+    }
     @Dependency(\.defaultDatabase) var database
 
     var newActive: Preset.ID? = preset.id
     if preset.id == activeState.activePresetId {
-      let presets = state.soundFont.presets
+      let presets = soundFont.presets
       if let found = (0..<preset.index).last(where: { presets[$0].visible }) {
         newActive = presets[found].id
       } else if let found = ((preset.index + 1)..<presets.count).first(where: { presets[$0].visible }) {
@@ -155,7 +181,7 @@ extension PresetsList {
     } catch {
     }
 
-    state.rows = generatePresetSections(soundFont: state.soundFont, editing: false)
+    state.sections = generatePresetSections(soundFont: soundFont, editing: false)
 
     if newActive != activeState.activePresetId {
       setActivePresetId(&state, newActive)
@@ -173,7 +199,7 @@ public struct PresetsListView: View {
 
   public var body: some View {
     List {
-      ForEach(store.scope(state: \.rows, action: \.rows), id: \.id) { rowStore in
+      ForEach(store.scope(state: \.sections, action: \.sections), id: \.id) { rowStore in
         PresetsListSectionView(store: rowStore)
       }
     }
