@@ -14,7 +14,7 @@ import Testing
     } operation: {
       @Dependency(\.defaultDatabase) var db
       let presets = try await db.read { try Preset.fetchAll($0) }
-      #expect(presets.count == 235)
+      #expect(presets.count == 506)
     }
   }
 
