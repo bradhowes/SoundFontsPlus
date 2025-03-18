@@ -1,29 +1,33 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
-import SwiftUI
+import GRDB
 import Models
-import Tagged
+import SF2ResourceFiles
+import SwiftUI
 
 @Reducer
-public struct PresetEditor {
+public struct PresetEditor: Equatable {
 
   @ObservableState
   public struct State: Equatable {
     var preset: Preset
     var displayName: String
+    var visible: Bool
+    var notes: String
 
     public init(preset: Preset) {
       self.preset = preset
       self.displayName = preset.displayName
+      self.visible = preset.visible
+      self.notes = preset.notes
     }
   }
 
-  public enum Action: BindableAction {
+  public enum Action: Equatable, BindableAction {
     case acceptButtonTapped
     case binding(BindingAction<State>)
     case dismissButtonTapped
-    case nameChanged(String)
     case useOriginalNameTapped
 
 //    case adjustKeyboardToggled(Bool)
@@ -43,36 +47,16 @@ public struct PresetEditor {
 //    case panSliderChanged(String)
   }
 
-  @Dependency(\.dismiss) var dismiss
-
   public var body: some ReducerOf<Self> {
-    BindingReducer()
     Reduce { state, action in
       switch action {
-
-      case .acceptButtonTapped:
-        save(&state)
-        let dismiss = dismiss
-        return .run { _ in await dismiss() }
-
-      case .binding:
-        return .none
-
-      case .dismissButtonTapped:
-        let dismiss = dismiss
-        return .run { _ in await dismiss() }
-
-      case .nameChanged(let name):
-        if name != state.displayName {
-          setName(&state, name: name)
-        }
-        return .none
-
-      case .useOriginalNameTapped:
-        setName(&state, name: state.preset.originalName)
-        return .none
+      case .acceptButtonTapped: return save(&state)
+      case .binding: return .none
+      case .dismissButtonTapped: return dismiss()
+      case .useOriginalNameTapped: return setName(&state, value: state.preset.originalName)
       }
     }
+    BindingReducer()
   }
 
   public init() {}
@@ -80,33 +64,42 @@ public struct PresetEditor {
 
 extension PresetEditor {
 
-  private func setName(_ state: inout State, name: String) {
-    state.displayName = name
+  private func dismiss() -> Effect<Action> {
+    return .run { _ in
+      @Dependency(\.dismiss) var dismiss
+      await dismiss() }
   }
 
-  private func save(_ state: inout State) {
-    @Dependency(\.defaultDatabase) var db
-    do {
-      try db.write {
-        state.preset.displayName = state.displayName
-        try state.preset.save($0)
-      }
-    } catch {
-      fatalError()
-    }
+  private func setName(_ state: inout State, value: String) -> Effect<Action> {
+    state.displayName = value
+    return .none
   }
+
+  private func save(_ state: inout State) -> Effect<Action> {
+    @Dependency(\.defaultDatabase) var db
+    state.preset.displayName = state.displayName
+    state.preset.notes = state.notes
+    state.preset.visible = state.visible
+    try? db.write { try state.preset.save($0) }
+    return dismiss()
+  }
+}
+
+enum Field {
+  case displayName
+  case notes
 }
 
 public struct PresetEditorView: View {
   @Bindable var store: StoreOf<PresetEditor>
-  @FocusState var displayNameHasFocus: Bool
+  @FocusState var focusField: Field?
 
   public var body: some View {
     NavigationStack {
       Form {
         Section(header: Text("Name")) {
-          TextField("", text: $store.displayName.sending(\.nameChanged))
-            .focused($displayNameHasFocus)
+          TextField("", text: $store.displayName)
+            .focused($focusField, equals: .displayName)
             .textFieldStyle(.roundedBorder)
         }
         Section(header: Text("Original Name")) {
@@ -120,6 +113,7 @@ public struct PresetEditorView: View {
             }
           }
         }
+        Toggle("Visible", isOn: $store.visible)
         Section(header: Text("Keyboard")) {
           HStack {
             Text("Adjust Keyboard")
@@ -127,6 +121,10 @@ public struct PresetEditorView: View {
 //            Toggle("Adjust Keyboard", isOn: $store.audioSettings.keyboardLowestNoteEnabled)
 //              .labelsHidden()
           }
+        }
+        Section(header: Text("Notes")) {
+          TextEditor(text: $store.notes)
+            .focused($focusField, equals: .notes)
         }
       }
       .navigationTitle("Preset")
@@ -144,4 +142,38 @@ public struct PresetEditorView: View {
       }
     }
   }
+}
+
+private extension DatabaseWriter where Self == DatabaseQueue {
+  static var previewDatabase: Self {
+    let databaseQueue = try! DatabaseQueue()
+    try! databaseQueue.migrate()
+    try! databaseQueue.write { db in
+      for font in SF2ResourceFileTag.allCases {
+        _ = try! SoundFont.make(db, builtin: font)
+      }
+    }
+
+    let presets = try! databaseQueue.read { try! Preset.fetchAll($0) }
+
+    @Shared(.activeState) var activeState
+    $activeState.withLock {
+      $0.activePresetId = presets[0].id
+      $0.activeSoundFontId = presets[0].soundFontId
+      $0.selectedSoundFontId = presets.last!.soundFontId
+    }
+
+    return databaseQueue
+  }
+}
+
+#Preview {
+  let _ = prepareDependencies {
+    $0.defaultDatabase = .previewDatabase
+  }
+
+  @Dependency(\.defaultDatabase) var db
+  let presets = try! db.read { try! Preset.fetchAll($0) }
+
+  PresetEditorView(store: Store(initialState: .init(preset: presets[0])) { PresetEditor() })
 }

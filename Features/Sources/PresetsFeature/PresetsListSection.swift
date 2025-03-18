@@ -16,7 +16,7 @@ public struct PresetsListSection {
     let section: Int
     var rows: IdentifiedArrayOf<PresetButton.State>
 
-    public init(section: Int, presets: [Preset]) {
+    public init(section: Int, presets: ArraySlice<Preset>) {
       self.section = section
       self.rows = .init(uniqueElements: presets.map { .init(preset: $0) })
     }
@@ -28,13 +28,13 @@ public struct PresetsListSection {
      - returns: true if updated
      */
     mutating func update(preset: Preset) -> Bool {
-      guard let index = rows.firstIndex(where: { $0.presetId == preset.id }) else { return false }
+      guard let index = rows.firstIndex(where: { $0.id == preset.id }) else { return false }
       rows[index].preset = preset
       return true
     }
   }
 
-  public enum Action {
+  public enum Action: Equatable {
     case rows(IdentifiedActionOf<PresetButton>)
   }
 
@@ -72,7 +72,7 @@ public struct PresetsListSectionView: View {
           HStack {
             PresetButtonView(store: rowStore)
             Spacer()
-            Image(systemName: rowStore.isVisible ? "checkmark" : "circle")
+            Image(systemName: rowStore.preset.visible ? "checkmark" : "circle")
               .foregroundStyle(.blue)
               .onTapGesture {
                 rowStore.send(.toggleVisibility, animation: .default)

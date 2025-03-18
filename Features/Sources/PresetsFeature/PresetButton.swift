@@ -4,6 +4,7 @@ import ComposableArchitecture
 import GRDB
 import Models
 import SF2ResourceFiles
+import SwiftNavigation
 import SwiftUI
 import SwiftUISupport
 import Tagged
@@ -15,26 +16,27 @@ public struct PresetButton {
   public struct State: Equatable, Identifiable {
     public var preset: Preset
     public var id: Preset.ID { preset.id }
-    public var presetId: Preset.ID { preset.id }
-    public var soundFontId: SoundFont.ID { preset.soundFontId }
-    public var displayName: String { preset.displayName }
-    public var isVisible: Bool
+    @Presents public var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
 
     public init(preset: Preset) {
       self.preset = preset
-      self.isVisible = preset.visible
     }
   }
 
   public enum Action: Equatable {
     case buttonTapped
-    case confirmedHiding
+    case confirmationDialog(PresentationAction<ConfirmationDialog>)
     case delegate(Delegate)
     case editButtonTapped
     case favoriteButtonTapped
     case hideButtonTapped
-    case longPressGestureFired
     case toggleVisibility
+
+    @CasePathable
+    public enum ConfirmationDialog {
+      case cancelButtonTapped
+      case hideButtonTapped
+    }
   }
 
   @CasePathable
@@ -45,32 +47,56 @@ public struct PresetButton {
     case selectPreset(Preset)
   }
 
+  @Shared(.stopConfirmingPresetHiding) var stopConfirmingPresetHiding
+
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
       case .buttonTapped: return .send(.delegate(.selectPreset(state.preset)))
-      case .confirmedHiding: return .send(.delegate(.hidePreset(state.preset)))
+      case .confirmationDialog(.presented(.hideButtonTapped)):
+        return .send(.delegate(.hidePreset(state.preset))).animation(.default)
+      case .confirmationDialog: return .none
       case .delegate: return .none
       case .editButtonTapped: return .send(.delegate(.editPreset(state.preset)))
       case .favoriteButtonTapped: return .send(.delegate(.createFavorite(state.preset)))
-      case .hideButtonTapped: return .none
-      case .longPressGestureFired: return .send(.delegate(.editPreset(state.preset)))
-      case .toggleVisibility:
-        state.isVisible.toggle()
-        var preset = state.preset
-        preset.visible.toggle()
-        @Dependency(\.defaultDatabase) var database
-        do {
-          try database.write { try preset.save($0) }
-        } catch {
-          print("failed to save preset change to isVisible: \(error)")
-        }
-        return .none
+      case .hideButtonTapped: return hideButtonTapped(&state)
+      case .toggleVisibility: return toggleVisibility(&state)
       }
     }
+    .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
   }
 
   public init() {}
+
+  static func hideConfirmationDialogState(displayName: String) -> ConfirmationDialogState<Action.ConfirmationDialog> {
+    ConfirmationDialogState {
+      TextState("Hide \(displayName)?")
+    } actions: {
+      ButtonState(role: .cancel) { TextState("Cancel") }
+      ButtonState(action: .hideButtonTapped) { TextState("Hide") }
+    } message: {
+      TextState(
+        "Hide \(displayName)?\n\n" +
+        "Hiding a preset will keep it from appearing in the list of presets. " +
+        "You can restore them via the Visibility button below."
+      )
+    }
+  }
+
+  private func hideButtonTapped(_ state: inout State) -> Effect<Action> {
+    guard !stopConfirmingPresetHiding else { return .send(.delegate(.hidePreset(state.preset))) }
+    state.confirmationDialog = Self.hideConfirmationDialogState(displayName: state.preset.displayName)
+    return .none
+  }
+
+  private func toggleVisibility(_ state: inout State) -> Effect<Action> {
+    var preset = state.preset
+    preset.visible.toggle()
+    state.preset = preset
+    @Dependency(\.defaultDatabase) var database
+    try? database.write { try preset.save($0) }
+    return .none
+  }
 }
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
@@ -80,14 +106,12 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
 }
 
 public struct PresetButtonView: View {
-  let store: StoreOf<PresetButton>
-  @State var confirmingHiding: Bool = false
+  @Bindable var store: StoreOf<PresetButton>
   @Shared(.activeState) var activeState
-  @Shared(.stopConfirmingPresetHiding) var stopConfirmingPresetHiding
   @Environment(\.editMode) private var editMode
 
   var state: IndicatorModifier.State {
-    activeState.activeSoundFontId == store.soundFontId && activeState.activePresetId == store.presetId ?
+    activeState.activeSoundFontId == store.preset.soundFontId && activeState.activePresetId == store.preset.id ?
       .active : .none
   }
 
@@ -99,10 +123,11 @@ public struct PresetButtonView: View {
         store.send(.buttonTapped, animation: .default)
       }
     } label: {
-      Text(store.displayName)
+      Text(store.preset.displayName)
         .font(.buttonFont)
         .indicator(state)
     }
+    .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
         store.send(.editButtonTapped, animation: .default)
@@ -119,28 +144,10 @@ public struct PresetButtonView: View {
     }
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
       Button {
-        if !stopConfirmingPresetHiding {
-          confirmingHiding = true
-        } else {
-          store.send(.confirmedHiding, animation: .default)
-        }
+        store.send(.hideButtonTapped, animation: .default)
       } label: {
         Image(systemName: "eye.slash")
           .tint(.gray)
-      }
-    }
-    .confirmationDialog(
-      "Are you sure you want to hide \"\(store.displayName)\" preset?\n\n" +
-      "Once hidden It will no longer be visible here but you can restore visibility using the edit visibility control.",
-      isPresented: $confirmingHiding,
-      titleVisibility: .visible
-    ) {
-      Button("Confirm", role: .destructive) {
-        store.send(.confirmedHiding, animation: .default)
-        // $stopConfirmingPresetHiding.withLock { $0 = true }
-      }
-      Button("Cancel", role: .cancel) {
-        confirmingHiding = false
       }
     }
   }

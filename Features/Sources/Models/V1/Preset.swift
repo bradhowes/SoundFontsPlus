@@ -9,15 +9,16 @@ import Tagged
 public struct Preset: Codable, Identifiable, FetchableRecord, MutablePersistableRecord {
   public typealias ID = Tagged<Self, Int64>
 
-  public var id: ID
-  public var displayName: String
+  public let id: ID
   public let index: Int
   public let bank: Int
   public let program: Int
-  public var visible: Bool
   public let originalName: String
+  public let soundFontId: SoundFont.ID
+
+  public var displayName: String
+  public var visible: Bool
   public var notes: String
-  public var soundFontId: SoundFont.ID
 
   @discardableResult
   public static func make(

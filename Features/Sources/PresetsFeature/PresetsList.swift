@@ -10,8 +10,8 @@ import Models
 @Reducer
 public struct PresetsList {
 
-  @Reducer(state: .equatable, .sendable)
-  public enum Destination {
+  @Reducer(state: .equatable, .sendable, action: .equatable)
+  public enum Destination: Equatable {
     case edit(PresetEditor)
   }
 
@@ -44,7 +44,7 @@ public struct PresetsList {
     }
   }
 
-  public enum Action {
+  public enum Action: Equatable {
     case destination(PresentationAction<Destination.Action>)
     case fetchPresets(Bool)
     case onAppear
@@ -55,52 +55,27 @@ public struct PresetsList {
 
   public init() {}
 
+  @Dependency(\.defaultDatabase) var database
   @Shared(.activeState) var activeState
+
   private let pubisherCancelId = "selectedSoundFontChangedPublisher"
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
 
-      case .destination(.presented(.edit(.acceptButtonTapped))):
-        // Update the row with the preset that was edited.
-        guard case let Destination.State.edit(editorState)? = state.destination else { return .none }
-        state.update(preset: editorState.preset)
-        return .none
-
-      case .destination:
-        return .none
-
-      case .fetchPresets(let editing):
-        return fetchPresets(&state, soundFontId: activeState.activeSoundFontId, editing: editing)
-
-      case .onAppear:
-        return .publisher {
-          $activeState.selectedSoundFontId.publisher.map {
-            return Action.selectedSoundFontIdChanged($0) }
-        }.cancellable(id: pubisherCancelId)
-
+      case .destination(.presented(.edit(.acceptButtonTapped))): return updatePreset(&state)
+      case .destination: return .none
+      case .fetchPresets(let editing): return fetchPresets(&state, editing: editing)
+      case .onAppear: return monitorSelectedSoundFont()
       case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(.editPreset(preset)))))):
-        state.destination = .edit(PresetEditor.State(preset: preset))
-        return .none
-
+        return editPreset(&state, preset: preset)
       case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(.hidePreset(preset)))))):
-        hidePreset(&state, preset: preset)
-        return .none
-
+        return hidePreset(&state, preset: preset)
       case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(.selectPreset(preset)))))):
-        $activeState.withLock {
-          $0.activePresetId = preset.id
-          $0.activeSoundFontId = preset.soundFontId
-        }
-        return .none
-
-      case .sections:
-        return .none
-
-      case .selectedSoundFontIdChanged(let soundFontId):
-        return fetchPresets(&state, soundFontId: soundFontId, editing: false)
-
+        return selectPreset(&state, preset: preset)
+      case .sections: return .none
+      case .selectedSoundFontIdChanged(let soundFontId): return setSoundFont(&state, soundFontId: soundFontId)
       case .stop: return .cancel(id: pubisherCancelId)
       }
     }
@@ -117,33 +92,59 @@ func generatePresetSections(soundFont: SoundFont, editing: Bool) -> IdentifiedAr
   let grouping = 10
   let presets = editing ? soundFont.allPresets : soundFont.presets
   return .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map { range in
-    PresetsListSection.State(section: range.lowerBound, presets: Array(presets[range]))
+    PresetsListSection.State(section: range.lowerBound, presets: presets[range])
   })
 }
 
 extension PresetsList {
 
-  private func fetchPresets(_ state: inout State, soundFontId: SoundFont.ID?, editing: Bool) -> Effect<Action> {
+  private func editPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
+    state.destination = .edit(PresetEditor.State(preset: preset))
+    return .none
+  }
+
+  private func monitorSelectedSoundFont() -> Effect<Action> {
+    return .publisher {
+      $activeState.selectedSoundFontId.publisher.map {
+        return Action.selectedSoundFontIdChanged($0) }
+    }.cancellable(id: pubisherCancelId)
+  }
+
+  private func selectPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
+    $activeState.withLock {
+      $0.activePresetId = preset.id
+      $0.activeSoundFontId = preset.soundFontId
+    }
+    return .none
+  }
+
+  private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
+    guard state.soundFont?.id != soundFontId else { return .none }
+    @Dependency(\.defaultDatabase) var database
     guard let soundFontId else {
       state.soundFont = nil
       state.sections = []
+      return .none.animation(.default)
+    }
+
+    let soundFont = try? database.read({ try SoundFont.fetchOne($0, id: soundFontId) })
+    state.soundFont = soundFont
+    return fetchPresets(&state, editing: false)
+  }
+
+  private func updatePreset(_ state: inout State) -> Effect<Action> {
+    // Update the row with the preset that was edited.
+    guard case let Destination.State.edit(editorState)? = state.destination else { return .none }
+    state.update(preset: editorState.preset)
+    return fetchPresets(&state, editing: false)
+  }
+
+  private func fetchPresets(_ state: inout State, editing: Bool) -> Effect<Action> {
+    guard let soundFont = state.soundFont else {
+      state.sections = []
       return .none
     }
-
-    @Dependency(\.defaultDatabase) var database
-    do {
-      let soundFont = try database.read { try SoundFont.fetchOne($0, id: soundFontId) }
-      if let soundFont {
-        state.soundFont = soundFont
-        state.sections = generatePresetSections(soundFont: soundFont, editing: editing)
-      } else {
-        state.sections = []
-      }
-    } catch {
-      state.sections = []
-      print("failed to fetch sound font key \(soundFontId)")
-    }
-
+    state.sections = generatePresetSections(soundFont: soundFont, editing: editing)
     return .none
   }
 
@@ -153,12 +154,8 @@ extension PresetsList {
     }
   }
 
-  private func hidePreset(_ state: inout State, preset: Preset) {
-    guard let soundFont = state.soundFont else {
-      fatalError("unexpected nil soundFont")
-    }
-    @Dependency(\.defaultDatabase) var database
-
+  private func hidePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
+    guard let soundFont = state.soundFont else { fatalError("unexpected nil soundFont") }
     var newActive: Preset.ID? = preset.id
     if preset.id == activeState.activePresetId {
       let presets = soundFont.presets
@@ -181,11 +178,15 @@ extension PresetsList {
     } catch {
     }
 
-    state.sections = generatePresetSections(soundFont: soundFont, editing: false)
-
-    if newActive != activeState.activePresetId {
-      setActivePresetId(&state, newActive)
+    // We should only need to regenerate sections with the removed preset and following.
+    withAnimation {
+      state.sections = generatePresetSections(soundFont: soundFont, editing: false)
+      if preset.id == activeState.activePresetId && newActive != preset.id {
+        setActivePresetId(&state, newActive)
+      }
     }
+
+    return .none.animation(.default)
   }
 }
 
