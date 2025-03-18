@@ -20,6 +20,7 @@ public struct PresetsList {
     @Presents var destination: Destination.State?
     var soundFont: SoundFont?
     var sections: IdentifiedArrayOf<PresetsListSection.State>
+    var editingVisibility: Bool = false
 
     public init(soundFont: SoundFont?) {
       self.soundFont = soundFont
@@ -46,11 +47,12 @@ public struct PresetsList {
 
   public enum Action: Equatable {
     case destination(PresentationAction<Destination.Action>)
-    case fetchPresets(Bool)
+    case fetchPresets
     case onAppear
     case sections(IdentifiedActionOf<PresetsListSection>)
     case selectedSoundFontIdChanged(SoundFont.ID?)
     case stop
+    case toggleEditMode
   }
 
   public init() {}
@@ -66,7 +68,7 @@ public struct PresetsList {
 
       case .destination(.presented(.edit(.acceptButtonTapped))): return updatePreset(&state)
       case .destination: return .none
-      case .fetchPresets(let editing): return fetchPresets(&state, editing: editing)
+      case .fetchPresets: return fetchPresets(&state)
       case .onAppear: return monitorSelectedSoundFont()
       case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(.editPreset(preset)))))):
         return editPreset(&state, preset: preset)
@@ -77,6 +79,7 @@ public struct PresetsList {
       case .sections: return .none
       case .selectedSoundFontIdChanged(let soundFontId): return setSoundFont(&state, soundFontId: soundFontId)
       case .stop: return .cancel(id: pubisherCancelId)
+      case .toggleEditMode: return toggleEditMode(&state)
       }
     }
     .forEach(\.sections, action: \.sections) {
@@ -97,6 +100,11 @@ func generatePresetSections(soundFont: SoundFont, editing: Bool) -> IdentifiedAr
 }
 
 extension PresetsList {
+
+  private func toggleEditMode(_ state: inout State) -> Effect<Action> {
+    state.editingVisibility.toggle()
+    return fetchPresets(&state)
+  }
 
   private func editPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
     state.destination = .edit(PresetEditor.State(preset: preset))
@@ -120,6 +128,7 @@ extension PresetsList {
 
   private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
     guard state.soundFont?.id != soundFontId else { return .none }
+    state.editingVisibility = false
     @Dependency(\.defaultDatabase) var database
     guard let soundFontId else {
       state.soundFont = nil
@@ -129,22 +138,22 @@ extension PresetsList {
 
     let soundFont = try? database.read({ try SoundFont.fetchOne($0, id: soundFontId) })
     state.soundFont = soundFont
-    return fetchPresets(&state, editing: false)
+    return fetchPresets(&state)
   }
 
   private func updatePreset(_ state: inout State) -> Effect<Action> {
-    // Update the row with the preset that was edited.
     guard case let Destination.State.edit(editorState)? = state.destination else { return .none }
     state.update(preset: editorState.preset)
-    return fetchPresets(&state, editing: false)
+    return fetchPresets(&state)
   }
 
-  private func fetchPresets(_ state: inout State, editing: Bool) -> Effect<Action> {
+  private func fetchPresets(_ state: inout State) -> Effect<Action> {
     guard let soundFont = state.soundFont else {
       state.sections = []
+      state.editingVisibility = false
       return .none
     }
-    state.sections = generatePresetSections(soundFont: soundFont, editing: editing)
+    state.sections = generatePresetSections(soundFont: soundFont, editing: state.editingVisibility)
     return .none
   }
 
@@ -169,30 +178,24 @@ extension PresetsList {
     }
 
     var preset = preset
-    do {
-      _ = try database.write {
-        try preset.updateChanges($0) {
-          $0.visible = false
-        }
-      }
-    } catch {
-    }
-
-    // We should only need to regenerate sections with the removed preset and following.
-    withAnimation {
-      state.sections = generatePresetSections(soundFont: soundFont, editing: false)
-      if preset.id == activeState.activePresetId && newActive != preset.id {
-        setActivePresetId(&state, newActive)
+    _ = try? database.write {
+      try preset.updateChanges($0) {
+        $0.visible = false
       }
     }
 
-    return .none.animation(.default)
+    if preset.id == activeState.activePresetId && newActive != preset.id {
+      setActivePresetId(&state, newActive)
+    }
+
+    return .run { send in
+      await send(.fetchPresets)
+    }.animation(.default)
   }
 }
 
 public struct PresetsListView: View {
   @Bindable private var store: StoreOf<PresetsList>
-  @Environment(\.editMode) private var editMode
 
   public init(store: StoreOf<PresetsList>) {
     self.store = store
@@ -204,23 +207,25 @@ public struct PresetsListView: View {
         PresetsListSectionView(store: rowStore)
       }
     }
-    .listSectionSpacing(.custom(-14.0))
+    .listStyle(.plain)
     .onAppear {
       store.send(.onAppear)
     }
-    .onChange(of: editMode?.wrappedValue.isEditing) {
-      store.send(.fetchPresets(editMode?.wrappedValue == EditMode.active), animation: .default)
-    }
-    .sheet(
-      item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
-    ) { editorStore in
-      PresetEditorView(store: editorStore)
+    .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
+      PresetEditorView(store: $0)
     }
     .navigationTitle("Presets")
+    .environment(\.editMode, .constant(store.editingVisibility ? EditMode.active : .inactive))
     .toolbar {
       Button {
+        store.send(.toggleEditMode, animation: .default)
       } label: {
-        Image(systemName: "checklist")
+        if store.state.editingVisibility {
+          Text("Done")
+            .foregroundStyle(.red)
+        } else {
+          Image(systemName: "checklist")
+        }
       }
       Button {
       } label: {
@@ -236,7 +241,7 @@ private extension DatabaseWriter where Self == DatabaseQueue {
     try! databaseQueue.migrate()
     try! databaseQueue.write { db in
       for font in SF2ResourceFileTag.allCases {
-        _ = try! SoundFont.make(db, builtin: font)
+        _ = try? SoundFont.make(db, builtin: font)
       }
     }
 
@@ -262,10 +267,11 @@ extension PresetsListView {
     let soundFonts = try! db.read { try! SoundFont.orderByPrimaryKey().fetchAll($0) }
 
     return VStack {
-      EditButton()
-      PresetsListView(store: Store(initialState: .init(soundFont: soundFonts[0])) {
-        PresetsList()
-      })
+      NavigationStack {
+        PresetsListView(store: Store(initialState: .init(soundFont: soundFonts[0])) {
+          PresetsList()
+        })
+      }
     }
   }
 }

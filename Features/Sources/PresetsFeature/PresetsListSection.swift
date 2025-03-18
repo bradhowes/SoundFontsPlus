@@ -63,7 +63,6 @@ public struct PresetsListSectionView: View {
 
   public var body: some View {
     let header = Text(store.section == 0 ? "" : "\(store.section)")
-      .font(.system(.caption2))
       .foregroundStyle(.indigo)
 
     Section(header: header) {

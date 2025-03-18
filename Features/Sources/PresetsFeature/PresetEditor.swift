@@ -150,7 +150,7 @@ private extension DatabaseWriter where Self == DatabaseQueue {
     try! databaseQueue.migrate()
     try! databaseQueue.write { db in
       for font in SF2ResourceFileTag.allCases {
-        _ = try! SoundFont.make(db, builtin: font)
+        _ = try? SoundFont.make(db, builtin: font)
       }
     }
 

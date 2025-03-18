@@ -78,15 +78,15 @@ public struct PresetButton {
       TextState(
         "Hide \(displayName)?\n\n" +
         "Hiding a preset will keep it from appearing in the list of presets. " +
-        "You can restore them via the Visibility button below."
+        "You can restore them via the visibility button in the toolbar."
       )
     }
   }
 
   private func hideButtonTapped(_ state: inout State) -> Effect<Action> {
-    guard !stopConfirmingPresetHiding else { return .send(.delegate(.hidePreset(state.preset))) }
+    guard !stopConfirmingPresetHiding else { return .send(.delegate(.hidePreset(state.preset))).animation(.default) }
     state.confirmationDialog = Self.hideConfirmationDialogState(displayName: state.preset.displayName)
-    return .none
+    return .none.animation(.default)
   }
 
   private func toggleVisibility(_ state: inout State) -> Effect<Action> {
@@ -159,7 +159,7 @@ private extension DatabaseWriter where Self == DatabaseQueue {
     try! databaseQueue.migrate()
     try! databaseQueue.write { db in
       for font in SF2ResourceFileTag.allCases {
-        _ = try! SoundFont.make(db, builtin: font)
+        _ = try? SoundFont.make(db, builtin: font)
       }
     }
 
