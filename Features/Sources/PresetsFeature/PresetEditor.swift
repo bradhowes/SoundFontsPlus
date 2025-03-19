@@ -167,13 +167,19 @@ private extension DatabaseWriter where Self == DatabaseQueue {
   }
 }
 
-#Preview {
-  let _ = prepareDependencies {
-    $0.defaultDatabase = .previewDatabase
+extension PresetEditorView {
+  static var preview: some View {
+    let _ = prepareDependencies {
+      $0.defaultDatabase = .previewDatabase
+    }
+
+    @Dependency(\.defaultDatabase) var db
+    let presets = try! db.read { try! Preset.fetchAll($0) }
+
+    return PresetEditorView(store: Store(initialState: .init(preset: presets[0])) { PresetEditor() })
   }
+}
 
-  @Dependency(\.defaultDatabase) var db
-  let presets = try! db.read { try! Preset.fetchAll($0) }
-
-  PresetEditorView(store: Store(initialState: .init(preset: presets[0])) { PresetEditor() })
+#Preview {
+  PresetEditorView.preview
 }

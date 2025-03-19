@@ -1,5 +1,5 @@
 {
-  "originHash" : "8cf00cd835130ab6ec266babe6a4874469c9b65f2e1c2a11e81db92d59097891",
+  "originHash" : "62516467ce10bb7f2a3d9aed02aae2ec02daebe2eab53796e5b448f765c44f4b",
   "pins" : [
     {
       "identity" : "auv3support",
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/groue/GRDB.swift",
       "state" : {
-        "revision" : "c7205b172f38439e7ee62c208d1d76fa353c0a81",
-        "version" : "7.2.0"
+        "revision" : "6eba24d16952452a8a54f6a639491f3c8215527f",
+        "version" : "7.3.0"
       }
     },
     {
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sharing-grdb",
       "state" : {
-        "revision" : "8c848635c0495795ecffcac740cfae6f761cb712",
-        "version" : "0.1.0"
+        "revision" : "83ad5261983c4fcc92d071610e09718ce5227e29",
+        "version" : "0.1.1"
       }
     },
     {
@@ -87,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "2ebda6ae2b155a5c3d75aff5f6d25c024bc91311",
-        "version" : "1.17.1"
+        "revision" : "76c4411e02cc7768a3f27ca058bd2143c342e5b2",
+        "version" : "1.18.0"
       }
     },
     {
@@ -114,8 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-dependencies",
       "state" : {
-        "revision" : "52b5e1a09dc016e64ce253e19ab3124b7fae9ac9",
-        "version" : "1.7.0"
+        "revision" : "ec2862d1364536fc22ec56a3094e7a034bbc7da8",
+        "version" : "1.8.1"
       }
     },
     {
@@ -132,8 +132,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
-        "revision" : "e28911721538fa0c2439e92320bad13e3200866f",
-        "version" : "2.2.3"
+        "revision" : "db6bc9dbfed001f21e6728fd36413d9342c235b4",
+        "version" : "2.3.0"
       }
     },
     {
@@ -141,8 +141,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-numerics.git",
       "state" : {
-        "revision" : "0a5bc04095a675662cf24757cc0640aa2204253b",
-        "version" : "1.0.2"
+        "revision" : "e0ec0f5f3af6f3e4d5e7a19d2af26b481acb6ba8",
+        "version" : "1.0.3"
       }
     },
     {
@@ -150,8 +150,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-perception",
       "state" : {
-        "revision" : "21811d6230a625fa0f2e6ffa85be857075cc02c4",
-        "version" : "1.5.0"
+        "revision" : "671fa54b279fd73933b4a8b34782ebf6c8869145",
+        "version" : "1.5.1"
       }
     },
     {
@@ -159,8 +159,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-sharing",
       "state" : {
-        "revision" : "10ba53dd428aed9fc4a1543d3271860a6d4b8dd2",
-        "version" : "2.3.0"
+        "revision" : "2c840cf2ae0526ad6090e7796c4e13d9a2339f4a",
+        "version" : "2.3.3"
       }
     },
     {
@@ -195,8 +195,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "b444594f79844b0d6d76d70fbfb3f7f71728f938",
-        "version" : "1.5.1"
+        "revision" : "39de59b2d47f7ef3ca88a039dff3084688fe27f4",
+        "version" : "1.5.2"
       }
     }
   ],

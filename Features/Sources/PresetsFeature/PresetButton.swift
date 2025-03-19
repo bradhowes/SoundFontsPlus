@@ -176,17 +176,23 @@ private extension DatabaseWriter where Self == DatabaseQueue {
   }
 }
 
+extension PresetButtonView {
+  static var preview: some View {
+    let _ = prepareDependencies {
+      $0.defaultDatabase = .previewDatabase
+    }
+
+    @Dependency(\.defaultDatabase) var db
+    let presets = try! db.read { try! Preset.fetchAll($0) }
+
+    return List {
+      PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
+      PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
+      PresetButtonView(store: Store(initialState: .init(preset: presets.last!)) { PresetButton() })
+    }
+  }
+}
+
 #Preview {
-  let _ = prepareDependencies {
-    $0.defaultDatabase = .previewDatabase
-  }
-
-  @Dependency(\.defaultDatabase) var db
-  let presets = try! db.read { try! Preset.fetchAll($0) }
-
-  List {
-    PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
-    PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
-    PresetButtonView(store: Store(initialState: .init(preset: presets.last!)) { PresetButton() })
-  }
+  PresetButtonView.preview
 }

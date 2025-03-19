@@ -6,6 +6,7 @@ import GRDB
 import Models
 import SF2ResourceFiles
 import SnapshotTesting
+import SwiftUI
 import Tagged
 @testable import PresetsFeature
 
@@ -95,6 +96,15 @@ struct PresetButtonTests {
   }
 
   @Test func presetButtonPreview() async throws {
-    
+    withSnapshotTesting(record: .failed) {
+      struct HostView: SwiftUI.View {
+        var body: some SwiftUI.View {
+          PresetButtonView.preview
+            .environment(\.editMode, .constant(.inactive))
+        }
+      }
+      let view = HostView()
+      assertSnapshot(of: view, as: .image(layout: .device(config: .iPhoneSe), traits: .init(userInterfaceStyle: .dark)))
+    }
   }
 }

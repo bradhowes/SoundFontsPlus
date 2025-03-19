@@ -20,15 +20,16 @@ public struct PresetsList {
     @Presents var destination: Destination.State?
     var soundFont: SoundFont?
     var sections: IdentifiedArrayOf<PresetsListSection.State>
-    var editingVisibility: Bool = false
+    var editingVisibility: Bool
 
-    public init(soundFont: SoundFont?) {
+    public init(soundFont: SoundFont?, editingVisibility: Bool = false) {
       self.soundFont = soundFont
       if let soundFont {
         self.sections = generatePresetSections(soundFont: soundFont, editing: false)
       } else {
         self.sections = []
       }
+      self.editingVisibility = editingVisibility
     }
 
     /**
@@ -195,7 +196,7 @@ extension PresetsList {
 }
 
 public struct PresetsListView: View {
-  @Bindable private var store: StoreOf<PresetsList>
+  @Bindable internal var store: StoreOf<PresetsList>
 
   public init(store: StoreOf<PresetsList>) {
     self.store = store
@@ -268,7 +269,19 @@ extension PresetsListView {
 
     return VStack {
       NavigationStack {
-        PresetsListView(store: Store(initialState: .init(soundFont: soundFonts[0])) {
+        PresetsListView(store: Store(initialState: .init(soundFont: soundFonts[0])) { PresetsList() })
+      }
+    }
+  }
+
+  static var previewEditing: some View {
+    let _ = prepareDependencies { $0.defaultDatabase = .previewDatabase }
+    @Dependency(\.defaultDatabase) var db
+    let soundFonts = try! db.read { try! SoundFont.orderByPrimaryKey().fetchAll($0) }
+
+    return VStack {
+      NavigationStack {
+        PresetsListView(store: Store(initialState: .init(soundFont: soundFonts[0], editingVisibility: true)) {
           PresetsList()
         })
       }

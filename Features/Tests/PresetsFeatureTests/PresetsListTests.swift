@@ -5,6 +5,7 @@ import Dependencies
 import GRDB
 import Models
 import SF2ResourceFiles
+import SnapshotTesting
 import Tagged
 @testable import PresetsFeature
 
@@ -134,6 +135,20 @@ struct PresetsListTests {
 
       await store.receive(.fetchPresets)
       #expect(store.state.sections[0].rows[0].preset.displayName == "Piano 2")
+    }
+  }
+
+  @Test func presetListViewPreview() async throws {
+    withSnapshotTesting(record: .failed) {
+      let view = PresetsListView.preview
+      assertSnapshot(of: view, as: .image(layout: .device(config: .iPhoneSe), traits: .init(userInterfaceStyle: .dark)))
+    }
+  }
+
+  @Test func presetListViewPreviewEditing() async throws {
+    withSnapshotTesting(record: .failed) {
+      let view = PresetsListView.previewEditing
+      assertSnapshot(of: view, as: .image(layout: .device(config: .iPhoneSe), traits: .init(userInterfaceStyle: .dark)))
     }
   }
 }

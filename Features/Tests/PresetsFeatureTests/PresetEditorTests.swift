@@ -5,6 +5,7 @@ import Dependencies
 import GRDB
 import Models
 import SF2ResourceFiles
+import SnapshotTesting
 import Tagged
 @testable import PresetsFeature
 
@@ -74,6 +75,13 @@ struct PresetEditorTests {
       await store.send(\.useOriginalNameTapped) {
         $0.displayName = store.state.preset.displayName
       }
+    }
+  }
+
+  @Test func presetEditorPreview() async throws {
+    withSnapshotTesting(record: .failed) {
+      let view = PresetEditorView.preview
+      assertSnapshot(of: view, as: .image(layout: .device(config: .iPhoneSe), traits: .init(userInterfaceStyle: .dark)))
     }
   }
 }
