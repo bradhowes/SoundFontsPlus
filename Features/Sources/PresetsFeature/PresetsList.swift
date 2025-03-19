@@ -21,15 +21,23 @@ public struct PresetsList {
     var soundFont: SoundFont?
     var sections: IdentifiedArrayOf<PresetsListSection.State>
     var editingVisibility: Bool
+    var searchText: String
+    var isSearchFieldPresented: Bool
+    var optionalSearchText: String? { isSearchFieldPresented ? searchText : nil }
 
-    public init(soundFont: SoundFont?, editingVisibility: Bool = false) {
+    public init(soundFont: SoundFont?, editingVisibility: Bool = false, searchText: String? = nil) {
       self.soundFont = soundFont
-      if let soundFont {
-        self.sections = generatePresetSections(soundFont: soundFont, editing: false)
-      } else {
-        self.sections = []
-      }
       self.editingVisibility = editingVisibility
+      self.isSearchFieldPresented = searchText != nil
+      self.searchText = searchText ?? ""
+      self.sections = []
+      if let soundFont {
+        self.sections = generatePresetSections(
+          soundFont: soundFont,
+          searchText: self.optionalSearchText,
+          editing: false
+        )
+      }
     }
 
     /**
@@ -50,6 +58,8 @@ public struct PresetsList {
     case destination(PresentationAction<Destination.Action>)
     case fetchPresets
     case onAppear
+    case searchButtonTapped(Bool)
+    case searchTextChanged(String)
     case sections(IdentifiedActionOf<PresetsListSection>)
     case selectedSoundFontIdChanged(SoundFont.ID?)
     case stop
@@ -66,11 +76,12 @@ public struct PresetsList {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-
       case .destination(.presented(.edit(.acceptButtonTapped))): return updatePreset(&state)
       case .destination: return .none
       case .fetchPresets: return fetchPresets(&state)
       case .onAppear: return monitorSelectedSoundFont()
+      case .searchButtonTapped(let enabled): return searchButtonTapped(&state, enabled: enabled)
+      case .searchTextChanged(let value): return searchTextChanged(&state, searchText: value)
       case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(.editPreset(preset)))))):
         return editPreset(&state, preset: preset)
       case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(.hidePreset(preset)))))):
@@ -92,11 +103,23 @@ public struct PresetsList {
 
 // extension PresetsList.Destination.State: Equatable {}
 
-func generatePresetSections(soundFont: SoundFont, editing: Bool) -> IdentifiedArrayOf<PresetsListSection.State> {
-  let grouping = 10
-  let presets = editing ? soundFont.allPresets : soundFont.presets
-  return .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map { range in
-    PresetsListSection.State(section: range.lowerBound, presets: presets[range])
+func generatePresetSections(
+  soundFont: SoundFont,
+  searchText: String?,
+  editing: Bool
+) -> IdentifiedArrayOf<PresetsListSection.State> {
+  let grouping = searchText != nil ? 100_000 : 10
+  var presets = editing ? soundFont.allPresets : soundFont.presets
+  print("presets: \(presets.count)")
+
+  if let searchText, !searchText.isEmpty {
+    presets = presets.filter {
+      $0.displayName.localizedLowercase.contains(searchText.lowercased())
+    }
+  }
+
+  return .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map {
+    PresetsListSection.State(section: $0.lowerBound, presets: presets[$0])
   })
 }
 
@@ -113,7 +136,12 @@ extension PresetsList {
       state.editingVisibility = false
       return .none
     }
-    state.sections = generatePresetSections(soundFont: soundFont, editing: state.editingVisibility)
+
+    state.sections = generatePresetSections(
+      soundFont: soundFont,
+      searchText: state.optionalSearchText,
+      editing: state.editingVisibility
+    )
     return .none
   }
 
@@ -152,6 +180,23 @@ extension PresetsList {
       $activeState.selectedSoundFontId.publisher.map {
         return Action.selectedSoundFontIdChanged($0) }
     }.cancellable(id: pubisherCancelId)
+  }
+
+  private func searchButtonTapped(_ state: inout State, enabled: Bool) -> Effect<Action> {
+    state.isSearchFieldPresented = enabled
+    if !enabled {
+      state.searchText = ""
+      return fetchPresets(&state)
+    }
+    return .none
+  }
+
+  private func searchTextChanged(_ state: inout State, searchText: String) -> Effect<Action> {
+    if searchText != state.searchText {
+      state.searchText = searchText
+      return fetchPresets(&state)
+    }
+    return .none
   }
 
   private func selectPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
@@ -203,20 +248,29 @@ public struct PresetsListView: View {
   }
 
   public var body: some View {
-    List {
-      ForEach(store.scope(state: \.sections, action: \.sections), id: \.id) { rowStore in
-        PresetsListSectionView(store: rowStore)
+    NavigationStack {
+      List {
+        ForEach(store.scope(state: \.sections, action: \.sections), id: \.id) { rowStore in
+          PresetsListSectionView(store: rowStore)
+        }
       }
+      .listSectionSpacing(.compact)
+      .listStyle(.inset)
+      .onAppear {
+        store.send(.onAppear)
+      }
+      .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
+        PresetEditorView(store: $0)
+      }
+      .navigationTitle("Presets")
+      .environment(\.defaultMinListHeaderHeight, 1)
+      .searchable(
+        text: $store.searchText.sending(\.searchTextChanged),
+        isPresented: $store.isSearchFieldPresented.sending(\.searchButtonTapped),
+        placement: .automatic,
+        prompt: "Name"
+      )
     }
-    .listStyle(.plain)
-    .onAppear {
-      store.send(.onAppear)
-    }
-    .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
-      PresetEditorView(store: $0)
-    }
-    .navigationTitle("Presets")
-    .environment(\.editMode, .constant(store.editingVisibility ? EditMode.active : .inactive))
     .toolbar {
       Button {
         store.send(.toggleEditMode, animation: .default)
@@ -229,10 +283,12 @@ public struct PresetsListView: View {
         }
       }
       Button {
+        store.send(.searchButtonTapped(true), animation: .default)
       } label: {
         Image(systemName: "magnifyingglass")
       }
     }
+    .environment(\.editMode, .constant(store.editingVisibility ? EditMode.active : .inactive))
   }
 }
 
@@ -279,13 +335,9 @@ extension PresetsListView {
     @Dependency(\.defaultDatabase) var db
     let soundFonts = try! db.read { try! SoundFont.orderByPrimaryKey().fetchAll($0) }
 
-    return VStack {
-      NavigationStack {
-        PresetsListView(store: Store(initialState: .init(soundFont: soundFonts[0], editingVisibility: true)) {
-          PresetsList()
-        })
-      }
-    }
+    return PresetsListView(store: Store(initialState: .init(soundFont: soundFonts[0], editingVisibility: true)) {
+      PresetsList()
+    })
   }
 }
 

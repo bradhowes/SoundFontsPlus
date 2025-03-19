@@ -54,7 +54,6 @@ public struct PresetsListSection {
 
 public struct PresetsListSectionView: View {
   @Bindable private var store: StoreOf<PresetsListSection>
-  @Shared(.activeState) private var activeState
   @Environment(\.editMode) private var editMode
 
   public init(store: StoreOf<PresetsListSection>) {
@@ -62,26 +61,45 @@ public struct PresetsListSectionView: View {
   }
 
   public var body: some View {
-    let header = Text(store.section == 0 ? "" : "\(store.section)")
-      .foregroundStyle(.indigo)
-
-    Section(header: header) {
+    if store.section == 0 {
       if editMode?.wrappedValue == EditMode.active {
-        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-          HStack {
-            PresetButtonView(store: rowStore)
-            Spacer()
-            Image(systemName: rowStore.preset.visible ? "checkmark" : "circle")
-              .foregroundStyle(.blue)
-              .onTapGesture {
-                rowStore.send(.toggleVisibility, animation: .default)
-              }
-          }
-        }
+        editingRows
       } else {
-        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-          PresetButtonView(store: rowStore)
+        buttonRows
+      }
+    } else {
+      let header = Text(store.section == 0 ? "" : "\(store.section)")
+        .foregroundStyle(.indigo)
+      // .listRowInsets(EdgeInsets(top: -20, leading: 10, bottom: 0, trailing: 0))
+
+      Section(header: header) {
+        if editMode?.wrappedValue == EditMode.active {
+          editingRows
+        } else {
+          buttonRows
         }
+      }
+      .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+    }
+  }
+
+  private var buttonRows: some View {
+    ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+      PresetButtonView(store: rowStore)
+        .id(rowStore.preset.id)
+    }
+  }
+
+  private var editingRows: some View {
+    ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+      HStack {
+        PresetButtonView(store: rowStore)
+        Spacer()
+        Image(systemName: rowStore.preset.visible ? "checkmark" : "circle")
+          .foregroundStyle(.blue)
+          .onTapGesture {
+            rowStore.send(.toggleVisibility, animation: .default)
+          }
       }
     }
   }
