@@ -101,50 +101,9 @@ func generatePresetSections(soundFont: SoundFont, editing: Bool) -> IdentifiedAr
 
 extension PresetsList {
 
-  private func toggleEditMode(_ state: inout State) -> Effect<Action> {
-    state.editingVisibility.toggle()
-    return fetchPresets(&state)
-  }
-
   private func editPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
     state.destination = .edit(PresetEditor.State(preset: preset))
     return .none
-  }
-
-  private func monitorSelectedSoundFont() -> Effect<Action> {
-    return .publisher {
-      $activeState.selectedSoundFontId.publisher.map {
-        return Action.selectedSoundFontIdChanged($0) }
-    }.cancellable(id: pubisherCancelId)
-  }
-
-  private func selectPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
-    $activeState.withLock {
-      $0.activePresetId = preset.id
-      $0.activeSoundFontId = preset.soundFontId
-    }
-    return .none
-  }
-
-  private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
-    guard state.soundFont?.id != soundFontId else { return .none }
-    state.editingVisibility = false
-    @Dependency(\.defaultDatabase) var database
-    guard let soundFontId else {
-      state.soundFont = nil
-      state.sections = []
-      return .none.animation(.default)
-    }
-
-    let soundFont = try? database.read({ try SoundFont.fetchOne($0, id: soundFontId) })
-    state.soundFont = soundFont
-    return fetchPresets(&state)
-  }
-
-  private func updatePreset(_ state: inout State) -> Effect<Action> {
-    guard case let Destination.State.edit(editorState)? = state.destination else { return .none }
-    state.update(preset: editorState.preset)
-    return fetchPresets(&state)
   }
 
   private func fetchPresets(_ state: inout State) -> Effect<Action> {
@@ -155,12 +114,6 @@ extension PresetsList {
     }
     state.sections = generatePresetSections(soundFont: soundFont, editing: state.editingVisibility)
     return .none
-  }
-
-  private func setActivePresetId(_ state: inout State, _ presetId: Preset.ID?) {
-    $activeState.withLock {
-      $0.activePresetId = presetId
-    }
   }
 
   private func hidePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
@@ -191,6 +144,53 @@ extension PresetsList {
     return .run { send in
       await send(.fetchPresets)
     }.animation(.default)
+  }
+
+  private func monitorSelectedSoundFont() -> Effect<Action> {
+    return .publisher {
+      $activeState.selectedSoundFontId.publisher.map {
+        return Action.selectedSoundFontIdChanged($0) }
+    }.cancellable(id: pubisherCancelId)
+  }
+
+  private func selectPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
+    $activeState.withLock {
+      $0.activePresetId = preset.id
+      $0.activeSoundFontId = preset.soundFontId
+    }
+    return .none
+  }
+
+  private func setActivePresetId(_ state: inout State, _ presetId: Preset.ID?) {
+    $activeState.withLock {
+      $0.activePresetId = presetId
+    }
+  }
+
+  private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
+    guard state.soundFont?.id != soundFontId else { return .none }
+    state.editingVisibility = false
+    @Dependency(\.defaultDatabase) var database
+    guard let soundFontId else {
+      state.soundFont = nil
+      state.sections = []
+      return .none.animation(.default)
+    }
+
+    let soundFont = try? database.read({ try SoundFont.fetchOne($0, id: soundFontId) })
+    state.soundFont = soundFont
+    return fetchPresets(&state)
+  }
+
+  private func toggleEditMode(_ state: inout State) -> Effect<Action> {
+    state.editingVisibility.toggle()
+    return fetchPresets(&state)
+  }
+
+  private func updatePreset(_ state: inout State) -> Effect<Action> {
+    guard case let Destination.State.edit(editorState)? = state.destination else { return .none }
+    state.update(preset: editorState.preset)
+    return fetchPresets(&state)
   }
 }
 

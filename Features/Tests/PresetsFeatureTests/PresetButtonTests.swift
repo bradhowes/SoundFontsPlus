@@ -5,6 +5,7 @@ import Dependencies
 import GRDB
 import Models
 import SF2ResourceFiles
+import SnapshotTesting
 import Tagged
 @testable import PresetsFeature
 
@@ -91,5 +92,9 @@ struct PresetButtonTests {
       preset = try await fetchPreset(presetId: store.state.id)
       #expect(preset.visible == true)
     }
+  }
+
+  @Test func presetButtonPreview() async throws {
+    
   }
 }

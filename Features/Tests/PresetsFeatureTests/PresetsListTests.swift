@@ -103,22 +103,36 @@ struct PresetsListTests {
       }
 
       store.exhaustivity = .off
-      await store.send(.fetchPresets(false))
+      await store.send(.fetchPresets)
       #expect(store.state.sections.count < sections)
-      await store.send(.fetchPresets(true))
+      await store.send(.toggleEditMode) {
+        $0.editingVisibility = true
+      }
       #expect(store.state.sections.count == sections)
+      await store.send(.toggleEditMode) {
+        $0.editingVisibility = false
+      }
+      #expect(store.state.sections.count < sections)
     }
   }
 
   @Test func hidePreset() async throws {
     try await initialize { soundFonts, store in
-      let preset = soundFonts[0].presets[0]
+      var preset = soundFonts[0].presets[0]
+      #expect(preset.visible == true)
+
       @Shared(.stopConfirmingPresetHiding) var stopConfirmingPresetHiding
       $stopConfirmingPresetHiding.withLock { $0 = true }
       #expect(store.state.sections[0].rows[0].preset.displayName == "Piano 1")
+
       await store.send(.sections(.element(id: 0, action: .rows(.element(id: 1, action: .hideButtonTapped)))))
       store.exhaustivity = .off
       await store.receive(.sections(.element(id: 0, action: .rows(.element(id: 1, action: .delegate(.hidePreset(preset)))))))
+
+      preset = try await TestSupport.fetchPreset(presetId: preset.id)
+      #expect(preset.visible == false)
+
+      await store.receive(.fetchPresets)
       #expect(store.state.sections[0].rows[0].preset.displayName == "Piano 2")
     }
   }
