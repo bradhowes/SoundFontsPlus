@@ -1,8 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
-import SwiftUI
+import GRDB
 import Models
+import SF2ResourceFiles
+import SwiftNavigation
+import SwiftUI
 import SwiftUISupport
 import Tagged
 
@@ -11,112 +14,153 @@ public struct SoundFontButton {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    public var id: SoundFontModel.Key { key }
-    public let key: SoundFontModel.Key
-    public let displayName: String
-    public let canDelete: Bool
+    public let soundFont: SoundFont
+    public var id: SoundFont.ID { soundFont.id }
+    @Presents public var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
 
-    @Shared(.activeState) var activeState
-
-    public init(soundFont: SoundFontModel) {
-      self.key = soundFont.key
-      self.displayName = soundFont.displayName
-      self.canDelete = soundFont.location.isBuiltin == false
+    public init(soundFont: SoundFont) {
+      self.soundFont = soundFont
     }
   }
 
-  public enum Action {
+  public enum Action: Equatable {
     case buttonTapped
-    case confirmedDeletion
-    case editButtonTapped
+    case confirmationDialog(PresentationAction<ConfirmationDialog>)
     case delegate(Delegate)
-    case longPressGestureFired
+    case deleteButtonTapped
+    case editButtonTapped
+
+    @CasePathable
+    public enum ConfirmationDialog {
+      case cancelButtonTapped
+      case deleteButtonTapped
+    }
   }
 
   @CasePathable
-  public enum Delegate {
-    case deleteSoundFont(key: SoundFontModel.Key)
-    case editSoundFont(key: SoundFontModel.Key)
-    case selectSoundFont(key: SoundFontModel.Key)
+  public enum Delegate: Equatable {
+    case deleteSoundFont(SoundFont)
+    case editSoundFont(SoundFont)
+    case selectSoundFont(SoundFont)
   }
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .buttonTapped: return .send(.delegate(.selectSoundFont(key: state.key)))
-      case .confirmedDeletion: return .send(.delegate(.deleteSoundFont(key: state.key)))
+      case .buttonTapped: return .send(.delegate(.selectSoundFont(state.soundFont)))
+      case .confirmationDialog(.presented(.deleteButtonTapped)):
+        return .send(.delegate(.deleteSoundFont(state.soundFont))).animation(.default)
+      case .confirmationDialog: return .none
       case .delegate: return .none
-      case .editButtonTapped: return .send(.delegate(.editSoundFont(key: state.key)))
-      case .longPressGestureFired: return .send(.delegate(.editSoundFont(key: state.key)))
+      case .deleteButtonTapped: return deleteButtonTapped(&state)
+      case .editButtonTapped: return .send(.delegate(.editSoundFont(state.soundFont)))
       }
     }
+    .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
   }
 
   public init() {}
 }
 
-struct SoundFontButtonView: View {
-  private var store: StoreOf<SoundFontButton>
-  @State var confirmingDeletion: Bool = false
+extension SoundFontButton {
 
-  var displayName: String { store.displayName }
-  var key: SoundFontModel.Key { store.key }
-  var canDelete: Bool { store.canDelete }
-  var state: IndicatorModifier.State {
-    if store.activeState.activeSoundFontKey == key {
-      return .active
+  static func deleteConfirmationDialogState(displayName: String) -> ConfirmationDialogState<Action.ConfirmationDialog> {
+    ConfirmationDialogState {
+      TextState("Delete \(displayName)?")
+    } actions: {
+      ButtonState(role: .cancel) { TextState("Cancel") }
+      ButtonState(action: .deleteButtonTapped) { TextState("Delete") }
+    } message: {
+      TextState(
+        "Delete \(displayName)?\n\n" +
+        "Deleting a sound font will remove it from the application."
+      )
     }
-    return store.activeState.selectedSoundFontKey == key ? .selected : .none
   }
 
-  init(store: StoreOf<SoundFontButton>) {
-    self.store = store
+  func deleteButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.confirmationDialog = Self.deleteConfirmationDialogState(displayName: state.soundFont.displayName)
+    return .none.animation(.default)
+  }
+}
+
+struct SoundFontButtonView: View {
+  @Bindable var store: StoreOf<SoundFontButton>
+  @Shared(.activeState) var activeState
+
+  var state: IndicatorModifier.State {
+    activeState.activeSoundFontId == store.state.soundFont.id ? .active :
+    activeState.selectedSoundFontId == store.state.soundFont.id ? .selected : .none
   }
 
   public var body: some View {
     Button {
       store.send(.buttonTapped, animation: .default)
     } label: {
-      Text(displayName)
-        .font(Font.custom("Eurostile", size: 20))
+      Text(store.soundFont.displayName)
+        .font(.buttonFont)
         .indicator(state)
     }
-    .onCustomLongPressGesture {
-      store.send(.longPressGestureFired, animation: .default)
+    .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
+    .swipeActions(edge: .leading, allowsFullSwipe: false) {
+      Button {
+        store.send(.editButtonTapped, animation: .default)
+      } label: {
+        Image(systemName: "pencil")
+          .tint(.cyan)
+      }
     }
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
       Button {
-        confirmingDeletion = true
+        store.send(.deleteButtonTapped, animation: .default)
       } label: {
         Image(systemName: "trash")
           .tint(.red)
       }
     }
-    .confirmationDialog(
-      "Are you sure you want to delete \"\(store.displayName)\"?\n\n" +
-      "You will lose all preset customizations.",
-      isPresented: $confirmingDeletion,
-      titleVisibility: .visible
-    ) {
-      Button("Confirm", role: .destructive) {
-        store.send(.confirmedDeletion, animation: .default)
+  }
+}
+
+private extension DatabaseWriter where Self == DatabaseQueue {
+  static var previewDatabase: Self {
+    let databaseQueue = try! DatabaseQueue()
+    try! databaseQueue.migrate()
+    try! databaseQueue.write { db in
+      for font in SF2ResourceFileTag.allCases {
+        _ = try? SoundFont.make(db, builtin: font)
       }
-      Button("Cancel", role: .cancel) {
-        confirmingDeletion = false
-      }
+    }
+
+    let presets = try! databaseQueue.read { try! Preset.fetchAll($0) }
+
+    @Shared(.activeState) var activeState
+    $activeState.withLock {
+      $0.activePresetId = presets[0].id
+      $0.activeSoundFontId = presets[0].soundFontId
+      $0.selectedSoundFontId = presets.last!.soundFontId
+    }
+
+    return databaseQueue
+  }
+}
+
+extension SoundFontButtonView {
+  static var preview: some View {
+    let _ = prepareDependencies {
+      $0.defaultDatabase = .previewDatabase
+    }
+
+    @Dependency(\.defaultDatabase) var db
+    let soundFonts = try! db.read { try! SoundFont.fetchAll($0) }
+
+    return List {
+      SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[0])) { SoundFontButton() })
+      SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[1])) { SoundFontButton() })
+      SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[2])) { SoundFontButton() })
     }
   }
 }
 
 #Preview {
-  let soundFonts = [
-    try! Mock.makeSoundFont(name: "First One", presetNames: ["A", "B", "C"], tags: []),
-    try! Mock.makeSoundFont(name: "Second", presetNames: ["A", "B", "C"], tags: []),
-    try! Mock.makeSoundFont(name: "Third", presetNames: ["A", "B", "C"], tags: []),
-  ]
-  List {
-    SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[0])) { SoundFontButton() })
-    SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[1])) { SoundFontButton() })
-    SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[2])) { SoundFontButton() })
-  }
+  SoundFontButtonView.preview
 }

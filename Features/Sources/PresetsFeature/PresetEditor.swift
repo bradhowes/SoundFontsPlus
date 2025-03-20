@@ -77,7 +77,10 @@ extension PresetEditor {
 
   private func save(_ state: inout State) -> Effect<Action> {
     @Dependency(\.defaultDatabase) var db
-    state.preset.displayName = state.displayName
+    let displayName = state.displayName.trimming(while: \.isWhitespace)
+    if !displayName.isEmpty {
+      state.preset.displayName = state.displayName
+    }
     state.preset.notes = state.notes
     state.preset.visible = state.visible
     try? db.write { try state.preset.save($0) }
@@ -140,6 +143,8 @@ public struct PresetEditorView: View {
           }
         }
       }
+    }.onAppear {
+      focusField = .displayName
     }
   }
 }

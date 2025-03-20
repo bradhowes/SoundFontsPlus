@@ -13,7 +13,7 @@ extension EnvironmentValues {
 }
 
 extension View {
-  public func visbilityEditModel(_ editMode: EditMode) -> some View {
+  public func visbilityEditMode(_ editMode: EditMode) -> some View {
     environment(\.visibilityEditMode, editMode)
   }
 }

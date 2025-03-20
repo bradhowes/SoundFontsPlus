@@ -67,6 +67,9 @@ public struct PresetButton {
   }
 
   public init() {}
+}
+
+extension PresetButton {
 
   static func hideConfirmationDialogState(displayName: String) -> ConfirmationDialogState<Action.ConfirmationDialog> {
     ConfirmationDialogState {
