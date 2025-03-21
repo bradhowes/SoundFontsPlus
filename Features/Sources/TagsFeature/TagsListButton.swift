@@ -1,79 +1,92 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
+import GRDB
+import Models
+import SF2ResourceFiles
+import SwiftNavigation
 import SwiftUI
 import SwiftUISupport
-import Models
 import Tagged
 
 @Reducer
-public struct TagsListButton {
+public struct TagButton {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    public var id: TagModel.Key { key }
-    let tag: TagModel
-    let name: String
-    let key: TagModel.Key
-    let count: Int
-    let isUserDefined: Bool
-    @Shared(.activeState) var activeState
+    public var tag: Tag
+    public var id: Tag.ID { tag.id }
+    @Presents public var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
 
-    public init(tag: TagModel) {
+    public init(tag: Tag) {
       self.tag = tag
-      self.name = tag.name
-      self.key = tag.key
-      self.count = tag.tagged.count
-      self.isUserDefined = tag.isUserDefined
     }
   }
 
-  public enum Action {
+  public enum Action: Equatable {
     case buttonTapped
-    case confirmedDeletion
+    case confirmationDialog(PresentationAction<ConfirmationDialog>)
     case delegate(Delegate)
+    case deleteButtonTapped
     case longPressGestureFired
+
+    @CasePathable
+    public enum ConfirmationDialog {
+      case cancelButtonTapped
+      case deleteButtonTapped
+    }
   }
 
   @CasePathable
-  public enum Delegate {
-    case deleteTag
-    case editTags
-    case selectTag
+  public enum Delegate: Equatable {
+    case deleteTag(Tag)
+    case editTags(Tag)
+    case selectTag(Tag)
   }
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
 
-      case .buttonTapped:
-        return .send(.delegate(.selectTag))
-
-      case .confirmedDeletion:
-        return .send(.delegate(.deleteTag))
-
-      case .delegate:
-        return .none
-
-      case .longPressGestureFired:
-        return .send(.delegate(.editTags))
+      case .buttonTapped: return .send(.delegate(.selectTag(state.tag)))
+      case .confirmationDialog(.presented(.deleteButtonTapped)):
+        return .send(.delegate(.deleteTag(state.tag))).animation(.default)
+      case .confirmationDialog: return .none
+      case .delegate: return .none
+      case .deleteButtonTapped: return deleteButtonTapped(&state)
+      case .longPressGestureFired: return .send(.delegate(.editTags(state.tag)))
       }
     }
   }
 }
 
-public struct TagsListButtonView: View {
-  private var store: StoreOf<TagsListButton>
-  @State var confirmingDeletion: Bool = false
+extension TagButton {
 
-  var isActive: Bool { store.activeState.activeTagKey == store.key }
-  var name: String { store.name }
-  var key: TagModel.Key { store.key }
-  var count: Int { store.count }
-  var isUserDefined: Bool { store.isUserDefined }
+  static func deleteConfirmationDialogState(displayName: String) -> ConfirmationDialogState<Action.ConfirmationDialog> {
+    ConfirmationDialogState {
+      TextState("Delete \(displayName) tag?")
+    } actions: {
+      ButtonState(role: .cancel) { TextState("Cancel") }
+      ButtonState(action: .deleteButtonTapped) { TextState("Hide") }
+    } message: {
+      TextState(
+        "Deleting the tag cannot be undone."
+      )
+    }
+  }
 
-  public init(store: StoreOf<TagsListButton>) {
-    self.store = store
+  private func deleteButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.confirmationDialog = Self.deleteConfirmationDialogState(displayName: state.tag.name)
+    return .none.animation(.default)
+  }
+}
+
+public struct TagButtonView: View {
+  @Bindable var store: StoreOf<TagButton>
+  @Shared(.activeState) var activeState
+
+  var state: IndicatorModifier.State {
+    activeState.activeTagId == store.tag.id ? .active : .none
   }
 
   public var body: some View {
@@ -81,69 +94,67 @@ public struct TagsListButtonView: View {
       store.send(.buttonTapped)
     } label: {
       HStack {
-        Text(name)
+        Text(store.tag.name)
         Spacer()
-        Text("\(count)")
+        Text("\(store.tag.soundFontsCount)")
       }
       .font(Font.custom("Eurostile", size: 20))
-      .indicator(isActive)
+      .indicator(state)
     }
-    .onCustomLongPressGesture {
-      store.send(.longPressGestureFired, animation: .default)
-    }
+//    .onCustomLongPressGesture {
+//      store.send(.longPressGestureFired, animation: .default)
+//    }
+    .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
     .swipeActions(edge: .trailing) {
-      if isUserDefined {
+      if store.tag.isUserDefined {
         Button {
-          confirmingDeletion = true
+          store.send(.deleteButtonTapped, animation: .default)
         } label: {
           Image(systemName: "trash")
             .tint(.red)
         }
       }
     }
-    .confirmationDialog(
-      "Are you sure you want to delete \(name)?",
-      isPresented: $confirmingDeletion,
-      titleVisibility: .visible
-    ) {
-      Button("Confirm", role: .destructive) {
-        store.send(.confirmedDeletion, animation: .default)
+  }
+}
+
+private extension DatabaseWriter where Self == DatabaseQueue {
+  static var previewDatabase: Self {
+    let databaseQueue = try! DatabaseQueue()
+    try! databaseQueue.migrate()
+    try! databaseQueue.write { db in
+      for font in SF2ResourceFileTag.allCases {
+        _ = try? SoundFont.make(db, builtin: font)
       }
-      Button("Cancel", role: .cancel) {
-        confirmingDeletion = false
+    }
+
+    let tags = try! databaseQueue.read { try! Tag.fetchAll($0) }
+    precondition(tags.count > 0)
+
+    return databaseQueue
+  }
+}
+
+extension TagButtonView {
+  static var preview: some View {
+    let _ = prepareDependencies {
+      $0.defaultDatabase = .previewDatabase
+    }
+
+    @Dependency(\.defaultDatabase) var db
+    let tags = try! db.read { try! Tag.fetchAll($0) }
+
+    print(tags.count)
+
+    return List {
+      ForEach(tags) { tag in
+        TagButtonView(store: Store(initialState: .init(tag: tag)) { TagButton() })
       }
     }
   }
 }
 
+
 #Preview {
-  List {
-    TagsListButtonView(
-      store: .init(
-        initialState: .init(
-          tag: .init(
-            key: .init(.init(0)),
-            ordering: 0,
-            name: "Ubiquitous Tag",
-            ubiquitous: true
-          )
-        )
-      ) { TagsListButton() }
-    )
-    TagsListButtonView(
-      store: .init(
-        initialState: .init(
-          tag: .init(
-            key: .init(.init(1)),
-            ordering: 1,
-            name: "User Tag",
-            ubiquitous: false
-          )
-        )
-      ) { TagsListButton() }
-    )
-    .onCustomLongPressGesture {
-      print("long press")
-    }
-  }
+  TagButtonView.preview
 }

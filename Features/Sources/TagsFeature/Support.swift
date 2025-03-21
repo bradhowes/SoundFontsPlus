@@ -6,13 +6,13 @@ public enum Support {
 
   @CasePathable
   public enum ConfirmationDialog: Equatable, Sendable {
-    case confirmedDeletion(key: TagModel.Key)
+    case confirmedDeletion(key: Tag.ID)
   }
 }
 
 extension ConfirmationDialogState where Action == Support.ConfirmationDialog {
 
-  public static func tagDeletion(_ key: TagModel.Key, name: String) -> Self {
+  public static func tagDeletion(_ key: Tag.ID, name: String) -> Self {
     .init(titleVisibility: .visible) {
       TextState("Delete?")
     } actions: {

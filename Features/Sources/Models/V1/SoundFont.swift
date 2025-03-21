@@ -13,7 +13,6 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
   public typealias ID = Tagged<SoundFont, Int64>
 
   public let id: ID
-  public var displayName: String
 
   public enum Kind: String, Codable, CaseIterable, Sendable {
     case builtin
@@ -29,6 +28,8 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
   public let embeddedComment: String
   public let embeddedAuthor: String
   public let embeddedCopyright: String
+
+  public var displayName: String
   public var notes: String
 
   @discardableResult
@@ -56,9 +57,13 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
       notes: ""
     ).insertAndFetch(db, as: SoundFont.self)
 
+    print("inserting \(fileInfo.size()) presets")
     for presetIndex in 0..<fileInfo.size() {
       try Preset.make(db, soundFontId: soundFont.id, index: presetIndex, presetInfo: fileInfo[presetIndex])
     }
+
+    print("done")
+    print("soundFontKind.tagIds", soundFontKind.tagIds)
 
     for tagId in soundFontKind.tagIds {
       _ = try TaggedSoundFont(soundFontId: soundFont.id, tagId: tagId).insertAndFetch(db)
@@ -115,7 +120,7 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
     if Tag.Ubiquitous.isUbiquitous(id: tagId) {
       throw ModelError.untaggingUbiquitous
     }
-    if let found = try soundFontTags.filter(TaggedSoundFont.Columns.tagId == tagId).fetchOne(db) {
+    if let found = try taggedQuery.filter(TaggedSoundFont.Columns.tagId == tagId).fetchOne(db) {
       try found.delete(db)
     } else {
       throw ModelError.notTagged
@@ -145,6 +150,17 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
       }
     } catch {
       fatalError("failed to fetch presets")
+    }
+  }
+
+  public var tags: [Tag] {
+    @Dependency(\.defaultDatabase) var database
+    do {
+      return try database.read {
+        try self.tagsQuery.fetchAll($0)
+      }
+    } catch {
+      fatalError("failed to fetch tags")
     }
   }
 }
@@ -222,7 +238,7 @@ extension SoundFont {
   static let tags = hasMany(Tag.self, through: soundFontTags, using: TaggedSoundFont.tag)
 
   /// Query to get all tags of a sound font.
-  public var tags: QueryInterfaceRequest<Tag> { request(for: Self.tags).order(Tag.Columns.ordering) }
+  public var tagsQuery: QueryInterfaceRequest<Tag> { request(for: Self.tags).order(Tag.Columns.ordering) }
 
-  public var soundFontTags: QueryInterfaceRequest<TaggedSoundFont> { request(for: Self.soundFontTags) }
+  public var taggedQuery: QueryInterfaceRequest<TaggedSoundFont> { request(for: Self.soundFontTags) }
 }

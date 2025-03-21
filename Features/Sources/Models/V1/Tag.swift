@@ -74,6 +74,12 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
       try tag.1.updateChanges(db) { $0.ordering = tag.0 }
     }
   }
+
+  public var soundFontsCount: Int {
+    @Dependency(\.defaultDatabase) var database
+    let count = try? database.read { try? self.soundFonts.fetchCount($0) }
+    return count ?? 0
+  }
 }
 
 private struct PendingTag: Codable, PersistableRecord {
@@ -83,7 +89,7 @@ private struct PendingTag: Codable, PersistableRecord {
   static let databaseTableName = Tag.databaseTableName
 }
 
-extension Tag: Equatable, Sendable {}
+extension Tag: Equatable, Hashable, Sendable {}
 
 extension Tag: TableCreator {
   enum Columns {
@@ -97,10 +103,6 @@ extension Tag: TableCreator {
       table.autoIncrementedPrimaryKey(Columns.id)
       table.column(Columns.name, .text).notNull().unique()
       table.column(Columns.ordering, .integer).notNull()
-    }
-
-    for tag in Ubiquitous.allCases.enumerated() {
-      _ = try Tag.make(_: db, name: tag.1.name, ordering: tag.0)
     }
   }
 
@@ -118,5 +120,7 @@ extension Tag {
 extension Tag {
   static let soundFonts = hasMany(SoundFont.self, through: taggedSoundFonts, using: TaggedSoundFont.soundFont)
 
-  public var soundFonts: QueryInterfaceRequest<SoundFont> { request(for: Self.soundFonts) }
+  public var soundFonts: QueryInterfaceRequest<SoundFont> {
+    request(for: Self.soundFonts)
+  }
 }

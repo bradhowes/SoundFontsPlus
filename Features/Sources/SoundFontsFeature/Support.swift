@@ -1,30 +1,30 @@
-//import ComposableArchitecture
-//import Engine
-//import Extensions
-//import Models
-//import SF2ResourceFiles
-//import SwiftUI
-//
-//enum Support {
-//
-//  static public func generateTagsList(from tags: [TagModel]) -> String {
-//    tags.map(\.name).sorted().joined(separator: ", ")
-//  }
-//
-//  public struct AddSoundFontsStatus {
-//    public let good: [SoundFontModel]
-//    public let bad: [String]
-//
-//    public init(good: [SoundFontModel], bad: [String]) {
-//      self.good = good
-//      self.bad = bad
-//    }
-//  }
-//
+import ComposableArchitecture
+import Engine
+import Extensions
+import Models
+import SF2ResourceFiles
+import SwiftUI
+
+enum Support {
+
+  static public func generateTagsList(from tags: [Tag]) -> String {
+    tags.map(\.name).sorted().joined(separator: ", ")
+  }
+
+  public struct AddSoundFontsStatus {
+    public let good: [SoundFont]
+    public let bad: [String]
+
+    public init(good: [SoundFont], bad: [String]) {
+      self.good = good
+      self.bad = bad
+    }
+  }
+
 //  public static func addSoundFonts(urls: [URL]) -> AddSoundFontsStatus? {
 //    guard !urls.isEmpty else { return nil }
 //
-//    var good = [SoundFontModel]()
+//    var good = [SoundFont]()
 //    var bad = [String]()
 //
 //    for url in urls {
@@ -46,7 +46,7 @@
 //
 //    return .init(good: good, bad: bad)
 //  }
-//
+
 //  static func addSoundFont(url: URL, copyFileWhenAdding: Bool) throws -> SoundFontModel {
 //    // Attempt to load the file to see if there are any errors
 //    var fileInfo = SF2FileInfo(url.path(percentEncoded: false))
@@ -73,8 +73,8 @@
 //    try FileManager.default.copyItem(at: source, to: destination)
 //    return destination
 //  }
-//}
-//
-//extension String {
-//  var withoutExtension: Substring { self[self.startIndex..<(self.lastIndex(of: ".") ?? self.endIndex)] }
-//}
+}
+
+extension String {
+  var withoutExtension: Substring { self[self.startIndex..<(self.lastIndex(of: ".") ?? self.endIndex)] }
+}

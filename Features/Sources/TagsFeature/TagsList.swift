@@ -1,26 +1,26 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
-import SwiftData
+import GRDB
+import Models
+import SF2ResourceFiles
 import SwiftUI
-import SwiftUISupport
 import Models
 
 @Reducer
 public struct TagsList {
 
-  @Reducer
+  @Reducer(state: .equatable, .sendable, action: .equatable)
   public enum Destination {
-    case edit(TagsEditor)
+    // case edit(TagsEditor)
   }
 
   @ObservableState
   public struct State: Equatable {
     @Presents var destination: Destination.State?
-    var rows: IdentifiedArrayOf<TagsListButton.State>
-    @Shared(.activeState) var activeState
+    var rows: IdentifiedArrayOf<TagButton.State>
 
-    public init(tags: [TagModel]) {
+    public init(tags: [Tag]) {
       self.rows = .init(uniqueElements: tags.map { .init(tag: $0) })
     }
   }
@@ -30,11 +30,13 @@ public struct TagsList {
     case destination(PresentationAction<Destination.Action>)
     case fetchTags
     case onAppear
-    case rows(IdentifiedActionOf<TagsListButton>)
-    case task
+    case rows(IdentifiedActionOf<TagButton>)
   }
 
   public init() {}
+
+  @Dependency(\.defaultDatabase) var database
+  @Shared(.activeState) var activeState
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
@@ -59,80 +61,62 @@ public struct TagsList {
         fetchTags(&state)
         return .none
 
-      case .rows(.element(let key, .delegate(.deleteTag))):
-        deleteTag(&state, key: key)
+      case .rows(.element(_, .delegate(.deleteTag(let tag)))):
+        deleteTag(&state, tag: tag)
         return .none
 
       case .rows(.element(_, .delegate(.editTags))):
-        state.destination = .edit(TagsEditor.State(tags: state.rows.map(\.tag)))
+        // state.destination = .edit(TagsEditor.State(tags: state.rows.map(\.tag)))
         return .none
 
-      case .rows(.element(let key, .delegate(.selectTag))):
-        state.activeState.setActiveTagKey(key)
-        return .none
-
-      case .task:
-        @Dependency(\.tagsChanged) var tagsChanged
-        return .run { send in
-          for await _ in await tagsChanged() {
-            await send(.fetchTags)
-          }
+      case .rows(.element(_, .delegate(.selectTag(let tag)))):
+        $activeState.withLock {
+          $0.activeTagId = tag.id
         }
+        return .none
 
       case .rows:
         return .none
       }
     }
     .forEach(\.rows, action: \.rows) {
-      TagsListButton()
+      TagButton()
     }
     .ifLet(\.$destination, action: \.destination)
   }
 }
 
-extension TagsList.Destination.State: Equatable {}
-
 extension TagsList {
 
   private func addTag(_ state: inout State) {
     do {
-      _ = try TagModel.create(name: "New Tag")
+      try database.write {
+        _ = try Tag.make($0, name: "New Tag")
+      }
       fetchTags(&state)
     } catch {
       print("failed to create new tag")
     }
   }
 
-  private func deleteTag(_ state: inout State, key: TagModel.Key) {
-    precondition(!TagModel.Ubiquitous.contains(key: key))
-    do {
-      if state.activeState.activeTagKey == key {
-        state.activeState.setActiveTagKey(TagModel.Ubiquitous.all.key)
+  private func deleteTag(_ state: inout State, tag: Tag) {
+    precondition(!tag.isUbiquitous)
+    if activeState.activeTagId == tag.id {
+      $activeState.withLock {
+        $0.activeTagId = Tag.Ubiquitous.all.id
       }
-      state.rows = state.rows.filter { $0.key != key }
-      try TagModel.delete(key: key)
+    }
+    do {
+      _ = try database.write { try tag.delete($0) }
+      state.rows = state.rows.filter { $0.id != tag.id }
     } catch {
-      print("failed to delete tag \(key)")
+      print("failed to delete tag \(tag.name)")
     }
   }
 
   private func fetchTags(_ state: inout State) {
-    state.rows = .init(uniqueElements: ((try? TagModel.tags()) ?? []).map { .init(tag: $0) })
-  }
-}
-
-extension DependencyValues {
-  public var tagsChanged: @Sendable () async -> any AsyncSequence<Void, Never> {
-    get { self[TagsChangedKey.self] }
-    set { self[TagsChangedKey.self] = newValue }
-  }
-}
-
-private enum TagsChangedKey: DependencyKey {
-  static let liveValue: @Sendable () async -> any AsyncSequence<Void, Never> = {
-    NotificationCenter.default
-      .notifications(named: Notifications.tagsChanged)
-      .map { _ in }
+    let tags = (try? database.read { try Tag.fetchAll($0) }) ?? []
+    state.rows = .init(uniqueElements: tags.map { .init(tag: $0) })
   }
 }
 
@@ -146,7 +130,7 @@ public struct TagsListView: View {
   public var body: some View {
     List {
       ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-        TagsListButtonView(store: rowStore)
+        TagButtonView(store: rowStore)
       }
     }
     HStack {
@@ -154,26 +138,56 @@ public struct TagsListView: View {
         store.send(.addButtonTapped, animation: .default)
       }
     }
-    .task { await store.send(.task).finish() }
     .onAppear { _ = store.send(.fetchTags) }
-    .sheet(
-      item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
-    ) { tagEditStore in
-      NavigationStack {
-        TagsEditorView(store: tagEditStore)
+  }
+}
+
+private extension DatabaseWriter where Self == DatabaseQueue {
+  static var previewDatabase: Self {
+    let databaseQueue = try! DatabaseQueue()
+    try! databaseQueue.migrate()
+    let tags = try! databaseQueue.read { try! Tag.fetchAll($0) }
+    print(tags.count)
+
+    try! databaseQueue.write { db in
+      for font in SF2ResourceFileTag.allCases {
+        _ = try? SoundFont.make(db, builtin: font)
       }
     }
+
+    @Shared(.activeState) var activeState
+    $activeState.withLock {
+      $0.activeTagId = tags[0].id
+    }
+
+    return databaseQueue
   }
 }
 
 extension TagsListView {
+
   static var preview: some View {
-    let tags = (try? TagModel.tags()) ?? []
-    return TagsListView(store: Store(initialState: .init(tags: tags)) { TagsList() })
+    let _ = prepareDependencies { $0.defaultDatabase = .previewDatabase }
+    @Dependency(\.defaultDatabase) var db
+    let tags = try! db.read { try! Tag.orderByPrimaryKey().fetchAll($0) }
+    return VStack {
+      NavigationStack {
+        TagsListView(store: Store(initialState: .init(tags: tags)) { TagsList() })
+      }
+    }
   }
+//
+//  static var previewEditing: some View {
+//    let _ = prepareDependencies { $0.defaultDatabase = .previewDatabase }
+//    @Dependency(\.defaultDatabase) var db
+//    let soundFonts = try! db.read { try! SoundFont.orderByPrimaryKey().fetchAll($0) }
+//
+//    return PresetsListView(store: Store(initialState: .init(soundFont: soundFonts[0], editingVisibility: true)) {
+//      PresetsList()
+//    })
+//  }
 }
 
 #Preview {
   TagsListView.preview
 }
-

@@ -15,7 +15,7 @@ import Testing
     #expect(tags.count == Tag.Ubiquitous.allCases.count)
 
     for sf in soundFonts {
-      let t = try await db.read { try sf.tags.fetchAll($0) }
+      let t = try await db.read { try sf.tagsQuery.fetchAll($0) }
       #expect(t.count == 2) // all and builtin
     }
 
