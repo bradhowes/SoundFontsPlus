@@ -36,7 +36,7 @@ import Testing
     #expect(newTag.name == "new")
     #expect(newTag.isUserDefined)
     #expect(!newTag.isUbiquitous)
-    let orderedTags = try await db.read { try Tag.allOrdered($0) }
+    let orderedTags = try await db.read { try Tag.ordered($0) }
     #expect(orderedTags.count == tags.count + 1)
     #expect(orderedTags.last!.name == "new")
   }
@@ -90,9 +90,9 @@ import Testing
     let (db, _, tags) = try await setup()
     let newTag = try await db.write { try Tag.make($0, name: "new") }
     #expect(newTag.name == "new")
-    _ = try await db.read { try Tag.allOrdered($0) }
+    _ = try await db.read { try Tag.ordered($0) }
     try await db.write { try Tag.reorder($0, tags: [newTag, tags[1], tags[0], tags[2]]) }
-    let reorderedTags = try await db.read { try Tag.allOrdered($0) }
+    let reorderedTags = try await db.read { try Tag.ordered($0) }
     #expect(reorderedTags.first!.name == "new")
     #expect(reorderedTags.last!.name == Tag.Ubiquitous.external.name)
   }

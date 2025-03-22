@@ -40,42 +40,52 @@ public struct TagButton {
   @CasePathable
   public enum Delegate: Equatable {
     case deleteTag(Tag)
-    case editTags(Tag)
-    case selectTag(Tag)
+    case editTags
   }
+
+  @Shared(.activeState) var activeState
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
 
-      case .buttonTapped: return .send(.delegate(.selectTag(state.tag)))
+      case .buttonTapped: return buttonTapped(&state)
       case .confirmationDialog(.presented(.deleteButtonTapped)):
-        return .send(.delegate(.deleteTag(state.tag))).animation(.default)
+        return .send(.delegate(.deleteTag(state.tag)))
       case .confirmationDialog: return .none
       case .delegate: return .none
       case .deleteButtonTapped: return deleteButtonTapped(&state)
-      case .longPressGestureFired: return .send(.delegate(.editTags(state.tag)))
+      case .longPressGestureFired: return .send(.delegate(.editTags))
       }
     }
+    .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
   }
 }
 
-extension TagButton {
+private extension TagButton {
 
   static func deleteConfirmationDialogState(displayName: String) -> ConfirmationDialogState<Action.ConfirmationDialog> {
-    ConfirmationDialogState {
-      TextState("Delete \(displayName) tag?")
-    } actions: {
-      ButtonState(role: .cancel) { TextState("Cancel") }
-      ButtonState(action: .deleteButtonTapped) { TextState("Hide") }
-    } message: {
-      TextState(
-        "Deleting the tag cannot be undone."
-      )
-    }
+    ConfirmationDialogState(
+      titleVisibility: .visible,
+      title: {
+        TextState("Delete '\(displayName)'?")
+      }, actions: {
+        ButtonState(role: .cancel) { TextState("Cancel") }
+        ButtonState(role: .destructive, action: .deleteButtonTapped) { TextState("Delete") }
+      }, message: {
+        TextState("SoundFonts associated with the tag will not be deleted.")
+      }
+    )
   }
 
-  private func deleteButtonTapped(_ state: inout State) -> Effect<Action> {
+  func buttonTapped(_ state: inout State) -> Effect<Action> {
+    $activeState.withLock {
+      $0.activeTagId = state.tag.id
+    }
+    return .none.animation(.default)
+  }
+
+  func deleteButtonTapped(_ state: inout State) -> Effect<Action> {
     state.confirmationDialog = Self.deleteConfirmationDialogState(displayName: state.tag.name)
     return .none.animation(.default)
   }
@@ -98,14 +108,16 @@ public struct TagButtonView: View {
         Spacer()
         Text("\(store.tag.soundFontsCount)")
       }
+      .contentShape(Rectangle())
       .font(Font.custom("Eurostile", size: 20))
       .indicator(state)
     }
-//    .onCustomLongPressGesture {
-//      store.send(.longPressGestureFired, animation: .default)
-//    }
+    .withLongPressGesture {
+      print("hello!")
+      store.send(.longPressGestureFired, animation: .default)
+    }
     .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
-    .swipeActions(edge: .trailing) {
+    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
       if store.tag.isUserDefined {
         Button {
           store.send(.deleteButtonTapped, animation: .default)
@@ -143,8 +155,6 @@ extension TagButtonView {
 
     @Dependency(\.defaultDatabase) var db
     let tags = try! db.read { try! Tag.fetchAll($0) }
-
-    print(tags.count)
 
     return List {
       ForEach(tags) { tag in

@@ -1,61 +1,47 @@
 import ComposableArchitecture
+import GRDB
 import Models
+import SF2ResourceFiles
 import SwiftUI
 
-public enum Support {
+enum Support {
 
   @CasePathable
   public enum ConfirmationDialog: Equatable, Sendable {
     case confirmedDeletion(key: Tag.ID)
   }
-}
 
-extension ConfirmationDialogState where Action == Support.ConfirmationDialog {
-
-  public static func tagDeletion(_ key: Tag.ID, name: String) -> Self {
-    .init(titleVisibility: .visible) {
-      TextState("Delete?")
-    } actions: {
-      ButtonState(role: .destructive, action: .confirmedDeletion(key: key)) {
-        TextState("Yes")
-      }
-      ButtonState(role: .cancel) {
-        TextState("No")
-      }
-    } message: {
-      TextState("Are you sure you want to delete tag \"\(name)\"?")
+  static func addTag(existing: [Tag]) -> IdentifiedArrayOf<Tag> {
+    let tagNames = Set<String>(existing.map { $0.name })
+    var newName = "New Tag"
+    for index in 1..<1000 {
+      if !tagNames.contains(newName) { break }
+      newName = "New Tag \(index)"
     }
+
+    @Dependency(\.defaultDatabase) var database
+    let _ = try? database.write { db in _ = try Tag.make(db, name: newName) }
+
+    return Tag.ordered
+  }
+
+  static var previewDatabase: DatabaseQueue {
+    let databaseQueue = try! DatabaseQueue()
+    try! databaseQueue.migrate()
+    let tags = try! databaseQueue.read { try! Tag.fetchAll($0) }
+    print(tags.count)
+
+    try! databaseQueue.write { db in
+      for font in SF2ResourceFileTag.allCases {
+        _ = try? SoundFont.make(db, builtin: font)
+      }
+    }
+
+    @Shared(.activeState) var activeState
+    $activeState.withLock {
+      $0.activeTagId = tags[0].id
+    }
+
+    return databaseQueue
   }
 }
-
-//extension View {
-//
-//  func swipeToDelete(
-//    enabled: Bool,
-//    showingConfirmation: Binding<Bool>,
-//    name: String,
-//    confirmationAction: @escaping () -> Void
-//  ) -> some View {
-//    self.swipeActions {
-//      if enabled {
-//        Button {
-//          showingConfirmation.wrappedValue = true
-//        } label: {
-//          Label("Delete", systemImage: "trash")
-//            .tint(.red)
-//        }
-//      }
-//    }.confirmationDialog(
-//      "Are you sure you want to delete tag \(name)?",
-//      isPresented: showingConfirmation,
-//      titleVisibility: .visible
-//    ) {
-//      Button("Confirm", role: .destructive) {
-//        confirmationAction()
-//      }
-//      Button("Cancel", role: .cancel) {
-//        showingConfirmation.wrappedValue = false
-//      }
-//    }
-//  }
-//}

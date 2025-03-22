@@ -1,94 +1,107 @@
-//import ComposableArchitecture
-//import Models
-//import SwiftUI
-//import Tagged
-//
-//@Reducer
-//public struct TagNameEditor {
-//
-//  @ObservableState
-//  public struct State: Equatable, Identifiable {
-//    public var id: Tag.ID { tag.id }
-//    var tag: Tag
-//    var takeFocus: Bool
-//
-//    public init(tag: Tag, takeFocus: Bool) {
-//      self.tag = tag
-//      self.takeFocus = takeFocus
-//    }
-//  }
-//
-//  public enum Action {
-//    case clearTakeFocus
-//    case nameChanged(String)
-//  }
-//
-//  public var body: some ReducerOf<Self> {
-//    Reduce { state, action in
-//      switch action {
-//      case .clearTakeFocus:
-//        state.takeFocus = false
-//        return .none
-//
-//      case .nameChanged(let name):
-//        state.tag.name = name
-//        return .none
-//      }
-//    }
-//  }
-//}
-//
-//struct TagNameEditorView: View {
-//  @Bindable private var store: StoreOf<TagNameEditor>
-//  let canSwipe: Bool
-//  let deleteAction: ((Tag.ID) -> Void)?
-//
-//  @FocusState var hasFocus: Bool
-//  @State var confirmingTagDeletion: Bool = false
-//
-//  public init(store: StoreOf<TagNameEditor>, canSwipe: Bool, deleteAction: ((Tag.ID) -> Void)?) {
-//    self.store = store
-//    self.canSwipe = canSwipe
-//    self.deleteAction = deleteAction
-//  }
-//
-//  public var body: some View {
-//    TextField("", text: $store.name.sending(\.nameChanged))
-//      .focused($hasFocus)
-//      .textFieldStyle(.roundedBorder)
-//      .disabled(deleteAction == nil)
-//      .deleteDisabled(deleteAction == nil)
-//      .font(.headline)
-//      .foregroundStyle(.blue)
-//      .swipeActions(edge: .trailing) {
-//        if canSwipe && deleteAction != nil {
-//          Button {
-//            confirmingTagDeletion = true
-//          } label: {
-//            Image(systemName: "trash")
-//              .tint(.red)
-//          }
-//        }
-//      }
-//      .confirmationDialog(
-//        "Are you sure you want to delete \(store.tag.name)?",
-//        isPresented: $confirmingTagDeletion,
-//        titleVisibility: .visible
-//      ) {
-//        Button("Confirm", role: .destructive) {
-//          deleteAction?(store.tag.id)
-//        }
-//        Button("Cancel", role: .cancel) {
-//          confirmingTagDeletion = false
-//        }
-//      }
-//      .task {
-//        if store.takeFocus {
-//          store.send(.clearTakeFocus)
-//          DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//            self.hasFocus = true
-//          }
-//        }
-//      }
-//  }
-//}
+import ComposableArchitecture
+import GRDB
+import Models
+import SF2ResourceFiles
+import SwiftUI
+import Tagged
+
+@Reducer
+public struct TagNameEditor {
+
+  @ObservableState
+  public struct State: Equatable, Identifiable {
+    public var id: Tag.ID { tag.id }
+    var tag: Tag
+    var name: String
+    var takeFocus: Bool
+
+    public init(tag: Tag, takeFocus: Bool) {
+      self.tag = tag
+      self.name = tag.name
+      self.takeFocus = takeFocus
+    }
+  }
+
+  public enum Action: Equatable {
+    case clearTakeFocus
+    case delegate(Delegate)
+    case deleteTag
+    case nameChanged(String)
+  }
+
+  @CasePathable
+  public enum Delegate: Equatable {
+    case deleteTag(Tag)
+  }
+
+  @Dependency(\.defaultDatabase) var database
+
+  public var body: some ReducerOf<Self> {
+    Reduce { state, action in
+      switch action {
+      case .clearTakeFocus: return clearTakeFocus(&state)
+      case .delegate: return .none
+
+      case .deleteTag:
+        let tag = state.tag
+        print("TagNameEditor.deleteTag: \(tag)")
+        return .run { send in
+          await send(.delegate(.deleteTag(tag)), animation: .default)
+        }
+
+      case .nameChanged(let newName): return nameChanged(&state, value: newName)
+      }
+    }
+  }
+}
+
+private extension TagNameEditor {
+
+  func clearTakeFocus(_ state: inout State) -> Effect<Action> {
+    state.takeFocus = false
+    return .none
+  }
+
+  func nameChanged(_ state: inout State, value: String) -> Effect<Action> {
+    state.name = value
+    return .none
+  }
+}
+
+public struct TagNameEditorView: View {
+  @Bindable var store: StoreOf<TagNameEditor>
+  @FocusState var hasFocus: Bool
+  @Environment(\.editMode) var editMode
+
+  var readOnly: Bool { store.tag.isUbiquitous }
+  var editable: Bool { !readOnly }
+
+  public var body: some View {
+    TextField("", text: $store.name.sending(\.nameChanged))
+      .focused($hasFocus)
+      .disabled(readOnly)
+      .deleteDisabled(readOnly)
+      .foregroundStyle(editable ? .blue : .secondary)
+      .font(Font.custom("Eurostile", size: 20))
+      .onAppear {
+        if store.takeFocus {
+          hasFocus = true
+          store.send(.clearTakeFocus)
+        }
+      }
+      .swipeActions(edge: .trailing) {
+        if editable {
+          Button {
+            store.send(.deleteTag)
+          } label: {
+            Image(systemName: "trash")
+              .tint(.red)
+          }
+        }
+      }
+  }
+}
+
+#Preview {
+  TagsListView.preview
+}

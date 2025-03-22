@@ -48,7 +48,7 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
   public var name: String
   public var ordering: Int
 
-  public var isUbiquitous: Bool { id.rawValue < Ubiquitous.allCases.count }
+  public var isUbiquitous: Bool { id.rawValue <= Ubiquitous.allCases.count }
   public var isUserDefined: Bool { !isUbiquitous }
 
   public func willDelete(_ db: Database) throws {
@@ -65,8 +65,13 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
     }
   }
 
-  public static func allOrdered(_ db: Database) throws -> IdentifiedArrayOf<Tag> {
-    try .init(uncheckedUniqueElements: Tag.order(Tag.Columns.ordering).fetchAll(db))
+  public static var ordered: IdentifiedArrayOf<Tag> {
+    @Dependency(\.defaultDatabase) var database
+    let found = try? database.read { db in
+      try Tag.order(Tag.Columns.ordering).fetchAll(db)
+    }
+    print("Tag.ordered:", found ?? [])
+    return .init(uncheckedUniqueElements: found ?? [])
   }
 
   public static func reorder(_ db: Database, tags: [Tag]) throws {

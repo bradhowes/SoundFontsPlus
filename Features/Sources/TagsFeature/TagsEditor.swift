@@ -1,203 +1,158 @@
-//import ComposableArchitecture
-//import Models
-//import SwiftUI
-//import SwiftUINavigation
-//
-//@Reducer
-//public struct TagsEditor {
-//
-//  @ObservableState
-//  public struct State: Equatable {
-//    var rows: IdentifiedArrayOf<TagNameEditor.State>
-//
-//    public init(tags: [TagModel]) {
-//      self.rows = .init(uniqueElements: tags.map{ .init(tag: $0, takeFocus: false) })
-//    }
-//  }
-//
-//  public enum Action {
-//    case addButtonTapped
-//    case confirmedDeletion(key: TagModel.Key)
-//    case deleteButtonTapped(at: IndexSet)
-//    case dismissButtonTapped
-//    case rows(IdentifiedActionOf<TagNameEditor>)
-//    case tagMoved(at: IndexSet, to: Int)
-//  }
-//
-//  @Dependency(\.dismiss) var dismiss
-//
-//  public var body: some ReducerOf<Self> {
-//    Reduce { state, action in
-//      switch action {
-//      case .addButtonTapped:
-//        addTag(&state)
-//        return .none
-//
-//      case .confirmedDeletion(let key):
-//        deleteTag(&state, key: key)
-//        return .none
-//
-//      case let .deleteButtonTapped(indices):
-//        if let index = indices.first {
-//          deleteTag(&state, key: state.rows[index].key)
-//        }
-//        return .none
-//
-//      case .dismissButtonTapped:
-//        let dismiss = dismiss
-//        return .run { _ in await dismiss() }
-//
-//      case .rows(.element(let id, .nameChanged(let name))):
-//        if let index = state.rows.index(id: id) {
-//          state.rows[index].name = name
-//          saveNameChange(state, for: index)
-//        }
-//        return .none
-//
-//      case let .tagMoved(indices, offset):
-//        moveTag(&state, at: indices, to: offset)
-//        return .none
-//
-//      case .rows(.element(_, action: .clearTakeFocus)):
-//        return .none
-//      }
-//    }
-//    .forEach(\.rows, action: \.rows) {
-//      TagNameEditor()
-//    }
-//  }
-//}
-//
-//extension TagsEditor {
-//
-//  private func addTag(_ state: inout State) {
-//    do {
-//      let tag = try TagModel.create(name: "New Tag")
-//      state.rows.append(.init(tag: tag, takeFocus: true))
-//    } catch {
-//      print("failed to create new tag")
-//    }
-//  }
-//
-//  private func deleteTag(_ state: inout State, key: TagModel.Key) {
-//    precondition(!TagModel.Ubiquitous.contains(key: key))
-//    do {
-//      if let index = state.rows.index(id: key) {
-//        state.rows.remove(at: index)
-//        try TagModel.delete(key: key)
-//      }
-//    } catch {
-//      print("failed to delete tag \(key)")
-//    }
-//  }
-//
-//  private func moveTag(_ state: inout State, at indices: IndexSet, to offset: Int) {
-//    defer { save() }
-//
-//    state.rows.move(fromOffsets: indices, toOffset: offset)
-//    for (index, tagInfo) in state.rows.elements.enumerated() {
-//      do {
-//        let tag = try TagModel.fetch(key: tagInfo.key)
-//        tag.ordering = index
-//      } catch {
-//        print("failed to fetch tag \(tagInfo.key)")
-//      }
-//    }
-//  }
-//
-//  private func saveNameChange(_ state: State, for index: Int) {
-//    defer { save() }
-//    do {
-//      let tag = try TagModel.fetch(key: state.rows[index].key)
-//      tag.name = state.rows[index].name
-//    } catch {
-//      print("failed to update tag \(state.rows[index].key) name")
-//    }
-//  }
-//
-//  private func save() {
-//    @Dependency(\.modelContextProvider) var context
-//    do {
-//      try context.save()
-//    } catch {
-//      print("failed to save changes")
-//    }
-//  }
-//}
-//
-//public struct TagsEditorView: View {
-//  private var store: StoreOf<TagsEditor>
-//
-//  public init(store: StoreOf<TagsEditor>) {
-//    self.store = store
-//  }
-//
-//  public var body: some View {
-//    List {
-//      TagsEditorRowsView(store: store)
-//    }
-//    .navigationTitle("Tag Editor")
-//    .toolbar {
-//      ToolbarItem(placement: .cancellationAction) {
-//        Button("Dismiss") {
-//          store.send(.dismissButtonTapped, animation: .default)
-//        }
-//      }
-//      ToolbarItem(placement: .automatic) {
-//        AddButton {
-//          store.send(.addButtonTapped, animation: .default)
-//        }
-//      }
-//      ToolbarItem(placement: .automatic) {
-//        EditButton()
-//      }
-//    }
-//  }
-//}
-//
-//// Create custom button view that tracks the editMode state and disables itself when editiing is active
-//// Views that are not children of the view hosting the `EditButton` do not see its effect.
-//private struct AddButton: View {
-//  private let action: () -> Void
-//  @Environment(\.editMode) var editMode
-//  private var editing: Bool { editMode?.wrappedValue.isEditing ?? false }
-//
-//  init(action: @escaping () -> Void) {
-//    self.action = action
-//  }
-//
-//  public var body: some View {
-//    Button("Add Tag", systemImage: "plus", action: action)
-//      .disabled(editing)
-//  }
-//}
-//
-//private struct TagsEditorRowsView: View {
-//  @Environment(\.editMode) var editMode
-//  private var store: StoreOf<TagsEditor>
-//  private var editing: Bool { editMode?.wrappedValue.isEditing ?? false }
-//
-//  init(store: StoreOf<TagsEditor>) {
-//    self.store = store
-//  }
-//
-//  var body: some View {
-//    if editing {
-//      // When in editing mode, there is not confirmation of deletion, and no swipe button.
-//      ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.key) { rowStore in
-//        TagNameEditorView(store: rowStore, canSwipe: false, deleteAction: deleteAction(key: rowStore.state.key))
-//      }
-//      .onMove { store.send(.tagMoved(at: $0, to: $1), animation: .default) }
-//      .onDelete { store.send(.deleteButtonTapped(at: $0), animation: .default) }
-//    } else {
-//      // When not in editing mode, allow for swipe-to-delete + confirmation of intent
-//      ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.key) { rowStore in
-//        TagNameEditorView(store: rowStore, canSwipe: true, deleteAction: deleteAction(key: rowStore.state.key))
-//      }
-//    }
-//  }
-//
-//  private func deleteAction(key: TagModel.Key) -> ((TagModel.Key) -> Void)? {
-//    TagModel.Ubiquitous.contains(key: key) ? nil : { store.send(.confirmedDeletion(key: $0), animation: .default) }
-//  }
-//}
+import ComposableArchitecture
+import GRDB
+import Models
+import SwiftUI
+import SwiftUINavigation
+
+@Reducer
+public struct TagsEditor {
+
+  @ObservableState
+  public struct State: Equatable {
+    var rows: IdentifiedArrayOf<TagNameEditor.State>
+    var editMode: EditMode = .inactive
+
+    public init(tags: [Tag]) {
+      self.rows = .init(uniqueElements: tags.map{ .init(tag: $0, takeFocus: false) })
+    }
+  }
+
+  public enum Action: Equatable, BindableAction {
+    case addButtonTapped
+    case binding(BindingAction<State>)
+    case deleteTag(at: IndexSet)
+    case dismissButtonTapped
+    case finalizeDeleteTag(IndexSet)
+    case rows(IdentifiedActionOf<TagNameEditor>)
+    case tagMoved(at: IndexSet, to: Int)
+    case toggleEditMode
+  }
+
+  @Dependency(\.defaultDatabase) var database
+
+  public var body: some ReducerOf<Self> {
+    Reduce { state, action in
+      switch action {
+      case .addButtonTapped: return addTag(&state)
+      case .binding: return .none
+      case .deleteTag(let indices): return deleteTag(&state, indices: indices)
+      case .dismissButtonTapped: return dismissButtonTapped(&state)
+      case .finalizeDeleteTag(let indices): return finalizeDeleteTag(&state, indices: indices)
+      case let .rows(.element(id: id, action: .delegate(.deleteTag))):
+        return deleteTag(&state, indices: IndexSet(integer: IndexSet.Element(id.rawValue)))
+      case .rows: return .none
+      case let .tagMoved(indices, offset): return moveTag(&state, at: indices, to: offset)
+      case .toggleEditMode: return toggleEditMode(&state)
+      }
+    }
+    BindingReducer()
+    .forEach(\.rows, action: \.rows) {
+      TagNameEditor()
+    }
+  }
+}
+
+private extension TagsEditor {
+
+  func addTag(_ state: inout State) -> Effect<Action> {
+    let tags = Support.addTag(existing: state.rows.map { $0.tag} )
+    state.rows = .init(uniqueElements: tags.map { .init(tag: $0, takeFocus: false) })
+    return .none.animation(.default)
+  }
+
+  func deleteTag(_ state: inout State, indices: IndexSet) -> Effect<Action> {
+    print("TagsEditor.deleteTag:", indices)
+    return .run { send in
+      await send(.finalizeDeleteTag(indices))
+    }.animation(.default)
+  }
+
+  func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
+    let tags = state.rows.map { $0.tag }
+    _ = try? database.write { db in try Tag.reorder(db, tags: tags) }
+    @Dependency(\.dismiss) var dismiss
+    return .run { _ in await dismiss() }
+  }
+
+  func finalizeDeleteTag(_ state: inout State, indices: IndexSet) -> Effect<Action> {
+    if let tagId = indices.first,
+       let row = state.rows.first(where: { $0.id.rawValue == tagId }) {
+      let newRows = state.rows.filter { $0.id.rawValue != tagId }
+      state.rows = newRows
+      print("TagsEditor.finalizeDeleteTag: \(row.tag)")
+      _ = try? database.write { db in try row.tag.delete(db) }
+    }
+    return .none.animation(.default)
+  }
+
+  func moveTag(_ state: inout State, at indices: IndexSet, to offset: Int) -> Effect<Action> {
+    state.rows.move(fromOffsets: indices, toOffset: offset)
+    return .none.animation(.default)
+  }
+
+  func toggleEditMode(_ state: inout State) -> Effect<Action> {
+    state.editMode = state.editMode.isEditing ? .inactive : .active
+    return .none.animation(.default)
+  }
+}
+
+public struct TagsEditorView: View {
+  @Bindable var store: StoreOf<TagsEditor>
+
+  public var body: some View {
+    NavigationStack {
+      List {
+        TagsEditorRowsView(store: store)
+      }
+      .environment(\.editMode, $store.editMode)
+      .navigationTitle("Tags Editor")
+      .toolbar {
+        ToolbarItem(placement: .cancellationAction) {
+          Button("Save") { store.send(.dismissButtonTapped, animation: .default) }
+            .disabled(store.editMode == .active)
+        }
+        ToolbarItem(placement: .automatic) {
+          Button("Add Tag", systemImage: "plus") { store.send(.addButtonTapped, animation: .default) }
+            .disabled(store.editMode == .active)
+        }
+        ToolbarItem(placement: .automatic) {
+          Button {
+            store.send(.toggleEditMode, animation: .default)
+          } label: {
+            if store.editMode.isEditing {
+              Text("Done")
+                .foregroundStyle(.red)
+            } else {
+              Text("Edit")
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+private struct TagsEditorRowsView: View {
+  var store: StoreOf<TagsEditor>
+  @Environment(\.editMode) var editMode
+
+  var body: some View {
+    if editMode?.wrappedValue == .active {
+      // When in editing mode, there is not confirmation of deletion, and no swipe button.
+      ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
+        TagNameEditorView(store: rowStore)
+      }
+      .onMove { store.send(.tagMoved(at: $0, to: $1), animation: .default) }
+      .onDelete { store.send(.deleteTag(at: $0), animation: .default) }
+    } else {
+      // When not in editing mode, allow for swipe-to-delete + confirmation of intent
+      ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
+        TagNameEditorView(store: rowStore)
+      }
+    }
+  }
+}
+
+#Preview {
+  TagsListView.preview
+}
