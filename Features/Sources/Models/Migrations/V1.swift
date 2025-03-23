@@ -45,14 +45,13 @@ extension DatabaseWriter {
 #endif
 
       for tag in Tag.Ubiquitous.allCases.enumerated() {
-        let t = try Tag.make(db, name: tag.1.name)
-        print(t)
+        _ = try Tag.make(db, name: tag.1.name)
       }
     }
 
     try migrator.migrate(self)
 
     let tags = try! read { try! Tag.fetchAll($0) }
-    print("migrate", tags.count)
+    print("migrate - tags count:", tags.count)
   }
 }
