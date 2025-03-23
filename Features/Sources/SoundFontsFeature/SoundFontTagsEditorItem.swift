@@ -34,8 +34,8 @@ public struct SoundFontTagsEditorItem {
   }
 }
 
-struct SoundFontTagsEditorItemView: View {
-  @Bindable private var store: StoreOf<SoundFontTagsEditorItem>
+public struct SoundFontTagsEditorItemView: View {
+  @Bindable var store: StoreOf<SoundFontTagsEditorItem>
 
   public var body: some View {
     Toggle(store.tag.name, isOn: $store.tagState.sending(\.tagStateChanged))

@@ -32,6 +32,10 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
   public var displayName: String
   public var notes: String
 
+  public var isbuiltin: Bool { kind == .builtin }
+  public var isInstalled: Bool { kind == .installed }
+  public var isExternal: Bool { kind == .external }
+
   @discardableResult
   public static func make(_ db: Database, builtin: SF2ResourceFileTag) throws -> SoundFont {
     return try make(db, displayName: builtin.name, soundFontKind: .builtin(resource: builtin.url))

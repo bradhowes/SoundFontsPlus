@@ -26,8 +26,8 @@ public struct SoundFontTagsEditor {
 
   @CasePathable
   public enum Delegate {
-    case addTag(TagModel)
-    case removeTag(TagModel)
+    case addTag(Tag)
+    case removeTag(Tag)
   }
 
   @Dependency(\.dismiss) var dismiss

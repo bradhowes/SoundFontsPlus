@@ -64,22 +64,45 @@ public struct SoundFontButton {
 
 extension SoundFontButton {
 
-  static func deleteConfirmationDialogState(displayName: String) -> ConfirmationDialogState<Action.ConfirmationDialog> {
-    ConfirmationDialogState {
-      TextState("Delete \(displayName)?")
-    } actions: {
+  static func deleteFromAppConfirmationDialogState(displayName: String) -> ConfirmationDialogState<Action.ConfirmationDialog> {
+    ConfirmationDialogState(
+      titleVisibility: .visible,
+      title: {
+        TextState("Delete \(displayName)?")
+    }, actions: {
       ButtonState(role: .cancel) { TextState("Cancel") }
       ButtonState(action: .deleteButtonTapped) { TextState("Delete") }
-    } message: {
+    }, message: {
       TextState(
-        "Delete \(displayName)?\n\n" +
-        "Deleting a sound font will remove it from the application."
+        "Deleting will remove this file from the sound font library from the application. It will however remain on " +
+        "your device."
       )
-    }
+    })
+  }
+
+  static func deleteFromDeviceConfirmationDialogState(displayName: String) -> ConfirmationDialogState<Action.ConfirmationDialog> {
+    ConfirmationDialogState(
+      titleVisibility: .visible,
+      title: {
+        TextState("Delete \(displayName)?")
+      }, actions: {
+        ButtonState(role: .cancel) { TextState("Cancel") }
+        ButtonState(action: .deleteButtonTapped) { TextState("Delete") }
+      }, message: {
+        TextState(
+          "Deleting a sound font will remove it from the application and your device."
+        )
+      })
   }
 
   func deleteButtonTapped(_ state: inout State) -> Effect<Action> {
-    state.confirmationDialog = Self.deleteConfirmationDialogState(displayName: state.soundFont.displayName)
+    if state.soundFont.isInstalled {
+      state.confirmationDialog = Self.deleteFromDeviceConfirmationDialogState(displayName: state.soundFont.displayName)
+    } else if state.soundFont.isExternal {
+      state.confirmationDialog = Self.deleteFromAppConfirmationDialogState(displayName: state.soundFont.displayName)
+    } else {
+      fatalError("logic error")
+    }
     return .none.animation(.default)
   }
 }
@@ -111,45 +134,21 @@ struct SoundFontButtonView: View {
       }
     }
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-      Button {
-        store.send(.deleteButtonTapped, animation: .default)
-      } label: {
-        Image(systemName: "trash")
-          .tint(.red)
+      if !store.soundFont.isbuiltin {
+        Button {
+          store.send(.deleteButtonTapped, animation: .default)
+        } label: {
+          Image(systemName: "trash")
+            .tint(.red)
+        }
       }
     }
-  }
-}
-
-private extension DatabaseWriter where Self == DatabaseQueue {
-  static var previewDatabase: Self {
-    let databaseQueue = try! DatabaseQueue()
-    try! databaseQueue.migrate()
-    try! databaseQueue.write { db in
-      for font in SF2ResourceFileTag.allCases {
-        _ = try? SoundFont.make(db, builtin: font)
-      }
-    }
-
-    let presets = try! databaseQueue.read { try! Preset.fetchAll($0) }
-
-    @Shared(.activeState) var activeState
-    $activeState.withLock {
-      $0.activePresetId = presets[0].id
-      $0.activeSoundFontId = presets[0].soundFontId
-      $0.selectedSoundFontId = presets.last!.soundFontId
-    }
-
-    return databaseQueue
   }
 }
 
 extension SoundFontButtonView {
   static var preview: some View {
-    let _ = prepareDependencies {
-      $0.defaultDatabase = .previewDatabase
-    }
-
+    let _ = prepareDependencies { $0.defaultDatabase = Support.previewDatabase }
     @Dependency(\.defaultDatabase) var db
     let soundFonts = try! db.read { try! SoundFont.fetchAll($0) }
 

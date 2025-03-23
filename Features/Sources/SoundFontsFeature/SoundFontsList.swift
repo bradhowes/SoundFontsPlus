@@ -10,28 +10,27 @@ public struct SoundFontsList {
 
   @Reducer
   public enum Destination {
-    case edit(SoundFontEditor)
+    // case edit(SoundFontEditor)
     // case picker(SoundFontPicker)
   }
 
   @ObservableState
   public struct State: Equatable {
     @Presents var destination: Destination.State?
-    @Shared(.activeState) var activeState
 
     var rows: IdentifiedArrayOf<SoundFontButton.State>
     var addingSoundFonts: Bool = false
     var showingAddedSummary: Bool = false
     var addedSummary: String = ""
 
-    public init(soundFonts: [SoundFontModel]) {
+    public init(soundFonts: [SoundFont]) {
       self.rows = .init(uniqueElements: soundFonts.map { .init(soundFont: $0) })
     }
   }
 
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
-    case activeTagKeyChanged(TagModel.Key?)
+    case activeTagIdChanged(Tag.ID?)
     case addButtonTapped
     case destination(PresentationAction<Destination.Action>)
     case fetchSoundFonts
@@ -43,13 +42,15 @@ public struct SoundFontsList {
 
   public init() {}
 
+  @Shared(.activeState) var activeState
+
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {
 
-      case .activeTagKeyChanged(let activeTagKey):
-        fetchSoundFonts(&state, key: activeTagKey)
+      case .activeTagIdChanged:
+        fetchSoundFonts(&state)
         return .none
 
       case .addButtonTapped:
@@ -60,20 +61,20 @@ public struct SoundFontsList {
         return .none
 
       case .destination(.dismiss):
-        fetchSoundFonts(&state, key: state.activeState.activeTagKey)
+        fetchSoundFonts(&state)
         return .none
 
       case .destination:
         return .none
 
       case .fetchSoundFonts:
-        fetchSoundFonts(&state, key: state.activeState.activeTagKey)
+        fetchSoundFonts(&state)
         return .none
 
       case .onAppear:
-        fetchSoundFonts(&state, key: state.activeState.activeTagKey)
+        fetchSoundFonts(&state)
         return .publisher {
-          state.$activeState.activeTagKey.publisher.map { Action.activeTagKeyChanged($0) }
+          $activeState.activeTagId.publisher.map { Action.activeTagIdChanged($0) }
         }
 
       case .pickerDismissed:
@@ -84,16 +85,18 @@ public struct SoundFontsList {
         addSoundFonts(&state, urls: urls)
         return .none
 
-      case .rows(.element(_, .delegate(.deleteSoundFont(let key)))):
-        deleteSoundFont(&state, key: key)
+      case .rows(.element(_, .delegate(.deleteSoundFont(let soundFont)))):
+        deleteSoundFont(&state, key: soundFont.id)
         return .send(.fetchSoundFonts)
 
-      case .rows(.element(_, .delegate(.editSoundFont(let key)))):
-        editSoundFont(&state, key: key)
+      case .rows(.element(_, .delegate(.editSoundFont(let soundFont)))):
+        editSoundFont(&state, key: soundFont.id)
         return .none
 
-      case .rows(.element(_, .delegate(.selectSoundFont(let key)))):
-        state.activeState.setSelectedSoundFontKey(key)
+      case .rows(.element(_, .delegate(.selectSoundFont(let soundFont)))):
+        $activeState.withLock {
+          $0.selectedSoundFontId = soundFont.id
+        }
         return .none
 
       case .rows:
@@ -112,123 +115,119 @@ extension SoundFontsList.Destination.State: Equatable {}
 extension SoundFontsList {
 
   private func addSoundFonts(_ state: inout State, urls: [URL]) {
-    guard !urls.isEmpty,
-          let result = Support.addSoundFonts(urls: urls)
-    else {
-      return
-    }
-
-    if result.bad.isEmpty {
-      if result.good.count == 1 {
-        state.addedSummary = "Added sound font \(result.good[0].displayName)."
-      } else {
-        state.addedSummary = "Added all of the sound fonts."
-      }
-    } else {
-      if urls.count == 1 {
-        state.addedSummary = "Failed to add sound font."
-      } else if result.good.isEmpty {
-        state.addedSummary = "Failed to add any sound fonts."
-      } else {
-        state.addedSummary = "Added \(result.good.count) out of \(urls.count) sound fonts."
-      }
-    }
-    state.showingAddedSummary = true
+//    guard !urls.isEmpty,
+//          let result = Support.addSoundFonts(urls: urls)
+//    else {
+//      return
+//    }
+//
+//    if result.bad.isEmpty {
+//      if result.good.count == 1 {
+//        state.addedSummary = "Added sound font \(result.good[0].displayName)."
+//      } else {
+//        state.addedSummary = "Added all of the sound fonts."
+//      }
+//    } else {
+//      if urls.count == 1 {
+//        state.addedSummary = "Failed to add sound font."
+//      } else if result.good.isEmpty {
+//        state.addedSummary = "Failed to add any sound fonts."
+//      } else {
+//        state.addedSummary = "Added \(result.good.count) out of \(urls.count) sound fonts."
+//      }
+//    }
+//    state.showingAddedSummary = true
   }
 
-  private func deleteSoundFont(_ state: inout State, key: SoundFontModel.Key) {
-    do {
-      try SoundFontModel.delete(key: key)
-    } catch {
-      print("failed to delete font \(key) - \(error.localizedDescription)")
-    }
+  private func deleteSoundFont(_ state: inout State, key: SoundFont.ID) {
+//    do {
+//      try SoundFontModel.delete(key: key)
+//    } catch {
+//      print("failed to delete font \(key) - \(error.localizedDescription)")
+//    }
   }
 
-  private func editSoundFont(_ state: inout State, key: SoundFontModel.Key) {
-    do {
-      let soundFont = try SoundFontModel.fetch(key: key)
-      let tags = try TagModel.tags()
-      state.destination = .edit(SoundFontEditor.State(soundFont: soundFont, tags: tags))
-    } catch {
-      print("failed to locate soundfont with key \(key)")
-    }
+  private func editSoundFont(_ state: inout State, key: SoundFont.ID) {
+//    do {
+//      let soundFont = try SoundFontModel.fetch(key: key)
+//      let tags = try TagModel.tags()
+//      state.destination = .edit(SoundFontEditor.State(soundFont: soundFont, tags: tags))
+//    } catch {
+//      print("failed to locate soundfont with key \(key)")
+//    }
   }
 
-  private func fetchSoundFonts(_ state: inout State, key: TagModel.Key?) {
-    do {
-      let key = key ?? TagModel.Ubiquitous.all.key
-      state.rows = .init(uniqueElements: try SoundFontModel.tagged(with: key).map { .init(soundFont: $0) })
-    } catch {
-      state.rows = []
-      let activeTagKeyValue = state.activeState.activeTagKey?.uuidString ?? "???"
-      print("failed to fetch sound fonts tagged with \(activeTagKeyValue)")
-    }
+  private func fetchSoundFonts(_ state: inout State) {
+//    do {
+//      let key = key ?? TagModel.Ubiquitous.all.key
+//      state.rows = .init(uniqueElements: try SoundFontModel.tagged(with: key).map { .init(soundFont: $0) })
+//    } catch {
+//      state.rows = []
+//      let activeTagKeyValue = state.activeState.activeTagKey?.uuidString ?? "???"
+//      print("failed to fetch sound fonts tagged with \(activeTagKeyValue)")
+//    }
   }
 }
 
 public struct SoundFontsListView: View {
-  @Bindable private var store: StoreOf<SoundFontsList>
-
-  private var activeTagKey: TagModel.Key {
-    store.activeState.activeTagKey ?? TagModel.Ubiquitous.all.key
-  }
+  @Bindable internal var store: StoreOf<SoundFontsList>
 
   public init(store: StoreOf<SoundFontsList>) {
     self.store = store
   }
 
   public var body: some View {
-    List {
-      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-        SoundFontButtonView(store: rowStore)
+    NavigationStack {
+      List {
+        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+          SoundFontButtonView(store: rowStore)
+        }
       }
-    }
-    .navigationTitle("SoundFonts")
-    .toolbar {
-      Button {
-      } label: {
-        Image(systemName: "tag")
+      .navigationTitle("SoundFonts")
+      .environment(\.defaultMinListHeaderHeight, 1)
+      .toolbar {
+        Button {
+        } label: {
+          Image(systemName: "tag")
+        }
+        Button {
+          store.send(.addButtonTapped)
+        } label: {
+          Image(systemName: "plus")
+        }
       }
-      Button {
-        store.send(.addButtonTapped)
-      } label: {
-        Image(systemName: "plus")
+      .alert("Add Complete", isPresented: $store.showingAddedSummary) {
+        Button("OK") {}
+      } message: {
+        Text(store.addedSummary)
       }
-    }
-    .alert("Add Complete", isPresented: $store.showingAddedSummary) {
-      Button("OK") {}
-    } message: {
-      Text(store.addedSummary)
-    }
-    .sheet(
-      item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
-    ) { editorStore in
-      SoundFontEditorView(store: editorStore)
-    }
-    .sheet(isPresented: $store.addingSoundFonts) {
-      SF2PickerView {
-        store.send(.pickerDismissed)
-      } onOpen: {
-        store.send(.pickerSelected($0))
+//      .sheet(
+//        item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
+//      ) { editorStore in
+//        SoundFontEditorView(store: editorStore)
+//      }
+      .sheet(isPresented: $store.addingSoundFonts) {
+        SF2PickerView {
+          store.send(.pickerDismissed)
+        } onOpen: {
+          store.send(.pickerSelected($0))
+        }
       }
-    }
-    .onAppear {
-      store.send(.onAppear)
+      .onAppear {
+        store.send(.onAppear)
+      }
     }
   }
 }
 
 extension SoundFontsListView {
   static var preview: some View {
-    let tags = (try? TagModel.tags()) ?? []
-    _ = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
-    _ = [
-      try! Mock.makeSoundFont(name: "Mommy", presetNames: ["One", "Two", "Three", "Four"], tags: [tags[0], tags[2]]),
-      try! Mock.makeSoundFont(name: "Daddy", presetNames: ["One", "Two", "Three", "Four"], tags: [tags[0], tags[3]]),
-    ]
-    let soundFonts = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
+    let _ = prepareDependencies { $0.defaultDatabase = Support.previewDatabase }
+    @Dependency(\.defaultDatabase) var db
+    let tags = Tag.ordered
+    let soundFonts = try? db.read{ try tags[0].soundFonts.fetchAll($0) }
     return VStack {
-      SoundFontsListView(store: Store(initialState: .init(soundFonts: soundFonts)) { SoundFontsList() })
+      SoundFontsListView(store: Store(initialState: .init(soundFonts: soundFonts ?? [])) { SoundFontsList() })
     }
   }
 }
