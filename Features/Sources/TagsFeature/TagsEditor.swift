@@ -21,9 +21,9 @@ public struct TagsEditor {
     case addButtonTapped
     case binding(BindingAction<State>)
     case deleteTag(at: IndexSet)
-    case dismissButtonTapped
     case finalizeDeleteTag(IndexSet)
     case rows(IdentifiedActionOf<TagNameEditor>)
+    case saveButtonTapped
     case tagMoved(at: IndexSet, to: Int)
     case toggleEditMode
   }
@@ -36,11 +36,11 @@ public struct TagsEditor {
       case .addButtonTapped: return addTag(&state)
       case .binding: return .none
       case .deleteTag(let indices): return deleteTag(&state, indices: indices)
-      case .dismissButtonTapped: return dismissButtonTapped(&state)
       case .finalizeDeleteTag(let indices): return finalizeDeleteTag(&state, indices: indices)
       case let .rows(.element(id: id, action: .delegate(.deleteTag))):
         return deleteTag(&state, indices: IndexSet(integer: IndexSet.Element(id.rawValue)))
       case .rows: return .none
+      case .saveButtonTapped: return saveButtonTapped(&state)
       case let .tagMoved(indices, offset): return moveTag(&state, at: indices, to: offset)
       case .toggleEditMode: return toggleEditMode(&state)
       }
@@ -61,17 +61,9 @@ private extension TagsEditor {
   }
 
   func deleteTag(_ state: inout State, indices: IndexSet) -> Effect<Action> {
-    print("TagsEditor.deleteTag:", indices)
     return .run { send in
       await send(.finalizeDeleteTag(indices))
     }.animation(.default)
-  }
-
-  func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
-    let tags = state.rows.map { $0.tag }
-    _ = try? database.write { db in try Tag.reorder(db, tags: tags) }
-    @Dependency(\.dismiss) var dismiss
-    return .run { _ in await dismiss() }
   }
 
   func finalizeDeleteTag(_ state: inout State, indices: IndexSet) -> Effect<Action> {
@@ -79,7 +71,6 @@ private extension TagsEditor {
        let row = state.rows.first(where: { $0.id.rawValue == tagId }) {
       let newRows = state.rows.filter { $0.id.rawValue != tagId }
       state.rows = newRows
-      print("TagsEditor.finalizeDeleteTag: \(row.tag)")
       _ = try? database.write { db in try row.tag.delete(db) }
     }
     return .none.animation(.default)
@@ -88,6 +79,19 @@ private extension TagsEditor {
   func moveTag(_ state: inout State, at indices: IndexSet, to offset: Int) -> Effect<Action> {
     state.rows.move(fromOffsets: indices, toOffset: offset)
     return .none.animation(.default)
+  }
+
+  func saveButtonTapped(_ state: inout State) -> Effect<Action> {
+    let tagUpdates = state.rows.map { ($0.tag, $0.name) }
+    _ = try? database.write { db in
+      try Tag.reorder(db, tags: tagUpdates.map { $0.0 })
+      for tagUpdate in tagUpdates {
+        var tag = tagUpdate.0
+        try? tag.setName(db, name: tagUpdate.1)
+      }
+    }
+    @Dependency(\.dismiss) var dismiss
+    return .run { _ in await dismiss() }
   }
 
   func toggleEditMode(_ state: inout State) -> Effect<Action> {
@@ -108,7 +112,7 @@ public struct TagsEditorView: View {
       .navigationTitle("Tags Editor")
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button("Save") { store.send(.dismissButtonTapped, animation: .default) }
+          Button("Save") { store.send(.saveButtonTapped, animation: .default) }
             .disabled(store.editMode == .active)
         }
         ToolbarItem(placement: .automatic) {

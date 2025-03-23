@@ -44,7 +44,6 @@ public struct TagNameEditor {
 
       case .deleteTag:
         let tag = state.tag
-        print("TagNameEditor.deleteTag: \(tag)")
         return .run { send in
           await send(.delegate(.deleteTag(tag)), animation: .default)
         }
