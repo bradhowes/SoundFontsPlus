@@ -292,34 +292,10 @@ public struct PresetsListView: View {
   }
 }
 
-private extension DatabaseWriter where Self == DatabaseQueue {
-  static var previewDatabase: Self {
-    let databaseQueue = try! DatabaseQueue()
-    try! databaseQueue.migrate()
-    try! databaseQueue.write { db in
-      for font in SF2ResourceFileTag.allCases {
-        _ = try? SoundFont.make(db, builtin: font)
-      }
-    }
-
-    let presets = try! databaseQueue.read { try! Preset.fetchAll($0) }
-    print(presets.count)
-
-    @Shared(.activeState) var activeState
-    $activeState.withLock {
-      $0.activePresetId = presets[0].id
-      $0.activeSoundFontId = presets[0].soundFontId
-      $0.selectedSoundFontId = presets[0].soundFontId
-    }
-
-    return databaseQueue
-  }
-}
-
 extension PresetsListView {
 
   static var preview: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = .previewDatabase }
+    let _ = prepareDependencies { $0.defaultDatabase = Support.previewDatabase }
     @Dependency(\.defaultDatabase) var db
     let soundFonts = try! db.read { try! SoundFont.orderByPrimaryKey().fetchAll($0) }
 
@@ -331,7 +307,7 @@ extension PresetsListView {
   }
 
   static var previewEditing: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = .previewDatabase }
+    let _ = prepareDependencies { $0.defaultDatabase = Support.previewDatabase }
     @Dependency(\.defaultDatabase) var db
     let soundFonts = try! db.read { try! SoundFont.orderByPrimaryKey().fetchAll($0) }
 

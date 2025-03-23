@@ -2,7 +2,6 @@ import ComposableArchitecture
 import GRDB
 import Models
 import SwiftUI
-import SwiftUINavigation
 
 @Reducer
 public struct TagsEditor {

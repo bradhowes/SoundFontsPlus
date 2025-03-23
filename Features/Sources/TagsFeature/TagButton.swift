@@ -1,10 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
-import GRDB
 import Models
-import SF2ResourceFiles
-import SwiftNavigation
 import SwiftUI
 import SwiftUISupport
 import Tagged
@@ -130,27 +127,10 @@ public struct TagButtonView: View {
   }
 }
 
-private extension DatabaseWriter where Self == DatabaseQueue {
-  static var previewDatabase: Self {
-    let databaseQueue = try! DatabaseQueue()
-    try! databaseQueue.migrate()
-    try! databaseQueue.write { db in
-      for font in SF2ResourceFileTag.allCases {
-        _ = try? SoundFont.make(db, builtin: font)
-      }
-    }
-
-    let tags = try! databaseQueue.read { try! Tag.fetchAll($0) }
-    precondition(tags.count > 0)
-
-    return databaseQueue
-  }
-}
-
 extension TagButtonView {
   static var preview: some View {
     let _ = prepareDependencies {
-      $0.defaultDatabase = .previewDatabase
+      $0.defaultDatabase = Support.previewDatabase
     }
 
     @Dependency(\.defaultDatabase) var db

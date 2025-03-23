@@ -156,33 +156,10 @@ public struct PresetButtonView: View {
   }
 }
 
-private extension DatabaseWriter where Self == DatabaseQueue {
-  static var previewDatabase: Self {
-    let databaseQueue = try! DatabaseQueue()
-    try! databaseQueue.migrate()
-    try! databaseQueue.write { db in
-      for font in SF2ResourceFileTag.allCases {
-        _ = try? SoundFont.make(db, builtin: font)
-      }
-    }
-
-    let presets = try! databaseQueue.read { try! Preset.fetchAll($0) }
-
-    @Shared(.activeState) var activeState
-    $activeState.withLock {
-      $0.activePresetId = presets[0].id
-      $0.activeSoundFontId = presets[0].soundFontId
-      $0.selectedSoundFontId = presets.last!.soundFontId
-    }
-
-    return databaseQueue
-  }
-}
-
 extension PresetButtonView {
   static var preview: some View {
     let _ = prepareDependencies {
-      $0.defaultDatabase = .previewDatabase
+      $0.defaultDatabase = Support.previewDatabase
     }
 
     @Dependency(\.defaultDatabase) var db
