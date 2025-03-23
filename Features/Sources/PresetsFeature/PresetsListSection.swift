@@ -61,26 +61,18 @@ public struct PresetsListSectionView: View {
   }
 
   public var body: some View {
-    if store.section == 0 {
+    let header = Text(store.section > 0 ? "\(store.section)" : "")
+      .foregroundStyle(.indigo)
+    // .listRowInsets(EdgeInsets(top: -20, leading: 10, bottom: 0, trailing: 0))
+
+    Section(header: header) {
       if editMode?.wrappedValue == EditMode.active {
         editingRows
       } else {
         buttonRows
       }
-    } else {
-      let header = Text(store.section == 0 ? "" : "\(store.section)")
-        .foregroundStyle(.indigo)
-      // .listRowInsets(EdgeInsets(top: -20, leading: 10, bottom: 0, trailing: 0))
-
-      Section(header: header) {
-        if editMode?.wrappedValue == EditMode.active {
-          editingRows
-        } else {
-          buttonRows
-        }
-      }
-      .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
     }
+    // .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
   }
 
   private var buttonRows: some View {

@@ -1,16 +1,20 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
-import SwiftUI
-import SwiftData
-
+import GRDB
 import Models
 import PresetsFeature
 import SoundFontsFeature
+import SwiftUI
 import TagsFeature
 
 @main
 struct SoundFonts2App: App {
+  init() {
+    prepareDependencies {
+      $0.defaultDatabase = try! .appDatabase(addMocks: true)
+    }
+  }
 
   var body: some Scene {
     WindowGroup {
@@ -23,18 +27,10 @@ struct SoundFonts2App: App {
     }
   }
 
-  func tags() -> [TagModel] { try! TagModel.tags() }
-
-  func soundFonts() -> [SoundFontModel] {
-    let tags = self.tags()
-    var soundFonts = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
-    if soundFonts.count == 3 {
-      let _ = try! Mock.makeSoundFont(name: "Mommy", presetNames: ["One", "Two", "Three", "Four"],
-                                      tags: [tags[0], tags[2]])
-      let _ = try! Mock.makeSoundFont(name: "Daddy", presetNames: ["One", "Two", "Three", "Four"],
-                                      tags: [tags[0], tags[3]])
-      soundFonts = try! SoundFontModel.tagged(with: TagModel.Ubiquitous.all.key)
-    }
-    return soundFonts
+  func soundFonts() -> [SoundFont] {
+    @Dependency(\.defaultDatabase) var database
+    let tags = Tag.ordered
+    let soundFonts = try? database.read { try tags[0].soundFonts.fetchAll($0) }
+    return soundFonts ?? []
   }
 }

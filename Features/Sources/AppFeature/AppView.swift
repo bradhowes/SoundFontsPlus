@@ -9,16 +9,16 @@ import TagsFeature
  SF2 file.
  */
 public struct AppView: View {
-  let store: StoreOf<TagsEditor>
+  let store: StoreOf<TagsList>
 
-  public init(store: StoreOf<TagsEditor>) {
+  public init(store: StoreOf<TagsList>) {
     self.store = store
   }
 
   // private let store: StoreOf<MainViewFeature>
 
   public var body: some View {
-    TagsEditorView(store: store)
+    TagsListView(store: store)
 //    Split(
 //      primary: {
 //        SoundFontListView(selectedSoundFont: store.selectedSoundFontId,
