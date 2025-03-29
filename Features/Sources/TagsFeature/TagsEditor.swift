@@ -12,9 +12,10 @@ public struct TagsEditor {
     var editMode: EditMode = .inactive
     var focused: Tag.ID?
 
-    public init(tags: [Tag], focused: Tag.ID?) {
+    public init(tags: [Tag], focused: Tag.ID?, editMode: EditMode = .inactive) {
       self.rows = .init(uniqueElements: tags.map{ .init(tag: $0) })
       self.focused = focused
+      self.editMode = editMode
     }
   }
 
@@ -57,8 +58,10 @@ private extension TagsEditor {
 
   func addTag(_ state: inout State) -> Effect<Action> {
     let tags = Support.addTag(existing: state.rows.map { $0.tag} )
-    state.rows = .init(uniqueElements: tags.map { .init(tag: $0) })
-    state.focused = tags.last?.id
+    if let tag = tags.last {
+      state.rows.append(.init(tag: tag))
+      state.focused = tag.id
+    }
     return .none.animation(.default)
   }
 
@@ -80,18 +83,24 @@ private extension TagsEditor {
 
   func moveTag(_ state: inout State, at indices: IndexSet, to offset: Int) -> Effect<Action> {
     state.rows.move(fromOffsets: indices, toOffset: offset)
+    print(state.rows)
     return .none.animation(.default)
   }
 
   func saveButtonTapped(_ state: inout State) -> Effect<Action> {
-    let tagUpdates = state.rows.map { ($0.tag, $0.name) }
+    let tags = state.rows.enumerated().map { index, editor in
+      var changed = editor.tag
+      changed.name = editor.name
+      changed.ordering = index
+      return changed
+    }
+
     _ = try? database.write { db in
-      try Tag.reorder(db, tags: tagUpdates.map { $0.0 })
-      for tagUpdate in tagUpdates {
-        var tag = tagUpdate.0
-        try? tag.setName(db, name: tagUpdate.1)
+      for var tag in tags {
+        try tag.save(db)
       }
     }
+
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
   }
@@ -110,11 +119,10 @@ public struct TagsEditorView: View {
   public var body: some View {
     NavigationStack {
       List {
-        if editMode?.wrappedValue == .active {
+        if store.editMode.isEditing {
           // When in editing mode, there is not confirmation of deletion, and no swipe button.
           ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
             TagNameEditorView(store: rowStore)
-              .focused($focused, equals: rowStore.tag.id)
           }
           .onMove { store.send(.tagMoved(at: $0, to: $1), animation: .default) }
           .onDelete { store.send(.deleteTag(at: $0), animation: .default) }
@@ -168,6 +176,20 @@ extension TagsEditorView {
     }
 
     return TagsEditorView(store: Store(initialState: .init(tags: tags, focused: tags.last?.id)) { TagsEditor() })
+  }
+
+  static var previewInEditMode: some View {
+    let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
+    @Dependency(\.defaultDatabase) var db
+
+    let tags = try! db.write {
+      _ = try Tag.make($0, name: "New Tag")
+      return try Tag.all().fetchAll($0)
+    }
+
+    return TagsEditorView(store: Store(initialState: .init(tags: tags, focused: tags.last?.id, editMode: .active)) {
+      TagsEditor()
+    })
   }
 }
 

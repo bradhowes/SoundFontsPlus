@@ -94,14 +94,8 @@ extension TagNameEditorView {
     }
 
     return Form {
-      HStack {
-        Text("Not focused:")
-        TagNameEditorView(store: Store(initialState: .init(tag: tags.last!)) { TagNameEditor() })
-      }
-      HStack {
-        Text("With focus:")
-        TagNameEditorView(store: Store(initialState: .init(tag: tags.last!)) { TagNameEditor() })
-      }
+      TagNameEditorView(store: Store(initialState: .init(tag: tags[0])) { TagNameEditor() })
+      TagNameEditorView(store: Store(initialState: .init(tag: tags.last!)) { TagNameEditor() })
     }
   }
 }
