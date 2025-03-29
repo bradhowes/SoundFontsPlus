@@ -47,8 +47,7 @@ public struct TagButton {
       switch action {
 
       case .buttonTapped: return buttonTapped(&state)
-      case .confirmationDialog(.presented(.deleteButtonTapped)):
-        return .send(.delegate(.deleteTag(state.tag)))
+      case .confirmationDialog(.presented(.deleteButtonTapped)): return .send(.delegate(.deleteTag(state.tag)))
       case .confirmationDialog: return .none
       case .delegate: return .none
       case .deleteButtonTapped: return deleteButtonTapped(&state)
@@ -59,7 +58,7 @@ public struct TagButton {
   }
 }
 
-private extension TagButton {
+extension TagButton {
 
   static func deleteConfirmationDialogState(displayName: String) -> ConfirmationDialogState<Action.ConfirmationDialog> {
     ConfirmationDialogState(
@@ -110,7 +109,6 @@ public struct TagButtonView: View {
       .indicator(state)
     }
     .withLongPressGesture {
-      print("hello!")
       store.send(.longPressGestureFired, animation: .default)
     }
     .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
@@ -130,7 +128,7 @@ public struct TagButtonView: View {
 extension TagButtonView {
   static var preview: some View {
     let _ = prepareDependencies {
-      $0.defaultDatabase = Support.previewDatabase
+      $0.defaultDatabase = try! .appDatabase()
     }
 
     @Dependency(\.defaultDatabase) var db
@@ -143,7 +141,6 @@ extension TagButtonView {
     }
   }
 }
-
 
 #Preview {
   TagButtonView.preview

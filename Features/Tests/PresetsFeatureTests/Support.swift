@@ -20,7 +20,7 @@ enum TestSupport {
   @MainActor
   static func initialize(_ body: (Array<SoundFont>, Array<Preset>) async throws -> Void) async throws {
     try await withDependencies {
-      $0.defaultDatabase = try DatabaseQueue.appDatabase()
+      $0.defaultDatabase = try .appDatabase()
     } operation: {
       @Dependency(\.defaultDatabase) var database
       let soundFonts = try await database.read { try SoundFont.fetchAll($0) }

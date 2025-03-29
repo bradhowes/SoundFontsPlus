@@ -295,7 +295,7 @@ public struct PresetsListView: View {
 extension PresetsListView {
 
   static var preview: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = Support.previewDatabase }
+    let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
     @Dependency(\.defaultDatabase) var db
     let soundFonts = try! db.read { try! SoundFont.orderByPrimaryKey().fetchAll($0) }
 
@@ -307,7 +307,7 @@ extension PresetsListView {
   }
 
   static var previewEditing: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = Support.previewDatabase }
+    let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
     @Dependency(\.defaultDatabase) var db
     let soundFonts = try! db.read { try! SoundFont.orderByPrimaryKey().fetchAll($0) }
 

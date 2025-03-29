@@ -145,6 +145,17 @@ let package = Package(
       ]
     ),
     .testTarget(
+      name: "TagsFeatureTests",
+      dependencies: [
+        "TagsFeature",
+        "Models",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing", condition: .none)
+      ]
+    ),
+    .testTarget(
       name: "SF2ResourceFilesTests",
       dependencies: [
         "SF2ResourceFiles",

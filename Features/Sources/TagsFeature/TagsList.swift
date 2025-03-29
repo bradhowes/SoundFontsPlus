@@ -23,7 +23,7 @@ public struct TagsList {
     }
   }
 
-  public enum Action {
+  public enum Action: Equatable {
     case addButtonTapped
     case destination(PresentationAction<Destination.Action>)
     case fetchTags
@@ -124,9 +124,17 @@ public struct TagsListView: View {
 extension TagsListView {
 
   static var preview: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = Support.previewDatabase }
+    let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
     @Dependency(\.defaultDatabase) var db
     return TagsListView(store: Store(initialState: .init(tags: Tag.ordered)) { TagsList() })
+  }
+
+  static var previewWithEditor: some View {
+    let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
+    @Dependency(\.defaultDatabase) var db
+    var state = TagsList.State(tags: Tag.ordered)
+    state.destination = .edit(TagsEditor.State(tags: state.rows.map { $0.tag }))
+    return TagsListView(store: Store(initialState: state) { TagsList() })
   }
 }
 

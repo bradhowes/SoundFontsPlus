@@ -159,7 +159,7 @@ public struct PresetButtonView: View {
 extension PresetButtonView {
   static var preview: some View {
     let _ = prepareDependencies {
-      $0.defaultDatabase = Support.previewDatabase
+      $0.defaultDatabase = try!.appDatabase()
     }
 
     @Dependency(\.defaultDatabase) var db

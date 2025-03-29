@@ -55,7 +55,6 @@
 		BD1D27A32B6F13DE005C3ED0 /* SoundFonts2UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFonts2UITestsLaunchTests.swift; sourceTree = "<group>"; };
 		BD2A26032CC849E0000CC1DF /* Eurostile.ttc */ = {isa = PBXFileReference; lastKnownFileType = file; path = Eurostile.ttc; sourceTree = "<group>"; };
 		BD6E7D9D2B6FC2EE004201F2 /* Features */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Features; sourceTree = "<group>"; };
-		BDBCB6772D85F4A2000AFBB3 /* PresetsFeature.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = PresetsFeature.xctestplan; path = Features/Tests/PresetsFeatureTests/PresetsFeature.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,7 +92,6 @@
 		BD1D27762B6F13DD005C3ED0 = {
 			isa = PBXGroup;
 			children = (
-				BDBCB6772D85F4A2000AFBB3 /* PresetsFeature.xctestplan */,
 				BD6E7D9D2B6FC2EE004201F2 /* Features */,
 				BD1D27812B6F13DD005C3ED0 /* SoundFonts2 */,
 				BD1D27962B6F13DE005C3ED0 /* SoundFonts2Tests */,

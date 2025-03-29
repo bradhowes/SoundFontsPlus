@@ -24,24 +24,4 @@ enum Support {
 
     return Tag.ordered
   }
-
-  static var previewDatabase: DatabaseQueue {
-    let databaseQueue = try! DatabaseQueue()
-    try! databaseQueue.migrate()
-    let tags = try! databaseQueue.read { try! Tag.fetchAll($0) }
-    print(tags.count)
-
-    try! databaseQueue.write { db in
-      for font in SF2ResourceFileTag.allCases {
-        _ = try? SoundFont.make(db, builtin: font)
-      }
-    }
-
-    @Shared(.activeState) var activeState
-    $activeState.withLock {
-      $0.activeTagId = tags[0].id
-    }
-
-    return databaseQueue
-  }
 }
