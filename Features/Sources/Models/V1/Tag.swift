@@ -85,15 +85,6 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
     let count = try? database.read { try? self.soundFonts.fetchCount($0) }
     return count ?? 0
   }
-
-  mutating public func setName(_ db: Database, name: String) throws {
-    let trimmed = name.trimmingCharacters(in: .whitespaces)
-    if !trimmed.isEmpty {
-      try updateChanges(db) {
-        $0.name = name
-      }
-    }
-  }
 }
 
 private struct PendingTag: Codable, PersistableRecord {

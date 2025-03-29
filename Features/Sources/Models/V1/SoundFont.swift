@@ -148,24 +148,12 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
 
   public var allPresets: [Preset] {
     @Dependency(\.defaultDatabase) var database
-    do {
-      return try database.read {
-        try self.allPresetsQuery.fetchAll($0)
-      }
-    } catch {
-      fatalError("failed to fetch presets")
-    }
+    return (try? database.read({ try self.allPresetsQuery.fetchAll($0) })) ?? []
   }
 
   public var tags: [Tag] {
     @Dependency(\.defaultDatabase) var database
-    do {
-      return try database.read {
-        try self.tagsQuery.fetchAll($0)
-      }
-    } catch {
-      fatalError("failed to fetch tags")
-    }
+    return (try? database.read({ try self.tagsQuery.fetchAll($0) })) ?? []
   }
 }
 
