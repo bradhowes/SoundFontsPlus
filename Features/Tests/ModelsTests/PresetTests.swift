@@ -10,7 +10,7 @@ import Testing
 
   @Test("migration") func migration() async throws {
     try await withDependencies {
-      $0.defaultDatabase = try DatabaseQueue.appDatabase(addMocks: true)
+      $0.defaultDatabase = try DatabaseQueue.appDatabase()
     } operation: {
       @Dependency(\.defaultDatabase) var db
       let presets = try await db.read { try Preset.fetchAll($0) }
@@ -20,7 +20,7 @@ import Testing
 
   @Test("adding audioConfig") func addingAudioConfig() async throws {
     try await withDependencies {
-      $0.defaultDatabase = try DatabaseQueue.appDatabase(addMocks: true)
+      $0.defaultDatabase = try DatabaseQueue.appDatabase()
     } operation: {
       @Dependency(\.defaultDatabase) var db
       let presets = try await db.read { try Preset.fetchAll($0) }
@@ -33,7 +33,7 @@ import Testing
 
   @Test("cascade") func cascade() async throws {
     try await withDependencies {
-      $0.defaultDatabase = try DatabaseQueue.appDatabase(addMocks: true)
+      $0.defaultDatabase = try DatabaseQueue.appDatabase()
     } operation: {
       @Dependency(\.defaultDatabase) var db
       let presets = try await db.read { try Preset.fetchAll($0) }

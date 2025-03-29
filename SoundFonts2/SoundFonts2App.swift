@@ -12,7 +12,7 @@ import TagsFeature
 struct SoundFonts2App: App {
   init() {
     prepareDependencies {
-      $0.defaultDatabase = try! .appDatabase(addMocks: true)
+      $0.defaultDatabase = try! .appDatabase()
     }
   }
 

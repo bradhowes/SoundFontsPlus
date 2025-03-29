@@ -92,7 +92,7 @@ extension Preset: TableCreator {
   }
 
   static func createTable(in db: Database) throws {
-    try db.create(table: databaseTableName) { table in
+    try db.create(table: databaseTableName, options: .ifNotExists) { table in
       table.autoIncrementedPrimaryKey(Columns.id)
       table.column(Columns.displayName, .text).notNull()
       table.column(Columns.index, .integer).notNull()

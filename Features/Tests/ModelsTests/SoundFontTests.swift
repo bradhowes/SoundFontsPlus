@@ -15,28 +15,63 @@ import Testing
         try $0.execute(sql: "select * from \(each.databaseTableName)")
       }
     }
-  }
 
-  @Test("creation") func soundFontTable() async throws {
-    let db = try DatabaseQueue.appDatabase()
-    let tag = SF2ResourceFileTag.freeFont
-    _ = try await db.write { try SoundFont.make($0, builtin: tag) }
+    let allTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.all.id) }
+    let builtInTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.builtIn.id) }
+    let addedTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.added.id) }
+    let externalTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.external.id) }
 
-    let query = SoundFont.all()
-    let soundFonts = try await db.read { try query.fetchAll($0) }
-    #expect(soundFonts.count == 1)
-    #expect(soundFonts[0].displayName == "FreeFont")
+    let soundFonts = try await db.read {
+      try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id }
+    }
+
+    #expect(soundFonts.count == 3)
+    #expect(soundFonts[0].displayName == SF2ResourceFileTag.freeFont.name)
     #expect(soundFonts[0].id.rawValue == 1)
+
+    #expect(soundFonts[1].displayName == SF2ResourceFileTag.museScore.name)
+    #expect(soundFonts[1].id.rawValue == 2)
+
+    #expect(soundFonts[2].displayName == SF2ResourceFileTag.rolandNicePiano.name)
+    #expect(soundFonts[2].id.rawValue == 3)
+
     #expect(try soundFonts[0].source().isBuiltin)
+    #expect(try soundFonts[1].source().isBuiltin)
+    #expect(try soundFonts[2].source().isBuiltin)
+
     #expect(soundFonts[0].embeddedName == "Free Font GM Ver. 3.2")
     #expect(soundFonts[0].embeddedComment == "")
     #expect(soundFonts[0].embeddedAuthor == "")
     #expect(soundFonts[0].embeddedCopyright == "")
     #expect(soundFonts[0].notes == "")
+
+    var tagged = try await db.read { try allTag.soundFonts.fetchAll($0) }
+    #expect(tagged.count == 3)
+
+    tagged = try await db.read { try builtInTag.soundFonts.fetchAll($0) }
+    #expect(tagged.count == 3)
+
+    tagged = try await db.read { try addedTag.soundFonts.fetchAll($0) }
+    #expect(tagged.count == 0)
+
+    tagged = try await db.read { try externalTag.soundFonts.fetchAll($0) }
+    #expect(tagged.count == 0)
+
+    var presetsCount = try await db.read { try Preset.all().fetchCount($0) }
+    #expect(presetsCount == 506)
+
+    presetsCount = try await db.read { try soundFonts[0].visiblePresetsQuery.fetchCount($0) }
+    #expect(presetsCount == 235)
+
+    presetsCount = try await db.read { try soundFonts[1].visiblePresetsQuery.fetchCount($0) }
+    #expect(presetsCount == 270)
+
+    presetsCount = try await db.read { try soundFonts[2].visiblePresetsQuery.fetchCount($0) }
+    #expect(presetsCount == 1)
   }
 
   @Test("add") func soundFontAdd() async throws {
-    let db = try DatabaseQueue.appDatabase()
+    let db = try DatabaseQueue.appDatabase(addBuiltIns: false)
     var total = 0
 
     let allTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.all.id) }
@@ -79,7 +114,7 @@ import Testing
   }
 
   @Test("delete cascades") func deletingSoundFontDeletesPresets() async throws {
-    let db = try await setupDatabase(all: true)
+    let db = try DatabaseQueue.appDatabase()
 
     var soundFonts = try await db.read {
       try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id }
@@ -106,7 +141,7 @@ import Testing
   }
 
   @Test("tagging") func tagging() async throws {
-    let db = try await setupDatabase()
+    let db = try DatabaseQueue.appDatabase()
     let soundFonts = try await db.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
     let newTag = try await db.write { try Tag.make($0, name: "new") }
     let soundFont = soundFonts[0]
@@ -119,7 +154,7 @@ import Testing
   }
 
   @Test("untagging") func untagging() async throws {
-    let db = try await setupDatabase()
+    let db = try DatabaseQueue.appDatabase()
     let soundFonts = try await db.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
     let newTag = try await db.write { try Tag.make($0, name: "new") }
     let soundFont = soundFonts[0]
@@ -137,7 +172,7 @@ import Testing
   }
 
   @Test("tagging with ubiquitous") func taggingWithUbiquitousFails() async throws {
-    let db = try await setupDatabase(all: true)
+    let db = try DatabaseQueue.appDatabase()
     let soundFonts = try await db.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
     let soundFont = soundFonts[0]
     let allTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.all.id) }
@@ -147,7 +182,7 @@ import Testing
   }
 
   @Test("untagging with ubiquitous") func untaggingWithUbiquitousFails() async throws {
-    let db = try await setupDatabase(all: true)
+    let db = try DatabaseQueue.appDatabase()
     let soundFonts = try await db.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
     let soundFont = soundFonts[0]
     let allTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.all.id) }
@@ -157,7 +192,7 @@ import Testing
   }
 
   @Test("delete updates tags") func deletingSoundFontUpdatesTags() async throws {
-    let db = try await setupDatabase(all: true)
+    let db = try DatabaseQueue.appDatabase()
 
     let allTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.all.id) }
     let builtInTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.builtIn.id) }
@@ -187,7 +222,7 @@ import Testing
   }
 
   @Test("presets ordered by index") func presetsFromSoundFontAreOrderedByIndex() async throws {
-    let db = try await setupDatabase(all: true)
+    let db = try DatabaseQueue.appDatabase()
     let soundFonts = try await db.read {
       try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id }
     }
@@ -215,7 +250,7 @@ import Testing
     for tag in SF2ResourceFileTag.allCases.enumerated() {
       let fileInfo = tag.1.fileInfo!
       if fileInfo.size() == 1 { continue }
-      let sf = try await db.write { try SoundFont.make($0, builtin: tag.1) }
+      let sf = try await db.read { try SoundFont.fetchOne($0, id: SoundFont.ID(Int64(tag.0 + 1)))! }
       try await db.write {
         var presets = try sf.visiblePresetsQuery.fetchAll($0)
         presets[1].visible = false
@@ -250,7 +285,7 @@ import Testing
   }
 
   @Test("fetch by id") func fetchingSpecificSoundFont() async throws {
-    let db = try await setupDatabase(all: true)
+    let db = try DatabaseQueue.appDatabase()
     let soundFont = try await db.read { try SoundFont.fetchOne($0, id: .init(2)) }
     #expect(soundFont != nil)
     #expect(soundFont?.displayName == "MuseScore")

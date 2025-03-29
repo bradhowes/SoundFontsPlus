@@ -15,7 +15,7 @@ public struct TaggedSoundFont: Codable, FetchableRecord, MutablePersistableRecor
   }
 
   static func createTable(in db: Database) throws {
-    try db.create(table: databaseTableName) { table in
+    try db.create(table: databaseTableName, options: .ifNotExists) { table in
       table.primaryKey {
         table.belongsTo(SoundFont.databaseTableName, onDelete: .cascade).notNull()
         table.belongsTo(Tag.databaseTableName, onDelete: .cascade).notNull()

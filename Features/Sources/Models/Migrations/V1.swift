@@ -19,6 +19,7 @@ enum V1 {
 
   static func migration(_ db: Database) throws {
     for each in V1.tables {
+      print("-- creating \(each)")
       try each.createTable(in: db)
     }
   }
@@ -28,30 +29,12 @@ extension DatabaseWriter {
 
   public func migrate() throws {
     var migrator = DatabaseMigrator()
-
-#if DEBUG
-    migrator.eraseDatabaseOnSchemaChange = true
-#endif
-
+    // migrator.eraseDatabaseOnSchemaChange = true
     migrator.registerMigration(V1.version) { db in
+      print("-- migratiing to V1")
       try V1.migration(db)
-
-#if targetEnvironment(simulator)
-      if !isTesting {
-        for each in V1.tables {
-          _ = try each.deleteAll(db)
-        }
-      }
-#endif
-
-      for tag in Tag.Ubiquitous.allCases.enumerated() {
-        _ = try Tag.make(db, name: tag.1.name)
-      }
     }
 
     try migrator.migrate(self)
-
-    let tags = try! read { try! Tag.fetchAll($0) }
-    print("migrate - tags count:", tags.count)
   }
 }

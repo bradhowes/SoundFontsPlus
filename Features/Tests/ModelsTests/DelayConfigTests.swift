@@ -66,7 +66,7 @@ import Testing
   }
 
   private func setup() async throws -> (DatabaseQueue, [Preset], DelayConfig) {
-    let db = try await setupDatabase()
+    let db = try DatabaseQueue.appDatabase()
     let presets = try await db.read { try Preset.fetchAll($0) }
     let dc = try await db.write { db in
       let ac = try AudioConfig.make(db, presetId: presets[0].id)

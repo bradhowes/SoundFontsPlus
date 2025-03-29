@@ -52,7 +52,7 @@ extension ReverbConfig: TableCreator {
   }
 
   static func createTable(in db: Database) throws {
-    try db.create(table: databaseTableName) { table in
+    try db.create(table: databaseTableName, options: .ifNotExists) { table in
       table.autoIncrementedPrimaryKey(Columns.id)
       table.column(Columns.preset, .integer).notNull()
       table.column(Columns.wetDryMix, .double).notNull()

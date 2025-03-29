@@ -9,7 +9,8 @@ public extension DatabaseWriter where Self == DatabaseQueue {
   static func appDatabase(
     path: URL? = nil,
     configuration: Configuration? = nil,
-    addMocks: Bool = false
+    addTags: Bool = true,
+    addBuiltIns: Bool = true
   ) throws -> Self {
     var config = configuration ?? Configuration()
     #if DEBUG
@@ -31,10 +32,23 @@ public extension DatabaseWriter where Self == DatabaseQueue {
 
     try databaseQueue.migrate()
 
-    if addMocks {
+    print("-- after migrate")
+
+    if addTags || addBuiltIns {
       try databaseQueue.write { db in
-        for sf2 in SF2ResourceFileTag.allCases {
-          _ = try SoundFont.make(db, builtin: sf2)
+        if try Tag.fetchCount(db) == 0 {
+
+          // Install predefined tags
+          for tag in Tag.Ubiquitous.allCases.enumerated() {
+            _ = try Tag.make(db, name: tag.1.name)
+          }
+        }
+
+        if try addBuiltIns && SoundFont.fetchCount(db) == 0 {
+          // Install predefined SF2
+          for sf2 in SF2ResourceFileTag.allCases {
+            _ = try SoundFont.make(db, builtin: sf2)
+          }
         }
       }
     }

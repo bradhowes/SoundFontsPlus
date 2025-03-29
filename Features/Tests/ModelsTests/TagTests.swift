@@ -11,7 +11,7 @@ import Testing
 
   @Test("migration") func migration() async throws {
     try await withDependencies {
-      $0.defaultDatabase = try DatabaseQueue.appDatabase(addMocks: true)
+      $0.defaultDatabase = try DatabaseQueue.appDatabase()
     } operation: {
       @Dependency(\.defaultDatabase) var db
 
@@ -39,7 +39,7 @@ import Testing
 
   @Test("create") func create() async throws {
     try await withDependencies {
-      $0.defaultDatabase = try DatabaseQueue.appDatabase(addMocks: true)
+      $0.defaultDatabase = try DatabaseQueue.appDatabase()
     } operation: {
       @Dependency(\.defaultDatabase) var db
       let tags = try await db.read { try Tag.fetchAll($0) }
@@ -56,7 +56,7 @@ import Testing
 
   @Test("delete") func delete() async throws {
     try await withDependencies {
-      $0.defaultDatabase = try DatabaseQueue.appDatabase(addMocks: true)
+      $0.defaultDatabase = try DatabaseQueue.appDatabase()
     } operation: {
       @Dependency(\.defaultDatabase) var db
 
@@ -68,7 +68,7 @@ import Testing
 
   @Test("rename") func rename() async throws {
     try await withDependencies {
-      $0.defaultDatabase = try DatabaseQueue.appDatabase(addMocks: true)
+      $0.defaultDatabase = try DatabaseQueue.appDatabase()
     } operation: {
       @Dependency(\.defaultDatabase) var db
 
@@ -86,7 +86,7 @@ import Testing
 
   @Test("rename ubiquitous") func renameUbiquitous() async throws {
     try await withDependencies {
-      $0.defaultDatabase = try DatabaseQueue.appDatabase(addMocks: true)
+      $0.defaultDatabase = try DatabaseQueue.appDatabase()
     } operation: {
       @Dependency(\.defaultDatabase) var db
       let tags = try await db.read { try Tag.fetchAll($0) }
@@ -103,7 +103,7 @@ import Testing
 
   @Test("delete ubuquitous") func deleteUbiquitous() async throws {
     try await withDependencies {
-      $0.defaultDatabase = try DatabaseQueue.appDatabase(addMocks: true)
+      $0.defaultDatabase = try DatabaseQueue.appDatabase()
     } operation: {
       @Dependency(\.defaultDatabase) var db
       let tags = try await db.read { try Tag.fetchAll($0) }
@@ -116,7 +116,7 @@ import Testing
 
   @Test("create with invalid name") func createWithInvalidName() async throws {
     try await withDependencies {
-      $0.defaultDatabase = try DatabaseQueue.appDatabase(addMocks: true)
+      $0.defaultDatabase = try DatabaseQueue.appDatabase()
     } operation: {
       @Dependency(\.defaultDatabase) var db
 
@@ -128,7 +128,7 @@ import Testing
 
   @Test("reorder") func reorder() async throws {
     try await withDependencies {
-      $0.defaultDatabase = try DatabaseQueue.appDatabase(addMocks: true)
+      $0.defaultDatabase = try DatabaseQueue.appDatabase()
     } operation: {
       @Dependency(\.defaultDatabase) var db
       let tags = try await db.read { try Tag.fetchAll($0) }

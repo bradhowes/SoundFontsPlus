@@ -99,7 +99,7 @@ import Testing
   }
 
   private func setup() async throws -> (DatabaseQueue, [Preset], [AudioConfig]) {
-    let db = try await setupDatabase()
+    let db = try DatabaseQueue.appDatabase()
     let presets = try await db.read { try Preset.fetchAll($0) }
 
     let audioConfigs: [AudioConfig] = try await db.write { db in

@@ -66,7 +66,7 @@ import Testing
   }
 
   private func setup() async throws -> (DatabaseQueue, [Preset]) {
-    let db = try await setupDatabase()
+    let db = try DatabaseQueue.appDatabase()
     let presets = try await db.read { try Preset.fetchAll($0) }
     return (db, presets)
   }
