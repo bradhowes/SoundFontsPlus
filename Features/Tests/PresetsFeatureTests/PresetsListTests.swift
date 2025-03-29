@@ -59,7 +59,7 @@ struct PresetsListTests {
 
       await store.receive(\.selectedSoundFontIdChanged) {
         $0.soundFont = soundFonts[1]
-        $0.sections = PresetsFeature.generatePresetSections(soundFont: soundFonts[1], editing: false)
+        $0.sections = PresetsFeature.generatePresetSections(soundFont: soundFonts[1], searchText: nil, editing: false)
       }
 
       await store.send(.stop)
