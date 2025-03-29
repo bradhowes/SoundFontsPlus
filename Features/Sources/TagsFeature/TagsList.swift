@@ -83,7 +83,7 @@ private extension TagsList {
 
   func editTags(_ state: inout State) -> Effect<Action> {
     print("editTags")
-    state.destination = .edit(TagsEditor.State(tags: state.rows.map(\.tag)))
+    state.destination = .edit(TagsEditor.State(tags: state.rows.map(\.tag), focused: nil))
     return .none.animation(.default)
   }
 
@@ -133,7 +133,7 @@ extension TagsListView {
     let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
     @Dependency(\.defaultDatabase) var db
     var state = TagsList.State(tags: Tag.ordered)
-    state.destination = .edit(TagsEditor.State(tags: state.rows.map { $0.tag }))
+    state.destination = .edit(TagsEditor.State(tags: state.rows.map { $0.tag }, focused: nil))
     return TagsListView(store: Store(initialState: state) { TagsList() })
   }
 }

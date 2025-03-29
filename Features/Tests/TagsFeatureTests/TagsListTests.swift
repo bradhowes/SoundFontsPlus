@@ -48,7 +48,7 @@ struct TagsListTests {
     try await initialize { store in
       #expect(store.state.rows.count == 4)
       await store.send(.rows(.element(id:1, action: .delegate(.editTags)))) {
-        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map { $0.tag }))
+        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map(\.tag), focused: nil))
       }
 
       await store.send(.destination(.dismiss)) {
@@ -109,7 +109,7 @@ struct TagsListTests {
       #expect(store.state.rows.count == 4)
 
       await store.send(.rows(.element(id:1, action: .delegate(.editTags)))) {
-        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map { $0.tag }))
+        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map(\.tag), focused: nil))
       }
 
       store.exhaustivity = .off
@@ -129,20 +129,20 @@ struct TagsListTests {
       #expect(store.state.rows.count == 4)
 
       await store.send(.rows(.element(id:1, action: .delegate(.editTags)))) {
-        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map { $0.tag }))
+        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map(\.tag), focused: nil))
       }
 
       await store.send(.destination(.presented(.edit(.addButtonTapped)))) {
         @Dependency(\.defaultDatabase) var database
         let tag = try! database.read { try Tag.fetchOne($0, id: 5) }
         $0.rows.append(TagButton.State(tag: tag!))
-        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map { $0.tag }))
+        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map(\.tag), focused: Tag.ID(rawValue: 5)))
       }
 
       store.exhaustivity = .on
       await store.send(.destination(.presented(.edit(.finalizeDeleteTag(.init(integer: 5)))))) {
         $0.rows.remove(id: 5)
-        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map { $0.tag }))
+        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map(\.tag), focused: Tag.ID(rawValue: 5)))
       }
 
       @Dependency(\.defaultDatabase) var database

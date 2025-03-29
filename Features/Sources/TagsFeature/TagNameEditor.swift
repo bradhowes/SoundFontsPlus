@@ -9,19 +9,16 @@ public struct TagNameEditor {
   @ObservableState
   public struct State: Equatable, Identifiable {
     public var id: Tag.ID { tag.id }
-    var tag: Tag
+    let tag: Tag
     var name: String
-    var takeFocus: Bool
 
-    public init(tag: Tag, takeFocus: Bool) {
+    public init(tag: Tag) {
       self.tag = tag
       self.name = tag.name
-      self.takeFocus = takeFocus
     }
   }
 
   public enum Action: Equatable {
-    case clearTakeFocus
     case delegate(Delegate)
     case deleteTag
     case nameChanged(String)
@@ -37,7 +34,6 @@ public struct TagNameEditor {
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
-      case .clearTakeFocus: return clearTakeFocus(&state)
       case .delegate: return .none
 
       case .deleteTag:
@@ -54,11 +50,6 @@ public struct TagNameEditor {
 
 private extension TagNameEditor {
 
-  func clearTakeFocus(_ state: inout State) -> Effect<Action> {
-    state.takeFocus = false
-    return .none
-  }
-
   func nameChanged(_ state: inout State, value: String) -> Effect<Action> {
     state.name = value
     return .none
@@ -67,7 +58,6 @@ private extension TagNameEditor {
 
 public struct TagNameEditorView: View {
   @Bindable var store: StoreOf<TagNameEditor>
-  @FocusState var hasFocus: Bool
   @Environment(\.editMode) var editMode
 
   var readOnly: Bool { store.tag.isUbiquitous }
@@ -75,17 +65,10 @@ public struct TagNameEditorView: View {
 
   public var body: some View {
     TextField("", text: $store.name.sending(\.nameChanged))
-      .focused($hasFocus)
       .disabled(readOnly)
       .deleteDisabled(readOnly)
       .foregroundStyle(editable ? .blue : .secondary)
       .font(Font.custom("Eurostile", size: 20))
-      .onAppear {
-        if store.takeFocus {
-          hasFocus = true
-          store.send(.clearTakeFocus)
-        }
-      }
       .swipeActions(edge: .trailing) {
         if editable {
           Button {
@@ -99,6 +82,30 @@ public struct TagNameEditorView: View {
   }
 }
 
+extension TagNameEditorView {
+
+  static var preview: some View {
+    let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
+    @Dependency(\.defaultDatabase) var db
+
+    let tags = try! db.write {
+      _ = try Tag.make($0, name: "New Tag")
+      return try Tag.all().fetchAll($0)
+    }
+
+    return Form {
+      HStack {
+        Text("Not focused:")
+        TagNameEditorView(store: Store(initialState: .init(tag: tags.last!)) { TagNameEditor() })
+      }
+      HStack {
+        Text("With focus:")
+        TagNameEditorView(store: Store(initialState: .init(tag: tags.last!)) { TagNameEditor() })
+      }
+    }
+  }
+}
+
 #Preview {
-  TagsListView.preview
+  TagNameEditorView.preview
 }

@@ -58,7 +58,7 @@ struct TagButtonTests {
     }
   }
 
-  @Test func presetButtonPreview() async throws {
+  @Test func tagButtonPreview() async throws {
     withSnapshotTesting(record: .failed) {
       struct HostView: SwiftUI.View {
         var body: some SwiftUI.View {

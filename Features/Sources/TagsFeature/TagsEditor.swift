@@ -10,9 +10,11 @@ public struct TagsEditor {
   public struct State: Equatable {
     var rows: IdentifiedArrayOf<TagNameEditor.State>
     var editMode: EditMode = .inactive
+    var focused: Tag.ID?
 
-    public init(tags: [Tag]) {
-      self.rows = .init(uniqueElements: tags.map{ .init(tag: $0, takeFocus: false) })
+    public init(tags: [Tag], focused: Tag.ID?) {
+      self.rows = .init(uniqueElements: tags.map{ .init(tag: $0) })
+      self.focused = focused
     }
   }
 
@@ -55,7 +57,8 @@ private extension TagsEditor {
 
   func addTag(_ state: inout State) -> Effect<Action> {
     let tags = Support.addTag(existing: state.rows.map { $0.tag} )
-    state.rows = .init(uniqueElements: tags.map { .init(tag: $0, takeFocus: false) })
+    state.rows = .init(uniqueElements: tags.map { .init(tag: $0) })
+    state.focused = tags.last?.id
     return .none.animation(.default)
   }
 
@@ -101,11 +104,29 @@ private extension TagsEditor {
 
 public struct TagsEditorView: View {
   @Bindable var store: StoreOf<TagsEditor>
+  @FocusState var focused: Tag.ID?
+  @Environment(\.editMode) var editMode
 
   public var body: some View {
     NavigationStack {
       List {
-        TagsEditorRowsView(store: store)
+        if editMode?.wrappedValue == .active {
+          // When in editing mode, there is not confirmation of deletion, and no swipe button.
+          ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
+            TagNameEditorView(store: rowStore)
+              .focused($focused, equals: rowStore.tag.id)
+          }
+          .onMove { store.send(.tagMoved(at: $0, to: $1), animation: .default) }
+          .onDelete { store.send(.deleteTag(at: $0), animation: .default) }
+          .bind($store.focused, to: self.$focused)
+        } else {
+          // When not in editing mode, allow for swipe-to-delete + confirmation of intent
+          ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
+            TagNameEditorView(store: rowStore)
+              .focused($focused, equals: rowStore.tag.id)
+          }
+          .bind($store.focused, to: self.$focused)
+        }
       }
       .environment(\.editMode, $store.editMode)
       .navigationTitle("Tags Editor")
@@ -135,27 +156,21 @@ public struct TagsEditorView: View {
   }
 }
 
-private struct TagsEditorRowsView: View {
-  var store: StoreOf<TagsEditor>
-  @Environment(\.editMode) var editMode
+extension TagsEditorView {
 
-  var body: some View {
-    if editMode?.wrappedValue == .active {
-      // When in editing mode, there is not confirmation of deletion, and no swipe button.
-      ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
-        TagNameEditorView(store: rowStore)
-      }
-      .onMove { store.send(.tagMoved(at: $0, to: $1), animation: .default) }
-      .onDelete { store.send(.deleteTag(at: $0), animation: .default) }
-    } else {
-      // When not in editing mode, allow for swipe-to-delete + confirmation of intent
-      ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
-        TagNameEditorView(store: rowStore)
-      }
+  static var preview: some View {
+    let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
+    @Dependency(\.defaultDatabase) var db
+
+    let tags = try! db.write {
+      _ = try Tag.make($0, name: "New Tag")
+      return try Tag.all().fetchAll($0)
     }
+
+    return TagsEditorView(store: Store(initialState: .init(tags: tags, focused: tags.last?.id)) { TagsEditor() })
   }
 }
 
 #Preview {
-  TagsListView.preview
+  TagsEditorView.preview
 }
