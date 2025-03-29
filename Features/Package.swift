@@ -34,7 +34,7 @@ let package = Package(
     .target(
       name: "SoundFonts2Lib",
       dependencies: [
-        // .product(name: "Engine", package: "SF2Lib"),
+        .product(name: "Engine", package: "SF2Lib"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies")
       ]
@@ -159,7 +159,7 @@ let package = Package(
       name: "SF2ResourceFilesTests",
       dependencies: [
         "SF2ResourceFiles",
-        // .product(name: "Engine", package: "SF2Lib", condition: .none)
+        .product(name: "Engine", package: "SF2Lib", condition: .none)
       ]
     )
   ]

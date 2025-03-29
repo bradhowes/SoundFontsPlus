@@ -1,0 +1,72 @@
+{
+  "configurations" : [
+    {
+      "id" : "4627511D-9D9C-4171-A750-DA9A9D8922F3",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:SoundFonts2.xcodeproj",
+      "identifier" : "BD1D277E2B6F13DD005C3ED0",
+      "name" : "SoundFonts2"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "ModelsTests",
+        "name" : "ModelsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "SoundFonts2LibTests",
+        "name" : "SoundFonts2LibTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "SF2ResourceFilesTests",
+        "name" : "SF2ResourceFilesTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:SoundFonts2.xcodeproj",
+        "identifier" : "BD1D279C2B6F13DE005C3ED0",
+        "name" : "SoundFonts2UITests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "TagsFeatureTests",
+        "name" : "TagsFeatureTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "PresetsFeatureTests",
+        "name" : "PresetsFeatureTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:SoundFonts2.xcodeproj",
+        "identifier" : "BD1D27922B6F13DE005C3ED0",
+        "name" : "SoundFonts2Tests"
+      }
+    }
+  ],
+  "version" : 1
+}

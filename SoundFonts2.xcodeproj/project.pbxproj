@@ -54,6 +54,7 @@
 		BD1D27A12B6F13DE005C3ED0 /* SoundFonts2UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFonts2UITests.swift; sourceTree = "<group>"; };
 		BD1D27A32B6F13DE005C3ED0 /* SoundFonts2UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFonts2UITestsLaunchTests.swift; sourceTree = "<group>"; };
 		BD2A26032CC849E0000CC1DF /* Eurostile.ttc */ = {isa = PBXFileReference; lastKnownFileType = file; path = Eurostile.ttc; sourceTree = "<group>"; };
+		BD5A65612D984945008B8117 /* SoundFonts2.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SoundFonts2.xctestplan; sourceTree = "<group>"; };
 		BD6E7D9D2B6FC2EE004201F2 /* Features */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Features; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -92,6 +93,7 @@
 		BD1D27762B6F13DD005C3ED0 = {
 			isa = PBXGroup;
 			children = (
+				BD5A65612D984945008B8117 /* SoundFonts2.xctestplan */,
 				BD6E7D9D2B6FC2EE004201F2 /* Features */,
 				BD1D27812B6F13DD005C3ED0 /* SoundFonts2 */,
 				BD1D27962B6F13DE005C3ED0 /* SoundFonts2Tests */,
