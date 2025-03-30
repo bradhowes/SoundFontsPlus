@@ -1,8 +1,10 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
+import Extensions
 import GRDB
 import Models
+import OSLog
 import SF2ResourceFiles
 import SwiftNavigation
 import SwiftUI
@@ -101,7 +103,7 @@ extension SoundFontButton {
     } else if state.soundFont.isExternal {
       state.confirmationDialog = Self.deleteFromAppConfirmationDialogState(displayName: state.soundFont.displayName)
     } else {
-      fatalError("logic error")
+      Logger.soundFonts.warning("request to delete built-in soundfont")
     }
     return .none.animation(.default)
   }

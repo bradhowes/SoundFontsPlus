@@ -61,13 +61,9 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
       notes: ""
     ).insertAndFetch(db, as: SoundFont.self)
 
-    print("inserting \(fileInfo.size()) presets")
     for presetIndex in 0..<fileInfo.size() {
       try Preset.make(db, soundFontId: soundFont.id, index: presetIndex, presetInfo: fileInfo[presetIndex])
     }
-
-    print("done")
-    print("soundFontKind.tagIds", soundFontKind.tagIds)
 
     for tagId in soundFontKind.tagIds {
       _ = try TaggedSoundFont(soundFontId: soundFont.id, tagId: tagId).insertAndFetch(db)

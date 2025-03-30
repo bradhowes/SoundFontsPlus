@@ -13,17 +13,24 @@ import Tagged
 @MainActor
 struct SoundFontButtonTests {
   func initialize(_ body: (TestStoreOf<SoundFontButton>) async throws -> Void) async throws {
-    try await TestSupport.initialize { soundFonts, presets in
-      try await body(TestStore(initialState: SoundFontButton.State(preset: soundFonts[0])) {
+    try await TestSupport.initialize { soundFonts in
+      try await body(TestStore(initialState: SoundFontButton.State(soundFont: soundFonts[0])) {
         SoundFontButton()
       })
     }
   }
 
-  @Test func testButtonTapped() async throws {
+  @Test func buttonTapped() async throws {
     try await initialize { store in
       await store.send(\.buttonTapped)
       await store.receive(.delegate(.selectSoundFont(store.state.soundFont)))
+    }
+  }
+
+  @Test func deleteButtonTapped() async throws {
+    try await initialize { store in
+      // Built-in should do nothing
+      await store.send(\.deleteButtonTapped)
     }
   }
 

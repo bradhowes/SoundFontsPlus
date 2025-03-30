@@ -24,6 +24,9 @@
       }
     },
     {
+      "skippedTests" : [
+        "MyLibraryTests\/testExample()"
+      ],
       "target" : {
         "containerPath" : "container:Features",
         "identifier" : "SoundFonts2LibTests",
@@ -39,6 +42,11 @@
     },
     {
       "parallelizable" : true,
+      "skippedTests" : [
+        "SoundFonts2UITests\/testExample()",
+        "SoundFonts2UITests\/testLaunchPerformance()",
+        "SoundFonts2UITestsLaunchTests\/testLaunch()"
+      ],
       "target" : {
         "containerPath" : "container:SoundFonts2.xcodeproj",
         "identifier" : "BD1D279C2B6F13DE005C3ED0",
@@ -61,6 +69,10 @@
     },
     {
       "parallelizable" : true,
+      "skippedTests" : [
+        "SoundFonts2Tests\/testExample()",
+        "SoundFonts2Tests\/testPerformanceExample()"
+      ],
       "target" : {
         "containerPath" : "container:SoundFonts2.xcodeproj",
         "identifier" : "BD1D27922B6F13DE005C3ED0",

@@ -53,6 +53,7 @@ let package = Package(
     .target(
       name: "SoundFontsFeature",
       dependencies: [
+        .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
@@ -63,6 +64,7 @@ let package = Package(
     .target(
       name: "TagsFeature",
       dependencies: [
+        .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
@@ -74,6 +76,7 @@ let package = Package(
     .target(
       name: "PresetsFeature",
       dependencies: [
+        .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
@@ -137,6 +140,17 @@ let package = Package(
       name: "PresetsFeatureTests",
       dependencies: [
         "PresetsFeature",
+        "Models",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing", condition: .none)
+      ]
+    ),
+    .testTarget(
+      name: "SoundFontsFeatureTests",
+      dependencies: [
+        "SoundFontsFeature",
         "Models",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies", condition: .none),

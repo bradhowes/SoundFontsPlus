@@ -12,7 +12,13 @@
     "codeCoverage" : false
   },
   "testTargets" : [
-
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SoundFontsFeatureTests",
+        "name" : "SoundFontsFeatureTests"
+      }
+    }
   ],
   "version" : 1
 }
