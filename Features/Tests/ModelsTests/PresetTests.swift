@@ -60,7 +60,7 @@ import Testing
     } operation: {
       @Dependency(\.defaultDatabase) var db
       let mock = try await db.write {
-        try SoundFont.mock($0, name: "SoundFont 1", presetNames: ["Preset 1", "Preset 2", "Preset 3"], tags: [])
+        try SoundFont.mock($0, kind: .installed, name: "SoundFont 1", presetNames: ["Preset 1", "Preset 2", "Preset 3"], tags: [])
       }
       #expect(mock.displayName == "SoundFont 1")
     }

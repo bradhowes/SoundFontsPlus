@@ -4,14 +4,14 @@ import ComposableArchitecture
 import SwiftData
 import SwiftUI
 import Models
+import UniformTypeIdentifiers
 
 @Reducer
 public struct SoundFontsList {
 
   @Reducer
   public enum Destination {
-    // case edit(SoundFontEditor)
-    // case picker(SoundFontPicker)
+    case edit(SoundFontEditor)
   }
 
   @ObservableState
@@ -29,15 +29,15 @@ public struct SoundFontsList {
   }
 
   public enum Action: BindableAction {
-    case binding(BindingAction<State>)
     case activeTagIdChanged(Tag.ID?)
     case addButtonTapped
+    case binding(BindingAction<State>)
+    case importFiles(Result<[URL], Error>)
     case destination(PresentationAction<Destination.Action>)
-    case fetchSoundFonts
     case onAppear
-    case pickerDismissed
-    case pickerSelected([URL])
+    case refresh
     case rows(IdentifiedActionOf<SoundFontButton>)
+    case showTags
   }
 
   public init() {}
@@ -49,58 +49,19 @@ public struct SoundFontsList {
     Reduce { state, action in
       switch action {
 
-      case .activeTagIdChanged:
-        fetchSoundFonts(&state)
-        return .none
-
-      case .addButtonTapped:
-        state.addingSoundFonts = true
-        return .none
-
-      case .binding:
-        return .none
-
-      case .destination(.dismiss):
-        fetchSoundFonts(&state)
-        return .none
-
-      case .destination:
-        return .none
-
-      case .fetchSoundFonts:
-        fetchSoundFonts(&state)
-        return .none
-
-      case .onAppear:
-        fetchSoundFonts(&state)
-        return .publisher {
-          $activeState.activeTagId.publisher.map { Action.activeTagIdChanged($0) }
-        }
-
-      case .pickerDismissed:
-        state.destination = nil
-        return .none
-
-      case .pickerSelected(let urls):
-        addSoundFonts(&state, urls: urls)
-        return .none
-
-      case .rows(.element(_, .delegate(.deleteSoundFont(let soundFont)))):
-        deleteSoundFont(&state, key: soundFont.id)
-        return .send(.fetchSoundFonts)
-
-      case .rows(.element(_, .delegate(.editSoundFont(let soundFont)))):
-        editSoundFont(&state, key: soundFont.id)
-        return .none
-
-      case .rows(.element(_, .delegate(.selectSoundFont(let soundFont)))):
-        $activeState.withLock {
-          $0.selectedSoundFontId = soundFont.id
-        }
-        return .none
-
-      case .rows:
-        return .none
+      case .activeTagIdChanged: return refresh(&state)
+      case .addButtonTapped: return add(&state)
+      case .binding: return .none
+      case .importFiles(let result): return importFiles(&state, result: result)
+      case .destination(.dismiss): return refresh(&state)
+      case .destination: return .none
+      case .refresh: return refresh(&state)
+      case .onAppear: return beginPublisher(&state)
+      case .rows(.element(_, .delegate(.deleteSoundFont(let soundFont)))): return delete(&state, key: soundFont.id)
+      case .rows(.element(_, .delegate(.editSoundFont(let soundFont)))): return edit(&state, key: soundFont.id)
+      case .rows(.element(_, .delegate(.selectSoundFont(let soundFont)))): return select(soundFont.id)
+      case .rows: return .none
+      case .showTags: return .none
       }
     }
     .forEach(\.rows, action: \.rows) {
@@ -114,7 +75,26 @@ extension SoundFontsList.Destination.State: Equatable {}
 
 extension SoundFontsList {
 
-  private func addSoundFonts(_ state: inout State, urls: [URL]) {
+  private func add(_ state: inout State) -> Effect<Action> {
+    state.addingSoundFonts = true
+    return .none
+  }
+
+  private func beginPublisher(_ state: inout State) -> Effect<Action> {
+    _ = refresh(&state)
+    return .publisher {
+      $activeState.activeTagId.publisher.map { Action.activeTagIdChanged($0) }
+    }
+  }
+
+  private func select(_ soundFontId: SoundFont.ID) -> Effect<Action> {
+    $activeState.withLock { $0.selectedSoundFontId = soundFontId  }
+    return .none
+  }
+
+  private func importFiles(_ state: inout State, result: Result<[URL], Error>) -> Effect<Action> {
+    return .none
+
 //    guard !urls.isEmpty,
 //          let result = Support.addSoundFonts(urls: urls)
 //    else {
@@ -139,7 +119,8 @@ extension SoundFontsList {
 //    state.showingAddedSummary = true
   }
 
-  private func deleteSoundFont(_ state: inout State, key: SoundFont.ID) {
+  private func delete(_ state: inout State, key: SoundFont.ID) -> Effect<Action> {
+    return .none
 //    do {
 //      try SoundFontModel.delete(key: key)
 //    } catch {
@@ -147,7 +128,10 @@ extension SoundFontsList {
 //    }
   }
 
-  private func editSoundFont(_ state: inout State, key: SoundFont.ID) {
+  private func edit(_ state: inout State, key: SoundFont.ID) -> Effect<Action> {
+    guard let index = state.rows.index(id: key) else { return .none }
+    state.destination = .edit(SoundFontEditor.State(soundFont: state.rows[index].soundFont, tags: []))
+    return .none
 //    do {
 //      let soundFont = try SoundFontModel.fetch(key: key)
 //      let tags = try TagModel.tags()
@@ -157,7 +141,9 @@ extension SoundFontsList {
 //    }
   }
 
-  private func fetchSoundFonts(_ state: inout State) {
+  @discardableResult
+  private func refresh(_ state: inout State) -> Effect<Action> {
+    return .none.animation(.default)
 //    do {
 //      let key = key ?? TagModel.Ubiquitous.all.key
 //      state.rows = .init(uniqueElements: try SoundFontModel.tagged(with: key).map { .init(soundFont: $0) })
@@ -171,6 +157,8 @@ extension SoundFontsList {
 
 public struct SoundFontsListView: View {
   @Bindable internal var store: StoreOf<SoundFontsList>
+
+  let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
 
   public init(store: StoreOf<SoundFontsList>) {
     self.store = store
@@ -187,6 +175,7 @@ public struct SoundFontsListView: View {
       .environment(\.defaultMinListHeaderHeight, 1)
       .toolbar {
         Button {
+          store.send(.showTags)
         } label: {
           Image(systemName: "tag")
         }
@@ -196,22 +185,22 @@ public struct SoundFontsListView: View {
           Image(systemName: "plus")
         }
       }
+      .fileImporter(
+        isPresented: $store.addingSoundFonts,
+        allowedContentTypes: types,
+        allowsMultipleSelection: true
+      ) {
+        store.send(.importFiles($0))
+      }
       .alert("Add Complete", isPresented: $store.showingAddedSummary) {
         Button("OK") {}
       } message: {
         Text(store.addedSummary)
       }
-//      .sheet(
-//        item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
-//      ) { editorStore in
-//        SoundFontEditorView(store: editorStore)
-//      }
-      .sheet(isPresented: $store.addingSoundFonts) {
-        SF2PickerView {
-          store.send(.pickerDismissed)
-        } onOpen: {
-          store.send(.pickerSelected($0))
-        }
+      .sheet(
+        item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
+      ) { editorStore in
+        SoundFontEditorView(store: editorStore)
       }
       .onAppear {
         store.send(.onAppear)
@@ -222,7 +211,9 @@ public struct SoundFontsListView: View {
 
 extension SoundFontsListView {
   static var preview: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = Support.previewDatabase }
+    let _ = prepareDependencies {
+      $0.defaultDatabase = try!.appDatabase()
+    }
     @Dependency(\.defaultDatabase) var db
     let tags = Tag.ordered
     let soundFonts = try? db.read{ try tags[0].soundFonts.fetchAll($0) }

@@ -12,25 +12,86 @@ import Tagged
 
 @MainActor
 struct SoundFontButtonTests {
-  func initialize(_ body: (TestStoreOf<SoundFontButton>) async throws -> Void) async throws {
+
+  func initialize(
+    kind: SoundFont.Kind,
+    body: (TestStoreOf<SoundFontButton>) async throws -> Void
+  ) async throws {
     try await TestSupport.initialize { soundFonts in
-      try await body(TestStore(initialState: SoundFontButton.State(soundFont: soundFonts[0])) {
+      @Dependency(\.defaultDatabase) var database
+      let soundFont = try {
+        switch kind {
+        case .builtin: return soundFonts[0]
+        default: return try database.write {
+          try SoundFont.mock(
+            $0,
+            kind: kind,
+            name: "Blah",
+            presetNames: ["One", "Two", "Three"],
+            tags: []
+          )
+        }
+        }
+      }()
+      try await body(TestStore(initialState: SoundFontButton.State(soundFont: soundFont)) {
         SoundFontButton()
       })
     }
   }
 
   @Test func buttonTapped() async throws {
-    try await initialize { store in
+    try await initialize(kind: .builtin) { store in
       await store.send(\.buttonTapped)
       await store.receive(.delegate(.selectSoundFont(store.state.soundFont)))
     }
   }
 
-  @Test func deleteButtonTapped() async throws {
-    try await initialize { store in
+  @Test func builtInDeleteButtonTapped() async throws {
+    try await initialize(kind: .builtin) { store in
       // Built-in should do nothing
+      #expect(store.state.soundFont.isbuiltin)
       await store.send(\.deleteButtonTapped)
+      await store.finish()
+    }
+  }
+
+  @Test func installedDeleteButtonTapped() async throws {
+    try await initialize(kind: .installed) { store in
+      #expect(store.state.soundFont.isInstalled)
+      await store.send(\.deleteButtonTapped) {
+        $0.confirmationDialog = SoundFontButton.deleteFromDeviceConfirmationDialogState(displayName: "Blah")
+      }
+      await store.send(.confirmationDialog(.presented(.cancelButtonTapped))) {
+        $0.confirmationDialog = nil
+      }
+      await store.send(\.deleteButtonTapped) {
+        $0.confirmationDialog = SoundFontButton.deleteFromDeviceConfirmationDialogState(displayName: "Blah")
+      }
+      await store.send(.confirmationDialog(.presented(.deleteButtonTapped))) {
+        $0.confirmationDialog = nil
+      }
+      await store.receive(.delegate(.deleteSoundFont(store.state.soundFont)))
+      await store.finish()
+    }
+  }
+
+  @Test func externalDeleteButtonTapped() async throws {
+    try await initialize(kind: .external) { store in
+      #expect(store.state.soundFont.isExternal)
+      await store.send(\.deleteButtonTapped) {
+        $0.confirmationDialog = SoundFontButton.deleteFromAppConfirmationDialogState(displayName: "Blah")
+      }
+      await store.send(.confirmationDialog(.presented(.cancelButtonTapped))) {
+        $0.confirmationDialog = nil
+      }
+      await store.send(\.deleteButtonTapped) {
+        $0.confirmationDialog = SoundFontButton.deleteFromAppConfirmationDialogState(displayName: "Blah")
+      }
+      await store.send(.confirmationDialog(.presented(.deleteButtonTapped))) {
+        $0.confirmationDialog = nil
+      }
+      await store.receive(.delegate(.deleteSoundFont(store.state.soundFont)))
+      await store.finish()
     }
   }
 
@@ -102,16 +163,15 @@ struct SoundFontButtonTests {
 //    }
 //  }
 //
-//  @Test func soundFontButtonPreview() async throws {
-//    withSnapshotTesting(record: .failed) {
-//      struct HostView: SwiftUI.View {
-//        var body: some SwiftUI.View {
-//          PresetButtonView.preview
-//            .environment(\.editMode, .constant(.inactive))
-//        }
-//      }
-//      let view = HostView()
-//      assertSnapshot(of: view, as: .image(layout: .device(config: .iPhoneSe), traits: .init(userInterfaceStyle: .dark)))
-//    }
-//  }
+  @Test func soundFontButtonPreview() async throws {
+    withSnapshotTesting(record: .failed) {
+      struct HostView: SwiftUI.View {
+        var body: some SwiftUI.View {
+          SoundFontButtonView.preview
+        }
+      }
+      let view = HostView()
+      assertSnapshot(of: view, as: .image(layout: .device(config: .iPhoneSe), traits: .init(userInterfaceStyle: .dark)))
+    }
+  }
 }

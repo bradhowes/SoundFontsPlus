@@ -76,7 +76,7 @@ extension SoundFontButton {
       ButtonState(action: .deleteButtonTapped) { TextState("Delete") }
     }, message: {
       TextState(
-        "Deleting will remove this file from the sound font library from the application. It will however remain on " +
+        "Deleting will remove the sound font from this application. It will remain on " +
         "your device."
       )
     })
@@ -92,7 +92,7 @@ extension SoundFontButton {
         ButtonState(action: .deleteButtonTapped) { TextState("Delete") }
       }, message: {
         TextState(
-          "Deleting a sound font will remove it from the application and your device."
+          "Deleting will remove it from the application and your device."
         )
       })
   }
@@ -103,7 +103,8 @@ extension SoundFontButton {
     } else if state.soundFont.isExternal {
       state.confirmationDialog = Self.deleteFromAppConfirmationDialogState(displayName: state.soundFont.displayName)
     } else {
-      Logger.soundFonts.warning("request to delete built-in soundfont")
+      let name = state.soundFont.displayName
+      Logger.soundFonts.warning("request to delete built-in soundfont \(name)")
     }
     return .none.animation(.default)
   }
@@ -150,14 +151,19 @@ struct SoundFontButtonView: View {
 
 extension SoundFontButtonView {
   static var preview: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = Support.previewDatabase }
+    let _ = prepareDependencies {
+      $0.defaultDatabase = try!.appDatabase()
+    }
+
     @Dependency(\.defaultDatabase) var db
     let soundFonts = try! db.read { try! SoundFont.fetchAll($0) }
+    let installed = try! db.write { try SoundFont.mock($0, kind: .installed, name: "Installed", presetNames: ["One"], tags: []) }
+    let external = try! db.write { try SoundFont.mock($0, kind: .external, name: "External", presetNames: ["One"], tags: []) }
 
     return List {
       SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[0])) { SoundFontButton() })
-      SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[1])) { SoundFontButton() })
-      SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[2])) { SoundFontButton() })
+      SoundFontButtonView(store: Store(initialState: .init(soundFont: installed)) { SoundFontButton() })
+      SoundFontButtonView(store: Store(initialState: .init(soundFont: external)) { SoundFontButton() })
     }
   }
 }

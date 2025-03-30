@@ -2,9 +2,11 @@
 
 import Dependencies
 import Engine
+import Extensions
 import Foundation
 import GRDB
 import IdentifiedCollections
+import OSLog
 import SharingGRDB
 import SF2ResourceFiles
 import Tagged
@@ -75,12 +77,23 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
   @discardableResult
   public static func mock(
     _ db: Database,
+    kind: Kind,
     name: String,
     presetNames: [String],
     tags: [String]
   ) throws -> SoundFont {
-    let location = URL(filePath: "")
-    let (kind, data) = try SoundFontKind.installed(file: location).data()
+    let tmp = try FileManager.default.newTemporaryURL()
+    try FileManager.default.copyItem(
+      at: SF2ResourceFileTag.rolandNicePiano.url,
+      to: tmp
+    )
+
+    let sfk: SoundFontKind = kind == .installed
+    ? SoundFontKind.installed(file: tmp)
+    : SoundFontKind.external(bookmark: .init(url: tmp, name: name))
+
+    let (kind, data) = try sfk.data()
+
     let soundFont = try PendingSoundFont(
       displayName: name,
       kind: kind,
@@ -93,8 +106,16 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
       notes: "My Notes"
     ).insertAndFetch(db, as: SoundFont.self)
 
+    // Logger.soundFonts.debug("Created mock SoundFont \(soundFont.id): \(name)")
+
     for presetName in presetNames.enumerated() {
       try Preset.mock(db, soundFontId: soundFont.id, name: presetName.1, index: presetName.0)
+      // Logger.soundFonts.debug("Created mock Preset \(presetName.1)")
+    }
+
+    for tagId in sfk.tagIds {
+      // Logger.soundFonts.debug("Adding tag \(tagId)")
+      _ = try TaggedSoundFont(soundFontId: soundFont.id, tagId: tagId).insertAndFetch(db)
     }
 
     for tagName in tags {

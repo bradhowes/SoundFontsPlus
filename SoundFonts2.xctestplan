@@ -17,10 +17,42 @@
   },
   "testTargets" : [
     {
+      "parallelizable" : true,
+      "skippedTests" : [
+        "SoundFonts2UITests\/testExample()",
+        "SoundFonts2UITests\/testLaunchPerformance()",
+        "SoundFonts2UITestsLaunchTests\/testLaunch()"
+      ],
+      "target" : {
+        "containerPath" : "container:SoundFonts2.xcodeproj",
+        "identifier" : "BD1D279C2B6F13DE005C3ED0",
+        "name" : "SoundFonts2UITests"
+      }
+    },
+    {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "ModelsTests",
-        "name" : "ModelsTests"
+        "identifier" : "SoundFontsFeatureTests",
+        "name" : "SoundFontsFeatureTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "skippedTests" : [
+        "SoundFonts2Tests\/testExample()",
+        "SoundFonts2Tests\/testPerformanceExample()"
+      ],
+      "target" : {
+        "containerPath" : "container:SoundFonts2.xcodeproj",
+        "identifier" : "BD1D27922B6F13DE005C3ED0",
+        "name" : "SoundFonts2Tests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "TagsFeatureTests",
+        "name" : "TagsFeatureTests"
       }
     },
     {
@@ -41,23 +73,10 @@
       }
     },
     {
-      "parallelizable" : true,
-      "skippedTests" : [
-        "SoundFonts2UITests\/testExample()",
-        "SoundFonts2UITests\/testLaunchPerformance()",
-        "SoundFonts2UITestsLaunchTests\/testLaunch()"
-      ],
-      "target" : {
-        "containerPath" : "container:SoundFonts2.xcodeproj",
-        "identifier" : "BD1D279C2B6F13DE005C3ED0",
-        "name" : "SoundFonts2UITests"
-      }
-    },
-    {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "TagsFeatureTests",
-        "name" : "TagsFeatureTests"
+        "identifier" : "ModelsTests",
+        "name" : "ModelsTests"
       }
     },
     {
@@ -65,18 +84,6 @@
         "containerPath" : "container:Features",
         "identifier" : "PresetsFeatureTests",
         "name" : "PresetsFeatureTests"
-      }
-    },
-    {
-      "parallelizable" : true,
-      "skippedTests" : [
-        "SoundFonts2Tests\/testExample()",
-        "SoundFonts2Tests\/testPerformanceExample()"
-      ],
-      "target" : {
-        "containerPath" : "container:SoundFonts2.xcodeproj",
-        "identifier" : "BD1D27922B6F13DE005C3ED0",
-        "name" : "SoundFonts2Tests"
       }
     }
   ],

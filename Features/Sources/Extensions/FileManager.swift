@@ -109,6 +109,11 @@ extension FileManager {
     return temporaryFileURL
   }
 
+  public func newTemporaryURL() throws -> URL {
+    let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+    let temporaryFileURL = temporaryDirectoryURL.appendingPathComponent(UUID().uuidString)
+    return temporaryFileURL
+  }
   /// Location of app documents that we want to keep private but backed-up. We need to create it if it does not
   /// exist, so this could be a high latency call.
   public var privateDocumentsDirectory: URL {

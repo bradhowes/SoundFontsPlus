@@ -13,18 +13,24 @@ struct SoundFonts2App: App {
   init() {
     prepareDependencies {
       $0.defaultDatabase = try! .appDatabase()
+      $0.defaultFileStorage = .fileSystem
     }
   }
 
   var body: some Scene {
     WindowGroup {
       NavigationSplitView {
+        TagsListView(store: Store(initialState: .init(tags: tags())) { TagsList() })
+      } content: {
         SoundFontsListView(store: Store(initialState: .init(soundFonts: soundFonts())) { SoundFontsList() })
-        //TagsListView(store: Store(initialState: .init(tags: tags())) { TagsList() })
       } detail: {
         PresetsListView(store: Store(initialState: .init(soundFont: soundFonts()[1])) { PresetsList() })
       }
     }
+  }
+
+  func tags() -> IdentifiedArrayOf<Tag> {
+    return Tag.ordered
   }
 
   func soundFonts() -> [SoundFont] {

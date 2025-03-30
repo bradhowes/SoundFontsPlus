@@ -44,7 +44,7 @@ public extension SoundFontKind {
   func data() throws -> (SoundFont.Kind, Data) {
     switch self {
     case .builtin(let url): return (.builtin, try urlToData(url))
-    case .installed(let url): return (.builtin, try urlToData(url))
+    case .installed(let url): return (.installed, try urlToData(url))
     case .external(let bookmark): return (.external, try bookmark.toData())
     }
   }
