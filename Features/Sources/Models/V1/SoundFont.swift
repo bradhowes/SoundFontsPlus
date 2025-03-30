@@ -105,24 +105,21 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
     return soundFont
   }
 
-  public func tag(_ db: Database, tagId: Tag.ID) throws {
-    if Tag.Ubiquitous.isUbiquitous(id: tagId) {
-      throw ModelError.taggingUbiquitous
-    }
+  public func addTag(_ tagId: Tag.ID) throws {
+    if Tag.Ubiquitous.isUbiquitous(id: tagId) { throw ModelError.taggingUbiquitous }
+    @Dependency(\.defaultDatabase) var database
     do {
-      _ = try TaggedSoundFont(soundFontId: id, tagId: tagId).insertAndFetch(db)
+      _ = try database.write { try TaggedSoundFont(soundFontId: id, tagId: tagId).insertAndFetch($0) }
     } catch {
       throw ModelError.alreadyTagged
     }
   }
 
-  public func untag(_ db: Database, tagId: Tag.ID) throws {
-    if Tag.Ubiquitous.isUbiquitous(id: tagId) {
-      throw ModelError.untaggingUbiquitous
-    }
-    if let found = try taggedQuery.filter(TaggedSoundFont.Columns.tagId == tagId).fetchOne(db) {
-      try found.delete(db)
-    } else {
+  public func removeTag(_ tagId: Tag.ID) throws {
+    if Tag.Ubiquitous.isUbiquitous(id: tagId) { throw ModelError.untaggingUbiquitous }
+    @Dependency(\.defaultDatabase) var database
+    let result = try database.write { try TaggedSoundFont.deleteOne($0, key: ["soundFontId": id, "tagId": tagId]) }
+    if !result {
       throw ModelError.notTagged
     }
   }
@@ -134,9 +131,7 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
   public var presets: [Preset] {
     @Dependency(\.defaultDatabase) var database
     do {
-      return try database.read {
-        try self.visiblePresetsQuery.fetchAll($0)
-      }
+      return try database.read { try self.visiblePresetsQuery.fetchAll($0) }
     } catch {
       fatalError("failed to fetch presets")
     }
@@ -144,12 +139,20 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
 
   public var allPresets: [Preset] {
     @Dependency(\.defaultDatabase) var database
-    return (try? database.read({ try self.allPresetsQuery.fetchAll($0) })) ?? []
+    do {
+      return try database.read { try self.allPresetsQuery.fetchAll($0) }
+    } catch {
+      fatalError("failed to fetch presets")
+    }
   }
 
   public var tags: [Tag] {
     @Dependency(\.defaultDatabase) var database
-    return (try? database.read({ try self.tagsQuery.fetchAll($0) })) ?? []
+    do {
+      return try database.read { try self.tagsQuery.fetchAll($0) }
+    } catch {
+      fatalError("failed to fetch tags")
+    }
   }
 }
 

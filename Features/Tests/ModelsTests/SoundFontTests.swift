@@ -141,33 +141,35 @@ import Testing
   }
 
   @Test("tagging") func tagging() async throws {
-    let db = try DatabaseQueue.appDatabase()
-    let soundFonts = try await db.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
-    let newTag = try await db.write { try Tag.make($0, name: "new") }
+    let database = try DatabaseQueue.appDatabase()
+    prepareDependencies { $0.defaultDatabase = database }
+    let soundFonts = try await database.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
+    let newTag = try await database.write { try Tag.make($0, name: "new") }
     let soundFont = soundFonts[0]
-    try await db.write { try soundFont.tag($0, tagId: newTag.id) }
-    let tagged = try await db.read { try newTag.soundFonts.fetchAll($0) }
+    try soundFont.addTag(newTag.id)
+    let tagged = try await database.read { try newTag.soundFonts.fetchAll($0) }
     #expect(tagged.count == 1)
-    await #expect(throws: ModelError.self) {
-      try await db.write { try soundFont.tag($0, tagId: newTag.id) }
+    #expect(throws: ModelError.self) {
+      try soundFont.addTag(newTag.id)
     }
   }
 
   @Test("untagging") func untagging() async throws {
-    let db = try DatabaseQueue.appDatabase()
-    let soundFonts = try await db.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
-    let newTag = try await db.write { try Tag.make($0, name: "new") }
+    let database = try DatabaseQueue.appDatabase()
+    prepareDependencies { $0.defaultDatabase = database }
+    let soundFonts = try await database.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
+    let newTag = try await database.write { try Tag.make($0, name: "new") }
     let soundFont = soundFonts[0]
-    try await db.write { try soundFont.tag($0, tagId: newTag.id) }
-    var tagged = try await db.read { try newTag.soundFonts.fetchAll($0) }
+    try soundFont.addTag(newTag.id)
+    var tagged = try await database.read { try newTag.soundFonts.fetchAll($0) }
     #expect(tagged.count == 1)
 
-    try await db.write { try soundFont.untag($0, tagId: newTag.id) }
-    tagged = try await db.read { try newTag.soundFonts.fetchAll($0) }
+    try soundFont.removeTag(newTag.id)
+    tagged = try await database.read { try newTag.soundFonts.fetchAll($0) }
     #expect(tagged.count == 0)
 
-    await #expect(throws: ModelError.self) {
-      try await db.write { try soundFont.untag($0, tagId: newTag.id) }
+    #expect(throws: ModelError.self) {
+      try soundFont.removeTag(newTag.id)
     }
   }
 
@@ -176,8 +178,8 @@ import Testing
     let soundFonts = try await db.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
     let soundFont = soundFonts[0]
     let allTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.all.id) }
-    await #expect(throws: ModelError.self) {
-      try await db.write { try soundFont.tag($0, tagId: allTag.id) }
+    #expect(throws: ModelError.self) {
+      try soundFont.addTag(allTag.id)
     }
   }
 
@@ -186,8 +188,8 @@ import Testing
     let soundFonts = try await db.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
     let soundFont = soundFonts[0]
     let allTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.all.id) }
-    await #expect(throws: ModelError.self) {
-      try await db.write { try soundFont.untag($0, tagId: allTag.id) }
+    #expect(throws: ModelError.self) {
+      try soundFont.removeTag(allTag.id)
     }
   }
 
