@@ -65,6 +65,18 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
     }
   }
 
+  public static func make(_ db: Database) throws -> Tag {
+    let existing = try Tag.order(Tag.Columns.ordering).fetchAll(db)
+    let names = Set<String>(existing.map(\.name))
+    var name = "New Tag"
+    var index = 0
+    while names.contains(name) {
+      index += 1
+      name = "New Tag \(index)"
+    }
+    return try make(db, name: name)
+  }
+
   public static var ordered: IdentifiedArrayOf<Tag> {
     @Dependency(\.defaultDatabase) var database
     let found = try? database.read { db in

@@ -17,7 +17,6 @@ public struct SoundFontsList {
   @ObservableState
   public struct State: Equatable {
     @Presents var destination: Destination.State?
-
     var rows: IdentifiedArrayOf<SoundFontButton.State>
     var addingSoundFonts: Bool = false
     var showingAddedSummary: Bool = false
@@ -32,8 +31,8 @@ public struct SoundFontsList {
     case activeTagIdChanged(Tag.ID?)
     case addButtonTapped
     case binding(BindingAction<State>)
-    case importFiles(Result<[URL], Error>)
     case destination(PresentationAction<Destination.Action>)
+    case importFiles(Result<[URL], Error>)
     case onAppear
     case refresh
     case rows(IdentifiedActionOf<SoundFontButton>)
@@ -130,7 +129,7 @@ extension SoundFontsList {
 
   private func edit(_ state: inout State, key: SoundFont.ID) -> Effect<Action> {
     guard let index = state.rows.index(id: key) else { return .none }
-    state.destination = .edit(SoundFontEditor.State(soundFont: state.rows[index].soundFont, tags: []))
+    state.destination = .edit(SoundFontEditor.State(soundFont: state.rows[index].soundFont))
     return .none
 //    do {
 //      let soundFont = try SoundFontModel.fetch(key: key)

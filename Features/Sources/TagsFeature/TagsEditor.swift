@@ -2,6 +2,7 @@ import ComposableArchitecture
 import GRDB
 import Models
 import SwiftUI
+import Tagged
 
 @Reducer
 public struct TagsEditor {
@@ -11,10 +12,20 @@ public struct TagsEditor {
     var rows: IdentifiedArrayOf<TagNameEditor.State>
     var editMode: EditMode = .inactive
     var focused: Tag.ID?
+    var memberships: [Tag.ID:Bool]?
 
-    public init(tags: [Tag], focused: Tag.ID?, editMode: EditMode = .inactive) {
-      self.rows = .init(uniqueElements: tags.map{ .init(tag: $0) })
+    public init(
+      tags: IdentifiedArrayOf<Tag>,
+      focused: Tag.ID? = nil,
+      memberships: [Tag.ID:Bool]? = nil,
+      editMode: EditMode = .inactive
+    ) {
+      self.rows = .init(uniqueElements: tags.map{ .init(
+        tag: $0,
+        membership: memberships != nil ? (memberships?[$0.id] ?? false) : nil
+      ) })
       self.focused = focused
+      self.memberships = memberships
       self.editMode = editMode
     }
   }
@@ -23,9 +34,9 @@ public struct TagsEditor {
     case addButtonTapped
     case binding(BindingAction<State>)
     case deleteTag(at: IndexSet)
+    case dismissButtonTapped
     case finalizeDeleteTag(IndexSet)
     case rows(IdentifiedActionOf<TagNameEditor>)
-    case saveButtonTapped
     case tagMoved(at: IndexSet, to: Int)
     case toggleEditMode
   }
@@ -38,11 +49,11 @@ public struct TagsEditor {
       case .addButtonTapped: return addTag(&state)
       case .binding: return .none
       case .deleteTag(let indices): return deleteTag(&state, indices: indices)
+      case .dismissButtonTapped: return saveButtonTapped(&state)
       case .finalizeDeleteTag(let indices): return finalizeDeleteTag(&state, indices: indices)
       case let .rows(.element(id: id, action: .delegate(.deleteTag))):
         return deleteTag(&state, indices: IndexSet(integer: IndexSet.Element(id.rawValue)))
       case .rows: return .none
-      case .saveButtonTapped: return saveButtonTapped(&state)
       case let .tagMoved(indices, offset): return moveTag(&state, at: indices, to: offset)
       case .toggleEditMode: return toggleEditMode(&state)
       }
@@ -52,14 +63,17 @@ public struct TagsEditor {
       TagNameEditor()
     }
   }
+
+  public init() {}
 }
 
 private extension TagsEditor {
 
   func addTag(_ state: inout State) -> Effect<Action> {
-    let tags = Support.addTag(existing: state.rows.map { $0.tag} )
-    if let tag = tags.last {
-      state.rows.append(.init(tag: tag))
+    @Dependency(\.defaultDatabase) var database
+    if let tag = (try? database.write { try Tag.make($0) }) {
+      state.memberships?[tag.id] = false
+      state.rows.append(.init(tag: tag, membership: state.memberships != nil ? false : nil))
       state.focused = tag.id
     }
     return .none.animation(.default)
@@ -116,6 +130,10 @@ public struct TagsEditorView: View {
   @FocusState var focused: Tag.ID?
   @Environment(\.editMode) var editMode
 
+  public init(store: StoreOf<TagsEditor>) {
+    self.store = store
+  }
+
   public var body: some View {
     NavigationStack {
       List {
@@ -140,7 +158,7 @@ public struct TagsEditorView: View {
       .navigationTitle("Tags Editor")
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button("Save") { store.send(.saveButtonTapped, animation: .default) }
+          Button("Dismiss") { store.send(.dismissButtonTapped, animation: .default) }
             .disabled(store.editMode == .active)
         }
         ToolbarItem(placement: .automatic) {
@@ -170,11 +188,11 @@ extension TagsEditorView {
     let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
     @Dependency(\.defaultDatabase) var db
 
-    let tags = try! db.write {
+    _ = try! db.write {
       _ = try Tag.make($0, name: "New Tag")
-      return try Tag.all().fetchAll($0)
     }
 
+    let tags = Tag.ordered
     return TagsEditorView(store: Store(initialState: .init(tags: tags, focused: tags.last?.id)) { TagsEditor() })
   }
 
@@ -182,17 +200,41 @@ extension TagsEditorView {
     let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
     @Dependency(\.defaultDatabase) var db
 
-    let tags = try! db.write {
+    _ = try! db.write {
       _ = try Tag.make($0, name: "New Tag")
-      return try Tag.all().fetchAll($0)
     }
 
+    let tags = Tag.ordered
     return TagsEditorView(store: Store(initialState: .init(tags: tags, focused: tags.last?.id, editMode: .active)) {
+      TagsEditor()
+    })
+  }
+
+  static var previewWithMemberships: some View {
+    let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
+    @Dependency(\.defaultDatabase) var db
+
+    _ = try! db.write {
+      _ = try Tag.make($0, name: "New Tag 1")
+      _ = try Tag.make($0, name: "New Tag 2")
+    }
+
+    let tags = Tag.ordered
+    var memberships = [Tag.ID:Bool]()
+    memberships[tags[0].id] = true
+    memberships[tags[1].id] = true
+    memberships[tags[4].id] = true
+
+    return TagsEditorView(store: Store(initialState: .init(
+      tags: tags,
+      focused: tags.last?.id,
+      memberships: memberships
+    )) {
       TagsEditor()
     })
   }
 }
 
 #Preview {
-  TagsEditorView.preview
+  TagsEditorView.previewWithMemberships
 }

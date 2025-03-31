@@ -57,6 +57,7 @@ let package = Package(
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
+        .targetItem(name: "TagsFeature", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies")
       ]

@@ -49,6 +49,22 @@ public extension SoundFontKind {
     }
   }
 
+  var description: String {
+    switch self {
+    case .builtin: return "built-in"
+    case .installed: return "installed"
+    case .external: return "external link"
+    }
+  }
+
+  var path: URL {
+    switch self {
+    case .builtin(let url): return url
+    case .installed(let url): return url
+    case .external(let bookmark): return bookmark.url
+    }
+  }
+
   /// True if built-in resource
   var isBuiltin: Bool {
     if case .builtin = self { return true }

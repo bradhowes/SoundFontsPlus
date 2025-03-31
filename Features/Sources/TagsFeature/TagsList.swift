@@ -62,8 +62,10 @@ public struct TagsList {
 private extension TagsList {
 
   func addTag(_ state: inout State) -> Effect<Action> {
-    let tags = Support.addTag(existing: state.rows.map { $0.tag} )
-    state.rows = .init(uniqueElements: tags.map { .init(tag: $0) })
+    @Dependency(\.defaultDatabase) var database
+    if let tag = (try? database.write { try Tag.make($0) }) {
+      state.rows.append(.init(tag: tag))
+    }
     return .none.animation(.default)
   }
 
@@ -83,7 +85,7 @@ private extension TagsList {
 
   func editTags(_ state: inout State) -> Effect<Action> {
     print("editTags")
-    state.destination = .edit(TagsEditor.State(tags: state.rows.map(\.tag), focused: nil))
+    state.destination = .edit(TagsEditor.State(tags: .init(uniqueElements: state.rows.map(\.tag)), focused: nil))
     return .none.animation(.default)
   }
 
@@ -133,7 +135,7 @@ extension TagsListView {
     let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
     @Dependency(\.defaultDatabase) var db
     var state = TagsList.State(tags: Tag.ordered)
-    state.destination = .edit(TagsEditor.State(tags: state.rows.map { $0.tag }, focused: nil))
+    state.destination = .edit(TagsEditor.State(tags: .init(uniqueElements: state.rows.map(\.tag)), focused: nil))
     return TagsListView(store: Store(initialState: state) { TagsList() })
   }
 }

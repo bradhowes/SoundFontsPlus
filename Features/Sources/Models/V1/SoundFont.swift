@@ -149,6 +149,9 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
     try SoundFontKind(kind: kind, location: location)
   }
 
+  public var sourceKind: String { (try? source())?.description ?? "N/A" }
+  public var sourcePath: String { (try? source())?.path.absoluteString ?? "N/A" }
+
   public var presets: [Preset] {
     @Dependency(\.defaultDatabase) var database
     do {

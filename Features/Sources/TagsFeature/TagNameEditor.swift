@@ -11,10 +11,12 @@ public struct TagNameEditor {
     public var id: Tag.ID { tag.id }
     let tag: Tag
     var name: String
+    var membership: Bool?
 
-    public init(tag: Tag) {
+    public init(tag: Tag, membership: Bool? = nil) {
       self.tag = tag
       self.name = tag.name
+      self.membership = membership
     }
   }
 
@@ -22,6 +24,7 @@ public struct TagNameEditor {
     case delegate(Delegate)
     case deleteTag
     case nameChanged(String)
+    case memberChanged(Bool)
   }
 
   @CasePathable
@@ -42,6 +45,7 @@ public struct TagNameEditor {
           await send(.delegate(.deleteTag(tag)), animation: .default)
         }
 
+      case .memberChanged(let value): return memberChanged(&state, value: value)
       case .nameChanged(let newName): return nameChanged(&state, value: newName)
       }
     }
@@ -49,6 +53,12 @@ public struct TagNameEditor {
 }
 
 private extension TagNameEditor {
+
+  func memberChanged(_ state: inout State, value: Bool) -> Effect<Action> {
+    precondition(state.membership != nil)
+    state.membership = value
+    return .none
+  }
 
   func nameChanged(_ state: inout State, value: String) -> Effect<Action> {
     state.name = value
@@ -64,6 +74,14 @@ public struct TagNameEditorView: View {
   var editable: Bool { !readOnly }
 
   public var body: some View {
+    if store.membership == nil {
+      nameField
+    } else {
+      memberNameField
+    }
+  }
+
+  private var nameField: some View {
     TextField("", text: $store.name.sending(\.nameChanged))
       .disabled(readOnly)
       .deleteDisabled(readOnly)
@@ -80,6 +98,15 @@ public struct TagNameEditorView: View {
         }
       }
   }
+
+  private var memberNameField: some View {
+    HStack {
+      Toggle("", isOn: Binding(get: { store.membership ?? false }, set: { store.send(.memberChanged($0)) }))
+        .disabled(store.tag.isUbiquitous)
+        .checkedStyle()
+      nameField
+    }
+  }
 }
 
 extension TagNameEditorView {
@@ -95,7 +122,7 @@ extension TagNameEditorView {
 
     return Form {
       TagNameEditorView(store: Store(initialState: .init(tag: tags[0])) { TagNameEditor() })
-      TagNameEditorView(store: Store(initialState: .init(tag: tags.last!)) { TagNameEditor() })
+      TagNameEditorView(store: Store(initialState: .init(tag: tags.last!, membership: false)) { TagNameEditor() })
     }
   }
 }

@@ -5,7 +5,7 @@ import SwiftUISupport
 import Tagged
 
 @Reducer
-public struct SoundFontTagsEditorItem {
+public struct SoundFontTagsMemberItem {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
@@ -34,8 +34,8 @@ public struct SoundFontTagsEditorItem {
   }
 }
 
-public struct SoundFontTagsEditorItemView: View {
-  @Bindable var store: StoreOf<SoundFontTagsEditorItem>
+public struct SoundFontTagsMemberItemView: View {
+  @Bindable var store: StoreOf<SoundFontTagsMemberItem>
 
   public var body: some View {
     Toggle(store.tag.name, isOn: $store.tagState.sending(\.tagStateChanged))
