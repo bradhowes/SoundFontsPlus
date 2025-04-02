@@ -1,5 +1,5 @@
 {
-  "originHash" : "62516467ce10bb7f2a3d9aed02aae2ec02daebe2eab53796e5b448f765c44f4b",
+  "originHash" : "13be21b824d0d6f7fc20ffb1f7cd6adf04f55fc640d90c272e1590342ad2571c",
   "pins" : [
     {
       "identity" : "auv3support",
@@ -44,6 +44,15 @@
       "state" : {
         "revision" : "83ad5261983c4fcc92d071610e09718ce5227e29",
         "version" : "0.1.1"
+      }
+    },
+    {
+      "identity" : "splitview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/stevengharris/SplitView",
+      "state" : {
+        "revision" : "7737a80740919c2fa94a6e64f870d37ef77b9b5f",
+        "version" : "3.5.3"
       }
     },
     {

@@ -35,8 +35,10 @@ struct SoundFonts2App: App {
 
   func soundFonts() -> [SoundFont] {
     @Dependency(\.defaultDatabase) var database
-    let tags = Tag.ordered
-    let soundFonts = try? database.read { try tags[0].soundFonts.fetchAll($0) }
+    let soundFonts = try? database.read {
+      guard let tag = try Tag.fetchOne($0, id: Tag.Ubiquitous.all.id) else { return Optional<[SoundFont]>.none }
+      return try tag.soundFonts.fetchAll($0)
+    }
     return soundFonts ?? []
   }
 }
