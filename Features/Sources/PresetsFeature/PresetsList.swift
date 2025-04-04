@@ -5,6 +5,7 @@ import ComposableArchitecture
 import GRDB
 import SF2ResourceFiles
 import SwiftUI
+import SwiftUISupport
 import Models
 
 @Reducer
@@ -248,28 +249,24 @@ public struct PresetsListView: View {
   }
 
   public var body: some View {
-    NavigationStack {
-      List {
-        ForEach(store.scope(state: \.sections, action: \.sections), id: \.id) { rowStore in
-          PresetsListSectionView(store: rowStore)
-        }
+    StyledList {
+      ForEach(store.scope(state: \.sections, action: \.sections), id: \.id) { rowStore in
+        PresetsListSectionView(store: rowStore)
       }
-      // .listSectionSpacing(.compact)
-      .listStyle(.inset)
-      .onAppear {
-        store.send(.onAppear)
-      }
-      .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
-        PresetEditorView(store: $0)
-      }
-      .searchable(
-        text: $store.searchText.sending(\.searchTextChanged),
-        isPresented: $store.isSearchFieldPresented.sending(\.searchButtonTapped),
-        // placement: .,
-        prompt: "Name"
-      )
     }
     .environment(\.editMode, .constant(store.editingVisibility ? EditMode.active : .inactive))
+    .onAppear {
+      store.send(.onAppear)
+    }
+    .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
+      PresetEditorView(store: $0)
+    }
+//      .searchable(
+//        text: $store.searchText.sending(\.searchTextChanged),
+//        isPresented: $store.isSearchFieldPresented.sending(\.searchButtonTapped),
+//        // placement: .,
+//        prompt: "Name"
+//      )
   }
 }
 

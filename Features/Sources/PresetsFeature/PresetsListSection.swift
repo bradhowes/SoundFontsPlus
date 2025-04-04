@@ -61,9 +61,8 @@ public struct PresetsListSectionView: View {
   }
 
   public var body: some View {
-    let header = Text(store.section > 0 ? "\(store.section)" : "")
+    let header = Text(store.section > 0 ? "\(store.section)" : "Presets")
       .foregroundStyle(.indigo)
-    // .listRowInsets(EdgeInsets(top: -20, leading: 10, bottom: 0, trailing: 0))
 
     Section(header: header) {
       if editMode?.wrappedValue == EditMode.active {

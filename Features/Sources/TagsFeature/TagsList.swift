@@ -4,6 +4,7 @@ import ComposableArchitecture
 import GRDB
 import Models
 import SwiftUI
+import SwiftUISupport
 
 @Reducer
 public struct TagsList {
@@ -103,12 +104,16 @@ public struct TagsListView: View {
   }
 
   public var body: some View {
-    List {
-      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-        TagButtonView(store: rowStore)
+    StyledList {
+      let header = Text("Tags")
+        .foregroundStyle(.indigo)
+
+      Section(header: header) {
+        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+          TagButtonView(store: rowStore)
+        }
       }
     }
-    .listStyle(.plain)
     .onAppear { _ = store.send(.fetchTags) }
     .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
       TagsEditorView(store: $0)

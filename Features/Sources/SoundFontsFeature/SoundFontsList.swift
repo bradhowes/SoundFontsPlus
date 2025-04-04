@@ -1,9 +1,9 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
-import SwiftData
-import SwiftUI
 import Models
+import SwiftUI
+import SwiftUISupport
 import UniformTypeIdentifiers
 
 @Reducer
@@ -164,13 +164,17 @@ public struct SoundFontsListView: View {
   }
 
   public var body: some View {
-    List {
-      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-        SoundFontButtonView(store: rowStore)
+    // Order is important here -- List / Section
+    StyledList {
+      // Mimic layout of preset list so that first row of font list lines up with first preset
+      let header = Text("Fonts")
+        .foregroundStyle(.indigo)
+      Section(header: header) {
+        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+          SoundFontButtonView(store: rowStore)
+        }
       }
     }
-    .listStyle(.plain)
-    .environment(\.defaultMinListHeaderHeight, 1)
     .fileImporter(
       isPresented: $store.addingSoundFonts,
       allowedContentTypes: types,
