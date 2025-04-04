@@ -10,7 +10,12 @@ public struct ActiveState: Codable, Equatable, Sendable {
   public var activePresetId: Preset.ID?
   public var activeTagId: Tag.ID?
 
-  public init() {}
+  public init() {
+    activeSoundFontId = SoundFont.ID(rawValue: 1)
+    activePresetId = Preset.ID(rawValue: 1)
+    activeTagId = Tag.ID(rawValue: 1)
+    selectedSoundFontId = activeSoundFontId
+  }
 }
 
 extension URL {
