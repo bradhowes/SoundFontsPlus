@@ -254,7 +254,7 @@ public struct PresetsListView: View {
           PresetsListSectionView(store: rowStore)
         }
       }
-      .listSectionSpacing(.compact)
+      // .listSectionSpacing(.compact)
       .listStyle(.inset)
       .onAppear {
         store.send(.onAppear)
@@ -274,7 +274,7 @@ public struct PresetsListView: View {
 }
 
 public struct PresetsListNavView: View {
-  @Bindable internal var store: StoreOf<PresetsList>
+  internal var store: StoreOf<PresetsList>
 
   public init(store: StoreOf<PresetsList>) {
     self.store = store

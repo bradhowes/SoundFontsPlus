@@ -103,22 +103,30 @@ public struct TagsListView: View {
   }
 
   public var body: some View {
+    List {
+      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+        TagButtonView(store: rowStore)
+      }
+    }
+    .listStyle(.plain)
+    .onAppear { _ = store.send(.fetchTags) }
+    .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
+      TagsEditorView(store: $0)
+    }
+  }
+}
+
+public struct TagsListNavView: View {
+  private var store: StoreOf<TagsList>
+
+  public init(store: StoreOf<TagsList>) {
+    self.store = store
+  }
+
+  public var body: some View {
     NavigationStack {
-      List {
-        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-          TagButtonView(store: rowStore)
-        }
-      }
-      HStack {
-        Button("Add Tag", systemImage: "plus") {
-          store.send(.addButtonTapped, animation: .default)
-        }
-      }
-      .onAppear { _ = store.send(.fetchTags) }
-      .navigationTitle(Text("Tags"))
-      .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
-        TagsEditorView(store: $0)
-      }
+      TagsListView(store: store)
+        .navigationTitle(Text("Tags"))
     }
   }
 }

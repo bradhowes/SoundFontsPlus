@@ -53,24 +53,34 @@ public struct AppView: View {
   }
 
   public var body: some View {
-    let style = SplitStyling(color: .blue.opacity(0.5))
+    let style = SplitStyling(color: .accentColor.opacity(0.5))
 
-    HSplit(left: {
-      VSplit(top: {
-        SoundFontsListView(store: store.scope(state: \.soundFontsList, action: \.soundFontsList))
-      }, bottom: {
-        TagsListView(store: store.scope(state: \.tagsList, action: \.tagsList))
+    VStack {
+      HSplit(left: {
+        VSplit(top: {
+          SoundFontsListView(store: store.scope(state: \.soundFontsList, action: \.soundFontsList))
+        }, bottom: {
+          TagsListView(store: store.scope(state: \.tagsList, action: \.tagsList))
+        })
+        .fraction(0.6)
+        .splitter { CustomSplitter(layout: LayoutHolder(.vertical),
+                                   hide: SideHolder(.secondary), styling: style) }
+      }, right: {
+        PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
       })
-      .fraction(0.6)
-      .splitter { CustomSplitter(layout: LayoutHolder(.vertical),
+      .fraction(0.5)
+      .splitter { CustomSplitter(layout: LayoutHolder(.horizontal),
                                  hide: SideHolder(.secondary), styling: style) }
-    }, right: {
-      PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
-    })
-    .fraction(0.5)
-    .splitter { CustomSplitter(layout: LayoutHolder(.horizontal),
-                               hide: SideHolder(.secondary), styling: style) }
-    .constraints(minPFraction: 0.3, minSFraction: 0.3)
+      .constraints(minPFraction: 0.3, minSFraction: 0.3)
+    }
+    Spacer(minLength: 24)
+    Spacer(minLength: 24)
+    // Toolbar
+    Color.secondary.opacity(0.2)
+      .frame(height: 48)
+    // Space for keyboard
+    Color.secondary.opacity(0.2)
+      .frame(height: 280)
   }
 }
 
