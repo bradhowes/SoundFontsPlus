@@ -45,6 +45,7 @@ let package = Package(
         .targetItem(name: "SoundFontsFeature", condition: .none),
         .targetItem(name: "PresetsFeature", condition: .none),
         .targetItem(name: "TagsFeature", condition: .none),
+        .targetItem(name: "ToolBarFeature", condition: .none),
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
@@ -87,6 +88,19 @@ let package = Package(
         .product(name: "Algorithms", package: "swift-algorithms"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "GRDB", package: "GRDB.swift"),
+      ]
+    ),
+    .target(
+      name: "ToolBarFeature",
+      dependencies: [
+        .targetItem(name: "SoundFontsFeature", condition: .none),
+        .targetItem(name: "PresetsFeature", condition: .none),
+        .targetItem(name: "TagsFeature", condition: .none),
+        .targetItem(name: "Models", condition: .none),
+        .targetItem(name: "SF2ResourceFiles", condition: .none),
+        .targetItem(name: "SwiftUISupport", condition: .none),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
       ]
     ),
     .target(
@@ -167,6 +181,16 @@ let package = Package(
       dependencies: [
         "TagsFeature",
         "Models",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing", condition: .none)
+      ]
+    ),
+    .testTarget(
+      name: "ToolBarFeatureTests",
+      dependencies: [
+        "ToolBarFeature",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
         .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none),

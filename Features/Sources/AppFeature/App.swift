@@ -5,7 +5,7 @@ import SoundFontsFeature
 import SplitView
 import SwiftUI
 import TagsFeature
-
+import ToolBarFeature
 
 @Reducer
 public struct App {
@@ -15,13 +15,19 @@ public struct App {
     public var soundFontsList: SoundFontsList.State
     public var presetsList: PresetsList.State
     public var tagsList: TagsList.State
-
+    public var toolBar: ToolBar.State
     public var tagsVisible: Bool = false
 
-    public init(soundFontsList: SoundFontsList.State, presetsList: PresetsList.State, tagsList: TagsList.State) {
+    public init(
+      soundFontsList: SoundFontsList.State,
+      presetsList: PresetsList.State,
+      tagsList: TagsList.State,
+      toolBar: ToolBar.State
+    ) {
       self.soundFontsList = soundFontsList
       self.presetsList = presetsList
       self.tagsList = tagsList
+      self.toolBar = toolBar
     }
   }
 
@@ -29,17 +35,20 @@ public struct App {
     case soundFontsList(SoundFontsList.Action)
     case presetsList(PresetsList.Action)
     case tagsList(TagsList.Action)
+    case toolBar(ToolBar.Action)
   }
 
   public var body: some ReducerOf<Self> {
     Scope(state: \.soundFontsList, action: \.soundFontsList) { SoundFontsList() }
     Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
     Scope(state: \.tagsList, action: \.tagsList) { TagsList() }
+    Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
     Reduce { state, action in
       switch action {
       case .soundFontsList: return .none
       case .presetsList: return .none
       case .tagsList: return .none
+      case .toolBar: return .none
       }
     }
   }
@@ -73,11 +82,8 @@ public struct AppView: View {
                                  hide: SideHolder(.secondary), styling: style) }
       .constraints(minPFraction: 0.3, minSFraction: 0.3)
     }
-    Spacer(minLength: 24)
-    Spacer(minLength: 24)
     // Toolbar
-    Color.secondary.opacity(0.2)
-      .frame(height: 48)
+    ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
     // Space for keyboard
     Color.secondary.opacity(0.2)
       .frame(height: 280)
@@ -101,7 +107,8 @@ extension AppView {
     return AppView(store: Store(initialState: .init(
       soundFontsList: SoundFontsList.State(soundFonts: soundFonts),
       presetsList: PresetsList.State(soundFont: soundFonts[0]),
-      tagsList: TagsList.State(tags: tags)
+      tagsList: TagsList.State(tags: tags),
+      toolBar: ToolBar.State()
     )) { App() })
   }
 }
