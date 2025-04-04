@@ -262,33 +262,46 @@ public struct PresetsListView: View {
       .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
         PresetEditorView(store: $0)
       }
-      .navigationTitle("Presets")
-      .environment(\.defaultMinListHeaderHeight, 1)
       .searchable(
         text: $store.searchText.sending(\.searchTextChanged),
         isPresented: $store.isSearchFieldPresented.sending(\.searchButtonTapped),
-        placement: .automatic,
+        // placement: .,
         prompt: "Name"
       )
     }
-    .toolbar {
-      Button {
-        store.send(.toggleEditMode, animation: .default)
-      } label: {
-        if store.state.editingVisibility {
-          Text("Done")
-            .foregroundStyle(.red)
-        } else {
-          Image(systemName: "checklist")
-        }
-      }
-      Button {
-        store.send(.searchButtonTapped(true), animation: .default)
-      } label: {
-        Image(systemName: "magnifyingglass")
-      }
-    }
     .environment(\.editMode, .constant(store.editingVisibility ? EditMode.active : .inactive))
+  }
+}
+
+public struct PresetsListNavView: View {
+  @Bindable internal var store: StoreOf<PresetsList>
+
+  public init(store: StoreOf<PresetsList>) {
+    self.store = store
+  }
+
+  public var body: some View {
+    NavigationStack {
+      PresetsListView(store: store)
+        .navigationTitle("Presets")
+        .toolbar {
+          Button {
+            store.send(.toggleEditMode, animation: .default)
+          } label: {
+            if store.state.editingVisibility {
+              Text("Done")
+                .foregroundStyle(.red)
+            } else {
+              Image(systemName: "checklist")
+            }
+          }
+          Button {
+            store.send(.searchButtonTapped(true), animation: .default)
+          } label: {
+            Image(systemName: "magnifyingglass")
+          }
+        }
+    }
   }
 }
 
