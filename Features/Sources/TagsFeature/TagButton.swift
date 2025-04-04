@@ -108,6 +108,7 @@ public struct TagButtonView: View {
       .font(Font.custom("Eurostile", size: 20))
       .indicator(state)
     }
+    .listRowSeparatorTint(.accentColor.opacity(0.5))
     .withLongPressGesture {
       store.send(.longPressGestureFired, animation: .default)
     }
@@ -138,7 +139,7 @@ extension TagButtonView {
       ForEach(tags) { tag in
         TagButtonView(store: Store(initialState: .init(tag: tag)) { TagButton() })
       }
-    }
+    }.listStyle(.plain)
   }
 }
 

@@ -130,6 +130,7 @@ public struct PresetButtonView: View {
         .font(.buttonFont)
         .indicator(state)
     }
+    .listRowSeparatorTint(.accentColor.opacity(0.5))
     .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
@@ -169,7 +170,7 @@ extension PresetButtonView {
       PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
       PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
       PresetButtonView(store: Store(initialState: .init(preset: presets.last!)) { PresetButton() })
-    }
+    }.listStyle(.plain)
   }
 }
 

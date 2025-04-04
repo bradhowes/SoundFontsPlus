@@ -127,6 +127,7 @@ struct SoundFontButtonView: View {
         .font(.buttonFont)
         .indicator(state)
     }
+    .listRowSeparatorTint(.accentColor.opacity(0.5))
     .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
@@ -157,13 +158,29 @@ extension SoundFontButtonView {
 
     @Dependency(\.defaultDatabase) var db
     let soundFonts = try! db.read { try! SoundFont.fetchAll($0) }
-    let installed = try! db.write { try SoundFont.mock($0, kind: .installed, name: "Installed", presetNames: ["One"], tags: []) }
-    let external = try! db.write { try SoundFont.mock($0, kind: .external, name: "External", presetNames: ["One"], tags: []) }
 
-    return List {
-      SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[0])) { SoundFontButton() })
-      SoundFontButtonView(store: Store(initialState: .init(soundFont: installed)) { SoundFontButton() })
-      SoundFontButtonView(store: Store(initialState: .init(soundFont: external)) { SoundFontButton() })
+    @Shared(.activeState) var activeState
+    $activeState.withLock {
+      $0.activeSoundFontId = soundFonts[0].id
+      $0.selectedSoundFontId = soundFonts[1].id
+    }
+
+    return VStack {
+      Section {
+        List {
+          SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[0])) { SoundFontButton() })
+          SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[1])) { SoundFontButton() })
+          SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[2])) { SoundFontButton() })
+        }
+        .listStyle(.plain)
+        .listRowSeparator(.visible)
+        .listRowSeparatorTint(.green, edges: .all)
+      }
+      List {
+        SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[0])) { SoundFontButton() })
+        SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[1])) { SoundFontButton() })
+        SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[2])) { SoundFontButton() })
+      }.listStyle(.grouped)
     }
   }
 }
