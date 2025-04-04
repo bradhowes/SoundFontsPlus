@@ -164,46 +164,59 @@ public struct SoundFontsListView: View {
   }
 
   public var body: some View {
+    List {
+      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+        SoundFontButtonView(store: rowStore)
+      }
+    }
+    .listStyle(.plain)
+    .environment(\.defaultMinListHeaderHeight, 1)
+    .fileImporter(
+      isPresented: $store.addingSoundFonts,
+      allowedContentTypes: types,
+      allowsMultipleSelection: true
+    ) {
+      store.send(.importFiles($0))
+    }
+    .alert("Add Complete", isPresented: $store.showingAddedSummary) {
+      Button("OK") {}
+    } message: {
+      Text(store.addedSummary)
+    }
+    .sheet(
+      item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
+    ) { editorStore in
+      SoundFontEditorView(store: editorStore)
+    }
+    .onAppear {
+      store.send(.onAppear)
+    }
+  }
+}
+
+public struct SoundFontsListNavView: View {
+  internal var store: StoreOf<SoundFontsList>
+
+  public init(store: StoreOf<SoundFontsList>) {
+    self.store = store
+  }
+
+  public var body: some View {
     NavigationStack {
-      List {
-        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-          SoundFontButtonView(store: rowStore)
+      SoundFontsListView(store: store)
+        .navigationTitle("SoundFonts")
+        .toolbar {
+          Button {
+            store.send(.showTags)
+          } label: {
+            Image(systemName: "tag")
+          }
+          Button {
+            store.send(.addButtonTapped)
+          } label: {
+            Image(systemName: "plus")
+          }
         }
-      }
-      .navigationTitle("SoundFonts")
-      .environment(\.defaultMinListHeaderHeight, 1)
-      .toolbar {
-        Button {
-          store.send(.showTags)
-        } label: {
-          Image(systemName: "tag")
-        }
-        Button {
-          store.send(.addButtonTapped)
-        } label: {
-          Image(systemName: "plus")
-        }
-      }
-      .fileImporter(
-        isPresented: $store.addingSoundFonts,
-        allowedContentTypes: types,
-        allowsMultipleSelection: true
-      ) {
-        store.send(.importFiles($0))
-      }
-      .alert("Add Complete", isPresented: $store.showingAddedSummary) {
-        Button("OK") {}
-      } message: {
-        Text(store.addedSummary)
-      }
-      .sheet(
-        item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
-      ) { editorStore in
-        SoundFontEditorView(store: editorStore)
-      }
-      .onAppear {
-        store.send(.onAppear)
-      }
     }
   }
 }
