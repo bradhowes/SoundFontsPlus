@@ -27,3 +27,21 @@ extension SharedKey where Self == FileStorageKey<ActiveState>.Default {
     Self[.fileStorage(.activeStateURL), default: .init()]
   }
 }
+
+extension String {
+  public static let effectsVisible = "effectsVisible"
+  public static let fontsAndPresetsSplitFraction = "fontsAndPresetsSplitFraction"
+  public static let fontsAndTagsSplitFraction = "fontsAndTagsSplitFraction"
+  public static let tagsListVisible = "tagsListVisible"
+}
+
+extension SharedKey where Self == AppStorageKey<Bool>.Default {
+
+  public static var effectsVisible: Self {
+    Self[.appStorage(.effectsVisible), default: false]
+  }
+
+  public static var tagsListVisible: Self {
+    Self[.appStorage(.tagsListVisible), default: false]
+  }
+}
