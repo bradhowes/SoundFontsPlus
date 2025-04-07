@@ -70,7 +70,7 @@ public struct PresetsListSectionView: View {
       } else {
         buttonRows
       }
-    }
+    }.id(-store.section)
     // .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
   }
 

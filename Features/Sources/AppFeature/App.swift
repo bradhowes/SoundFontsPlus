@@ -18,6 +18,7 @@ public struct App {
     public var tagsList: TagsList.State
     public var toolBar: ToolBar.State
     @ObservationIgnored let tagsListSideHolder: SideHolder
+    public var effectsVisibility: Bool = false
 
     public init(
       soundFontsList: SoundFontsList.State,
@@ -39,6 +40,7 @@ public struct App {
     case tagsList(TagsList.Action)
     case task
     case toolBar(ToolBar.Action)
+    case effectsVisibilityChanged(Bool)
     case tagsListVisibilityChanged(Bool)
   }
 
@@ -49,12 +51,17 @@ public struct App {
     Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
     Reduce { state, action in
       switch action {
+      case .effectsVisibilityChanged(let value):
+        withAnimation(.easeInOut(duration: 0.25)) {
+          state.effectsVisibility = value
+        }
+        return .none
+
       case .soundFontsList: return .none
       case .presetsList: return .none
       case .tagsList: return .none
-      // case .toolBar(.delegate(.setTagVisibility(let value))): return setTagVisibility(&state, value: value)
       case .tagsListVisibilityChanged(let value):
-        withAnimation {
+        withAnimation(.easeInOut(duration: 0.25)) {
           state.tagsListSideHolder.side = value ? .none : .secondary
         }
         return .none
@@ -70,18 +77,25 @@ public struct App {
 private extension App {
 
   func task(_ state: inout State) -> Effect<Action> {
-    return .run { send in
-      @Shared(.tagsListVisible) var tagsListVisible
-      for await value in $tagsListVisible.publisher.values {
-        await send(.tagsListVisibilityChanged(value))
+    return .merge(
+      .run { send in
+        @Shared(.effectsVisible) var effectsVisible
+        for await value in $effectsVisible.publisher.values {
+          await send(.effectsVisibilityChanged(value))
+        }
+      },
+      .run { send in
+        @Shared(.tagsListVisible) var tagsListVisible
+        for await value in $tagsListVisible.publisher.values {
+          await send(.tagsListVisibilityChanged(value))
+        }
       }
-    }.cancellable(id: taskCancelId)
+    ).cancellable(id: taskCancelId)
   }
 }
 
 public struct AppView: View {
   private var store: StoreOf<App>
-  @Shared(.effectsVisible) var effectsVisible
 
   public init(store: StoreOf<App>) {
     self.store = store
@@ -90,7 +104,7 @@ public struct AppView: View {
   public var body: some View {
     let style = SplitStyling(color: .accentColor.opacity(0.5), hideSplitter: true)
 
-    VStack {
+    VStack(spacing: 0) {
       HSplit(left: {
         VSplit(top: {
           SoundFontsListView(store: store.scope(state: \.soundFontsList, action: \.soundFontsList))
@@ -117,17 +131,42 @@ public struct AppView: View {
         )
       }
       .constraints(minPFraction: 0.2, minSFraction: 0.2)
+      // Effects view
+      VStack {
+        ScrollView(.horizontal) {
+          HStack {
+            VStack {
+              Text("Hello")
+              Text("World")
+            }
+            Circle()
+              .fill(Color.blue)
+              .frame(width: 120, height: 120)
+            Circle()
+              .fill(Color.green)
+              .frame(width: 120, height: 120)
+            Circle()
+              .fill(Color.yellow)
+              .frame(width: 120, height: 120)
+          }
+        }
+        .padding(0)
+        .background(Color(red: 0.08, green: 0.08, blue: 0.08))
+      }
+      .padding([.top, .bottom], 8)
+      .frame(width: .infinity, height: store.effectsVisibility ? 140.0 : 8.0)
+      .offset(x: 0.0, y: store.effectsVisibility ? 0.0 : 140.0)
+      .clipped()
+      VStack {
+        // .offset(x: 0.0, y: effectsVisible ? 0.0 : 140.0)
+        // Toolbar
+        ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
+        // Space for keyboard
+        Color(red: 0.08, green: 0.08, blue: 0.08)
+          .frame(height: 280)
+      }
     }
     .onAppear { store.send(.task) }
-    // Toolbar
-    if effectsVisible {
-      Color(red: 0.08, green: 0.08, blue: 0.08)
-        .frame(height: 140)
-    }
-    ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
-    // Space for keyboard
-    Color(red: 0.08, green: 0.08, blue: 0.08)
-      .frame(height: 280)
   }
 }
 

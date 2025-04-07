@@ -25,6 +25,7 @@ public struct PresetsList {
     var searchText: String
     var isSearchFieldPresented: Bool
     var optionalSearchText: String? { isSearchFieldPresented ? searchText : nil }
+    var scrollToPresetId: Preset.ID?
 
     public init(soundFont: SoundFont?, editingVisibility: Bool = false, searchText: String? = nil) {
       self.soundFont = soundFont
@@ -56,6 +57,7 @@ public struct PresetsList {
   }
 
   public enum Action: Equatable {
+    case clearScrollToPresetId
     case destination(PresentationAction<Destination.Action>)
     case fetchPresets
     case onAppear
@@ -77,6 +79,10 @@ public struct PresetsList {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
+      case .clearScrollToPresetId:
+        state.scrollToPresetId = nil
+        return .none
+
       case .destination(.presented(.edit(.acceptButtonTapped))): return updatePreset(&state)
       case .destination: return .none
       case .fetchPresets: return fetchPresets(&state)
@@ -143,6 +149,7 @@ extension PresetsList {
       searchText: state.optionalSearchText,
       editing: state.editingVisibility
     )
+
     return .none
   }
 
@@ -226,6 +233,13 @@ extension PresetsList {
 
     let soundFont = try? database.read({ try SoundFont.fetchOne($0, id: soundFontId) })
     state.soundFont = soundFont
+
+    @Shared(.activeState) var activeState
+    if activeState.activeSoundFontId == soundFontId {
+      state.scrollToPresetId = activeState.activePresetId
+    } else {
+      state.scrollToPresetId = nil
+    }
     return fetchPresets(&state)
   }
 
@@ -249,10 +263,12 @@ public struct PresetsListView: View {
   }
 
   public var body: some View {
-    StyledList {
-      ForEach(store.scope(state: \.sections, action: \.sections), id: \.id) { rowStore in
-        PresetsListSectionView(store: rowStore)
-      }
+    ScrollViewReader { proxy in
+      StyledList {
+        ForEach(store.scope(state: \.sections, action: \.sections), id: \.id) { rowStore in
+          PresetsListSectionView(store: rowStore)
+        }
+      }.onChange(of: store.scrollToPresetId) { doScrollTo(proxy: proxy, oldValue: $0, newValue: $1) }
     }
     .environment(\.editMode, .constant(store.editingVisibility ? EditMode.active : .inactive))
     .onAppear {
@@ -267,6 +283,20 @@ public struct PresetsListView: View {
 //        // placement: .,
 //        prompt: "Name"
 //      )
+  }
+
+  private func doScrollTo(proxy: ScrollViewProxy, oldValue: Optional<Preset.ID>, newValue: Optional<Preset.ID>) {
+    if let newValue {
+      withAnimation {
+        proxy.scrollTo(newValue)
+      }
+      // store.send(.clearScrollToPresetId)
+    } else {
+      // Not sure about this
+      withAnimation {
+        proxy.scrollTo(0)
+      }
+    }
   }
 }
 

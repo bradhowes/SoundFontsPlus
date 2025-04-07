@@ -43,13 +43,14 @@ let package = Package(
     .target(
       name: "AppFeature",
       dependencies: [
-        .targetItem(name: "SoundFontsFeature", condition: .none),
+        .targetItem(name: "Extensions", condition: .none),
+        .targetItem(name: "Models", condition: .none),
         .targetItem(name: "PresetsFeature", condition: .none),
+        .targetItem(name: "SF2ResourceFiles", condition: .none),
+        .targetItem(name: "SoundFontsFeature", condition: .none),
+        .targetItem(name: "SwiftUISupport", condition: .none),
         .targetItem(name: "TagsFeature", condition: .none),
         .targetItem(name: "ToolBarFeature", condition: .none),
-        .targetItem(name: "Models", condition: .none),
-        .targetItem(name: "SF2ResourceFiles", condition: .none),
-        .targetItem(name: "SwiftUISupport", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
         .product(name: "SplitView", package: "SplitView")
@@ -94,9 +95,7 @@ let package = Package(
     .target(
       name: "ToolBarFeature",
       dependencies: [
-        .targetItem(name: "SoundFontsFeature", condition: .none),
-        .targetItem(name: "PresetsFeature", condition: .none),
-        .targetItem(name: "TagsFeature", condition: .none),
+        .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
