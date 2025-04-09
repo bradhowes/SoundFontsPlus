@@ -41,13 +41,10 @@ public struct SoundFontsList {
 
   public init() {}
 
-  @Shared(.activeState) var activeState
-
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
       switch action {
-
       case .activeTagIdChanged: return refresh(&state)
       case .addButtonTapped: return add(&state)
       case .binding: return .none
@@ -55,7 +52,7 @@ public struct SoundFontsList {
       case .destination(.dismiss): return refresh(&state)
       case .destination: return .none
       case .refresh: return refresh(&state)
-      case .onAppear: return beginPublisher(&state)
+      case .onAppear: return monitorActiveTag(&state)
       case .rows(.element(_, .delegate(.deleteSoundFont(let soundFont)))): return delete(&state, key: soundFont.id)
       case .rows(.element(_, .delegate(.editSoundFont(let soundFont)))): return edit(&state, key: soundFont.id)
       case .rows(.element(_, .delegate(.selectSoundFont(let soundFont)))): return select(soundFont.id)
@@ -68,6 +65,8 @@ public struct SoundFontsList {
     }
     .ifLet(\.$destination, action: \.destination)
   }
+
+  let publisherCancelId = "SoundFontsList.publisherCancelId"
 }
 
 extension SoundFontsList.Destination.State: Equatable {}
@@ -79,14 +78,15 @@ extension SoundFontsList {
     return .none
   }
 
-  private func beginPublisher(_ state: inout State) -> Effect<Action> {
-    _ = refresh(&state)
+  private func monitorActiveTag(_ state: inout State) -> Effect<Action> {
     return .publisher {
-      $activeState.activeTagId.publisher.map { Action.activeTagIdChanged($0) }
-    }
+      @Shared(.activeState) var activeState
+      return $activeState.activeTagId.publisher.map { Action.activeTagIdChanged($0) }
+    }.cancellable(id: publisherCancelId)
   }
 
   private func select(_ soundFontId: SoundFont.ID) -> Effect<Action> {
+    @Shared(.activeState) var activeState
     $activeState.withLock { $0.selectedSoundFontId = soundFontId  }
     return .none
   }
@@ -142,6 +142,15 @@ extension SoundFontsList {
 
   @discardableResult
   private func refresh(_ state: inout State) -> Effect<Action> {
+    @Shared(.activeState) var activeState
+    @Dependency(\.defaultDatabase) var database
+    let tag = try? database.read { try Models.Tag.fetchOne($0, key: activeState.activeTagId) }
+    if let tag {
+      let soundFonts = try? database.read { try tag.soundFonts.fetchAll($0) }
+      if let soundFonts {
+        state.rows = .init(uniqueElements: soundFonts.map { .init(soundFont: $0) })
+      }
+    }
     return .none.animation(.default)
 //    do {
 //      let key = key ?? TagModel.Ubiquitous.all.key

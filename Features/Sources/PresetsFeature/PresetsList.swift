@@ -117,7 +117,6 @@ func generatePresetSections(
 ) -> IdentifiedArrayOf<PresetsListSection.State> {
   let grouping = searchText != nil ? 100_000 : 10
   var presets = editing ? soundFont.allPresets : soundFont.presets
-  print("presets: \(presets.count)")
 
   if let searchText, !searchText.isEmpty {
     presets = presets.filter {
