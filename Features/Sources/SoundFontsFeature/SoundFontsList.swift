@@ -174,14 +174,9 @@ public struct SoundFontsListView: View {
 
   public var body: some View {
     // Order is important here -- List / Section
-    StyledList {
-      // Mimic layout of preset list so that first row of font list lines up with first preset
-      let header = Text("Fonts")
-        .foregroundStyle(.indigo)
-      Section(header: header) {
-        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-          SoundFontButtonView(store: rowStore)
-        }
+    StyledList(title: "Files") {
+      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+        SoundFontButtonView(store: rowStore)
       }
     }
     .fileImporter(

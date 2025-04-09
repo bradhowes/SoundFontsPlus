@@ -104,14 +104,9 @@ public struct TagsListView: View {
   }
 
   public var body: some View {
-    StyledList {
-      let header = Text("Tags")
-        .foregroundStyle(.indigo)
-
-      Section(header: header) {
-        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-          TagButtonView(store: rowStore)
-        }
+    StyledList(title: "Tags") {
+      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+        TagButtonView(store: rowStore)
       }
     }
     .onAppear { _ = store.send(.fetchTags) }
