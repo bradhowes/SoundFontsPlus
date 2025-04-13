@@ -8,7 +8,7 @@ import TagsFeature
 import ToolBarFeature
 
 @Reducer
-public struct App {
+public struct RootApp {
 
   @ObservableState
   public struct State {
@@ -76,9 +76,11 @@ public struct App {
   }
 
   private let taskCancelId = "taskCancelId"
+
+  public init() {}
 }
 
-private extension App {
+private extension RootApp {
 
   func task(_ state: inout State) -> Effect<Action> {
     @Shared(.effectsVisible) var effectsVisible
@@ -90,12 +92,12 @@ private extension App {
       .publisher {
         $tagsListVisible.publisher.map(Action.tagsListVisibilityChanged)
       }
-    )
+    ).cancellable(id: taskCancelId)
   }
 }
 
-public struct AppView: View {
-  private var store: StoreOf<App>
+public struct RootAppView: View {
+  private var store: StoreOf<RootApp>
   private let tagsListDividerConstraints: SplitViewDividerConstraints = .init(
     minPrimaryFraction: 0.3,
     minSecondaryFraction: 0.3,
@@ -106,7 +108,7 @@ public struct AppView: View {
   @StateObject private var tagsListPosition = SplitViewPositionContainer(0.5)
   @StateObject private var presetsListPosition = SplitViewPositionContainer(0.5)
 
-  public init(store: StoreOf<App>) {
+  public init(store: StoreOf<RootApp>) {
     self.store = store
     self._tagsListSideVisible = .init(wrappedValue: .init(.primary, setter: { value in
       print("tagsListSideVisible.setter - \(value)")
@@ -189,13 +191,13 @@ public struct AppView: View {
       .background(Color(red: 0.08, green: 0.08, blue: 0.08))
     }
     .padding([.top, .bottom], 8)
-    .frame(width: .infinity, height: store.effectsVisible ? 140.0 : 8.0)
+    .frame(width: nil, height: store.effectsVisible ? 140.0 : 8.0)
     .offset(x: 0.0, y: store.effectsVisible ? 0.0 : 140.0)
     .clipped()
   }
 }
 
-extension AppView {
+extension RootAppView {
 
   static var preview: some View {
     let _ = prepareDependencies {
@@ -209,15 +211,15 @@ extension AppView {
       return try tag.soundFonts.fetchAll($0)
     }) else { fatalError() }
 
-    return AppView(store: Store(initialState: .init(
+    return RootAppView(store: Store(initialState: .init(
       soundFontsList: SoundFontsList.State(soundFonts: soundFonts),
       presetsList: PresetsList.State(soundFont: soundFonts[0]),
       tagsList: TagsList.State(tags: tags),
       toolBar: ToolBar.State()
-    )) { App() })
+    )) { RootApp() })
   }
 }
 
 #Preview {
-  AppView.preview
+  RootAppView.preview
 }

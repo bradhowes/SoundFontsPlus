@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AppFeature
 import ComposableArchitecture
 import GRDB
 import Models
@@ -7,6 +8,7 @@ import PresetsFeature
 import SoundFontsFeature
 import SwiftUI
 import TagsFeature
+import ToolBarFeature
 
 @main
 struct SoundFonts2App: App {
@@ -17,28 +19,25 @@ struct SoundFonts2App: App {
     }
   }
 
-  var body: some Scene {
-    WindowGroup {
-      NavigationSplitView {
-        TagsListView(store: Store(initialState: .init(tags: tags())) { TagsList() })
-      } content: {
-        SoundFontsListView(store: Store(initialState: .init(soundFonts: soundFonts())) { SoundFontsList() })
-      } detail: {
-        PresetsListView(store: Store(initialState: .init(soundFont: soundFonts()[1])) { PresetsList() })
-      }
-    }
-  }
-
-  func tags() -> IdentifiedArrayOf<Tag> {
-    return Tag.ordered
-  }
-
-  func soundFonts() -> [SoundFont] {
+  func contentView() -> some View {
     @Dependency(\.defaultDatabase) var database
-    let soundFonts = try? database.read {
+    let tags = Tag.ordered
+    guard let soundFonts = (try? database.read {
       guard let tag = try Tag.fetchOne($0, id: Tag.Ubiquitous.all.id) else { return Optional<[SoundFont]>.none }
       return try tag.soundFonts.fetchAll($0)
+    }) else { fatalError() }
+
+    return RootAppView(store: Store(initialState: .init(
+      soundFontsList: SoundFontsList.State(soundFonts: soundFonts),
+      presetsList: PresetsList.State(soundFont: soundFonts[0]),
+      tagsList: TagsList.State(tags: tags),
+      toolBar: ToolBar.State()
+    )) { RootApp() })
+  }
+
+  var body: some Scene {
+    WindowGroup {
+      contentView()
     }
-    return soundFonts ?? []
   }
 }

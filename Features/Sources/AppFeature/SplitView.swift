@@ -166,17 +166,22 @@ public struct SplitView<P, D, S>: View where P: View, D: View, S: View {
 
       ZStack(alignment: .topLeading) {
         primaryContent()
+          .zIndex(sideVisible.primary ? 0 : -1)
           .frame(width: primaryFrame.width, height: primaryFrame.height)
           .blur(radius: highlightSide == .primary ? 3 : 0, opaque: false)
           .offset(primaryOffset)
+          .allowsHitTesting(sideVisible.primary)
 
         secondaryContent()
+          .zIndex(sideVisible.secondary ? 0 : -1)
           .frame(width: secondaryFrame.width, height: secondaryFrame.height)
           .blur(radius: highlightSide == .secondary ? 3 : 0, opaque: false)
           .offset(secondaryOffset)
+          .allowsHitTesting(sideVisible.secondary)
 
         dividerContent()
           .position(dividerPt)
+          .zIndex(sideVisible.both ? 1 : -1)
           .onTapGesture(count: 2) {
             if constraints.dragToHidePrimary {
               withAnimation {
@@ -356,11 +361,11 @@ public struct DebugDivider: View {
   public var body: some View {
     ZStack(alignment: .center) {
       Color.blue.opacity(0.50)
-        .frame(width: orientation.horizontal ? .infinity : invisibleSpan,
-               height: orientation.horizontal ? invisibleSpan : .infinity)
+        .frame(width: orientation.horizontal ? nil : invisibleSpan,
+               height: orientation.horizontal ? invisibleSpan : nil)
       Color.red.opacity(1.0)
-        .frame(width: orientation.horizontal ? .infinity : visibleSpan,
-               height: orientation.horizontal ? visibleSpan : .infinity)
+        .frame(width: orientation.horizontal ? nil : visibleSpan,
+               height: orientation.horizontal ? visibleSpan : nil)
     }
   }
 }
@@ -409,6 +414,8 @@ public struct DemoVSplit: View {
   @StateObject var sideVisible = SplitViewSideVisibleContainer(.both)
   @StateObject var position = SplitViewPositionContainer(0.3)
 
+  public init() {}
+
   public var body: some View {
     let _ = Self._printChanges()
     SplitView(orientation: .vertical, position: position, sideVisible: sideVisible) {
@@ -425,15 +432,27 @@ public struct DemoVSplit: View {
       DebugDivider(for: .vertical)
     } secondary: {
       HStack {
-        Button(sideVisible.both ? "Hide Top" : "Show Top") {
-          withAnimation {
-            sideVisible.setValue(sideVisible.both ? .secondary : .both)
+        VStack {
+          Button(sideVisible.both ? "Hide Top" : "Show Top") {
+            withAnimation {
+              sideVisible.setValue(sideVisible.both ? .secondary : .both)
+            }
           }
-        }
+        }.contentShape(Rectangle())
         DemoHSplit()
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
       .background(Color.teal)
+    }
+  }
+}
+
+extension View {
+  @ViewBuilder public func isHidden(_ hidden: Bool) -> some View {
+    if hidden {
+      self.hidden()
+    } else {
+      self
     }
   }
 }
@@ -521,7 +540,7 @@ struct HandleDivider: View {
       visibleSpan: 16.0
     ),
     handleColor: Color.blue,
-    handleLength: 36,
+    handleLength: 48,
     paddingInsets: 8
   )
 }
