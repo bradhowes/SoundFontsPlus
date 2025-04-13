@@ -3,7 +3,6 @@ import Models
 import PresetsFeature
 import Sharing
 import SoundFontsFeature
-import SplitView
 import SwiftUI
 import TagsFeature
 import ToolBarFeature
@@ -17,8 +16,8 @@ public struct App {
     public var presetsList: PresetsList.State
     public var tagsList: TagsList.State
     public var toolBar: ToolBar.State
-    @ObservationIgnored let tagsListSideHolder: SideHolder
-    public var effectsVisibility: Bool = false
+    public var effectsVisible: Bool
+    public var tagsListVisible: Bool
 
     public init(
       soundFontsList: SoundFontsList.State,
@@ -30,18 +29,23 @@ public struct App {
       self.presetsList = presetsList
       self.tagsList = tagsList
       self.toolBar = toolBar
-      self.tagsListSideHolder = .usingUserDefaults(key: .tagsListVisible)
+
+      @Shared(.effectsVisible) var effectsVisible
+      @Shared(.tagsListVisible) var tagsListVisible
+
+      self.effectsVisible = effectsVisible
+      self.tagsListVisible = tagsListVisible
     }
   }
 
   public enum Action {
-    case soundFontsList(SoundFontsList.Action)
+    case effectsVisibilityChanged(Bool)
     case presetsList(PresetsList.Action)
+    case soundFontsList(SoundFontsList.Action)
     case tagsList(TagsList.Action)
+    case tagsListVisibilityChanged(Bool)
     case task
     case toolBar(ToolBar.Action)
-    case effectsVisibilityChanged(Bool)
-    case tagsListVisibilityChanged(Bool)
   }
 
   public var body: some ReducerOf<Self> {
@@ -49,22 +53,22 @@ public struct App {
     Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
     Scope(state: \.tagsList, action: \.tagsList) { TagsList() }
     Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
+
     Reduce { state, action in
       switch action {
       case .effectsVisibilityChanged(let value):
-        withAnimation(.easeInOut(duration: 0.25)) {
-          state.effectsVisibility = value
+        withAnimation(.easeInOut(duration: 0.3)) {
+          state.effectsVisible = value
         }
+        return .none
+
+      case .tagsListVisibilityChanged(let value):
+        state.tagsListVisible = value
         return .none
 
       case .soundFontsList: return .none
       case .presetsList: return .none
       case .tagsList: return .none
-      case .tagsListVisibilityChanged(let value):
-        withAnimation(.easeInOut(duration: 0.25)) {
-          state.tagsListSideHolder.side = value ? .none : .secondary
-        }
-        return .none
       case .task: return task(&state)
       case .toolBar: return .none
       }
@@ -77,96 +81,117 @@ public struct App {
 private extension App {
 
   func task(_ state: inout State) -> Effect<Action> {
+    @Shared(.effectsVisible) var effectsVisible
+    @Shared(.tagsListVisible) var tagsListVisible
     return .merge(
-      .run { send in
-        @Shared(.effectsVisible) var effectsVisible
-        for await value in $effectsVisible.publisher.values {
-          await send(.effectsVisibilityChanged(value))
-        }
+      .publisher {
+        $effectsVisible.publisher.map(Action.effectsVisibilityChanged)
       },
-      .run { send in
-        @Shared(.tagsListVisible) var tagsListVisible
-        for await value in $tagsListVisible.publisher.values {
-          await send(.tagsListVisibilityChanged(value))
-        }
+      .publisher {
+        $tagsListVisible.publisher.map(Action.tagsListVisibilityChanged)
       }
-    ).cancellable(id: taskCancelId)
+    )
   }
 }
 
 public struct AppView: View {
   private var store: StoreOf<App>
+  private let tagsListDividerConstraints: SplitViewDividerConstraints = .init(
+    minPrimaryFraction: 0.3,
+    minSecondaryFraction: 0.3,
+    dragToHideSecondary: true
+  )
+
+  @StateObject private var tagsListSideVisible: SplitViewSideVisibleContainer
+  @StateObject private var tagsListPosition = SplitViewPositionContainer(0.5)
+  @StateObject private var presetsListPosition = SplitViewPositionContainer(0.5)
 
   public init(store: StoreOf<App>) {
     self.store = store
+    self._tagsListSideVisible = .init(wrappedValue: .init(.primary, setter: { value in
+      print("tagsListSideVisible.setter - \(value)")
+      @Shared(.tagsListVisible) var tagsListVisible
+      $tagsListVisible.withLock { $0 = value == .both }
+    }))
   }
 
   public var body: some View {
-    let style = SplitStyling(color: .accentColor.opacity(0.5), hideSplitter: true)
-
     VStack(spacing: 0) {
-      HSplit(left: {
-        VSplit(top: {
-          SoundFontsListView(store: store.scope(state: \.soundFontsList, action: \.soundFontsList))
-        }, bottom: {
-          TagsListView(store: store.scope(state: \.tagsList, action: \.tagsList))
-        })
-        .fraction(FractionHolder.usingUserDefaults(0.4, key: .fontsAndTagsSplitFraction))
-        .splitter {
-          HandleDivider(
-            layout: .vertical,
-            styling: style
-          )
-        }
-        .constraints(minPFraction: 0.4, minSFraction: 0.2)
-        .hide(store.tagsListSideHolder)
-      }, right: {
-        PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
-      })
-      .fraction(FractionHolder.usingUserDefaults(0.4, key: .fontsAndPresetsSplitFraction))
-      .splitter {
-        HandleDivider(
-          layout: .horizontal,
-          styling: style
-        )
-      }
-      .constraints(minPFraction: 0.2, minSFraction: 0.2)
-      // Effects view
-      VStack {
-        ScrollView(.horizontal) {
-          HStack {
-            VStack {
-              Text("Hello")
-              Text("World")
-            }
-            Circle()
-              .fill(Color.blue)
-              .frame(width: 120, height: 120)
-            Circle()
-              .fill(Color.green)
-              .frame(width: 120, height: 120)
-            Circle()
-              .fill(Color.yellow)
-              .frame(width: 120, height: 120)
-          }
-        }
-        .padding(0)
-        .background(Color(red: 0.08, green: 0.08, blue: 0.08))
-      }
-      .padding([.top, .bottom], 8)
-      .frame(width: .infinity, height: store.effectsVisibility ? 140.0 : 8.0)
-      .offset(x: 0.0, y: store.effectsVisibility ? 0.0 : 140.0)
-      .clipped()
-      VStack {
-        // .offset(x: 0.0, y: effectsVisible ? 0.0 : 140.0)
-        // Toolbar
-        ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
-        // Space for keyboard
-        Color(red: 0.08, green: 0.08, blue: 0.08)
-          .frame(height: 280)
-      }
+      listViews
+      effectsView
+      toolbarAndKeyboard
     }
     .onAppear { store.send(.task) }
+    .onChange(of: store.tagsListVisible) { oldValue, newValue in
+      withAnimation {
+        tagsListSideVisible.setValue(newValue ? .both : .primary)
+      }
+    }
+  }
+
+  private var listViews: some View {
+    SplitView(orientation: .horizontal, position: presetsListPosition) {
+      fontsAndTags
+    } divider: {
+      HandleDivider(orientation: .horizontal, dividerConstraints: .init())
+    } secondary: {
+      PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
+    }
+  }
+
+  private var fontsAndTags: some View {
+    SplitView(
+      orientation: .vertical,
+      position: tagsListPosition,
+      sideVisible: tagsListSideVisible,
+      dividerConstraints: tagsListDividerConstraints
+    ) {
+      SoundFontsListView(store: store.scope(state: \.soundFontsList, action: \.soundFontsList))
+    } divider: {
+      HandleDivider(orientation: .vertical, dividerConstraints: .init())
+    } secondary: {
+      TagsListView(store: store.scope(state: \.tagsList, action: \.tagsList))
+    }
+  }
+
+  private var toolbarAndKeyboard: some View {
+    VStack {
+      ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
+      keyboardView
+    }
+  }
+
+  private var keyboardView: some View {
+    Color(red: 0.08, green: 0.08, blue: 0.08)
+      .frame(height: 280)
+  }
+
+  private var effectsView: some View {
+    VStack {
+      ScrollView(.horizontal) {
+        HStack {
+          VStack {
+            Text("Hello")
+            Text("World")
+          }
+          Circle()
+            .fill(Color.blue)
+            .frame(width: 120, height: 120)
+          Circle()
+            .fill(Color.green)
+            .frame(width: 120, height: 120)
+          Circle()
+            .fill(Color.yellow)
+            .frame(width: 120, height: 120)
+        }
+      }
+      .padding(0)
+      .background(Color(red: 0.08, green: 0.08, blue: 0.08))
+    }
+    .padding([.top, .bottom], 8)
+    .frame(width: .infinity, height: store.effectsVisible ? 140.0 : 8.0)
+    .offset(x: 0.0, y: store.effectsVisible ? 0.0 : 140.0)
+    .clipped()
   }
 }
 

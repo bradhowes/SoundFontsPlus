@@ -20,7 +20,6 @@ let package = Package(
   dependencies: [
     // .package(url: "https://github.com/bradhowes/SF2Lib", from: "5.0.0")
     .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib"),
-    .package(url: "https://github.com/stevengharris/SplitView", from: "3.5.3"),
     .package(url: "https://github.com/groue/GRDB.swift", from: "7.0.0"),
     .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
     .package(url: "https://github.com/pointfreeco/sharing-grdb", from: "0.1.0"),
@@ -52,8 +51,7 @@ let package = Package(
         .targetItem(name: "TagsFeature", condition: .none),
         .targetItem(name: "ToolBarFeature", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Dependencies", package: "swift-dependencies"),
-        .product(name: "SplitView", package: "SplitView")
+        .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),
     .target(
