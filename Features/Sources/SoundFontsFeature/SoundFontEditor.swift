@@ -34,7 +34,7 @@ public struct SoundFontEditor {
     public init(soundFont: SoundFont) {
       let tags = Tag.ordered
       self.soundFont = soundFont
-      self.tags = tags
+      self.tags = .init(uniqueElements: tags)
       self.focusField = .displayName
       self.tagged = tags.reduce(into: [:]) { $0[$1.id] = soundFont.tags.contains($1) }
       self.tagsList = Support.generateTagsList(from: soundFont.tags)
@@ -106,7 +106,6 @@ extension SoundFontEditor {
 
   func editTags(_ state: inout State) -> Effect<Action> {
     state.destination = .edit(TagsEditor.State(
-      tags: state.tags,
       focused: nil,
       memberships: state.tagged
     ))

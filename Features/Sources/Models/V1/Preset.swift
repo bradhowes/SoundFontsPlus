@@ -1,9 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import Dependencies
 import Engine
 import Foundation
 import GRDB
 import IdentifiedCollections
+import Sharing
 import Tagged
 
 public struct Preset: Codable, Identifiable, FetchableRecord, MutablePersistableRecord {
@@ -50,6 +52,23 @@ public struct Preset: Codable, Identifiable, FetchableRecord, MutablePersistable
       bank: 1,
       program: index + 1
     ).insertAndFetch(db, as: Preset.self)
+  }
+
+  public static var selectedSoundFontPresets: [Preset] {
+    @Dependency(\.defaultDatabase) var database
+    @Shared(.activeState) var activeState
+    guard let soundFontId = activeState.selectedSoundFontId ?? activeState.activeSoundFontId else {
+      return []
+    }
+
+    let presets: [Preset]? = try? database.read {
+      if let soundFont = try SoundFont.fetchOne($0, id: soundFontId) {
+        return try soundFont.visiblePresetsQuery.fetchAll($0)
+      } else {
+        return []
+      }
+    }
+    return presets ?? []
   }
 }
 

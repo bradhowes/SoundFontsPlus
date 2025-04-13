@@ -5,6 +5,7 @@ import Dependencies
 import GRDB
 import IdentifiedCollections
 import Tagged
+import Sharing
 
 public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRecord {
   public typealias ID = Tagged<Self, Int64>
@@ -77,13 +78,9 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
     return try make(db, name: name)
   }
 
-  public static var ordered: IdentifiedArrayOf<Tag> {
+  public static var ordered: [Tag] {
     @Dependency(\.defaultDatabase) var database
-    let found = try? database.read { db in
-      try Tag.order(Tag.Columns.ordering).fetchAll(db)
-    }
-    print("Tag.ordered:", found ?? [])
-    return .init(uncheckedUniqueElements: found ?? [])
+    return (try? database.read { try Tag.order(Tag.Columns.ordering).fetchAll($0) }) ?? []
   }
 
   public static func reorder(_ db: Database, tags: [Tag]) throws {
@@ -96,6 +93,20 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
     @Dependency(\.defaultDatabase) var database
     let count = try? database.read { try? self.soundFonts.fetchCount($0) }
     return count ?? 0
+  }
+
+  public static var activeTagSoundFonts: [SoundFont] {
+    @Dependency(\.defaultDatabase) var database
+    @Shared(.activeState) var activeState
+    let tagId = activeState.activeTagId ?? Tag.Ubiquitous.all.id
+    let soundFonts: [SoundFont]? = try? database.read {
+      if let tag = try Tag.fetchOne($0, id: tagId) {
+        return try tag.soundFonts.fetchAll($0)
+      } else {
+        return []
+      }
+    }
+    return soundFonts ?? []
   }
 }
 

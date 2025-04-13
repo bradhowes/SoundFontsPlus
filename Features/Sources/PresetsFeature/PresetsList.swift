@@ -27,8 +27,9 @@ public struct PresetsList {
     var optionalSearchText: String? { isSearchFieldPresented ? searchText : nil }
     var scrollToPresetId: Preset.ID?
 
-    public init(soundFont: SoundFont?, editingVisibility: Bool = false, searchText: String? = nil) {
-      self.soundFont = soundFont
+    public init(editingVisibility: Bool = false, searchText: String? = nil) {
+      @Shared(.activeState) var activeState
+      self.soundFont = SoundFont.activeSoundFont
       self.editingVisibility = editingVisibility
       self.isSearchFieldPresented = searchText != nil
       self.searchText = searchText ?? ""
@@ -337,10 +338,12 @@ extension PresetsListView {
     let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
     @Dependency(\.defaultDatabase) var db
     let soundFonts = try! db.read { try! SoundFont.orderByPrimaryKey().fetchAll($0) }
+    @Shared(.activeState) var activeState
+    $activeState.withLock { $0.selectedSoundFontId = soundFonts[0].id }
 
     return VStack {
       NavigationStack {
-        PresetsListView(store: Store(initialState: .init(soundFont: soundFonts[0])) { PresetsList() })
+        PresetsListView(store: Store(initialState: .init()) { PresetsList() })
       }
     }
   }
@@ -349,8 +352,10 @@ extension PresetsListView {
     let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
     @Dependency(\.defaultDatabase) var db
     let soundFonts = try! db.read { try! SoundFont.orderByPrimaryKey().fetchAll($0) }
+    @Shared(.activeState) var activeState
+    $activeState.withLock { $0.selectedSoundFontId = soundFonts[0].id }
 
-    return PresetsListView(store: Store(initialState: .init(soundFont: soundFonts[0], editingVisibility: true)) {
+    return PresetsListView(store: Store(initialState: .init(editingVisibility: true)) {
       PresetsList()
     })
   }

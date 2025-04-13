@@ -161,6 +161,15 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
     }
   }
 
+  public static var activeSoundFont: SoundFont? {
+    @Dependency(\.defaultDatabase) var database
+    @Shared(.activeState) var activeState
+    guard let soundFontId = activeState.selectedSoundFontId ?? activeState.activeSoundFontId else {
+      return nil
+    }
+    return try? database.read { try SoundFont.fetchOne($0, id: soundFontId) }
+  }
+
   public var allPresets: [Preset] {
     @Dependency(\.defaultDatabase) var database
     do {

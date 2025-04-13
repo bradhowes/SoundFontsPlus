@@ -22,8 +22,8 @@ public struct SoundFontsList {
     var showingAddedSummary: Bool = false
     var addedSummary: String = ""
 
-    public init(soundFonts: [SoundFont]) {
-      self.rows = .init(uniqueElements: soundFonts.map { .init(soundFont: $0) })
+    public init() {
+      self.rows = .init(uniqueElements: Tag.activeTagSoundFonts.map { SoundFontButton.State(soundFont: $0) })
     }
   }
 
@@ -234,11 +234,8 @@ extension SoundFontsListView {
     let _ = prepareDependencies {
       $0.defaultDatabase = try!.appDatabase()
     }
-    @Dependency(\.defaultDatabase) var db
-    let tags = Tag.ordered
-    let soundFonts = try? db.read{ try tags[0].soundFonts.fetchAll($0) }
     return VStack {
-      SoundFontsListView(store: Store(initialState: .init(soundFonts: soundFonts ?? [])) { SoundFontsList() })
+      SoundFontsListView(store: Store(initialState: .init()) { SoundFontsList() })
     }
   }
 }

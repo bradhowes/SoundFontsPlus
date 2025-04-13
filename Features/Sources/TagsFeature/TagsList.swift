@@ -19,8 +19,8 @@ public struct TagsList {
     @Presents var destination: Destination.State?
     var rows: IdentifiedArrayOf<TagButton.State>
 
-    public init(tags: IdentifiedArrayOf<Tag>) {
-      self.rows = .init(uniqueElements: tags.map { .init(tag: $0) })
+    public init() {
+      self.rows = .init(uniqueElements: Tag.ordered.map { .init(tag: $0) })
     }
   }
 
@@ -86,7 +86,7 @@ private extension TagsList {
 
   func editTags(_ state: inout State) -> Effect<Action> {
     print("editTags")
-    state.destination = .edit(TagsEditor.State(tags: .init(uniqueElements: state.rows.map(\.tag)), focused: nil))
+    state.destination = .edit(TagsEditor.State(focused: nil))
     return .none.animation(.default)
   }
 
@@ -136,14 +136,14 @@ extension TagsListView {
   static var preview: some View {
     let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
     @Dependency(\.defaultDatabase) var db
-    return TagsListView(store: Store(initialState: .init(tags: Tag.ordered)) { TagsList() })
+    return TagsListView(store: Store(initialState: .init()) { TagsList() })
   }
 
   static var previewWithEditor: some View {
     let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
     @Dependency(\.defaultDatabase) var db
-    var state = TagsList.State(tags: Tag.ordered)
-    state.destination = .edit(TagsEditor.State(tags: .init(uniqueElements: state.rows.map(\.tag)), focused: nil))
+    var state = TagsList.State()
+    state.destination = .edit(TagsEditor.State(focused: nil))
     return TagsListView(store: Store(initialState: state) { TagsList() })
   }
 }

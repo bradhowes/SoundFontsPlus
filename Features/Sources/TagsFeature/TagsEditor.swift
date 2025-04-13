@@ -15,12 +15,11 @@ public struct TagsEditor {
     var memberships: [Tag.ID:Bool]?
 
     public init(
-      tags: IdentifiedArrayOf<Tag>,
       focused: Tag.ID? = nil,
       memberships: [Tag.ID:Bool]? = nil,
       editMode: EditMode = .inactive
     ) {
-      self.rows = .init(uniqueElements: tags.map{ .init(
+      self.rows = .init(uniqueElements: Tag.ordered.map{ .init(
         tag: $0,
         membership: memberships != nil ? (memberships?[$0.id] ?? false) : nil
       ) })
@@ -193,7 +192,7 @@ extension TagsEditorView {
     }
 
     let tags = Tag.ordered
-    return TagsEditorView(store: Store(initialState: .init(tags: tags, focused: tags.last?.id)) { TagsEditor() })
+    return TagsEditorView(store: Store(initialState: .init(focused: tags.last?.id)) { TagsEditor() })
   }
 
   static var previewInEditMode: some View {
@@ -205,7 +204,7 @@ extension TagsEditorView {
     }
 
     let tags = Tag.ordered
-    return TagsEditorView(store: Store(initialState: .init(tags: tags, focused: tags.last?.id, editMode: .active)) {
+    return TagsEditorView(store: Store(initialState: .init(focused: tags.last?.id, editMode: .active)) {
       TagsEditor()
     })
   }
@@ -226,7 +225,6 @@ extension TagsEditorView {
     memberships[tags[4].id] = true
 
     return TagsEditorView(store: Store(initialState: .init(
-      tags: tags,
       focused: tags.last?.id,
       memberships: memberships
     )) {
