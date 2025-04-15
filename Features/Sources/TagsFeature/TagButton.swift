@@ -11,12 +11,13 @@ public struct TagButton {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    public var tag: Tag
-    public var id: Tag.ID { tag.id }
+    public let tagInfo: TagInfo
+    public var id: Tag.ID { tagInfo.id }
+
     @Presents public var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
 
-    public init(tag: Tag) {
-      self.tag = tag
+    public init(tagInfo: TagInfo) {
+      self.tagInfo = tagInfo
     }
   }
 
@@ -36,7 +37,7 @@ public struct TagButton {
 
   @CasePathable
   public enum Delegate: Equatable {
-    case deleteTag(Tag)
+    case deleteTag(TagInfo)
     case editTags
   }
 
@@ -47,7 +48,7 @@ public struct TagButton {
       switch action {
 
       case .buttonTapped: return buttonTapped(&state)
-      case .confirmationDialog(.presented(.deleteButtonTapped)): return .send(.delegate(.deleteTag(state.tag)))
+      case .confirmationDialog(.presented(.deleteButtonTapped)): return .send(.delegate(.deleteTag(state.tagInfo)))
       case .confirmationDialog: return .none
       case .delegate: return .none
       case .deleteButtonTapped: return deleteButtonTapped(&state)
@@ -76,13 +77,13 @@ extension TagButton {
 
   func buttonTapped(_ state: inout State) -> Effect<Action> {
     $activeState.withLock {
-      $0.activeTagId = state.tag.id
+      $0.activeTagId = state.id
     }
     return .none.animation(.default)
   }
 
   func deleteButtonTapped(_ state: inout State) -> Effect<Action> {
-    state.confirmationDialog = Self.deleteConfirmationDialogState(displayName: state.tag.name)
+    state.confirmationDialog = Self.deleteConfirmationDialogState(displayName: state.tagInfo.name)
     return .none.animation(.default)
   }
 }
@@ -92,7 +93,7 @@ public struct TagButtonView: View {
   @Shared(.activeState) var activeState
 
   var state: IndicatorModifier.State {
-    activeState.activeTagId == store.tag.id ? .active : .none
+    activeState.activeTagId == store.id ? .active : .none
   }
 
   public var body: some View {
@@ -100,9 +101,9 @@ public struct TagButtonView: View {
       store.send(.buttonTapped)
     } label: {
       HStack {
-        Text(store.tag.name)
+        Text(store.tagInfo.name)
         Spacer()
-        Text("\(store.tag.soundFontsCount)")
+        Text("\(store.tagInfo.taggedSoundFontCount)")
       }
       .contentShape(Rectangle())
       .font(Font.custom("Eurostile", size: 20))
@@ -114,7 +115,7 @@ public struct TagButtonView: View {
     }
     .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-      if store.tag.isUserDefined {
+      if store.tagInfo.id.isUserDefined {
         Button {
           store.send(.deleteButtonTapped, animation: .default)
         } label: {
@@ -132,12 +133,10 @@ extension TagButtonView {
       $0.defaultDatabase = try! .appDatabase()
     }
 
-    @Dependency(\.defaultDatabase) var db
-    let tags = try! db.read { try! Tag.fetchAll($0) }
-
+    let tagInfos = TagInfo.all()
     return List {
-      ForEach(tags) { tag in
-        TagButtonView(store: Store(initialState: .init(tag: tag)) { TagButton() })
+      ForEach(tagInfos) { tagInfo in
+        TagButtonView(store: Store(initialState: .init(tagInfo: tagInfo)) { TagButton() })
       }
     }.listStyle(.plain)
   }

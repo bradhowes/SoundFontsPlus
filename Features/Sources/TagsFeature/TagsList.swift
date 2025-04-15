@@ -20,7 +20,7 @@ public struct TagsList {
     var rows: IdentifiedArrayOf<TagButton.State>
 
     public init() {
-      self.rows = .init(uniqueElements: Tag.ordered.map { .init(tag: $0) })
+      self.rows = .init(uniqueElements: TagInfo.all().map { .init(tagInfo: $0) })
     }
   }
 
@@ -40,7 +40,6 @@ public struct TagsList {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-
       case .addButtonTapped: return addTag(&state)
       case .destination(.dismiss): return fetchTags(&state)
       case .destination(.presented(.edit(.addButtonTapped))): return fetchTags(&state)
@@ -48,7 +47,7 @@ public struct TagsList {
       case .destination: return .none
       case .fetchTags: return fetchTags(&state)
       case .onAppear: return fetchTags(&state)
-      case .rows(.element(_, .delegate(.deleteTag(let tag)))): return deleteTag(&state, tag: tag)
+      case .rows(.element(_, .delegate(.deleteTag(let tagInfo)))): return deleteTag(&state, tagInfo: tagInfo)
       case .rows(.element(_, .delegate(.editTags))): return editTags(&state)
       case .rows: return .none
       }
@@ -65,21 +64,21 @@ private extension TagsList {
   func addTag(_ state: inout State) -> Effect<Action> {
     @Dependency(\.defaultDatabase) var database
     if let tag = (try? database.write { try Tag.make($0) }) {
-      state.rows.append(.init(tag: tag))
+      state.rows.append(.init(tagInfo: TagInfo.from(tag)))
     }
     return .none.animation(.default)
   }
 
-  func deleteTag(_ state: inout State, tag: Tag) -> Effect<Action>{
-    print("TagsList.deleteTag: \(tag)")
-    precondition(!tag.isUbiquitous)
-    if activeState.activeTagId == tag.id {
+  func deleteTag(_ state: inout State, tagInfo: TagInfo) -> Effect<Action>{
+    print("TagsList.deleteTag: \(tagInfo)")
+    precondition(tagInfo.id.isUserDefined)
+    if activeState.activeTagId == tagInfo.id {
       $activeState.withLock {
         $0.activeTagId = Tag.Ubiquitous.all.id
       }
     }
 
-    _ = try? database.write { try tag.delete($0) }
+    _ = try? database.write { try Tag.deleteOne($0, id: tagInfo.id) }
 
     return .run { await $0(.fetchTags) }.animation(.default)
   }
@@ -91,7 +90,7 @@ private extension TagsList {
   }
 
   func fetchTags(_ state: inout State) -> Effect<Action> {
-    state.rows = .init(uniqueElements: Tag.ordered.map { .init(tag: $0) })
+    state.rows = .init(uniqueElements: TagInfo.all().map{ .init(tagInfo: $0) })
     return .none.animation(.default)
   }
 }
@@ -109,24 +108,8 @@ public struct TagsListView: View {
         TagButtonView(store: rowStore)
       }
     }
-    .onAppear { _ = store.send(.fetchTags) }
     .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
       TagsEditorView(store: $0)
-    }
-  }
-}
-
-public struct TagsListNavView: View {
-  private var store: StoreOf<TagsList>
-
-  public init(store: StoreOf<TagsList>) {
-    self.store = store
-  }
-
-  public var body: some View {
-    NavigationStack {
-      TagsListView(store: store)
-        .navigationTitle(Text("Tags"))
     }
   }
 }
@@ -134,18 +117,20 @@ public struct TagsListNavView: View {
 extension TagsListView {
 
   static var preview: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
-    @Dependency(\.defaultDatabase) var db
+    let _ = prepareDependencies {
+      $0.defaultDatabase = try! .appDatabase()
+    }
+
     return TagsListView(store: Store(initialState: .init()) { TagsList() })
   }
 
-  static var previewWithEditor: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
-    @Dependency(\.defaultDatabase) var db
-    var state = TagsList.State()
-    state.destination = .edit(TagsEditor.State(focused: nil))
-    return TagsListView(store: Store(initialState: state) { TagsList() })
-  }
+//  static var previewWithEditor: some View {
+//    let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
+//    @Dependency(\.defaultDatabase) var db
+//    var state = TagsList.State()
+//    state.destination = .edit(TagsEditor.State(focused: nil))
+//    return TagsListView(store: Store(initialState: state) { TagsList() })
+//  }
 }
 
 #Preview {

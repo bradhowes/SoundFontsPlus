@@ -39,10 +39,12 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
       }
     }
 
-    static func isUbiquitous(id: ID) -> Bool {
+    public static func isUbiquitous(id: ID) -> Bool {
       guard let last = Self.allCases.last else { fatalError() }
       return id <= last.id
     }
+
+    public static func isUserDefined(id: ID) -> Bool { !isUbiquitous(id: id) }
   }
 
   public let id: ID
@@ -108,6 +110,16 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
     }
     return soundFonts ?? []
   }
+}
+
+extension Tag.ID {
+
+  public var isUbiquitous: Bool {
+    guard let last = Tag.Ubiquitous.allCases.last else { fatalError() }
+    return self <= last.id
+  }
+
+  public var isUserDefined: Bool { !self.isUbiquitous }
 }
 
 private struct PendingTag: Codable, PersistableRecord {

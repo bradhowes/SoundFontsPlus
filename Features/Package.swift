@@ -25,7 +25,7 @@ let package = Package(
     .package(url: "https://github.com/pointfreeco/sharing-grdb", from: "0.1.0"),
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.17.0"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.4.1"),
-    // .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.0.0"),
+    .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.0"),
     .package(url: "https://github.com/pointfreeco/swift-tagged", from: "0.10.0"),
     .package(url: "https://github.com/CrazyFanFan/FileHash", from: "0.0.1")
@@ -75,6 +75,9 @@ let package = Package(
         .targetItem(name: "SwiftUISupport", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "GRDB", package: "GRDB.swift"),
+        .product(name: "Sharing", package: "swift-sharing", condition: .none),
+        .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none),
         .product(name: "Tagged", package: "swift-tagged")
       ]
     ),
@@ -88,6 +91,8 @@ let package = Package(
         .product(name: "Algorithms", package: "swift-algorithms"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "GRDB", package: "GRDB.swift"),
+        .product(name: "Sharing", package: "swift-sharing", condition: .none),
+        .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none),
       ]
     ),
     .target(
@@ -116,6 +121,7 @@ let package = Package(
         .product(name: "Dependencies", package: "swift-dependencies"),
         .product(name: "FileHash", package: "FileHash"),
         .product(name: "GRDB", package: "GRDB.swift"),
+        .product(name: "Sharing", package: "swift-sharing", condition: .none),
         .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none),
         .product(name: "Tagged", package: "swift-tagged")
       ]
