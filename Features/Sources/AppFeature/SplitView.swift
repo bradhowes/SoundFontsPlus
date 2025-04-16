@@ -155,9 +155,10 @@ public struct SplitView<P, D, S>: View where P: View, D: View, S: View {
       ? .init(width: sideVisible.primary ? secondarySpan : span, height: height)
       : .init(width: width, height: sideVisible.primary ? secondarySpan : span)
 
+      let secondaryOffsetSpan = sideVisible.both ? primaryAndHandleSpan : (sideVisible.primary ? span + handleSpan: 0)
       let secondaryOffset: CGSize = orientation.horizontal
-      ? .init(width: sideVisible.both ? primaryAndHandleSpan : (sideVisible.primary ? span + handleSpan: 0), height: 0)
-      : .init(width: 0, height: sideVisible.both ? primaryAndHandleSpan : (sideVisible.primary ? span + handleSpan : 0))
+      ? .init(width: secondaryOffsetSpan, height: 0)
+      : .init(width: 0, height: secondaryOffsetSpan)
 
       let dividerOffset = (sideVisible.both ? dividerPos : (sideVisible.primary ? span + handleSpan2 : -handleSpan2))
       let dividerPt: CGPoint = orientation.horizontal
