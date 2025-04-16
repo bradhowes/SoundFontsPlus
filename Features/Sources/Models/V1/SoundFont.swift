@@ -126,25 +126,6 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
     return soundFont
   }
 
-  public func addTag(_ tagId: Tag.ID) throws {
-    if Tag.Ubiquitous.isUbiquitous(id: tagId) { throw ModelError.taggingUbiquitous }
-    @Dependency(\.defaultDatabase) var database
-    do {
-      _ = try database.write { try TaggedSoundFont(soundFontId: id, tagId: tagId).insertAndFetch($0) }
-    } catch {
-      throw ModelError.alreadyTagged
-    }
-  }
-
-  public func removeTag(_ tagId: Tag.ID) throws {
-    if Tag.Ubiquitous.isUbiquitous(id: tagId) { throw ModelError.untaggingUbiquitous }
-    @Dependency(\.defaultDatabase) var database
-    let result = try database.write { try TaggedSoundFont.deleteOne($0, key: ["soundFontId": id, "tagId": tagId]) }
-    if !result {
-      throw ModelError.notTagged
-    }
-  }
-
   public func source() throws -> SoundFontKind {
     try SoundFontKind(kind: kind, location: location)
   }
@@ -159,15 +140,6 @@ public struct SoundFont: Codable, Identifiable, FetchableRecord, MutablePersista
     } catch {
       fatalError("failed to fetch presets")
     }
-  }
-
-  public static var activeSoundFont: SoundFont? {
-    @Dependency(\.defaultDatabase) var database
-    @Shared(.activeState) var activeState
-    guard let soundFontId = activeState.selectedSoundFontId ?? activeState.activeSoundFontId else {
-      return nil
-    }
-    return try? database.read { try SoundFont.fetchOne($0, id: soundFontId) }
   }
 
   public var allPresets: [Preset] {

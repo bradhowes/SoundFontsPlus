@@ -29,3 +29,7 @@ extension TaggedSoundFont {
   static let soundFont = belongsTo(SoundFont.self)
   static let tag = belongsTo(Tag.self)
 }
+
+extension TaggedSoundFont {
+
+}

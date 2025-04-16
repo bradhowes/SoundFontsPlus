@@ -111,13 +111,13 @@ public struct RootAppView: View {
   public init(store: StoreOf<RootApp>) {
     self.store = store
     self._tagsListSideVisible = .init(wrappedValue: .init(.primary, setter: { value in
-      print("tagsListSideVisible.setter - \(value)")
       @Shared(.tagsListVisible) var tagsListVisible
       $tagsListVisible.withLock { $0 = value == .both }
     }))
   }
 
   public var body: some View {
+    let _ = Self._printChanges()
     VStack(spacing: 0) {
       listViews
       effectsView
@@ -203,13 +203,6 @@ extension RootAppView {
     let _ = prepareDependencies {
       $0.defaultDatabase = try!.appDatabase()
     }
-
-    @Dependency(\.defaultDatabase) var database
-    guard let soundFonts = (try? database.read {
-      guard let tag = try Tag.fetchOne($0, id: Tag.Ubiquitous.all.id) else { return Optional<[SoundFont]>.none }
-      return try tag.soundFonts.fetchAll($0)
-    }) else { fatalError() }
-
     return RootAppView(store: Store(initialState: .init(
       soundFontsList: SoundFontsList.State(),
       presetsList: PresetsList.State(),

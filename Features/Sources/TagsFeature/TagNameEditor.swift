@@ -8,14 +8,16 @@ public struct TagNameEditor {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    public var id: Tag.ID { tag.id }
-    let tag: Tag
-    var name: String
-    var membership: Bool?
+    public let tagId: Tag.ID
+    public var name: String
+    public let soundFontId: SoundFont.ID?
+    public var membership: Bool?
+    public var id: Tag.ID { tagId }
 
-    public init(tag: Tag, membership: Bool? = nil) {
-      self.tag = tag
+    public init(tag: Tag, soundFontId: SoundFont.ID? = nil, membership: Bool? = nil) {
+      self.tagId = tag.id
       self.name = tag.name
+      self.soundFontId = soundFontId
       self.membership = membership
     }
   }
@@ -23,13 +25,13 @@ public struct TagNameEditor {
   public enum Action: Equatable {
     case delegate(Delegate)
     case deleteTag
+    case membershipButtonTapped(Bool)
     case nameChanged(String)
-    case memberChanged(Bool)
   }
 
   @CasePathable
   public enum Delegate: Equatable {
-    case deleteTag(Tag)
+    case deleteTag(Tag.ID)
   }
 
   @Dependency(\.defaultDatabase) var database
@@ -40,12 +42,12 @@ public struct TagNameEditor {
       case .delegate: return .none
 
       case .deleteTag:
-        let tag = state.tag
+        let tagId = state.tagId
         return .run { send in
-          await send(.delegate(.deleteTag(tag)), animation: .default)
+          await send(.delegate(.deleteTag(tagId)), animation: .default)
         }
 
-      case .memberChanged(let value): return memberChanged(&state, value: value)
+      case .membershipButtonTapped(let value): return membershipChanged(&state, value: value)
       case .nameChanged(let newName): return nameChanged(&state, value: newName)
       }
     }
@@ -54,9 +56,14 @@ public struct TagNameEditor {
 
 private extension TagNameEditor {
 
-  func memberChanged(_ state: inout State, value: Bool) -> Effect<Action> {
-    precondition(state.membership != nil)
+  func membershipChanged(_ state: inout State, value: Bool) -> Effect<Action> {
+    guard let soundFontId = state.soundFontId, state.membership != nil else { return .none }
     state.membership = value
+    if value {
+      _ = Operations.tagSoundFont(state.tagId, soundFontId: soundFontId)
+    } else {
+      _ = Operations.untagSoundFont(state.tagId, soundFontId: soundFontId)
+    }
     return .none
   }
 
@@ -70,20 +77,21 @@ public struct TagNameEditorView: View {
   @Bindable var store: StoreOf<TagNameEditor>
   @Environment(\.editMode) var editMode
 
-  var readOnly: Bool { store.tag.isUbiquitous }
+  var readOnly: Bool { store.tagId.isUbiquitous }
   var editable: Bool { !readOnly }
+  var isEditing: Bool { editMode?.wrappedValue.isEditing == true }
 
   public var body: some View {
-    if store.membership == nil {
+    if store.membership == nil || isEditing {
       nameField
     } else {
-      memberNameField
+      toggleNameField
     }
   }
 
   private var nameField: some View {
     TextField("", text: $store.name.sending(\.nameChanged))
-      .disabled(readOnly)
+      .disabled(readOnly || isEditing)
       .deleteDisabled(readOnly)
       .foregroundStyle(editable ? .blue : .secondary)
       .font(Font.custom("Eurostile", size: 20))
@@ -99,10 +107,10 @@ public struct TagNameEditorView: View {
       }
   }
 
-  private var memberNameField: some View {
+  private var toggleNameField: some View {
     HStack {
-      Toggle("", isOn: Binding(get: { store.membership ?? false }, set: { store.send(.memberChanged($0)) }))
-        .disabled(store.tag.isUbiquitous)
+      Toggle("", isOn: Binding(get: { store.membership ?? false }, set: { store.send(.membershipButtonTapped($0)) }))
+        .disabled(store.tagId.isUbiquitous)
         .checkedStyle()
       nameField
     }
@@ -117,12 +125,31 @@ extension TagNameEditorView {
 
     let tags = try! db.write {
       _ = try Tag.make($0, name: "New Tag")
+      _ = try Tag.make($0, name: "Another Tag")
       return try Tag.all().fetchAll($0)
     }
 
-    return Form {
-      TagNameEditorView(store: Store(initialState: .init(tag: tags[0])) { TagNameEditor() })
-      TagNameEditorView(store: Store(initialState: .init(tag: tags.last!, membership: false)) { TagNameEditor() })
+    return VStack {
+      Form {
+        ForEach(tags) { tag in
+          TagNameEditorView(store: Store(initialState: .init(
+            tag: tag,
+            soundFontId: SoundFont.ID(rawValue: 1),
+            membership: tag.isUbiquitous ? nil : tag.id.rawValue % 2 == 0
+          )) {
+            TagNameEditor()
+          })
+        }
+      }
+      Form {
+        ForEach(tags) { tag in
+          TagNameEditorView(store: Store(initialState: .init(
+            tag: tag
+          )) {
+            TagNameEditor()
+          })
+        }
+      }
     }
   }
 }

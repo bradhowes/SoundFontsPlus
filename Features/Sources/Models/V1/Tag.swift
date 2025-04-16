@@ -51,8 +51,8 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
   public var name: String
   public var ordering: Int
 
-  public var isUbiquitous: Bool { id.rawValue <= Ubiquitous.allCases.count }
-  public var isUserDefined: Bool { !isUbiquitous }
+  public var isUbiquitous: Bool { id.isUbiquitous }
+  public var isUserDefined: Bool { id.isUserDefined }
 
   public func willDelete(_ db: Database) throws {
     if isUbiquitous {
@@ -89,12 +89,6 @@ public struct Tag: Codable, Identifiable, FetchableRecord, MutablePersistableRec
     for var tag in tags.enumerated() {
       try tag.1.updateChanges(db) { $0.ordering = tag.0 }
     }
-  }
-
-  public var soundFontsCount: Int {
-    @Dependency(\.defaultDatabase) var database
-    let count = try? database.read { try? self.soundFonts.fetchCount($0) }
-    return count ?? 0
   }
 
   public static var activeTagSoundFonts: [SoundFont] {

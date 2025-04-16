@@ -23,7 +23,7 @@ public struct SoundFontsList {
     var addedSummary: String = ""
 
     public init() {
-      self.rows = .init(uniqueElements: Tag.activeTagSoundFonts.map { SoundFontButton.State(soundFont: $0) })
+      self.rows = .init(uniqueElements: Tag.activeTagSoundFonts.map { .init(soundFont: $0) })
     }
   }
 
@@ -34,7 +34,6 @@ public struct SoundFontsList {
     case destination(PresentationAction<Destination.Action>)
     case importFiles(Result<[URL], Error>)
     case onAppear
-    case refresh
     case rows(IdentifiedActionOf<SoundFontButton>)
     case showTags
   }
@@ -51,7 +50,6 @@ public struct SoundFontsList {
       case .importFiles(let result): return importFiles(&state, result: result)
       case .destination(.dismiss): return refresh(&state)
       case .destination: return .none
-      case .refresh: return refresh(&state)
       case .onAppear: return monitorActiveTag(&state)
       case .rows(.element(_, .delegate(.deleteSoundFont(let soundFont)))): return delete(&state, key: soundFont.id)
       case .rows(.element(_, .delegate(.editSoundFont(let soundFont)))): return edit(&state, key: soundFont.id)
@@ -82,7 +80,7 @@ extension SoundFontsList {
     return .publisher {
       @Shared(.activeState) var activeState
       return $activeState.activeTagId.publisher.map { Action.activeTagIdChanged($0) }
-    }.cancellable(id: publisherCancelId)
+    }.cancellable(id: publisherCancelId, cancelInFlight: true)
   }
 
   private func select(_ soundFontId: SoundFont.ID) -> Effect<Action> {
@@ -142,15 +140,7 @@ extension SoundFontsList {
 
   @discardableResult
   private func refresh(_ state: inout State) -> Effect<Action> {
-    @Shared(.activeState) var activeState
-    @Dependency(\.defaultDatabase) var database
-    let tag = try? database.read { try Models.Tag.fetchOne($0, key: activeState.activeTagId) }
-    if let tag {
-      let soundFonts = try? database.read { try tag.soundFonts.fetchAll($0) }
-      if let soundFonts {
-        state.rows = .init(uniqueElements: soundFonts.map { .init(soundFont: $0) })
-      }
-    }
+    state.rows = .init(uniqueElements: Tag.activeTagSoundFonts.map { .init(soundFont: $0) })
     return .none.animation(.default)
 //    do {
 //      let key = key ?? TagModel.Ubiquitous.all.key
@@ -173,17 +163,15 @@ public struct SoundFontsListView: View {
   }
 
   public var body: some View {
-    // Order is important here -- List / Section
     StyledList(title: "Files") {
       ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
         SoundFontButtonView(store: rowStore)
       }
     }
-    .fileImporter(
-      isPresented: $store.addingSoundFonts,
-      allowedContentTypes: types,
-      allowsMultipleSelection: true
-    ) {
+    .onAppear {
+      store.send(.onAppear)
+    }
+    .fileImporter(isPresented: $store.addingSoundFonts, allowedContentTypes: types, allowsMultipleSelection: true) {
       store.send(.importFiles($0))
     }
     .alert("Add Complete", isPresented: $store.showingAddedSummary) {
@@ -195,9 +183,6 @@ public struct SoundFontsListView: View {
       item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
     ) { editorStore in
       SoundFontEditorView(store: editorStore)
-    }
-    .onAppear {
-      store.send(.onAppear)
     }
   }
 }

@@ -20,13 +20,7 @@ struct SoundFonts2App: App {
   }
 
   func contentView() -> some View {
-    @Dependency(\.defaultDatabase) var database
-    guard let soundFonts = (try? database.read {
-      guard let tag = try Tag.fetchOne($0, id: Tag.Ubiquitous.all.id) else { return Optional<[SoundFont]>.none }
-      return try tag.soundFonts.fetchAll($0)
-    }) else { fatalError() }
-
-    return RootAppView(store: Store(initialState: .init(
+    RootAppView(store: Store(initialState: .init(
       soundFontsList: SoundFontsList.State(),
       presetsList: PresetsList.State(),
       tagsList: TagsList.State(),

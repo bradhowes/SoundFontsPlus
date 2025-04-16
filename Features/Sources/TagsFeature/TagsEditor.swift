@@ -12,20 +12,24 @@ public struct TagsEditor {
     var rows: IdentifiedArrayOf<TagNameEditor.State>
     var editMode: EditMode = .inactive
     var focused: Tag.ID?
-    var memberships: [Tag.ID:Bool]?
+    let soundFontId: SoundFont.ID?
+    let showMemberships: Bool
 
     public init(
       focused: Tag.ID? = nil,
+      soundFontId: SoundFont.ID? = nil,
       memberships: [Tag.ID:Bool]? = nil,
-      editMode: EditMode = .inactive
+      editMode: EditMode = .inactive,
     ) {
       self.rows = .init(uniqueElements: Tag.ordered.map{ .init(
         tag: $0,
+        soundFontId: soundFontId,
         membership: memberships != nil ? (memberships?[$0.id] ?? false) : nil
       ) })
       self.focused = focused
-      self.memberships = memberships
       self.editMode = editMode
+      self.soundFontId = soundFontId
+      self.showMemberships = memberships != nil
     }
   }
 
@@ -48,7 +52,7 @@ public struct TagsEditor {
       case .addButtonTapped: return addTag(&state)
       case .binding: return .none
       case .deleteTag(let indices): return deleteTag(&state, indices: indices)
-      case .dismissButtonTapped: return saveButtonTapped(&state)
+      case .dismissButtonTapped: return dismissButtonTapped(&state)
       case .finalizeDeleteTag(let indices): return finalizeDeleteTag(&state, indices: indices)
       case let .rows(.element(id: id, action: .delegate(.deleteTag))):
         return deleteTag(&state, indices: IndexSet(integer: IndexSet.Element(id.rawValue)))
@@ -71,8 +75,11 @@ private extension TagsEditor {
   func addTag(_ state: inout State) -> Effect<Action> {
     @Dependency(\.defaultDatabase) var database
     if let tag = (try? database.write { try Tag.make($0) }) {
-      state.memberships?[tag.id] = false
-      state.rows.append(.init(tag: tag, membership: state.memberships != nil ? false : nil))
+      state.rows.append(.init(
+        tag: tag,
+        soundFontId: state.soundFontId,
+        membership: state.showMemberships ? false : nil
+      ))
       state.focused = tag.id
     }
     return .none.animation(.default)
@@ -89,31 +96,18 @@ private extension TagsEditor {
        let row = state.rows.first(where: { $0.id.rawValue == tagId }) {
       let newRows = state.rows.filter { $0.id.rawValue != tagId }
       state.rows = newRows
-      _ = try? database.write { db in try row.tag.delete(db) }
+      _ = Operations.deleteTag(Tag.ID(rawValue: Int64(tagId)))
     }
     return .none.animation(.default)
   }
 
   func moveTag(_ state: inout State, at indices: IndexSet, to offset: Int) -> Effect<Action> {
     state.rows.move(fromOffsets: indices, toOffset: offset)
-    print(state.rows)
     return .none.animation(.default)
   }
 
-  func saveButtonTapped(_ state: inout State) -> Effect<Action> {
-    let tags = state.rows.enumerated().map { index, editor in
-      var changed = editor.tag
-      changed.name = editor.name
-      changed.ordering = index
-      return changed
-    }
-
-    _ = try? database.write { db in
-      for var tag in tags {
-        try tag.save(db)
-      }
-    }
-
+  func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
+    _ = Operations.updateTags(state.rows.map { ($0.id, $0.name) })
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
   }
@@ -143,12 +137,12 @@ public struct TagsEditorView: View {
           }
           .onMove { store.send(.tagMoved(at: $0, to: $1), animation: .default) }
           .onDelete { store.send(.deleteTag(at: $0), animation: .default) }
-          .bind($store.focused, to: self.$focused)
+          // .bind($store.focused, to: self.$focused)
         } else {
           // When not in editing mode, allow for swipe-to-delete + confirmation of intent
           ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
             TagNameEditorView(store: rowStore)
-              .focused($focused, equals: rowStore.tag.id)
+              .focused($focused, equals: rowStore.tagId)
           }
           .bind($store.focused, to: self.$focused)
         }
@@ -226,8 +220,8 @@ extension TagsEditorView {
 
     return TagsEditorView(store: Store(initialState: .init(
       focused: tags.last?.id,
-      memberships: memberships
-    )) {
+      soundFontId: SoundFont.ID(rawValue: 1),
+      memberships: memberships)) {
       TagsEditor()
     })
   }

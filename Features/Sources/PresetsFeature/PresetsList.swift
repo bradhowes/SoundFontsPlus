@@ -19,7 +19,6 @@ public struct PresetsList {
   @ObservableState
   public struct State: Equatable {
     @Presents var destination: Destination.State?
-    var soundFont: SoundFont?
     var sections: IdentifiedArrayOf<PresetsListSection.State>
     var editingVisibility: Bool
     var searchText: String
@@ -29,18 +28,13 @@ public struct PresetsList {
 
     public init(editingVisibility: Bool = false, searchText: String? = nil) {
       @Shared(.activeState) var activeState
-      self.soundFont = SoundFont.activeSoundFont
       self.editingVisibility = editingVisibility
       self.isSearchFieldPresented = searchText != nil
       self.searchText = searchText ?? ""
-      self.sections = []
-      if let soundFont {
-        self.sections = generatePresetSections(
-          soundFont: soundFont,
-          searchText: self.optionalSearchText,
-          editing: false
-        )
-      }
+      self.sections = generatePresetSections(
+        searchText: searchText ?? "",
+        editing: false
+      )
     }
 
     /**
@@ -112,13 +106,11 @@ public struct PresetsList {
 // extension PresetsList.Destination.State: Equatable {}
 
 func generatePresetSections(
-  soundFont: SoundFont,
   searchText: String?,
   editing: Bool
 ) -> IdentifiedArrayOf<PresetsListSection.State> {
   let grouping = searchText != nil ? 100_000 : 10
-  var presets = editing ? soundFont.allPresets : soundFont.presets
-
+  var presets = editing ? Operations.allPresets() : Operations.presets()
   if let searchText, !searchText.isEmpty {
     presets = presets.filter {
       $0.displayName.localizedLowercase.contains(searchText.lowercased())
@@ -138,46 +130,20 @@ extension PresetsList {
   }
 
   private func fetchPresets(_ state: inout State) -> Effect<Action> {
-    guard let soundFont = state.soundFont else {
-      state.sections = []
-      state.editingVisibility = false
-      return .none
-    }
-
     state.sections = generatePresetSections(
-      soundFont: soundFont,
       searchText: state.optionalSearchText,
       editing: state.editingVisibility
     )
-
     return .none
   }
 
   private func hidePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
-    guard let soundFont = state.soundFont else { fatalError("unexpected nil soundFont") }
-    var newActive: Preset.ID? = preset.id
-    if preset.id == activeState.activePresetId {
-      let presets = soundFont.presets
-      if let found = (0..<preset.index).last(where: { presets[$0].visible }) {
-        newActive = presets[found].id
-      } else if let found = ((preset.index + 1)..<presets.count).first(where: { presets[$0].visible }) {
-        newActive = presets[found].id
-      } else {
-        newActive = nil
-      }
-    }
-
     var preset = preset
     _ = try? database.write {
       try preset.updateChanges($0) {
         $0.visible = false
       }
     }
-
-    if preset.id == activeState.activePresetId && newActive != preset.id {
-      setActivePresetId(&state, newActive)
-    }
-
     return .run { send in
       await send(.fetchPresets)
     }.animation(.default)
@@ -222,18 +188,8 @@ extension PresetsList {
   }
 
   private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
-    guard state.soundFont?.id != soundFontId else { return .none }
     state.editingVisibility = false
     @Dependency(\.defaultDatabase) var database
-    guard let soundFontId else {
-      state.soundFont = nil
-      state.sections = []
-      return .none.animation(.default)
-    }
-
-    let soundFont = try? database.read({ try SoundFont.fetchOne($0, id: soundFontId) })
-    state.soundFont = soundFont
-
     @Shared(.activeState) var activeState
     if activeState.activeSoundFontId == soundFontId {
       state.scrollToPresetId = activeState.activePresetId

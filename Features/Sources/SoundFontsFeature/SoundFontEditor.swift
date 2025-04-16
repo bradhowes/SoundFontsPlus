@@ -24,19 +24,13 @@ public struct SoundFontEditor {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
     let soundFont: SoundFont
-    var tags: IdentifiedArrayOf<Tag>
     var focusField: Field?
-    var tagged: [Tag.ID: Bool]
     var tagsList: String
     var displayName: String
     var notes: String
 
     public init(soundFont: SoundFont) {
-      let tags = Tag.ordered
       self.soundFont = soundFont
-      self.tags = .init(uniqueElements: tags)
-      self.focusField = .displayName
-      self.tagged = tags.reduce(into: [:]) { $0[$1.id] = soundFont.tags.contains($1) }
       self.tagsList = Support.generateTagsList(from: soundFont.tags)
       self.displayName = soundFont.displayName
       self.notes = soundFont.notes
@@ -45,9 +39,9 @@ public struct SoundFontEditor {
 
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
+    case changeTagsButtonTapped
     case dismissButtonTapped
     case destination(PresentationAction<Destination.Action>)
-    case editTagsButtonTapped
     case nameChanged(String)
     case notesChanged(String)
     case useEmbeddedNameTapped
@@ -58,10 +52,10 @@ public struct SoundFontEditor {
     Reduce { state, action in
       switch action {
       case .binding: return .none
+      case .changeTagsButtonTapped: return changeTags(&state)
       case .dismissButtonTapped: return dismiss()
-      case .destination(.dismiss): return refresh(&state)
+      case .destination(.dismiss): return refreshTagsList(&state)
       case .destination: return .none
-      case .editTagsButtonTapped: return editTags(&state)
       case .nameChanged(let value): return setName(&state, value: value)
       case .notesChanged(let value): return setNotes(&state, value: value)
 //      case .path(.element(id: _, action: .delegate(.addTag(let tag)))): return addTag(&state, tag: tag)
@@ -93,31 +87,30 @@ extension SoundFontEditor {
 //    return .none
 //  }
 //
-  private func addTag(_ state: inout State, tag: Tag) -> Effect<Action> {
-    state.tagged[tag.id] = true
-    state.tagsList = Support.generateTagsList(from: state.tags.filter({ state.tagged[$0.id] ?? false }))
-    return .none
-  }
+//  private func addTag(_ state: inout State, tag: Tag) -> Effect<Action> {
+//    state.tagged[tag.id] = true
+//    state.tagsList = Support.generateTagsList(from: state.tags.filter({ state.tagged[$0.id] ?? false }))
+//    return .none
+//  }
 
   private func dismiss() -> Effect<Action> {
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
   }
 
-  func editTags(_ state: inout State) -> Effect<Action> {
+  func changeTags(_ state: inout State) -> Effect<Action> {
+    let tags = Tag.ordered
+    let memberships = tags.reduce(into: [:]) { $0[$1.id] = state.soundFont.tags.contains($1) }
     state.destination = .edit(TagsEditor.State(
       focused: nil,
-      memberships: state.tagged
+      soundFontId: state.soundFont.id,
+      memberships: memberships
     ))
-//    state.path.append(.showTagsEditor(TagsEditor.State(
-//      tags: tags,
-//      focused: nil,
-//      memberships: state.tagged
-//    ))
     return .none
   }
 
-  private func refresh(_ state: inout State) -> Effect<Action> {
+  private func refreshTagsList(_ state: inout State) -> Effect<Action> {
+    state.tagsList = Support.generateTagsList(from: state.soundFont.tags)
     return .none
   }
 
@@ -224,7 +217,7 @@ public struct SoundFontEditorView: View {
         Text(store.tagsList)
         Spacer()
         Button {
-          store.send(.editTagsButtonTapped)
+          store.send(.changeTagsButtonTapped)
         } label: {
           Text("Change")
         }

@@ -146,11 +146,11 @@ import Testing
     let soundFonts = try await database.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
     let newTag = try await database.write { try Tag.make($0, name: "new") }
     let soundFont = soundFonts[0]
-    try soundFont.addTag(newTag.id)
+    _ = try Operations.tagSoundFont(newTag.id, soundFontId: soundFont.id)
     let tagged = try await database.read { try newTag.soundFonts.fetchAll($0) }
     #expect(tagged.count == 1)
     #expect(throws: ModelError.self) {
-      try soundFont.addTag(newTag.id)
+      try Operations.tagSoundFont(newTag.id, soundFontId: soundFont.id)
     }
   }
 
@@ -160,16 +160,16 @@ import Testing
     let soundFonts = try await database.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
     let newTag = try await database.write { try Tag.make($0, name: "new") }
     let soundFont = soundFonts[0]
-    try soundFont.addTag(newTag.id)
+    _ = try Operations.tagSoundFont(newTag.id, soundFontId: soundFont.id)
     var tagged = try await database.read { try newTag.soundFonts.fetchAll($0) }
     #expect(tagged.count == 1)
 
-    try soundFont.removeTag(newTag.id)
+    try Operations.untagSoundFont(newTag.id, soundFontId: soundFont.id)
     tagged = try await database.read { try newTag.soundFonts.fetchAll($0) }
     #expect(tagged.count == 0)
 
     #expect(throws: ModelError.self) {
-      try soundFont.removeTag(newTag.id)
+      try Operations.untagSoundFont(newTag.id, soundFontId: soundFont.id)
     }
   }
 
@@ -179,7 +179,7 @@ import Testing
     let soundFont = soundFonts[0]
     let allTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.all.id) }
     #expect(throws: ModelError.self) {
-      try soundFont.addTag(allTag.id)
+      try Operations.tagSoundFont(allTag.id, soundFontId: soundFont.id)
     }
   }
 
@@ -189,7 +189,7 @@ import Testing
     let soundFont = soundFonts[0]
     let allTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.all.id) }
     #expect(throws: ModelError.self) {
-      try soundFont.removeTag(allTag.id)
+      try Operations.untagSoundFont(allTag.id, soundFontId: soundFont.id)
     }
   }
 
