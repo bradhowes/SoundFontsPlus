@@ -9,8 +9,8 @@ public struct ToolBar {
 
   @ObservableState
   public struct State: Equatable {
-    @Shared(.tagsListVisible) public var tagsListVisible
-    @Shared(.effectsVisible) public var effectsVisible
+    public var tagsListVisible: Bool = false
+    public var effectsVisible: Bool = false
 
     public init() {}
   }
@@ -33,27 +33,18 @@ public struct ToolBar {
       switch action {
       case .addSoundFontButtonTapped: return .send(.delegate(.addSoundFont))
       case .delegate: return .none
-      case .effectsVisibilityButtonTapped: return toggleEffectsVisibility(&state)
+      case .effectsVisibilityButtonTapped:
+        state.effectsVisible.toggle()
+        return .none
       case .showMoreButtonTapped: return .none
-      case .tagVisibilityButtonTapped: return toggleTagVisibility(&state)
+      case .tagVisibilityButtonTapped:
+        state.tagsListVisible.toggle()
+        return .none
       }
     }
   }
 
   public init() {}
-}
-
-private extension ToolBar {
-
-  func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
-    state.$effectsVisible.withLock { $0.toggle() }
-    return .none
-  }
-
-  func toggleTagVisibility(_ state: inout State) -> Effect<Action> {
-    state.$tagsListVisible.withLock { $0.toggle() }
-    return .none
-  }
 }
 
 public struct ToolBarView: View {

@@ -24,7 +24,9 @@ struct SoundFonts2App: App {
       soundFontsList: SoundFontsList.State(),
       presetsList: PresetsList.State(),
       tagsList: TagsList.State(),
-      toolBar: ToolBar.State()
+      toolBar: ToolBar.State(),
+      tagsSplit: SplitViewReducer.State(orientation: .vertical),
+      presetsSplit: SplitViewReducer.State(orientation: .horizontal)
     )) { RootApp() })
   }
 
