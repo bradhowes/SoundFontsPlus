@@ -67,13 +67,17 @@ public struct RootApp {
       case .presetsList: return .none
       case .tagsList: return .none
       // case .task: return task(&state)
+
       case .toolBar(.tagVisibilityButtonTapped):
         let panes: SplitViewPanes = state.toolBar.tagsListVisible ? .both : .primary
-        return reduce(into: &state, action: .tagsSplit(.panesVisibilityChanged(panes)))
+        return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
+
       case .toolBar: return .none
 
-      case .tagsSplit(.panesVisibilityChanged):
+      case .tagsSplit(.delegate(.panesVisibilityChanged(let panes))):
         print("tagsSplit(.panesVisibilityChanged)")
+        let tagsVisible = panes.contains(.bottom)
+        state.toolBar.tagsListVisible = tagsVisible
         return .none
 
       case .tagsSplit:

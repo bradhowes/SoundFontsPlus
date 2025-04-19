@@ -102,6 +102,12 @@ public struct SplitViewReducer {
     case dragBegin(CGFloat)
     case dragMove(CGFloat, SplitViewPanes)
     case dragEnd(CGFloat, SplitViewPanes)
+    case updatePanesVisibility(SplitViewPanes)
+    case delegate(Delegate)
+  }
+
+  @CasePathable
+  public enum Delegate: Equatable {
     case panesVisibilityChanged(SplitViewPanes)
   }
 
@@ -114,21 +120,31 @@ public struct SplitViewReducer {
         state.lastPosition = state.position
         state.initialPosition = span * state.position
         return .none
+
       case let .dragMove(position, willHide):
         state.position = position
         state.highlightSide = willHide
         return .none
+
+      case .delegate:
+        return .none
+
       case let .dragEnd(position, visible):
         state.initialPosition = nil
         state.highlightSide = []
-        state.panesVisible = visible
         state.position = position
-        return .none
-      case .panesVisibilityChanged(let visible):
-        state.panesVisible = visible
-        return .none
+        return updateVisiblePanes(&state, panes: visible)
+
+      case .updatePanesVisibility(let visible):
+        return updateVisiblePanes(&state, panes: visible)
       }
     }
+  }
+
+  private func updateVisiblePanes(_ state: inout State, panes: SplitViewPanes) -> Effect<Action> {
+    guard state.panesVisible != panes else { return .none }
+    state.panesVisible = panes
+    return .send(.delegate(.panesVisibilityChanged(panes)))
   }
 }
 
@@ -216,9 +232,9 @@ public struct SplitView<P, D, S>: View where P: View, D: View, S: View {
           .zIndex(panesVisible.both ? 1 : -1)
           .onTapGesture(count: 2) {
             if constraints.dragToHide.contains(.primary) {
-              store.send(.panesVisibilityChanged(.secondary))
+              store.send(.updatePanesVisibility(.secondary))
             } else if constraints.dragToHide.contains(.secondary) {
-              store.send(.panesVisibilityChanged(.primary))
+              store.send(.updatePanesVisibility(.primary))
             }
           }
           .simultaneousGesture(
@@ -367,7 +383,7 @@ private struct DemoHSplit: View {
     SplitView(store: store) {
       VStack {
         Button(store.panesVisible.both ? "Hide Right" : "Show Right") {
-          store.send(.panesVisibilityChanged(store.panesVisible.both ? .primary : .both))
+          store.send(.updatePanesVisibility(store.panesVisible.both ? .primary : .both))
         }
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -377,7 +393,7 @@ private struct DemoHSplit: View {
     } secondary: {
       VStack {
         Button(store.panesVisible.both ? "Hide Left" : "Show Left") {
-          store.send(.panesVisibilityChanged(store.panesVisible.both ? .secondary : .both))
+          store.send(.updatePanesVisibility(store.panesVisible.both ? .secondary : .both))
         }
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -395,7 +411,7 @@ private struct DemoVSplit: View {
       SplitView(store: store) {
         VStack {
           Button(store.panesVisible.both ? "Hide Bottom" : "Show Bottom") {
-            store.send(.panesVisibilityChanged(store.panesVisible.both ? .primary : .both))
+            store.send(.updatePanesVisibility(store.panesVisible.both ? .primary : .both))
           }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -406,7 +422,7 @@ private struct DemoVSplit: View {
         HStack {
           VStack {
             Button(store.panesVisible.both ? "Hide Top" : "Show Top") {
-              store.send(.panesVisibilityChanged(store.panesVisible.both ? .secondary : .both))
+              store.send(.updatePanesVisibility(store.panesVisible.both ? .secondary : .both))
             }
           }.contentShape(Rectangle())
           DemoHSplit(store: inner)
@@ -416,28 +432,28 @@ private struct DemoVSplit: View {
       }
       HStack {
         Button {
-          store.send(.panesVisibilityChanged(store.panesVisible.both ? .secondary : .both))
+          store.send(.updatePanesVisibility(store.panesVisible.both ? .secondary : .both))
         } label: {
           Text("Top")
             .foregroundStyle(store.panesVisible.primary ? Color.orange : Color.accentColor)
             .animation(.smooth, value: store.panesVisible)
         }
         Button {
-          store.send(.panesVisibilityChanged(store.panesVisible.both ? .primary : .both))
+          store.send(.updatePanesVisibility(store.panesVisible.both ? .primary : .both))
         } label: {
           Text("Bottom")
             .foregroundStyle(store.panesVisible.secondary ? Color.orange : Color.accentColor)
             .animation(.smooth, value: store.panesVisible)
         }
         Button {
-          inner.send(.panesVisibilityChanged(inner.panesVisible.both ? .secondary : .both))
+          inner.send(.updatePanesVisibility(inner.panesVisible.both ? .secondary : .both))
         } label: {
           Text("Left")
             .foregroundStyle(inner.panesVisible.primary ? Color.orange : Color.accentColor)
             .animation(.smooth, value: store.panesVisible)
         }
         Button {
-          inner.send(.panesVisibilityChanged(inner.panesVisible.both ? .primary : .both))
+          inner.send(.updatePanesVisibility(inner.panesVisible.both ? .primary : .both))
         } label: {
           Text("Right")
             .foregroundStyle(inner.panesVisible.secondary ? Color.orange : Color.accentColor)
