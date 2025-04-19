@@ -18,6 +18,7 @@ public struct RootApp {
     public var toolBar: ToolBar.State
     public var tagsSplit: SplitViewReducer.State
     public var presetsSplit: SplitViewReducer.State
+    public var effectsVisible: Bool = false
 
     public init(
       soundFontsList: SoundFontsList.State,
@@ -37,11 +38,9 @@ public struct RootApp {
   }
 
   public enum Action {
-    case effectsVisibilityChanged(Bool)
     case presetsList(PresetsList.Action)
     case soundFontsList(SoundFontsList.Action)
     case tagsList(TagsList.Action)
-    // case task
     case toolBar(ToolBar.Action)
     case tagsSplit(SplitViewReducer.Action)
     case presetsSplit(SplitViewReducer.Action)
@@ -57,53 +56,25 @@ public struct RootApp {
 
     Reduce { state, action in
       switch action {
-      case .effectsVisibilityChanged(let value):
-//        withAnimation(.easeInOut(duration: 0.3)) {
-//          state.effectsVisible = value
-//        }
+      case .tagsSplit(.delegate(.panesVisibilityChanged(let panes))):
+        state.toolBar.tagsListVisible = panes.contains(.bottom)
         return .none
 
-      case .soundFontsList: return .none
-      case .presetsList: return .none
-      case .tagsList: return .none
-      // case .task: return task(&state)
+      case .toolBar(.effectsVisibilityButtonTapped):
+        state.effectsVisible = state.toolBar.effectsVisible
+        return .none
 
       case .toolBar(.tagVisibilityButtonTapped):
         let panes: SplitViewPanes = state.toolBar.tagsListVisible ? .both : .primary
         return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
 
-      case .toolBar: return .none
-
-      case .tagsSplit(.delegate(.panesVisibilityChanged(let panes))):
-        print("tagsSplit(.panesVisibilityChanged)")
-        let tagsVisible = panes.contains(.bottom)
-        state.toolBar.tagsListVisible = tagsVisible
-        return .none
-
-      case .tagsSplit:
-        print("tagsSplit")
-        return .none
-
-      case .presetsSplit:
-        print("presetsSplit")
+      default:
         return .none
       }
     }
   }
 
-  private let taskCancelId = "taskCancelId"
-
   public init() {}
-}
-
-private extension RootApp {
-
-  func task(_ state: inout State) -> Effect<Action> {
-    @Shared(.effectsVisible) var effectsVisible
-    return .publisher {
-      $effectsVisible.publisher.map(Action.effectsVisibilityChanged)
-    }
-  }
 }
 
 public struct RootAppView: View {
@@ -119,8 +90,7 @@ public struct RootAppView: View {
       listViews
       effectsView
       toolbarAndKeyboard
-    }
-    // .onAppear { store.send(.task) }
+    }.animation(.smooth, value: store.effectsVisible)
   }
 
   private var listViews: some View {
@@ -190,8 +160,8 @@ public struct RootAppView: View {
       .background(Color(red: 0.08, green: 0.08, blue: 0.08))
     }
     .padding([.top, .bottom], 8)
-    .frame(width: nil, height: 8.0) // store.effectsVisible and false ? 140.0 : 8.0)
-    .offset(x: 0.0, y: 140.0) // store.effectsVisible ? 0.0 : 140.0)
+    .frame(width: nil, height: store.effectsVisible ? 140.0 : 8.0)
+    .offset(x: 0.0, y: store.effectsVisible ? 0.0 : 140.0)
     .clipped()
   }
 }

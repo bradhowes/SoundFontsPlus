@@ -25,8 +25,26 @@ struct SoundFonts2App: App {
       presetsList: PresetsList.State(),
       tagsList: TagsList.State(),
       toolBar: ToolBar.State(),
-      tagsSplit: SplitViewReducer.State(orientation: .vertical),
-      presetsSplit: SplitViewReducer.State(orientation: .horizontal)
+      tagsSplit: SplitViewReducer.State(
+        orientation: .vertical,
+        constraints: .init(
+          minPrimaryFraction: 0.3,
+          minSecondaryFraction: 0.3,
+          dragToHide: .bottom
+        ),
+        panesVisible: .primary,
+        position: 0.5
+      ),
+      presetsSplit: SplitViewReducer.State(
+        orientation: .horizontal,
+        constraints: .init(
+          minPrimaryFraction: 0.3,
+          minSecondaryFraction: 0.3,
+          dragToHide: .none
+        ),
+        panesVisible: .both,
+        position: 0.5
+      )
     )) { RootApp() })
   }
 
