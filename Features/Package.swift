@@ -20,7 +20,7 @@ let package = Package(
   dependencies: [
     // .package(url: "https://github.com/bradhowes/SF2Lib", from: "5.0.0")
     .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib"),
-    .package(name: "brh-splitview", path: "/Users/howes/src/Mine/brh-splitview"),
+    .package(url: "https://github.com/bradhowes/brh-splitview", from: "1.0.3"),
     .package(url: "https://github.com/groue/GRDB.swift", from: "7.0.0"),
     .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.0"),
     .package(url: "https://github.com/pointfreeco/sharing-grdb", from: "0.1.0"),

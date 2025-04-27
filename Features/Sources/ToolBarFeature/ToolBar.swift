@@ -49,6 +49,7 @@ public struct ToolBar {
 
 public struct ToolBarView: View {
   @Bindable private var store: StoreOf<ToolBar>
+  @Environment(\.appPanelBackground) private var appPanelBackground
 
   public init(store: StoreOf<ToolBar>) {
     self.store = store
@@ -74,7 +75,7 @@ public struct ToolBarView: View {
     }
     .padding(8)
     .frame(height: 40)
-    .background(Color(red: 0.08, green: 0.08, blue: 0.08))
+    .background(appPanelBackground)
   }
 }
 

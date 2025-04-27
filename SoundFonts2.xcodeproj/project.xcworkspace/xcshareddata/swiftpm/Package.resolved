@@ -1,5 +1,5 @@
 {
-  "originHash" : "a8242aeb3fc785639b3343d1bc0bc695eac5810a7e41548d83d6ef06372b2a9b",
+  "originHash" : "e36b4a9e9ca6855beb748b52b610749e96270eb9a357620c65e3453c589472d2",
   "pins" : [
     {
       "identity" : "auv3support",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "110b68b5be77248e09a3347abd6dc60b1b350ba0",
         "version" : "11.1.4"
+      }
+    },
+    {
+      "identity" : "brh-splitview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bradhowes/brh-splitview",
+      "state" : {
+        "revision" : "e9aa8101945b8cb0a99661de5a2689f627305f3c",
+        "version" : "1.0.3"
       }
     },
     {

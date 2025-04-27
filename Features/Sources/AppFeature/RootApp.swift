@@ -1,5 +1,6 @@
 import BRHSplitView
 import ComposableArchitecture
+import Extensions
 import Models
 import PresetsFeature
 import Sharing
@@ -80,6 +81,7 @@ public struct RootApp {
 
 public struct RootAppView: View {
   private let store: StoreOf<RootApp>
+  @Environment(\.appPanelBackground) private var appPanelBackground
 
   public init(store: StoreOf<RootApp>) {
     self.store = store
@@ -91,7 +93,8 @@ public struct RootAppView: View {
       listViews
       effectsView
       toolbarAndKeyboard
-    }.animation(.smooth, value: store.effectsVisible)
+    }
+    .animation(.smooth, value: store.effectsVisible)
   }
 
   private var listViews: some View {
@@ -101,12 +104,15 @@ public struct RootAppView: View {
         fontsAndTags
       },
       divider: {
-        HandleDivider()
+        HandleDivider(
+          dividerColor: appPanelBackground,
+          handleColor: .accentColor
+        )
       },
       secondary: {
         PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
       }
-    ).splitViewConfiguration(.init(orientation: .horizontal, draggableRange: 0.3...0.7))
+    ).splitViewConfiguration(.init(orientation: .horizontal, draggableRange: 0.35...0.7))
   }
 
   private var fontsAndTags: some View {
@@ -116,12 +122,22 @@ public struct RootAppView: View {
         SoundFontsListView(store: store.scope(state: \.soundFontsList, action: \.soundFontsList))
       },
       divider: {
-        HandleDivider()
+        HandleDivider(
+          dividerColor: appPanelBackground,
+          handleColor: .accentColor
+        )
       },
       secondary: {
         TagsListView(store: store.scope(state: \.tagsList, action: \.tagsList))
       }
-    ).splitViewConfiguration(.init(orientation: .vertical, draggableRange: 0.2...0.8, dragToHidePanes: .secondary))
+    ).splitViewConfiguration(
+      .init(
+        orientation: .vertical,
+        draggableRange: 0.3...0.7,
+        dragToHidePanes: .secondary,
+        doubleClickToClose: .secondary
+      )
+    )
   }
 
   private var toolbarAndKeyboard: some View {
@@ -134,7 +150,7 @@ public struct RootAppView: View {
   }
 
   private var keyboardView: some View {
-    Color(red: 0.08, green: 0.08, blue: 0.08)
+    appPanelBackground
       .frame(height: 280)
   }
 
@@ -158,7 +174,7 @@ public struct RootAppView: View {
         }
       }
       .padding(0)
-      .background(Color(red: 0.08, green: 0.08, blue: 0.08))
+      .background(appPanelBackground)
     }
     .padding([.top, .bottom], 8)
     .frame(width: nil, height: store.effectsVisible ? 140.0 : 8.0)
