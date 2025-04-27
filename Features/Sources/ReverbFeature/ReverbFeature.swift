@@ -1,6 +1,7 @@
 import AudioUnit
 import AUv3Controls
 import ComposableArchitecture
+import Extensions
 import Models
 import Sharing
 import SwiftUI
@@ -16,7 +17,7 @@ public struct ReverbFeature {
     public var roomIndex: Int
 
     public init() {
-      self.enabled = .init(isOn: false, displayName: "Delay")
+      self.enabled = .init(isOn: false, displayName: "On")
       self.locked = .init(isOn: false, displayName: "Locked")
       self.wetDryMix = .init(
         value: 50.0,
@@ -35,6 +36,8 @@ public struct ReverbFeature {
     case roomIndexPickerSelected(Int)
     case wetDryMix(KnobFeature.Action)
   }
+
+  public init() {}
 
   public var body: some ReducerOf<Self> {
 
@@ -56,20 +59,48 @@ public struct ReverbFeature {
 }
 
 public struct ReverbView: View {
-  @Bindable private var store: StoreOf<DelayFeature>
+  @Bindable private var store: StoreOf<ReverbFeature>
+  @Environment(\.appPanelBackground) private var appPanelBackground
+  private let main: Theme
+  private let alt: Theme
 
-  public init(store: StoreOf<DelayFeature>) {
+  public init(store: StoreOf<ReverbFeature>) {
     self.store = store
+
+    self.alt = .init()
+    self.alt.toggleOffIndicatorSystemName = "arrowtriangle.down"
+    self.alt.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
+
+    self.main = .init(editorStyle: .grouped)
+    self.main.controlTrackStrokeStyle = .init(lineWidth: 6, lineCap: .round)
+    self.main.controlValueStrokeStyle = .init(lineWidth: 4, lineCap: .round)
+    self.main.controlIndicatorLength = 8
+    self.main.controlForegroundColor = Color.teal
+    self.main.controlBackgroundColor = Color.gray.opacity(0.3)
+    self.main.toggleOffIndicatorSystemName = "arrowtriangle.down"
+    self.main.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
+    self.main.textColor = Color.teal
   }
 
   public var body: some View {
-    HStack {
-      VStack {
-        ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
-        ToggleView(store: store.scope(state: \.locked, action: \.locked))
+    GroupBox(label: title) {
+      HStack(spacing: 16) {
+        VStack(alignment: .leading, spacing: 24) {
+          ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
+          ToggleView(store: store.scope(state: \.locked, action: \.locked))
+            .auv3ControlsTheme(alt)
+        }
+        KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
-      KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
+      .auv3ControlsTheme(main)
     }
+    .padding(-6)
+  }
+
+  private var title: some View {
+    Text("Reverb")
+      .foregroundStyle(main.controlForegroundColor)
+      .font(.title3.smallCaps())
   }
 }
 

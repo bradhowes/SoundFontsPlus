@@ -1,8 +1,10 @@
 import BRHSplitView
 import ComposableArchitecture
+import DelayFeature
 import Extensions
 import Models
 import PresetsFeature
+import ReverbFeature
 import Sharing
 import SoundFontsFeature
 import SwiftUI
@@ -20,6 +22,8 @@ public struct RootApp {
     public var toolBar: ToolBar.State
     public var tagsSplit: SplitViewReducer.State
     public var presetsSplit: SplitViewReducer.State
+    public var delay: DelayFeature.State
+    public var reverb: ReverbFeature.State
     public var effectsVisible: Bool = false
 
     public init(
@@ -28,7 +32,9 @@ public struct RootApp {
       tagsList: TagsList.State,
       toolBar: ToolBar.State,
       tagsSplit: SplitViewReducer.State,
-      presetsSplit: SplitViewReducer.State
+      presetsSplit: SplitViewReducer.State,
+      delay: DelayFeature.State,
+      reverb: ReverbFeature.State
     ) {
       self.soundFontsList = soundFontsList
       self.presetsList = presetsList
@@ -36,6 +42,8 @@ public struct RootApp {
       self.toolBar = toolBar
       self.tagsSplit = tagsSplit
       self.presetsSplit = presetsSplit
+      self.delay = delay
+      self.reverb = reverb
     }
   }
 
@@ -46,6 +54,8 @@ public struct RootApp {
     case toolBar(ToolBar.Action)
     case tagsSplit(SplitViewReducer.Action)
     case presetsSplit(SplitViewReducer.Action)
+    case delay(DelayFeature.Action)
+    case reverb(ReverbFeature.Action)
   }
 
   public var body: some ReducerOf<Self> {
@@ -55,6 +65,8 @@ public struct RootApp {
     Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
     Scope(state: \.tagsSplit, action: \.tagsSplit) { SplitViewReducer() }
     Scope(state: \.presetsSplit, action: \.presetsSplit) { SplitViewReducer() }
+    Scope(state: \.delay, action: \.delay) { DelayFeature() }
+    Scope(state: \.reverb, action: \.reverb) { ReverbFeature() }
 
     Reduce { state, action in
       switch action {
@@ -158,27 +170,16 @@ public struct RootAppView: View {
     VStack {
       ScrollView(.horizontal) {
         HStack {
-          VStack {
-            Text("Hello")
-            Text("World")
-          }
-          Circle()
-            .fill(Color.blue)
-            .frame(width: 120, height: 120)
-          Circle()
-            .fill(Color.green)
-            .frame(width: 120, height: 120)
-          Circle()
-            .fill(Color.yellow)
-            .frame(width: 120, height: 120)
+          DelayView(store: store.scope(state: \.delay, action: \.delay))
+          ReverbView(store: store.scope(state: \.reverb, action: \.reverb))
         }
       }
       .padding(0)
       .background(appPanelBackground)
     }
     .padding([.top, .bottom], 8)
-    .frame(width: nil, height: store.effectsVisible ? 140.0 : 8.0)
-    .offset(x: 0.0, y: store.effectsVisible ? 0.0 : 140.0)
+    .frame(width: nil, height: store.effectsVisible ? 200.0 : 8.0)
+    .offset(x: 0.0, y: store.effectsVisible ? 0.0 : 200.0)
     .clipped()
   }
 }
@@ -201,7 +202,9 @@ extension RootAppView {
       presetsSplit: SplitViewReducer.State(
         panesVisible: .both,
         initialPosition: 0.5
-      )
+      ),
+      delay: DelayFeature.State(),
+      reverb: ReverbFeature.State()
     )) { RootApp() })
   }
 }

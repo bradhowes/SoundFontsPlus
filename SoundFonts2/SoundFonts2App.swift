@@ -3,9 +3,11 @@
 import AppFeature
 import BRHSplitView
 import ComposableArchitecture
+import DelayFeature
 import GRDB
 import Models
 import PresetsFeature
+import ReverbFeature
 import SoundFontsFeature
 import SwiftUI
 import TagsFeature
@@ -33,7 +35,9 @@ struct SoundFonts2App: App {
       presetsSplit: SplitViewReducer.State(
         panesVisible: .both,
         initialPosition: 0.5
-      )
+      ),
+      delay: DelayFeature.State(),
+      reverb: ReverbFeature.State()
     )) { RootApp() })
   }
 

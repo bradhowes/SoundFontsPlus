@@ -1,6 +1,7 @@
 import AudioUnit
 import AUv3Controls
 import ComposableArchitecture
+import Extensions
 import Models
 import Sharing
 import SwiftUI
@@ -60,6 +61,8 @@ public struct DelayFeature {
     case wetDryMix(KnobFeature.Action)
   }
 
+  public init() {}
+
   public var body: some ReducerOf<Self> {
 
     Scope(state: \.enabled, action: \.enabled) { ToggleFeature() }
@@ -84,15 +87,18 @@ public struct DelayFeature {
 
 public struct DelayView: View {
   @Bindable private var store: StoreOf<DelayFeature>
+  @Environment(\.appPanelBackground) private var appPanelBackground
   private let main: Theme
   private let alt: Theme
+
   public init(store: StoreOf<DelayFeature>) {
     self.store = store
+
     self.alt = .init()
     self.alt.toggleOffIndicatorSystemName = "arrowtriangle.down"
     self.alt.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
 
-    self.main = .init()
+    self.main = .init(editorStyle: .grouped)
     self.main.controlTrackStrokeStyle = .init(lineWidth: 6, lineCap: .round)
     self.main.controlValueStrokeStyle = .init(lineWidth: 4, lineCap: .round)
     self.main.controlIndicatorLength = 8
@@ -104,26 +110,21 @@ public struct DelayView: View {
   }
 
   public var body: some View {
-    ScrollView(.horizontal) {
-      ScrollViewReader { proxy in
-        GroupBox(label: title) {
-          HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 24) {
-              ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
-              ToggleView(store: store.scope(state: \.locked, action: \.locked))
-                .auv3ControlsTheme(alt)
-            }
-            KnobView(store: store.scope(state: \.time, action: \.time))
-            KnobView(store: store.scope(state: \.feedback, action: \.feedback))
-            KnobView(store: store.scope(state: \.cutoff, action: \.cutoff))
-            KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
-          }
-          .auv3ControlsTheme(main)
-          .scrollViewProxy(proxy)
+    GroupBox(label: title) {
+      HStack(spacing: 16) {
+        VStack(alignment: .leading, spacing: 24) {
+          ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
+          ToggleView(store: store.scope(state: \.locked, action: \.locked))
+            .auv3ControlsTheme(alt)
         }
-        .padding(-6)
+        KnobView(store: store.scope(state: \.time, action: \.time))
+        KnobView(store: store.scope(state: \.feedback, action: \.feedback))
+        KnobView(store: store.scope(state: \.cutoff, action: \.cutoff))
+        KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
-    }.background(Color.black.mix(with: Color.white, by: 0.2))
+      .auv3ControlsTheme(main)
+    }
+    .padding(-6)
   }
 
   private var title: some View {

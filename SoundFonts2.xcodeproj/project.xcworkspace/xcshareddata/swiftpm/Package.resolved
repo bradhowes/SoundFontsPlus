@@ -1,6 +1,15 @@
 {
-  "originHash" : "e36b4a9e9ca6855beb748b52b610749e96270eb9a357620c65e3453c589472d2",
+  "originHash" : "6314fb0bf5e4f0f2b6ea44803b5492cf36e69f28722f5ca56c75dede737d1017",
   "pins" : [
+    {
+      "identity" : "auv3controls",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bradhowes/AUv3Controls",
+      "state" : {
+        "revision" : "df4eee13dbd5dc21d14a622247d6a7c6870d8474",
+        "version" : "0.15.1"
+      }
+    },
     {
       "identity" : "auv3support",
       "kind" : "remoteSourceControl",
@@ -62,6 +71,15 @@
       "state" : {
         "revision" : "87e50f483c54e6efd60e885f7f5aa946cee68023",
         "version" : "1.2.1"
+      }
+    },
+    {
+      "identity" : "swift-async-algorithms",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-async-algorithms",
+      "state" : {
+        "revision" : "042e1c4d9d19748c9c228f8d4ebc97bb1e339b0b",
+        "version" : "1.0.4"
       }
     },
     {
