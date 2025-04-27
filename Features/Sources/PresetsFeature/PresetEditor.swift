@@ -11,10 +11,10 @@ public struct PresetEditor: Equatable {
 
   @ObservableState
   public struct State: Equatable {
-    var preset: Preset
-    var displayName: String
-    var visible: Bool
-    var notes: String
+    public var preset: Preset
+    public var displayName: String
+    public var visible: Bool
+    public var notes: String
 
     public init(preset: Preset) {
       self.preset = preset
@@ -94,8 +94,12 @@ enum Field {
 }
 
 public struct PresetEditorView: View {
-  @Bindable var store: StoreOf<PresetEditor>
+  @Bindable private var store: StoreOf<PresetEditor>
   @FocusState var focusField: Field?
+
+  public init(store: StoreOf<PresetEditor>) {
+    self.store = store
+  }
 
   public var body: some View {
     NavigationStack {

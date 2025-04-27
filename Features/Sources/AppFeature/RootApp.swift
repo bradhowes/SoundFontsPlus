@@ -1,3 +1,4 @@
+import BRHSplitView
 import ComposableArchitecture
 import Models
 import PresetsFeature
@@ -78,7 +79,7 @@ public struct RootApp {
 }
 
 public struct RootAppView: View {
-  private var store: StoreOf<RootApp>
+  private let store: StoreOf<RootApp>
 
   public init(store: StoreOf<RootApp>) {
     self.store = store
@@ -100,12 +101,12 @@ public struct RootAppView: View {
         fontsAndTags
       },
       divider: {
-        HandleDivider(for: .horizontal, dividerConstraints: .init())
+        HandleDivider()
       },
       secondary: {
         PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
       }
-    )
+    ).splitViewConfiguration(.init(orientation: .horizontal, draggableRange: 0.3...0.7))
   }
 
   private var fontsAndTags: some View {
@@ -115,12 +116,12 @@ public struct RootAppView: View {
         SoundFontsListView(store: store.scope(state: \.soundFontsList, action: \.soundFontsList))
       },
       divider: {
-        HandleDivider(for: .vertical, dividerConstraints: .init())
+        HandleDivider()
       },
       secondary: {
         TagsListView(store: store.scope(state: \.tagsList, action: \.tagsList))
       }
-    )
+    ).splitViewConfiguration(.init(orientation: .vertical, draggableRange: 0.2...0.8, dragToHidePanes: .secondary))
   }
 
   private var toolbarAndKeyboard: some View {
@@ -178,24 +179,12 @@ extension RootAppView {
       tagsList: TagsList.State(),
       toolBar: ToolBar.State(),
       tagsSplit: SplitViewReducer.State(
-        orientation: .vertical,
-        constraints: .init(
-          minPrimaryFraction: 0.3,
-          minSecondaryFraction: 0.3,
-          dragToHide: .bottom
-        ),
         panesVisible: .primary,
-        position: 0.5
+        initialPosition: 0.5
       ),
       presetsSplit: SplitViewReducer.State(
-        orientation: .horizontal,
-        constraints: .init(
-          minPrimaryFraction: 0.3,
-          minSecondaryFraction: 0.3,
-          dragToHide: .none
-        ),
         panesVisible: .both,
-        position: 0.5
+        initialPosition: 0.5
       )
     )) { RootApp() })
   }

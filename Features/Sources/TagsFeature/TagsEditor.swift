@@ -119,9 +119,9 @@ private extension TagsEditor {
 }
 
 public struct TagsEditorView: View {
-  @Bindable var store: StoreOf<TagsEditor>
-  @FocusState var focused: Tag.ID?
-  @Environment(\.editMode) var editMode
+  @Bindable private var store: StoreOf<TagsEditor>
+  @FocusState private var focused: Tag.ID?
+  @Environment(\.editMode) private var editMode
 
   public init(store: StoreOf<TagsEditor>) {
     self.store = store

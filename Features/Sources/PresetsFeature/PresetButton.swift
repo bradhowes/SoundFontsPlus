@@ -109,9 +109,13 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
 }
 
 public struct PresetButtonView: View {
-  @Bindable var store: StoreOf<PresetButton>
+  @Bindable private var store: StoreOf<PresetButton>
   @Shared(.activeState) var activeState
   @Environment(\.editMode) private var editMode
+
+  public init(store: StoreOf<PresetButton>) {
+    self.store = store
+  }
 
   var state: IndicatorModifier.State {
     activeState.activeSoundFontId == store.preset.soundFontId && activeState.activePresetId == store.preset.id ?

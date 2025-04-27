@@ -154,7 +154,7 @@ extension SoundFontsList {
 }
 
 public struct SoundFontsListView: View {
-  @Bindable internal var store: StoreOf<SoundFontsList>
+  @Bindable private var store: StoreOf<SoundFontsList>
 
   let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
 

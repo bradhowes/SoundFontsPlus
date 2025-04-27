@@ -153,8 +153,12 @@ extension SoundFontEditor {
 }
 
 public struct SoundFontEditorView: View {
-  @Bindable var store: StoreOf<SoundFontEditor>
-  @FocusState var focusField: SoundFontEditor.Field?
+  @Bindable private var store: StoreOf<SoundFontEditor>
+  @FocusState private var focusField: SoundFontEditor.Field?
+
+  public init(store: StoreOf<SoundFontEditor>) {
+    self.store = store
+  }
 
   public var body: some View {
     NavigationStack {

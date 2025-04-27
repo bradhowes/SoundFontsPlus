@@ -89,11 +89,12 @@ extension TagButton {
 }
 
 public struct TagButtonView: View {
-  @Bindable var store: StoreOf<TagButton>
-  @Shared(.activeState) var activeState
+  @Bindable private var store: StoreOf<TagButton>
+  @Shared(.activeState) private var activeState
+  private var state: IndicatorModifier.State { activeState.activeTagId == store.id ? .active : .none }
 
-  var state: IndicatorModifier.State {
-    activeState.activeTagId == store.id ? .active : .none
+  public init(store: StoreOf<TagButton>) {
+    self.store = store
   }
 
   public var body: some View {

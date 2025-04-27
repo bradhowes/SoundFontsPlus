@@ -111,12 +111,15 @@ extension SoundFontButton {
 }
 
 struct SoundFontButtonView: View {
-  @Bindable var store: StoreOf<SoundFontButton>
-  @Shared(.activeState) var activeState
-
-  var state: IndicatorModifier.State {
+  @Bindable private var store: StoreOf<SoundFontButton>
+  @Shared(.activeState) private var activeState
+  private var state: IndicatorModifier.State {
     activeState.activeSoundFontId == store.state.soundFont.id ? .active :
     activeState.selectedSoundFontId == store.state.soundFont.id ? .selected : .none
+  }
+
+  public init(store: StoreOf<SoundFontButton>) {
+    self.store = store
   }
 
   public var body: some View {

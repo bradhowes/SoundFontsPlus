@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AppFeature
+import BRHSplitView
 import ComposableArchitecture
 import GRDB
 import Models
@@ -26,24 +27,12 @@ struct SoundFonts2App: App {
       tagsList: TagsList.State(),
       toolBar: ToolBar.State(),
       tagsSplit: SplitViewReducer.State(
-        orientation: .vertical,
-        constraints: .init(
-          minPrimaryFraction: 0.3,
-          minSecondaryFraction: 0.3,
-          dragToHide: .bottom
-        ),
         panesVisible: .primary,
-        position: 0.5
+        initialPosition: 0.5
       ),
       presetsSplit: SplitViewReducer.State(
-        orientation: .horizontal,
-        constraints: .init(
-          minPrimaryFraction: 0.3,
-          minSecondaryFraction: 0.3,
-          dragToHide: .none
-        ),
         panesVisible: .both,
-        position: 0.5
+        initialPosition: 0.5
       )
     )) { RootApp() })
   }

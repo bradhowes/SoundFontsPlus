@@ -212,7 +212,7 @@ extension PresetsList {
 }
 
 public struct PresetsListView: View {
-  @Bindable internal var store: StoreOf<PresetsList>
+  @Bindable private var store: StoreOf<PresetsList>
 
   public init(store: StoreOf<PresetsList>) {
     self.store = store

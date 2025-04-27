@@ -74,12 +74,16 @@ private extension TagNameEditor {
 }
 
 public struct TagNameEditorView: View {
-  @Bindable var store: StoreOf<TagNameEditor>
-  @Environment(\.editMode) var editMode
+  @Bindable private var store: StoreOf<TagNameEditor>
+  @Environment(\.editMode) private var editMode
 
-  var readOnly: Bool { store.tagId.isUbiquitous }
-  var editable: Bool { !readOnly }
-  var isEditing: Bool { editMode?.wrappedValue.isEditing == true }
+  private var readOnly: Bool { store.tagId.isUbiquitous }
+  private var editable: Bool { !readOnly }
+  private var isEditing: Bool { editMode?.wrappedValue.isEditing == true }
+
+  public init(store: StoreOf<TagNameEditor>) {
+    self.store = store
+  }
 
   public var body: some View {
     if store.membership == nil || isEditing {
