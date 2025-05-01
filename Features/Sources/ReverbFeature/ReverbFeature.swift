@@ -1,10 +1,51 @@
 import AudioUnit
+import AVFoundation
 import AUv3Controls
 import ComposableArchitecture
 import Extensions
 import Models
 import Sharing
 import SwiftUI
+
+extension AVAudioUnitReverbPreset: @retroactive Identifiable {
+  public var id: Int { rawValue }
+
+  static let allCases: [AVAudioUnitReverbPreset] = [
+    AVAudioUnitReverbPreset.smallRoom,
+    AVAudioUnitReverbPreset.mediumRoom,
+    AVAudioUnitReverbPreset.largeRoom,
+    AVAudioUnitReverbPreset.largeRoom2,
+    AVAudioUnitReverbPreset.mediumHall,
+    AVAudioUnitReverbPreset.mediumHall2,
+    AVAudioUnitReverbPreset.mediumHall3,
+    AVAudioUnitReverbPreset.largeHall,
+    AVAudioUnitReverbPreset.largeHall2,
+    AVAudioUnitReverbPreset.mediumChamber,
+    AVAudioUnitReverbPreset.largeChamber,
+    AVAudioUnitReverbPreset.cathedral,
+    AVAudioUnitReverbPreset.plate
+  ]
+
+  public var name: String {
+    switch self {
+    case .smallRoom: return "Small Room"
+    case .mediumRoom: return "Medium Room"
+    case .largeRoom: return "Large Room 1"
+    case .largeRoom2: return "Large Room 2"
+    case .mediumHall: return "Medium Hall 1"
+    case .mediumHall2: return "Medium Hall 2"
+    case .mediumHall3: return "Medium Hall 3"
+    case .largeHall: return "Large Hall 1"
+    case .largeHall2: return "Large Hall 2"
+    case .mediumChamber: return "Medium Chamber"
+    case .largeChamber: return "Large Chamber"
+    case .cathedral: return "Cathedral"
+    case .plate: return "Plate"
+    @unknown default:
+      fatalError()
+    }
+  }
+}
 
 @Reducer
 public struct ReverbFeature {
@@ -14,7 +55,7 @@ public struct ReverbFeature {
     public var enabled: ToggleFeature.State
     public var locked: ToggleFeature.State
     public var wetDryMix: KnobFeature.State
-    public var roomIndex: Int
+    public var room: AVAudioUnitReverbPreset
 
     public init() {
       self.enabled = .init(isOn: false, displayName: "On")
@@ -26,20 +67,22 @@ public struct ReverbFeature {
         maximumValue: 100.0,
         logarithmic: false
       )
-      self.roomIndex = 0
+      self.room = .smallRoom
     }
   }
 
-  public enum Action {
+  public enum Action: BindableAction {
+    case binding(BindingAction<State>)
     case enabled(ToggleFeature.Action)
     case locked(ToggleFeature.Action)
-    case roomIndexPickerSelected(Int)
+    case room(AVAudioUnitReverbPreset)
     case wetDryMix(KnobFeature.Action)
   }
-
+  
   public init() {}
-
+  
   public var body: some ReducerOf<Self> {
+    BindingReducer()
 
     Scope(state: \.enabled, action: \.enabled) { ToggleFeature() }
     Scope(state: \.locked, action: \.locked) { ToggleFeature() }
@@ -47,10 +90,11 @@ public struct ReverbFeature {
 
     Reduce { state, action in
       switch action {
+      case .binding: return .none
       case .enabled: return .none
       case .locked: return .none
-      case .roomIndexPickerSelected(let value):
-        state.roomIndex = value
+      case let .room(value):
+        state.room = value
         return .none
       case .wetDryMix: return .none
       }
@@ -60,57 +104,71 @@ public struct ReverbFeature {
 
 public struct ReverbView: View {
   @Bindable private var store: StoreOf<ReverbFeature>
-  @Environment(\.appPanelBackground) private var appPanelBackground
-  private let main: Theme
-  private let alt: Theme
+  @Environment(\.auv3ControlsTheme) var theme
 
   public init(store: StoreOf<ReverbFeature>) {
     self.store = store
-
-    self.alt = .init()
-    self.alt.toggleOffIndicatorSystemName = "arrowtriangle.down"
-    self.alt.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
-
-    self.main = .init(editorStyle: .grouped)
-    self.main.controlTrackStrokeStyle = .init(lineWidth: 6, lineCap: .round)
-    self.main.controlValueStrokeStyle = .init(lineWidth: 4, lineCap: .round)
-    self.main.controlIndicatorLength = 8
-    self.main.controlForegroundColor = Color.teal
-    self.main.controlBackgroundColor = Color.gray.opacity(0.3)
-    self.main.toggleOffIndicatorSystemName = "arrowtriangle.down"
-    self.main.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
-    self.main.textColor = Color.teal
   }
 
   public var body: some View {
-    GroupBox(label: title) {
-      HStack(spacing: 16) {
-        VStack(alignment: .leading, spacing: 24) {
-          ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
-          ToggleView(store: store.scope(state: \.locked, action: \.locked))
-            .auv3ControlsTheme(alt)
+    HStack(alignment: .top, spacing: 12) {
+      VStack(alignment: .leading, spacing: 18) {
+        title
+        ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
+        ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
+          Image(systemName: "lock")
         }
+      }
+      HStack(alignment: .center, spacing: 16) {
+        Picker("Room", selection: $store.room) {
+          ForEach(AVAudioUnitReverbPreset.allCases, id: \.self) { room in
+            Text(room.name).tag(room)
+          }
+        }
+//        VStack {
+//          Text("Room")
+//          Menu("\(store.room.name)") {
+//            ForEach(AVAudioUnitReverbPreset.allCases) { room in
+//              Button(room.name) {
+//                store.send(.room(room))
+//              }
+//              .font(theme.font)
+//              .foregroundStyle(theme.textColor)
+//            }
+//          }
+//          .font(theme.font)
+//          .foregroundStyle(theme.textColor)
+//        }
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
-      .auv3ControlsTheme(main)
     }
-    .padding(-6)
   }
 
   private var title: some View {
     Text("Reverb")
-      .foregroundStyle(main.controlForegroundColor)
-      .font(.title3.smallCaps())
+      .foregroundStyle(theme.textColor)
+      .font(theme.font)
   }
 }
 
-
 extension ReverbView {
   static var preview: some View {
+    var theme = Theme()
+    theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
+    theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
+    theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
+    theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
     let _ = prepareDependencies {
       $0.defaultDatabase = try! .appDatabase()
     }
-    return ReverbView(store: Store(initialState: .init()) { ReverbFeature() })
+    return ScrollView(.horizontal) {
+      ReverbView(store: Store(initialState: .init()) { ReverbFeature() })
+        .environment(\.auv3ControlsTheme, theme)
+    }
+    .frame(height: 102)
+    .frame(maxHeight: 102)
+    .padding()
+    .border(theme.controlBackgroundColor, width: 1)
   }
 }
 

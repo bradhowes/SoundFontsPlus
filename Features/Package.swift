@@ -9,13 +9,14 @@ let package = Package(
   platforms: [.iOS(.v18), .macOS(.v15)],
   products: [
     .library(name: "AppFeature", targets: ["AppFeature"]),
-    .library(name: "SoundFontsFeature", targets: ["SoundFontsFeature"]),
-    .library(name: "PresetsFeature", targets: ["PresetsFeature"]),
-    .library(name: "TagsFeature", targets: ["TagsFeature"]),
+    .library(name: "EffectsFeature", targets: ["EffectsFeature"]),
     .library(name: "Extensions", targets: ["Extensions"]),
     .library(name: "Models", targets: ["Models"]),
+    .library(name: "PresetsFeature", targets: ["PresetsFeature"]),
     .library(name: "SF2ResourceFiles", targets: ["SF2ResourceFiles"]),
-    .library(name: "SwiftUISupport", targets: ["SwiftUISupport"])
+    .library(name: "SoundFontsFeature", targets: ["SoundFontsFeature"]),
+    .library(name: "SwiftUISupport", targets: ["SwiftUISupport"]),
+    .library(name: "TagsFeature", targets: ["TagsFeature"])
   ],
   dependencies: [
     // .package(url: "https://github.com/bradhowes/SF2Lib", from: "5.0.0")
@@ -42,9 +43,22 @@ let package = Package(
       ]
     ),
     .target(
+      name: "EffectsFeature",
+      dependencies: [
+        .targetItem(name: "DelayFeature", condition: .none),
+        .targetItem(name: "Extensions", condition: .none),
+        .targetItem(name: "Models", condition: .none),
+        .targetItem(name: "ReverbFeature", condition: .none),
+        .targetItem(name: "SwiftUISupport", condition: .none),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies")
+      ]
+    ),
+    .target(
       name: "AppFeature",
       dependencies: [
         .targetItem(name: "DelayFeature", condition: .none),
+        .targetItem(name: "EffectsFeature", condition: .none),
         .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "PresetsFeature", condition: .none),

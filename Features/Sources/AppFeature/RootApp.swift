@@ -86,6 +86,7 @@ public struct RootApp {
         return .none
       }
     }
+    ._printChanges()
   }
 
   public init() {}
@@ -100,7 +101,7 @@ public struct RootAppView: View {
   }
 
   public var body: some View {
-    // let _ = Self._printChanges()
+    let _ = Self._printChanges()
     VStack(spacing: 0) {
       listViews
       effectsView
@@ -163,7 +164,7 @@ public struct RootAppView: View {
 
   private var keyboardView: some View {
     appPanelBackground
-      .frame(height: 280)
+      .frame(height: 240)
   }
 
   private var effectsView: some View {
@@ -178,8 +179,8 @@ public struct RootAppView: View {
       .background(appPanelBackground)
     }
     .padding([.top, .bottom], 8)
-    .frame(width: nil, height: store.effectsVisible ? 200.0 : 8.0)
-    .offset(x: 0.0, y: store.effectsVisible ? 0.0 : 200.0)
+    .frame(width: nil, height: store.effectsVisible ? 160 : 8.0)
+    .offset(x: 0.0, y: store.effectsVisible ? 0.0 : 160.0)
     .clipped()
   }
 }

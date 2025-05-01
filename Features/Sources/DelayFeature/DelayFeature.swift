@@ -87,60 +87,57 @@ public struct DelayFeature {
 
 public struct DelayView: View {
   @Bindable private var store: StoreOf<DelayFeature>
-  @Environment(\.appPanelBackground) private var appPanelBackground
-  private let main: Theme
-  private let alt: Theme
+  @Environment(\.auv3ControlsTheme) var theme
 
   public init(store: StoreOf<DelayFeature>) {
     self.store = store
-
-    self.alt = .init()
-    self.alt.toggleOffIndicatorSystemName = "arrowtriangle.down"
-    self.alt.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
-
-    self.main = .init(editorStyle: .grouped)
-    self.main.controlTrackStrokeStyle = .init(lineWidth: 6, lineCap: .round)
-    self.main.controlValueStrokeStyle = .init(lineWidth: 4, lineCap: .round)
-    self.main.controlIndicatorLength = 8
-    self.main.controlForegroundColor = Color.teal
-    self.main.controlBackgroundColor = Color.gray.opacity(0.3)
-    self.main.toggleOffIndicatorSystemName = "arrowtriangle.down"
-    self.main.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
-    self.main.textColor = Color.teal
   }
 
   public var body: some View {
-    GroupBox(label: title) {
-      HStack(spacing: 16) {
-        VStack(alignment: .leading, spacing: 24) {
-          ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
-          ToggleView(store: store.scope(state: \.locked, action: \.locked))
-            .auv3ControlsTheme(alt)
+    HStack(alignment: .top, spacing: 12) {
+      VStack(alignment: .leading, spacing: 18) {
+        Text("Delay")
+          .foregroundStyle(theme.controlForegroundColor)
+          .font(.caption.smallCaps())
+
+        ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
+        ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
+          Image(systemName: "lock")
         }
-        KnobView(store: store.scope(state: \.time, action: \.time))
-        KnobView(store: store.scope(state: \.feedback, action: \.feedback))
-        KnobView(store: store.scope(state: \.cutoff, action: \.cutoff))
-        KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
-      .auv3ControlsTheme(main)
+      KnobView(store: store.scope(state: \.time, action: \.time))
+      KnobView(store: store.scope(state: \.feedback, action: \.feedback))
+      KnobView(store: store.scope(state: \.cutoff, action: \.cutoff))
+      KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
     }
-    .padding(-6)
   }
 
   private var title: some View {
     Text("Delay")
-      .foregroundStyle(main.controlForegroundColor)
-      .font(.title3.smallCaps())
+      .foregroundStyle(theme.textColor)
+      .font(theme.font)
   }
 }
 
 
 extension DelayView {
   static var preview: some View {
+    var theme = Theme()
+    theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
+    theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
+    theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
+    theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
     let _ = prepareDependencies {
       $0.defaultDatabase = try! .appDatabase()
     }
-    return DelayView(store: Store(initialState: .init()) { DelayFeature() })
+    return ScrollView(.horizontal) {
+      DelayView(store: Store(initialState: .init()) { DelayFeature() })
+        .environment(\.auv3ControlsTheme, theme)
+    }
+    .frame(height: 102)
+    .frame(maxHeight: 102)
+    .padding()
+    .border(theme.controlBackgroundColor, width: 1)
   }
 }
 

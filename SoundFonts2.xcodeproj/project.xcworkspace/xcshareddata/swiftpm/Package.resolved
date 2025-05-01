@@ -1,13 +1,13 @@
 {
-  "originHash" : "6314fb0bf5e4f0f2b6ea44803b5492cf36e69f28722f5ca56c75dede737d1017",
+  "originHash" : "3ecc88fe6acc962bb7f857a669f494e5d869c6dbb21a0ca9377cf5f4ea829172",
   "pins" : [
     {
       "identity" : "auv3controls",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/AUv3Controls",
       "state" : {
-        "revision" : "df4eee13dbd5dc21d14a622247d6a7c6870d8474",
-        "version" : "0.15.1"
+        "revision" : "80e96c3133cf6bd879a80c5fc4a8362f492e00ab",
+        "version" : "0.17.2"
       }
     },
     {
@@ -60,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sharing-grdb",
       "state" : {
-        "revision" : "a8235fca3bf7bad910b3ef1e596bbb93f08fbf89",
-        "version" : "0.2.1"
+        "revision" : "1eb82e68c0a1fdb0d874e10c25dde7e82c1939a2",
+        "version" : "0.2.2"
       }
     },
     {
@@ -204,8 +204,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "f157e6036aaf29e80771485e3efcf1177bfb76ae",
-        "version" : "0.1.1"
+        "revision" : "71657e2f1d5b5af29e8cc5c450a67523433671b1",
+        "version" : "0.2.0"
       }
     },
     {
