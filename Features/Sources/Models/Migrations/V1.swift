@@ -19,7 +19,6 @@ enum V1 {
 
   static func migration(_ db: Database) throws {
     for each in V1.tables {
-      print("-- creating \(each)")
       try each.createTable(in: db)
     }
   }
@@ -31,7 +30,6 @@ extension DatabaseWriter {
     var migrator = DatabaseMigrator()
     // migrator.eraseDatabaseOnSchemaChange = true
     migrator.registerMigration(V1.version) { db in
-      print("-- migratiing to V1")
       try V1.migration(db)
     }
 

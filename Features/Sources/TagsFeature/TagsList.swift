@@ -70,7 +70,6 @@ private extension TagsList {
   }
 
   func deleteTag(_ state: inout State, tagInfo: TagInfo) -> Effect<Action>{
-    print("TagsList.deleteTag: \(tagInfo)")
     precondition(tagInfo.id.isUserDefined)
     if activeState.activeTagId == tagInfo.id {
       $activeState.withLock {
@@ -84,7 +83,6 @@ private extension TagsList {
   }
 
   func editTags(_ state: inout State) -> Effect<Action> {
-    print("editTags")
     state.destination = .edit(TagsEditor.State(focused: nil))
     return .none.animation(.default)
   }

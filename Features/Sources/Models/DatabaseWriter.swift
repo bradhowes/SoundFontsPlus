@@ -24,15 +24,12 @@ public extension DatabaseWriter where Self == DatabaseQueue {
 
     if context == .live {
       let dbPath = (path ?? URL.documentsDirectory.appending(component: "db.sqlite")).path()
-      print("open", dbPath)
       databaseQueue = try DatabaseQueue(path: dbPath, configuration: config)
     } else {
       databaseQueue = try DatabaseQueue(configuration: config)
     }
 
     try databaseQueue.migrate()
-
-    print("-- after migrate")
 
     if addTags || addBuiltIns {
       try databaseQueue.write { db in

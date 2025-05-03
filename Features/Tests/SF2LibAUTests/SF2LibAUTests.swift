@@ -27,7 +27,6 @@ final class SF2LibAUTests: XCTestCase {
   override func setUp() async throws {
     stereoBuffer = AVAudioPCMBuffer(pcmFormat: Self.audioFormat, frameCapacity: self.frameCount)
     stereoBuffer.frameLength = 0
-    print("frameCapacity: \(stereoBuffer.frameCapacity)")
     framesRemaining = self.frameCount
 
     au = try SF2LibAU(componentDescription: self.audioComponentDescription, options: [])
@@ -164,7 +163,6 @@ extension SF2LibAUTests: AVAudioPlayerDelegate {
 
   func loadSF2(index: Int, preset: Int) throws {
     let paths = getSF2Resources()
-    print(paths)
     try au.allocateRenderResources()
     let path = paths[index].standardizedFileURL.absoluteString
     let cmd = au.createLoadFileUseIndex(path: path, preset: preset)

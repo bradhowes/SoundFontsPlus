@@ -67,7 +67,7 @@ public struct ReverbFeature {
         maximumValue: 100.0,
         logarithmic: false
       )
-      self.room = .smallRoom
+      self.room = .mediumChamber
     }
   }
 
@@ -113,7 +113,10 @@ public struct ReverbView: View {
   public var body: some View {
     HStack(alignment: .top, spacing: 12) {
       VStack(alignment: .leading, spacing: 18) {
-        title
+        Text("Reverb")
+          .foregroundStyle(theme.controlForegroundColor)
+          .font(.caption.smallCaps())
+
         ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
         ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
           Image(systemName: "lock")
@@ -123,8 +126,12 @@ public struct ReverbView: View {
         Picker("Room", selection: $store.room) {
           ForEach(AVAudioUnitReverbPreset.allCases, id: \.self) { room in
             Text(room.name).tag(room)
+              .font(theme.font)
+              .foregroundStyle(theme.textColor)
           }
         }
+        .pickerStyle(.wheel)
+        .frame(width: 165)  // !!! Magic size that fits all of the strings without wasted space
 //        VStack {
 //          Text("Room")
 //          Menu("\(store.room.name)") {
@@ -142,12 +149,7 @@ public struct ReverbView: View {
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
     }
-  }
-
-  private var title: some View {
-    Text("Reverb")
-      .foregroundStyle(theme.textColor)
-      .font(theme.font)
+    .padding(.init(top: 4, leading: 4, bottom: 4, trailing: 4))
   }
 }
 
@@ -167,8 +169,6 @@ extension ReverbView {
     }
     .frame(height: 102)
     .frame(maxHeight: 102)
-    .padding()
-    .border(theme.controlBackgroundColor, width: 1)
   }
 }
 

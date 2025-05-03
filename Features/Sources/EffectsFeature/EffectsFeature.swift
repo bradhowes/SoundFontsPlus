@@ -54,12 +54,14 @@ public struct EffectsView: View {
     ScrollView(.horizontal) {
       ScrollViewReader { proxy in
         HStack {
-          DelayView(store: store.scope(state: \.delay, action: \.delay))
           ReverbView(store: store.scope(state: \.reverb, action: \.reverb))
+          DelayView(store: store.scope(state: \.delay, action: \.delay))
         }
         .scrollViewProxy(proxy)
       }
     }
+    .frame(height: 110)
+    .frame(maxHeight: 110)
   }
 }
 
@@ -74,10 +76,7 @@ extension EffectsView {
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
     return EffectsView(store: Store(initialState: .init()) { EffectsFeature() })
-      .frame(height: 102)
-      .frame(maxHeight: 102)
-      .padding()
-      .border(theme.controlBackgroundColor, width: 1)
+      .auv3ControlsTheme(theme)
   }
 }
 

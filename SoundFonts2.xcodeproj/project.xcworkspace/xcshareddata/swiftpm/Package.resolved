@@ -1,15 +1,6 @@
 {
-  "originHash" : "3ecc88fe6acc962bb7f857a669f494e5d869c6dbb21a0ca9377cf5f4ea829172",
+  "originHash" : "d6f61df43b219255dbac46898a6bdfff87ef9c4f4745eb48aec11d4eeb659acb",
   "pins" : [
-    {
-      "identity" : "auv3controls",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bradhowes/AUv3Controls",
-      "state" : {
-        "revision" : "80e96c3133cf6bd879a80c5fc4a8362f492e00ab",
-        "version" : "0.17.2"
-      }
-    },
     {
       "identity" : "auv3support",
       "kind" : "remoteSourceControl",

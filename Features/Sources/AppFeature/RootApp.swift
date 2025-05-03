@@ -1,3 +1,4 @@
+import AUv3Controls
 import BRHSplitView
 import ComposableArchitecture
 import DelayFeature
@@ -86,7 +87,7 @@ public struct RootApp {
         return .none
       }
     }
-    ._printChanges()
+    // ._printChanges()
   }
 
   public init() {}
@@ -94,20 +95,28 @@ public struct RootApp {
 
 public struct RootAppView: View {
   private let store: StoreOf<RootApp>
+  private let theme: Theme
   @Environment(\.appPanelBackground) private var appPanelBackground
 
   public init(store: StoreOf<RootApp>) {
     self.store = store
+    var theme = Theme()
+    theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
+    theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
+    theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
+    theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
+    self.theme = theme
   }
 
   public var body: some View {
-    let _ = Self._printChanges()
+    // let _ = Self._printChanges()
     VStack(spacing: 0) {
       listViews
       effectsView
       toolbarAndKeyboard
     }
     .animation(.smooth, value: store.effectsVisible)
+    .environment(\.auv3ControlsTheme, theme)
   }
 
   private var listViews: some View {
@@ -153,6 +162,21 @@ public struct RootAppView: View {
     )
   }
 
+  private var effectsView: some View {
+    VStack {
+      ScrollView(.horizontal) {
+        HStack {
+          ReverbView(store: store.scope(state: \.reverb, action: \.reverb))
+          DelayView(store: store.scope(state: \.delay, action: \.delay))
+        }
+      }
+      .background(appPanelBackground)
+    }
+    .frame(width: nil, height: store.effectsVisible ? 110 : 8.0)
+    .offset(x: 0.0, y: store.effectsVisible ? 0.0 : 110.0)
+    .clipped()
+  }
+
   private var toolbarAndKeyboard: some View {
     VStack {
       ToolBarView(
@@ -165,23 +189,6 @@ public struct RootAppView: View {
   private var keyboardView: some View {
     appPanelBackground
       .frame(height: 240)
-  }
-
-  private var effectsView: some View {
-    VStack {
-      ScrollView(.horizontal) {
-        HStack {
-          DelayView(store: store.scope(state: \.delay, action: \.delay))
-          ReverbView(store: store.scope(state: \.reverb, action: \.reverb))
-        }
-      }
-      .padding(0)
-      .background(appPanelBackground)
-    }
-    .padding([.top, .bottom], 8)
-    .frame(width: nil, height: store.effectsVisible ? 160 : 8.0)
-    .offset(x: 0.0, y: store.effectsVisible ? 0.0 : 160.0)
-    .clipped()
   }
 }
 

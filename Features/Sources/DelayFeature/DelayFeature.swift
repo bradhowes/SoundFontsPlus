@@ -110,12 +110,7 @@ public struct DelayView: View {
       KnobView(store: store.scope(state: \.cutoff, action: \.cutoff))
       KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
     }
-  }
-
-  private var title: some View {
-    Text("Delay")
-      .foregroundStyle(theme.textColor)
-      .font(theme.font)
+    .padding(.init(top: 4, leading: 4, bottom: 4, trailing: 4))
   }
 }
 
@@ -134,10 +129,8 @@ extension DelayView {
       DelayView(store: Store(initialState: .init()) { DelayFeature() })
         .environment(\.auv3ControlsTheme, theme)
     }
-    .frame(height: 102)
-    .frame(maxHeight: 102)
-    .padding()
-    .border(theme.controlBackgroundColor, width: 1)
+    .frame(height: 110)
+    .frame(maxHeight: 110)
   }
 }
 

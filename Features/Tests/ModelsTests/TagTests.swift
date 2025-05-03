@@ -27,7 +27,6 @@ import Testing
 
       for t in tags {
         let s = try await db.read { try t.soundFonts.fetchCount($0) }
-        print(t.name, s)
         if t.name == Tag.Ubiquitous.all.name || t.name == Tag.Ubiquitous.builtIn.name {
           #expect(s == 3)
         } else {
