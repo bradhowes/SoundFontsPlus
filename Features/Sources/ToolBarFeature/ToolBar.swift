@@ -1,16 +1,23 @@
+import AUv3Controls
 import ComposableArchitecture
 import Dependencies
+import Extensions
 import Models
 import Sharing
 import SwiftUI
+import SwiftUISupport
 
 @Reducer
 public struct ToolBar {
 
   @ObservableState
   public struct State: Equatable {
+    public var lowestKeyLabel = "C3"
+    public var highestKeyLabel = "A#3"
     public var tagsListVisible: Bool = false
     public var effectsVisible: Bool = false
+    public var editingPresetVisibility: Bool = false
+    public var showMoreButtons: Bool = false
 
     public init() {}
   }
@@ -21,10 +28,17 @@ public struct ToolBar {
     case effectsVisibilityButtonTapped
     case showMoreButtonTapped
     case tagVisibilityButtonTapped
+    case lowerKeyButtonTapped
+    case slidingKeyboardButtonTapped
+    case upperKeyButtonTapped
+    case presetsVisibilityButtonTapped
+    case settingsButtonTapped
+    case helpButtonTapped
 
     @CasePathable
     public enum Delegate: Equatable {
       case addSoundFont
+      case editingPresetVisibility
     }
   }
 
@@ -33,13 +47,15 @@ public struct ToolBar {
       switch action {
       case .addSoundFontButtonTapped: return .send(.delegate(.addSoundFont))
       case .delegate: return .none
-      case .effectsVisibilityButtonTapped:
-        state.effectsVisible.toggle()
-        return .none
-      case .showMoreButtonTapped: return .none
-      case .tagVisibilityButtonTapped:
-        state.tagsListVisible.toggle()
-        return .none
+      case .effectsVisibilityButtonTapped: return toggleEffectsVisibility(&state)
+      case .showMoreButtonTapped: return toggleShowMoreButtons(&state)
+      case .tagVisibilityButtonTapped: return toggleTagsVisibility(&state)
+      case .lowerKeyButtonTapped: return .none
+      case .upperKeyButtonTapped: return .none
+      case .slidingKeyboardButtonTapped: return .none
+      case .presetsVisibilityButtonTapped: return editPresetVisibility(&state)
+      case .settingsButtonTapped: return showSettings(&state)
+      case .helpButtonTapped: return showHelp(&state)
       }
     }
   }
@@ -47,9 +63,47 @@ public struct ToolBar {
   public init() {}
 }
 
+extension ToolBar {
+  private func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
+    state.effectsVisible.toggle()
+    return hideMoreButtons(&state)
+  }
+
+  private func toggleShowMoreButtons(_ state: inout State) -> Effect<Action> {
+    state.showMoreButtons.toggle()
+    return .none
+  }
+
+  private func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
+    state.tagsListVisible.toggle()
+    return hideMoreButtons(&state)
+  }
+
+  private func hideMoreButtons(_ state: inout State) -> Effect<Action> {
+    state.showMoreButtons = false
+    return .none
+  }
+
+  private func editPresetVisibility(_ state: inout State) -> Effect<Action> {
+    state.editingPresetVisibility.toggle()
+    print("toolBar.editPresetVisibility:", state.editingPresetVisibility)
+    return .none
+  }
+
+  private func showSettings(_ state: inout State) -> Effect<Action> {
+    return hideMoreButtons(&state)
+  }
+
+  private func showHelp(_ state: inout State) -> Effect<Action> {
+    return hideMoreButtons(&state)
+  }
+}
+
 public struct ToolBarView: View {
   @Bindable private var store: StoreOf<ToolBar>
+  @Shared(.activeState) var activeState
   @Environment(\.appPanelBackground) private var appPanelBackground
+  @Environment(\.auv3ControlsTheme) private var auv3ControlsTheme
 
   public init(store: StoreOf<ToolBar>) {
     self.store = store
@@ -62,20 +116,57 @@ public struct ToolBarView: View {
         store.send(.tagVisibilityButtonTapped)
       } label: {
         Image(systemName: "tag").imageScale(.large)
-          .tint(store.tagsListVisible ? Color.orange : Color.blue)
+          .tint(store.tagsListVisible ? Color.indigo : Color.blue)
       }
       Button {
         store.send(.effectsVisibilityButtonTapped)
       } label: {
         Image(systemName: "waveform").imageScale(.large)
-          .tint(store.effectsVisible ? Color.orange : Color.blue)
+          .tint(store.effectsVisible ? Color.indigo : Color.blue)
       }
-      Spacer()
-      Button { store.send(.tagVisibilityButtonTapped) } label: { Image(systemName: "chevron.left.2").imageScale(.large)}
+      ZStack {
+        HStack {
+          Spacer()
+          Text(Operations.activePresetName())
+            .font(auv3ControlsTheme.font)
+            .foregroundStyle(auv3ControlsTheme.textColor)
+          Spacer()
+        }.zIndex(0)
+        if store.showMoreButtons {
+          HStack {
+            Spacer()
+            Button { } label: { Text("❰" + store.lowestKeyLabel) }
+            Button { } label: { Text("➠") }
+            Button { } label: { Text(store.highestKeyLabel + "❱") }
+            Button { } label: { Image(systemName: "gear").imageScale(.large) }
+            Button {
+              store.send(.presetsVisibilityButtonTapped)
+            } label: {
+              Image(systemName: "list.bullet").imageScale(.large)
+                .tint(store.editingPresetVisibility ? Color.indigo : Color.blue)
+            }
+            Button { } label: { Image(systemName: "questionmark.circle").imageScale(.large) }
+          }
+          .background(.black)
+          .zIndex(1)
+          .transition(.move(edge: .trailing))
+        }
+      }
+      HStack {
+        Button { store.send(.showMoreButtonTapped) } label: {
+          Image(systemName: "chevron.left").imageScale(.large)
+            .tint(store.showMoreButtons ? Color.indigo : Color.blue)
+        }
+        Color.black
+          .frame(width: 4)
+      }
+      .zIndex(2)
+      .background(.black)
     }
-    .padding(8)
+    .padding(.init(top: 8, leading: 8, bottom: 8, trailing: 0))
     .frame(height: 40)
-    .background(appPanelBackground)
+    .background(Color.black)
+    .animation(.smooth, value: store.showMoreButtons)
   }
 }
 

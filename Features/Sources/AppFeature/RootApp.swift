@@ -25,7 +25,6 @@ public struct RootApp {
     public var presetsSplit: SplitViewReducer.State
     public var delay: DelayFeature.State
     public var reverb: ReverbFeature.State
-    public var effectsVisible: Bool = false
 
     public init(
       soundFontsList: SoundFontsList.State,
@@ -75,13 +74,12 @@ public struct RootApp {
         state.toolBar.tagsListVisible = panes.contains(.bottom)
         return .none
 
-      case .toolBar(.effectsVisibilityButtonTapped):
-        state.effectsVisible = state.toolBar.effectsVisible
-        return .none
-
       case .toolBar(.tagVisibilityButtonTapped):
         let panes: SplitViewPanes = state.toolBar.tagsListVisible ? .both : .primary
         return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
+
+      case .toolBar(.presetsVisibilityButtonTapped):
+        return reduce(into: &state, action: .presetsList(.visibilityEditMode(state.toolBar.editingPresetVisibility)))
 
       default:
         return .none
@@ -96,11 +94,14 @@ public struct RootApp {
 public struct RootAppView: View {
   private let store: StoreOf<RootApp>
   private let theme: Theme
-  @Environment(\.appPanelBackground) private var appPanelBackground
+  private let appPanelBackground = Color.black
+  private let dividerBorderColor: Color = Color.gray.opacity(0.15)
 
   public init(store: StoreOf<RootApp>) {
     self.store = store
     var theme = Theme()
+    theme.controlForegroundColor = .indigo
+    theme.textColor = .indigo
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
@@ -115,8 +116,9 @@ public struct RootAppView: View {
       effectsView
       toolbarAndKeyboard
     }
-    .animation(.smooth, value: store.effectsVisible)
+    .animation(.smooth, value: store.toolBar.effectsVisible)
     .environment(\.auv3ControlsTheme, theme)
+    .environment(\.appPanelBackground, appPanelBackground)
   }
 
   private var listViews: some View {
@@ -127,7 +129,7 @@ public struct RootAppView: View {
       },
       divider: {
         HandleDivider(
-          dividerColor: appPanelBackground,
+          dividerColor: dividerBorderColor,
           handleColor: .accentColor
         )
       },
@@ -145,7 +147,7 @@ public struct RootAppView: View {
       },
       divider: {
         HandleDivider(
-          dividerColor: appPanelBackground,
+          dividerColor: dividerBorderColor,
           handleColor: .accentColor
         )
       },
@@ -163,17 +165,26 @@ public struct RootAppView: View {
   }
 
   private var effectsView: some View {
-    VStack {
+    let effectsHeight = 110.0
+    let padding = 4.0
+    let viewHeight = effectsHeight + padding * 4
+    return VStack {
       ScrollView(.horizontal) {
-        HStack {
+        HStack() {
           ReverbView(store: store.scope(state: \.reverb, action: \.reverb))
+          dividerBorderColor
+            .frame(width: padding)
           DelayView(store: store.scope(state: \.delay, action: \.delay))
         }
+        .frame(height: effectsHeight)
+        .background(Color.black)
+        .padding(EdgeInsets.init(top: padding, leading: 0, bottom: padding, trailing: 0))
+        .background(dividerBorderColor)
+        .padding(EdgeInsets.init(top: 0, leading: padding, bottom: 0, trailing: padding))
       }
-      .background(appPanelBackground)
     }
-    .frame(width: nil, height: store.effectsVisible ? 110 : 8.0)
-    .offset(x: 0.0, y: store.effectsVisible ? 0.0 : 110.0)
+    .frame(height: store.toolBar.effectsVisible ? viewHeight : padding)
+    .offset(x: 0.0, y: store.toolBar.effectsVisible ? 0.0 : viewHeight / 2 - padding - 1)
     .clipped()
   }
 

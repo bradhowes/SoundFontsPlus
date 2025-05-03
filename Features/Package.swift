@@ -16,7 +16,8 @@ let package = Package(
     .library(name: "SF2ResourceFiles", targets: ["SF2ResourceFiles"]),
     .library(name: "SoundFontsFeature", targets: ["SoundFontsFeature"]),
     .library(name: "SwiftUISupport", targets: ["SwiftUISupport"]),
-    .library(name: "TagsFeature", targets: ["TagsFeature"])
+    .library(name: "TagsFeature", targets: ["TagsFeature"]),
+    .library(name: "ToolBarFeature", targets: ["ToolBarFeature"])
   ],
   dependencies: [
     // .package(url: "https://github.com/bradhowes/SF2Lib", from: "5.0.0")
@@ -154,6 +155,7 @@ let package = Package(
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
+        .product(name: "AUv3Controls", package: "AUV3Controls"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
       ]

@@ -3,10 +3,10 @@
 import Algorithms
 import ComposableArchitecture
 import GRDB
+import Models
 import SF2ResourceFiles
 import SwiftUI
 import SwiftUISupport
-import Models
 
 @Reducer
 public struct PresetsList {
@@ -61,7 +61,7 @@ public struct PresetsList {
     case sections(IdentifiedActionOf<PresetsListSection>)
     case selectedSoundFontIdChanged(SoundFont.ID?)
     case stop
-    case toggleEditMode
+    case visibilityEditMode(Bool)
   }
 
   public init() {}
@@ -93,7 +93,7 @@ public struct PresetsList {
       case .sections: return .none
       case .selectedSoundFontIdChanged(let soundFontId): return setSoundFont(&state, soundFontId: soundFontId)
       case .stop: return .cancel(id: pubisherCancelId)
-      case .toggleEditMode: return toggleEditMode(&state)
+      case .visibilityEditMode(let value): return setEditMode(&state, value: value)
       }
     }
     .forEach(\.sections, action: \.sections) {
@@ -199,8 +199,8 @@ extension PresetsList {
     return fetchPresets(&state)
   }
 
-  private func toggleEditMode(_ state: inout State) -> Effect<Action> {
-    state.editingVisibility.toggle()
+  private func setEditMode(_ state: inout State, value: Bool) -> Effect<Action> {
+    state.editingVisibility = value
     return fetchPresets(&state)
   }
 
@@ -230,6 +230,7 @@ public struct PresetsListView: View {
     .onAppear {
       store.send(.onAppear)
     }
+    .animation(.smooth, value: store.sections)
     .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
       PresetEditorView(store: $0)
     }
@@ -269,7 +270,7 @@ public struct PresetsListNavView: View {
         .navigationTitle("Presets")
         .toolbar {
           Button {
-            store.send(.toggleEditMode, animation: .default)
+            store.send(.visibilityEditMode(!store.state.editingVisibility))
           } label: {
             if store.state.editingVisibility {
               Text("Done")

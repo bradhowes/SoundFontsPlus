@@ -9,6 +9,17 @@ public enum Operations {
     return activeState.selectedSoundFontId ?? activeState.activeSoundFontId
   }
 
+  public static func activePresetName() -> String {
+    @Shared(.activeState) var activeState
+    if let presetId = activeState.activePresetId {
+      @Dependency(\.defaultDatabase) var database
+      if let entry = try? database.read({ try Preset.fetchOne($0, id: presetId) }) {
+        return entry.displayName
+      }
+    }
+    return "—"
+  }
+
   public static func presets() -> [Preset] {
     guard let soundFontId = presetSource() else { return [] }
     @Dependency(\.defaultDatabase) var database
@@ -23,7 +34,7 @@ public enum Operations {
     @Dependency(\.defaultDatabase) var database
     return (try? database.read {
       guard let soundFont = try SoundFont.fetchOne($0, key: soundFontId) else { return [] }
-      return try soundFont.visiblePresetsQuery.fetchAll($0)
+      return try soundFont.allPresetsQuery.fetchAll($0)
     }) ?? []
   }
 
