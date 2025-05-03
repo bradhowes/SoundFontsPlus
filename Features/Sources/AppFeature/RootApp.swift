@@ -78,7 +78,7 @@ public struct RootApp {
         let panes: SplitViewPanes = state.toolBar.tagsListVisible ? .both : .primary
         return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
 
-      case .toolBar(.presetsVisibilityButtonTapped):
+      case .toolBar(.delegate(.editingPresetVisibility)):
         return reduce(into: &state, action: .presetsList(.visibilityEditMode(state.toolBar.editingPresetVisibility)))
 
       default:

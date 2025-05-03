@@ -71,6 +71,10 @@ extension ToolBar {
 
   private func toggleShowMoreButtons(_ state: inout State) -> Effect<Action> {
     state.showMoreButtons.toggle()
+    if !state.showMoreButtons && state.editingPresetVisibility {
+      state.editingPresetVisibility = false
+      return .send(.delegate(.editingPresetVisibility))
+    }
     return .none
   }
 
@@ -87,7 +91,7 @@ extension ToolBar {
   private func editPresetVisibility(_ state: inout State) -> Effect<Action> {
     state.editingPresetVisibility.toggle()
     print("toolBar.editPresetVisibility:", state.editingPresetVisibility)
-    return .none
+    return .send(.delegate(.editingPresetVisibility))
   }
 
   private func showSettings(_ state: inout State) -> Effect<Action> {
