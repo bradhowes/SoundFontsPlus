@@ -76,6 +76,8 @@ public struct KeyboardView: View {
 
   @State private var eventNoteMap = EventNoteMap()
   @State private var frames: [CGRect] = Array(repeating: .zero, count: 128)
+
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
   @Environment(\.keyboardKeyHeight) private var keyboardKeyHeight
   @Environment(\.keyboardKeyWidth) private var keyboardKeyWidth
   @Environment(\.keyboardKeyLabel) private var keyboardKeyLabel
@@ -174,7 +176,8 @@ public struct KeyboardView: View {
   private func key(note: Note) -> some View {
     let color: Color = note.accented ? .black : .white
     let width: Double = note.accented ? keyboardKeyWidth * 0.75 : keyboardKeyWidth
-    let height: Double = note.accented ? keyboardKeyHeight * 0.6 : keyboardKeyHeight
+    let height: Double = ((note.accented ? keyboardKeyHeight * 0.6 : keyboardKeyHeight)
+                          * (verticalSizeClass == .compact ? 0.5 : 1.0))
     let cornerRadius: Double = 8
 
     return RoundedRectangle(cornerRadius: cornerRadius)
@@ -275,16 +278,18 @@ struct KeyboardPreview: View {
           .keyboardKeyWidth(keyWidth.rounded())
           .keyboardFixed(fixed)
           .keyboardKeyLabel(labels)
+          .animation(.smooth, value: keyWidth.rounded())
       }
       Slider(value: $keyWidth, in: 32...96)
-      Text("\(Int(keyWidth.rounded()))")
+      Text("Width: \(Int(keyWidth.rounded()))")
       Toggle(isOn: $fixed) { Text("Fixed") }
       HStack {
-        Text("Labels")
+        Text("Key Labels")
+        Spacer()
         Picker(selection: $labels) {
-          Text("None").tag(KeyboardKeyLabel.none)
-          Text("C Keys").tag(KeyboardKeyLabel.cOnly)
-          Text("All").tag(KeyboardKeyLabel.all)
+          ForEach(KeyboardKeyLabel.allCases) { kind in
+            Text(kind.rawValue)
+          }
         } label: {
           Text("Labels")
         }

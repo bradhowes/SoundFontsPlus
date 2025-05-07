@@ -1,9 +1,11 @@
 import SwiftUI
 
-public enum KeyboardKeyLabel {
-  case none
-  case cOnly
-  case all
+public enum KeyboardKeyLabel: String, CaseIterable, Identifiable {
+  case none = "None"
+  case cOnly = "C Only"
+  case all = "All"
+
+  public var id: Self { self }
 }
 
 extension EnvironmentValues {

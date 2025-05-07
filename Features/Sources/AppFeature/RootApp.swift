@@ -103,7 +103,8 @@ public struct RootAppView: View {
   private let appPanelBackground = Color.black
   private let dividerBorderColor: Color = Color.gray.opacity(0.15)
 
-  @Environment(\.keyboardKeyHeight) var keyboardKeyHeight
+  @Environment(\.keyboardKeyHeight) private var keyboardKeyHeight
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
 
   public init(store: StoreOf<RootApp>) {
     self.store = store
@@ -207,7 +208,7 @@ public struct RootAppView: View {
     ScrollView(.horizontal) {
       KeyboardView(store: store.scope(state: \.keyboard, action: \.keyboard))
     }
-    .frame(height: keyboardKeyHeight)
+    .frame(height: keyboardKeyHeight * (verticalSizeClass == .compact ? 0.5 : 1.0))
   }
 }
 
