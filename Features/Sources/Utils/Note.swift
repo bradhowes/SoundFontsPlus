@@ -41,7 +41,7 @@ public struct Note: CustomStringConvertible, Codable {
   public var octave: Int { midiNoteValue / 12 - 1 }
 
   /// Custom string representation for a Note instance
-  public var description: String { label + " \(midiNoteValue)" }
+  public var description: String { label }
 
   /**
    Create new Note instance.

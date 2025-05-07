@@ -7,8 +7,8 @@ import Utils
  than one event triggering the same note (rare), so we map event IDs to Note values and for each Note that is
  active, we track the number of events mapped to it.
  */
-struct EventNoteMap {
-  typealias Event = SpatialEventGesture.Value.Element
+public struct EventNoteMap: Equatable {
+  public typealias Event = SpatialEventGesture.Value.Element
 
   private var events = [Event.ID: Note]()
   private var notes = [Note: Int]()
@@ -20,11 +20,11 @@ struct EventNoteMap {
    - parameter note: the `Note` assigned to the event
    - returns: 2-tuple containing a `Note` that was released and a bool if first assignment for the `Note`
    */
-  mutating func assign(event: Event, note: Note) -> (Note?, Bool) {
+  public mutating func assign(event: Event, note: Note, fixedKeys: Bool) -> (Note?, Bool) {
     var previousReleased: Note? = nil
     if let previous = events[event.id] {
       // Same note being activated?
-      guard previous != note else { return (note, true) }
+      guard previous != note && fixedKeys else { return (note, true) }
       // Previous note being released?
       if reduceNoteCount(note: previous) {
         previousReleased = previous
@@ -41,7 +41,7 @@ struct EventNoteMap {
   /**
    Remove all assignments.
    */
-  mutating func releaseAll() {
+  public mutating func releaseAll() {
     notes.removeAll()
     events.removeAll()
   }
@@ -52,7 +52,7 @@ struct EventNoteMap {
    - parameter event: the event to remove
    - returns: `Note` that was released (may be nil)
    */
-  mutating func release(event: Event) -> Note? {
+  public mutating func release(event: Event) -> Note? {
     // Note associated with event?
     guard let note = events[event.id] else { return nil }
     events.removeValue(forKey: event.id)
@@ -65,7 +65,7 @@ struct EventNoteMap {
    - parameter note: the note the check
    - returns: `true` if active
    */
-  func isOn(_ note: Note) -> Bool {
+  public func isOn(_ note: Note) -> Bool {
     notes[note, default: 0] > 0
   }
 

@@ -5,6 +5,7 @@ import BRHSplitView
 import ComposableArchitecture
 import DelayFeature
 import GRDB
+import KeyboardFeature
 import Models
 import PresetsFeature
 import ReverbFeature
@@ -37,7 +38,8 @@ struct SoundFonts2App: App {
         initialPosition: 0.5
       ),
       delay: DelayFeature.State(),
-      reverb: ReverbFeature.State()
+      reverb: ReverbFeature.State(),
+      keyboard: KeyboardFeature.State()
     )) { RootApp() })
   }
 

@@ -3,6 +3,7 @@ import BRHSplitView
 import ComposableArchitecture
 import DelayFeature
 import Extensions
+import KeyboardFeature
 import Models
 import PresetsFeature
 import ReverbFeature
@@ -25,6 +26,7 @@ public struct RootApp {
     public var presetsSplit: SplitViewReducer.State
     public var delay: DelayFeature.State
     public var reverb: ReverbFeature.State
+    public var keyboard: KeyboardFeature.State
 
     public init(
       soundFontsList: SoundFontsList.State,
@@ -34,7 +36,8 @@ public struct RootApp {
       tagsSplit: SplitViewReducer.State,
       presetsSplit: SplitViewReducer.State,
       delay: DelayFeature.State,
-      reverb: ReverbFeature.State
+      reverb: ReverbFeature.State,
+      keyboard: KeyboardFeature.State
     ) {
       self.soundFontsList = soundFontsList
       self.presetsList = presetsList
@@ -44,6 +47,7 @@ public struct RootApp {
       self.presetsSplit = presetsSplit
       self.delay = delay
       self.reverb = reverb
+      self.keyboard = keyboard
     }
   }
 
@@ -56,6 +60,7 @@ public struct RootApp {
     case presetsSplit(SplitViewReducer.Action)
     case delay(DelayFeature.Action)
     case reverb(ReverbFeature.Action)
+    case keyboard(KeyboardFeature.Action)
   }
 
   public var body: some ReducerOf<Self> {
@@ -67,6 +72,7 @@ public struct RootApp {
     Scope(state: \.presetsSplit, action: \.presetsSplit) { SplitViewReducer() }
     Scope(state: \.delay, action: \.delay) { DelayFeature() }
     Scope(state: \.reverb, action: \.reverb) { ReverbFeature() }
+    Scope(state: \.keyboard, action: \.keyboard) { KeyboardFeature() }
 
     Reduce { state, action in
       switch action {
@@ -96,6 +102,8 @@ public struct RootAppView: View {
   private let theme: Theme
   private let appPanelBackground = Color.black
   private let dividerBorderColor: Color = Color.gray.opacity(0.15)
+
+  @Environment(\.keyboardKeyHeight) var keyboardKeyHeight
 
   public init(store: StoreOf<RootApp>) {
     self.store = store
@@ -190,16 +198,16 @@ public struct RootAppView: View {
 
   private var toolbarAndKeyboard: some View {
     VStack {
-      ToolBarView(
-        store: store.scope(state: \.toolBar, action: \.toolBar)
-      )
+      ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
       keyboardView
     }
   }
 
   private var keyboardView: some View {
-    appPanelBackground
-      .frame(height: 240)
+    ScrollView(.horizontal) {
+      KeyboardView(store: store.scope(state: \.keyboard, action: \.keyboard))
+    }
+    .frame(height: keyboardKeyHeight)
   }
 }
 
@@ -223,7 +231,8 @@ extension RootAppView {
         initialPosition: 0.5
       ),
       delay: DelayFeature.State(),
-      reverb: ReverbFeature.State()
+      reverb: ReverbFeature.State(),
+      keyboard: KeyboardFeature.State()
     )) { RootApp() })
   }
 }

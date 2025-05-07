@@ -76,6 +76,7 @@ let package = Package(
         .targetItem(name: "DelayFeature", condition: .none),
         .targetItem(name: "EffectsFeature", condition: .none),
         .targetItem(name: "Extensions", condition: .none),
+        .targetItem(name: "KeyboardFeature", condition: .none),
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "PresetsFeature", condition: .none),
         .targetItem(name: "ReverbFeature", condition: .none),
