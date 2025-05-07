@@ -11,13 +11,15 @@ let package = Package(
     .library(name: "AppFeature", targets: ["AppFeature"]),
     .library(name: "EffectsFeature", targets: ["EffectsFeature"]),
     .library(name: "Extensions", targets: ["Extensions"]),
+    .library(name: "KeyboardFeature", targets: ["KeyboardFeature"]),
     .library(name: "Models", targets: ["Models"]),
     .library(name: "PresetsFeature", targets: ["PresetsFeature"]),
     .library(name: "SF2ResourceFiles", targets: ["SF2ResourceFiles"]),
     .library(name: "SoundFontsFeature", targets: ["SoundFontsFeature"]),
     .library(name: "SwiftUISupport", targets: ["SwiftUISupport"]),
     .library(name: "TagsFeature", targets: ["TagsFeature"]),
-    .library(name: "ToolBarFeature", targets: ["ToolBarFeature"])
+    .library(name: "ToolBarFeature", targets: ["ToolBarFeature"]),
+    .library(name: "Utils", targets: ["Utils"])
   ],
   dependencies: [
     // .package(url: "https://github.com/bradhowes/SF2Lib", from: "5.0.0")
@@ -33,7 +35,7 @@ let package = Package(
     .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.0"),
     .package(url: "https://github.com/pointfreeco/swift-tagged", from: "0.10.0"),
-    .package(url: "https://github.com/CrazyFanFan/FileHash", from: "0.0.1")
+    .package(url: "https://github.com/CrazyFanFan/FileHash", from: "0.0.1"),
   ],
   targets: [
     .target(
@@ -52,6 +54,18 @@ let package = Package(
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "ReverbFeature", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies")
+      ]
+    ),
+    .target(
+      name: "KeyboardFeature",
+      dependencies: [
+        .targetItem(name: "Extensions", condition: .none),
+        .targetItem(name: "SwiftUISupport", condition: .none),
+        .targetItem(name: "ToolBarFeature", condition: .none),
+        .targetItem(name: "Utils", condition: .none),
+        .product(name: "Algorithms", package: "swift-algorithms"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies")
       ]
@@ -135,6 +149,11 @@ let package = Package(
       ]
     ),
     .target(
+      name: "Utils",
+      dependencies: [
+      ]
+    ),
+    .target(
       name: "PresetsFeature",
       dependencies: [
         .targetItem(name: "Extensions", condition: .none),
@@ -155,6 +174,7 @@ let package = Package(
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
+        .targetItem(name: "Utils", condition: .none),
         .product(name: "AUv3Controls", package: "AUV3Controls"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),

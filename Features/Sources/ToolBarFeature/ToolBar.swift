@@ -6,14 +6,15 @@ import Models
 import Sharing
 import SwiftUI
 import SwiftUISupport
+import Utils
 
 @Reducer
 public struct ToolBar {
 
   @ObservableState
   public struct State: Equatable {
-    public var lowestKeyLabel = "C3"
-    public var highestKeyLabel = "A#3"
+    public var lowestKey: Note = .init(midiNoteValue: 64)
+    public var highestKey: Note = .init(midiNoteValue: 80)
     public var tagsListVisible: Bool = false
     public var effectsVisible: Bool = false
     public var editingPresetVisibility: Bool = false
@@ -139,9 +140,9 @@ public struct ToolBarView: View {
         if store.showMoreButtons {
           HStack {
             Spacer()
-            Button { } label: { Text("❰" + store.lowestKeyLabel) }
+            Button { } label: { Text("❰" + store.lowestKey.label) }
             Button { } label: { Text("➠") }
-            Button { } label: { Text(store.highestKeyLabel + "❱") }
+            Button { } label: { Text(store.highestKey.label + "❱") }
             Button { } label: { Image(systemName: "gear").imageScale(.large) }
             Button {
               store.send(.presetsVisibilityButtonTapped)
