@@ -82,7 +82,8 @@ public struct KeyboardView: View {
   @Environment(\.keyboardKeyWidth) private var keyboardKeyWidth
   @Environment(\.keyboardKeyLabel) private var keyboardKeyLabel
   @Environment(\.keyboardFixed) private var keyboardFixed
-  
+
+  private var keyboardHeightScaling: Double { verticalSizeClass == .compact ? 0.5 : 1.0 }
   private let whiteKeySpacing = 2.0
 
   public init(store: StoreOf<KeyboardFeature>) {
@@ -90,10 +91,16 @@ public struct KeyboardView: View {
   }
 
   public var body: some View {
-    if keyboardFixed {
-      fixedKeys
-    } else {
-      scrollingKeys
+    ScrollViewReader { proxy in
+      ScrollView(.horizontal) {
+        if keyboardFixed {
+          fixedKeys
+        } else {
+          scrollingKeys
+        }
+      }.onAppear {
+        proxy.scrollTo(60, anchor: .leading)
+      }.background(.black)
     }
   }
 
@@ -176,8 +183,7 @@ public struct KeyboardView: View {
   private func key(note: Note) -> some View {
     let color: Color = note.accented ? .black : .white
     let width: Double = note.accented ? keyboardKeyWidth * 0.75 : keyboardKeyWidth
-    let height: Double = ((note.accented ? keyboardKeyHeight * 0.6 : keyboardKeyHeight)
-                          * (verticalSizeClass == .compact ? 0.5 : 1.0))
+    let height: Double = (note.accented ? keyboardKeyHeight * 0.6 : keyboardKeyHeight) * keyboardHeightScaling
     let cornerRadius: Double = 8
 
     return RoundedRectangle(cornerRadius: cornerRadius)
@@ -185,6 +191,7 @@ public struct KeyboardView: View {
       .fill(eventNoteMap.isOn(note) ? Color.green.opacity(0.5) : .clear)
       .frame(width: width, height: height + cornerRadius)
       .offset(y: -cornerRadius)
+      .id(note.midiNoteValue)
   }
 
   private func labeledKey(note: Note) -> some View {
@@ -203,8 +210,8 @@ public struct KeyboardView: View {
     guard pos < frames.endIndex else { return }
     let note = Note(midiNoteValue: frames.distance(from: frames.startIndex, to: pos))
     let update = eventNoteMap.assign(event: event, note: note, fixedKeys: keyboardFixed)
-    if update.0 != nil || update.1 {
-      store.send(.assigned(previous: update.0, note: note))
+    if update.previous != nil || update.firstTime {
+      store.send(.assigned(previous: update.previous, note: note))
     }
   }
 
@@ -273,13 +280,11 @@ struct KeyboardPreview: View {
 
   var body: some View {
     VStack {
-      ScrollView(.horizontal) {
-        KeyboardView(store: Store(initialState: .init()) { KeyboardFeature() })
-          .keyboardKeyWidth(keyWidth.rounded())
-          .keyboardFixed(fixed)
-          .keyboardKeyLabel(labels)
-          .animation(.smooth, value: keyWidth.rounded())
-      }
+      KeyboardView(store: Store(initialState: .init()) { KeyboardFeature() })
+        .keyboardKeyWidth(keyWidth.rounded())
+        .keyboardFixed(fixed)
+        .keyboardKeyLabel(labels)
+        .animation(.smooth, value: keyWidth.rounded())
       Slider(value: $keyWidth, in: 32...96)
       Text("Width: \(Int(keyWidth.rounded()))")
       Toggle(isOn: $fixed) { Text("Fixed") }

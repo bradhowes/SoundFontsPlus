@@ -23,18 +23,25 @@ public struct PresetsList {
     var editingVisibility: Bool
     var searchText: String
     var isSearchFieldPresented: Bool
+    var focusedField: Field?
     var optionalSearchText: String? { isSearchFieldPresented ? searchText : nil }
     var scrollToPresetId: Preset.ID?
+    var soundFontId: SoundFont.ID?
+
+    enum Field: String, Hashable {
+      case searchText
+    }
 
     public init(editingVisibility: Bool = false, searchText: String? = nil) {
-      @Shared(.activeState) var activeState
       self.editingVisibility = editingVisibility
       self.isSearchFieldPresented = searchText != nil
       self.searchText = searchText ?? ""
-      self.sections = generatePresetSections(
-        searchText: searchText ?? "",
-        editing: false
-      )
+      self.sections = []
+//      self.sections = generatePresetSections(
+//        searchText: searchText ?? "",
+//        editing: false
+//      )
+      // self.soundFontId = nil
     }
 
     /**
@@ -51,16 +58,17 @@ public struct PresetsList {
     }
   }
 
-  public enum Action: Equatable {
+  public enum Action: Equatable, BindableAction {
+    case binding(BindingAction<State>)
     case clearScrollToPresetId
     case destination(PresentationAction<Destination.Action>)
     case fetchPresets
     case onAppear
-    case searchButtonTapped(Bool)
     case searchTextChanged(String)
     case sections(IdentifiedActionOf<PresetsListSection>)
     case selectedSoundFontIdChanged(SoundFont.ID?)
     case stop
+    case cancelSearchButtonTapped
     case visibilityEditMode(Bool)
   }
 
@@ -72,24 +80,32 @@ public struct PresetsList {
   private let pubisherCancelId = "selectedSoundFontChangedPublisher"
 
   public var body: some ReducerOf<Self> {
+    BindingReducer()
     Reduce<State, Action> { state, action in
       switch action {
       case .clearScrollToPresetId:
         state.scrollToPresetId = nil
         return .none
 
+      case .binding: return .none
+      case .cancelSearchButtonTapped: return dismissSearch(&state)
       case .destination(.presented(.edit(.acceptButtonTapped))): return updatePreset(&state)
       case .destination: return .none
       case .fetchPresets: return fetchPresets(&state)
       case .onAppear: return monitorSelectedSoundFont()
-      case .searchButtonTapped(let enabled): return searchButtonTapped(&state, enabled: enabled)
       case .searchTextChanged(let value): return searchTextChanged(&state, searchText: value)
-      case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(.editPreset(preset)))))):
-        return editPreset(&state, preset: preset)
-      case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(.hidePreset(preset)))))):
-        return hidePreset(&state, preset: preset)
-      case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(.selectPreset(preset)))))):
-        return selectPreset(&state, preset: preset)
+      case let .sections(.element(id: _, action: .delegate(action))):
+        switch action {
+        case let .headerTapped(presetId): return headerTapped(&state, presetId: presetId)
+        case .searchButtonTapped: return searchButtonTapped(&state)
+        }
+      case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(action))))):
+        switch action {
+        case let .createFavorite(preset): return createPreset(&state, preset: preset)
+        case let .editPreset(preset): return editPreset(&state, preset: preset)
+        case let .hidePreset(preset): return hidePreset(&state, preset: preset)
+        case let .selectPreset(preset): return selectPreset(&state, preset: preset)
+        }
       case .sections: return .none
       case .selectedSoundFontIdChanged(let soundFontId): return setSoundFont(&state, soundFontId: soundFontId)
       case .stop: return .cancel(id: pubisherCancelId)
@@ -103,26 +119,32 @@ public struct PresetsList {
   }
 }
 
-// extension PresetsList.Destination.State: Equatable {}
-
-func generatePresetSections(
-  searchText: String?,
-  editing: Bool
-) -> IdentifiedArrayOf<PresetsListSection.State> {
-  let grouping = searchText != nil ? 100_000 : 10
+func generatePresetSections(searchText: String?, editing: Bool) -> IdentifiedArrayOf<PresetsListSection.State> {
+  let grouping = searchText != nil ? 10_000 : 20
   var presets = editing ? Operations.allPresets() : Operations.presets()
-  if let searchText, !searchText.isEmpty {
+  if let searchText {
     presets = presets.filter {
       $0.displayName.localizedLowercase.contains(searchText.lowercased())
     }
   }
 
-  return .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map {
-    PresetsListSection.State(section: $0.lowerBound, presets: presets[$0])
-  })
+  return presets.isEmpty ?
+    .init(uniqueElements: [PresetsListSection.State(section: 0, presets: [])]) :
+    .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map {
+      PresetsListSection.State(section: $0.lowerBound, presets: presets[$0])
+    })
 }
 
 extension PresetsList {
+
+  private func createPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
+    return .none
+  }
+
+  private func headerTapped(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
+    state.scrollToPresetId = presetId
+    return .none
+  }
 
   private func editPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
     state.destination = .edit(PresetEditor.State(preset: preset))
@@ -156,16 +178,22 @@ extension PresetsList {
     }.cancellable(id: pubisherCancelId)
   }
 
-  private func searchButtonTapped(_ state: inout State, enabled: Bool) -> Effect<Action> {
-    state.isSearchFieldPresented = enabled
-    if !enabled {
-      state.searchText = ""
-      return fetchPresets(&state)
-    }
-    return .none
+  private func searchButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.isSearchFieldPresented = true
+    state.focusedField = .searchText
+    state.searchText = ""
+    return fetchPresets(&state)
+  }
+
+  private func dismissSearch(_ state: inout State) -> Effect<Action> {
+    state.isSearchFieldPresented = false
+    state.focusedField = nil
+    state.searchText = ""
+    return fetchPresets(&state)
   }
 
   private func searchTextChanged(_ state: inout State, searchText: String) -> Effect<Action> {
+    print(searchText, state.searchText)
     if searchText != state.searchText {
       state.searchText = searchText
       return fetchPresets(&state)
@@ -178,7 +206,7 @@ extension PresetsList {
       $0.activePresetId = preset.id
       $0.activeSoundFontId = preset.soundFontId
     }
-    return .none
+    return state.isSearchFieldPresented ? dismissSearch(&state) : .none
   }
 
   private func setActivePresetId(_ state: inout State, _ presetId: Preset.ID?) {
@@ -188,6 +216,7 @@ extension PresetsList {
   }
 
   private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
+    // state.soundFontId = soundFontId
     state.editingVisibility = false
     @Dependency(\.defaultDatabase) var database
     @Shared(.activeState) var activeState
@@ -213,78 +242,62 @@ extension PresetsList {
 
 public struct PresetsListView: View {
   @Bindable private var store: StoreOf<PresetsList>
+  @FocusState var focusedField: PresetsList.State.Field?
 
   public init(store: StoreOf<PresetsList>) {
     self.store = store
   }
 
   public var body: some View {
-    ScrollViewReader { proxy in
-      StyledList {
-        ForEach(store.scope(state: \.sections, action: \.sections), id: \.id) { rowStore in
-          PresetsListSectionView(store: rowStore)
+    VStack(spacing: 0) {
+      if store.isSearchFieldPresented {
+        HStack {
+          TextField("Search", text: $store.searchText.sending(\.searchTextChanged))
+            .textFieldStyle(.roundedBorder)
+            .focused($focusedField, equals: .searchText)
+            .transition(.slide)
+            .bind($store.focusedField, to: $focusedField)
+          Spacer()
+          Button {
+            store.send(.cancelSearchButtonTapped)
+          } label: {
+            Image(systemName: "xmark")
+          }
         }
-      }.onChange(of: store.scrollToPresetId) { doScrollTo(proxy: proxy, oldValue: $0, newValue: $1) }
+        .padding(EdgeInsets(top: 8, leading: 8, bottom: 0, trailing: 8))
+      }
+
+      ScrollViewReader { proxy in
+        StyledList {
+          ForEach(store.scope(state: \.sections, action: \.sections), id: \.id) { rowStore in
+            PresetsListSectionView(store: rowStore, searching: store.isSearchFieldPresented)
+          }
+        }
+        .onChange(of: store.scrollToPresetId) {
+          doScrollTo(proxy: proxy, oldValue: $0, newValue: $1)
+        }
+      }
+      .environment(\.editMode, .constant(store.editingVisibility ? EditMode.active : .inactive))
+      .onAppear {
+        store.send(.onAppear)
+      }
+      // .animation(.smooth, value: store.sections)
+      .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
+        PresetEditorView(store: $0)
+      }
+      .animation(.smooth, value: store.isSearchFieldPresented)
     }
-    .environment(\.editMode, .constant(store.editingVisibility ? EditMode.active : .inactive))
-    .onAppear {
-      store.send(.onAppear)
-    }
-    .animation(.smooth, value: store.sections)
-    .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
-      PresetEditorView(store: $0)
-    }
-//      .searchable(
-//        text: $store.searchText.sending(\.searchTextChanged),
-//        isPresented: $store.isSearchFieldPresented.sending(\.searchButtonTapped),
-//        // placement: .,
-//        prompt: "Name"
-//      )
   }
 
   private func doScrollTo(proxy: ScrollViewProxy, oldValue: Optional<Preset.ID>, newValue: Optional<Preset.ID>) {
     if let newValue {
       withAnimation {
-        proxy.scrollTo(newValue)
+        proxy.scrollTo(newValue, anchor: .top)
       }
-      // store.send(.clearScrollToPresetId)
     } else {
-      // Not sure about this
       withAnimation {
-        proxy.scrollTo(0)
+        proxy.scrollTo(0, anchor: .top)
       }
-    }
-  }
-}
-
-public struct PresetsListNavView: View {
-  internal var store: StoreOf<PresetsList>
-
-  public init(store: StoreOf<PresetsList>) {
-    self.store = store
-  }
-
-  public var body: some View {
-    NavigationStack {
-      PresetsListView(store: store)
-        .navigationTitle("Presets")
-        .toolbar {
-          Button {
-            store.send(.visibilityEditMode(!store.state.editingVisibility))
-          } label: {
-            if store.state.editingVisibility {
-              Text("Done")
-                .foregroundStyle(.red)
-            } else {
-              Image(systemName: "checklist")
-            }
-          }
-          Button {
-            store.send(.searchButtonTapped(true), animation: .default)
-          } label: {
-            Image(systemName: "magnifyingglass")
-          }
-        }
     }
   }
 }
@@ -298,11 +311,7 @@ extension PresetsListView {
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.selectedSoundFontId = soundFonts[0].id }
 
-    return VStack {
-      NavigationStack {
-        PresetsListView(store: Store(initialState: .init()) { PresetsList() })
-      }
-    }
+    return PresetsListView(store: Store(initialState: .init()) { PresetsList() })
   }
 
   static var previewEditing: some View {

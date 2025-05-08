@@ -3,7 +3,7 @@ import SwiftUI
 import Utils
 
 /**
- Mapping of SpatialEventGesture events to the Key instances that are held down by the events. There could be more
+ Mapping of SpatialEventGesture events to MIDI notes that are held down by one or more events. There could be more
  than one event triggering the same note (rare), so we map event IDs to Note values and for each Note that is
  active, we track the number of events mapped to it.
  */
@@ -13,18 +13,23 @@ public struct EventNoteMap: Equatable {
   private var events = [Event.ID: Note]()
   private var notes = [Note: Int]()
 
+  public struct AssignResult {
+    let previous: Note?
+    let firstTime: Bool
+  }
   /**
    Assign a spatial event to a note, updating note state for the event.
 
    - parameter event: the spatial event to track
    - parameter note: the `Note` assigned to the event
-   - returns: 2-tuple containing a `Note` that was released and a bool if first assignment for the `Note`
+   - returns: 2-tuple containing a `Note` that was released by the activity of this event,
+   and a bool if first assignment for the `Note`.
    */
-  public mutating func assign(event: Event, note: Note, fixedKeys: Bool) -> (Note?, Bool) {
+  public mutating func assign(event: Event, note: Note, fixedKeys: Bool) -> AssignResult {
     var previousReleased: Note? = nil
     if let previous = events[event.id] {
       // Same note being activated?
-      guard previous != note && fixedKeys else { return (note, true) }
+      guard previous != note && fixedKeys else { return .init(previous: note, firstTime: true) }
       // Previous note being released?
       if reduceNoteCount(note: previous) {
         previousReleased = previous
@@ -35,7 +40,7 @@ public struct EventNoteMap: Equatable {
     events[event.id] = note
     let count = notes[note, default: 0]
     notes[note] = count + 1
-    return (previousReleased, count == 0)
+    return .init(previous: previousReleased, firstTime: count == 0)
   }
 
   /**

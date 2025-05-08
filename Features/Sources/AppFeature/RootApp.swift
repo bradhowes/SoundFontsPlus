@@ -18,36 +18,19 @@ public struct RootApp {
 
   @ObservableState
   public struct State: Equatable {
-    public var soundFontsList: SoundFontsList.State
-    public var presetsList: PresetsList.State
-    public var tagsList: TagsList.State
-    public var toolBar: ToolBar.State
+    public var soundFontsList: SoundFontsList.State = .init()
+    public var presetsList: PresetsList.State = .init()
+    public var tagsList: TagsList.State = .init()
+    public var toolBar: ToolBar.State = .init()
     public var tagsSplit: SplitViewReducer.State
     public var presetsSplit: SplitViewReducer.State
-    public var delay: DelayFeature.State
-    public var reverb: ReverbFeature.State
-    public var keyboard: KeyboardFeature.State
+    public var delay: DelayFeature.State = .init()
+    public var reverb: ReverbFeature.State = .init()
+    public var keyboard: KeyboardFeature.State = .init()
 
-    public init(
-      soundFontsList: SoundFontsList.State,
-      presetsList: PresetsList.State,
-      tagsList: TagsList.State,
-      toolBar: ToolBar.State,
-      tagsSplit: SplitViewReducer.State,
-      presetsSplit: SplitViewReducer.State,
-      delay: DelayFeature.State,
-      reverb: ReverbFeature.State,
-      keyboard: KeyboardFeature.State
-    ) {
-      self.soundFontsList = soundFontsList
-      self.presetsList = presetsList
-      self.tagsList = tagsList
-      self.toolBar = toolBar
-      self.tagsSplit = tagsSplit
-      self.presetsSplit = presetsSplit
-      self.delay = delay
-      self.reverb = reverb
-      self.keyboard = keyboard
+    public init() {
+      self.tagsSplit = .init(panesVisible: .primary, initialPosition: 0.5)
+      self.presetsSplit = .init(panesVisible: .both, initialPosition: 0.5)
     }
   }
 
@@ -218,23 +201,7 @@ extension RootAppView {
     let _ = prepareDependencies {
       $0.defaultDatabase = try!.appDatabase()
     }
-    return RootAppView(store: Store(initialState: .init(
-      soundFontsList: SoundFontsList.State(),
-      presetsList: PresetsList.State(),
-      tagsList: TagsList.State(),
-      toolBar: ToolBar.State(),
-      tagsSplit: SplitViewReducer.State(
-        panesVisible: .primary,
-        initialPosition: 0.5
-      ),
-      presetsSplit: SplitViewReducer.State(
-        panesVisible: .both,
-        initialPosition: 0.5
-      ),
-      delay: DelayFeature.State(),
-      reverb: ReverbFeature.State(),
-      keyboard: KeyboardFeature.State()
-    )) { RootApp() })
+    return RootAppView(store: Store(initialState: .init()) { RootApp() })
   }
 }
 

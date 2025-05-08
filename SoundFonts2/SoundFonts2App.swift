@@ -24,23 +24,7 @@ struct SoundFonts2App: App {
   }
 
   func contentView() -> some View {
-    RootAppView(store: Store(initialState: .init(
-      soundFontsList: SoundFontsList.State(),
-      presetsList: PresetsList.State(),
-      tagsList: TagsList.State(),
-      toolBar: ToolBar.State(),
-      tagsSplit: SplitViewReducer.State(
-        panesVisible: .primary,
-        initialPosition: 0.5
-      ),
-      presetsSplit: SplitViewReducer.State(
-        panesVisible: .both,
-        initialPosition: 0.5
-      ),
-      delay: DelayFeature.State(),
-      reverb: ReverbFeature.State(),
-      keyboard: KeyboardFeature.State()
-    )) { RootApp() })
+    RootAppView(store: Store(initialState: .init()) { RootApp() })
   }
 
   var body: some Scene {
