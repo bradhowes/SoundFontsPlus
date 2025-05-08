@@ -37,11 +37,6 @@ public struct PresetsList {
       self.isSearchFieldPresented = searchText != nil
       self.searchText = searchText ?? ""
       self.sections = []
-//      self.sections = generatePresetSections(
-//        searchText: searchText ?? "",
-//        editing: false
-//      )
-      // self.soundFontId = nil
     }
 
     /**
@@ -70,6 +65,7 @@ public struct PresetsList {
     case stop
     case cancelSearchButtonTapped
     case visibilityEditMode(Bool)
+    case showActivePreset
   }
 
   public init() {}
@@ -110,6 +106,7 @@ public struct PresetsList {
       case .selectedSoundFontIdChanged(let soundFontId): return setSoundFont(&state, soundFontId: soundFontId)
       case .stop: return .cancel(id: pubisherCancelId)
       case .visibilityEditMode(let value): return setEditMode(&state, value: value)
+      case .showActivePreset: return showActivePreset(&state)
       }
     }
     .forEach(\.sections, action: \.sections) {
@@ -136,6 +133,13 @@ func generatePresetSections(searchText: String?, editing: Bool) -> IdentifiedArr
 }
 
 extension PresetsList {
+
+  private func showActivePreset(_ state: inout State) -> Effect<Action> {
+    @Shared(.activeState) var activeState
+    state.scrollToPresetId = nil
+    state.scrollToPresetId = activeState.activePresetId
+    return .none
+  }
 
   private func createPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
     return .none
@@ -216,7 +220,6 @@ extension PresetsList {
   }
 
   private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
-    // state.soundFontId = soundFontId
     state.editingVisibility = false
     @Dependency(\.defaultDatabase) var database
     @Shared(.activeState) var activeState
@@ -293,6 +296,7 @@ public struct PresetsListView: View {
     if let newValue {
       withAnimation {
         proxy.scrollTo(newValue, anchor: .top)
+        store.send(.clearScrollToPresetId)
       }
     } else {
       withAnimation {

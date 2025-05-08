@@ -67,9 +67,20 @@ public struct RootApp {
         let panes: SplitViewPanes = state.toolBar.tagsListVisible ? .both : .primary
         return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
 
-      case .toolBar(.delegate(.editingPresetVisibility)):
-        return reduce(into: &state, action: .presetsList(.visibilityEditMode(state.toolBar.editingPresetVisibility)))
-
+      case let .toolBar(.delegate(action)):
+        switch action {
+        case .editingPresetVisibility:
+          return reduce(into: &state, action: .presetsList(.visibilityEditMode(state.toolBar.editingPresetVisibility)))
+        case .addSoundFont:
+          return .none
+        case .presetNameTapped: return showActivePreset(&state)
+        case .lowerKeyButtonTapped:
+          return .none
+        case .upperKeyButtonTapped:
+          return .none
+        case .slidingKeyBoardButtonTapped:
+          return .none
+        }
       default:
         return .none
       }
@@ -78,6 +89,13 @@ public struct RootApp {
   }
 
   public init() {}
+
+  private func showActivePreset(_ state: inout State) -> Effect<Action> {
+    return .merge(
+      reduce(into: &state, action: .presetsList(.showActivePreset)),
+      reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
+    )
+  }
 }
 
 public struct RootAppView: View {

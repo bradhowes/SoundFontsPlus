@@ -20,6 +20,11 @@ public enum Operations {
     return "—"
   }
 
+  public static func preset(_ presetId: Preset.ID) -> Preset? {
+    @Dependency(\.defaultDatabase) var database
+    return try? database.read { try Preset.fetchOne($0, key: presetId) }
+  }
+
   public static func presets() -> [Preset] {
     guard let soundFontId = presetSource() else { return [] }
     @Dependency(\.defaultDatabase) var database

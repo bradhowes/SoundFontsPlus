@@ -35,7 +35,7 @@ public struct SoundFontsList {
     case importFiles(Result<[URL], Error>)
     case onAppear
     case rows(IdentifiedActionOf<SoundFontButton>)
-    case showTags
+    case showActiveSoundFont
   }
 
   public init() {}
@@ -51,11 +51,20 @@ public struct SoundFontsList {
       case .destination(.dismiss): return refresh(&state)
       case .destination: return .none
       case .onAppear: return monitorActiveTag(&state)
-      case .rows(.element(_, .delegate(.deleteSoundFont(let soundFont)))): return delete(&state, key: soundFont.id)
-      case .rows(.element(_, .delegate(.editSoundFont(let soundFont)))): return edit(&state, key: soundFont.id)
-      case .rows(.element(_, .delegate(.selectSoundFont(let soundFont)))): return select(soundFont.id)
+      case let .rows(.element(_, .delegate(action))):
+        switch action {
+        case let .deleteSoundFont(soundFont): return delete(&state, key: soundFont.id)
+        case let .editSoundFont(soundFont): return edit(&state, key: soundFont.id)
+        case let .selectSoundFont(soundFont): return select(soundFont.id)
+        }
       case .rows: return .none
-      case .showTags: return .none
+      case .showActiveSoundFont:
+        @Shared(.activeState) var activeState
+        if let activeSoundFontId = activeState.activeSoundFontId {
+          return select(activeSoundFontId)
+        } else {
+          return .none
+        }
       }
     }
     .forEach(\.rows, action: \.rows) {
@@ -183,33 +192,6 @@ public struct SoundFontsListView: View {
       item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
     ) { editorStore in
       SoundFontEditorView(store: editorStore)
-    }
-  }
-}
-
-public struct SoundFontsListNavView: View {
-  internal var store: StoreOf<SoundFontsList>
-
-  public init(store: StoreOf<SoundFontsList>) {
-    self.store = store
-  }
-
-  public var body: some View {
-    NavigationStack {
-      SoundFontsListView(store: store)
-        .navigationTitle("SoundFonts")
-        .toolbar {
-          Button {
-            store.send(.showTags)
-          } label: {
-            Image(systemName: "tag")
-          }
-          Button {
-            store.send(.addButtonTapped)
-          } label: {
-            Image(systemName: "plus")
-          }
-        }
     }
   }
 }

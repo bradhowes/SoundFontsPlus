@@ -36,10 +36,13 @@ public struct ToolBar {
     case settingsButtonTapped
     case helpButtonTapped
 
-    @CasePathable
     public enum Delegate: Equatable {
       case addSoundFont
       case editingPresetVisibility
+      case presetNameTapped
+      case lowerKeyButtonTapped
+      case upperKeyButtonTapped
+      case slidingKeyBoardButtonTapped
     }
   }
 
@@ -51,9 +54,9 @@ public struct ToolBar {
       case .effectsVisibilityButtonTapped: return toggleEffectsVisibility(&state)
       case .showMoreButtonTapped: return toggleShowMoreButtons(&state)
       case .tagVisibilityButtonTapped: return toggleTagsVisibility(&state)
-      case .lowerKeyButtonTapped: return .none
-      case .upperKeyButtonTapped: return .none
-      case .slidingKeyboardButtonTapped: return .none
+      case .lowerKeyButtonTapped: return .send(.delegate(.lowerKeyButtonTapped))
+      case .upperKeyButtonTapped: return .send(.delegate(.upperKeyButtonTapped))
+      case .slidingKeyboardButtonTapped: return .send(.delegate(.slidingKeyBoardButtonTapped))
       case .presetsVisibilityButtonTapped: return editPresetVisibility(&state)
       case .settingsButtonTapped: return showSettings(&state)
       case .helpButtonTapped: return showHelp(&state)
@@ -91,7 +94,6 @@ extension ToolBar {
 
   private func editPresetVisibility(_ state: inout State) -> Effect<Action> {
     state.editingPresetVisibility.toggle()
-    print("toolBar.editPresetVisibility:", state.editingPresetVisibility)
     return .send(.delegate(.editingPresetVisibility))
   }
 
@@ -116,62 +118,113 @@ public struct ToolBarView: View {
 
   public var body: some View {
     HStack(alignment: .center, spacing: 12) {
-      Button { store.send(.addSoundFontButtonTapped) } label: { Image(systemName: "plus.circle").imageScale(.large)}
-      Button {
-        store.send(.tagVisibilityButtonTapped)
-      } label: {
-        Image(systemName: "tag").imageScale(.large)
-          .tint(store.tagsListVisible ? Color.indigo : Color.blue)
-      }
-      Button {
-        store.send(.effectsVisibilityButtonTapped)
-      } label: {
-        Image(systemName: "waveform").imageScale(.large)
-          .tint(store.effectsVisible ? Color.indigo : Color.blue)
-      }
+      addSoundFontButton
+      toggleTagsButton
+      toggleEffectsButton
       ZStack {
-        HStack {
-          Spacer()
-          Text(Operations.activePresetName())
-            .font(auv3ControlsTheme.font)
-            .foregroundStyle(auv3ControlsTheme.textColor)
-          Spacer()
-        }.zIndex(0)
+        presetTitle
+          .zIndex(0)
         if store.showMoreButtons {
-          HStack {
-            Spacer()
-            Button { } label: { Text("❰" + store.lowestKey.label) }
-            Button { } label: { Text("➠") }
-            Button { } label: { Text(store.highestKey.label + "❱") }
-            Button { } label: { Image(systemName: "gear").imageScale(.large) }
-            Button {
-              store.send(.presetsVisibilityButtonTapped)
-            } label: {
-              Image(systemName: "list.bullet").imageScale(.large)
-                .tint(store.editingPresetVisibility ? Color.indigo : Color.blue)
-            }
-            Button { } label: { Image(systemName: "questionmark.circle").imageScale(.large) }
-          }
-          .background(.black)
-          .zIndex(1)
-          .transition(.move(edge: .trailing))
+          moreButtons
+            .zIndex(1)
+            .transition(.move(edge: .trailing))
         }
       }
-      HStack {
-        Button { store.send(.showMoreButtonTapped) } label: {
-          Image(systemName: "chevron.left").imageScale(.large)
-            .tint(store.showMoreButtons ? Color.indigo : Color.blue)
-        }
-        Color.black
-          .frame(width: 4)
-      }
-      .zIndex(2)
-      .background(.black)
+      toggleMoreButton
+        .zIndex(2)
     }
+    .background(Color.black)
     .padding(.init(top: 8, leading: 8, bottom: 8, trailing: 0))
     .frame(height: 40)
-    .background(Color.black)
     .animation(.smooth, value: store.showMoreButtons)
+  }
+
+  private var presetTitle: some View {
+    HStack {
+      Spacer()
+      Text(Operations.activePresetName())
+        .font(auv3ControlsTheme.font)
+        .foregroundStyle(auv3ControlsTheme.textColor)
+        .onTapGesture {
+          store.send(.delegate(.presetNameTapped))
+        }
+      Spacer()
+    }
+  }
+
+  private var addSoundFontButton: some View {
+    Button {
+      store.send(.addSoundFontButtonTapped)
+    } label: {
+      Image(systemName: "plus.circle").imageScale(.large)
+    }
+  }
+
+  private var toggleTagsButton: some View {
+    Button {
+      store.send(.tagVisibilityButtonTapped)
+    } label: {
+      Image(systemName: "tag").imageScale(.large)
+        .tint(store.tagsListVisible ? Color.indigo : Color.blue)
+    }
+  }
+
+  private var toggleEffectsButton: some View {
+    Button {
+      store.send(.effectsVisibilityButtonTapped)
+    } label: {
+      Image(systemName: "waveform").imageScale(.large)
+        .tint(store.effectsVisible ? Color.indigo : Color.blue)
+    }
+  }
+
+  private var toggleMoreButton: some View {
+    HStack {
+      Button { store.send(.showMoreButtonTapped) } label: {
+        Image(systemName: "chevron.left").imageScale(.large)
+          .tint(store.showMoreButtons ? Color.indigo : Color.blue)
+      }
+      Color.black
+        .frame(width: 4)
+    }.background(.black)
+  }
+
+  private var moreButtons: some View {
+    HStack {
+      Spacer()
+      Button {
+        store.send(.lowerKeyButtonTapped)
+      } label: {
+        Text("❰" + store.lowestKey.label)
+      }
+      Button {
+        store.send(.slidingKeyboardButtonTapped)
+      } label: {
+        Text("➠")
+      }
+      Button {
+        store.send(.upperKeyButtonTapped)
+      } label: {
+        Text(store.highestKey.label + "❱")
+      }
+      Button {
+        store.send(.settingsButtonTapped)
+      } label: {
+        Image(systemName: "gear").imageScale(.large)
+      }
+      Button {
+        store.send(.presetsVisibilityButtonTapped)
+      } label: {
+        Image(systemName: "list.bullet").imageScale(.large)
+          .tint(store.editingPresetVisibility ? Color.indigo : Color.blue)
+      }
+      Button {
+        store.send(.helpButtonTapped)
+      } label: {
+        Image(systemName: "questionmark.circle").imageScale(.large)
+      }
+    }
+    .background(.black)
   }
 }
 
