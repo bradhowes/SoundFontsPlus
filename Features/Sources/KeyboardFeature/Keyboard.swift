@@ -226,7 +226,7 @@ extension RandomAccessCollection where Element == CGRect {
 
   /**
    Obtain the index of the key in the collection that corresponds to the given position. Performs a binary search to
-   locate the best candidate.
+   quickly locate the best candidate.
 
    - parameter point: the location to consider
    - returns: index where to insert
@@ -258,7 +258,6 @@ extension RandomAccessCollection where Element == CGRect {
 
     // Point is in the region of a white key. Check if previous or next key is accented and has the point to handle the
     // overlap of the black keys on the white ones.
-
     let next = index(after: low)
     if next != endIndex && Note(midiNoteValue: key.midiNoteValue + 1).accented && self[next].contains(point) {
       return next

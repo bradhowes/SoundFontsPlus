@@ -43,6 +43,8 @@ public struct ToolBar {
       case lowerKeyButtonTapped
       case upperKeyButtonTapped
       case slidingKeyBoardButtonTapped
+      case effectsVisibilityChanged(Bool)
+      case tagsVisibilityChanged(Bool)
     }
   }
 
@@ -70,7 +72,8 @@ public struct ToolBar {
 extension ToolBar {
   private func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
     state.effectsVisible.toggle()
-    return hideMoreButtons(&state)
+    state.showMoreButtons = false
+    return .send(.delegate(.effectsVisibilityChanged(state.effectsVisible)))
   }
 
   private func toggleShowMoreButtons(_ state: inout State) -> Effect<Action> {
@@ -84,7 +87,8 @@ extension ToolBar {
 
   private func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
     state.tagsListVisible.toggle()
-    return hideMoreButtons(&state)
+    state.showMoreButtons = false
+    return .send(.delegate(.tagsVisibilityChanged(state.tagsListVisible)))
   }
 
   private func hideMoreButtons(_ state: inout State) -> Effect<Action> {

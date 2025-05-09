@@ -1,5 +1,5 @@
 {
-  "originHash" : "d6f61df43b219255dbac46898a6bdfff87ef9c4f4745eb48aec11d4eeb659acb",
+  "originHash" : "f1fadc75195403fcadc3cb6afbdbdb3d85e2f3c2b3d78f4d86e5dbb9e2280d74",
   "pins" : [
     {
       "identity" : "auv3support",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/brh-splitview",
       "state" : {
-        "revision" : "e9aa8101945b8cb0a99661de5a2689f627305f3c",
-        "version" : "1.0.3"
+        "revision" : "98a873c1c9489110a379c872823c835555cacbfe",
+        "version" : "1.0.4"
       }
     },
     {
@@ -177,8 +177,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-sharing",
       "state" : {
-        "revision" : "732871fabfc6b38fcdff5ad2f7336327dbf78e81",
-        "version" : "2.4.0"
+        "revision" : "8f8fef0279ed6e71a166cedc870dcd422bb24a6c",
+        "version" : "2.5.1"
       }
     },
     {
