@@ -3,7 +3,7 @@
 // import Foundation
 
 /// Definition of a MIDI note.
-public struct Note: CustomStringConvertible, Codable {
+public struct Note: CustomStringConvertible, Sendable {
 
   public static let sharpTag = "♯"
   public static let flatTag = "♭"
@@ -32,7 +32,7 @@ public struct Note: CustomStringConvertible, Codable {
   public var accented: Bool { Note.sharpIndices.contains(noteIndex) }
 
   /// Obtain a textual representation of the note
-  public var label: String { Note.noteLabels[noteIndex % 12] + "\(octave)" }
+  public var label: String { Note.noteLabels[noteIndex] + "\(octave)" }
 
   /// Obtain the solfege representation for this note
   public var solfege: String { Note.solfegeLabels[noteIndex] }
@@ -43,6 +43,10 @@ public struct Note: CustomStringConvertible, Codable {
   /// Custom string representation for a Note instance
   public var description: String { label }
 
+  public static let midiRange: ClosedRange<Int> = 0...127
+
+  public var isValidMidiValue: Bool { Self.midiRange.contains(midiNoteValue) }
+
   /**
    Create new Note instance.
 
@@ -52,8 +56,14 @@ public struct Note: CustomStringConvertible, Codable {
     self.midiNoteValue = midiNoteValue
     self.noteIndex = abs(midiNoteValue % 12)
   }
+}
 
-  public init?(_ tag: String) {
+extension Note: RawRepresentable {
+  public typealias RawValue = String
+
+  public var rawValue: String { description }
+
+  public init?(rawValue tag: String) {
     guard tag.count > 1 && tag.count < 5 else { return nil }
     let octave = tag.drop { !$0.isNumber }
     guard let octaveValue = Int(octave) else { return nil }

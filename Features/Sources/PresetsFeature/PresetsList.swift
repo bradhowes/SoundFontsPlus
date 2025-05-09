@@ -258,6 +258,8 @@ public struct PresetsListView: View {
           TextField("Search", text: $store.searchText.sending(\.searchTextChanged))
             .textFieldStyle(.roundedBorder)
             .focused($focusedField, equals: .searchText)
+            .autocorrectionDisabled()
+            .autocapitalization(.none)
             .transition(.slide)
             .bind($store.focusedField, to: $focusedField)
           Spacer()

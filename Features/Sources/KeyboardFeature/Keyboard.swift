@@ -10,19 +10,35 @@ import Utils
 public struct KeyboardFeature {
   public typealias Event = SpatialEventGesture.Value.Element
 
+  public enum KeyLabels: String, CaseIterable, Identifiable, Sendable {
+    case none = "None"
+    case cOnly = "C Only"
+    case all = "All"
+
+    public var id: Self { self }
+    public var cOnly: Bool { self == .cOnly }
+    public var all: Bool { self == .all }
+  }
+
   @ObservableState
   public struct State: Equatable {
-    public var active: [Bool] = .init(repeating: false, count: 128)
-
-    public init() {}
+    var active: [Bool] = .init(repeating: false, count: Note.midiRange.count)
+    @Shared(.lowestKey) var lowestKey
+    @Shared(.highestKey) var highestKey
   }
 
   public enum Action: Equatable {
     case allOff
     case assigned(previous: Note?, note: Note)
+    case delegate(Delegate)
     case noteOff(Note)
     case noteOn(Note)
     case released(note: Note)
+    case updatedVisibleKeys(lowest: Note, highest: Note)
+
+    public enum Delegate: Equatable {
+      case visibleKeyRangeChanged(lowest: Note, highest: Note)
+    }
   }
 
   public init() {}
@@ -39,6 +55,7 @@ public struct KeyboardFeature {
         }
         state.active[note.midiNoteValue] = true
         return .none
+      case .delegate: return .none
       case let .noteOff(note):
         state.active[note.midiNoteValue] = false
         return .none
@@ -48,6 +65,10 @@ public struct KeyboardFeature {
       case let .released(note):
         state.active[note.midiNoteValue] = false
         return .none
+      case let .updatedVisibleKeys(lowest, highest):
+        state.$lowestKey.withLock { $0 = lowest }
+        state.$highestKey.withLock { $0 = highest }
+        return .send(.delegate(.visibleKeyRangeChanged(lowest: lowest, highest: highest)))
       }
     }
   }
@@ -69,22 +90,23 @@ extension KeyboardFeature {
 public struct KeyboardView: View {
   typealias Event = SpatialEventGesture.Value.Element
 
+  @Shared(.keyWidth) var keyWidth
+  @Shared(.keyboardSlides) var keyboardSlides
+  @Shared(.keyLabels) var keyLabels
+
   @State private var store: StoreOf<KeyboardFeature>
 
   public let whiteNotes: [Note] = .init(WhiteKeySequenceGenerator().makeIterator())
   public let blackNotes: [Note] = .init(BlackKeySequenceGenerator().makeIterator())
 
   @State private var eventNoteMap = EventNoteMap()
-  @State private var frames: [CGRect] = Array(repeating: .zero, count: 128)
+  @State private var frames: [CGRect] = Array(repeating: .zero, count: Note.midiRange.count)
 
   @Environment(\.verticalSizeClass) private var verticalSizeClass
-  @Environment(\.keyboardKeyHeight) private var keyboardKeyHeight
-  @Environment(\.keyboardKeyWidth) private var keyboardKeyWidth
-  @Environment(\.keyboardKeyLabel) private var keyboardKeyLabel
-  @Environment(\.keyboardFixed) private var keyboardFixed
+  @Environment(\.keyboardHeight) private var keyboardHeight
 
   private var keyboardHeightScaling: Double { verticalSizeClass == .compact ? 0.5 : 1.0 }
-  private let whiteKeySpacing = 2.0
+  private let whiteKeySpacing: Double = 2.0
 
   public init(store: StoreOf<KeyboardFeature>) {
     self.store = store
@@ -93,15 +115,34 @@ public struct KeyboardView: View {
   public var body: some View {
     ScrollViewReader { proxy in
       ScrollView(.horizontal) {
-        if keyboardFixed {
-          fixedKeys
-        } else {
+        if keyboardSlides {
           scrollingKeys
+        } else {
+          fixedKeys
         }
-      }.onAppear {
+      }
+      .onAppear {
         proxy.scrollTo(60, anchor: .leading)
-      }.background(.black)
+      }
+      .background(.black)
+      .onScrollPhaseChange { _, newPhase, context in
+        if newPhase == .idle {
+          store.send(.updatedVisibleKeys(lowest: lowestNote(context.geometry), highest: highestNote(context.geometry)))
+        }
+      }
     }
+  }
+
+  private func lowestNote(_ geometry: ScrollGeometry) -> Note {
+    let numerator = geometry.contentOffset.x + whiteKeySpacing - 1
+    let denominator = geometry.contentSize.width
+    return whiteNotes[max(0, Int(numerator / denominator * Double(whiteNotes.count)))]
+  }
+
+  private func highestNote(_ geometry: ScrollGeometry) -> Note {
+    let numerator = geometry.contentOffset.x + geometry.bounds.width - 1
+    let denominator = geometry.contentSize.width
+    return whiteNotes[min(whiteNotes.count - 1, Int(numerator / denominator * Double(whiteNotes.count)))]
   }
 
   public var fixedKeys: some View {
@@ -151,14 +192,16 @@ public struct KeyboardView: View {
       .onGeometryChange(for: CGRect.self) {
         $0.frame(in: .global)
       } action: {
-        frames[note.midiNoteValue] = $0
+        if note.isValidMidiValue {
+          frames[note.midiNoteValue] = $0
+        }
       }
   }
 
   private var blackKeys: some View {
-    let blackKeyWidth: Double = keyboardKeyWidth * 0.75
+    let blackKeyWidth: Double = keyWidth * 0.75
     let offset = blackKeyWidth / 2.0
-    let spacing = keyboardKeyWidth + whiteKeySpacing - blackKeyWidth
+    let spacing = keyWidth + whiteKeySpacing - blackKeyWidth
     return HStack(alignment: .top, spacing: spacing) {
       Color(.clear)
         .frame(width: offset)
@@ -170,11 +213,11 @@ public struct KeyboardView: View {
 
   private func blackKey(note: Note) -> some View {
     key(note: note)
-      .opacity(note.midiNoteValue < 0 ? 0.0 : 1)
+      .opacity(note.isValidMidiValue ? 1.0 : 0.0)
       .onGeometryChange(for: CGRect.self) {
         $0.frame(in: .global)
       } action: {
-        if (note.midiNoteValue > 0) {
+        if note.isValidMidiValue {
           frames[note.midiNoteValue] = $0
         }
       }
@@ -182,8 +225,8 @@ public struct KeyboardView: View {
 
   private func key(note: Note) -> some View {
     let color: Color = note.accented ? .black : .white
-    let width: Double = note.accented ? keyboardKeyWidth * 0.75 : keyboardKeyWidth
-    let height: Double = (note.accented ? keyboardKeyHeight * 0.6 : keyboardKeyHeight) * keyboardHeightScaling
+    let width: Double = note.accented ? keyWidth * 0.75 : keyWidth
+    let height: Double = (note.accented ? keyboardHeight * 0.6 : keyboardHeight) * keyboardHeightScaling
     let cornerRadius: Double = 8
 
     return RoundedRectangle(cornerRadius: cornerRadius)
@@ -197,7 +240,7 @@ public struct KeyboardView: View {
   private func labeledKey(note: Note) -> some View {
     key(note: note)
       .overlay(alignment: .bottom) {
-        if (keyboardKeyLabel == .all && !note.accented) || (keyboardKeyLabel == .cOnly && note.noteIndex == 0) {
+        if (keyLabels.all && !note.accented) || (keyLabels.cOnly && note.noteIndex == 0) {
           Text(note.description)
             .foregroundStyle(.gray)
             .offset(y: -12)
@@ -209,7 +252,7 @@ public struct KeyboardView: View {
     let pos = frames.orderedInsertionIndex(for: event.location)
     guard pos < frames.endIndex else { return }
     let note = Note(midiNoteValue: frames.distance(from: frames.startIndex, to: pos))
-    let update = eventNoteMap.assign(event: event, note: note, fixedKeys: keyboardFixed)
+    let update = eventNoteMap.assign(event: event, note: note, fixedKeys: !keyboardSlides)
     if update.previous != nil || update.firstTime {
       store.send(.assigned(previous: update.previous, note: note))
     }
@@ -222,7 +265,7 @@ public struct KeyboardView: View {
   }
 }
 
-extension RandomAccessCollection where Element == CGRect {
+extension RandomAccessCollection where Element == CGRect, Index == Int {
 
   /**
    Obtain the index of the key in the collection that corresponds to the given position. Performs a binary search to
@@ -252,19 +295,19 @@ extension RandomAccessCollection where Element == CGRect {
     // Don't continue if outside of collection
     guard low < endIndex else { return endIndex }
 
-    // Don't continue if referencing an accented note -- we have what we want
+    // Don't continue if referencing an accented note -- there is no ambiguity and we have what we want
     let key = Note(midiNoteValue: distance(from: startIndex, to: low))
     guard !key.accented else { return low }
 
     // Point is in the region of a white key. Check if previous or next key is accented and has the point to handle the
     // overlap of the black keys on the white ones.
     let next = index(after: low)
-    if next != endIndex && Note(midiNoteValue: key.midiNoteValue + 1).accented && self[next].contains(point) {
+    if next != endIndex && Note(midiNoteValue: next).accented && self[next].contains(point) {
       return next
     }
 
     let prev = index(before: low)
-    if prev >= startIndex && Note(midiNoteValue: key.midiNoteValue - 1).accented && self[prev].contains(point) {
+    if prev >= startIndex && Note(midiNoteValue: prev).accented && self[prev].contains(point) {
       return prev
     }
 
@@ -273,33 +316,69 @@ extension RandomAccessCollection where Element == CGRect {
 }
 
 struct KeyboardPreview: View {
-  @State private var keyWidth: CGFloat = 64
-  @State private var fixed: Bool = false
-  @State private var labels: KeyboardKeyLabel = .cOnly
+  @Shared(.keyWidth) var keyWidth
+  @Shared(.keyboardSlides) var keyboardSlides
+  @Shared(.keyLabels) var keyLabels
+  @Shared(.lowestKey) var lowestKey
+  @Shared(.highestKey) var highestKey
 
   var body: some View {
     VStack {
       KeyboardView(store: Store(initialState: .init()) { KeyboardFeature() })
-        .keyboardKeyWidth(keyWidth.rounded())
-        .keyboardFixed(fixed)
-        .keyboardKeyLabel(labels)
         .animation(.smooth, value: keyWidth.rounded())
-      Slider(value: $keyWidth, in: 32...96)
+      Slider(
+        value: Binding<Double>(
+          get: { keyWidth },
+          set: { newValue in $keyWidth.withLock { $0 = newValue } }
+        ),
+        in: 32...96
+      )
       Text("Width: \(Int(keyWidth.rounded()))")
-      Toggle(isOn: $fixed) { Text("Fixed") }
+      Toggle(
+        isOn: Binding<Bool>(
+          get: { keyboardSlides },
+          set: { newValue in $keyboardSlides.withLock { $0 = newValue } }
+        )
+      ) { Text("Slides") }
       HStack {
         Text("Key Labels")
         Spacer()
-        Picker(selection: $labels) {
-          ForEach(KeyboardKeyLabel.allCases) { kind in
+        Picker(
+          selection: Binding<KeyboardFeature.KeyLabels>(
+            get: { keyLabels },
+            set: { newValue in $keyLabels.withLock { $0 = newValue } }
+          )
+        ) {
+          ForEach(KeyboardFeature.KeyLabels.allCases) { kind in
             Text(kind.rawValue)
           }
         } label: {
           Text("Labels")
         }
       }
+      HStack {
+        Text(lowestKey.label)
+        Text(highestKey.label)
+      }
     }
   }
+}
+
+extension SharedKey where Self == AppStorageKey<Bool>.Default {
+  public static var keyboardSlides: Self { Self[.appStorage("keyboardSlides"), default: false] }
+}
+
+extension SharedKey where Self == AppStorageKey<Double>.Default {
+  static var keyWidth: Self { Self[.appStorage("keyWidth"), default: 64.0] }
+}
+
+extension SharedKey where Self == AppStorageKey<KeyboardFeature.KeyLabels>.Default {
+  static var keyLabels: Self { Self[.appStorage("keyLabels"), default: .cOnly] }
+}
+
+extension SharedKey where Self == AppStorageKey<Note>.Default {
+  static var lowestKey: Self { Self[.appStorage("lowestKey"), default: Note(midiNoteValue: 60)] }
+  static var highestKey: Self { Self[.appStorage("highestKey"), default: Note(midiNoteValue: 61)] }
 }
 
 #Preview {

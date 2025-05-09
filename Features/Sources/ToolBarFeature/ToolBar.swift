@@ -13,14 +13,17 @@ public struct ToolBar {
 
   @ObservableState
   public struct State: Equatable {
-    public var lowestKey: Note = .init(midiNoteValue: 64)
+    public var lowestKey: Note = .init(midiNoteValue: 60)
+    public var keyboardSlides: Bool = false
     public var highestKey: Note = .init(midiNoteValue: 80)
     public var tagsListVisible: Bool = false
     public var effectsVisible: Bool = false
     public var editingPresetVisibility: Bool = false
     public var showMoreButtons: Bool = false
 
-    public init() {}
+    public init() {
+      
+    }
   }
 
   public enum Action: Equatable {
@@ -29,20 +32,20 @@ public struct ToolBar {
     case effectsVisibilityButtonTapped
     case showMoreButtonTapped
     case tagVisibilityButtonTapped
-    case lowerKeyButtonTapped
+    case lowestKeyButtonTapped
     case slidingKeyboardButtonTapped
-    case upperKeyButtonTapped
+    case highestKeyButtonTapped
     case presetsVisibilityButtonTapped
     case settingsButtonTapped
     case helpButtonTapped
+    case setVisibleKeyRange(lowest: Note, highest: Note)
 
     public enum Delegate: Equatable {
       case addSoundFont
       case editingPresetVisibility
       case presetNameTapped
-      case lowerKeyButtonTapped
-      case upperKeyButtonTapped
-      case slidingKeyBoardButtonTapped
+      case keyRangeChanged(lowest: Note, highest: Note)
+      case slidingKeyboardChanged(Bool)
       case effectsVisibilityChanged(Bool)
       case tagsVisibilityChanged(Bool)
     }
@@ -56,11 +59,16 @@ public struct ToolBar {
       case .effectsVisibilityButtonTapped: return toggleEffectsVisibility(&state)
       case .showMoreButtonTapped: return toggleShowMoreButtons(&state)
       case .tagVisibilityButtonTapped: return toggleTagsVisibility(&state)
-      case .lowerKeyButtonTapped: return .send(.delegate(.lowerKeyButtonTapped))
-      case .upperKeyButtonTapped: return .send(.delegate(.upperKeyButtonTapped))
-      case .slidingKeyboardButtonTapped: return .send(.delegate(.slidingKeyBoardButtonTapped))
+      case .lowestKeyButtonTapped: return lowestKeyButtonTapped(&state)
+      case .highestKeyButtonTapped: return highestKeyButtonTapped(&state)
+      case .slidingKeyboardButtonTapped: return slidingKeyboardButtonTapped(&state)
       case .presetsVisibilityButtonTapped: return editPresetVisibility(&state)
       case .settingsButtonTapped: return showSettings(&state)
+      case let .setVisibleKeyRange(lowest, highest):
+        print("setVisibleKeyRange: \(lowest), \(highest)")
+        state.lowestKey = lowest
+        state.highestKey = highest
+        return .none
       case .helpButtonTapped: return showHelp(&state)
       }
     }
@@ -83,6 +91,19 @@ extension ToolBar {
       return .send(.delegate(.editingPresetVisibility))
     }
     return .none
+  }
+
+  private func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.keyboardSlides.toggle()
+    return .send(.delegate(.slidingKeyboardChanged(state.keyboardSlides)))
+  }
+
+  private func lowestKeyButtonTapped(_ state: inout State) -> Effect<Action> {
+    return .send(.delegate(.keyRangeChanged(lowest: state.lowestKey, highest: state.highestKey)))
+  }
+
+  private func highestKeyButtonTapped(_ state: inout State) -> Effect<Action> {
+    return .send(.delegate(.keyRangeChanged(lowest: state.lowestKey, highest: state.highestKey)))
   }
 
   private func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
@@ -197,7 +218,7 @@ public struct ToolBarView: View {
     HStack {
       Spacer()
       Button {
-        store.send(.lowerKeyButtonTapped)
+        store.send(.lowestKeyButtonTapped)
       } label: {
         Text("❰" + store.lowestKey.label)
       }
@@ -207,7 +228,7 @@ public struct ToolBarView: View {
         Text("➠")
       }
       Button {
-        store.send(.upperKeyButtonTapped)
+        store.send(.highestKeyButtonTapped)
       } label: {
         Text(store.highestKey.label + "❱")
       }
