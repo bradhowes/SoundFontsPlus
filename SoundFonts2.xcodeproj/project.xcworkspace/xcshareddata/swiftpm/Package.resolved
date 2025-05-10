@@ -1,5 +1,5 @@
 {
-  "originHash" : "f1fadc75195403fcadc3cb6afbdbdb3d85e2f3c2b3d78f4d86e5dbb9e2280d74",
+  "originHash" : "f29c6986bb87e9493e009f61a09655b8dfa85582dfeee393fb56383746c13f5f",
   "pins" : [
     {
       "identity" : "auv3support",
@@ -177,8 +177,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-sharing",
       "state" : {
-        "revision" : "8f8fef0279ed6e71a166cedc870dcd422bb24a6c",
-        "version" : "2.5.1"
+        "revision" : "75e846ee3159dc75b3a29bfc24b6ce5a557ddca9",
+        "version" : "2.5.2"
       }
     },
     {

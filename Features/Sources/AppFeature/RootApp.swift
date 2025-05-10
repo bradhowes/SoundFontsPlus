@@ -103,9 +103,7 @@ public struct RootApp {
     case .editingPresetVisibility: return toggleEditingVisibility(&state)
     case .addSoundFont: return .none
     case .presetNameTapped: return showActivePreset(&state)
-    case let .keyRangeChanged(_, _): return .none
-    case let .slidingKeyboardChanged(_): return toggleSlidingKeyboard(&state)
-    case let .tagsVisibilityChanged(_): return .none
+    case .tagsVisibilityChanged: return .none
     case let .effectsVisibilityChanged(value):
       @Shared(.effectsVisible) var effectsVisible
       $effectsVisible.withLock { $0 = value }

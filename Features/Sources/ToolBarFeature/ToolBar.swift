@@ -2,6 +2,7 @@ import AUv3Controls
 import ComposableArchitecture
 import Dependencies
 import Extensions
+import KeyboardFeature
 import Models
 import Sharing
 import SwiftUI
@@ -22,7 +23,8 @@ public struct ToolBar {
     public var showMoreButtons: Bool = false
 
     public init() {
-      
+      @Shared(.keyboardSlides) var keyboardSlides
+      self.keyboardSlides = keyboardSlides
     }
   }
 
@@ -44,8 +46,6 @@ public struct ToolBar {
       case addSoundFont
       case editingPresetVisibility
       case presetNameTapped
-      case keyRangeChanged(lowest: Note, highest: Note)
-      case slidingKeyboardChanged(Bool)
       case effectsVisibilityChanged(Bool)
       case tagsVisibilityChanged(Bool)
     }
@@ -94,16 +94,20 @@ extension ToolBar {
   }
 
   private func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
+    @Shared(.keyboardSlides) var keyboardSlides
     state.keyboardSlides.toggle()
-    return .send(.delegate(.slidingKeyboardChanged(state.keyboardSlides)))
+    $keyboardSlides.withLock { $0 = state.keyboardSlides }
+    return .none
   }
 
   private func lowestKeyButtonTapped(_ state: inout State) -> Effect<Action> {
-    return .send(.delegate(.keyRangeChanged(lowest: state.lowestKey, highest: state.highestKey)))
+    // return .send(.delegate(.keyRangeChanged(lowest: state.lowestKey, highest: state.highestKey)))
+    return .none
   }
 
   private func highestKeyButtonTapped(_ state: inout State) -> Effect<Action> {
-    return .send(.delegate(.keyRangeChanged(lowest: state.lowestKey, highest: state.highestKey)))
+    // return .send(.delegate(.keyRangeChanged(lowest: state.lowestKey, highest: state.highestKey)))
+    return .none
   }
 
   private func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
@@ -225,7 +229,7 @@ public struct ToolBarView: View {
       Button {
         store.send(.slidingKeyboardButtonTapped)
       } label: {
-        Text("➠")
+        Image(systemName: store.keyboardSlides ? "arrow.left.and.right.circle.fill" : "arrow.left.and.right" )
       }
       Button {
         store.send(.highestKeyButtonTapped)

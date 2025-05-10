@@ -63,7 +63,6 @@ let package = Package(
       dependencies: [
         .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
-        .targetItem(name: "ToolBarFeature", condition: .none),
         .targetItem(name: "Utils", condition: .none),
         .product(name: "Algorithms", package: "swift-algorithms"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
@@ -76,7 +75,6 @@ let package = Package(
         .targetItem(name: "DelayFeature", condition: .none),
         .targetItem(name: "EffectsFeature", condition: .none),
         .targetItem(name: "Extensions", condition: .none),
-        .targetItem(name: "KeyboardFeature", condition: .none),
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "PresetsFeature", condition: .none),
         .targetItem(name: "ReverbFeature", condition: .none),
@@ -172,13 +170,12 @@ let package = Package(
       name: "ToolBarFeature",
       dependencies: [
         .targetItem(name: "Extensions", condition: .none),
-        .targetItem(name: "Models", condition: .none),
-        .targetItem(name: "SF2ResourceFiles", condition: .none),
+        .targetItem(name: "KeyboardFeature", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
         .targetItem(name: "Utils", condition: .none),
-        .product(name: "AUv3Controls", package: "AUV3Controls"),
+        .product(name: "Algorithms", package: "swift-algorithms"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "Dependencies", package: "swift-dependencies")
       ]
     ),
     .target(
