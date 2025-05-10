@@ -282,6 +282,12 @@ let package = Package(
         "SF2ResourceFiles",
         .product(name: "Engine", package: "SF2Lib", condition: .none)
       ]
+    ),
+    .testTarget(
+      name: "UtilsTests",
+      dependencies: [
+        "Utils"
+      ]
     )
   ]
 )

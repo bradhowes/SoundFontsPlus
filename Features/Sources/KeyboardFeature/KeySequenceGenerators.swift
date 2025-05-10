@@ -24,9 +24,11 @@ public struct WhiteKeySequenceGenerator: Sequence, IteratorProtocol {
   }
 }
 
-/// Generate a sequence of MIDI values for the black keys. Generates up to MIDI note 127.
-/// NOTE: generates "phantom" MIDI keys that are negative which are used by the SwifUI code to
-/// draw an invisible key at E# and B#.
+/**
+ Generate a sequence of MIDI values for the black keys. Generates up to MIDI note 127.
+ NOTE: generates "phantom" MIDI keys that used by the Keyboard code to draw an invisible key at E# and B#.
+ Consumers of this Note sequence must account for these in the stream.
+ */
 public struct BlackKeySequenceGenerator: Sequence, IteratorProtocol {
   // Number of note steps to move to the next accented note
   private var deltas = [2, 3, 0, 2, 2, 3, 0].cycled().makeIterator()
@@ -37,7 +39,7 @@ public struct BlackKeySequenceGenerator: Sequence, IteratorProtocol {
   public mutating func next() -> Note? {
     guard nextMidiNote <= Note.midiRange.upperBound else { return nil }
     let delta = deltas.next()!
-    let note = Note(midiNoteValue: delta > 0 ? nextMidiNote : Note.midiRange.upperBound + 1)
+    let note = delta > 0 ? Note(midiNoteValue: nextMidiNote) : Note.phantomNote
     nextMidiNote += delta
     return note
   }

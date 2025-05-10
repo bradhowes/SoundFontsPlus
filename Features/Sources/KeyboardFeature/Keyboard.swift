@@ -25,6 +25,7 @@ public struct KeyboardFeature {
     var active: [Bool] = .init(repeating: false, count: Note.midiRange.count)
     @Shared(.lowestKey) var lowestKey
     @Shared(.highestKey) var highestKey
+    public init() {}
   }
 
   public enum Action: Equatable {
@@ -127,22 +128,34 @@ public struct KeyboardView: View {
       .background(.black)
       .onScrollPhaseChange { _, newPhase, context in
         if newPhase == .idle {
-          store.send(.updatedVisibleKeys(lowest: lowestNote(context.geometry), highest: highestNote(context.geometry)))
+          store.send(
+            .updatedVisibleKeys(
+              lowest: lowestNote(context.geometry),
+              highest: highestNote(context.geometry)
+            )
+          )
         }
       }
     }
   }
 
   private func lowestNote(_ geometry: ScrollGeometry) -> Note {
+    // This is not exactly right since the last key does not have `whiteKeySpacing` but it is good enough for the
+    // lowest note calculation.
     let numerator = geometry.contentOffset.x + whiteKeySpacing - 1
     let denominator = geometry.contentSize.width
-    return whiteNotes[max(0, Int(numerator / denominator * Double(whiteNotes.count)))]
+    let position = numerator / denominator * Double(whiteNotes.count)
+    let index = max(0, Int(position.fraction > 0.8 ? position + 1 : position))
+    return whiteNotes[index]
   }
 
   private func highestNote(_ geometry: ScrollGeometry) -> Note {
+    // Use the right (trailing) side of the scroll view to determine what key is visible.
     let numerator = geometry.contentOffset.x + geometry.bounds.width - 1
     let denominator = geometry.contentSize.width
-    return whiteNotes[min(whiteNotes.count - 1, Int(numerator / denominator * Double(whiteNotes.count)))]
+    let position = numerator / denominator * Double(whiteNotes.count)
+    let index = min(whiteNotes.count - 1, Int(position.fraction < 0.2 ? position - 1 : position))
+    return whiteNotes[index]
   }
 
   public var fixedKeys: some View {
@@ -192,7 +205,7 @@ public struct KeyboardView: View {
       .onGeometryChange(for: CGRect.self) {
         $0.frame(in: .global)
       } action: {
-        if note.isValidMidiValue {
+        if note.isValidMidiNote {
           frames[note.midiNoteValue] = $0
         }
       }
@@ -213,11 +226,11 @@ public struct KeyboardView: View {
 
   private func blackKey(note: Note) -> some View {
     key(note: note)
-      .opacity(note.isValidMidiValue ? 1.0 : 0.0)
+      .opacity(note.isValidMidiNote ? 1.0 : 0.0)
       .onGeometryChange(for: CGRect.self) {
         $0.frame(in: .global)
       } action: {
-        if note.isValidMidiValue {
+        if note.isValidMidiNote {
           frames[note.midiNoteValue] = $0
         }
       }
@@ -362,6 +375,11 @@ struct KeyboardPreview: View {
       }
     }
   }
+}
+
+extension FloatingPoint {
+  var whole: Self { modf(self).0 }
+  var fraction: Self { modf(self).1 }
 }
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
