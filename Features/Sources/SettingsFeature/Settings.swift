@@ -83,23 +83,26 @@ public struct SettingsFeature {
 
 public struct SettingsView: View {
   @State private var store: StoreOf<SettingsFeature>
-
+  @State private var changingKeyWidth: Bool = false
   public init(store: StoreOf<SettingsFeature>) {
     self.store = store
   }
 
   public var body: some View {
-    Form {
-      keyboardSection
-      midiSection
-      tuningSection
-    }
-    .formStyle(.grouped)
-    .navigationTitle("Settings")
-    .toolbar {
-      ToolbarItem(placement: .confirmationAction) {
-        Button("Dismiss") { store.send(.dismissButtonTapped, animation: .default) }
+    NavigationStack {
+      Form {
+        keyboardSection
+        midiSection
+        tuningSection
       }
+      .formStyle(.grouped)
+      .navigationTitle("Settings")
+      .toolbar {
+        ToolbarItem(placement: .confirmationAction) {
+          Button("Dismiss") { store.send(.dismissButtonTapped, animation: .default) }
+        }
+      }
+      .animation(.smooth, value: changingKeyWidth)
     }
   }
 
@@ -122,15 +125,20 @@ public struct SettingsView: View {
       Toggle(isOn: $store.showSolfegeTags) {
         Text("Solfège tags")
       }
+      Toggle(isOn: $store.keyboardSlides) {
+        Text("Keyboard slides with touch")
+      }
       VStack {
         Text("Key Width")
-        Slider(value: $store.keyWidth,
-               in: 32...96,
-               step: 1
-        )
+        Slider(value: $store.keyWidth, in: 32...96, step: 1) {
+          Text("Key Width")
+        } onEditingChanged: { editing in
+          changingKeyWidth = editing
+        }
       }
-      Toggle(isOn: $store.keyboardSlides) {
-        Text("Slide keyboard with touch")
+      if changingKeyWidth {
+        KeyboardView(store: Store(initialState: .init(demo: true)) { KeyboardFeature() })
+          .transition(.opacity)
       }
     }
   }

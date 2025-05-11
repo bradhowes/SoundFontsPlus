@@ -15,7 +15,11 @@ public struct KeyboardFeature {
     var active: [Bool] = .init(repeating: false, count: Note.midiRange.count)
     @Shared(.lowestKey) var lowestKey
     @Shared(.highestKey) var highestKey
-    public init() {}
+    let demo: Bool
+
+    public init(demo: Bool = false) {
+      self.demo = demo
+    }
   }
 
   public enum Action: Equatable {
@@ -113,11 +117,12 @@ public struct KeyboardView: View {
         }
       }
       .onAppear {
-        proxy.scrollTo(60, anchor: .leading)
+        proxy.scrollTo(store.demo ? 0 : 60, anchor: .leading)
       }
       .background(.black)
       .onScrollPhaseChange { _, newPhase, context in
         if newPhase == .idle {
+          print("hi")
           store.send(
             .updatedVisibleKeys(
               lowest: lowestNote(context.geometry),

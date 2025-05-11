@@ -180,11 +180,14 @@ public struct ToolBarView: View {
     .padding(.init(top: 8, leading: 8, bottom: 8, trailing: 0))
     .frame(height: 40)
     .animation(.smooth, value: store.showMoreButtons)
-    .sheet(item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { settings in
-      NavigationStack {
-        SettingsView(store: settings)
+    .popover(
+      item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { store in
+        SettingsView(store: store)
       }
-    }
+//    .sheet(item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { settings in
+//      NavigationStack {
+//        SettingsView(store: settings)
+//      }
   }
 
   private var presetTitle: some View {
