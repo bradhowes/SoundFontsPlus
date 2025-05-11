@@ -4,7 +4,7 @@ import GRDB
 
 enum V1 {
   static let version = "SchemaV1"
-  static let tables: [TableCreator.Type] = [
+  static let tables: [any TableCreator.Type] = [
     // NOTE: order is important for GRDB - tables that are pointed to in `belongsTo` (eg. SoundFont) need to appear
     // before the table(s) that contain(s) `belongsTo` statements (eg. Preset).
     SoundFont.self,

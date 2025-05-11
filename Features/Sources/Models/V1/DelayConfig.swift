@@ -53,7 +53,7 @@ extension DelayConfig: Equatable, Sendable {}
 
 extension DelayConfig: TableCreator {
 
-  enum Columns {
+  public enum Columns {
     static let id = Column(CodingKeys.id)
     static let time = Column(CodingKeys.time)
     static let feedback = Column(CodingKeys.feedback)

@@ -178,7 +178,8 @@ private struct PendingSoundFont: Codable, PersistableRecord {
 extension SoundFont: Equatable, Sendable {}
 
 extension SoundFont: TableCreator {
-  enum Columns {
+
+  public enum Columns {
     static let id = Column(CodingKeys.id)
     static let displayName = Column(CodingKeys.displayName)
     static let kind = Column(CodingKeys.kind)

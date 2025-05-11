@@ -44,7 +44,8 @@ private struct PendingReverbConfig: Codable, PersistableRecord {
 extension ReverbConfig: Equatable, Sendable {}
 
 extension ReverbConfig: TableCreator {
-  enum Columns {
+
+  public enum Columns {
     static let id = Column(CodingKeys.id)
     static let preset = Column(CodingKeys.preset)
     static let wetDryMix = Column(CodingKeys.wetDryMix)

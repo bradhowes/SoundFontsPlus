@@ -136,7 +136,6 @@ extension PresetsList {
 
   private func showActivePreset(_ state: inout State) -> Effect<Action> {
     @Shared(.activeState) var activeState
-    state.scrollToPresetId = nil
     state.scrollToPresetId = activeState.activePresetId
     return .none
   }
@@ -297,7 +296,7 @@ public struct PresetsListView: View {
   private func doScrollTo(proxy: ScrollViewProxy, oldValue: Optional<Preset.ID>, newValue: Optional<Preset.ID>) {
     if let newValue {
       withAnimation {
-        proxy.scrollTo(newValue, anchor: .top)
+        proxy.scrollTo(newValue)
         store.send(.clearScrollToPresetId)
       }
     } else {

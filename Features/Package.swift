@@ -17,8 +17,10 @@ let package = Package(
     .library(name: "SF2ResourceFiles", targets: ["SF2ResourceFiles"]),
     .library(name: "SoundFontsFeature", targets: ["SoundFontsFeature"]),
     .library(name: "SwiftUISupport", targets: ["SwiftUISupport"]),
+    .library(name: "SettingsFeature", targets: ["SettingsFeature"]),
     .library(name: "TagsFeature", targets: ["TagsFeature"]),
     .library(name: "ToolBarFeature", targets: ["ToolBarFeature"]),
+    .library(name: "TuningFeature", targets: ["TuningFeature"]),
     .library(name: "Utils", targets: ["Utils"])
   ],
   dependencies: [
@@ -39,9 +41,44 @@ let package = Package(
   ],
   targets: [
     .target(
+      name: "Utils",
+      dependencies: [
+        .product(name: "Sharing", package: "swift-sharing", condition: .none),
+      ]
+    ),
+    .target(
       name: "SoundFonts2Lib",
       dependencies: [
         .product(name: "Engine", package: "SF2Lib"),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies")
+      ]
+    ),
+    .target(
+      name: "TuningFeature",
+      dependencies: [
+        .targetItem(name: "Utils", condition: .none),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies")
+      ]
+    ),
+    .target(
+      name: "KeyboardFeature",
+      dependencies: [
+        .targetItem(name: "Extensions", condition: .none),
+        .targetItem(name: "SwiftUISupport", condition: .none),
+        .targetItem(name: "Utils", condition: .none),
+        .product(name: "Algorithms", package: "swift-algorithms"),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Dependencies", package: "swift-dependencies")
+      ]
+    ),
+    .target(
+      name: "SettingsFeature",
+      dependencies: [
+        .targetItem(name: "Utils", condition: .none),
+        .targetItem(name: "KeyboardFeature", condition: .none),
+        .targetItem(name: "TuningFeature", condition: .none),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies")
       ]
@@ -59,17 +96,6 @@ let package = Package(
       ]
     ),
     .target(
-      name: "KeyboardFeature",
-      dependencies: [
-        .targetItem(name: "Extensions", condition: .none),
-        .targetItem(name: "SwiftUISupport", condition: .none),
-        .targetItem(name: "Utils", condition: .none),
-        .product(name: "Algorithms", package: "swift-algorithms"),
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Dependencies", package: "swift-dependencies")
-      ]
-    ),
-    .target(
       name: "AppFeature",
       dependencies: [
         .targetItem(name: "DelayFeature", condition: .none),
@@ -78,6 +104,7 @@ let package = Package(
         .targetItem(name: "Models", condition: .none),
         .targetItem(name: "PresetsFeature", condition: .none),
         .targetItem(name: "ReverbFeature", condition: .none),
+        .targetItem(name: "SettingsFeature", condition: .none),
         .targetItem(name: "SF2ResourceFiles", condition: .none),
         .targetItem(name: "SoundFontsFeature", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
@@ -148,11 +175,6 @@ let package = Package(
       ]
     ),
     .target(
-      name: "Utils",
-      dependencies: [
-      ]
-    ),
-    .target(
       name: "PresetsFeature",
       dependencies: [
         .targetItem(name: "Extensions", condition: .none),
@@ -171,6 +193,7 @@ let package = Package(
       dependencies: [
         .targetItem(name: "Extensions", condition: .none),
         .targetItem(name: "KeyboardFeature", condition: .none),
+        .targetItem(name: "SettingsFeature", condition: .none),
         .targetItem(name: "SwiftUISupport", condition: .none),
         .targetItem(name: "Utils", condition: .none),
         .product(name: "Algorithms", package: "swift-algorithms"),

@@ -10,16 +10,6 @@ import Utils
 public struct KeyboardFeature {
   public typealias Event = SpatialEventGesture.Value.Element
 
-  public enum KeyLabels: String, CaseIterable, Identifiable, Sendable {
-    case none = "None"
-    case cOnly = "C Only"
-    case all = "All"
-
-    public var id: Self { self }
-    public var cOnly: Bool { self == .cOnly }
-    public var all: Bool { self == .all }
-  }
-
   @ObservableState
   public struct State: Equatable {
     var active: [Bool] = .init(repeating: false, count: Note.midiRange.count)
@@ -357,12 +347,12 @@ struct KeyboardPreview: View {
         Text("Key Labels")
         Spacer()
         Picker(
-          selection: Binding<KeyboardFeature.KeyLabels>(
+          selection: Binding<KeyLabels>(
             get: { keyLabels },
             set: { newValue in $keyLabels.withLock { $0 = newValue } }
           )
         ) {
-          ForEach(KeyboardFeature.KeyLabels.allCases) { kind in
+          ForEach(KeyLabels.allCases) { kind in
             Text(kind.rawValue)
           }
         } label: {
@@ -380,23 +370,6 @@ struct KeyboardPreview: View {
 extension FloatingPoint {
   var whole: Self { modf(self).0 }
   var fraction: Self { modf(self).1 }
-}
-
-extension SharedKey where Self == AppStorageKey<Bool>.Default {
-  public static var keyboardSlides: Self { Self[.appStorage("keyboardSlides"), default: false] }
-}
-
-extension SharedKey where Self == AppStorageKey<Double>.Default {
-  static var keyWidth: Self { Self[.appStorage("keyWidth"), default: 64.0] }
-}
-
-extension SharedKey where Self == AppStorageKey<KeyboardFeature.KeyLabels>.Default {
-  static var keyLabels: Self { Self[.appStorage("keyLabels"), default: .cOnly] }
-}
-
-extension SharedKey where Self == AppStorageKey<Note>.Default {
-  static var lowestKey: Self { Self[.appStorage("lowestKey"), default: Note(midiNoteValue: 60)] }
-  static var highestKey: Self { Self[.appStorage("highestKey"), default: Note(midiNoteValue: 61)] }
 }
 
 #Preview {

@@ -9,7 +9,7 @@ public struct TaggedSoundFont: Codable, FetchableRecord, MutablePersistableRecor
   public let soundFontId: SoundFont.ID
   public let tagId: Tag.ID
 
-  enum Columns {
+  public enum Columns {
     static let soundFontId = Column(CodingKeys.soundFontId)
     static let tagId = Column(CodingKeys.tagId)
   }

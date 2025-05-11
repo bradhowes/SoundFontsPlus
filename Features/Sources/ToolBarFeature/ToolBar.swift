@@ -4,6 +4,7 @@ import Dependencies
 import Extensions
 import KeyboardFeature
 import Models
+import SettingsFeature
 import Sharing
 import SwiftUI
 import SwiftUISupport
@@ -12,8 +13,15 @@ import Utils
 @Reducer
 public struct ToolBar {
 
+  @Reducer(state: .equatable, .sendable, action: .equatable)
+  public enum Destination {
+    case settings(SettingsFeature)
+  }
+
   @ObservableState
   public struct State: Equatable {
+    @Presents var destination: Destination.State?
+
     public var lowestKey: Note = .init(midiNoteValue: 60)
     public var keyboardSlides: Bool = false
     public var highestKey: Note = .init(midiNoteValue: 80)
@@ -22,15 +30,18 @@ public struct ToolBar {
     public var editingPresetVisibility: Bool = false
     public var showMoreButtons: Bool = false
 
-    public init() {
+    public init(tagsListVisible: Bool, effectsVisible: Bool) {
       @Shared(.keyboardSlides) var keyboardSlides
       self.keyboardSlides = keyboardSlides
+      self.tagsListVisible = tagsListVisible
+      self.effectsVisible = effectsVisible
     }
   }
 
   public enum Action: Equatable {
     case addSoundFontButtonTapped
     case delegate(Delegate)
+    case destination(PresentationAction<Destination.Action>)
     case effectsVisibilityButtonTapped
     case showMoreButtonTapped
     case tagVisibilityButtonTapped
@@ -56,6 +67,8 @@ public struct ToolBar {
       switch action {
       case .addSoundFontButtonTapped: return .send(.delegate(.addSoundFont))
       case .delegate: return .none
+      case .destination(.dismiss): return .none
+      case .destination: return .none
       case .effectsVisibilityButtonTapped: return toggleEffectsVisibility(&state)
       case .showMoreButtonTapped: return toggleShowMoreButtons(&state)
       case .tagVisibilityButtonTapped: return toggleTagsVisibility(&state)
@@ -71,7 +84,7 @@ public struct ToolBar {
         return .none
       case .helpButtonTapped: return showHelp(&state)
       }
-    }
+    }.ifLet(\.$destination, action: \.destination)
   }
 
   public init() {}
@@ -127,6 +140,7 @@ extension ToolBar {
   }
 
   private func showSettings(_ state: inout State) -> Effect<Action> {
+    state.destination = .settings(SettingsFeature.State())
     return hideMoreButtons(&state)
   }
 
@@ -166,6 +180,11 @@ public struct ToolBarView: View {
     .padding(.init(top: 8, leading: 8, bottom: 8, trailing: 0))
     .frame(height: 40)
     .animation(.smooth, value: store.showMoreButtons)
+    .sheet(item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { settings in
+      NavigationStack {
+        SettingsView(store: settings)
+      }
+    }
   }
 
   private var presetTitle: some View {
@@ -230,6 +249,7 @@ public struct ToolBarView: View {
         store.send(.slidingKeyboardButtonTapped)
       } label: {
         Image(systemName: store.keyboardSlides ? "arrow.left.and.right.circle.fill" : "arrow.left.and.right" )
+          .tint(store.keyboardSlides ? Color.indigo : Color.blue)
       }
       Button {
         store.send(.highestKeyButtonTapped)
@@ -263,7 +283,7 @@ extension ToolBarView {
       $0.defaultDatabase = try! .appDatabase()
     }
     @Dependency(\.defaultDatabase) var db
-    return ToolBarView(store: Store(initialState: .init()) { ToolBar() })
+    return ToolBarView(store: Store(initialState: .init(tagsListVisible: false, effectsVisible: false)) { ToolBar() })
   }
 }
 

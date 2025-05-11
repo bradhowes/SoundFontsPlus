@@ -16,6 +16,9 @@
  */
 public struct Note: CustomStringConvertible, Sendable {
 
+  public static let C4 = Note(midiNoteValue: 60)
+  public static let A4 = Note(midiNoteValue: 69)
+
   public static let sharpTag = "♯"
   public static let flatTag = "♭"
 
@@ -121,6 +124,13 @@ extension Note {
   public static let phantomNote: Note = .init(rawValue: 12800)
 
   public var isPhantomNote: Bool { self.midiNoteValue == Note.phantomNote.midiNoteValue }
+}
+
+extension Note {
+
+  public func offset(_ semitones: Int) -> Note {
+    return Note(midiNoteValue: self.midiNoteValue + semitones)
+  }
 }
 
 extension Note: RawRepresentable {

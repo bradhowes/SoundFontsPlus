@@ -99,7 +99,8 @@ private struct PendingPreset: Codable, PersistableRecord {
 extension Preset: Equatable, Sendable {}
 
 extension Preset: TableCreator {
-  enum Columns {
+
+  public enum Columns {
     static let id = Column(CodingKeys.id)
     static let displayName = Column(CodingKeys.displayName)
     static let index = Column(CodingKeys.index)

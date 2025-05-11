@@ -93,7 +93,7 @@ private extension TagsEditor {
 
   func finalizeDeleteTag(_ state: inout State, indices: IndexSet) -> Effect<Action> {
     if let tagId = indices.first,
-       let row = state.rows.first(where: { $0.id.rawValue == tagId }) {
+       let _ = state.rows.first(where: { $0.id.rawValue == tagId }) {
       let newRows = state.rows.filter { $0.id.rawValue != tagId }
       state.rows = newRows
       _ = Operations.deleteTag(Tag.ID(rawValue: Int64(tagId)))

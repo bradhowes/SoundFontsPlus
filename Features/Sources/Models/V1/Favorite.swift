@@ -40,7 +40,8 @@ private struct PendingFavorite: Codable, PersistableRecord {
 extension Favorite: Equatable, Sendable {}
 
 extension Favorite: TableCreator {
-  enum Columns {
+
+  public enum Columns {
     static let id = Column(CodingKeys.id)
     static let displayName = Column(CodingKeys.displayName)
     static let notes = Column(CodingKeys.notes)

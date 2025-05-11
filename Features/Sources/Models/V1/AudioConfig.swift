@@ -84,7 +84,8 @@ private struct PendingAudioConfig: Codable, PersistableRecord {
 extension AudioConfig: Equatable, Sendable {}
 
 extension AudioConfig: TableCreator {
-  enum Columns {
+
+  public enum Columns {
     static let id = Column(CodingKeys.id)
     static let gain = Column(CodingKeys.gain)
     static let pan = Column(CodingKeys.pan)

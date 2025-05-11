@@ -7,21 +7,29 @@ import KeyboardFeature
 import Models
 import PresetsFeature
 import ReverbFeature
+import SettingsFeature
 import Sharing
 import SoundFontsFeature
 import SwiftUI
 import TagsFeature
 import ToolBarFeature
+import Utils
 
 @Reducer
 public struct RootApp {
 
+  @Reducer(state: .equatable, .sendable, action: .equatable)
+  public enum Destination {
+    case settings(SettingsFeature)
+  }
+
   @ObservableState
   public struct State: Equatable {
+    @Presents var destination: Destination.State?
     public var soundFontsList: SoundFontsList.State = .init()
     public var presetsList: PresetsList.State = .init()
     public var tagsList: TagsList.State = .init()
-    public var toolBar: ToolBar.State = .init()
+    public var toolBar: ToolBar.State
     public var tagsSplit: SplitViewReducer.State
     public var presetsSplit: SplitViewReducer.State
     public var delay: DelayFeature.State = .init()
@@ -32,13 +40,12 @@ public struct RootApp {
       @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsPosition
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsPosition
       @Shared(.tagsListVisible) var tagsListVisible
-      
+
       self.tagsSplit = .init(panesVisible: tagsListVisible ? .both : .primary, initialPosition: fontsAndTagsPosition)
       self.presetsSplit = .init(panesVisible: .both, initialPosition: fontsAndPresetsPosition)
 
       @Shared(.effectsVisible) var effectsVisible
-      toolBar.tagsListVisible = tagsListVisible
-      toolBar.effectsVisible = effectsVisible
+      self.toolBar = ToolBar.State(tagsListVisible: tagsListVisible, effectsVisible: effectsVisible)
     }
   }
 

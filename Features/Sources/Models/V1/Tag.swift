@@ -126,7 +126,8 @@ private struct PendingTag: Codable, PersistableRecord {
 extension Tag: Equatable, Hashable, Sendable {}
 
 extension Tag: TableCreator {
-  enum Columns {
+
+  public enum Columns {
     static let id = Column(CodingKeys.id)
     static let name = Column(CodingKeys.name)
     static let ordering = Column(CodingKeys.ordering)
