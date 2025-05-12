@@ -40,11 +40,11 @@ public struct RootApp {
       @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsPosition
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsPosition
       @Shared(.tagsListVisible) var tagsListVisible
+      @Shared(.effectsVisible) var effectsVisible
 
       self.tagsSplit = .init(panesVisible: tagsListVisible ? .both : .primary, initialPosition: fontsAndTagsPosition)
       self.presetsSplit = .init(panesVisible: .both, initialPosition: fontsAndPresetsPosition)
-
-      self.toolBar = ToolBar.State()
+      self.toolBar = ToolBar.State(tagsListVisible: tagsListVisible, effectsVisible: effectsVisible)
     }
   }
 

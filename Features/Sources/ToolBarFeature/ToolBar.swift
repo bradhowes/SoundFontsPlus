@@ -43,20 +43,20 @@ public struct ToolBar {
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case effectsVisibilityButtonTapped
-    case showMoreButtonTapped
-    case tagVisibilityButtonTapped
-    case lowestKeyButtonTapped
-    case slidingKeyboardButtonTapped
+    case helpButtonTapped
     case highestKeyButtonTapped
+    case lowestKeyButtonTapped
     case presetsVisibilityButtonTapped
     case settingsButtonTapped
-    case helpButtonTapped
+    case showMoreButtonTapped
+    case slidingKeyboardButtonTapped
+    case tagVisibilityButtonTapped
 
     public enum Delegate: Equatable {
       case addSoundFont
       case editingPresetVisibility(Bool)
-      case presetNameTapped
       case effectsVisibilityChanged(Bool)
+      case presetNameTapped
       case tagsVisibilityChanged(Bool)
     }
   }
@@ -69,19 +69,14 @@ public struct ToolBar {
       case .destination(.dismiss): return .none
       case .destination: return .none
       case .effectsVisibilityButtonTapped: return toggleEffectsVisibility(&state)
-      case .showMoreButtonTapped: return toggleShowMoreButtons(&state)
-      case .tagVisibilityButtonTapped: return toggleTagsVisibility(&state)
-      case .lowestKeyButtonTapped: return lowestKeyButtonTapped(&state)
+      case .helpButtonTapped: return showHelp(&state)
       case .highestKeyButtonTapped: return highestKeyButtonTapped(&state)
-      case .slidingKeyboardButtonTapped: return slidingKeyboardButtonTapped(&state)
+      case .lowestKeyButtonTapped: return lowestKeyButtonTapped(&state)
       case .presetsVisibilityButtonTapped: return editPresetVisibility(&state)
       case .settingsButtonTapped: return showSettings(&state)
-      case let .setVisibleKeyRange(lowest, highest):
-        print("setVisibleKeyRange: \(lowest), \(highest)")
-        state.$lowestKey.withLock { $0 = lowest }
-        state.$highestKey.withLock { $0 = highest }
-        return .none
-      case .helpButtonTapped: return showHelp(&state)
+      case .showMoreButtonTapped: return toggleShowMoreButtons(&state)
+      case .slidingKeyboardButtonTapped: return slidingKeyboardButtonTapped(&state)
+      case .tagVisibilityButtonTapped: return toggleTagsVisibility(&state)
       }
     }.ifLet(\.$destination, action: \.destination)
   }
@@ -102,7 +97,7 @@ extension ToolBar {
   }
 
   private func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
-    state.$effectsVisible.withLock { $0.toggle() }
+    state.effectsVisible.toggle()
     state.showMoreButtons = false
     return .send(.delegate(.effectsVisibilityChanged(state.effectsVisible)))
   }
@@ -147,12 +142,6 @@ extension ToolBar {
       state.$highestKey.withLock { $0 = newHigh }
     }
     return .none
-  }
-
-  private func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
-    state.$tagsListVisible.withLock { $0.toggle() }
-    state.showMoreButtons = false
-    return .send(.delegate(.tagsVisibilityChanged(state.tagsListVisible)))
   }
 
   private func hideMoreButtons(_ state: inout State) -> Effect<Action> {
@@ -312,7 +301,7 @@ extension ToolBarView {
       $0.defaultDatabase = try! .appDatabase()
     }
     @Dependency(\.defaultDatabase) var db
-    return ToolBarView(store: Store(initialState: .init()) { ToolBar() })
+    return ToolBarView(store: Store(initialState: .init(tagsListVisible: true, effectsVisible: false)) { ToolBar() })
   }
 }
 
