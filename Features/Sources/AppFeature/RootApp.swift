@@ -79,9 +79,12 @@ public struct RootApp {
 //        return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
 //
       case let .tagsSplit(.delegate(.stateChanged(panesVisible, position))):
+        let visible = panesVisible.contains(.bottom)
+        ToolBar.setTagsListVisible(&state.toolBar, value: visible)
         @Shared(.tagsListVisible) var tagsListVisible
         $tagsListVisible.withLock { $0 = panesVisible.contains(.bottom) }
         @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
+        $tagsListVisible.withLock { $0 = visible }
         $fontsAndTagsSplitPosition.withLock { $0 = position }
         return .none
 
@@ -96,29 +99,38 @@ public struct RootApp {
         return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
 
       case let .toolBar(.delegate(action)): return toolBarDelegation(&state, action: action)
+
       default: return .none
       }
     }
-    // ._printChanges()
+    ._printChanges()
   }
 
   public init() {}
 
   private func toolBarDelegation(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
     switch action {
-    case .editingPresetVisibility: return toggleEditingVisibility(&state)
+    case let .editingPresetVisibility(active): return setEditingVisibility(&state, active: active)
     case .addSoundFont: return .none
     case .presetNameTapped: return showActivePreset(&state)
-    case .tagsVisibilityChanged: return .none
-    case let .effectsVisibilityChanged(value):
-      @Shared(.effectsVisible) var effectsVisible
-      $effectsVisible.withLock { $0 = value }
-      return .none
+    case let .tagsVisibilityChanged(visible): return setTagsVisibility(&state, visible: visible)
+    case let .effectsVisibilityChanged(visible): return setEffectsVisibiliy(&state, visible: visible)
     }
   }
 
-  private func toggleEditingVisibility(_ state: inout State) -> Effect<Action> {
-    return reduce(into: &state, action: .presetsList(.visibilityEditMode(state.toolBar.editingPresetVisibility)))
+  private func setEditingVisibility(_ state: inout State, active: Bool) -> Effect<Action> {
+    return reduce(into: &state, action: .presetsList(.visibilityEditMode(active)))
+  }
+
+  private func setTagsVisibility(_ state: inout State, visible: Bool) -> Effect<Action> {
+    let panes: SplitViewPanes = visible ? .both : .primary
+    return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
+  }
+
+  private func setEffectsVisibiliy(_ state: inout State, visible: Bool) -> Effect<Action> {
+    @Shared(.effectsVisible) var effectsVisible
+    $effectsVisible.withLock { $0 = visible }
+    return .none
   }
 
   private func showActivePreset(_ state: inout State) -> Effect<Action> {

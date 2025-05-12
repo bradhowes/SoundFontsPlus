@@ -26,7 +26,6 @@ public struct KeyboardFeature {
   public enum Action: Equatable {
     case allOff
     case assigned(previous: Note?, note: Note)
-    case delegate(Delegate)
     case noteOff(Note)
     case noteOn(Note)
     case released(note: Note)
@@ -53,7 +52,6 @@ public struct KeyboardFeature {
         }
         state.active[note.midiNoteValue] = true
         return .none
-      case .delegate: return .none
       case let .noteOff(note):
         state.active[note.midiNoteValue] = false
         return .none
@@ -127,6 +125,11 @@ public struct KeyboardView: View {
       }
       .onAppear {
         proxy.scrollTo(store.settingsDemo ? Note.lowest : store.lowestKey, anchor: .leading)
+      }
+      .onChange(of: store.lowestKey) {
+        withAnimation {
+          proxy.scrollTo(store.settingsDemo ? Note.lowest : store.lowestKey, anchor: .leading)
+        }
       }
       .background(.black)
       .onScrollPhaseChange { oldPhase, newPhase, context in
