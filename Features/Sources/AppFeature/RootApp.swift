@@ -76,10 +76,11 @@ public struct RootApp {
       switch action {
 
       case let .tagsSplit(.delegate(.stateChanged(panesVisible, position))):
-        state.toolBar.tagsListVisible = panesVisible.contains(.bottom)
+        let visible = panesVisible.contains(.bottom)
+        ToolBar.setTagsListVisible(&state.toolBar, value: visible)
         @Shared(.tagsListVisible) var tagsListVisible
         @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
-        $tagsListVisible.withLock { $0 = state.toolBar.tagsListVisible }
+        $tagsListVisible.withLock { $0 = visible }
         $fontsAndTagsSplitPosition.withLock { $0 = position }
         return .none
 
@@ -88,41 +89,38 @@ public struct RootApp {
         $fontsAndPresetsSplitPosition.withLock { $0 = position }
         return .none
 
-      case .toolBar(.tagVisibilityButtonTapped):
-        let panes: SplitViewPanes = state.toolBar.tagsListVisible ? .both : .primary
-        return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
-
       case let .toolBar(.delegate(action)): return toolBarDelegation(&state, action: action)
+
       default: return .none
       }
     }
-    // ._printChanges()
+    ._printChanges()
   }
 
   public init() {}
 
   private func toolBarDelegation(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
     switch action {
-    case .editingPresetVisibility: return toggleEditingVisibility(&state)
+    case let .editingPresetVisibility(active): return setEditingVisibility(&state, active: active)
     case .addSoundFont: return .none
     case .presetNameTapped: return showActivePreset(&state)
-    case .tagsVisibilityChanged: return .none
-    case let .effectsVisibilityChanged(value):
-      @Shared(.effectsVisible) var effectsVisible
-      $effectsVisible.withLock { $0 = value }
-      return .none
+    case let .tagsVisibilityChanged(visible): return setTagsVisibility(&state, visible: visible)
+    case let .effectsVisibilityChanged(visible): return setEffectsVisibiliy(&state, visible: visible)
     }
   }
 
-  private func toggleEditingVisibility(_ state: inout State) -> Effect<Action> {
-    return reduce(into: &state, action: .presetsList(.visibilityEditMode(state.toolBar.editingPresetVisibility)))
+  private func setEditingVisibility(_ state: inout State, active: Bool) -> Effect<Action> {
+    return reduce(into: &state, action: .presetsList(.visibilityEditMode(active)))
   }
 
-  private func toggleSlidingKeyboard(_ state: inout State) -> Effect<Action> {
-    @Shared(.keyboardSlides) var value
-    $value.withLock {
-      $0 = state.toolBar.keyboardSlides
-    }
+  private func setTagsVisibility(_ state: inout State, visible: Bool) -> Effect<Action> {
+    let panes: SplitViewPanes = visible ? .both : .primary
+    return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
+  }
+
+  private func setEffectsVisibiliy(_ state: inout State, visible: Bool) -> Effect<Action> {
+    @Shared(.effectsVisible) var effectsVisible
+    $effectsVisible.withLock { $0 = visible }
     return .none
   }
 
@@ -140,6 +138,7 @@ public struct RootAppView: View {
   private let appPanelBackground = Color.black
   private let dividerBorderColor: Color = Color.gray.opacity(0.15)
 
+  @Shared(.effectsVisible) private var effectsVisible
   @Environment(\.keyboardHeight) private var keyboardHeight
   @Environment(\.verticalSizeClass) private var verticalSizeClass
 
@@ -162,7 +161,7 @@ public struct RootAppView: View {
       effectsView
       toolbarAndKeyboard
     }
-    .animation(.smooth, value: store.toolBar.effectsVisible)
+    .animation(.smooth, value: effectsVisible)
     .environment(\.auv3ControlsTheme, theme)
     .environment(\.appPanelBackground, appPanelBackground)
   }
@@ -229,8 +228,8 @@ public struct RootAppView: View {
         .padding(EdgeInsets.init(top: 0, leading: padding, bottom: 0, trailing: padding))
       }
     }
-    .frame(height: store.toolBar.effectsVisible ? viewHeight : padding)
-    .offset(x: 0.0, y: store.toolBar.effectsVisible ? 0.0 : viewHeight / 2 - padding - 1)
+    .frame(height: effectsVisible ? viewHeight : padding)
+    .offset(x: 0.0, y: effectsVisible ? 0.0 : viewHeight / 2 - padding - 1)
     .clipped()
   }
 

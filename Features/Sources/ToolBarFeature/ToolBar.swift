@@ -22,14 +22,15 @@ public struct ToolBar {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
 
-    @Shared(.lowestKey) public var lowestKey
-    @Shared(.highestKey) public var highestKey
-    @Shared(.keyboardSlides) public var keyboardSlides
+    @Shared(.lowestKey) var lowestKey
+    @Shared(.highestKey) var highestKey
+    @Shared(.keyboardSlides) var keyboardSlides
 
-    public var tagsListVisible: Bool = false
-    public var effectsVisible: Bool = false
-    public var editingPresetVisibility: Bool = false
-    public var showMoreButtons: Bool = false
+    var tagsListVisible: Bool
+    var effectsVisible: Bool
+
+    var editingPresetVisibility: Bool = false
+    var showMoreButtons: Bool = false
 
     public init(tagsListVisible: Bool, effectsVisible: Bool) {
       self.tagsListVisible = tagsListVisible
@@ -53,7 +54,7 @@ public struct ToolBar {
 
     public enum Delegate: Equatable {
       case addSoundFont
-      case editingPresetVisibility
+      case editingPresetVisibility(Bool)
       case presetNameTapped
       case effectsVisibilityChanged(Bool)
       case tagsVisibilityChanged(Bool)
@@ -84,6 +85,17 @@ public struct ToolBar {
 }
 
 extension ToolBar {
+
+  public static func setTagsListVisible(_ state: inout State, value: Bool) {
+    state.tagsListVisible = value
+  }
+
+  private func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
+    state.tagsListVisible.toggle()
+    state.showMoreButtons = false
+    return .send(.delegate(.tagsVisibilityChanged(state.tagsListVisible)))
+  }
+
   private func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
     state.effectsVisible.toggle()
     state.showMoreButtons = false
@@ -94,7 +106,7 @@ extension ToolBar {
     state.showMoreButtons.toggle()
     if !state.showMoreButtons && state.editingPresetVisibility {
       state.editingPresetVisibility = false
-      return .send(.delegate(.editingPresetVisibility))
+      return .send(.delegate(.editingPresetVisibility(false)))
     }
     return .none
   }
@@ -105,20 +117,31 @@ extension ToolBar {
   }
 
   private func lowestKeyButtonTapped(_ state: inout State) -> Effect<Action> {
-    // return .send(.delegate(.keyRangeChanged(lowest: state.lowestKey, highest: state.highestKey)))
+    let span = state.highestKey.midiNoteValue - state.lowestKey.midiNoteValue
+    // Move to the next lower C key
+    let newLow = state.lowestKey.noteIndex == 0
+    ? Note(midiNoteValue: max(Note.midiRange.lowerBound, state.lowestKey.midiNoteValue - span))
+    : Note(midiNoteValue: state.lowestKey.midiNoteValue - (state.lowestKey.midiNoteValue % 12))
+    let newHigh = Note(midiNoteValue: min(Note.midiRange.upperBound, newLow.midiNoteValue + span))
+    state.$lowestKey.withLock { $0 = newLow }
+    state.$highestKey.withLock { $0 = newHigh }
     return .none
   }
 
   private func highestKeyButtonTapped(_ state: inout State) -> Effect<Action> {
-    // return .send(.delegate(.keyRangeChanged(lowest: state.lowestKey, highest: state.highestKey)))
+    let span = state.highestKey.midiNoteValue - state.lowestKey.midiNoteValue
+    let newHigh = Note(midiNoteValue: min(Note.midiRange.upperBound, state.highestKey.midiNoteValue + span))
+    let newLow = Note(midiNoteValue: max(Note.midiRange.lowerBound, newHigh.midiNoteValue - span))
+    if state.lowestKey.noteIndex != 0 && newLow.noteIndex != 0 {
+      state.$lowestKey.withLock { $0 = Note(midiNoteValue: newLow.midiNoteValue - newLow.noteIndex) }
+      state.$highestKey.withLock { $0 = Note(midiNoteValue: newHigh.midiNoteValue - newLow.noteIndex) }
+    } else {
+      state.$lowestKey.withLock { $0 = newLow }
+      state.$highestKey.withLock { $0 = newHigh }
+    }
     return .none
   }
 
-  private func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
-    state.tagsListVisible.toggle()
-    state.showMoreButtons = false
-    return .send(.delegate(.tagsVisibilityChanged(state.tagsListVisible)))
-  }
 
   private func hideMoreButtons(_ state: inout State) -> Effect<Action> {
     state.showMoreButtons = false
@@ -127,7 +150,7 @@ extension ToolBar {
 
   private func editPresetVisibility(_ state: inout State) -> Effect<Action> {
     state.editingPresetVisibility.toggle()
-    return .send(.delegate(.editingPresetVisibility))
+    return .send(.delegate(.editingPresetVisibility(state.editingPresetVisibility)))
   }
 
   private func showSettings(_ state: inout State) -> Effect<Action> {
@@ -238,7 +261,7 @@ public struct ToolBarView: View {
         store.send(.lowestKeyButtonTapped)
       } label: {
         Text("❰" + store.lowestKey.label)
-      }
+      }.disabled(store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
       Button {
         store.send(.slidingKeyboardButtonTapped)
       } label: {
@@ -249,7 +272,7 @@ public struct ToolBarView: View {
         store.send(.highestKeyButtonTapped)
       } label: {
         Text(store.highestKey.label + "❱")
-      }
+      }.disabled(store.highestKey.midiNoteValue == Note.midiRange.upperBound)
       Button {
         store.send(.settingsButtonTapped)
       } label: {

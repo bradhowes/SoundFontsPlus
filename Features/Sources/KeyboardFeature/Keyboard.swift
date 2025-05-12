@@ -122,6 +122,11 @@ public struct KeyboardView: View {
       .onAppear {
         proxy.scrollTo(store.settingsDemo ? Note.lowest : store.lowestKey, anchor: .leading)
       }
+      .onChange(of: store.lowestKey) {
+        withAnimation {
+          proxy.scrollTo(store.settingsDemo ? Note.lowest : store.lowestKey, anchor: .leading)
+        }
+      }
       .background(.black)
       .onScrollPhaseChange { oldPhase, newPhase, context in
         if oldPhase != newPhase && newPhase == .idle {
