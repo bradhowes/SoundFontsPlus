@@ -137,7 +137,7 @@ public struct SettingsView: View {
         }
       }
       if changingKeyWidth {
-        KeyboardView(store: Store(initialState: .init(demo: true)) { KeyboardFeature() })
+        KeyboardView(store: Store(initialState: .init(settingsDemo: true)) { KeyboardFeature() })
           .transition(.opacity)
       }
     }
