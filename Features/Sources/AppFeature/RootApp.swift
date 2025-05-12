@@ -44,8 +44,7 @@ public struct RootApp {
       self.tagsSplit = .init(panesVisible: tagsListVisible ? .both : .primary, initialPosition: fontsAndTagsPosition)
       self.presetsSplit = .init(panesVisible: .both, initialPosition: fontsAndPresetsPosition)
 
-      @Shared(.effectsVisible) var effectsVisible
-      self.toolBar = ToolBar.State(tagsListVisible: tagsListVisible, effectsVisible: effectsVisible)
+      self.toolBar = ToolBar.State()
     }
   }
 
@@ -75,15 +74,14 @@ public struct RootApp {
     Reduce { state, action in
       switch action {
 
-      case let .keyboard(.delegate(.visibleKeyRangeChanged(lowest, highest))):
-        print("keyboard delegate:", lowest, highest)
-        return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
-
+//      case let .keyboard(.delegate(.visibleKeyRangeChanged(lowest, highest))):
+//        print("keyboard delegate:", lowest, highest)
+//        return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
+//
       case let .tagsSplit(.delegate(.stateChanged(panesVisible, position))):
-        state.toolBar.tagsListVisible = panesVisible.contains(.bottom)
         @Shared(.tagsListVisible) var tagsListVisible
+        $tagsListVisible.withLock { $0 = panesVisible.contains(.bottom) }
         @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
-        $tagsListVisible.withLock { $0 = state.toolBar.tagsListVisible }
         $fontsAndTagsSplitPosition.withLock { $0 = position }
         return .none
 
@@ -93,7 +91,8 @@ public struct RootApp {
         return .none
 
       case .toolBar(.tagVisibilityButtonTapped):
-        let panes: SplitViewPanes = state.toolBar.tagsListVisible ? .both : .primary
+        @Shared(.tagsListVisible) var tagsListVisible
+        let panes: SplitViewPanes = tagsListVisible ? .both : .primary
         return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
 
       case let .toolBar(.delegate(action)): return toolBarDelegation(&state, action: action)
@@ -122,14 +121,6 @@ public struct RootApp {
     return reduce(into: &state, action: .presetsList(.visibilityEditMode(state.toolBar.editingPresetVisibility)))
   }
 
-  private func toggleSlidingKeyboard(_ state: inout State) -> Effect<Action> {
-    @Shared(.keyboardSlides) var value
-    $value.withLock {
-      $0 = state.toolBar.keyboardSlides
-    }
-    return .none
-  }
-
   private func showActivePreset(_ state: inout State) -> Effect<Action> {
     return .merge(
       reduce(into: &state, action: .presetsList(.showActivePreset)),
@@ -144,6 +135,7 @@ public struct RootAppView: View {
   private let appPanelBackground = Color.black
   private let dividerBorderColor: Color = Color.gray.opacity(0.15)
 
+  @Shared(.effectsVisible) private var effectsVisible
   @Environment(\.keyboardHeight) private var keyboardHeight
   @Environment(\.verticalSizeClass) private var verticalSizeClass
 
@@ -166,7 +158,7 @@ public struct RootAppView: View {
       effectsView
       toolbarAndKeyboard
     }
-    .animation(.smooth, value: store.toolBar.effectsVisible)
+    .animation(.smooth, value: effectsVisible)
     .environment(\.auv3ControlsTheme, theme)
     .environment(\.appPanelBackground, appPanelBackground)
   }
@@ -233,8 +225,8 @@ public struct RootAppView: View {
         .padding(EdgeInsets.init(top: 0, leading: padding, bottom: 0, trailing: padding))
       }
     }
-    .frame(height: store.toolBar.effectsVisible ? viewHeight : padding)
-    .offset(x: 0.0, y: store.toolBar.effectsVisible ? 0.0 : viewHeight / 2 - padding - 1)
+    .frame(height: effectsVisible ? viewHeight : padding)
+    .offset(x: 0.0, y: effectsVisible ? 0.0 : viewHeight / 2 - padding - 1)
     .clipped()
   }
 
@@ -249,17 +241,6 @@ public struct RootAppView: View {
     KeyboardView(store: store.scope(state: \.keyboard, action: \.keyboard))
       .frame(height: keyboardHeight * (verticalSizeClass == .compact ? 0.5 : 1.0))
   }
-}
-
-extension SharedKey where Self == AppStorageKey<Bool>.Default {
-  public static var effectsVisible: Self { Self[.appStorage("effectsVisible"), default: false] }
-  public static var tagsListVisible: Self { Self[.appStorage("tagsListVisible"), default: false] }
-  public static var keyboardSlides: Self { Self[.appStorage("keyboardSlides"), default: false] }
-}
-
-extension SharedKey where Self == AppStorageKey<Double>.Default {
-  static var fontsAndPresetsSplitPosition: Self { Self[.appStorage("fontsAndPresetsSplitPosition"), default: 0.5] }
-  static var fontsAndTagsSplitPosition: Self { Self[.appStorage("fontsAndTagsSplitPosition"), default: 0.4] }
 }
 
 extension RootAppView {

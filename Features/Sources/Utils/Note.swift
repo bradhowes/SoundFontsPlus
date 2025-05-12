@@ -16,9 +16,6 @@
  */
 public struct Note: CustomStringConvertible, Sendable {
 
-  public static let C4 = Note(midiNoteValue: 60)
-  public static let A4 = Note(midiNoteValue: 69)
-
   public static let sharpTag = "♯"
   public static let flatTag = "♭"
 
@@ -95,6 +92,12 @@ public struct Note: CustomStringConvertible, Sendable {
   /// Range of valid MIDI v1 notes
   public static let midiRange: ClosedRange<Int> = 0...127
 
+  public static let lowest = Note(midiNoteValue: midiRange.lowerBound)
+  public static let highest = Note(midiNoteValue: midiRange.upperBound)
+
+  public static let C4 = Note(midiNoteValue: 60)
+  public static let A4 = Note(midiNoteValue: 69)
+
   /// @returns true if instance is a valid MIDI v1 note
   public var isValidMidiNote: Bool { Self.midiRange.contains(midiNoteValue) }
 
@@ -131,6 +134,12 @@ extension Note {
   public func offset(_ semitones: Int) -> Note {
     return Note(midiNoteValue: self.midiNoteValue + semitones)
   }
+}
+
+extension Note: Identifiable {
+  public typealias ID = Int
+
+  public var id: ID { midiNoteValue }
 }
 
 extension Note: RawRepresentable {

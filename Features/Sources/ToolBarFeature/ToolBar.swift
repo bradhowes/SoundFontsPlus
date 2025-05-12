@@ -22,20 +22,16 @@ public struct ToolBar {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
 
-    public var lowestKey: Note = .init(midiNoteValue: 60)
-    public var keyboardSlides: Bool = false
-    public var highestKey: Note = .init(midiNoteValue: 80)
-    public var tagsListVisible: Bool = false
-    public var effectsVisible: Bool = false
+    @Shared(.lowestKey) var lowestKey
+    @Shared(.highestKey) var highestKey
+    @Shared(.keyboardSlides) var keyboardSlides
+    @Shared(.tagsListVisible) var tagsListVisible
+    @Shared(.effectsVisible) var effectsVisible
+
     public var editingPresetVisibility: Bool = false
     public var showMoreButtons: Bool = false
 
-    public init(tagsListVisible: Bool, effectsVisible: Bool) {
-      @Shared(.keyboardSlides) var keyboardSlides
-      self.keyboardSlides = keyboardSlides
-      self.tagsListVisible = tagsListVisible
-      self.effectsVisible = effectsVisible
-    }
+    public init() {}
   }
 
   public enum Action: Equatable {
@@ -79,8 +75,8 @@ public struct ToolBar {
       case .settingsButtonTapped: return showSettings(&state)
       case let .setVisibleKeyRange(lowest, highest):
         print("setVisibleKeyRange: \(lowest), \(highest)")
-        state.lowestKey = lowest
-        state.highestKey = highest
+        state.$lowestKey.withLock { $0 = lowest }
+        state.$highestKey.withLock { $0 = highest }
         return .none
       case .helpButtonTapped: return showHelp(&state)
       }
@@ -92,7 +88,7 @@ public struct ToolBar {
 
 extension ToolBar {
   private func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
-    state.effectsVisible.toggle()
+    state.$effectsVisible.withLock { $0.toggle() }
     state.showMoreButtons = false
     return .send(.delegate(.effectsVisibilityChanged(state.effectsVisible)))
   }
@@ -108,7 +104,7 @@ extension ToolBar {
 
   private func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
     @Shared(.keyboardSlides) var keyboardSlides
-    state.keyboardSlides.toggle()
+    state.$keyboardSlides.withLock { $0.toggle() }
     $keyboardSlides.withLock { $0 = state.keyboardSlides }
     return .none
   }
@@ -124,7 +120,7 @@ extension ToolBar {
   }
 
   private func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
-    state.tagsListVisible.toggle()
+    state.$tagsListVisible.withLock { $0.toggle() }
     state.showMoreButtons = false
     return .send(.delegate(.tagsVisibilityChanged(state.tagsListVisible)))
   }
@@ -286,7 +282,7 @@ extension ToolBarView {
       $0.defaultDatabase = try! .appDatabase()
     }
     @Dependency(\.defaultDatabase) var db
-    return ToolBarView(store: Store(initialState: .init(tagsListVisible: false, effectsVisible: false)) { ToolBar() })
+    return ToolBarView(store: Store(initialState: .init()) { ToolBar() })
   }
 }
 

@@ -15,10 +15,11 @@ public struct KeyboardFeature {
     var active: [Bool] = .init(repeating: false, count: Note.midiRange.count)
     @Shared(.lowestKey) var lowestKey
     @Shared(.highestKey) var highestKey
-    let demo: Bool
+    var scrollTo: Note?
+    let settingsDemo: Bool
 
-    public init(demo: Bool = false) {
-      self.demo = demo
+    public init(settingsDemo: Bool = false) {
+      self.settingsDemo = settingsDemo
     }
   }
 
@@ -30,6 +31,8 @@ public struct KeyboardFeature {
     case noteOn(Note)
     case released(note: Note)
     case updatedVisibleKeys(lowest: Note, highest: Note)
+    case postScrollTo
+    case clearScrollTo
 
     public enum Delegate: Equatable {
       case visibleKeyRangeChanged(lowest: Note, highest: Note)
@@ -63,7 +66,13 @@ public struct KeyboardFeature {
       case let .updatedVisibleKeys(lowest, highest):
         state.$lowestKey.withLock { $0 = lowest }
         state.$highestKey.withLock { $0 = highest }
-        return .send(.delegate(.visibleKeyRangeChanged(lowest: lowest, highest: highest)))
+        return .none
+      case .postScrollTo:
+        state.scrollTo = state.settingsDemo ? Note.lowest : state.lowestKey
+        return .none
+      case .clearScrollTo:
+        state.scrollTo = nil
+        return .none
       }
     }
   }
@@ -117,12 +126,11 @@ public struct KeyboardView: View {
         }
       }
       .onAppear {
-        proxy.scrollTo(store.demo ? 0 : 60, anchor: .leading)
+        proxy.scrollTo(store.settingsDemo ? Note.lowest : store.lowestKey, anchor: .leading)
       }
       .background(.black)
-      .onScrollPhaseChange { _, newPhase, context in
-        if newPhase == .idle {
-          print("hi")
+      .onScrollPhaseChange { oldPhase, newPhase, context in
+        if oldPhase != newPhase && newPhase == .idle {
           store.send(
             .updatedVisibleKeys(
               lowest: lowestNote(context.geometry),
@@ -201,6 +209,7 @@ public struct KeyboardView: View {
         $0.frame(in: .global)
       } action: {
         if note.isValidMidiNote {
+          print("key: \(note)")
           frames[note.midiNoteValue] = $0
         }
       }
@@ -226,6 +235,7 @@ public struct KeyboardView: View {
         $0.frame(in: .global)
       } action: {
         if note.isValidMidiNote {
+          print("key: \(note)")
           frames[note.midiNoteValue] = $0
         }
       }
@@ -239,10 +249,10 @@ public struct KeyboardView: View {
 
     return RoundedRectangle(cornerRadius: cornerRadius)
       .fill(color)
-      .fill(eventNoteMap.isOn(note) ? Color.green.opacity(0.5) : .clear)
+      .fill(eventNoteMap.isOn(note) ? Color.green.opacity(0.3) : .clear)
       .frame(width: width, height: height + cornerRadius)
       .offset(y: -cornerRadius)
-      .id(note.midiNoteValue)
+      .id(note)
   }
 
   private func labeledKey(note: Note) -> some View {
