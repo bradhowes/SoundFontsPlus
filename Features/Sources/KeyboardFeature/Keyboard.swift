@@ -26,17 +26,12 @@ public struct KeyboardFeature {
   public enum Action: Equatable {
     case allOff
     case assigned(previous: Note?, note: Note)
-    case delegate(Delegate)
     case noteOff(Note)
     case noteOn(Note)
     case released(note: Note)
     case updatedVisibleKeys(lowest: Note, highest: Note)
     case postScrollTo
     case clearScrollTo
-
-    public enum Delegate: Equatable {
-      case visibleKeyRangeChanged(lowest: Note, highest: Note)
-    }
   }
 
   public init() {}
@@ -53,7 +48,6 @@ public struct KeyboardFeature {
         }
         state.active[note.midiNoteValue] = true
         return .none
-      case .delegate: return .none
       case let .noteOff(note):
         state.active[note.midiNoteValue] = false
         return .none

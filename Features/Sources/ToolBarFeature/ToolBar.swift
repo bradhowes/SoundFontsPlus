@@ -22,17 +22,16 @@ public struct ToolBar {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
 
-    public var lowestKey: Note = .init(midiNoteValue: 60)
-    public var keyboardSlides: Bool = false
-    public var highestKey: Note = .init(midiNoteValue: 80)
+    @Shared(.lowestKey) public var lowestKey
+    @Shared(.highestKey) public var highestKey
+    @Shared(.keyboardSlides) public var keyboardSlides
+
     public var tagsListVisible: Bool = false
     public var effectsVisible: Bool = false
     public var editingPresetVisibility: Bool = false
     public var showMoreButtons: Bool = false
 
     public init(tagsListVisible: Bool, effectsVisible: Bool) {
-      @Shared(.keyboardSlides) var keyboardSlides
-      self.keyboardSlides = keyboardSlides
       self.tagsListVisible = tagsListVisible
       self.effectsVisible = effectsVisible
     }
@@ -51,7 +50,6 @@ public struct ToolBar {
     case presetsVisibilityButtonTapped
     case settingsButtonTapped
     case helpButtonTapped
-    case setVisibleKeyRange(lowest: Note, highest: Note)
 
     public enum Delegate: Equatable {
       case addSoundFont
@@ -77,11 +75,6 @@ public struct ToolBar {
       case .slidingKeyboardButtonTapped: return slidingKeyboardButtonTapped(&state)
       case .presetsVisibilityButtonTapped: return editPresetVisibility(&state)
       case .settingsButtonTapped: return showSettings(&state)
-      case let .setVisibleKeyRange(lowest, highest):
-        print("setVisibleKeyRange: \(lowest), \(highest)")
-        state.lowestKey = lowest
-        state.highestKey = highest
-        return .none
       case .helpButtonTapped: return showHelp(&state)
       }
     }.ifLet(\.$destination, action: \.destination)
@@ -107,9 +100,7 @@ extension ToolBar {
   }
 
   private func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
-    @Shared(.keyboardSlides) var keyboardSlides
-    state.keyboardSlides.toggle()
-    $keyboardSlides.withLock { $0 = state.keyboardSlides }
+    state.$keyboardSlides.withLock { $0.toggle() }
     return .none
   }
 

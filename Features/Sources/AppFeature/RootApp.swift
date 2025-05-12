@@ -75,10 +75,6 @@ public struct RootApp {
     Reduce { state, action in
       switch action {
 
-      case let .keyboard(.delegate(.visibleKeyRangeChanged(lowest, highest))):
-        print("keyboard delegate:", lowest, highest)
-        return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
-
       case let .tagsSplit(.delegate(.stateChanged(panesVisible, position))):
         state.toolBar.tagsListVisible = panesVisible.contains(.bottom)
         @Shared(.tagsListVisible) var tagsListVisible
