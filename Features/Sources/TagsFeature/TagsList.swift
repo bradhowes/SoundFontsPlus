@@ -122,13 +122,13 @@ extension TagsListView {
     return TagsListView(store: Store(initialState: .init()) { TagsList() })
   }
 
-//  static var previewWithEditor: some View {
-//    let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
-//    @Dependency(\.defaultDatabase) var db
-//    var state = TagsList.State()
-//    state.destination = .edit(TagsEditor.State(focused: nil))
-//    return TagsListView(store: Store(initialState: state) { TagsList() })
-//  }
+  static var previewWithEditor: some View {
+    let _ = prepareDependencies { $0.defaultDatabase = try! .appDatabase() }
+    @Dependency(\.defaultDatabase) var db
+    var state = TagsList.State()
+    state.destination = .edit(TagsEditor.State(focused: nil))
+    return TagsListView(store: Store(initialState: state) { TagsList() })
+  }
 }
 
 #Preview {

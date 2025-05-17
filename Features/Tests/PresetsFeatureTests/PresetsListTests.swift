@@ -18,7 +18,7 @@ struct PresetsListTests {
       $activeState.withLock {
         $0.selectedSoundFontId = soundFonts[0].id
       }
-      try await body(soundFonts, TestStore(initialState: PresetsList.State(soundFont: soundFonts[0])) {
+      try await body(soundFonts, TestStore(initialState: PresetsList.State()) {
         PresetsList()
       })
     }
@@ -26,7 +26,7 @@ struct PresetsListTests {
 
   @Test func creationWithNilSoundFont() async throws {
     try await TestSupport.initialize { soundFonts, presets in
-      let store = TestStore(initialState: PresetsList.State(soundFont: nil)) { PresetsList() }
+      let store = TestStore(initialState: PresetsList.State()) { PresetsList() }
       #expect(store.state.sections.count == 0)
       await store.send(.onAppear)
       await store.receive(\.selectedSoundFontIdChanged)
@@ -58,8 +58,7 @@ struct PresetsListTests {
       }
 
       await store.receive(\.selectedSoundFontIdChanged) {
-        $0.soundFont = soundFonts[1]
-        $0.sections = PresetsFeature.generatePresetSections(soundFont: soundFonts[1], searchText: nil, editing: false)
+        $0.sections = PresetsFeature.generatePresetSections(searchText: nil, editing: false)
       }
 
       await store.send(.stop)
@@ -106,11 +105,11 @@ struct PresetsListTests {
       store.exhaustivity = .off
       await store.send(.fetchPresets)
       #expect(store.state.sections.count < sections)
-      await store.send(.toggleEditMode) {
+      await store.send(.visibilityEditMode(true)) {
         $0.editingVisibility = true
       }
       #expect(store.state.sections.count == sections)
-      await store.send(.toggleEditMode) {
+      await store.send(.visibilityEditMode(false)) {
         $0.editingVisibility = false
       }
       #expect(store.state.sections.count < sections)

@@ -18,7 +18,7 @@ struct TagsListTests {
       $activeState.withLock {
         $0.activeTagId = Tag.Ubiquitous.all.id
       }
-      try await body(TestStore(initialState: TagsList.State(tags: .init(uniqueElements: tags))) {
+      try await body(TestStore(initialState: TagsList.State()) {
         TagsList()
       })
     }
@@ -37,8 +37,8 @@ struct TagsListTests {
       #expect(store.state.rows.count == 4)
       await store.send(.addButtonTapped) {
         @Dependency(\.defaultDatabase) var database
-        let tag = try! database.read { try Tag.fetchOne($0, id: 5) }
-        $0.rows.append(TagButton.State(tag: tag!))
+        let tag = try database.read { try Tag.fetchOne($0, id: 5) }
+        $0.rows.append(TagButton.State(tagInfo: TagInfo.from(tag!)))
       }
       await store.finish()
     }
@@ -48,7 +48,7 @@ struct TagsListTests {
     try await initialize { store in
       #expect(store.state.rows.count == 4)
       await store.send(.rows(.element(id:1, action: .delegate(.editTags)))) {
-        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map(\.tag), focused: nil))
+        $0.destination = .edit(TagsEditor.State(focused: nil))
       }
 
       await store.send(.destination(.dismiss)) {
@@ -64,12 +64,12 @@ struct TagsListTests {
       #expect(store.state.rows.count == 4)
       await store.send(.addButtonTapped) {
         @Dependency(\.defaultDatabase) var database
-        let tag = try! database.read { try Tag.fetchOne($0, id: 5) }
-        $0.rows.append(TagButton.State(tag: tag!))
+        let tag = try database.read { try Tag.fetchOne($0, id: 5) }
+        $0.rows.append(TagButton.State(tagInfo: TagInfo.from(tag!)))
       }
       #expect(store.state.rows.count == 5)
 
-      await store.send(.rows(.element(id:1, action: .delegate(.deleteTag(store.state.rows[4].tag)))))
+      await store.send(.rows(.element(id:1, action: .delegate(.deleteTag(store.state.rows[4].tagInfo)))))
       await store.receive(\.fetchTags) {
         $0.rows.remove(at: 4)
       }
@@ -86,14 +86,14 @@ struct TagsListTests {
       await store.send(.addButtonTapped) {
         @Dependency(\.defaultDatabase) var database
         let tag = try! database.read { try Tag.fetchOne($0, id: 5) }
-        $0.rows.append(TagButton.State(tag: tag!))
+        $0.rows.append(TagButton.State(tagInfo: TagInfo.from(tag!)))
       }
       #expect(store.state.rows.count == 5)
 
       await store.send(.rows(.element(id: 5, action: .buttonTapped)))
       #expect(activeState.activeTagId == 5)
 
-      await store.send(.rows(.element(id:1, action: .delegate(.deleteTag(store.state.rows[4].tag)))))
+      await store.send(.rows(.element(id:1, action: .delegate(.deleteTag(store.state.rows[4].tagInfo)))))
       await store.receive(\.fetchTags) {
         $0.rows.remove(at: 4)
       }
@@ -109,14 +109,14 @@ struct TagsListTests {
       #expect(store.state.rows.count == 4)
 
       await store.send(.rows(.element(id:1, action: .delegate(.editTags)))) {
-        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map(\.tag), focused: nil))
+        $0.destination = .edit(TagsEditor.State(focused: nil))
       }
 
       store.exhaustivity = .off
       await store.send(.destination(.presented(.edit(.addButtonTapped)))) {
         @Dependency(\.defaultDatabase) var database
         let tag = try! database.read { try Tag.fetchOne($0, id: 5) }
-        $0.rows.append(TagButton.State(tag: tag!))
+        $0.rows.append(TagButton.State(tagInfo: TagInfo.from(tag!)))
       }
       store.exhaustivity = .on
 
@@ -129,20 +129,20 @@ struct TagsListTests {
       #expect(store.state.rows.count == 4)
 
       await store.send(.rows(.element(id:1, action: .delegate(.editTags)))) {
-        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map(\.tag), focused: nil))
+        $0.destination = .edit(TagsEditor.State(focused: nil))
       }
 
       await store.send(.destination(.presented(.edit(.addButtonTapped)))) {
         @Dependency(\.defaultDatabase) var database
         let tag = try! database.read { try Tag.fetchOne($0, id: 5) }
-        $0.rows.append(TagButton.State(tag: tag!))
-        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map(\.tag), focused: Tag.ID(rawValue: 5)))
+        $0.rows.append(TagButton.State(tagInfo: TagInfo.from(tag!)))
+        $0.destination = .edit(TagsEditor.State(focused: Tag.ID(rawValue: 5)))
       }
 
       store.exhaustivity = .on
       await store.send(.destination(.presented(.edit(.finalizeDeleteTag(.init(integer: 5)))))) {
         $0.rows.remove(id: 5)
-        $0.destination = .edit(TagsEditor.State(tags: $0.rows.map(\.tag), focused: Tag.ID(rawValue: 5)))
+        $0.destination = .edit(TagsEditor.State(focused: Tag.ID(rawValue: 5)))
       }
 
       @Dependency(\.defaultDatabase) var database

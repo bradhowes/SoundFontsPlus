@@ -26,7 +26,7 @@ struct TagNameEditorTests {
   @Test func deleteTag() async throws {
     try await initialize { store in
       await store.send(.deleteTag)
-      await store.receive(.delegate(.deleteTag(store.state.tag)))
+      await store.receive(.delegate(.deleteTag(store.state.tagId)))
       await store.finish()
     }
   }

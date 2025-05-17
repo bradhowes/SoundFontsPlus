@@ -146,12 +146,10 @@ import Testing
     let soundFonts = try await database.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
     let newTag = try await database.write { try Tag.make($0, name: "new") }
     let soundFont = soundFonts[0]
-    _ = try Operations.tagSoundFont(newTag.id, soundFontId: soundFont.id)
+    #expect(Operations.tagSoundFont(newTag.id, soundFontId: soundFont.id) != nil)
     let tagged = try await database.read { try newTag.soundFonts.fetchAll($0) }
     #expect(tagged.count == 1)
-    #expect(throws: ModelError.self) {
-      try Operations.tagSoundFont(newTag.id, soundFontId: soundFont.id)
-    }
+    #expect(Operations.tagSoundFont(newTag.id, soundFontId: soundFont.id) == nil)
   }
 
   @Test("untagging") func untagging() async throws {
@@ -160,17 +158,15 @@ import Testing
     let soundFonts = try await database.read { try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id } }
     let newTag = try await database.write { try Tag.make($0, name: "new") }
     let soundFont = soundFonts[0]
-    _ = try Operations.tagSoundFont(newTag.id, soundFontId: soundFont.id)
+    #expect(Operations.tagSoundFont(newTag.id, soundFontId: soundFont.id) != nil)
     var tagged = try await database.read { try newTag.soundFonts.fetchAll($0) }
     #expect(tagged.count == 1)
 
-    try Operations.untagSoundFont(newTag.id, soundFontId: soundFont.id)
+    #expect(Operations.untagSoundFont(newTag.id, soundFontId: soundFont.id))
     tagged = try await database.read { try newTag.soundFonts.fetchAll($0) }
     #expect(tagged.count == 0)
 
-    #expect(throws: ModelError.self) {
-      try Operations.untagSoundFont(newTag.id, soundFontId: soundFont.id)
-    }
+    #expect(Operations.untagSoundFont(newTag.id, soundFontId: soundFont.id) == false)
   }
 
   @Test("tagging with ubiquitous") func taggingWithUbiquitousFails() async throws {

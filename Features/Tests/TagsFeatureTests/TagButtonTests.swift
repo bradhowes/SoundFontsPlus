@@ -16,7 +16,7 @@ struct TagButtonTests {
   func initialize(_ body: (TestStoreOf<TagButton>) async throws -> Void) async throws {
     try await TestSupport.initialize { tags in
       @Dependency(\.defaultDatabase) var database
-      try await body(TestStore(initialState: TagButton.State(tag: tags[0])) { TagButton() })
+      try await body(TestStore(initialState: TagButton.State(tagInfo: TagInfo.from(tags[0]))) { TagButton() })
     }
   }
 
@@ -35,15 +35,15 @@ struct TagButtonTests {
   @Test func testDeleteButtonTapped() async throws {
     try await initialize { store in
       await store.send(\.deleteButtonTapped) {
-        $0.confirmationDialog = TagButton.deleteConfirmationDialogState(displayName: store.state.tag.name)
+        $0.confirmationDialog = TagButton.deleteConfirmationDialogState(displayName: store.state.tagInfo.name)
       }
       await store.send(\.confirmationDialog.deleteButtonTapped) {
         $0.confirmationDialog = nil
       }
-      await store.receive(.delegate(.deleteTag(store.state.tag)))
+      await store.receive(.delegate(.deleteTag(store.state.tagInfo)))
 
       await store.send(\.deleteButtonTapped) {
-        $0.confirmationDialog = TagButton.deleteConfirmationDialogState(displayName: store.state.tag.name)
+        $0.confirmationDialog = TagButton.deleteConfirmationDialogState(displayName: store.state.tagInfo.name)
       }
       await store.send(\.confirmationDialog.cancelButtonTapped) {
         $0.confirmationDialog = nil

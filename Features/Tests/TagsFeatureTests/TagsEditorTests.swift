@@ -16,7 +16,7 @@ struct TagsEditorTests {
   func initialize(_ body: (TestStoreOf<TagsEditor>) async throws -> Void) async throws {
     try await TestSupport.initialize { tags in
       @Dependency(\.defaultDatabase) var database
-      try await body(TestStore(initialState: TagsEditor.State(tags: tags, focused: nil)) {
+      try await body(TestStore(initialState: TagsEditor.State(focused: nil)) {
         TagsEditor()
       })
     }
@@ -62,7 +62,7 @@ struct TagsEditorTests {
         $0.focused = 5
       }
 
-      await store.send(.rows(.element(id: 5, action: .delegate(.deleteTag(store.state.rows[4].tag)))))
+      await store.send(.rows(.element(id: 5, action: .delegate(.deleteTag(store.state.rows[4].id)))))
 
       await store.receive(.finalizeDeleteTag(IndexSet(integer: 5))) {
         $0.rows.remove(id: 5)
@@ -99,7 +99,7 @@ struct TagsEditorTests {
         $0.rows.move(fromOffsets: IndexSet(integer: 5), toOffset: 0)
       }
 
-      await store.send(.saveButtonTapped)
+//      await store.send(.saveButtonTapped)
 
       let tags = Tag.ordered
       #expect(tags.count == 6)

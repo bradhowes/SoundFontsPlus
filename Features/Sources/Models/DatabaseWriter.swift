@@ -33,7 +33,20 @@ public extension DatabaseWriter where Self == DatabaseQueue {
       databaseQueue = try DatabaseQueue(configuration: config)
     }
 
-    try databaseQueue.migrate()
+    var migrator = DatabaseMigrator()
+#if DEBUG
+    migrator.eraseDatabaseOnSchemaChange = true
+#endif
+
+    V1.migrate(into: &migrator)
+
+#if DEBUG && targetEnvironment(simulator)
+    if context != .test {
+      migrator.registerMigration("Seed sample data") { db in
+        try db.seedSampleData()
+      }
+    }
+#endif
 
     if addTags || addBuiltIns {
       try databaseQueue.write { db in
@@ -57,3 +70,10 @@ public extension DatabaseWriter where Self == DatabaseQueue {
     return databaseQueue
   }
 }
+
+#if DEBUG
+extension Database {
+  func seedSampleData() throws {
+  }
+}
+#endif

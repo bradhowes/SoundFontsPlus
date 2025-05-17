@@ -75,8 +75,6 @@ final class SF2ResourceFilesTests: XCTestCase {
 
   func testMuseScoreFileInfo() throws {
     let fileInfo = SF2ResourceFileTag.museScore.fileInfo!
-    XCTAssertNotNil(fileInfo)
-
     XCTAssertEqual(fileInfo.embeddedName(), "GeneralUser GS MuseScore version 1.442")
     XCTAssertEqual(fileInfo.embeddedAuthor(), "S. Christian Collins")
     XCTAssertNotEqual(fileInfo.embeddedComment(), "")
