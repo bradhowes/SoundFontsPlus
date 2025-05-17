@@ -1,8 +1,8 @@
 import Dependencies
 import Engine
 import Foundation
-import GRDB
 import SF2ResourceFiles
+import SharingGRDB
 
 public extension DatabaseWriter where Self == DatabaseQueue {
 
@@ -13,6 +13,7 @@ public extension DatabaseWriter where Self == DatabaseQueue {
     addBuiltIns: Bool = true
   ) throws -> Self {
     var config = configuration ?? Configuration()
+    config.foreignKeysEnabled = true
     #if DEBUG
         config.publicStatementArguments = true
     config.prepareDatabase {
@@ -40,6 +41,18 @@ public extension DatabaseWriter where Self == DatabaseQueue {
 
     V1.migrate(into: &migrator)
 
+    migrator.registerMigration("Add ubiquitous tags") { db in
+      for tag in Tag.Ubiquitous.allCases.enumerated() {
+        try Tag.from(ubi: tag).execute(db)
+      }
+    }
+
+    migrator.registerMigration("Add builtin fonts") { db in
+      for sf2 in SF2ResourceFileTag.allCases {
+        try SoundFont.from(sf2: sf2).execute(db)
+      }
+    }
+
 #if DEBUG && targetEnvironment(simulator)
     if context != .test {
       migrator.registerMigration("Seed sample data") { db in
@@ -47,25 +60,6 @@ public extension DatabaseWriter where Self == DatabaseQueue {
       }
     }
 #endif
-
-    if addTags || addBuiltIns {
-      try databaseQueue.write { db in
-        if try Tag.fetchCount(db) == 0 {
-
-          // Install predefined tags
-          for tag in Tag.Ubiquitous.allCases.enumerated() {
-            _ = try Tag.make(db, name: tag.1.name)
-          }
-        }
-
-        if try addBuiltIns && SoundFont.fetchCount(db) == 0 {
-          // Install predefined SF2
-          for sf2 in SF2ResourceFileTag.allCases {
-            _ = try SoundFont.make(db, builtin: sf2)
-          }
-        }
-      }
-    }
 
     return databaseQueue
   }
