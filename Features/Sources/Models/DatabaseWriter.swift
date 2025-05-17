@@ -29,6 +29,7 @@ public extension DatabaseWriter where Self == DatabaseQueue {
     if context == .live {
       let dbPath = (path ?? URL.documentsDirectory.appending(component: "db.sqlite")).path()
       databaseQueue = try DatabaseQueue(path: dbPath, configuration: config)
+      print("open \(dbPath)")
     } else {
       databaseQueue = try DatabaseQueue(configuration: config)
     }
