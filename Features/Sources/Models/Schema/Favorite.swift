@@ -1,10 +1,41 @@
-//// Copyright © 2025 Brad Howes. All rights reserved.
-//
-//import AVFoundation
-//import Dependencies
-//import GRDB
-//import Tagged
-//
+// Copyright © 2025 Brad Howes. All rights reserved.
+
+import AVFoundation
+import Dependencies
+import SharingGRDB
+import Tagged
+
+@Table
+public struct Favorite: Hashable, Identifiable {
+  public typealias ID = Tagged<Self, Int64>
+
+  public let id: ID
+  public var displayName: String
+  public var notes: String
+  public var presetId: Preset.ID
+}
+
+extension Favorite {
+
+  static func migrate(_ migrator: inout DatabaseMigrator) {
+    migrator.registerMigration(Self.tableName) { db in
+      try #sql(
+      """
+      CREATE TABLE "\(raw: Self.tableName)" (
+        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+        "displayName" TEXT NOT NULL,
+        "notes" TEXT NOT NULL,
+        "presetId" INTEGER NOT NULL,
+
+        FOREIGN KEY("presetId") REFERENCES "presets"("id") ON DELETE CASCADE
+      ) STRICT
+      """
+      )
+      .execute(db)
+    }
+  }
+}
+
 //public struct Favorite: Codable, Identifiable, FetchableRecord, MutablePersistableRecord {
 //  public typealias ID = Tagged<Self, Int64>
 //

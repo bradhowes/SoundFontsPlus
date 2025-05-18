@@ -2,19 +2,13 @@
 
 import Dependencies
 import Engine
-import Extensions
-import Foundation
-import GRDB
-import IdentifiedCollections
-import OSLog
 import SharingGRDB
 import SF2ResourceFiles
 import Tagged
 
-
 @Table
-public struct SoundFont: Hashable, Identifiable {
-  public typealias ID = Tagged<SoundFont, Int64>
+public struct SoundFont: Hashable, Identifiable, Sendable {
+  public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
 
@@ -38,36 +32,78 @@ public struct SoundFont: Hashable, Identifiable {
 }
 
 extension SoundFont {
-  static func from(sf2: SF2ResourceFileTag) throws -> InsertOf<SoundFont> {
-    let sfKind: SoundFontKind = .builtin(resource: sf2.url)
-    let (kind, location) = try sfKind.data()
-    let fileInfo = try sfKind.fileInfo()
-    return SoundFont.insert(
-      SoundFont.Draft(
-        kind: kind,
-        location: location,
-        originalName: sf2.name,
-        embeddedName: String(fileInfo.embeddedName()),
-        embeddedComment: String(fileInfo.embeddedComment()),
-        embeddedAuthor: String(fileInfo.embeddedAuthor()),
-        embeddedCopyright: String(fileInfo.embeddedCopyright()),
-        displayName: sf2.name,
-        notes: ""
-      )
-    )
+
+  static func insert(_ db: Database, sf2: SF2ResourceFileTag) {
+    withErrorReporting {
+      let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
+      let (kind, location) = try soundFontKind.data()
+      let fileInfo = try soundFontKind.fileInfo()
+      let insertSoundFontDraft = SoundFont.insert(
+        SoundFont.Draft(
+          kind: kind,
+          location: location,
+          originalName: sf2.name,
+          embeddedName: String(fileInfo.embeddedName()),
+          embeddedComment: String(fileInfo.embeddedComment()),
+          embeddedAuthor: String(fileInfo.embeddedAuthor()),
+          embeddedCopyright: String(fileInfo.embeddedCopyright()),
+          displayName: sf2.name,
+          notes: ""
+        )
+      ).returning(\.id)
+
+      if let soundFontId = try insertSoundFontDraft.fetchOne(db) {
+        print("*** soundFontId:", soundFontId)
+        let checking = try SoundFont.all.fetchAll(db)
+        print("checking.isEmpty:", checking.isEmpty)
+        print("hcecking has soundFontId:", checking.map(\.id).contains(soundFontId))
+
+        let taggedSoundFonts: [TaggedSoundFont] = soundFontKind.tagIds.map { tagId in
+            .init(
+              soundFontId: soundFontId,
+              tagId: tagId
+            )
+        }
+        try TaggedSoundFont.insert(taggedSoundFonts).execute(db)
+
+        let presets: [Preset.Draft] = (0..<fileInfo.size()).map { presetIndex in
+          let presetInfo = fileInfo[presetIndex]
+          let displayName = String(presetInfo.name())
+          return .init(
+            index: presetIndex,
+            bank: Int(presetInfo.bank()),
+            program: Int(presetInfo.program()),
+            originalName: displayName,
+            soundFontId: soundFontId,
+            displayName: displayName,
+            visible: true,
+            notes: ""
+          )
+        }
+
+        try Preset.insert(presets).execute(db)
+      }
+    }
   }
 }
 
 extension SoundFont {
 
   static func migrate(_ migrator: inout DatabaseMigrator) {
-    migrator.registerMigration("Create SoundFont") { db in
+    migrator.registerMigration(Self.tableName) { db in
       try #sql(
       """
-      CREATE TABLE "remindersLists" (
+      CREATE TABLE "\(raw: Self.tableName)" (
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "color" INTEGER NOT NULL DEFAULT \(raw: 0x4a99_ef00),
-        "title" TEXT NOT NULL
+        "displayName" TEXT NOT NULL,
+        "kind" TEXT NOT NULL,
+        "location" BLOB,
+        "originalName" TEXT NOT NULL,
+        "embeddedName" TEXT NOT NULL,
+        "embeddedComment" TEXT NOT NULL,
+        "embeddedAuthor" TEXT NOT NULL,
+        "embeddedCopyright" TEXT NOT NULL,
+        "notes" TEXT NOT NULL
       ) STRICT
       """
       )

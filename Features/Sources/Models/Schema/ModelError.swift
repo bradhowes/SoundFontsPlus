@@ -1,7 +1,9 @@
 import Foundation
 
-public enum ModelError: Error {
+public enum ModelError: Error, Equatable {
   case duplicateTag(name: String)
+  case renameUbiquitous(name: String)
+  case emptyTagName
   case deleteUbiquitous(name: String)
   case failedToSave(name: String)
   case failedToFetch(key: String)

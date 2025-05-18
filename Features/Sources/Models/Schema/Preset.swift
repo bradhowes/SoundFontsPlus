@@ -1,13 +1,53 @@
-//// Copyright © 2025 Brad Howes. All rights reserved.
-//
-//import Dependencies
-//import Engine
-//import Foundation
-//import GRDB
-//import IdentifiedCollections
-//import Sharing
-//import Tagged
-//
+// Copyright © 2025 Brad Howes. All rights reserved.
+
+import Dependencies
+import Engine
+import SharingGRDB
+import SF2ResourceFiles
+import Tagged
+
+@Table
+public struct Preset: Hashable, Identifiable, Sendable {
+  public typealias ID = Tagged<Self, Int64>
+
+  public let id: ID
+  public let index: Int
+  public let bank: Int
+  public let program: Int
+  public let originalName: String
+  public let soundFontId: SoundFont.ID
+
+  public var displayName: String
+  public var visible: Bool
+  public var notes: String
+}
+
+extension Preset {
+
+  static func migrate(_ migrator: inout DatabaseMigrator) {
+    migrator.registerMigration(Self.tableName) { db in
+      try #sql(
+      """
+      CREATE TABLE "\(raw: Self.tableName)" (
+        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+        "index" INTEGER NOT NULL,
+        "bank" INTEGER NOT NULL,
+        "program" INTEGER NOT NULL,
+        "originalName" TEXT NOT NULL,
+        "soundFontId" INTEGER NOT NULL,
+        "displayName" TEXT NOT NULL,
+        "visible" INTEGER NOT NULL CHECK ("visible" in (0, 1)),
+        "notes" TEXT NOT NULL,
+      
+        FOREIGN KEY("soundFontId") REFERENCES "soundFonts"("id") ON DELETE CASCADE
+      ) STRICT
+      """
+      )
+      .execute(db)
+    }
+  }
+}
+
 //public struct Preset: Codable, Identifiable, FetchableRecord, MutablePersistableRecord {
 //  public typealias ID = Tagged<Self, Int64>
 //

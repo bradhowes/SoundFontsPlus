@@ -226,6 +226,7 @@ let package = Package(
       dependencies: [
         .product(name: "Engine", package: "SF2Lib"),
         .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies", condition: .none)
       ],
       resources: [.process("Resources")]
     ),
@@ -235,6 +236,7 @@ let package = Package(
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies"),
         .product(name: "DependenciesMacros", package: "swift-dependencies"),
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies", condition: .none)
       ]
     ),
     .testTarget(
@@ -249,7 +251,8 @@ let package = Package(
       dependencies: [
         "Models",
         .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
-        .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none)
+        .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none),
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies", condition: .none)
         // .product(name: "Engine", package: "SF2Lib", condition: .none)
       ]
     ),
@@ -260,6 +263,7 @@ let package = Package(
         "Models",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies", condition: .none),
         .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing", condition: .none)
       ]
@@ -271,6 +275,7 @@ let package = Package(
         "Models",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies", condition: .none),
         .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing", condition: .none)
       ]
@@ -282,6 +287,7 @@ let package = Package(
         "Models",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies", condition: .none),
         .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing", condition: .none)
       ]
@@ -292,6 +298,7 @@ let package = Package(
         "ToolBarFeature",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Dependencies", package: "swift-dependencies", condition: .none),
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies", condition: .none),
         .product(name: "SharingGRDB", package: "sharing-grdb", condition: .none),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing", condition: .none)
       ]
