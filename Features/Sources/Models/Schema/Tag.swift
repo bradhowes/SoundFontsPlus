@@ -22,17 +22,16 @@ public struct Tag: Hashable, Identifiable, Sendable {
       }
     }
 
-    public var id: ID {
+    public var allTagsIndex: Int {
       switch self {
-      case .all: return .init(1)
-      case .builtIn: return .init(2)
-      case .added: return .init(3)
-      case .external: return .init(4)
+      case .all: return 0
+      case .builtIn: return 1
+      case .added: return 2
+      case .external: return 3
       }
     }
 
-    public static func isUbiquitous(id: ID) -> Bool { id.isUbiquitous }
-    public static func isUserDefined(id: ID) -> Bool { !id.isUbiquitous }
+    public var id: ID { .init(rawValue: .init(allTagsIndex + 1)) }
   }
 
   public let id: ID
@@ -41,12 +40,6 @@ public struct Tag: Hashable, Identifiable, Sendable {
 
   public var isUbiquitous: Bool { id.isUbiquitous }
   public var isUserDefined: Bool { id.isUserDefined }
-
-  public func willDelete(_ db: Database) throws {
-    if isUbiquitous {
-      throw ModelError.deleteUbiquitous(name: self.displayName)
-    }
-  }
 }
 
 extension Tag {
@@ -97,12 +90,10 @@ extension Tag {
   }
 
   static func delete(_ id: Tag.ID) throws {
-    guard !id.isUbiquitous else { throw ModelError.deleteUbiquitous(name: id.displayName ?? "???") }
+    guard !id.isUbiquitous else { throw ModelError.deleteUbiquitous(name: id.displayName!) }
     @Dependency(\.defaultDatabase) var database
-    withErrorReporting {
-      try database.write { db in
-        try Self.delete().where({ $0.id == id }).execute(db)
-      }
+    try database.write { db in
+      try Self.delete().where({ $0.id == id }).execute(db)
     }
   }
 
@@ -129,14 +120,29 @@ extension Tag {
     }
     guard existing.isEmpty else { throw ModelError.duplicateTag(name: displayName) }
 
-    withErrorReporting {
-      try database.write { db in
-        try Models.Tag
-          .update {$0.displayName = displayName}
-          .where({ $0.id == id })
-          .execute(db)
-      }
+    try database.write { db in
+      try Models.Tag
+        .update {$0.displayName = displayName}
+        .where({ $0.id == id })
+        .execute(db)
     }
+  }
+
+  var soundFonts: [SoundFont] {
+    let query = TaggedSoundFont
+      .join(SoundFont.all) {
+        $0.soundFontId.eq($1.id) && $0.tagId.eq(self.id)
+      }
+      .select {
+        $1
+      }
+
+    @Dependency(\.defaultDatabase) var database
+    let found = (try? database.read { db in
+      try query.fetchAll(db)
+    }) ?? []
+
+    return found
   }
 }
 

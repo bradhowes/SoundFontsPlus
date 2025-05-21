@@ -1,75 +1,60 @@
-//import Dependencies
-//import Foundation
-//import GRDB
-//import SF2ResourceFiles
-//import Testing
-//
-//@testable import Models
-//
-//@Suite("SoundFont") struct SoundFontTests {
-//
-//  @Test("migration") func migration() async throws {
-//    let db = try DatabaseQueue.appDatabase()
-//    try await db.read {
-//      for each in V1.tables {
-//        try $0.execute(sql: "select * from \(each.databaseTableName)")
-//      }
-//    }
-//
-//    let allTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.all.id) }
-//    let builtInTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.builtIn.id) }
-//    let addedTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.added.id) }
-//    let externalTag = try await db.read { try Tag.find($0, id: Tag.Ubiquitous.external.id) }
-//
-//    let soundFonts = try await db.read {
-//      try SoundFont.all().fetchAll($0).sorted { $0.id < $1.id }
-//    }
-//
-//    #expect(soundFonts.count == 3)
-//    #expect(soundFonts[0].displayName == SF2ResourceFileTag.freeFont.name)
-//    #expect(soundFonts[0].id.rawValue == 1)
-//
-//    #expect(soundFonts[1].displayName == SF2ResourceFileTag.museScore.name)
-//    #expect(soundFonts[1].id.rawValue == 2)
-//
-//    #expect(soundFonts[2].displayName == SF2ResourceFileTag.rolandNicePiano.name)
-//    #expect(soundFonts[2].id.rawValue == 3)
-//
-//    #expect(try soundFonts[0].source().isBuiltin)
-//    #expect(try soundFonts[1].source().isBuiltin)
-//    #expect(try soundFonts[2].source().isBuiltin)
-//
-//    #expect(soundFonts[0].embeddedName == "Free Font GM Ver. 3.2")
-//    #expect(soundFonts[0].embeddedComment == "")
-//    #expect(soundFonts[0].embeddedAuthor == "")
-//    #expect(soundFonts[0].embeddedCopyright == "")
-//    #expect(soundFonts[0].notes == "")
-//
-//    var tagged = try await db.read { try allTag.soundFonts.fetchAll($0) }
-//    #expect(tagged.count == 3)
-//
-//    tagged = try await db.read { try builtInTag.soundFonts.fetchAll($0) }
-//    #expect(tagged.count == 3)
-//
-//    tagged = try await db.read { try addedTag.soundFonts.fetchAll($0) }
-//    #expect(tagged.count == 0)
-//
-//    tagged = try await db.read { try externalTag.soundFonts.fetchAll($0) }
-//    #expect(tagged.count == 0)
-//
-//    var presetsCount = try await db.read { try Preset.all().fetchCount($0) }
-//    #expect(presetsCount == 506)
-//
-//    presetsCount = try await db.read { try soundFonts[0].visiblePresetsQuery.fetchCount($0) }
-//    #expect(presetsCount == 235)
-//
-//    presetsCount = try await db.read { try soundFonts[1].visiblePresetsQuery.fetchCount($0) }
-//    #expect(presetsCount == 270)
-//
-//    presetsCount = try await db.read { try soundFonts[2].visiblePresetsQuery.fetchCount($0) }
-//    #expect(presetsCount == 1)
-//  }
-//
+import Dependencies
+import Foundation
+import SharingGRDB
+import SF2ResourceFiles
+import Testing
+
+@testable import Models
+
+@Suite(.dependencies { $0.defaultDatabase = try Models.appDatabase() })
+struct SoundFontTests {
+
+  @Test("migration") func migration() async throws {
+    @FetchAll(Models.Tag.all.order(by: \.id)) var tags
+    try await $tags.load()
+
+    let allTag = tags[Models.Tag.Ubiquitous.all.allTagsIndex]
+    let builtInTag = tags[Models.Tag.Ubiquitous.builtIn.allTagsIndex]
+    let addedTag = tags[Models.Tag.Ubiquitous.added.allTagsIndex]
+    let externalTag = tags[Models.Tag.Ubiquitous.external.allTagsIndex]
+
+    @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
+    try await $soundFonts.load()
+
+    #expect(soundFonts.count == 3)
+    #expect(soundFonts[0].displayName == SF2ResourceFileTag.freeFont.name)
+    #expect(soundFonts[0].id.rawValue == 1)
+
+    #expect(soundFonts[1].displayName == SF2ResourceFileTag.museScore.name)
+    #expect(soundFonts[1].id.rawValue == 2)
+
+    #expect(soundFonts[2].displayName == SF2ResourceFileTag.rolandNicePiano.name)
+    #expect(soundFonts[2].id.rawValue == 3)
+
+    #expect(try soundFonts[0].source().isBuiltin)
+    #expect(try soundFonts[1].source().isBuiltin)
+    #expect(try soundFonts[2].source().isBuiltin)
+
+    #expect(soundFonts[0].sourceKind == "built-in")
+    #expect(soundFonts[1].sourceKind == "built-in")
+    #expect(soundFonts[2].sourceKind == "built-in")
+
+    #expect(!soundFonts[0].sourcePath.isEmpty && soundFonts[0].sourcePath != "N/A")
+    #expect(!soundFonts[1].sourcePath.isEmpty && soundFonts[1].sourcePath != "N/A")
+    #expect(!soundFonts[2].sourcePath.isEmpty && soundFonts[2].sourcePath != "N/A")
+
+    #expect(soundFonts[0].embeddedName == "Free Font GM Ver. 3.2")
+    #expect(soundFonts[0].embeddedComment == "")
+    #expect(soundFonts[0].embeddedAuthor == "")
+    #expect(soundFonts[0].embeddedCopyright == "")
+    #expect(soundFonts[0].notes == "")
+
+    #expect(soundFonts[0].tags.count == 2)
+    #expect(soundFonts[1].tags.count == 2)
+    #expect(soundFonts[2].tags.count == 2)
+  }
+}
+
 //  @Test("add") func soundFontAdd() async throws {
 //    let db = try DatabaseQueue.appDatabase(addBuiltIns: false)
 //    var total = 0

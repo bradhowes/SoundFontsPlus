@@ -26,6 +26,16 @@ struct TagTests {
     #expect(presets.count == 506)
   }
 
+  @Test("tagged") func tagged() async throws {
+    @FetchAll(Models.Tag.all) var tags
+    try await $tags.load()
+
+    #expect(tags[0].soundFonts.count == 3)
+    #expect(tags[1].soundFonts.count == 3)
+    #expect(tags[2].soundFonts.count == 0)
+    #expect(tags[3].soundFonts.count == 0)
+  }
+
   @Test("create") func create() async throws {
     @FetchAll(Models.Tag.all) var tags
     let displayName = "new tag"
