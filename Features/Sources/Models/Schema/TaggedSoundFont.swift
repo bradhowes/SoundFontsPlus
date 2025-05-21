@@ -16,10 +16,10 @@ extension TaggedSoundFont {
       try #sql(
       """
       CREATE TABLE "\(raw: Self.tableName)" (
-        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
         "soundFontId" INTEGER NOT NULL,
         "tagId" INTEGER NOT NULL,
       
+        PRIMARY KEY("soundFontId", "tagId")
         FOREIGN KEY("soundFontId") REFERENCES "soundFonts"("id") ON DELETE CASCADE,
         FOREIGN KEY("tagId") REFERENCES "tags"("id") ON DELETE CASCADE
       ) STRICT

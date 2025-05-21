@@ -13,11 +13,6 @@ struct SoundFontTests {
     @FetchAll(Models.Tag.all.order(by: \.id)) var tags
     try await $tags.load()
 
-    let allTag = tags[Models.Tag.Ubiquitous.all.allTagsIndex]
-    let builtInTag = tags[Models.Tag.Ubiquitous.builtIn.allTagsIndex]
-    let addedTag = tags[Models.Tag.Ubiquitous.added.allTagsIndex]
-    let externalTag = tags[Models.Tag.Ubiquitous.external.allTagsIndex]
-
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
 

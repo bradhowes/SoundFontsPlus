@@ -13,7 +13,7 @@ public struct ActiveState: Codable, Equatable, Sendable {
   public init() {
     activeSoundFontId = SoundFont.ID(rawValue: 1)
     activePresetId = Preset.ID(rawValue: 1)
-    activeTagId = Tag.ID(rawValue: 1)
+    activeTagId = Tag.Ubiquitous.all.id
     selectedSoundFontId = activeSoundFontId
   }
 }
