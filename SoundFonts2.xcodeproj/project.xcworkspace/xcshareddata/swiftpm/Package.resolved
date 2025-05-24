@@ -1,6 +1,15 @@
 {
-  "originHash" : "e90c49a7f9b49bfbc1de2597050e3d56436bea2fe86ae1159cc8727e40fad411",
+  "originHash" : "e250065c475a2781a5fa35401bcee5df52254d9d1344099e1d78cf46e132c8b6",
   "pins" : [
+    {
+      "identity" : "auv3controls",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bradhowes/AUv3Controls",
+      "state" : {
+        "revision" : "80e96c3133cf6bd879a80c5fc4a8362f492e00ab",
+        "version" : "0.17.2"
+      }
+    },
     {
       "identity" : "auv3support",
       "kind" : "remoteSourceControl",
@@ -8,15 +17,6 @@
       "state" : {
         "revision" : "110b68b5be77248e09a3347abd6dc60b1b350ba0",
         "version" : "11.1.4"
-      }
-    },
-    {
-      "identity" : "brh-splitview",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bradhowes/brh-splitview",
-      "state" : {
-        "revision" : "98a873c1c9489110a379c872823c835555cacbfe",
-        "version" : "1.0.4"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sharing-grdb",
       "state" : {
-        "revision" : "1eb82e68c0a1fdb0d874e10c25dde7e82c1939a2",
-        "version" : "0.2.2"
+        "revision" : "af01e23147159b5fab1630ad3a5c7e38f8098392",
+        "version" : "0.3.0"
       }
     },
     {
@@ -96,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections",
       "state" : {
-        "revision" : "671108c96644956dddcd89dd59c203dcdb36cec7",
-        "version" : "1.1.4"
+        "revision" : "c1805596154bb3a265fd91b8ac0c4433b4348fb0",
+        "version" : "1.2.0"
       }
     },
     {
@@ -105,8 +105,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "b1d27a82b498b8e697acabd8cc01b585d26aab19",
-        "version" : "1.19.1"
+        "revision" : "294ac2cbfe48a41a6bd3c294fbb7bc5f0f5194d6",
+        "version" : "1.20.1"
       }
     },
     {
@@ -186,8 +186,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing",
       "state" : {
-        "revision" : "1be8144023c367c5de701a6313ed29a3a10bf59b",
-        "version" : "1.18.3"
+        "revision" : "37230a37e83f1b7023be08e1b1a2603fcb1567fb",
+        "version" : "1.18.4"
       }
     },
     {
@@ -195,8 +195,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "71657e2f1d5b5af29e8cc5c450a67523433671b1",
-        "version" : "0.2.0"
+        "revision" : "c851cb42573a407e2746ec7f1ff4f6d3b5cdc894",
+        "version" : "0.3.0"
       }
     },
     {
