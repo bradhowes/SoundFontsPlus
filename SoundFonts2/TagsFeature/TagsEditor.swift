@@ -21,7 +21,7 @@ public struct TagsEditor: Sendable {
       memberships: [Tag.ID:Bool]? = nil,
       editMode: EditMode = .inactive,
     ) {
-      self.rows = .init(uniqueElements: Operations.orderedTags.map {
+      self.rows = .init(uniqueElements: Operations.tags.map {
         .init(
           tag: $0,
           soundFontId: soundFontId,
@@ -97,7 +97,7 @@ private extension TagsEditor {
        let _ = state.rows.first(where: { $0.id.rawValue == tagId }) {
       let newRows = state.rows.filter { $0.id.rawValue != tagId }
       state.rows = newRows
-      _ = Operations.deleteTag(Tag.ID(rawValue: Int64(tagId)))
+      Operations.deleteTag(Tag.ID(rawValue: Int64(tagId)))
     }
     return .none.animation(.default)
   }
@@ -108,7 +108,15 @@ private extension TagsEditor {
   }
 
   func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
-    Operations.updateTags(state.rows.map { ($0.id, $0.name) })
+    Operations.updateTags(
+      state.rows.enumerated().map { (index, row) in
+        Tag(
+          id: row.id,
+          displayName: row.tag.isUserDefined ? row.newName.trimmed(or: row.tag.displayName) : row.tag.displayName,
+          ordering: index
+        )
+      }
+    )
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
   }
@@ -132,18 +140,15 @@ public struct TagsEditorView: View {
     NavigationStack {
       List {
         if store.editMode.isEditing {
-          // When in editing mode, there is not confirmation of deletion, and no swipe button.
           ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
             TagNameEditorView(store: rowStore)
           }
           .onMove { store.send(.tagMoved(at: $0, to: $1), animation: .default) }
           .onDelete { store.send(.deleteTag(at: $0), animation: .default) }
-          // .bind($store.focused, to: self.$focused)
         } else {
-          // When not in editing mode, allow for swipe-to-delete + confirmation of intent
           ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
             TagNameEditorView(store: rowStore)
-              .focused($focused, equals: rowStore.tagId)
+              .focused($focused, equals: rowStore.id)
           }
           .bind($store.focused, to: self.$focused)
         }
@@ -182,13 +187,13 @@ extension TagsEditorView {
     let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     @Dependency(\.defaultDatabase) var db
     let _ = try? Tag.make(displayName: "New Tag")
-    let tags = Operations.orderedTags
+    let tags = Operations.tags
     return TagsEditorView(store: Store(initialState: .init(focused: tags.last?.id)) { TagsEditor() })
   }
 
   static var previewInEditMode: some View {
     let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
-    let tags = Operations.orderedTags
+    let tags = Operations.tags
     return TagsEditorView(store: Store(initialState: .init(focused: tags.last?.id, editMode: .active)) {
       TagsEditor()
     })
@@ -198,7 +203,7 @@ extension TagsEditorView {
     let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     let _ = try? Tag.make(displayName: "New Tag 1")
     let _ = try? Tag.make(displayName: "New Tag 2")
-    let tags = Operations.orderedTags
+    let tags = Operations.tags
     var memberships = [Tag.ID:Bool]()
     memberships[tags[0].id] = true
     memberships[tags[1].id] = true
@@ -210,6 +215,21 @@ extension TagsEditorView {
       memberships: memberships)) {
       TagsEditor()
     })
+  }
+}
+
+extension String {
+
+  /**
+   Returns a new string that is either this with leading/trailing whitespace characters removed, or if that is empty,
+   the given value.
+
+   - parameter default: the value to use if our trimmed value results in an empty string
+   - returns trimmed content or given value
+   */
+  public func trimmed(or default: String) -> String {
+    let trimmed = self.trimmingCharacters(in: .whitespaces)
+    return trimmed.isEmpty ? `default` : trimmed
   }
 }
 

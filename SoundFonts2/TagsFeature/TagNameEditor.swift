@@ -9,17 +9,18 @@ public struct TagNameEditor {
 
   @ObservableState
   public struct State: Equatable, Identifiable, Sendable {
-    public let tagId: Tag.ID
-    public var name: String
-    public let soundFontId: SoundFont.ID?
+    public var id: Tag.ID { tag.id }
+    public var newName: String
     public var membership: Bool?
-    public var id: Tag.ID { tagId }
+
+    public let tag: Tag
+    public let soundFontId: SoundFont.ID?
 
     public init(tag: Tag, soundFontId: SoundFont.ID? = nil, membership: Bool? = nil) {
-      self.tagId = tag.id
-      self.name = tag.displayName
-      self.soundFontId = soundFontId
+      self.newName = tag.displayName
       self.membership = membership
+      self.tag = tag
+      self.soundFontId = soundFontId
     }
   }
 
@@ -43,7 +44,7 @@ public struct TagNameEditor {
       case .delegate: return .none
 
       case .deleteTag:
-        let tagId = state.tagId
+        let tagId = state.id
         return .run { send in
           await send(.delegate(.deleteTag(tagId)), animation: .default)
         }
@@ -61,15 +62,15 @@ private extension TagNameEditor {
     guard let soundFontId = state.soundFontId, state.membership != nil else { return .none }
     state.membership = value
     if value {
-      _ = Operations.tagSoundFont(state.tagId, soundFontId: soundFontId)
+      Operations.tagSoundFont(state.id, soundFontId: soundFontId)
     } else {
-      _ = Operations.untagSoundFont(state.tagId, soundFontId: soundFontId)
+      Operations.untagSoundFont(state.id, soundFontId: soundFontId)
     }
     return .none
   }
 
   func nameChanged(_ state: inout State, value: String) -> Effect<Action> {
-    state.name = value
+    state.newName = value
     return .none
   }
 }
@@ -78,7 +79,7 @@ public struct TagNameEditorView: View {
   @Bindable private var store: StoreOf<TagNameEditor>
   @Environment(\.editMode) private var editMode
 
-  private var readOnly: Bool { store.tagId.isUbiquitous }
+  private var readOnly: Bool { store.id.isUbiquitous }
   private var editable: Bool { !readOnly }
   private var isEditing: Bool { editMode?.wrappedValue.isEditing == true }
 
@@ -95,7 +96,7 @@ public struct TagNameEditorView: View {
   }
 
   private var nameField: some View {
-    TextField("", text: $store.name.sending(\.nameChanged))
+    TextField("", text: $store.newName.sending(\.nameChanged))
       .disabled(readOnly || isEditing)
       .deleteDisabled(readOnly)
       .foregroundStyle(editable ? .blue : .secondary)
@@ -115,7 +116,7 @@ public struct TagNameEditorView: View {
   private var toggleNameField: some View {
     HStack {
       Toggle("", isOn: Binding(get: { store.membership ?? false }, set: { store.send(.membershipButtonTapped($0)) }))
-        .disabled(store.tagId.isUbiquitous)
+        .disabled(store.id.isUbiquitous)
         .checkedStyle()
       nameField
     }
@@ -128,7 +129,7 @@ extension TagNameEditorView {
     let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     _ = try? Tag.make(displayName: "New Tag")
     _ = try? Tag.make(displayName: "Another Tag")
-    let tags = Operations.orderedTags
+    let tags = Operations.tags
 
     return VStack {
       Form {

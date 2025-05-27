@@ -72,9 +72,7 @@
 		BDAF5B0B2DE2558C00B8FB13 /* IndicatorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AFC2DE2558C00B8FB13 /* IndicatorModifier.swift */; };
 		BDAF5B122DE2559100B8FB13 /* TagsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B102DE2559100B8FB13 /* TagsList.swift */; };
 		BDAF5B132DE2559100B8FB13 /* TagsEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B0F2DE2559100B8FB13 /* TagsEditor.swift */; };
-		BDAF5B142DE2559100B8FB13 /* TagSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B0C2DE2559100B8FB13 /* TagSupport.swift */; };
 		BDAF5B152DE2559100B8FB13 /* TagNameEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B0E2DE2559100B8FB13 /* TagNameEditor.swift */; };
-		BDAF5B162DE2559100B8FB13 /* TagButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B0D2DE2559100B8FB13 /* TagButton.swift */; };
 		BDAF5B192DE2559500B8FB13 /* ToolBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B172DE2559400B8FB13 /* ToolBar.swift */; };
 		BDAF5B1C2DE2559900B8FB13 /* Tuning.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B1A2DE2559900B8FB13 /* Tuning.swift */; };
 		BDAF5B212DE2559E00B8FB13 /* Sharing.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B1F2DE2559E00B8FB13 /* Sharing.swift */; };
@@ -209,8 +207,6 @@
 		BDAF5AFF2DE2558C00B8FB13 /* StyledList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyledList.swift; sourceTree = "<group>"; };
 		BDAF5B002DE2558C00B8FB13 /* TextFieldClearButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldClearButton.swift; sourceTree = "<group>"; };
 		BDAF5B012DE2558C00B8FB13 /* VisibilityEditMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisibilityEditMode.swift; sourceTree = "<group>"; };
-		BDAF5B0C2DE2559100B8FB13 /* TagSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSupport.swift; sourceTree = "<group>"; };
-		BDAF5B0D2DE2559100B8FB13 /* TagButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagButton.swift; sourceTree = "<group>"; };
 		BDAF5B0E2DE2559100B8FB13 /* TagNameEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagNameEditor.swift; sourceTree = "<group>"; };
 		BDAF5B0F2DE2559100B8FB13 /* TagsEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsEditor.swift; sourceTree = "<group>"; };
 		BDAF5B102DE2559100B8FB13 /* TagsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsList.swift; sourceTree = "<group>"; };
@@ -317,27 +313,27 @@
 		BD1D27812B6F13DD005C3ED0 /* SoundFonts2 */ = {
 			isa = PBXGroup;
 			children = (
-				BDAF5B202DE2559E00B8FB13 /* Utils */,
-				BDAF5B1B2DE2559900B8FB13 /* TuningFeature */,
-				BDAF5B182DE2559400B8FB13 /* ToolBarFeature */,
-				BDAF5B112DE2559100B8FB13 /* TagsFeature */,
-				BDAF5B022DE2558C00B8FB13 /* SwiftUISupport */,
-				BDAF5AF22DE2558800B8FB13 /* SoundFontsFeature */,
-				BDAF5AE62DE2557300B8FB13 /* SF2ResourceFiles */,
-				BDAF5ADE2DE2556600B8FB13 /* SettingsFeature */,
-				BDAF5ADB2DE2556000B8FB13 /* ReverbFeature */,
-				BDAF5AD42DE2555B00B8FB13 /* PresetsFeature */,
-				BDAF5ABE2DE2555000B8FB13 /* Models */,
+				BDAF5A992DE254F400B8FB13 /* AppFeature */,
 				BDAF5A9C2DE2550700B8FB13 /* DelayFeature */,
-				BDAF5AA12DE2551A00B8FB13 /* KeyboardFeature */,
 				BDAF5A922DE254E000B8FB13 /* Extensions */,
+				BDAF5AA12DE2551A00B8FB13 /* KeyboardFeature */,
+				BDAF5ABE2DE2555000B8FB13 /* Models */,
+				BDAF5AD42DE2555B00B8FB13 /* PresetsFeature */,
+				BDAF5ADB2DE2556000B8FB13 /* ReverbFeature */,
+				BDAF5ADE2DE2556600B8FB13 /* SettingsFeature */,
+				BDAF5AE62DE2557300B8FB13 /* SF2ResourceFiles */,
+				BDAF5AF22DE2558800B8FB13 /* SoundFontsFeature */,
+				BDAF5B022DE2558C00B8FB13 /* SwiftUISupport */,
+				BDAF5B112DE2559100B8FB13 /* TagsFeature */,
+				BDAF5B182DE2559400B8FB13 /* ToolBarFeature */,
+				BDAF5B1B2DE2559900B8FB13 /* TuningFeature */,
+				BDAF5B202DE2559E00B8FB13 /* Utils */,
 				BD2A26032CC849E0000CC1DF /* Eurostile.ttc */,
 				BD1D27822B6F13DD005C3ED0 /* SoundFonts2App.swift */,
 				BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */,
 				BD1D278A2B6F13DE005C3ED0 /* SoundFonts2.entitlements */,
 				BD1D278E2B6F13DE005C3ED0 /* Info.plist */,
 				BD1D278B2B6F13DE005C3ED0 /* Preview Content */,
-				BDAF5A992DE254F400B8FB13 /* AppFeature */,
 			);
 			path = SoundFonts2;
 			sourceTree = "<group>";
@@ -544,11 +540,9 @@
 		BDAF5B112DE2559100B8FB13 /* TagsFeature */ = {
 			isa = PBXGroup;
 			children = (
-				BDAF5B0D2DE2559100B8FB13 /* TagButton.swift */,
 				BDAF5B0F2DE2559100B8FB13 /* TagsEditor.swift */,
 				BDAF5B102DE2559100B8FB13 /* TagsList.swift */,
 				BDAF5B0E2DE2559100B8FB13 /* TagNameEditor.swift */,
-				BDAF5B0C2DE2559100B8FB13 /* TagSupport.swift */,
 			);
 			path = TagsFeature;
 			sourceTree = "<group>";
@@ -897,9 +891,7 @@
 				BDAF5B092DE2558C00B8FB13 /* LongPressModifier.swift in Sources */,
 				BDAF5B122DE2559100B8FB13 /* TagsList.swift in Sources */,
 				BDAF5B132DE2559100B8FB13 /* TagsEditor.swift in Sources */,
-				BDAF5B142DE2559100B8FB13 /* TagSupport.swift in Sources */,
 				BDAF5B152DE2559100B8FB13 /* TagNameEditor.swift in Sources */,
-				BDAF5B162DE2559100B8FB13 /* TagButton.swift in Sources */,
 				BDAF5B0A2DE2558C00B8FB13 /* CheckToggleStyle.swift in Sources */,
 				BDAF5B0B2DE2558C00B8FB13 /* IndicatorModifier.swift in Sources */,
 				BDAF5AC62DE2555000B8FB13 /* DelayConfig.swift in Sources */,

@@ -15,44 +15,32 @@ public struct TagsList {
   @ObservableState
   public struct State: Equatable {
     @Presents var destination: Destination.State?
-    var rows: IdentifiedArrayOf<TagButton.State>
+    @FetchAll(Operations.tagInfosQuery, animation: .smooth) var tagInfos
 
-    public init() {
-      @FetchAll(Operations.tagInfos) var tagInfos
-      self.rows = .init(uniqueElements: tagInfos.map { .init(tagInfo: $0) })
-    }
+    public init() {}
   }
 
   public enum Action: Equatable {
-    case addButtonTapped
+    case deleteButtonTapped(TagInfo)
     case destination(PresentationAction<Destination.Action>)
-    case fetchTags
-    case onAppear
-    case rows(IdentifiedActionOf<TagButton>)
+    case editButtonTapped(TagInfo)
+    case longPressGestureFired
+    case tagButtonTapped(TagInfo)
   }
 
   public init() {}
 
-  @Dependency(\.defaultDatabase) var database
   @Shared(.activeState) var activeState
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .addButtonTapped: return addTag(&state)
-      case .destination(.dismiss): return fetchTags(&state)
-      case .destination(.presented(.edit(.addButtonTapped))): return fetchTags(&state)
-      case .destination(.presented(.edit(.finalizeDeleteTag))): return fetchTags(&state)
+      case let .deleteButtonTapped(tagInfo): return deleteButtonTapped(&state, tagInfo: tagInfo)
       case .destination: return .none
-      case .fetchTags: return fetchTags(&state)
-      case .onAppear: return fetchTags(&state)
-      case .rows(.element(_, .delegate(.deleteTag(let tagInfo)))): return deleteTag(&state, tagInfo: tagInfo)
-      case .rows(.element(_, .delegate(.editTags))): return editTags(&state)
-      case .rows: return .none
+      case let .editButtonTapped(tagInfo): return editTags(&state, focused: tagInfo)
+      case .longPressGestureFired: return editTags(&state, focused: nil)
+      case let .tagButtonTapped(tagInfo): return tagButtonTapped(&state, tagId: tagInfo.id)
       }
-    }
-    .forEach(\.rows, action: \.rows) {
-      TagButton()
     }
     .ifLet(\.$destination, action: \.destination)
   }
@@ -60,15 +48,14 @@ public struct TagsList {
 
 private extension TagsList {
 
-  func addTag(_ state: inout State) -> Effect<Action> {
-    if let tag = try? Tag.make(displayName: "New Tag") {
-      state.rows.append(.init(tagInfo: TagInfo(id: tag.id, displayName: tag.displayName, soundFontsCount: 0)))
-    }
+  func deleteButtonTapped(_ state: inout State, tagInfo: TagInfo) -> Effect<Action> {
+    Operations.deleteTag(tagInfo.id)
     return .none.animation(.default)
   }
 
   func deleteTag(_ state: inout State, tagInfo: TagInfo) -> Effect<Action>{
     precondition(tagInfo.id.isUserDefined)
+
     if activeState.activeTagId == tagInfo.id {
       $activeState.withLock {
         $0.activeTagId = Tag.Ubiquitous.all.id
@@ -76,24 +63,25 @@ private extension TagsList {
     }
 
     try? Tag.delete(id: tagInfo.id)
-
-    return .run { await $0(.fetchTags) }.animation(.default)
-  }
-
-  func editTags(_ state: inout State) -> Effect<Action> {
-    state.destination = .edit(TagsEditor.State(focused: nil))
     return .none.animation(.default)
   }
 
-  func fetchTags(_ state: inout State) -> Effect<Action> {
-    @FetchAll(Operations.tagInfos) var tagInfos
-    state.rows = .init(uniqueElements: tagInfos.map{ .init(tagInfo: $0) })
+  func tagButtonTapped(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
+    $activeState.withLock {
+      $0.activeTagId = tagId
+    }
+    return .none.animation(.default)
+  }
+
+  func editTags(_ state: inout State, focused: TagInfo? = nil) -> Effect<Action> {
+    state.destination = .edit(TagsEditor.State(focused: focused?.id))
     return .none.animation(.default)
   }
 }
 
 public struct TagsListView: View {
   @Bindable private var store: StoreOf<TagsList>
+  @Shared(.activeState) private var activeState
 
   public init(store: StoreOf<TagsList>) {
     self.store = store
@@ -101,15 +89,46 @@ public struct TagsListView: View {
 
   public var body: some View {
     StyledList(title: "Tags") {
-      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-        TagButtonView(store: rowStore)
+      ForEach(store.tagInfos, id: \.id) { tagInfo in
+        button(tagInfo)
       }
     }
     .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
       TagsEditorView(store: $0)
     }
-    .onAppear {
-      store.send(.onAppear)
+  }
+
+  private func button(_ tagInfo: TagInfo) -> some View {
+    Button {
+      store.send(.tagButtonTapped(tagInfo))
+    } label: {
+      HStack {
+        Text(tagInfo.displayName)
+        Spacer()
+        Text("\(tagInfo.soundFontsCount)")
+      }
+      .contentShape(Rectangle())
+      .font(Font.custom("Eurostile", size: 20))
+      .indicator(activeState.activeTagId == tagInfo.id ? .active : .none )
+    }
+    .listRowSeparatorTint(.accentColor.opacity(0.5))
+    .withLongPressGesture {
+      store.send(.longPressGestureFired, animation: .default)
+    }
+    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+      if tagInfo.id.isUserDefined {
+        Button {
+          store.send(.deleteButtonTapped(tagInfo), animation: .smooth)
+        } label: {
+          Image(systemName: "trash")
+            .tint(.red)
+        }
+      }
+      Button {
+        store.send(.editButtonTapped(tagInfo), animation: .smooth)
+      } label: {
+        Image(systemName: "pencil.circle")
+      }
     }
   }
 }

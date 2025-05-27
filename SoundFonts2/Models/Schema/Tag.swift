@@ -74,7 +74,7 @@ extension Tag {
       throw ModelError.emptyTagName
     }
 
-    let existingNames = Set<String>(Operations.orderedTags.map { $0.displayName })
+    let existingNames = Set<String>(Self.ordered.map { $0.displayName })
     var newName = base
     var index = 0
     while existingNames.contains(newName) {
@@ -91,7 +91,12 @@ extension Tag {
     return result[0]
   }
 
-  func delete() throws {
+  public static func with(key tagId: Tag.ID) -> Self? {
+    @Dependency(\.defaultDatabase) var database
+    return try? database.read { try Self.find(tagId).fetchOne($0) }
+  }
+
+  public func delete() throws {
     guard self.isUserDefined else { throw ModelError.deleteUbiquitous(name: self.displayName) }
     try Self.delete(id: self.id)
   }
@@ -102,6 +107,12 @@ extension Tag {
     try database.write { db in
       try Self.delete().where({ $0.id == id }).execute(db)
     }
+  }
+
+  public static var ordered: [Tag] {
+    let query = Self.all.order(by: \.ordering)
+    @Dependency(\.defaultDatabase) var database
+    return (try? database.read { try query.fetchAll($0) }) ?? []
   }
 
   static func reorder(tagIds: [Tag.ID]) throws {

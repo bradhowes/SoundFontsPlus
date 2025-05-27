@@ -5,34 +5,15 @@ import SharingGRDB
 
 public enum Operations {
 
-  public static var presetSource: SoundFont.ID? {
-    @Shared(.activeState) var activeState
-    return activeState.selectedSoundFontId ?? activeState.activeSoundFontId
-  }
-
-  public static var activePresetName: String {
-    @Shared(.activeState) var activeState
-    guard let presetId = activeState.activePresetId else { return "-" }
-    let query = Preset.select{ $0.displayName }.where { $0.id == presetId }
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try query.fetchOne($0) }) ?? "-"
-  }
-
-  public static func preset(_ presetId: Preset.ID) -> Preset? {
-    let query = Preset.all.where { $0.id == presetId }
-    @Dependency(\.defaultDatabase) var database
-    return try? database.read { try query.fetchOne($0) }
-  }
-
   public static var presets: [Preset] {
-    guard let soundFontId = presetSource else { return [] }
+    guard let soundFontId = Preset.source else { return [] }
     let query = Preset.all.where { $0.soundFontId == soundFontId && $0.visible }.order(by: \.index)
     @Dependency(\.defaultDatabase) var database
     return (try? database.read { try query.fetchAll($0) }) ?? []
   }
 
   public static var allPresets: [Preset] {
-    guard let soundFontId = presetSource else { return [] }
+    guard let soundFontId = Preset.source else { return [] }
     let query = Preset.all.where { $0.soundFontId == soundFontId }.order(by: \.index)
     @Dependency(\.defaultDatabase) var database
     return (try? database.read { try query.fetchAll($0) }) ?? []
@@ -50,54 +31,47 @@ public enum Operations {
     return (try? database.read { try query.fetchAll($0) }) ?? []
   }
   
-  public static func tagSoundFont(_ tagId: Tag.ID, soundFontId: SoundFont.ID) -> Bool {
-    if tagId.isUbiquitous { return false }
+  public static func tagSoundFont(_ tagId: Tag.ID, soundFontId: SoundFont.ID) {
+    if tagId.isUbiquitous { return }
     let query = TaggedSoundFont.insert(.init(soundFontId: soundFontId, tagId: tagId))
     @Dependency(\.defaultDatabase) var database
-    return (try? database.write { try query.execute($0); return true }) ?? false
+    try? database.write { try query.execute($0) }
   }
   
-  public static func untagSoundFont(_ tagId: Tag.ID, soundFontId: SoundFont.ID) -> Bool {
-    if tagId.isUbiquitous { return false }
+  public static func untagSoundFont(_ tagId: Tag.ID, soundFontId: SoundFont.ID) {
+    if tagId.isUbiquitous { return }
     let query = TaggedSoundFont.all.delete().where { $0.soundFontId.eq(soundFontId) && $0.tagId.eq(tagId) }
     @Dependency(\.defaultDatabase) var database
-    return (try? database.write { try query.execute($0); return true }) ?? false
+    try? database.write { try query.execute($0) }
   }
 
-  public static func deleteTag(_ tagId: Tag.ID) -> Bool {
-    if tagId.isUbiquitous { return false }
-    let query = Tag.all.delete().where { $0.id.eq(tagId) }
+  public static func deleteTag(_ tagId: Tag.ID) {
+    if tagId.isUbiquitous { return }
+    let query = Tag.find(tagId).delete()
     @Dependency(\.defaultDatabase) var database
-    return (try? database.write { try query.execute($0); return true }) ?? false
+    try? database.write { try query.execute($0); }
   }
 
-  public static var orderedTags: [Tag] {
-    let query = Tag.all.order(by: \.ordering)
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try query.fetchAll($0) }) ?? []
-  }
+//  public static func updateTags(_ tagsInfo: [(Tag.ID, String)]) {
+//    @Dependency(\.defaultDatabase) var database
+//    for (ordering, (tagId, name)) in tagsInfo.enumerated() {
+//      let newName = name.trimmingCharacters(in: .whitespaces)
+//      let query = Tag
+//        .find(tagId)
+//        .update {
+//          if tagId.isUserDefined && !newName.isEmpty {
+//            $0.displayName = newName
+//          }
+//          $0.ordering = ordering
+//        }
+//      try? database.write { try query.execute($0) }
+//    }
+//  }
 
-  public static func tag(_ tagId: Tag.ID) -> Tag? {
+  public static func updateTags(_ tags: [Tag]) {
     @Dependency(\.defaultDatabase) var database
-    return try? database.read { db in
-      try Tag.find(tagId).fetchOne(db)
-    }
-  }
-
-  public static func updateTags(_ tagsInfo: [(Tag.ID, String)]) {
-    @Dependency(\.defaultDatabase) var database
-    for tagInfo in tagsInfo.enumerated() {
-      let newName = tagInfo.1.1.trimmingCharacters(in: .whitespaces)
-      let query = Tag
-        .find(tagInfo.1.0)
-        .update {
-          if !newName.isEmpty {
-            $0.displayName = newName
-          }
-          $0.ordering = tagInfo.0
-        }
-      try? database.write { try query.execute($0) }
-    }
+    let query = Tag.insert(or: .replace, tags)
+    try? database.write { try query.execute($0) }
   }
 
   public static func setVisibility(of presetId: Preset.ID, to visible: Bool) {
@@ -106,7 +80,7 @@ public enum Operations {
     try? database.write { try query.execute($0) }
   }
 
-  public static var tagInfos: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont?> {
+  public static var tagInfosQuery: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont?> {
     Tag
       .group(by: \.id)
       .order(by: \.ordering)
@@ -115,5 +89,15 @@ public enum Operations {
       }.select {
         TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count())
       }
+  }
+
+  public static var tagsQuery: Select<(), Tag, ()> {
+    Tag
+      .order(by: \.ordering)
+  }
+
+  public static var tags: [Tag] {
+    @Dependency(\.defaultDatabase) var database
+    return (try? database.read { try tagsQuery.fetchAll($0) }) ?? []
   }
 }
