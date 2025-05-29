@@ -17,6 +17,7 @@
 		BD3311432DE2700500A73BA8 /* InlineSnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311422DE2700500A73BA8 /* InlineSnapshotTesting */; };
 		BD3311452DE2700500A73BA8 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311442DE2700500A73BA8 /* SnapshotTesting */; };
 		BD3311472DE2700500A73BA8 /* SnapshotTestingCustomDump in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311462DE2700500A73BA8 /* SnapshotTestingCustomDump */; };
+		BD7460D42DE895AB00FA9E1B /* PresetInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7460D32DE895AB00FA9E1B /* PresetInfo.swift */; };
 		BDAF5A932DE254E000B8FB13 /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A8F2DE254E000B8FB13 /* FileManager.swift */; };
 		BDAF5A942DE254E000B8FB13 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A8E2DE254E000B8FB13 /* Environment.swift */; };
 		BDAF5A952DE254E000B8FB13 /* Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A8D2DE254E000B8FB13 /* Codable.swift */; };
@@ -155,6 +156,7 @@
 		BD1D27A32B6F13DE005C3ED0 /* SoundFonts2UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFonts2UITestsLaunchTests.swift; sourceTree = "<group>"; };
 		BD2A26032CC849E0000CC1DF /* Eurostile.ttc */ = {isa = PBXFileReference; lastKnownFileType = file; path = Eurostile.ttc; sourceTree = "<group>"; };
 		BD5A65612D984945008B8117 /* SoundFonts2.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SoundFonts2.xctestplan; sourceTree = "<group>"; };
+		BD7460D32DE895AB00FA9E1B /* PresetInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PresetInfo.swift; sourceTree = "<group>"; };
 		BDAF5A8D2DE254E000B8FB13 /* Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Codable.swift; sourceTree = "<group>"; };
 		BDAF5A8E2DE254E000B8FB13 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		BDAF5A8F2DE254E000B8FB13 /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
@@ -436,6 +438,7 @@
 				BDAF5AB32DE2555000B8FB13 /* ReverbConfig.swift */,
 				BDAF5AB42DE2555000B8FB13 /* SoundFont.swift */,
 				BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */,
+				BD7460D32DE895AB00FA9E1B /* PresetInfo.swift */,
 				BDAF5AB52DE2555000B8FB13 /* Tag.swift */,
 				BDAF5AB62DE2555000B8FB13 /* TaggedSoundFont.swift */,
 				BDAF5AB72DE2555000B8FB13 /* TagInfo.swift */,
@@ -889,6 +892,7 @@
 				BDAF5B042DE2558C00B8FB13 /* TextFieldClearButton.swift in Sources */,
 				BDAF5B052DE2558C00B8FB13 /* StyledList.swift in Sources */,
 				BDAF5B062DE2558C00B8FB13 /* AlertsAndConfirmationDialogs.swift in Sources */,
+				BD7460D42DE895AB00FA9E1B /* PresetInfo.swift in Sources */,
 				BDAF5B072DE2558C00B8FB13 /* VisibilityEditMode.swift in Sources */,
 				BDAF5B082DE2558C00B8FB13 /* Notifications.swift in Sources */,
 				BDAF5B092DE2558C00B8FB13 /* LongPressModifier.swift in Sources */,
