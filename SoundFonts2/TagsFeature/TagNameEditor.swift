@@ -4,6 +4,9 @@ import ComposableArchitecture
 import SwiftUI
 import Tagged
 
+/**
+ Feature that allows for editing of a tag name and other tag data.
+ */
 @Reducer
 public struct TagNameEditor {
 
@@ -26,14 +29,14 @@ public struct TagNameEditor {
 
   public enum Action: Equatable {
     case delegate(Delegate)
-    case deleteTag
     case membershipButtonTapped(Bool)
     case nameChanged(String)
-  }
+    case tagSwipedToDelete
 
-  @CasePathable
-  public enum Delegate: Equatable {
-    case deleteTag(Tag.ID)
+    @CasePathable
+    public enum Delegate: Equatable {
+      case tagSwipedToDelete(Tag.ID)
+    }
   }
 
   @Dependency(\.defaultDatabase) var database
@@ -42,15 +45,9 @@ public struct TagNameEditor {
     Reduce { state, action in
       switch action {
       case .delegate: return .none
-
-      case .deleteTag:
-        let tagId = state.id
-        return .run { send in
-          await send(.delegate(.deleteTag(tagId)), animation: .default)
-        }
-
       case .membershipButtonTapped(let value): return membershipChanged(&state, value: value)
       case .nameChanged(let newName): return nameChanged(&state, value: newName)
+      case .tagSwipedToDelete: return .send(.delegate(.tagSwipedToDelete(state.id)), animation: .default)
       }
     }
   }
@@ -104,7 +101,7 @@ public struct TagNameEditorView: View {
       .swipeActions(edge: .trailing) {
         if editable {
           Button {
-            store.send(.deleteTag)
+            store.send(.tagSwipedToDelete)
           } label: {
             Image(systemName: "trash")
               .tint(.red)

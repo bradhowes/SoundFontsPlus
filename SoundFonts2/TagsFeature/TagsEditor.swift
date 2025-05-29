@@ -38,26 +38,26 @@ public struct TagsEditor: Sendable {
   public enum Action: Equatable, BindableAction {
     case addButtonTapped
     case binding(BindingAction<State>)
-    case deleteTag(at: IndexSet)
+    case tagSwipedToDelete(at: IndexSet)
     case dismissButtonTapped
-    case finalizeDeleteTag(IndexSet)
+    case finalizeDeleteTag(Tag.ID)
     case rows(IdentifiedActionOf<TagNameEditor>)
     case tagMoved(at: IndexSet, to: Int)
     case toggleEditMode
   }
 
   @Dependency(\.defaultDatabase) var database
+  @Shared(.activeState) var activeState
 
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
       case .addButtonTapped: return addTag(&state)
       case .binding: return .none
-      case .deleteTag(let indices): return deleteTag(&state, indices: indices)
+      case .tagSwipedToDelete(let indices): return deleteTag(&state, indices: indices)
       case .dismissButtonTapped: return dismissButtonTapped(&state)
-      case .finalizeDeleteTag(let indices): return finalizeDeleteTag(&state, indices: indices)
-      case let .rows(.element(id: id, action: .delegate(.deleteTag))):
-        return deleteTag(&state, indices: IndexSet(integer: IndexSet.Element(id.rawValue)))
+      case let .finalizeDeleteTag(tagId): return finalizeDeleteTag(&state, tagId: tagId)
+      case let .rows(.element(id: id, action: .delegate(.tagSwipedToDelete))): return deleteTag(&state, tagId: id)
       case .rows: return .none
       case let .tagMoved(indices, offset): return moveTag(&state, at: indices, to: offset)
       case .toggleEditMode: return toggleEditMode(&state)
@@ -83,28 +83,36 @@ private extension TagsEditor {
       ))
       state.focused = tag.id
     }
-    return .none.animation(.default)
+    return .none
   }
 
-  func deleteTag(_ state: inout State, indices: IndexSet) -> Effect<Action> {
+  func deleteTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
     return .run { send in
-      await send(.finalizeDeleteTag(indices))
+      await send(.finalizeDeleteTag(tagId))
     }.animation(.default)
   }
 
-  func finalizeDeleteTag(_ state: inout State, indices: IndexSet) -> Effect<Action> {
-    if let tagId = indices.first,
-       let _ = state.rows.first(where: { $0.id.rawValue == tagId }) {
-      let newRows = state.rows.filter { $0.id.rawValue != tagId }
-      state.rows = newRows
-      Operations.deleteTag(Tag.ID(rawValue: Int64(tagId)))
+  func deleteTag(_ state: inout State, indices: IndexSet) -> Effect<Action> {
+    if let tagId = indices.first, state.rows.first(where: { $0.id.rawValue == tagId }) != nil {
+      return deleteTag(&state, tagId: Tag.ID(rawValue: Int64(tagId)))
     }
-    return .none.animation(.default)
+    return .none
+  }
+
+  func finalizeDeleteTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
+    if activeState.activeTagId == tagId {
+      $activeState.withLock {
+        $0.activeTagId = Tag.Ubiquitous.all.id
+      }
+    }
+    state.rows = state.rows.filter { $0.id != tagId }
+    Operations.deleteTag(tagId)
+    return .none
   }
 
   func moveTag(_ state: inout State, at indices: IndexSet, to offset: Int) -> Effect<Action> {
     state.rows.move(fromOffsets: indices, toOffset: offset)
-    return .none.animation(.default)
+    return .none
   }
 
   func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
@@ -123,7 +131,7 @@ private extension TagsEditor {
 
   func toggleEditMode(_ state: inout State) -> Effect<Action> {
     state.editMode = state.editMode.isEditing ? .inactive : .active
-    return .none.animation(.default)
+    return .none
   }
 }
 
@@ -144,7 +152,7 @@ public struct TagsEditorView: View {
             TagNameEditorView(store: rowStore)
           }
           .onMove { store.send(.tagMoved(at: $0, to: $1), animation: .default) }
-          .onDelete { store.send(.deleteTag(at: $0), animation: .default) }
+          .onDelete { store.send(.tagSwipedToDelete(at: $0), animation: .default) }
         } else {
           ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
             TagNameEditorView(store: rowStore)

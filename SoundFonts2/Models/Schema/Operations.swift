@@ -52,32 +52,37 @@ public enum Operations {
     try? database.write { try query.execute($0); }
   }
 
-//  public static func updateTags(_ tagsInfo: [(Tag.ID, String)]) {
-//    @Dependency(\.defaultDatabase) var database
-//    for (ordering, (tagId, name)) in tagsInfo.enumerated() {
-//      let newName = name.trimmingCharacters(in: .whitespaces)
-//      let query = Tag
-//        .find(tagId)
-//        .update {
-//          if tagId.isUserDefined && !newName.isEmpty {
-//            $0.displayName = newName
-//          }
-//          $0.ordering = ordering
-//        }
-//      try? database.write { try query.execute($0) }
-//    }
-//  }
-
   public static func updateTags(_ tags: [Tag]) {
     @Dependency(\.defaultDatabase) var database
-    let query = Tag.insert(or: .replace, tags)
-    try? database.write { try query.execute($0) }
+    withErrorReporting {
+      try database.write { db in
+        for tag in tags {
+          try Tag.find(tag.id)
+            .update {
+              $0.displayName = tag.displayName
+              $0.ordering = tag.ordering
+            }
+            .execute(db)
+        }
+      }
+    }
   }
 
   public static func setVisibility(of presetId: Preset.ID, to visible: Bool) {
     let query = Preset.find(presetId).update { $0.visible = visible }
     @Dependency(\.defaultDatabase) var database
     try? database.write { try query.execute($0) }
+  }
+
+  public static var soundFontInfosQuery: Select<SoundFontInfo.Columns.QueryValue, TaggedSoundFont, SoundFont> {
+    @Shared(.activeState) var activeState
+    return TaggedSoundFont
+      .join(SoundFont.all) {
+        $0.tagId.eq(activeState.activeTagId ?? Tag.Ubiquitous.all.id) && $0.soundFontId.eq($1.id)
+      }
+      .select {
+        SoundFontInfo.Columns(id: $1.id, displayName: $1.displayName, kind: $1.kind, location: $1.location)
+      }
   }
 
   public static var tagInfosQuery: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont?> {

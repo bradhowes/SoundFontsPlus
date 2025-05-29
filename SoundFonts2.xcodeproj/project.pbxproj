@@ -121,6 +121,7 @@
 		BDAF5BC12DE25C9200B8FB13 /* Tagged in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC02DE25C9200B8FB13 /* Tagged */; };
 		BDAF5BC42DE269C300B8FB13 /* DependenciesTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC32DE269C300B8FB13 /* DependenciesTestSupport */; };
 		BDAF5BC92DE26BFC00B8FB13 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC82DE26BFC00B8FB13 /* SnapshotTesting */; };
+		BDBDDEB12DE658E700C2CD87 /* SoundFontInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -248,6 +249,7 @@
 		BDAF5B7A2DE256C500B8FB13 /* TagsListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsListTests.swift; sourceTree = "<group>"; };
 		BDAF5B7C2DE256C500B8FB13 /* ToolBarFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolBarFeatureTests.swift; sourceTree = "<group>"; };
 		BDAF5B7E2DE256C500B8FB13 /* NoteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteTests.swift; sourceTree = "<group>"; };
+		BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundFontInfo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -433,6 +435,7 @@
 				BDAF5AB22DE2555000B8FB13 /* Preset.swift */,
 				BDAF5AB32DE2555000B8FB13 /* ReverbConfig.swift */,
 				BDAF5AB42DE2555000B8FB13 /* SoundFont.swift */,
+				BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */,
 				BDAF5AB52DE2555000B8FB13 /* Tag.swift */,
 				BDAF5AB62DE2555000B8FB13 /* TaggedSoundFont.swift */,
 				BDAF5AB72DE2555000B8FB13 /* TagInfo.swift */,
@@ -909,6 +912,7 @@
 				BDAF5A952DE254E000B8FB13 /* Codable.swift in Sources */,
 				BDAF5B192DE2559500B8FB13 /* ToolBar.swift in Sources */,
 				BDAF5B212DE2559E00B8FB13 /* Sharing.swift in Sources */,
+				BDBDDEB12DE658E700C2CD87 /* SoundFontInfo.swift in Sources */,
 				BDAF5B222DE2559E00B8FB13 /* Note.swift in Sources */,
 				BDAF5B232DE2559E00B8FB13 /* KeyLabels.swift in Sources */,
 				BDAF5AA22DE2551A00B8FB13 /* EventNoteMap.swift in Sources */,

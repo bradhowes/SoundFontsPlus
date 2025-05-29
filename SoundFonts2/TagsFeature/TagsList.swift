@@ -4,6 +4,13 @@ import ComposableArchitecture
 import SharingGRDB
 import SwiftUI
 
+/**
+ Feature that shows a list of tag buttons.
+
+ - Touching a button makes the associated tag active
+ - Swiping left offers a button to edit the tags and a button to delete the swiped tag
+ - Long-press on a tag to edit the tags
+ */
 @Reducer
 public struct TagsList {
 
@@ -21,11 +28,11 @@ public struct TagsList {
   }
 
   public enum Action: Equatable {
-    case deleteButtonTapped(TagInfo)
     case destination(PresentationAction<Destination.Action>)
-    case editButtonTapped(TagInfo)
     case longPressGestureFired
     case tagButtonTapped(TagInfo)
+    case tagSwipedToDelete(TagInfo)
+    case tagSwipedToEdit(TagInfo)
   }
 
   public init() {}
@@ -35,11 +42,11 @@ public struct TagsList {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case let .deleteButtonTapped(tagInfo): return deleteButtonTapped(&state, tagInfo: tagInfo)
       case .destination: return .none
-      case let .editButtonTapped(tagInfo): return editTags(&state, focused: tagInfo)
       case .longPressGestureFired: return editTags(&state, focused: nil)
-      case let .tagButtonTapped(tagInfo): return tagButtonTapped(&state, tagId: tagInfo.id)
+      case let .tagButtonTapped(tagInfo): return activateTag(&state, tagId: tagInfo.id)
+      case let .tagSwipedToDelete(tagInfo): return deleteTag(&state, tagId: tagInfo.id)
+      case let .tagSwipedToEdit(tagInfo): return editTags(&state, focused: tagInfo)
       }
     }
     .ifLet(\.$destination, action: \.destination)
@@ -48,34 +55,26 @@ public struct TagsList {
 
 private extension TagsList {
 
-  func deleteButtonTapped(_ state: inout State, tagInfo: TagInfo) -> Effect<Action> {
-    Operations.deleteTag(tagInfo.id)
-    return .none.animation(.default)
+  func activateTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
+    $activeState.withLock {
+      $0.activeTagId = tagId
+    }
+    return .none
   }
 
-  func deleteTag(_ state: inout State, tagInfo: TagInfo) -> Effect<Action>{
-    precondition(tagInfo.id.isUserDefined)
-
-    if activeState.activeTagId == tagInfo.id {
+  func deleteTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
+    if activeState.activeTagId == tagId {
       $activeState.withLock {
         $0.activeTagId = Tag.Ubiquitous.all.id
       }
     }
-
-    try? Tag.delete(id: tagInfo.id)
-    return .none.animation(.default)
-  }
-
-  func tagButtonTapped(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
-    $activeState.withLock {
-      $0.activeTagId = tagId
-    }
-    return .none.animation(.default)
+    Operations.deleteTag(tagId)
+    return .none
   }
 
   func editTags(_ state: inout State, focused: TagInfo? = nil) -> Effect<Action> {
     state.destination = .edit(TagsEditor.State(focused: focused?.id))
-    return .none.animation(.default)
+    return .none
   }
 }
 
@@ -118,14 +117,14 @@ public struct TagsListView: View {
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
       if tagInfo.id.isUserDefined {
         Button {
-          store.send(.deleteButtonTapped(tagInfo), animation: .smooth)
+          store.send(.tagSwipedToDelete(tagInfo), animation: .smooth)
         } label: {
           Image(systemName: "trash")
             .tint(.red)
         }
       }
       Button {
-        store.send(.editButtonTapped(tagInfo), animation: .smooth)
+        store.send(.tagSwipedToEdit(tagInfo), animation: .smooth)
       } label: {
         Image(systemName: "pencil.circle")
       }
@@ -138,6 +137,8 @@ extension TagsListView {
   static var preview: some View {
     let _ = prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
+      let tag = try! Tag.make(displayName: "Another Tag")
+      Operations.tagSoundFont(tag.id, soundFontId: .init(rawValue: 1))
     }
 
     return TagsListView(store: Store(initialState: .init()) { TagsList() })

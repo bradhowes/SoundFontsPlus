@@ -19,8 +19,8 @@ public struct SoundFont: Hashable, Identifiable, Sendable {
 
   public var displayName: String
 
-  private let kind: Kind
-  private let location: Data
+  public let kind: Kind
+  public let location: Data
 
   public let originalName: String
   public let embeddedName: String
@@ -135,23 +135,6 @@ extension SoundFont {
         try Preset.insert(presets).execute(db)
       }
     }
-  }
-
-  public static var activeQuery: Select<Self.TableColumns.QueryValue, TaggedSoundFont, Self> {
-    //    SELECT
-    //      soundFonts.id, soundFonts.displayName
-    //    FROM
-    //      soundFonts,
-    //      taggedSoundFonts
-    //    WHERE
-    //      taggedSoundFonts.tagId == 6 AND soundFonts.id == taggedSoundFonts.soundFontId
-    //    ORDER BY soundFonts.displayName
-    @Shared(.activeState) var activeState
-    let activeTag = activeState.activeTagId ?? Tag.Ubiquitous.all.id
-    let query = TaggedSoundFont
-      .join(Self.all) { $0.tagId.eq(activeTag) && $0.soundFontId.eq($1.id) }
-      .select { $1 }
-    return query
   }
 }
 
