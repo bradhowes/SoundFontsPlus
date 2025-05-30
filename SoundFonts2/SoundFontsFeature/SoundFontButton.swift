@@ -12,12 +12,12 @@ public struct SoundFontButton {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    public let soundFont: SoundFont
-    public var id: SoundFont.ID { soundFont.id }
+    public let soundFontInfo: SoundFontInfo
+    public var id: SoundFont.ID { soundFontInfo.id }
     @Presents public var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
 
-    public init(soundFont: SoundFont) {
-      self.soundFont = soundFont
+    public init(soundFontInfo: SoundFontInfo) {
+      self.soundFontInfo = soundFontInfo
     }
   }
 
@@ -37,21 +37,21 @@ public struct SoundFontButton {
 
   @CasePathable
   public enum Delegate: Equatable {
-    case deleteSoundFont(SoundFont)
-    case editSoundFont(SoundFont)
-    case selectSoundFont(SoundFont)
+    case deleteSoundFont(SoundFontInfo)
+    case editSoundFont(SoundFontInfo)
+    case selectSoundFont(SoundFontInfo)
   }
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .buttonTapped: return .send(.delegate(.selectSoundFont(state.soundFont)))
+      case .buttonTapped: return .send(.delegate(.selectSoundFont(state.soundFontInfo)))
       case .confirmationDialog(.presented(.deleteButtonTapped)):
-        return .send(.delegate(.deleteSoundFont(state.soundFont))).animation(.default)
+        return .send(.delegate(.deleteSoundFont(state.soundFontInfo))).animation(.default)
       case .confirmationDialog: return .none
       case .delegate: return .none
       case .deleteButtonTapped: return deleteButtonTapped(&state)
-      case .editButtonTapped: return .send(.delegate(.editSoundFont(state.soundFont)))
+      case .editButtonTapped: return .send(.delegate(.editSoundFont(state.soundFontInfo)))
       }
     }
     .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
@@ -94,12 +94,12 @@ extension SoundFontButton {
   }
 
   func deleteButtonTapped(_ state: inout State) -> Effect<Action> {
-    if state.soundFont.isInstalled {
-      state.confirmationDialog = Self.deleteFromDeviceConfirmationDialogState(displayName: state.soundFont.displayName)
-    } else if state.soundFont.isExternal {
-      state.confirmationDialog = Self.deleteFromAppConfirmationDialogState(displayName: state.soundFont.displayName)
+    if state.soundFontInfo.isInstalled {
+      state.confirmationDialog = Self.deleteFromDeviceConfirmationDialogState(displayName: state.soundFontInfo.displayName)
+    } else if state.soundFontInfo.isExternal {
+      state.confirmationDialog = Self.deleteFromAppConfirmationDialogState(displayName: state.soundFontInfo.displayName)
     } else {
-      let name = state.soundFont.displayName
+      let name = state.soundFontInfo.displayName
       Logger.soundFonts.warning("request to delete built-in soundfont \(name)")
     }
     return .none.animation(.default)
@@ -110,8 +110,8 @@ struct SoundFontButtonView: View {
   @Bindable private var store: StoreOf<SoundFontButton>
   @Shared(.activeState) private var activeState
   private var state: IndicatorModifier.State {
-    activeState.activeSoundFontId == store.state.soundFont.id ? .active :
-    activeState.selectedSoundFontId == store.state.soundFont.id ? .selected : .none
+    activeState.activeSoundFontId == store.state.soundFontInfo.id ? .active :
+    activeState.selectedSoundFontId == store.state.soundFontInfo.id ? .selected : .none
   }
 
   public init(store: StoreOf<SoundFontButton>) {
@@ -122,7 +122,7 @@ struct SoundFontButtonView: View {
     Button {
       store.send(.buttonTapped, animation: .default)
     } label: {
-      Text(store.soundFont.displayName)
+      Text(store.soundFontInfo.displayName)
         .font(.buttonFont)
         .indicator(state)
     }
@@ -137,7 +137,7 @@ struct SoundFontButtonView: View {
       }
     }
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-      if !store.soundFont.isBuiltIn {
+      if !store.soundFontInfo.isBuiltIn {
         Button {
           store.send(.deleteButtonTapped, animation: .default)
         } label: {
@@ -151,32 +151,34 @@ struct SoundFontButtonView: View {
 
 extension SoundFontButtonView {
   static var preview: some View {
-    let _ = prepareDependencies {
+    let soundFontInfos = try! prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
+      return try $0.defaultDatabase.read { db in
+        try Operations.soundFontInfosQuery.fetchAll(db)
+      }
     }
 
-    @FetchAll(SoundFont.all) var soundFonts
     @Shared(.activeState) var activeState
     $activeState.withLock {
-      $0.activeSoundFontId = soundFonts[0].id
-      $0.selectedSoundFontId = soundFonts[1].id
+      $0.activeSoundFontId = soundFontInfos[0].id
+      $0.selectedSoundFontId = soundFontInfos[1].id
     }
 
     return VStack {
       Section {
         List {
-          SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[0])) { SoundFontButton() })
-          SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[1])) { SoundFontButton() })
-          SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[2])) { SoundFontButton() })
+          SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[0])) { SoundFontButton() })
+          SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[1])) { SoundFontButton() })
+          SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[2])) { SoundFontButton() })
         }
         .listStyle(.plain)
         .listRowSeparator(.visible)
         .listRowSeparatorTint(.green, edges: .all)
       }
       List {
-        SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[0])) { SoundFontButton() })
-        SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[1])) { SoundFontButton() })
-        SoundFontButtonView(store: Store(initialState: .init(soundFont: soundFonts[2])) { SoundFontButton() })
+        SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[0])) { SoundFontButton() })
+        SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[1])) { SoundFontButton() })
+        SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[2])) { SoundFontButton() })
       }.listStyle(.grouped)
     }
   }

@@ -16,6 +16,9 @@ public struct SoundFontsList {
   @ObservableState
   public struct State: Equatable {
     @Presents var destination: Destination.State?
+    var rows: IdentifiedArrayOf<SoundFontButton.State> = []
+
+    @ObservationStateIgnored
     @FetchAll var soundFontInfos: [SoundFontInfo]
 
     var addingSoundFonts: Bool = false
@@ -26,9 +29,8 @@ public struct SoundFontsList {
       _soundFontInfos = FetchAll(soundFontsQuery, animation: .default)
     }
 
-    @Shared(.activeState) var activeState
-
     var soundFontsQuery: Select<SoundFontInfo.Columns.QueryValue, TaggedSoundFont, SoundFont> {
+      @Shared(.activeState) var activeState
       return TaggedSoundFont
         .join(SoundFont.all) {
           $0.tagId.eq(activeState.activeTagId ?? Tag.Ubiquitous.all.id) && $0.soundFontId.eq($1.id)
@@ -47,55 +49,31 @@ public struct SoundFontsList {
 
   public enum Action {
     case activeTagIdChanged(Tag.ID?)
-    // case addButtonTapped
-    // case binding(BindingAction<State>)
     case destination(PresentationAction<Destination.Action>)
-    // case importFiles(Result<[URL], Error>)
     case onAppear
-    // case rows(IdentifiedActionOf<SoundFontButton>)
+    case rows(IdentifiedActionOf<SoundFontButton>)
     case showActiveSoundFont
-    case soundFontButtonTapped(SoundFontInfo)
-    case soundFontSwipedToDelete(SoundFontInfo)
-    case soundFontSwipedToEdit(SoundFontInfo)
+    case soundFontInfosChanged([SoundFontInfo])
   }
 
   public init() {}
 
   public var body: some ReducerOf<Self> {
-//    BindingReducer()
     Reduce { state, action in
       switch action {
-      case .activeTagIdChanged: return refresh(&state)
-      // case .addButtonTapped: return add(&state)
-      // case .binding: return .none
-      // case .importFiles(let result): return importFiles(&state, result: result)
-      case .destination(.dismiss): return refresh(&state)
+      case .activeTagIdChanged: return updateQuery(&state)
+      // case .destination(.dismiss): return refresh(&state)
       case .destination: return .none
-      case .onAppear: return monitorActiveTag(&state)
-//      case let .rows(.element(_, .delegate(action))):
-//        switch action {
-//        case let .deleteSoundFont(soundFont): return delete(&state, key: soundFont.id)
-//        case let .editSoundFont(soundFont): return edit(&state, key: soundFont.id)
-//        case let .selectSoundFont(soundFont): return select(soundFont.id)
-//        }
-      // case .rows: return .none
-
-      case .showActiveSoundFont:
-        @Shared(.activeState) var activeState
-        if let activeSoundFontId = activeState.activeSoundFontId {
-          return select(activeSoundFontId)
-        } else {
-          return .none
-        }
-
-      case let .soundFontButtonTapped(soundFontInfo): return select(soundFontInfo.id)
-      case let .soundFontSwipedToDelete(soundFontInfo): return delete(&state, soundFontId: soundFontInfo.id)
-      case let .soundFontSwipedToEdit(soundFontInfo): return edit(&state, soundFontId: soundFontInfo.id)
+      case .onAppear: return monitor(&state)
+      case let .rows(.element(_, .delegate(action))): return dispatchRowAction(&state, action: action)
+      case .rows: return .none
+      case let .soundFontInfosChanged(soundFontInfos): return setSoundFontInfos(&state, soundFontInfos: soundFontInfos)
+      case .showActiveSoundFont: return showActiveSoundFont(&state)
       }
     }
-//    .forEach(\.rows, action: \.rows) {
-//      SoundFontButton()
-//    }
+    .forEach(\.rows, action: \.rows) {
+      SoundFontButton()
+    }
     .ifLet(\.$destination, action: \.destination)
   }
 
@@ -113,20 +91,80 @@ extension SoundFontsList {
 
   private func delete(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
     return .none
+
+    //    do {
+    //      try SoundFontModel.delete(key: key)
+    //    } catch {
+    //      print("failed to delete font \(key) - \(error.localizedDescription)")
+    //    }
+  }
+
+  private func dispatchRowAction(_ state: inout State, action: SoundFontButton.Delegate) -> Effect<Action> {
+    switch action {
+    case let .deleteSoundFont(soundFont): return delete(&state, soundFontId: soundFont.id)
+    case let .editSoundFont(soundFont): return edit(&state, soundFontId: soundFont.id)
+    case let .selectSoundFont(soundFont): return select(&state, soundFontId: soundFont.id)
+    }
   }
 
   private func edit(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
+    //    guard let index = state.rows.index(id: key) else { return .none }
+    //    state.destination = .edit(SoundFontEditor.State(soundFont: state.rows[index].soundFont))
+    return .none
+    //    do {
+    //      let soundFont = try SoundFontModel.fetch(key: key)
+    //      let tags = try TagModel.tags()
+    //      state.destination = .edit(SoundFontEditor.State(soundFont: soundFont, tags: tags))
+    //    } catch {
+    //      print("failed to locate soundfont with key \(key)")
+    //    }
+  }
+
+  private func importFiles(_ state: inout State, result: Result<[URL], Error>) -> Effect<Action> {
+    return .none
+
+    //    guard !urls.isEmpty,
+    //          let result = Support.addSoundFonts(urls: urls)
+    //    else {
+    //      return
+    //    }
+    //
+    //    if result.bad.isEmpty {
+    //      if result.good.count == 1 {
+    //        state.addedSummary = "Added sound font \(result.good[0].displayName)."
+    //      } else {
+    //        state.addedSummary = "Added all of the sound fonts."
+    //      }
+    //    } else {
+    //      if urls.count == 1 {
+    //        state.addedSummary = "Failed to add sound font."
+    //      } else if result.good.isEmpty {
+    //        state.addedSummary = "Failed to add any sound fonts."
+    //      } else {
+    //        state.addedSummary = "Added \(result.good.count) out of \(urls.count) sound fonts."
+    //      }
+    //    }
+    //    state.showingAddedSummary = true
+  }
+
+  private func monitor(_ state: inout State) -> Effect<Action> {
+    return .merge(
+      .publisher {
+        @Shared(.activeState) var activeState
+        return $activeState.activeTagId.publisher.map { Action.activeTagIdChanged($0) }
+      },
+      .publisher {
+        state.$soundFontInfos.publisher.map { Action.soundFontInfosChanged($0) }
+      }
+    ).cancellable(id: publisherCancelId, cancelInFlight: true)
+  }
+
+  private func setSoundFontInfos(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
+    state.rows = .init(uncheckedUniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
     return .none
   }
 
-  private func monitorActiveTag(_ state: inout State) -> Effect<Action> {
-    return .publisher {
-      @Shared(.activeState) var activeState
-      return $activeState.activeTagId.publisher.map { Action.activeTagIdChanged($0) }
-    }.cancellable(id: publisherCancelId, cancelInFlight: true)
-  }
-
-  private func select(_ soundFontId: SoundFont.ID) -> Effect<Action> {
+  private func select(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
     @Shared(.activeState) var activeState
     $activeState.withLock {
       $0.selectedSoundFontId = soundFontId
@@ -134,72 +172,23 @@ extension SoundFontsList {
     return .none
   }
 
-  private func importFiles(_ state: inout State, result: Result<[URL], Error>) -> Effect<Action> {
-    return .none
-
-//    guard !urls.isEmpty,
-//          let result = Support.addSoundFonts(urls: urls)
-//    else {
-//      return
-//    }
-//
-//    if result.bad.isEmpty {
-//      if result.good.count == 1 {
-//        state.addedSummary = "Added sound font \(result.good[0].displayName)."
-//      } else {
-//        state.addedSummary = "Added all of the sound fonts."
-//      }
-//    } else {
-//      if urls.count == 1 {
-//        state.addedSummary = "Failed to add sound font."
-//      } else if result.good.isEmpty {
-//        state.addedSummary = "Failed to add any sound fonts."
-//      } else {
-//        state.addedSummary = "Added \(result.good.count) out of \(urls.count) sound fonts."
-//      }
-//    }
-//    state.showingAddedSummary = true
-  }
-
-  private func delete(_ state: inout State, key: SoundFont.ID) -> Effect<Action> {
-    return .none
-//    do {
-//      try SoundFontModel.delete(key: key)
-//    } catch {
-//      print("failed to delete font \(key) - \(error.localizedDescription)")
-//    }
-  }
-
-  private func edit(_ state: inout State, key: SoundFont.ID) -> Effect<Action> {
-//    guard let index = state.rows.index(id: key) else { return .none }
-//    state.destination = .edit(SoundFontEditor.State(soundFont: state.rows[index].soundFont))
-    return .none
-//    do {
-//      let soundFont = try SoundFontModel.fetch(key: key)
-//      let tags = try TagModel.tags()
-//      state.destination = .edit(SoundFontEditor.State(soundFont: soundFont, tags: tags))
-//    } catch {
-//      print("failed to locate soundfont with key \(key)")
-//    }
+  private func showActiveSoundFont(_ state: inout State) -> Effect<Action> {
+    @Shared(.activeState) var activeState
+    if let activeSoundFontId = activeState.activeSoundFontId {
+      return select(&state, soundFontId: activeSoundFontId)
+    } else {
+      return .none
+    }
   }
 
   @discardableResult
-  private func refresh(_ state: inout State) -> Effect<Action> {
+  private func updateQuery(_ state: inout State) -> Effect<Action> {
     let tmp = state
-    Task {
-      await tmp.updateQuery()
+    return .run { send in
+      Task {
+        await tmp.updateQuery()
+      }
     }
-//    @FetchAll(SoundFont.activeQuery) var soundFonts
-//    state.rows = .init(uniqueElements: soundFonts.map { .init(soundFont: $0) })
-    return .none
-//    do {
-//      let key = key ?? TagModel.Ubiquitous.all.key
-//      state.rows = .init(uniqueElements: try SoundFontModel.tagged(with: key).map { .init(soundFont: $0) })
-//    } catch {
-//      state.rows = []
-//      let activeTagKeyValue = state.activeState.activeTagKey?.uuidString ?? "???"
-//      print("failed to fetch sound fonts tagged with \(activeTagKeyValue)")
-//    }
   }
 }
 
@@ -215,8 +204,8 @@ public struct SoundFontsListView: View {
 
   public var body: some View {
     StyledList(title: "Files") {
-      ForEach(store.soundFontInfos, id: \.id) { soundFontInfo in
-        button(soundFontInfo)
+      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+        SoundFontButtonView(store: rowStore)
       }
     }
     .onAppear {
@@ -237,41 +226,41 @@ public struct SoundFontsListView: View {
 //    }
   }
 
-  @ViewBuilder
-  private func button(_ soundFontInfo: SoundFontInfo) -> some View {
-    let state: IndicatorModifier.State = {
-      activeState.activeSoundFontId == soundFontInfo.id ? .active :
-      activeState.selectedSoundFontId == soundFontInfo.id ? .selected : .none
-    }()
-
-    Button {
-      store.send(.soundFontButtonTapped(soundFontInfo), animation: .default)
-    } label: {
-      Text(soundFontInfo.displayName)
-        .font(.buttonFont)
-        .indicator(state)
-    }
-    .listRowSeparatorTint(.accentColor.opacity(0.5))
-//    .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
-    .swipeActions(edge: .leading, allowsFullSwipe: false) {
-      Button {
-        store.send(.soundFontSwipedToEdit(soundFontInfo), animation: .default)
-      } label: {
-        Image(systemName: "pencil")
-          .tint(.cyan)
-      }
-    }
-    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-      if !soundFontInfo.isBuiltIn {
-        Button {
-          store.send(.soundFontSwipedToDelete(soundFontInfo), animation: .default)
-        } label: {
-          Image(systemName: "trash")
-            .tint(.red)
-        }
-      }
-    }
-  }
+//  @ViewBuilder
+//  private func button(_ soundFontInfo: SoundFontInfo) -> some View {
+//    let state: IndicatorModifier.State = {
+//      activeState.activeSoundFontId == soundFontInfo.id ? .active :
+//      activeState.selectedSoundFontId == soundFontInfo.id ? .selected : .none
+//    }()
+//
+//    Button {
+//      store.send(.soundFontButtonTapped(soundFontInfo), animation: .default)
+//    } label: {
+//      Text(soundFontInfo.displayName)
+//        .font(.buttonFont)
+//        .indicator(state)
+//    }
+//    .listRowSeparatorTint(.accentColor.opacity(0.5))
+////    .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
+//    .swipeActions(edge: .leading, allowsFullSwipe: false) {
+//      Button {
+//        store.send(.soundFontSwipedToEdit(soundFontInfo), animation: .default)
+//      } label: {
+//        Image(systemName: "pencil")
+//          .tint(.cyan)
+//      }
+//    }
+//    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+//      if !soundFontInfo.isBuiltIn {
+//        Button {
+//          store.send(.soundFontSwipedToDelete(soundFontInfo), animation: .default)
+//        } label: {
+//          Image(systemName: "trash")
+//            .tint(.red)
+//        }
+//      }
+//    }
+//  }
 }
 
 extension SoundFontsListView {
@@ -281,7 +270,7 @@ extension SoundFontsListView {
     }
 
     let tag = try! Tag.make(displayName: "My Tag")
-    Operations.tagSoundFont(tag.id, soundFontId: .init(rawValue: 1))
+    Operations.tagSoundFont(tag.id, soundFontId: .init(rawValue: 2))
 
     return VStack {
       SoundFontsListView(store: Store(initialState: .init()) { SoundFontsList() })
