@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
+import Dependencies
 import SharingGRDB
 import SwiftUI
 import UniformTypeIdentifiers
@@ -38,6 +39,7 @@ public struct SoundFontsList {
         .select {
           SoundFontInfo.Columns(id: $1.id, displayName: $1.displayName, kind: $1.kind, location: $1.location)
         }
+        .order { $1.displayName }
     }
 
     func updateQuery() async {
@@ -62,7 +64,7 @@ public struct SoundFontsList {
     Reduce { state, action in
       switch action {
       case .activeTagIdChanged: return updateQuery(&state)
-      // case .destination(.dismiss): return refresh(&state)
+      case .destination(.dismiss): return updateQuery(&state)
       case .destination: return .none
       case .onAppear: return monitor(&state)
       case let .rows(.element(_, .delegate(action))): return dispatchRowAction(&state, action: action)
@@ -100,6 +102,7 @@ extension SoundFontsList {
   }
 
   private func dispatchRowAction(_ state: inout State, action: SoundFontButton.Delegate) -> Effect<Action> {
+    print("dispatchRowAction: \(action)")
     switch action {
     case let .deleteSoundFont(soundFont): return delete(&state, soundFontId: soundFont.id)
     case let .editSoundFont(soundFont): return edit(&state, soundFontId: soundFont.id)
@@ -108,16 +111,16 @@ extension SoundFontsList {
   }
 
   private func edit(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
-    //    guard let index = state.rows.index(id: key) else { return .none }
-    //    state.destination = .edit(SoundFontEditor.State(soundFont: state.rows[index].soundFont))
+    @Dependency(\.defaultDatabase) var database
+    guard let soundFont = try? database.read({ db in
+      return try SoundFont.all.find(soundFontId).fetchOne(db)
+    })
+    else {
+      return .none
+    }
+
+    state.destination = .edit(SoundFontEditor.State(soundFont: soundFont))
     return .none
-    //    do {
-    //      let soundFont = try SoundFontModel.fetch(key: key)
-    //      let tags = try TagModel.tags()
-    //      state.destination = .edit(SoundFontEditor.State(soundFont: soundFont, tags: tags))
-    //    } catch {
-    //      print("failed to locate soundfont with key \(key)")
-    //    }
   }
 
   private func importFiles(_ state: inout State, result: Result<[URL], Error>) -> Effect<Action> {
@@ -193,7 +196,7 @@ extension SoundFontsList {
 }
 
 public struct SoundFontsListView: View {
-  private var store: StoreOf<SoundFontsList>
+  @Bindable private var store: StoreOf<SoundFontsList>
   @Shared(.activeState) private var activeState
 
   let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
@@ -210,6 +213,9 @@ public struct SoundFontsListView: View {
     }
     .onAppear {
       store.send(.onAppear)
+    }
+    .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
+      SoundFontEditorView(store: $0)
     }
 //    .fileImporter(isPresented: $store.addingSoundFonts, allowedContentTypes: types, allowsMultipleSelection: true) {
 //      store.send(.importFiles($0))

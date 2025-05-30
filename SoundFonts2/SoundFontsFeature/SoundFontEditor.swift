@@ -40,7 +40,7 @@ public struct SoundFontEditor {
     case changeTagsButtonTapped
     case dismissButtonTapped
     case destination(PresentationAction<Destination.Action>)
-    case nameChanged(String)
+    case displayNameChanged(String)
     case notesChanged(String)
     case useEmbeddedNameTapped
     case useOriginalNameTapped
@@ -50,19 +50,14 @@ public struct SoundFontEditor {
     Reduce { state, action in
       switch action {
       case .binding: return .none
-      case .changeTagsButtonTapped: return changeTags(&state)
-      case .dismissButtonTapped: return dismiss()
-      case .destination(.dismiss): return refreshTagsList(&state)
+      case .changeTagsButtonTapped: return editTags(&state)
+      case .dismissButtonTapped: return dismiss(&state, save: true)
+      case .destination(.dismiss): return updateTagsList(&state)
       case .destination: return .none
-      case .nameChanged(let value): return setName(&state, value: value)
-      case .notesChanged(let value): return setNotes(&state, value: value)
-//      case .path(.element(id: _, action: .delegate(.addTag(let tag)))): return addTag(&state, tag: tag)
-//      case .path(.element(id: _, action: .delegate(.removeTag(let tag)))): return removeTag(&state, tag: tag)
-
-      // case .path(.showTagsMemberList(.editTagsButtonTapped)): return .none
-      // case .path(let pathAction): return monitorPathChange(pathAction, state: &state)
-      case .useEmbeddedNameTapped: return setName(&state, value: state.soundFont.embeddedName)
-      case .useOriginalNameTapped: return setName(&state, value: state.soundFont.originalName)
+      case .displayNameChanged(let value): return updateDisplayName(&state, value: value)
+      case .notesChanged(let value): return updateNotes(&state, value: value)
+      case .useEmbeddedNameTapped: return updateDisplayName(&state, value: state.soundFont.embeddedName)
+      case .useOriginalNameTapped: return updateDisplayName(&state, value: state.soundFont.originalName)
       }
     }
     .ifLet(\.$destination, action: \.destination)
@@ -74,29 +69,38 @@ public struct SoundFontEditor {
 
 extension SoundFontEditor {
 
-//  private func monitorPathChange(_ pathAction: StackActionOf<Path>, state: inout State) -> Effect<Action> {
-//    switch pathAction {
-//    case .element(id: _, action: .showTagsEditor(.editTagsButtonTapped)):
-//      state.path.append(.showTagsEditor(TagsEditor.State(tags: state.tags.map { $0 }, focused: nil)))
-//    case .element(id: _, action: .showTagsEditor(_)): break
-//    case .popFrom(let id): break
-//    default: break
-//    }
-//    return .none
-//  }
-//
-//  private func addTag(_ state: inout State, tag: Tag) -> Effect<Action> {
-//    state.tagged[tag.id] = true
-//    state.tagsList = Support.generateTagsList(from: state.tags.filter({ state.tagged[$0.id] ?? false }))
-//    return .none
-//  }
+  private func dismiss(_ state: inout State, save: Bool) -> Effect<Action> {
+    if save {
+      let trimmedDisplayName = state.displayName.trimmingCharacters(in: .whitespaces)
+      if !trimmedDisplayName.isEmpty {
+        state.displayName = trimmedDisplayName
+      } else if state.displayName.isEmpty {
+        state.displayName = state.soundFont.displayName
+      }
 
-  private func dismiss() -> Effect<Action> {
+      let trimmedNotes = state.notes.trimmingCharacters(in: .whitespaces)
+      if !trimmedNotes.isEmpty {
+        state.notes = trimmedNotes
+      } else if state.notes.isEmpty {
+        state.notes = state.soundFont.notes
+      }
+
+      @Dependency(\.defaultDatabase) var database
+      try? database.write { db in
+        try SoundFont.update {
+          $0.displayName = state.displayName
+          $0.notes = state.notes
+        }
+        .where { $0.id == state.soundFont.id }
+        .execute(db)
+      }
+    }
+
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
   }
 
-  func changeTags(_ state: inout State) -> Effect<Action> {
+  func editTags(_ state: inout State) -> Effect<Action> {
     let tags = Tag.ordered
     let memberships = tags.reduce(into: [:]) { $0[$1.id] = state.soundFont.tags.contains($1) }
     state.destination = .edit(TagsEditor.State(
@@ -107,44 +111,17 @@ extension SoundFontEditor {
     return .none
   }
 
-  private func refreshTagsList(_ state: inout State) -> Effect<Action> {
+  private func updateTagsList(_ state: inout State) -> Effect<Action> {
     state.tagsList = SoundFontsSupport.generateTagsList(from: state.soundFont.tags)
     return .none
   }
 
-  private func removeTag(_ state: inout State, tag: Tag) -> Effect<Action> {
-//    state.tagged[tag] = false
-//    state.tagsList = Support.generateTagsList(from: state.tags.filter({ state.tagged[$0.id] ?? false }))
-    return .none
-  }
-
-  private func save(_ state: inout State) -> Effect<Action> {
-    @Dependency(\.defaultDatabase) var database
-    var soundFont = state.soundFont
-    soundFont.displayName = state.displayName
-    soundFont.notes = state.notes
-
-//    try? database.write {
-//      try soundFont.save($0)
-//    }
-
-//    for (tag, tagState) in state.tagged {
-//      if tagState {
-//        try? soundFont.addTag(tag.id)
-//      } else {
-//        try? soundFont.removeTag(tag.id)
-//      }
-//    }
-
-    return dismiss()
-  }
-
-  private func setName(_ state: inout State, value: String ) -> Effect<Action> {
+  private func updateDisplayName(_ state: inout State, value: String ) -> Effect<Action> {
     state.displayName = value
     return .none
   }
 
-  private func setNotes(_ state: inout State, value: String) -> Effect<Action> {
+  private func updateNotes(_ state: inout State, value: String) -> Effect<Action> {
     state.notes = value
     return .none
   }
@@ -169,7 +146,7 @@ public struct SoundFontEditorView: View {
       .navigationTitle("SoundFont Info")
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button("Dismiss") {
+          Button("Done") {
             store.send(.dismissButtonTapped, animation: .default)
           }
         }
@@ -185,7 +162,7 @@ public struct SoundFontEditorView: View {
 
   var nameSection: some View {
     Section {
-      TextField("Name", text: $store.displayName.sending(\.nameChanged))
+      TextField("Name", text: $store.displayName.sending(\.displayNameChanged))
         .focused($focusField, equals: .displayName)
         .textFieldStyle(.automatic)
       HStack {
@@ -242,15 +219,15 @@ public struct SoundFontEditorView: View {
 
 extension SoundFontEditorView {
   static var preview: some View {
-    let _ = prepareDependencies {
+    let soundFonts = try! prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
+      return try $0.defaultDatabase.read { try SoundFont.all.fetchAll($0) }
     }
 
-    @FetchAll(SoundFont.all) var soundFonts
     return SoundFontEditorView(store: Store(initialState: .init(soundFont: soundFonts[0])) { SoundFontEditor() })
   }
 }
 
 #Preview {
-  SoundFontEditorView.preview
+  SoundFontsListView.preview
 }
