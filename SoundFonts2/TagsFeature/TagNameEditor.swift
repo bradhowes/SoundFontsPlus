@@ -5,7 +5,7 @@ import SwiftUI
 import Tagged
 
 /**
- Feature that allows for editing of a tag name and other tag data.
+ Feature that allows for editing of a tag name and optionally the association of a soundFont with the tag.
  */
 @Reducer
 public struct TagNameEditor {
@@ -45,8 +45,8 @@ public struct TagNameEditor {
     Reduce { state, action in
       switch action {
       case .delegate: return .none
-      case .membershipButtonTapped(let value): return membershipChanged(&state, value: value)
-      case .nameChanged(let newName): return nameChanged(&state, value: newName)
+      case .membershipButtonTapped(let value): return toggleMembership(&state, value: value)
+      case .nameChanged(let newName): return updateName(&state, value: newName)
       case .tagSwipedToDelete: return .send(.delegate(.tagSwipedToDelete(state.id)), animation: .default)
       }
     }
@@ -55,7 +55,7 @@ public struct TagNameEditor {
 
 private extension TagNameEditor {
 
-  func membershipChanged(_ state: inout State, value: Bool) -> Effect<Action> {
+  func toggleMembership(_ state: inout State, value: Bool) -> Effect<Action> {
     guard let soundFontId = state.soundFontId, state.membership != nil else { return .none }
     state.membership = value
     if value {
@@ -66,7 +66,7 @@ private extension TagNameEditor {
     return .none
   }
 
-  func nameChanged(_ state: inout State, value: String) -> Effect<Action> {
+  func updateName(_ state: inout State, value: String) -> Effect<Action> {
     state.newName = value
     return .none
   }
@@ -142,11 +142,7 @@ extension TagNameEditorView {
       }
       Form {
         ForEach(tags) { tag in
-          TagNameEditorView(store: Store(initialState: .init(
-            tag: tag
-          )) {
-            TagNameEditor()
-          })
+          TagNameEditorView(store: Store(initialState: .init(tag: tag)) { TagNameEditor() })
         }
       }
     }
