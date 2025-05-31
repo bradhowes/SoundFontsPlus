@@ -33,6 +33,20 @@ public struct SoundFontEditor {
       self.displayName = soundFont.displayName
       self.notes = soundFont.notes
     }
+
+    public mutating func save() {
+      displayName = displayName.trimmed(or: soundFont.displayName)
+      notes = notes.trimmed(or: soundFont.notes)
+      @Dependency(\.defaultDatabase) var database
+      try? database.write { db in
+        try SoundFont.update {
+          $0.displayName = displayName
+          $0.notes = notes
+        }
+        .where { $0.id == soundFont.id }
+        .execute(db)
+      }
+    }
   }
 
   public enum Action: BindableAction {
@@ -42,6 +56,7 @@ public struct SoundFontEditor {
     case destination(PresentationAction<Destination.Action>)
     case displayNameChanged(String)
     case notesChanged(String)
+    case pathButtonTapped
     case useEmbeddedNameTapped
     case useOriginalNameTapped
   }
@@ -56,6 +71,7 @@ public struct SoundFontEditor {
       case .destination: return .none
       case .displayNameChanged(let value): return updateDisplayName(&state, value: value)
       case .notesChanged(let value): return updateNotes(&state, value: value)
+      case .pathButtonTapped: return visitPath(&state)
       case .useEmbeddedNameTapped: return updateDisplayName(&state, value: state.soundFont.embeddedName)
       case .useOriginalNameTapped: return updateDisplayName(&state, value: state.soundFont.originalName)
       }
@@ -71,29 +87,7 @@ extension SoundFontEditor {
 
   private func dismiss(_ state: inout State, save: Bool) -> Effect<Action> {
     if save {
-      let trimmedDisplayName = state.displayName.trimmingCharacters(in: .whitespaces)
-      if !trimmedDisplayName.isEmpty {
-        state.displayName = trimmedDisplayName
-      } else if state.displayName.isEmpty {
-        state.displayName = state.soundFont.displayName
-      }
-
-      let trimmedNotes = state.notes.trimmingCharacters(in: .whitespaces)
-      if !trimmedNotes.isEmpty {
-        state.notes = trimmedNotes
-      } else if state.notes.isEmpty {
-        state.notes = state.soundFont.notes
-      }
-
-      @Dependency(\.defaultDatabase) var database
-      try? database.write { db in
-        try SoundFont.update {
-          $0.displayName = state.displayName
-          $0.notes = state.notes
-        }
-        .where { $0.id == state.soundFont.id }
-        .execute(db)
-      }
+      state.save()
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -125,6 +119,15 @@ extension SoundFontEditor {
     state.notes = value
     return .none
   }
+
+  private func visitPath(_ state: inout State) -> Effect<Action> {
+    // TODO: change to use shareddocuments:// scheme so that Files.app opens path
+    @Environment(\.openURL) var openURL
+    if let url = URL(string: state.soundFont.sourcePath) {
+      openURL(url)
+    }
+    return .none
+  }
 }
 
 public struct SoundFontEditorView: View {
@@ -145,17 +148,15 @@ public struct SoundFontEditorView: View {
       }
       .navigationTitle("SoundFont Info")
       .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
-          Button("Done") {
+        ToolbarItem(placement: .automatic) {
+          Button("Dismiss") {
             store.send(.dismissButtonTapped, animation: .default)
           }
         }
       }
       .bind($store.focusField, to: self.$focusField)
     }
-    .sheet(
-      item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
-    ) { editorStore in
+    .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) { editorStore in
       TagsEditorView(store: editorStore)
     }
   }
@@ -212,8 +213,12 @@ public struct SoundFontEditorView: View {
       LabeledContent("Copyright", value: store.soundFont.embeddedCopyright)
       LabeledContent("Comment", value: store.soundFont.embeddedComment)
       LabeledContent("Kind", value: store.soundFont.sourceKind)
-      LabeledContent("Path", value: store.soundFont.sourcePath)
-    }
+      LabeledContent {
+        Button(store.soundFont.sourcePath) {}
+      } label: {
+        Text("Path")
+      }
+    }.font(.footnote)
   }
 }
 
@@ -229,5 +234,5 @@ extension SoundFontEditorView {
 }
 
 #Preview {
-  SoundFontsListView.preview
+  SoundFontEditorView.preview
 }

@@ -54,12 +54,12 @@ public struct TagsEditor: Sendable {
       switch action {
       case .addButtonTapped: return addTag(&state)
       case .binding: return .none
-      case .tagSwipedToDelete(let indices): return deleteTag(&state, indices: indices)
       case .dismissButtonTapped: return dismissButtonTapped(&state)
       case let .finalizeDeleteTag(tagId): return finalizeDeleteTag(&state, tagId: tagId)
       case let .rows(.element(id: id, action: .delegate(.tagSwipedToDelete))): return deleteTag(&state, tagId: id)
       case .rows: return .none
       case let .tagMoved(indices, offset): return moveTag(&state, at: indices, to: offset)
+      case .tagSwipedToDelete(let indices): return deleteTag(&state, indices: indices)
       case .toggleEditMode: return toggleEditMode(&state)
       }
     }
@@ -138,7 +138,6 @@ private extension TagsEditor {
 public struct TagsEditorView: View {
   @Bindable private var store: StoreOf<TagsEditor>
   @FocusState private var focused: Tag.ID?
-  @Environment(\.editMode) private var editMode
 
   public init(store: StoreOf<TagsEditor>) {
     self.store = store
@@ -223,21 +222,6 @@ extension TagsEditorView {
       memberships: memberships)) {
       TagsEditor()
     })
-  }
-}
-
-extension String {
-
-  /**
-   Returns a new string that is either this with leading/trailing whitespace characters removed, or if that is empty,
-   the given value.
-
-   - parameter default: the value to use if our trimmed value results in an empty string
-   - returns trimmed content or given value
-   */
-  public func trimmed(or default: String) -> String {
-    let trimmed = self.trimmingCharacters(in: .whitespaces)
-    return trimmed.isEmpty ? `default` : trimmed
   }
 }
 

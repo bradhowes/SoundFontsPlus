@@ -97,7 +97,7 @@ public struct SettingsView: View {
       .formStyle(.grouped)
       .navigationTitle("Settings")
       .toolbar {
-        ToolbarItem(placement: .confirmationAction) {
+        ToolbarItem(placement: .automatic) {
           Button("Dismiss") { store.send(.dismissButtonTapped, animation: .default) }
         }
       }
