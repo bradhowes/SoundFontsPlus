@@ -66,7 +66,7 @@ public struct SoundFontEditor {
       switch action {
       case .binding: return .none
       case .changeTagsButtonTapped: return editTags(&state)
-      case .dismissButtonTapped: return dismiss(&state, save: true)
+      case .dismissButtonTapped: return dismiss(&state)
       case .destination(.dismiss): return updateTagsList(&state)
       case .destination: return .none
       case .displayNameChanged(let value): return updateDisplayName(&state, value: value)
@@ -85,11 +85,8 @@ public struct SoundFontEditor {
 
 extension SoundFontEditor {
 
-  private func dismiss(_ state: inout State, save: Bool) -> Effect<Action> {
-    if save {
-      state.save()
-    }
-
+  private func dismiss(_ state: inout State) -> Effect<Action> {
+    state.save()
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
   }
@@ -146,7 +143,7 @@ public struct SoundFontEditorView: View {
         notesSection
         infoSection
       }
-      .navigationTitle("SoundFont Info")
+      .navigationTitle("SoundFont")
       .toolbar {
         ToolbarItem(placement: .automatic) {
           Button("Dismiss") {
@@ -188,6 +185,7 @@ public struct SoundFontEditorView: View {
   var notesSection: some View {
     Section(header: Text("Notes")) {
       TextEditor(text: $store.notes.sending(\.notesChanged))
+        .focused($focusField, equals: .notes)
     }
   }
 

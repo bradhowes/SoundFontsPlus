@@ -5,19 +5,53 @@ import SharingGRDB
 import Tagged
 
 @Table
-public struct AudioConfig: Hashable, Identifiable {
+public struct AudioConfig: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
-  public var gain: AUValue
-  public var pan: AUValue
+  public var gain: Double
+  public var pan: Double
   public var keyboardLowestNoteEnabled: Bool
-  public var keyboardLowestNote: Int?
-  public var pitchBendRange: Int?
-  public var presetTuning: AUValue?
-  public var presetTranspose: Int?
+  public var keyboardLowestNote: Note
+  public var pitchBendRange: Int
+
+  public var customTuningEnabled: Bool
+  public var customTuning: Double
   public let favoriteId: Favorite.ID?
   public let presetId: Preset.ID?
+}
+
+extension AudioConfig.Draft: Equatable, Sendable {}
+
+extension AudioConfig.Draft {
+
+  init(presetId: Preset.ID) {
+    self.init(
+      gain: 0.0,
+      pan: 0.0,
+      keyboardLowestNoteEnabled: true,
+      keyboardLowestNote: .C4,
+      pitchBendRange: 2,
+      customTuningEnabled: false,
+      customTuning: 440.0,
+      favoriteId: nil,
+      presetId: presetId
+    )
+  }
+
+  init(favoriteId: Favorite.ID) {
+    self.init(
+      gain: 0.0,
+      pan: 0.0,
+      keyboardLowestNoteEnabled: true,
+      keyboardLowestNote: .C4,
+      pitchBendRange: 2,
+      customTuningEnabled: false,
+      customTuning: 440.0,
+      favoriteId: favoriteId,
+      presetId: nil
+    )
+  }
 }
 
 extension AudioConfig {
@@ -31,10 +65,10 @@ extension AudioConfig {
         "gain" REAL NOT NULL,
         "pan" REAL NOT NULL,
         "keyboardLowestNoteEnabled" INTEGER NOT NULL CHECK ("keyboardLowestNoteEnabled" in (0, 1)),
-        "keyboardLowestNote" INTEGER NOT NULL,
+        "keyboardLowestNote" TEXT NOT NULL,
         "pitchBendRange" INTEGER NOT NULL,
-        "presetTuning" REAL NOT NULL,
-        "presetTranspose" INTEGER NOT NULL,
+        "customTuningEnabled" INTEGER NOT NULL CHECK ("customTuningEnabled" in (0, 1)),
+        "customTuning" REAL NOT NULL,
         "favoriteId" INTEGER,
         "presetId" INTEGER,
       
@@ -44,6 +78,16 @@ extension AudioConfig {
       """
       )
       .execute(db)
+//
+//      try #sql(
+//      """
+//      CREATE UNIQUE INDEX IF NOT EXISTS "audioConfigIndex" ON "\(raw: Self.tableName)" (
+//        "favoriteId" INTEGER,
+//        "presetId" INTEGER
+//      ) STRICT
+//      """
+//      )
+//      .execute(db)
     }
   }
 }

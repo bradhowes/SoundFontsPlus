@@ -21,9 +21,9 @@ public struct SettingsFeature {
     var tuning: TuningFeature.State
 
     public init() {
-      @Shared(.globalTuningCents) var tuningCents
       @Shared(.globalTuningEnabled) var tuningEnabled
-      self.tuning = TuningFeature.State(cents: tuningCents, enabled: tuningEnabled)
+      @Shared(.globalTuning) var frequency
+      self.tuning = .init(frequency: frequency, enabled: tuningEnabled)
     }
   }
 

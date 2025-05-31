@@ -81,7 +81,7 @@ public struct PresetsList {
 
       case .binding: return .none
       case .cancelSearchButtonTapped: return dismissSearch(&state)
-      case .destination(.presented(.edit(.acceptButtonTapped))): return updatePreset(&state)
+      case .destination(.dismiss): return updatePreset(&state)
       case .destination: return .none
       case .fetchPresets: return fetchPresets(&state)
       case .onAppear: return monitorSelectedSoundFont()

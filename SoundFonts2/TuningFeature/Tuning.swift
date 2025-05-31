@@ -8,26 +8,32 @@ public struct TuningFeature {
   @ObservableState
   public struct State: Equatable, Sendable {
     var enabled: Bool = false
-    var tuning: Double = 0.0
-    var tuningCents: Double = 0
-    var tuningFrequency: Double = 440.0
+    var frequency: Double = 440.0
+    var cents: Int = 0
     var shiftA4Value: String = ""
     var disabled: Bool { !enabled }
 
-    public init(cents: Double, enabled: Bool) {
-      self.tuning = cents
-      self.enabled = enabled
-      self.setTuningCents(cents)
+    public init(config: AudioConfig.Draft) {
+      self.enabled = config.customTuningEnabled
+      self.frequency = config.customTuning
+      self.setFrequency(config.customTuning)
     }
 
-    mutating func setTuningCents(_ cents: Double) {
+    public init(frequency: Double, enabled: Bool) {
+      self.frequency = frequency != 0.0 ? frequency : 440.0
+      self.enabled = enabled
+      self.setFrequency(frequency)
+    }
+
+    mutating func setFrequency(_ frequency: Double) {
+      self.frequency = frequency
+      let cents = frequencyToCents(frequency)
       let clampedCents = min(max(cents, -2400.0), 2400.0)
       let transposeCents = (clampedCents / 100).rounded() * 100.0
       if transposeCents == clampedCents {
-        // No fractional component -- map to a note value
         if transposeCents == 0 {
           self.shiftA4Value = "None"
-          self.tuning = 0.0
+          self.frequency = 440.0
         } else {
           let note = Note.A4.offset(Int(transposeCents/100))
           self.shiftA4Value = note < Note.A4 ? note.labelWithFlats : note.labelWithSharps
@@ -37,9 +43,29 @@ public struct TuningFeature {
         self.shiftA4Value = "-"
       }
 
-      self.tuningFrequency = centsToFrequency(clampedCents)
-      self.tuningCents = clampedCents
-      self.tuning = clampedCents
+      self.cents = Int(clampedCents.rounded())
+    }
+
+    mutating func setCents(_ cents: Int) {
+      self.cents = cents
+      self.frequency = centsToFrequency(cents)
+
+      let clampedCents = min(max(Double(cents), -2400.0), 2400.0)
+      let transposeCents = (clampedCents / 100).rounded() * 100.0
+
+      if transposeCents == clampedCents {
+        if transposeCents == 0 {
+          self.shiftA4Value = "None"
+          self.frequency = 440.0
+        } else {
+          let note = Note.A4.offset(Int(transposeCents/100))
+          print("note: \(note)")
+          self.shiftA4Value = note < Note.A4 ? note.labelWithFlats : note.labelWithSharps
+        }
+      } else {
+        // Fractional component -- no mapping exists to a MIDI note
+        self.shiftA4Value = "-"
+      }
     }
   }
 
@@ -48,11 +74,11 @@ public struct TuningFeature {
     case delegate(Delegate)
     case standardTuningApplyPressed
     case scientificTuningApplyPressed
-    case tuningCentsSumbmitted
-    case tuningFrequencySubmitted
+    case centsSumbmitted
+    case frequencySubmitted
 
     public enum Delegate: Equatable {
-      case tuningChanged(enabled: Bool, cents: Double)
+      case tuningChanged(enabled: Bool, frequency: Double)
     }
   }
 
@@ -63,20 +89,26 @@ public struct TuningFeature {
 
     Reduce { state, action in
       switch action {
-      case .binding(\.tuning): return setTuningCents(&state, cents: state.tuning)
+      case .binding(\.cents): return setCents(&state, cents: state.cents)
+      case .binding(\.frequency): return setFrequency(&state, frequency: state.frequency)
       case .binding: return .none
       case .delegate: return .none
-      case .standardTuningApplyPressed: return setTuningCents(&state, cents: 0)
-      case .scientificTuningApplyPressed: return setTuningCents(&state, cents: frequencyToCents(432.0))
-      case .tuningCentsSumbmitted: return setTuningCents(&state, cents: state.tuningCents)
-      case .tuningFrequencySubmitted: return setTuningCents(&state, cents: frequencyToCents(state.tuningFrequency))
+      case .standardTuningApplyPressed: return setFrequency(&state, frequency: 440.0)
+      case .scientificTuningApplyPressed: return setFrequency(&state, frequency: 432.0)
+      case .centsSumbmitted: return setCents(&state, cents: state.cents)
+      case .frequencySubmitted: return setFrequency(&state, frequency: state.frequency)
       }
     }
   }
 
-  private func setTuningCents(_ state: inout State, cents: Double) -> Effect<Action> {
-    state.setTuningCents(cents)
-    return .send(.delegate(.tuningChanged(enabled: state.enabled, cents: state.tuningCents)))
+  private func setCents(_ state: inout State, cents: Int) -> Effect<Action> {
+    state.setCents(cents)
+    return .send(.delegate(.tuningChanged(enabled: state.enabled, frequency: state.frequency)))
+  }
+
+  private func setFrequency(_ state: inout State, frequency: Double) -> Effect<Action> {
+    state.setFrequency(frequency)
+    return .send(.delegate(.tuningChanged(enabled: state.enabled, frequency: state.frequency)))
   }
 }
 
@@ -99,10 +131,17 @@ public struct TuningView: View {
         Toggle(isOn: $store.enabled) {
           Text("Enabled")
         }
-        Stepper("Shift A4 to: \(store.shiftA4Value)", value: $store.tuning, in: -2400...2400, step: 100)
-          .disabled(store.disabled)
         HStack {
-          Text("Standard tuning\n(A4 = 440 Hz)")
+          Text("Shift A4 to:")
+          Spacer()
+          Text(store.shiftA4Value)
+          Spacer()
+          Stepper("", value: $store.cents, in: -2400...2400, step: 100)
+            .labelsHidden()
+            .disabled(store.disabled)
+        }
+        HStack {
+          Text("Standard tuning (A4 = 440 Hz)")
           Spacer()
           Button {
             store.send(.standardTuningApplyPressed)
@@ -112,7 +151,7 @@ public struct TuningView: View {
           .disabled(store.disabled)
         }
         HStack {
-          Text("Scientific tuning\n(A4 = 432 Hz)")
+          Text("Scientific tuning (A4 = 432 Hz)")
           Spacer()
           Button {
             store.send(.scientificTuningApplyPressed)
@@ -124,29 +163,31 @@ public struct TuningView: View {
         HStack {
           Text("Cents (± 2400):")
           Spacer()
-          TextField(value: $store.tuningCents, formatter: formatter) {
+          TextField(value: $store.cents, formatter: formatter) {
             Text("")
           }
           .textFieldStyle(.roundedBorder)
           .disableAutocorrection(true)
           .onSubmit {
-            store.send(.tuningCentsSumbmitted)
+            store.send(.centsSumbmitted)
           }
           .disabled(store.disabled)
         }
         HStack {
           Text("A4 Frequency (Hz):")
+            .disabled(store.disabled)
           Spacer()
-          TextField(value: $store.tuningFrequency, formatter: formatter) {
+          TextField(value: $store.frequency, formatter: formatter) {
             Text("")
           }
           .textFieldStyle(.roundedBorder)
           .disableAutocorrection(true)
           .onSubmit {
-            store.send(.tuningFrequencySubmitted)
+            store.send(.frequencySubmitted)
           }
           .disabled(store.disabled)
         }
+        .disabled(store.disabled)
       }
     }
     header: {
@@ -155,13 +196,13 @@ public struct TuningView: View {
   }
 }
 
-private func centsToFrequency(_ cents: Double) -> Double { pow(2.0, (cents / 1200.0)) * 440.0 }
+private func centsToFrequency(_ cents: Int) -> Double { pow(2.0, (Double(cents) / 1200.0)) * 440.0 }
 private func frequencyToCents(_ frequency: Double) -> Double { log2(frequency / 440.0) * 1200.0 }
 
 extension TuningView {
   static var preview: some View {
     Form {
-      TuningView(store: Store(initialState: .init(cents: 0.0, enabled: true)) { TuningFeature() })
+      TuningView(store: Store(initialState: .init(frequency: 440.0, enabled: true)) { TuningFeature() })
     }
   }
 }

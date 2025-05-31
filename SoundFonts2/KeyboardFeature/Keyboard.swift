@@ -11,8 +11,8 @@ public struct KeyboardFeature {
   @ObservableState
   public struct State: Equatable {
     var active: [Bool] = .init(repeating: false, count: Note.midiRange.count)
-    @Shared(.lowestKey) var lowestKey
-    @Shared(.highestKey) var highestKey
+    @Shared(.firstVisibleKey) var lowestKey
+    var highestKey: Note = .C4
     var scrollTo: Note?
     let settingsDemo: Bool
 
@@ -61,7 +61,7 @@ public struct KeyboardFeature {
         return .none
       case let .updatedVisibleKeys(lowest, highest):
         state.$lowestKey.withLock { $0 = lowest }
-        state.$highestKey.withLock { $0 = highest }
+        state.highestKey = highest
         return .none
       case .postScrollTo:
         state.scrollTo = state.settingsDemo ? Note.lowest : state.lowestKey
@@ -335,11 +335,12 @@ extension RandomAccessCollection where Element == CGRect, Index == Int {
 }
 
 struct KeyboardPreview: View {
+  @State var highestKey: Note = .C4
+
   @Shared(.keyWidth) var keyWidth
   @Shared(.keyboardSlides) var keyboardSlides
   @Shared(.keyLabels) var keyLabels
-  @Shared(.lowestKey) var lowestKey
-  @Shared(.highestKey) var highestKey
+  @Shared(.firstVisibleKey) var lowestKey
 
   var body: some View {
     VStack {

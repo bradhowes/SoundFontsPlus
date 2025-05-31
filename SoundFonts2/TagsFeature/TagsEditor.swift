@@ -33,6 +33,18 @@ public struct TagsEditor: Sendable {
       self.soundFontId = soundFontId
       self.showMemberships = memberships != nil
     }
+
+    public mutating func save() {
+      Operations.updateTags(
+        rows.enumerated().map { (index, row) in
+          Tag(
+            id: row.id,
+            displayName: row.tag.isUserDefined ? row.newName.trimmed(or: row.tag.displayName) : row.tag.displayName,
+            ordering: index
+          )
+        }
+      )
+    }
   }
 
   public enum Action: Equatable, BindableAction {
@@ -116,15 +128,7 @@ private extension TagsEditor {
   }
 
   func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
-    Operations.updateTags(
-      state.rows.enumerated().map { (index, row) in
-        Tag(
-          id: row.id,
-          displayName: row.tag.isUserDefined ? row.newName.trimmed(or: row.tag.displayName) : row.tag.displayName,
-          ordering: index
-        )
-      }
-    )
+    state.save()
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
   }

@@ -16,8 +16,8 @@ public struct ToolBar {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
 
-    @Shared(.lowestKey) var lowestKey
-    @Shared(.highestKey) var highestKey
+    @Shared(.firstVisibleKey) var lowestKey
+    var highestKey: Note = .C4
     @Shared(.keyboardSlides) var keyboardSlides
 
     var tagsListVisible: Bool
@@ -120,7 +120,7 @@ extension ToolBar {
     : Note(midiNoteValue: state.lowestKey.midiNoteValue - (state.lowestKey.midiNoteValue % 12))
     let newHigh = Note(midiNoteValue: min(Note.midiRange.upperBound, newLow.midiNoteValue + span))
     state.$lowestKey.withLock { $0 = newLow }
-    state.$highestKey.withLock { $0 = newHigh }
+    state.highestKey = newHigh
     return .none
   }
 
@@ -130,10 +130,10 @@ extension ToolBar {
     let newLow = Note(midiNoteValue: max(Note.midiRange.lowerBound, newHigh.midiNoteValue - span))
     if state.lowestKey.noteIndex != 0 && newLow.noteIndex != 0 {
       state.$lowestKey.withLock { $0 = Note(midiNoteValue: newLow.midiNoteValue - newLow.noteIndex) }
-      state.$highestKey.withLock { $0 = Note(midiNoteValue: newHigh.midiNoteValue - newLow.noteIndex) }
+      state.highestKey = Note(midiNoteValue: newHigh.midiNoteValue - newLow.noteIndex)
     } else {
       state.$lowestKey.withLock { $0 = newLow }
-      state.$highestKey.withLock { $0 = newHigh }
+      state.highestKey = newHigh
     }
     return .none
   }

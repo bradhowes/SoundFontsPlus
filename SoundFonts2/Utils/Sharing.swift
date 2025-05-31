@@ -17,7 +17,7 @@ extension SharedKey where Self == AppStorageKey<Double>.Default {
   public static var fontsAndTagsSplitPosition: Self {
     Self[.appStorage("fontsAndTagsSplitPosition"), default: 0.4]
   }
-  public static var globalTuningCents: Self { Self[.appStorage("globalTuningCents"), default: 0.0 ] }
+  public static var globalTuning: Self { Self[.appStorage("globalTuning"), default: 440.0 ] }
   public static var keyWidth: Self { Self[.appStorage("keyWidth"), default: 64.0] }
 }
 
@@ -31,6 +31,5 @@ extension SharedKey where Self == AppStorageKey<KeyLabels>.Default {
 }
 
 extension SharedKey where Self == AppStorageKey<Note>.Default {
-  public static var highestKey: Self { Self[.appStorage("highestKey"), default: Note(midiNoteValue: 61)] }
-  public static var lowestKey: Self { Self[.appStorage("lowestKey"), default: Note(midiNoteValue: 60)] }
+  public static var firstVisibleKey: Self { Self[.appStorage("firstVisibleKey"), default: Note(midiNoteValue: 60)] }
 }

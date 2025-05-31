@@ -23,6 +23,25 @@ public struct Preset: Hashable, Identifiable, Sendable {
 
 extension Preset {
 
+  public var soundFontName: String {
+    @Dependency(\.defaultDatabase) var database
+    let query = SoundFont.find(self.soundFontId).select { $0.displayName }
+    return (try? database.read { try query.fetchOne($0) }) ?? "???"
+  }
+
+  /// Obtain the `AudioConfig.Draft` value associated with this preset. If one does not exist, then
+  /// return one with default values.
+  public var audioConfig: AudioConfig.Draft {
+    @Dependency(\.defaultDatabase) var database
+    if let value = (try? database.read { db in
+      let query = AudioConfig.all.where { $0.presetId.eq(self.id) }
+      return try query.fetchOne(db)
+    }) {
+      return .init(value)
+    }
+    return AudioConfig.Draft(presetId: self.id)
+  }
+
   static func migrate(_ migrator: inout DatabaseMigrator) {
     migrator.registerMigration(Self.tableName) { db in
       try #sql(

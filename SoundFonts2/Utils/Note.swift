@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-// import Foundation
+import StructuredQueries
 
 /**
  Definition of a MIDI v1 note where the MIDI value is in range [0-127].
@@ -197,4 +197,8 @@ extension Note: Comparable {
 
 extension Note: Hashable {
   public func hash(into hasher: inout Hasher) { hasher.combine(midiNoteValue) }
+}
+
+extension Note: QueryBindable {
+  public var queryBinding: QueryBinding { .text(rawValue) }
 }
