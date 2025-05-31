@@ -49,7 +49,7 @@ struct SoundFontTests {
   }
 
   @Test("soundFonts") func active() async throws {
-    @FetchAll(SoundFont.activeQuery) var soundFonts
+    @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
     #expect(soundFonts.count == 3)
     #expect(soundFonts.map(\.displayName) == [

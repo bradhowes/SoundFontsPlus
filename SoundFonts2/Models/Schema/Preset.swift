@@ -30,16 +30,22 @@ extension Preset {
   }
 
   /// Obtain the `AudioConfig.Draft` value associated with this preset. If one does not exist, then
-  /// return one with default values.
-  public var audioConfig: AudioConfig.Draft {
+  /// return one with default values. Goal is to only save an entry when there is a deviation from
+  /// the default values.
+  public var audioConfig: AudioConfig? {
     @Dependency(\.defaultDatabase) var database
-    if let value = (try? database.read { db in
+    return (try? database.read { db in
       let query = AudioConfig.all.where { $0.presetId.eq(self.id) }
       return try query.fetchOne(db)
-    }) {
-      return .init(value)
+    })
+  }
+
+  public var audioConfigDraft: AudioConfig.Draft {
+    if let audioConfig = self.audioConfig {
+      return .init(audioConfig)
+    } else {
+      return .init()
     }
-    return AudioConfig.Draft(presetId: self.id)
   }
 
   static func migrate(_ migrator: inout DatabaseMigrator) {

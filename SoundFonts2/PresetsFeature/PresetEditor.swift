@@ -15,7 +15,11 @@ public struct PresetEditor: Equatable {
     var displayName: String
     var visible: Bool
     var notes: String
+
     var audioConfig: AudioConfig.Draft
+    var delayConfig: DelayConfig.Draft
+    var reverbConfig: ReverbConfig.Draft
+
     var tuning: TuningFeature.State
 
     public init(preset: Preset) {
@@ -24,8 +28,12 @@ public struct PresetEditor: Equatable {
       self.visible = preset.visible
       self.notes = preset.notes
       self.soundFontName = preset.soundFontName
-      self.audioConfig = preset.audioConfig
-      self.tuning = .init(frequency: preset.audioConfig.customTuning, enabled: false)
+      let audioConfig = preset.audioConfig
+      let audioConfigDraft = preset.audioConfigDraft
+      self.audioConfig = audioConfigDraft
+      self.delayConfig = audioConfig?.delayConfigDraft ?? .init()
+      self.reverbConfig = audioConfig?.reverbConfigDraft ?? .init()
+      self.tuning = .init(frequency: audioConfigDraft.customTuning, enabled: audioConfigDraft.customTuningEnabled)
     }
 
     public mutating func save() {
@@ -41,9 +49,44 @@ public struct PresetEditor: Equatable {
         .where { $0.id == preset.id }
         .execute(db)
 
-        try AudioConfig
+        // If no changes from default config values then we are done.
+        guard audioConfig != AudioConfig.Draft() ||
+                delayConfig != DelayConfig.Draft() ||
+                reverbConfig != ReverbConfig.Draft() else {
+          return
+        }
+
+        precondition(audioConfig.presetId == nil || audioConfig.presetId == preset.id)
+
+        audioConfig.presetId = preset.id
+        guard let audioConfigId = (try AudioConfig
           .upsert(audioConfig)
-          .execute(db)
+          .returning(\.id)
+          .fetchOne(db)
+        ) else {
+          print("*** failed to upsert audioConfig")
+          return
+        }
+
+        print("audioConfigId: \(audioConfigId)")
+
+        if delayConfig != DelayConfig.Draft() {
+          delayConfig.audioConfigId = audioConfigId
+          let delayConfigId = try DelayConfig
+            .upsert(delayConfig)
+            .returning(\.id)
+            .fetchOne(db)
+          print("delayConfigId: \(delayConfigId ?? -1)")
+        }
+
+        if reverbConfig != ReverbConfig.Draft() {
+          reverbConfig.audioConfigId = audioConfigId
+          let reverbConfigId = try ReverbConfig
+            .upsert(reverbConfig)
+            .returning(\.id)
+            .fetchOne(db)
+          print("reverbConfigId: \(reverbConfigId ?? -1)")
+        }
       }
     }
   }
@@ -130,6 +173,8 @@ public struct PresetEditorView: View {
         nameSection
         keyboardSection
         audioSection
+        delaySection
+        reverbSection
         midiSection
         tuningSection
         notesSection
@@ -150,6 +195,7 @@ public struct PresetEditorView: View {
 
   var nameSection: some View {
     Section {
+      Toggle("Visible", isOn: $store.visible)
       TextField("Name", text: $store.displayName.sending(\.displayNameChanged))
         .focused($focusField, equals: .displayName)
         .textFieldStyle(.roundedBorder)
@@ -163,7 +209,6 @@ public struct PresetEditorView: View {
         Text(store.preset.displayName)
           .foregroundStyle(.secondary)
       }
-      Toggle("Visible", isOn: $store.visible)
     }
   }
 
@@ -273,7 +318,64 @@ public struct PresetEditorView: View {
       }
     }
   }
-  private var tuningSection: some View {
+
+  var delaySection: some View {
+    Section(header: Text("Delay")) {
+      Toggle("Enabled", isOn: $store.delayConfig.enabled)
+      HStack {
+        Text("Time:")
+        Spacer()
+        Text("\(store.delayConfig.time) ms")
+      }
+      Slider(value: $store.delayConfig.time, in: 0...2000)
+        .disabled(!store.delayConfig.enabled)
+      HStack {
+        Text("Feedback:")
+        Spacer()
+        Text("\(store.delayConfig.feedback)%")
+      }
+      Slider(value: $store.delayConfig.feedback, in: -100...100)
+        .disabled(!store.delayConfig.enabled)
+      HStack {
+        Text("Cutoff:")
+        Spacer()
+        Text("\(store.delayConfig.cutoff)")
+      }
+      Slider(value: $store.delayConfig.cutoff, in: 12...20000)
+        .disabled(!store.delayConfig.enabled)
+      HStack {
+        Text("WetDry:")
+        Spacer()
+        Text("\(store.delayConfig.wetDryMix)")
+      }
+      Slider(value: $store.delayConfig.wetDryMix, in: 0...100)
+        .disabled(!store.delayConfig.enabled)
+    }
+  }
+
+  var reverbSection: some View {
+    Section(header: Text("Reverb")) {
+      Toggle("Enabled", isOn: $store.reverbConfig.enabled)
+      HStack {
+        Text("Preset:")
+        Spacer()
+        Text("\(store.reverbConfig.preset)")
+        Spacer()
+        Stepper("", value: $store.reverbConfig.preset, in: 0...11)
+          .labelsHidden()
+          .disabled(!store.reverbConfig.enabled)
+      }
+      HStack {
+        Text("WetDry:")
+        Spacer()
+        Text("\(store.reverbConfig.wetDryMix)")
+      }
+      Slider(value: $store.reverbConfig.wetDryMix, in: 0...100)
+        .disabled(!store.reverbConfig.enabled)
+    }
+  }
+
+  var tuningSection: some View {
     TuningView(store: Store(initialState: store.tuning) { TuningFeature() })
   }
 }

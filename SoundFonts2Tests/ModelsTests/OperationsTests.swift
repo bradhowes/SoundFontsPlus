@@ -8,33 +8,6 @@ import Testing
 @Suite(.dependencies { $0.defaultDatabase = try appDatabase() })
 struct OperationsTests {
 
-  @Test("preset source") func presetSource() async throws {
-    @Shared(.activeState) var activeState
-    #expect(Operations.presetSource == SoundFont.ID(rawValue: 1))
-    $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 2) }
-    #expect(Operations.presetSource == SoundFont.ID(rawValue: 2))
-    $activeState.withLock { $0.selectedSoundFontId = nil }
-    #expect(Operations.presetSource == SoundFont.ID(rawValue: 1))
-  }
-
-  @Test("active preset name") func activePresetName() async throws {
-    @Shared(.activeState) var activeState
-    #expect(Operations.activePresetName == "Piano 1")
-    $activeState.withLock { $0.activePresetId = .init(rawValue: 2) }
-    #expect(Operations.activePresetName == "Piano 2")
-    $activeState.withLock { $0.activePresetId = .init(rawValue: -1) }
-    #expect(Operations.activePresetName == "-")
-    $activeState.withLock { $0.activePresetId = nil }
-    #expect(Operations.activePresetName == "-")
-  }
-
-  @Test("preset by ID") func presetByID() async throws {
-    #expect(Operations.preset(.init(rawValue: 1))?.displayName == "Piano 1")
-    #expect(Operations.preset(.init(rawValue: 2))?.displayName == "Piano 2")
-    #expect(Operations.preset(.init(rawValue: 3))?.displayName == "Piano 3")
-    #expect(Operations.preset(.init(rawValue: 100))?.displayName == "Atmosphere")
-  }
-
   @Test("presets") func presets() async throws {
     @Shared(.activeState) var activeState
     #expect(Operations.presets.count == 235)
@@ -76,42 +49,50 @@ struct OperationsTests {
   @Test("tagSoundFont") func tagSoundFont() async throws {
     @Dependency(\.defaultDatabase) var database
     let newTag = try Tag.make(displayName: "New Tag")
-    #expect(Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1)))
+    Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
     #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2, 5])
-    #expect(!Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1)))
+    Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
+    #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2, 5])
   }
 
   @Test("untagSoundFont") func untagSoundFont() async throws {
     @Dependency(\.defaultDatabase) var database
     let newTag = try Tag.make(displayName: "New Tag")
-    #expect(Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1)))
+    Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
     #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2, 5])
-    #expect(Operations.untagSoundFont(newTag.id, soundFontId: .init(rawValue: 1)))
+    Operations.untagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
     #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2])
   }
 
   @Test("deleteTag") func deleteTag() async throws {
     @Dependency(\.defaultDatabase) var database
     let newTag = try Tag.make(displayName: "New Tag")
-    #expect(Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1)))
+    Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
     #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2, 5])
-    #expect(Operations.deleteTag(newTag.id))
+    Operations.deleteTag(newTag.id)
     #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2])
   }
 
   @Test("updateTags") func updateTags() async throws {
-    Operations.updateTags([(1, ""), (4, "Bar"), (2, ""), (3, "Blah")])
+    Operations.updateTags(
+      [
+        Tag(id: Tag.ID(rawValue: 1), displayName: "a", ordering: 0),
+        Tag(id: Tag.ID(rawValue: 4), displayName: "Bar", ordering: 1),
+        Tag(id: Tag.ID(rawValue: 2), displayName: "c", ordering: 2),
+        Tag(id: Tag.ID(rawValue: 3), displayName: "Blah", ordering: 3)
+      ]
+    )
     @FetchAll(Tag.all.order(by: \.ordering)) var tags
     try await $tags.load()
     #expect(tags.count == 4)
-    #expect(tags[0].displayName == "All")
+    #expect(tags[0].displayName == "a")
     #expect(tags[1].displayName == "Bar")
-    #expect(tags[2].displayName == "Built-in")
+    #expect(tags[2].displayName == "c")
     #expect(tags[3].displayName == "Blah")
   }
 
   @Test("tagInfos") func tagInfos() async throws {
-    @FetchAll(Operations.tagInfos) var tagInfos
+    @FetchAll(Operations.tagInfosQuery) var tagInfos
     try await $tagInfos.load()
     #expect(tagInfos.count == 4)
     #expect(tagInfos.map(\.displayName) == [

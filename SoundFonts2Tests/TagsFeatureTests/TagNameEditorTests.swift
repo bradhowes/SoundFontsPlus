@@ -23,8 +23,8 @@ struct TagNameEditorTests {
 
   @Test func deleteTag() async throws {
     try await initialize { store in
-      await store.send(.deleteTag)
-      await store.receive(.delegate(.deleteTag(store.state.tagId)))
+      await store.send(.tagSwipedToDelete)
+      await store.receive(.delegate(.tagSwipedToDelete(store.state.id)))
       await store.finish()
     }
   }
@@ -32,10 +32,10 @@ struct TagNameEditorTests {
   @Test func nameChanged() async throws {
     try await initialize { store in
       await store.send(.nameChanged("Blah")) {
-        $0.name = "Blah"
+        $0.newName = "Blah"
       }
       await store.send(.nameChanged("")) {
-        $0.name = ""
+        $0.newName = ""
       }
     }
   }

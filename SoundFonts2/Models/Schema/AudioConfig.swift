@@ -9,48 +9,59 @@ public struct AudioConfig: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
-  public var gain: Double
-  public var pan: Double
-  public var keyboardLowestNoteEnabled: Bool
-  public var keyboardLowestNote: Note
-  public var pitchBendRange: Int
+  public var gain: Double = 0.0
+  public var pan: Double = 0.0
+  public var keyboardLowestNoteEnabled: Bool = true
+  public var keyboardLowestNote: Note = .C4
+  public var pitchBendRange: Int = 2
 
-  public var customTuningEnabled: Bool
-  public var customTuning: Double
-  public let favoriteId: Favorite.ID?
-  public let presetId: Preset.ID?
+  public var customTuningEnabled: Bool = false
+  public var customTuning: Double = 440.0
+
+  public var favoriteId: Favorite.ID?
+  public var presetId: Preset.ID?
 }
 
 extension AudioConfig.Draft: Equatable, Sendable {}
 
-extension AudioConfig.Draft {
+extension AudioConfig {
 
-  init(presetId: Preset.ID) {
-    self.init(
-      gain: 0.0,
-      pan: 0.0,
-      keyboardLowestNoteEnabled: true,
-      keyboardLowestNote: .C4,
-      pitchBendRange: 2,
-      customTuningEnabled: false,
-      customTuning: 440.0,
-      favoriteId: nil,
-      presetId: presetId
-    )
+  /// Obtain the `DelayConfig.Draft` value associated with this config/preset. If one does not exist, then
+  /// return one with default values. Goal is to only save an entry when there is a deviation from
+  /// the default values.
+  public var delayConfig: DelayConfig? {
+    @Dependency(\.defaultDatabase) var database
+    return (try? database.read { db in
+      let query = DelayConfig.all.where { $0.audioConfigId.eq(self.id) }
+      return try query.fetchOne(db)
+    })
   }
 
-  init(favoriteId: Favorite.ID) {
-    self.init(
-      gain: 0.0,
-      pan: 0.0,
-      keyboardLowestNoteEnabled: true,
-      keyboardLowestNote: .C4,
-      pitchBendRange: 2,
-      customTuningEnabled: false,
-      customTuning: 440.0,
-      favoriteId: favoriteId,
-      presetId: nil
-    )
+  public var delayConfigDraft: DelayConfig.Draft {
+    if let delayConfig = self.delayConfig {
+      return .init(delayConfig)
+    } else {
+      return .init(audioConfigId: self.id)
+    }
+  }
+
+  /// Obtain the `ReverbConfig.Draft` value associated with this config/preset. If one does not exist, then
+  /// return one with default values. Goal is to only save an entry when there is a deviation from
+  /// the default values.
+  public var reverbConfig: ReverbConfig? {
+    @Dependency(\.defaultDatabase) var database
+    return (try? database.read { db in
+      let query = ReverbConfig.all.where { $0.audioConfigId.eq(self.id) }
+      return try query.fetchOne(db)
+    })
+  }
+
+  public var reverbConfigDraft: ReverbConfig.Draft {
+    if let reverbConfig = self.reverbConfig {
+      return .init(reverbConfig)
+    } else {
+      return .init(audioConfigId: self.id)
+    }
   }
 }
 

@@ -110,7 +110,7 @@ extension Tag {
   }
 
   public static var ordered: [Tag] {
-    let query = Self.all.order(by: \.ordering)
+    let query = Operations.tagsQuery
     @Dependency(\.defaultDatabase) var database
     return (try? database.read { try query.fetchAll($0) }) ?? []
   }

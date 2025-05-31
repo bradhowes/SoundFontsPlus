@@ -93,7 +93,6 @@
 		BDAF5B882DE256C500B8FB13 /* SettingsFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B512DE256C500B8FB13 /* SettingsFeatureTests.swift */; };
 		BDAF5B892DE256C500B8FB13 /* OperationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B382DE256C500B8FB13 /* OperationsTests.swift */; };
 		BDAF5B8B2DE256C500B8FB13 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B562DE256C500B8FB13 /* Helpers.swift */; };
-		BDAF5B8C2DE256C500B8FB13 /* TagButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B762DE256C500B8FB13 /* TagButtonTests.swift */; };
 		BDAF5B8D2DE256C500B8FB13 /* FavoriteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B362DE256C500B8FB13 /* FavoriteTests.swift */; };
 		BDAF5B8E2DE256C500B8FB13 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B4E2DE256C500B8FB13 /* Support.swift */; };
 		BDAF5B8F2DE256C500B8FB13 /* SoundFontTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B3D2DE256C500B8FB13 /* SoundFontTests.swift */; };
@@ -246,7 +245,6 @@
 		BDAF5B632DE256C500B8FB13 /* SoundFontButtonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFontButtonTests.swift; sourceTree = "<group>"; };
 		BDAF5B652DE256C500B8FB13 /* SoundFontSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFontSupport.swift; sourceTree = "<group>"; };
 		BDAF5B662DE256C500B8FB13 /* SupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportTests.swift; sourceTree = "<group>"; };
-		BDAF5B762DE256C500B8FB13 /* TagButtonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagButtonTests.swift; sourceTree = "<group>"; };
 		BDAF5B772DE256C500B8FB13 /* TagNameEditorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagNameEditorTests.swift; sourceTree = "<group>"; };
 		BDAF5B782DE256C500B8FB13 /* TagsEditorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsEditorTests.swift; sourceTree = "<group>"; };
 		BDAF5B7A2DE256C500B8FB13 /* TagsListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsListTests.swift; sourceTree = "<group>"; };
@@ -690,7 +688,6 @@
 		BDAF5B7B2DE256C500B8FB13 /* TagsFeatureTests */ = {
 			isa = PBXGroup;
 			children = (
-				BDAF5B762DE256C500B8FB13 /* TagButtonTests.swift */,
 				BDAF5B772DE256C500B8FB13 /* TagNameEditorTests.swift */,
 				BDAF5B782DE256C500B8FB13 /* TagsEditorTests.swift */,
 				BDAF5B7A2DE256C500B8FB13 /* TagsListTests.swift */,
@@ -951,7 +948,6 @@
 				BDAF5B882DE256C500B8FB13 /* SettingsFeatureTests.swift in Sources */,
 				BDAF5B892DE256C500B8FB13 /* OperationsTests.swift in Sources */,
 				BDAF5B8B2DE256C500B8FB13 /* Helpers.swift in Sources */,
-				BDAF5B8C2DE256C500B8FB13 /* TagButtonTests.swift in Sources */,
 				BDAF5B8D2DE256C500B8FB13 /* FavoriteTests.swift in Sources */,
 				BDAF5B8E2DE256C500B8FB13 /* Support.swift in Sources */,
 				BDAF5B8F2DE256C500B8FB13 /* SoundFontTests.swift in Sources */,

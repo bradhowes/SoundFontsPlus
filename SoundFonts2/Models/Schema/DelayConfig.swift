@@ -5,17 +5,20 @@ import SharingGRDB
 import Tagged
 
 @Table
-public struct DelayConfig: Hashable, Identifiable {
+public struct DelayConfig: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
-  public var time: AUValue
-  public var feedback: AUValue
-  public var cutoff: AUValue
-  public var wetDryMix: AUValue
-  public var enabled: Bool
-  public let audioConfigId: AudioConfig.ID
+  public var time: AUValue = 0.25
+  public var feedback: AUValue = 0.70
+  public var cutoff: AUValue = 2000.0
+  public var wetDryMix: AUValue = 0.5
+  public var enabled: Bool = false
+
+  public var audioConfigId: AudioConfig.ID?
 }
+
+extension DelayConfig.Draft: Equatable, Sendable {}
 
 extension DelayConfig {
 
