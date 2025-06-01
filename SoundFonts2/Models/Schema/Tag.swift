@@ -3,10 +3,26 @@
 import SharingGRDB
 import Tagged
 
+/**
+ A tag is used to group or categorize a collection of SoundFont entries. There are four predefined (ubiquitous) tags:
+
+ - `all` -- every SoundFont is a member of this collection
+ - `builtIn` -- the four SoundFont files embedded with the app is a member of this collection
+ - `added` -- every SoundFont added by the user is a member of this collection (initially empty)
+ - `external` -- every SoundFont added but not copied to the app's document storage is a member of this collection
+
+ A user can create additional tags via the app UI, and SoundFont membership with these custom tags is under their
+ control. The four tags above are managed by the app -- the user cannot affect their membership outside of adding and
+ deleting SF2 files.
+ */
 @Table
 public struct Tag: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>
 
+  /**
+   The tags that exist in the app from the start. They also have predefined IDs so it is important that they are
+   created first before any user tags.
+   */
   public enum Ubiquitous: CaseIterable {
     case all
     case builtIn

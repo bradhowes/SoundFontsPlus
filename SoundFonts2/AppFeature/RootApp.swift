@@ -110,7 +110,7 @@ public struct RootApp {
   }
 
   private func setEditingVisibility(_ state: inout State, active: Bool) -> Effect<Action> {
-    return reduce(into: &state, action: .presetsList(.visibilityEditMode(active)))
+    return reduce(into: &state, action: .presetsList(.visibilityEditModeChanged(active)))
   }
 
   private func setTagsVisibility(_ state: inout State, visible: Bool) -> Effect<Action> {

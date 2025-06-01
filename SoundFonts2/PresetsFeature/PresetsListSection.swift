@@ -71,7 +71,6 @@ public struct PresetsListSectionView: View {
   private let searching: Bool
 
   @State private var showSearchButton: Bool = false
-  @Environment(\.editMode) private var editMode
 
   public init(store: StoreOf<PresetsListSection>, searching: Bool) {
     self.store = store
@@ -80,19 +79,14 @@ public struct PresetsListSectionView: View {
 
   public var body: some View {
     Section {
-      if editMode?.wrappedValue == EditMode.active {
-        editingRows
-          .transition(.opacity)
-      } else {
-        buttonRows
-          .transition(.opacity)
-      }
+      buttonRows
     } header: {
       sectionHeader
         .onTapGesture {
           store.send(.headerTapped)
         }
-    }.id(store.sectionId)
+    }
+    .id(store.sectionId)
   }
 
   @ViewBuilder
@@ -136,21 +130,6 @@ public struct PresetsListSectionView: View {
   private var buttonRows: some View {
     ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
       PresetButtonView(store: rowStore)
-        .id(rowStore.preset.id)
-    }
-  }
-
-  private var editingRows: some View {
-    ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-      HStack {
-        PresetButtonView(store: rowStore)
-        Spacer()
-        Image(systemName: rowStore.preset.kind == .hidden ? "checkmark" : "circle")
-          .foregroundStyle(.blue)
-          .onTapGesture {
-            rowStore.send(.toggleVisibility, animation: .default)
-          }
-      }
     }
   }
 }
@@ -165,5 +144,5 @@ public struct ViewOffsetKey: PreferenceKey {
 }
 
 #Preview {
-  PresetsListView.preview
+  PresetsListView.previewEditing
 }

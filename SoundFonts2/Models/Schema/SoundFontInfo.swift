@@ -4,6 +4,9 @@ import Foundation
 import SharingGRDB
 import Tagged
 
+/**
+ Subset of SoundFont table columns used to show the list of available soundfont files.
+ */
 @Selection
 public struct SoundFontInfo: Equatable, Identifiable, Sendable {
   public let id: SoundFont.ID

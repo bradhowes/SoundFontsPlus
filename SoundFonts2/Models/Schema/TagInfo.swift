@@ -3,6 +3,10 @@
 import SharingGRDB
 import Tagged
 
+/**
+ View of the `Tag` table that is used to populate the list of available tags. It holds the `soundFontCount` of the
+ number of SoundFont instances that are members of the tag.
+ */
 @Selection
 public struct TagInfo: Equatable, Identifiable, Sendable {
   public let id: Tag.ID

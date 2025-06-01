@@ -16,7 +16,6 @@ public struct PresetsList {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
     var sections: IdentifiedArrayOf<PresetsListSection.State>
-    var editingVisibility: Bool
     var searchText: String
     var isSearchFieldPresented: Bool
     var focusedField: Field?
@@ -28,10 +27,12 @@ public struct PresetsList {
       case searchText
     }
 
-    public init(editingVisibility: Bool = false, searchText: String? = nil) {
-      self.editingVisibility = editingVisibility
+    var visibilityEditMode: EditMode
+
+    public init(searchText: String? = nil, visibilityEditMode: Bool = false) {
       self.isSearchFieldPresented = searchText != nil
       self.searchText = searchText ?? ""
+      self.visibilityEditMode = visibilityEditMode ? .active : .inactive
       self.sections = []
     }
 
@@ -51,6 +52,7 @@ public struct PresetsList {
 
   public enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
+    case cancelSearchButtonTapped
     case clearScrollToPresetId
     case destination(PresentationAction<Destination.Action>)
     case fetchPresets
@@ -58,10 +60,9 @@ public struct PresetsList {
     case searchTextChanged(String)
     case sections(IdentifiedActionOf<PresetsListSection>)
     case selectedSoundFontIdChanged(SoundFont.ID?)
-    case stop
-    case cancelSearchButtonTapped
-    case visibilityEditMode(Bool)
     case showActivePreset
+    case stop
+    case visibilityEditModeChanged(Bool)
   }
 
   public init() {}
@@ -101,8 +102,10 @@ public struct PresetsList {
       case .sections: return .none
       case .selectedSoundFontIdChanged(let soundFontId): return setSoundFont(&state, soundFontId: soundFontId)
       case .stop: return .cancel(id: pubisherCancelId)
-      case .visibilityEditMode(let value): return setEditMode(&state, value: value)
       case .showActivePreset: return showActivePreset(&state)
+      case let .visibilityEditModeChanged(value):
+        state.visibilityEditMode = value ? .active : .inactive
+        return .none
       }
     }
     .forEach(\.sections, action: \.sections) {
@@ -151,9 +154,10 @@ extension PresetsList {
   }
 
   private func fetchPresets(_ state: inout State) -> Effect<Action> {
+    @Environment(\.editMode) var editMode
     state.sections = generatePresetSections(
       searchText: state.optionalSearchText,
-      editing: state.editingVisibility
+      editing: editMode?.wrappedValue.isEditing ?? false
     )
     return .none
   }
@@ -210,7 +214,9 @@ extension PresetsList {
   }
 
   private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
-    state.editingVisibility = false
+    @Environment(\.editMode) var editMode
+    editMode?.wrappedValue = .inactive
+
     @Dependency(\.defaultDatabase) var database
     @Shared(.activeState) var activeState
     if activeState.activeSoundFontId == soundFontId {
@@ -218,11 +224,6 @@ extension PresetsList {
     } else {
       state.scrollToPresetId = nil
     }
-    return fetchPresets(&state)
-  }
-
-  private func setEditMode(_ state: inout State, value: Bool) -> Effect<Action> {
-    state.editingVisibility = value
     return fetchPresets(&state)
   }
 
@@ -261,22 +262,20 @@ public struct PresetsListView: View {
         }
         .padding(EdgeInsets(top: 8, leading: 8, bottom: 0, trailing: 8))
       }
-
       ScrollViewReader { proxy in
         StyledList {
           ForEach(store.scope(state: \.sections, action: \.sections), id: \.id) { rowStore in
             PresetsListSectionView(store: rowStore, searching: store.isSearchFieldPresented)
           }
+          .environment(\.editMode, $store.visibilityEditMode)
         }
         .onChange(of: store.scrollToPresetId) {
           doScrollTo(proxy: proxy, oldValue: $0, newValue: $1)
         }
       }
-      .environment(\.editMode, .constant(store.editingVisibility ? EditMode.active : .inactive))
       .onAppear {
         store.send(.onAppear)
       }
-      // .animation(.smooth, value: store.sections)
       .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
         PresetEditorView(store: $0)
       }
@@ -304,16 +303,22 @@ extension PresetsListView {
     let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 1) }
-    return PresetsListView(store: Store(initialState: .init()) { PresetsList() })
+    return VStack {
+      let store = Store(initialState: .init()) { PresetsList() }
+      PresetsListView(store: store)
+      Toggle("Editing", isOn: Binding(
+        get: { store.visibilityEditMode == .active },
+        set: { store.send(.visibilityEditModeChanged($0)) }
+      )
+      )
+    }
   }
 
   static var previewEditing: some View {
     let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 1) }
-    return PresetsListView(store: Store(initialState: .init(editingVisibility: true)) {
-      PresetsList()
-    })
+    return PresetsListView(store: Store(initialState: .init(visibilityEditMode: true)) { PresetsList() })
   }
 }
 

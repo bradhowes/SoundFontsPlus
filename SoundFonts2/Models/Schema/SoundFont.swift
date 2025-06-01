@@ -5,6 +5,12 @@ import Engine
 import SharingGRDB
 import Tagged
 
+/**
+ Definition of a soundfont table that holds various pieces of information regarding soundfont files.
+ A SoundFont entry contains various meta data attributes loaded from a SF2 file. Most of these attributes are not
+ necessary for app usage. The `SoundFontEditor` feature is the only one that reveals this meta data. Usually, the app
+ works with `SoundFontInfo` rows which is a slimmer view into the SoundFont table.
+ */
 @Table
 public struct SoundFont: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>

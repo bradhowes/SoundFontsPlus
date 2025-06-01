@@ -3,6 +3,10 @@
 import SharingGRDB
 import Tagged
 
+/**
+ The mapping of tags to SoundFont ids. If a SoundFont is a member of a tag, then there will be a `TaggedSoundFont`
+ entry for it.
+ */
 @Table
 public struct TaggedSoundFont: Hashable, Sendable {
   public let soundFontId: SoundFont.ID

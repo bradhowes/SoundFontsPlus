@@ -89,7 +89,9 @@ extension PresetButton {
   }
 
   private func toggleVisibility(_ state: inout State) -> Effect<Action> {
-    state.preset.setKind(state.preset.kind == .hidden ? .preset : .hidden)
+    let kind: Preset.Kind = state.preset.kind == .hidden ? .preset : .hidden
+    state.preset.setKind(kind)
+    state.preset.kind = kind
     return .none
   }
 }
@@ -105,6 +107,8 @@ public struct PresetButtonView: View {
   @Shared(.activeState) var activeState
   @Environment(\.editMode) private var editMode
 
+  private var isEditing : Bool { editMode?.wrappedValue == .active }
+
   public init(store: StoreOf<PresetButton>) {
     self.store = store
   }
@@ -116,15 +120,25 @@ public struct PresetButtonView: View {
 
   public var body: some View {
     Button {
-      if editMode?.wrappedValue.isEditing == true {
+      if isEditing {
         store.send(.toggleVisibility, animation: .default)
       } else {
         store.send(.buttonTapped, animation: .default)
       }
     } label: {
-      Text(store.preset.displayName)
-        .font(.buttonFont)
-        .indicator(state)
+      HStack {
+        Image(systemName: store.preset.kind == .hidden ? "circle" : "inset.filled.circle")
+          .foregroundStyle(.blue)
+          .animation(.smooth, value: store.preset.kind)
+          .opacity(isEditing ? 1 : 0)
+          .frame(maxWidth: isEditing ? 24 : 0)
+          .animation(.smooth, value: isEditing)
+
+        Text(store.preset.displayName)
+          .font(.buttonFont)
+          .indicator(isEditing ? .none : state)
+          .animation(.smooth, value: isEditing)
+      }
     }
     .listRowSeparatorTint(.accentColor.opacity(0.5))
     .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
@@ -155,17 +169,27 @@ public struct PresetButtonView: View {
 
 extension PresetButtonView {
   static var preview: some View {
-    let _ = prepareDependencies {
+    let presets = prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
+      return Operations.presets
     }
 
-    let presets = Operations.presets
+    return VStack {
+      List {
+        PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets.last!)) { PresetButton() })
+      }.listStyle(.plain)
+        .environment(\.editMode, .constant(.inactive))
 
-    return List {
-      PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
-      PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
-      PresetButtonView(store: Store(initialState: .init(preset: presets.last!)) { PresetButton() })
-    }.listStyle(.plain)
+      List {
+        PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets.last!)) { PresetButton() })
+      }
+      .listStyle(.plain)
+      .environment(\.editMode, .constant(.active))
+    }
   }
 }
 
