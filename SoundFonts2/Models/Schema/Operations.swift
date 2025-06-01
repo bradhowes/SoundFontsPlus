@@ -5,18 +5,34 @@ import SharingGRDB
 
 public enum Operations {
 
-  public static var presets: [Preset] {
+  public static func presetSet(_ kind: Preset.Kind) -> [Preset] {
     guard let soundFontId = Preset.source else { return [] }
-    let query = Preset.all.where { $0.soundFontId == soundFontId && $0.visible }.order(by: \.index)
+    let query = Preset
+      .all
+      .where { $0.soundFontId.eq(soundFontId) }
+      .where { $0.kind.eq(kind) }
+      .order(by: \.index)
     @Dependency(\.defaultDatabase) var database
     return (try? database.read { try query.fetchAll($0) }) ?? []
   }
 
-  public static var allPresets: [Preset] {
+  public static var presets: [Preset] {
     guard let soundFontId = Preset.source else { return [] }
-    let query = Preset.all.where { $0.soundFontId == soundFontId }.order(by: \.index)
+    let query = Preset
+      .all
+      .where { $0.soundFontId.eq(soundFontId) }
+      .where { $0.kind.neq(Preset.Kind.hidden) }
+    .order(by: \.index)
     @Dependency(\.defaultDatabase) var database
     return (try? database.read { try query.fetchAll($0) }) ?? []
+  }
+
+  public static var favorites: [Preset] {
+    presetSet(.favorite)
+  }
+
+  public static var allPresets: [Preset] {
+    presetSet(.preset)
   }
 
   public static func soundFontIds(for tagId: Tag.ID) -> [SoundFont.ID] {
@@ -66,12 +82,6 @@ public enum Operations {
         }
       }
     }
-  }
-
-  public static func setVisibility(of presetId: Preset.ID, to visible: Bool) {
-    let query = Preset.find(presetId).update { $0.visible = visible }
-    @Dependency(\.defaultDatabase) var database
-    try? database.write { try query.execute($0) }
   }
 
   public static var soundFontInfosQuery: Select<SoundFontInfo.Columns.QueryValue, TaggedSoundFont, SoundFont> {

@@ -145,7 +145,7 @@ public struct PresetsListSectionView: View {
       HStack {
         PresetButtonView(store: rowStore)
         Spacer()
-        Image(systemName: rowStore.preset.visible ? "checkmark" : "circle")
+        Image(systemName: rowStore.preset.kind == .hidden ? "checkmark" : "circle")
           .foregroundStyle(.blue)
           .onTapGesture {
             rowStore.send(.toggleVisibility, animation: .default)

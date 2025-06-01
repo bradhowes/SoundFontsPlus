@@ -25,7 +25,7 @@ public struct PresetEditor: Equatable {
     public init(preset: Preset) {
       self.preset = preset
       self.displayName = preset.displayName
-      self.visible = preset.visible
+      self.visible = preset.kind == .preset
       self.notes = preset.notes
       self.soundFontName = preset.soundFontName
       let audioConfig = preset.audioConfig
@@ -44,7 +44,7 @@ public struct PresetEditor: Equatable {
         try Preset.update {
           $0.displayName = displayName
           $0.notes = notes
-          $0.visible = visible
+          $0.kind = visible ? .preset : .hidden
         }
         .where { $0.id == preset.id }
         .execute(db)

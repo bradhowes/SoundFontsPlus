@@ -29,7 +29,6 @@
 		BDAF5AA32DE2551A00B8FB13 /* Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A9F2DE2551A00B8FB13 /* Keyboard.swift */; };
 		BDAF5AA42DE2551A00B8FB13 /* KeySequenceGenerators.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AA02DE2551A00B8FB13 /* KeySequenceGenerators.swift */; };
 		BDAF5ABF2DE2555000B8FB13 /* ReverbConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AB32DE2555000B8FB13 /* ReverbConfig.swift */; };
-		BDAF5AC02DE2555000B8FB13 /* Favorite.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AAF2DE2555000B8FB13 /* Favorite.swift */; };
 		BDAF5AC12DE2555000B8FB13 /* Preset.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AB22DE2555000B8FB13 /* Preset.swift */; };
 		BDAF5AC22DE2555000B8FB13 /* Tagged.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5ABC2DE2555000B8FB13 /* Tagged.swift */; };
 		BDAF5AC32DE2555000B8FB13 /* AppDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AAC2DE2555000B8FB13 /* AppDatabase.swift */; };
@@ -170,7 +169,6 @@
 		BDAF5AAC2DE2555000B8FB13 /* AppDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDatabase.swift; sourceTree = "<group>"; };
 		BDAF5AAD2DE2555000B8FB13 /* AudioConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioConfig.swift; sourceTree = "<group>"; };
 		BDAF5AAE2DE2555000B8FB13 /* DelayConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayConfig.swift; sourceTree = "<group>"; };
-		BDAF5AAF2DE2555000B8FB13 /* Favorite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Favorite.swift; sourceTree = "<group>"; };
 		BDAF5AB02DE2555000B8FB13 /* ModelError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelError.swift; sourceTree = "<group>"; };
 		BDAF5AB12DE2555000B8FB13 /* Operations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Operations.swift; sourceTree = "<group>"; };
 		BDAF5AB22DE2555000B8FB13 /* Preset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preset.swift; sourceTree = "<group>"; };
@@ -432,7 +430,6 @@
 				BDAF5AAC2DE2555000B8FB13 /* AppDatabase.swift */,
 				BDAF5AAD2DE2555000B8FB13 /* AudioConfig.swift */,
 				BDAF5AAE2DE2555000B8FB13 /* DelayConfig.swift */,
-				BDAF5AAF2DE2555000B8FB13 /* Favorite.swift */,
 				BDAF5AB02DE2555000B8FB13 /* ModelError.swift */,
 				BDAF5AB12DE2555000B8FB13 /* Operations.swift */,
 				BDAF5AB22DE2555000B8FB13 /* Preset.swift */,
@@ -878,7 +875,6 @@
 				BDAF5A932DE254E000B8FB13 /* FileManager.swift in Sources */,
 				BDAF5A942DE254E000B8FB13 /* Environment.swift in Sources */,
 				BDAF5ABF2DE2555000B8FB13 /* ReverbConfig.swift in Sources */,
-				BDAF5AC02DE2555000B8FB13 /* Favorite.swift in Sources */,
 				BDAF5AC12DE2555000B8FB13 /* Preset.swift in Sources */,
 				BDAF5AC22DE2555000B8FB13 /* Tagged.swift in Sources */,
 				BDAF5AC32DE2555000B8FB13 /* AppDatabase.swift in Sources */,

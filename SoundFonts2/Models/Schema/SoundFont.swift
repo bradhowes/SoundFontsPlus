@@ -78,8 +78,8 @@ extension SoundFont {
             originalName: displayName,
             soundFontId: soundFontId,
             displayName: displayName,
-            visible: true,
-            notes: ""
+            notes: "",
+            kind: .preset
           )
         }
         try Preset.insert(presets).execute(db)
@@ -128,8 +128,8 @@ extension SoundFont {
             originalName: displayName,
             soundFontId: soundFontId,
             displayName: displayName,
-            visible: true,
-            notes: ""
+            notes: "",
+            kind: .preset,
           )
         }
         try Preset.insert(presets).execute(db)
@@ -189,7 +189,8 @@ extension SoundFont {
   public var presets: [Preset] {
     let query = Preset.all
       .order(by: \.index)
-      .where { $0.soundFontId.eq(self.id) && $0.visible }
+      .where { $0.soundFontId.eq(self.id) }
+      .where { $0.kind.neq(Preset.Kind.hidden) }
 
     @Dependency(\.defaultDatabase) var database
     return (try? database.read { try query.fetchAll($0) }) ?? []
@@ -199,9 +200,26 @@ extension SoundFont {
     let query = Preset.all
       .order(by: \.index)
       .where { $0.soundFontId.eq(self.id) }
+      .where { $0.kind.neq(Preset.Kind.favorite) }
 
     @Dependency(\.defaultDatabase) var database
     return (try? database.read { try query.fetchAll($0) }) ?? []
+  }
+
+  public var elementCounts: (presetCount: Int, favoriteCount: Int, hiddenCount: Int) {
+    @Dependency(\.defaultDatabase) var database
+    let found = try? database.read { db in
+      try Preset.select {
+        (
+          $0.id.count(filter: $0.kind.eq(Preset.Kind.preset)),
+          $0.id.count(filter: $0.kind.eq(Preset.Kind.favorite)),
+          $0.id.count(filter: $0.kind.eq(Preset.Kind.hidden))
+        )
+      }
+      .where { $0.soundFontId.eq(self.id) }
+      .fetchAll(db)
+    }
+    return (found ?? [(presetCount: 0, favoriteCount: 0, hiddenCount: 0)])[0]
   }
 }
 
@@ -257,8 +275,8 @@ extension SoundFont {
           originalName: displayName,
           soundFontId: soundFontId,
           displayName: displayName,
-          visible: true,
-          notes: ""
+          notes: "",
+          kind: .preset
         )
       }
 

@@ -41,7 +41,6 @@ public func appDatabase() throws -> any DatabaseWriter {
 
   SoundFont.migrate(&migrator)
   Preset.migrate(&migrator)
-  Favorite.migrate(&migrator)
   AudioConfig.migrate(&migrator)
   DelayConfig.migrate(&migrator)
   ReverbConfig.migrate(&migrator)

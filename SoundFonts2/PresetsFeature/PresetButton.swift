@@ -10,8 +10,8 @@ public struct PresetButton {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    public var preset: Preset
     public var id: Preset.ID { preset.id }
+    public var preset: Preset
     @Presents public var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
 
     public init(preset: Preset) {
@@ -89,10 +89,7 @@ extension PresetButton {
   }
 
   private func toggleVisibility(_ state: inout State) -> Effect<Action> {
-    var preset = state.preset
-    preset.visible.toggle()
-    state.preset = preset
-    Operations.setVisibility(of: preset.id, to: preset.visible)
+    state.preset.setKind(state.preset.kind == .hidden ? .preset : .hidden)
     return .none
   }
 }

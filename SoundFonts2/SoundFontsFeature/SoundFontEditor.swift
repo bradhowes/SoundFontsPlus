@@ -20,18 +20,24 @@ public struct SoundFontEditor {
 
   @ObservableState
   public struct State: Equatable {
-    @Presents var destination: Destination.State?
     let soundFont: SoundFont
+    let presetCount: Int
+    let favoriteCount: Int
+    let hiddenCount: Int
+
     var focusField: Field?
     var tagsList: String
     var displayName: String
     var notes: String
+
+    @Presents var destination: Destination.State?
 
     public init(soundFont: SoundFont) {
       self.soundFont = soundFont
       self.tagsList = SoundFontsSupport.generateTagsList(from: soundFont.tags)
       self.displayName = soundFont.displayName
       self.notes = soundFont.notes
+      (self.presetCount, self.favoriteCount, self.hiddenCount) = soundFont.elementCounts
     }
 
     public mutating func save() {
@@ -162,7 +168,7 @@ public struct SoundFontEditorView: View {
     Section {
       TextField("Name", text: $store.displayName.sending(\.displayNameChanged))
         .focused($focusField, equals: .displayName)
-        .textFieldStyle(.automatic)
+        .textFieldStyle(.roundedBorder)
       HStack {
         Button {
           store.send(.useOriginalNameTapped)
@@ -185,6 +191,8 @@ public struct SoundFontEditorView: View {
   var notesSection: some View {
     Section(header: Text("Notes")) {
       TextEditor(text: $store.notes.sending(\.notesChanged))
+        .textEditorStyle(.automatic)
+        .lineLimit(1...5)
         .focused($focusField, equals: .notes)
     }
   }
@@ -205,8 +213,8 @@ public struct SoundFontEditorView: View {
 
   var infoSection: some View {
     Section(header: Text("Contents")) {
-      LabeledContent("Presets", value: "\(store.soundFont.presets.count)")
-      LabeledContent("Favorites", value: "None")
+      LabeledContent("Presets", value: presetCountLabel)
+      LabeledContent("Favorites", value: "\(store.favoriteCount)")
       LabeledContent("Author", value: store.soundFont.embeddedAuthor)
       LabeledContent("Copyright", value: store.soundFont.embeddedCopyright)
       LabeledContent("Comment", value: store.soundFont.embeddedComment)
@@ -218,15 +226,25 @@ public struct SoundFontEditorView: View {
       }
     }.font(.footnote)
   }
+
+  var presetCountLabel: String {
+    let total = store.presetCount + store.hiddenCount
+    if store.hiddenCount > 0 {
+      return "\(total) (\(store.hiddenCount) hidden)"
+    } else {
+      return "\(total)"
+    }
+  }
 }
 
 extension SoundFontEditorView {
   static var preview: some View {
-    let soundFonts = try! prepareDependencies {
+    var soundFonts = try! prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
       return try $0.defaultDatabase.read { try SoundFont.all.fetchAll($0) }
     }
 
+    soundFonts[0].notes = "This is line 1\nThis is line 2\nThis is line 3\nThis is line 4"
     return SoundFontEditorView(store: Store(initialState: .init(soundFont: soundFonts[0])) { SoundFontEditor() })
   }
 }

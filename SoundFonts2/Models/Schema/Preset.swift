@@ -17,8 +17,15 @@ public struct Preset: Hashable, Identifiable, Sendable {
   public let soundFontId: SoundFont.ID
 
   public var displayName: String
-  public var visible: Bool
-  public var notes: String
+  public var notes: String = ""
+
+  public enum Kind: Int, CaseIterable, Sendable, QueryBindable {
+    case preset = 0
+    case favorite = 1
+    case hidden = 2
+  }
+
+  public var kind: Kind = .preset
 }
 
 extension Preset {
@@ -29,9 +36,8 @@ extension Preset {
     return (try? database.read { try query.fetchOne($0) }) ?? "???"
   }
 
-  /// Obtain the `AudioConfig.Draft` value associated with this preset. If one does not exist, then
-  /// return one with default values. Goal is to only save an entry when there is a deviation from
-  /// the default values.
+  /// Obtain the `AudioConfig` value associated with this preset. If one does not exist, then
+  /// returns nil.
   public var audioConfig: AudioConfig? {
     @Dependency(\.defaultDatabase) var database
     return (try? database.read { db in
@@ -40,6 +46,7 @@ extension Preset {
     })
   }
 
+  /// Obtain an `AudioConfig.Draft` for the preset.
   public var audioConfigDraft: AudioConfig.Draft {
     if let audioConfig = self.audioConfig {
       return .init(audioConfig)
@@ -60,7 +67,7 @@ extension Preset {
         "originalName" TEXT NOT NULL,
         "soundFontId" INTEGER NOT NULL,
         "displayName" TEXT NOT NULL,
-        "visible" INTEGER NOT NULL CHECK ("visible" in (0, 1)),
+        "kind" INTEGER NOT NULL CHECK ("kind" in (0, 1, 2)),
         "notes" TEXT NOT NULL,
       
         FOREIGN KEY("soundFontId") REFERENCES "soundFonts"("id") ON DELETE CASCADE
@@ -74,12 +81,16 @@ extension Preset {
 
 extension Preset {
 
+  public func setKind(_ kind: Preset.Kind) {
+    let query = Self.find(self.id).update { $0.kind = kind }
+    @Dependency(\.defaultDatabase) var database
+    try? database.write { try query.execute($0) }
+  }
+
   public static var active: Preset? {
     @Shared(.activeState) var activeState
     guard let presetId = activeState.activePresetId else { return nil }
-    let query = Preset.find(presetId)
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try query.fetchOne($0) })
+    return with(key: presetId)
   }
 
   public static var source: SoundFont.ID? {
@@ -91,4 +102,10 @@ extension Preset {
     @Dependency(\.defaultDatabase) var database
     return try? database.read { try Preset.find(presetId).fetchOne($0) }
   }
+
+  static let wherePreset = Self.where { $0.kind == Kind.preset }
+
+  static let whereFavorite = Self.where { $0.kind == Kind.preset }
+
+  static let whereVisible = Self.where { $0.kind != Kind.hidden }
 }

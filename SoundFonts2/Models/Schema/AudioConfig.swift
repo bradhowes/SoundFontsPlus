@@ -18,7 +18,6 @@ public struct AudioConfig: Hashable, Identifiable, Sendable {
   public var customTuningEnabled: Bool = false
   public var customTuning: Double = 440.0
 
-  public var favoriteId: Favorite.ID?
   public var presetId: Preset.ID?
 }
 
@@ -80,10 +79,8 @@ extension AudioConfig {
         "pitchBendRange" INTEGER NOT NULL,
         "customTuningEnabled" INTEGER NOT NULL CHECK ("customTuningEnabled" in (0, 1)),
         "customTuning" REAL NOT NULL,
-        "favoriteId" INTEGER,
         "presetId" INTEGER,
       
-        FOREIGN KEY("favoriteId") REFERENCES "favorites"("id") ON DELETE CASCADE,
         FOREIGN KEY("presetId") REFERENCES "presets"("id") ON DELETE CASCADE
       ) STRICT
       """

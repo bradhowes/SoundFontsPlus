@@ -159,7 +159,7 @@ extension PresetsList {
   }
 
   private func hidePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
-    Operations.setVisibility(of: preset.id, to: false)
+    preset.setKind(.hidden)
     return .run { send in
       await send(.fetchPresets)
     }.animation(.default)
