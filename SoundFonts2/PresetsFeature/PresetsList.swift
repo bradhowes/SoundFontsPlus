@@ -84,7 +84,7 @@ public struct PresetsList {
       case .cancelSearchButtonTapped: return dismissSearch(&state)
       case .destination(.dismiss): return updatePreset(&state)
       case .destination: return .none
-      case .fetchPresets: return fetchPresets(&state)
+      case .fetchPresets: return generatePresetSections(&state)
       case .onAppear: return monitorSelectedSoundFont()
       case .searchTextChanged(let value): return searchTextChanged(&state, searchText: value)
       case let .sections(.element(id: _, action: .delegate(action))):
@@ -105,7 +105,7 @@ public struct PresetsList {
       case .showActivePreset: return showActivePreset(&state)
       case let .visibilityEditModeChanged(value):
         state.visibilityEditMode = value ? .active : .inactive
-        return .none
+        return generatePresetSections(&state)
       }
     }
     .forEach(\.sections, action: \.sections) {
@@ -115,23 +115,25 @@ public struct PresetsList {
   }
 }
 
-func generatePresetSections(searchText: String?, editing: Bool) -> IdentifiedArrayOf<PresetsListSection.State> {
-  let grouping = searchText != nil ? 10_000 : 20
-  var presets = editing ? Operations.allPresets : Operations.presets
-  if let searchText {
-    presets = presets.filter {
-      $0.displayName.localizedLowercase.contains(searchText.lowercased())
-    }
-  }
-
-  return presets.isEmpty ?
-    .init(uniqueElements: [PresetsListSection.State(section: 0, presets: [])]) :
-    .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map {
-      PresetsListSection.State(section: $0.lowerBound, presets: presets[$0])
-    })
-}
-
 extension PresetsList {
+
+  private func generatePresetSections(_ state: inout State) -> Effect<Action> {
+    let grouping = state.optionalSearchText != nil ? 10_000 : 20
+    var presets = state.visibilityEditMode == .active ? Operations.allPresets : Operations.presets
+    if let searchText = state.optionalSearchText {
+      presets = presets.filter {
+        $0.displayName.localizedLowercase.contains(searchText.lowercased())
+      }
+    }
+
+    state.sections = presets.isEmpty ?
+      .init(uniqueElements: [PresetsListSection.State(section: 0, presets: [])]) :
+      .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map {
+        PresetsListSection.State(section: $0.lowerBound, presets: presets[$0])
+      })
+
+    return .none
+  }
 
   private func showActivePreset(_ state: inout State) -> Effect<Action> {
     @Shared(.activeState) var activeState
@@ -153,20 +155,10 @@ extension PresetsList {
     return .none
   }
 
-  private func fetchPresets(_ state: inout State) -> Effect<Action> {
-    @Environment(\.editMode) var editMode
-    state.sections = generatePresetSections(
-      searchText: state.optionalSearchText,
-      editing: editMode?.wrappedValue.isEditing ?? false
-    )
-    return .none
-  }
-
   private func hidePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
-    preset.setKind(.hidden)
-    return .run { send in
-      await send(.fetchPresets)
-    }.animation(.default)
+    var preset = preset
+    preset.toggleVisibility()
+    return generatePresetSections(&state)
   }
 
   private func monitorSelectedSoundFont() -> Effect<Action> {
@@ -180,21 +172,21 @@ extension PresetsList {
     state.isSearchFieldPresented = true
     state.focusedField = .searchText
     state.searchText = ""
-    return fetchPresets(&state)
+    return generatePresetSections(&state)
   }
 
   private func dismissSearch(_ state: inout State) -> Effect<Action> {
     state.isSearchFieldPresented = false
     state.focusedField = nil
     state.searchText = ""
-    return fetchPresets(&state)
+    return generatePresetSections(&state)
   }
 
   private func searchTextChanged(_ state: inout State, searchText: String) -> Effect<Action> {
     print(searchText, state.searchText)
     if searchText != state.searchText {
       state.searchText = searchText
-      return fetchPresets(&state)
+      return generatePresetSections(&state)
     }
     return .none
   }
@@ -224,13 +216,13 @@ extension PresetsList {
     } else {
       state.scrollToPresetId = nil
     }
-    return fetchPresets(&state)
+    return generatePresetSections(&state)
   }
 
   private func updatePreset(_ state: inout State) -> Effect<Action> {
     guard case let Destination.State.edit(editorState)? = state.destination else { return .none }
     state.update(preset: editorState.preset)
-    return fetchPresets(&state)
+    return generatePresetSections(&state)
   }
 }
 
@@ -245,22 +237,7 @@ public struct PresetsListView: View {
   public var body: some View {
     VStack(spacing: 0) {
       if store.isSearchFieldPresented {
-        HStack {
-          TextField("Search", text: $store.searchText.sending(\.searchTextChanged))
-            .textFieldStyle(.roundedBorder)
-            .focused($focusedField, equals: .searchText)
-            .autocorrectionDisabled()
-            .autocapitalization(.none)
-            .transition(.slide)
-            .bind($store.focusedField, to: $focusedField)
-          Spacer()
-          Button {
-            store.send(.cancelSearchButtonTapped)
-          } label: {
-            Image(systemName: "xmark")
-          }
-        }
-        .padding(EdgeInsets(top: 8, leading: 8, bottom: 0, trailing: 8))
+        searchField
       }
       ScrollViewReader { proxy in
         StyledList {
@@ -279,8 +256,28 @@ public struct PresetsListView: View {
       .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
         PresetEditorView(store: $0)
       }
-      .animation(.smooth, value: store.isSearchFieldPresented)
     }
+    .animation(.smooth, value: store.isSearchFieldPresented)
+    .animation(.smooth, value: store.visibilityEditMode)
+  }
+
+  private var searchField: some View {
+    HStack {
+      TextField("Search", text: $store.searchText.sending(\.searchTextChanged))
+        .textFieldStyle(.roundedBorder)
+        .focused($focusedField, equals: .searchText)
+        .autocorrectionDisabled()
+        .autocapitalization(.none)
+        .transition(.slide)
+        .bind($store.focusedField, to: $focusedField)
+      Spacer()
+      Button {
+        store.send(.cancelSearchButtonTapped)
+      } label: {
+        Image(systemName: "xmark")
+      }
+    }
+    .padding(EdgeInsets(top: 8, leading: 8, bottom: 0, trailing: 8))
   }
 
   private func doScrollTo(proxy: ScrollViewProxy, oldValue: Optional<Preset.ID>, newValue: Optional<Preset.ID>) {

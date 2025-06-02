@@ -81,7 +81,14 @@ extension Preset {
 
 extension Preset {
 
-  public func setKind(_ kind: Preset.Kind) {
+  public func clone() {
+
+  }
+
+  public mutating func toggleVisibility() {
+    precondition(self.kind != .favorite)
+    let kind: Kind = self.kind == .preset ? .hidden : .preset
+    self.kind = kind
     let query = Self.find(self.id).update { $0.kind = kind }
     @Dependency(\.defaultDatabase) var database
     try? database.write { try query.execute($0) }

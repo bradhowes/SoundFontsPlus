@@ -28,11 +28,11 @@ public struct TagsList {
   }
 
   public enum Action: Equatable {
+    case deleteButtonTapped(TagInfo)
     case destination(PresentationAction<Destination.Action>)
+    case editButtonTapped(TagInfo)
     case longPressGestureFired
     case tagButtonTapped(TagInfo)
-    case tagSwipedToDelete(TagInfo)
-    case tagSwipedToEdit(TagInfo)
   }
 
   public init() {}
@@ -43,10 +43,10 @@ public struct TagsList {
     Reduce<State, Action> { state, action in
       switch action {
       case .destination: return .none
-      case .longPressGestureFired: return editTags(&state, focused: nil)
+      case let .deleteButtonTapped(tagInfo): return deleteTag(&state, tagId: tagInfo.id)
+      case let .editButtonTapped(tagInfo): return editTags(&state, focused: tagInfo)
       case let .tagButtonTapped(tagInfo): return activateTag(&state, tagId: tagInfo.id)
-      case let .tagSwipedToDelete(tagInfo): return deleteTag(&state, tagId: tagInfo.id)
-      case let .tagSwipedToEdit(tagInfo): return editTags(&state, focused: tagInfo)
+      case .longPressGestureFired: return editTags(&state, focused: nil)
       }
     }
     .ifLet(\.$destination, action: \.destination)
@@ -117,14 +117,14 @@ public struct TagsListView: View {
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
       if tagInfo.id.isUserDefined {
         Button {
-          store.send(.tagSwipedToDelete(tagInfo), animation: .smooth)
+          store.send(.deleteButtonTapped(tagInfo), animation: .smooth)
         } label: {
           Image(systemName: "trash")
             .tint(.red)
         }
       }
       Button {
-        store.send(.tagSwipedToEdit(tagInfo), animation: .smooth)
+        store.send(.editButtonTapped(tagInfo), animation: .smooth)
       } label: {
         Image(systemName: "pencil.circle")
       }

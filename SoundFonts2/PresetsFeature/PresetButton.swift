@@ -55,7 +55,7 @@ public struct PresetButton {
       case .delegate: return .none
       case .editButtonTapped: return .send(.delegate(.editPreset(state.preset)))
       case .favoriteButtonTapped: return .send(.delegate(.createFavorite(state.preset)))
-      case .hideButtonTapped: return hideButtonTapped(&state)
+      case .hideButtonTapped: return .send(.delegate(.hidePreset(state.preset)))
       case .toggleVisibility: return toggleVisibility(&state)
       }
     }
@@ -82,16 +82,8 @@ extension PresetButton {
     }
   }
 
-  private func hideButtonTapped(_ state: inout State) -> Effect<Action> {
-    guard !stopConfirmingPresetHiding else { return .send(.delegate(.hidePreset(state.preset))).animation(.default) }
-    state.confirmationDialog = Self.hideConfirmationDialogState(displayName: state.preset.displayName)
-    return .none.animation(.default)
-  }
-
   private func toggleVisibility(_ state: inout State) -> Effect<Action> {
-    let kind: Preset.Kind = state.preset.kind == .hidden ? .preset : .hidden
-    state.preset.setKind(kind)
-    state.preset.kind = kind
+    state.preset.toggleVisibility()
     return .none
   }
 }
@@ -119,26 +111,24 @@ public struct PresetButtonView: View {
   }
 
   public var body: some View {
-    Button {
-      if isEditing {
-        store.send(.toggleVisibility, animation: .default)
-      } else {
-        store.send(.buttonTapped, animation: .default)
-      }
-    } label: {
-      HStack {
-        Image(systemName: store.preset.kind == .hidden ? "circle" : "inset.filled.circle")
-          .foregroundStyle(.blue)
-          .animation(.smooth, value: store.preset.kind)
-          .opacity(isEditing ? 1 : 0)
-          .frame(maxWidth: isEditing ? 24 : 0)
-          .animation(.smooth, value: isEditing)
+    if isEditing {
+      editVisibilityButton
+        .transition(.opacity)
+        .animation(.default, value: isEditing)
+    } else {
+      normalButton
+        .transition(.opacity)
+        .animation(.default, value: isEditing)
+    }
+  }
 
-        Text(store.preset.displayName)
-          .font(.buttonFont)
-          .indicator(isEditing ? .none : state)
-          .animation(.smooth, value: isEditing)
-      }
+  public var normalButton: some View {
+    Button {
+      store.send(.buttonTapped, animation: .default)
+    } label: {
+      Text(store.preset.displayName)
+        .font(.buttonFont)
+        .indicator(state)
     }
     .listRowSeparatorTint(.accentColor.opacity(0.5))
     .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
@@ -165,6 +155,23 @@ public struct PresetButtonView: View {
       }
     }
   }
+
+  private var editVisibilityButton: some View {
+    Button {
+      store.send(.toggleVisibility, animation: .default)
+    } label: {
+      HStack {
+        Image(systemName: store.preset.kind == .hidden ? "circle" : "inset.filled.circle")
+          .foregroundStyle(.blue)
+          .animation(.smooth, value: store.preset.kind)
+          .frame(maxWidth: 24)
+
+        Text(store.preset.displayName)
+          .font(.buttonFont)
+          .indicator(.none)
+      }
+    }
+  }
 }
 
 extension PresetButtonView {
@@ -179,8 +186,9 @@ extension PresetButtonView {
         PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
         PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
         PresetButtonView(store: Store(initialState: .init(preset: presets.last!)) { PresetButton() })
-      }.listStyle(.plain)
-        .environment(\.editMode, .constant(.inactive))
+      }
+      .listStyle(.plain)
+      .environment(\.editMode, .constant(.inactive))
 
       List {
         PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })

@@ -50,7 +50,7 @@ public struct TagsEditor: Sendable {
   public enum Action: Equatable, BindableAction {
     case addButtonTapped
     case binding(BindingAction<State>)
-    case tagSwipedToDelete(at: IndexSet)
+    case deleteButtonTapped(at: IndexSet)
     case dismissButtonTapped
     case finalizeDeleteTag(Tag.ID)
     case rows(IdentifiedActionOf<TagNameEditor>)
@@ -66,12 +66,12 @@ public struct TagsEditor: Sendable {
       switch action {
       case .addButtonTapped: return addTag(&state)
       case .binding: return .none
+      case .deleteButtonTapped(let indices): return deleteTag(&state, indices: indices)
       case .dismissButtonTapped: return dismissButtonTapped(&state)
       case let .finalizeDeleteTag(tagId): return finalizeDeleteTag(&state, tagId: tagId)
       case let .rows(.element(id: id, action: .delegate(.tagSwipedToDelete))): return deleteTag(&state, tagId: id)
       case .rows: return .none
       case let .tagMoved(indices, offset): return moveTag(&state, at: indices, to: offset)
-      case .tagSwipedToDelete(let indices): return deleteTag(&state, indices: indices)
       case .toggleEditMode: return toggleEditMode(&state)
       }
     }
@@ -155,7 +155,7 @@ public struct TagsEditorView: View {
             TagNameEditorView(store: rowStore)
           }
           .onMove { store.send(.tagMoved(at: $0, to: $1), animation: .default) }
-          .onDelete { store.send(.tagSwipedToDelete(at: $0), animation: .default) }
+          .onDelete { store.send(.deleteButtonTapped(at: $0), animation: .default) }
         } else {
           ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
             TagNameEditorView(store: rowStore)

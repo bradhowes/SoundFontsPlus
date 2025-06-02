@@ -71,6 +71,7 @@ public struct PresetsListSectionView: View {
   private let searching: Bool
 
   @State private var showSearchButton: Bool = false
+  @Environment(\.editMode) var editMode
 
   public init(store: StoreOf<PresetsListSection>, searching: Bool) {
     self.store = store
@@ -99,7 +100,7 @@ public struct PresetsListSectionView: View {
         Text(sectionText)
           .foregroundStyle(.indigo)
         Spacer()
-        if showSearchButton || store.section == 0 {
+        if (showSearchButton || store.section == 0) && !(editMode?.wrappedValue.isEditing ?? false) {
           Button {
             store.send(.searchButtonTapped)
           } label: {

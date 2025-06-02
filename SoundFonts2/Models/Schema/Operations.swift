@@ -5,34 +5,27 @@ import SharingGRDB
 
 public enum Operations {
 
-  public static func presetSet(_ kind: Preset.Kind) -> [Preset] {
-    guard let soundFontId = Preset.source else { return [] }
-    let query = Preset
-      .all
-      .where { $0.soundFontId.eq(soundFontId) }
-      .where { $0.kind.eq(kind) }
-      .order(by: \.index)
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try query.fetchAll($0) }) ?? []
-  }
-
   public static var presets: [Preset] {
     guard let soundFontId = Preset.source else { return [] }
     let query = Preset
       .all
       .where { $0.soundFontId.eq(soundFontId) }
-      .where { $0.kind.neq(Preset.Kind.hidden) }
-    .order(by: \.index)
+      .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.favorite) }
+      .order(by: \.index)
+      .order(by: \.kind)
     @Dependency(\.defaultDatabase) var database
     return (try? database.read { try query.fetchAll($0) }) ?? []
   }
 
-  public static var favorites: [Preset] {
-    presetSet(.favorite)
-  }
-
   public static var allPresets: [Preset] {
-    presetSet(.preset)
+    guard let soundFontId = Preset.source else { return [] }
+    let query = Preset
+      .all
+      .where { $0.soundFontId.eq(soundFontId) }
+      .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.hidden) }
+      .order(by: \.index)
+    @Dependency(\.defaultDatabase) var database
+    return (try? database.read { try query.fetchAll($0) }) ?? []
   }
 
   public static func soundFontIds(for tagId: Tag.ID) -> [SoundFont.ID] {

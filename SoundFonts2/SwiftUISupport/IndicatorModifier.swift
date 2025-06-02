@@ -34,6 +34,9 @@ public struct IndicatorModifier: ViewModifier {
   private var indicator: Color { state.indicatorColor }
   private var labelColor: Color { state.labelColor }
 
+  @Environment(\.editMode) private var editMode
+  private var isEditing: Bool { editMode?.wrappedValue.isEditing ?? false }
+
   public func body(content: Content) -> some View {
     ZStack(alignment: .leading) {
       Rectangle()
@@ -41,11 +44,11 @@ public struct IndicatorModifier: ViewModifier {
         .frame(width: indicatorWidth)
         .cornerRadius(cornerRadius)
         .offset(x: offset)
-        .animation(.linear(duration: 0.5), value: indicator)
+        .animation(.linear(duration: isEditing ? 0.0 : 0.5), value: indicator)
       content
         .font(.headline)
         .foregroundStyle(labelColor)
-        .animation(.linear(duration:0.5), value: labelColor)
+        .animation(.linear(duration: isEditing ? 0.0 : 0.5), value: labelColor)
     }
   }
 }
