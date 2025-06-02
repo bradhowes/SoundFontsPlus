@@ -98,7 +98,7 @@ public struct PresetButtonView: View {
   @Bindable private var store: StoreOf<PresetButton>
   @Shared(.activeState) var activeState
   @Environment(\.editMode) private var editMode
-
+  private var isFavorite: Bool { store.preset.kind == .favorite }
   private var isEditing : Bool { editMode?.wrappedValue == .active }
 
   public init(store: StoreOf<PresetButton>) {
@@ -106,8 +106,10 @@ public struct PresetButtonView: View {
   }
 
   var state: IndicatorModifier.State {
-    activeState.activeSoundFontId == store.preset.soundFontId && activeState.activePresetId == store.preset.id ?
-      .active : .none
+    if activeState.activeSoundFontId == store.preset.soundFontId && activeState.activePresetId == store.preset.id {
+      return .active
+    }
+    return .none
   }
 
   public var body: some View {
@@ -122,13 +124,21 @@ public struct PresetButtonView: View {
     }
   }
 
+  public var normalButtonText: some View {
+    HStack {
+      if isFavorite {
+        Image(systemName: "star.circle.fill")
+      }
+      Text(store.preset.displayName)
+    }
+    .indicator(state)
+  }
+
   public var normalButton: some View {
     Button {
       store.send(.buttonTapped, animation: .default)
     } label: {
-      Text(store.preset.displayName)
-        .font(.buttonFont)
-        .indicator(state)
+      normalButtonText
     }
     .listRowSeparatorTint(.accentColor.opacity(0.5))
     .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
@@ -165,9 +175,7 @@ public struct PresetButtonView: View {
           .foregroundStyle(.blue)
           .animation(.smooth, value: store.preset.kind)
           .frame(maxWidth: 24)
-
         Text(store.preset.displayName)
-          .font(.buttonFont)
           .indicator(.none)
       }
     }
@@ -176,9 +184,13 @@ public struct PresetButtonView: View {
 
 extension PresetButtonView {
   static var preview: some View {
-    let presets = prepareDependencies {
+    var presets = prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
       return Operations.presets
+    }
+
+    if let clone = presets.last!.clone() {
+      presets.append(clone)
     }
 
     return VStack {
@@ -193,7 +205,7 @@ extension PresetButtonView {
       List {
         PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
         PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: .init(preset: presets.last!)) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets[2])) { PresetButton() })
       }
       .listStyle(.plain)
       .environment(\.editMode, .constant(.active))

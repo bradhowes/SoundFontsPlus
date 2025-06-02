@@ -39,6 +39,7 @@ public struct PresetEditor: Equatable {
     public mutating func save() {
       displayName = displayName.trimmed(or: preset.displayName)
       notes = notes.trimmed(or: preset.notes)
+
       @Dependency(\.defaultDatabase) var database
       try? database.write { db in
         try Preset.update {
@@ -59,6 +60,7 @@ public struct PresetEditor: Equatable {
         precondition(audioConfig.presetId == nil || audioConfig.presetId == preset.id)
 
         audioConfig.presetId = preset.id
+
         guard let audioConfigId = (try AudioConfig
           .upsert(audioConfig)
           .returning(\.id)

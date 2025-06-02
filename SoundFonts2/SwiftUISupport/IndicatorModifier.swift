@@ -5,8 +5,11 @@ import SwiftUI
 public struct IndicatorModifier: ViewModifier {
 
   public enum State: CaseIterable {
+    // No color change
     case none
+    // Selected item -- only for SoundFont button when switching to a non-active item
     case selected
+    // Active item -- shows the active SoundFont, Tag, or Preset
     case active
 
     var labelColor: Color {
@@ -46,7 +49,7 @@ public struct IndicatorModifier: ViewModifier {
         .offset(x: offset)
         .animation(.linear(duration: isEditing ? 0.0 : 0.5), value: indicator)
       content
-        .font(.headline)
+        .font(.buttonFont)
         .foregroundStyle(labelColor)
         .animation(.linear(duration: isEditing ? 0.0 : 0.5), value: labelColor)
     }

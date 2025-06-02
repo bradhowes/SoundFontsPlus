@@ -54,6 +54,9 @@ extension Preset {
       return .init()
     }
   }
+}
+
+extension Preset {
 
   static func migrate(_ migrator: inout DatabaseMigrator) {
     migrator.registerMigration(Self.tableName) { db in
@@ -81,8 +84,39 @@ extension Preset {
 
 extension Preset {
 
-  public func clone() {
+  /**
+   Create a duplicate of the Preset, cloning the associated AudioConfig, DelayConfig and ReverbConfig rows if they
+   exist.
 
+   - returns: cloned instance
+   */
+  @discardableResult
+  public func clone() -> Self? {
+    let dupe = Draft(
+      index: self.index,
+      bank: self.bank,
+      program: self.program,
+      originalName: self.originalName,
+      soundFontId: self.soundFontId,
+      displayName: self.displayName,
+      notes: self.notes,
+      kind: .favorite
+    )
+
+    @Dependency(\.defaultDatabase) var database
+    guard let clone = (
+      try? database.write {
+        try Self.insert(dupe).returning(\.self).fetchOne($0)
+      }
+    ) else {
+      return nil
+    }
+
+    if let audioConfig = self.audioConfig {
+      _ = audioConfig.clone(presetId: clone.id)
+    }
+
+    return clone
   }
 
   public mutating func toggleVisibility() {

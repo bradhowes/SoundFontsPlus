@@ -142,7 +142,8 @@ extension PresetsList {
   }
 
   private func createPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
-    return .none
+    _ = preset.clone()
+    return generatePresetSections(&state)
   }
 
   private func headerTapped(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {

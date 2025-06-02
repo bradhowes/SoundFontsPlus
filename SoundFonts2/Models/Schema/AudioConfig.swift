@@ -62,6 +62,45 @@ extension AudioConfig {
       return .init(audioConfigId: self.id)
     }
   }
+
+  /**
+   Create a duplicate of the AudioConfig instance, cloning the associated DelayConfig and ReverbConfig rows if they
+   exist.
+
+   - parameter presetId: the Preset.ID to associate with
+   - returns: cloned instance
+   */
+  public func clone(presetId: Preset.ID) -> Self? {
+    let dupe = Draft(
+      gain: self.gain,
+      pan: self.pan,
+      keyboardLowestNoteEnabled: self.keyboardLowestNoteEnabled,
+      keyboardLowestNote: self.keyboardLowestNote,
+      pitchBendRange: self.pitchBendRange,
+      customTuningEnabled: self.customTuningEnabled,
+      customTuning: self.customTuning,
+      presetId: presetId
+    )
+
+    @Dependency(\.defaultDatabase) var database
+    guard let clone = (
+      try? database.write {
+        try Self.insert(dupe).returning(\.self).fetchOne($0)
+      }
+    ) else {
+      return nil
+    }
+
+    if let delayConfig = self.delayConfig {
+      _ = delayConfig.clone(audioConfigId: clone.id)
+    }
+
+    if let reverbConfig = self.reverbConfig {
+      _ = reverbConfig.clone(audioConfigId: clone.id)
+    }
+
+    return clone
+  }
 }
 
 extension AudioConfig {

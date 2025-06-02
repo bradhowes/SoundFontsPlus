@@ -9,6 +9,7 @@ public struct DelayConfig: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
+
   public var time: AUValue = 0.25
   public var feedback: AUValue = 0.70
   public var cutoff: AUValue = 2000.0
@@ -19,6 +20,31 @@ public struct DelayConfig: Hashable, Identifiable, Sendable {
 }
 
 extension DelayConfig.Draft: Equatable, Sendable {}
+
+extension DelayConfig {
+
+  /**
+   Create a duplicate of our settings.
+
+   - parameter audioConfigId: the AudioConfig row to associate with
+   - returns: cloned instance
+   */
+  public func clone(audioConfigId: AudioConfig.ID) -> Self? {
+    let dupe = Draft(
+      time: self.time,
+      feedback: self.feedback,
+      cutoff: self.cutoff,
+      wetDryMix: self.wetDryMix,
+      enabled: self.enabled,
+      audioConfigId: audioConfigId
+    )
+
+    @Dependency(\.defaultDatabase) var database
+    return try? database.write {
+      try Self.insert(dupe).returning(\.self).fetchOne($0)
+    }
+  }
+}
 
 extension DelayConfig {
 

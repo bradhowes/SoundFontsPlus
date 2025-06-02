@@ -17,6 +17,8 @@ public struct SettingsFeature {
     @Shared(.midiAutoConnect) var midiAutoConnect
     @Shared(.backgroundProcessing) var backgroundProcessing
     @Shared(.pitchBendRange) var pitchBendRange
+    @Shared(.favoritesOnTop) var favoritesOnTop
+    @Shared(.showOnlyFavorites) var showOnlyFavorites
 
     var tuning: TuningFeature.State
 
@@ -90,6 +92,7 @@ public struct SettingsView: View {
   public var body: some View {
     NavigationStack {
       Form {
+        displaySection
         keyboardSection
         midiSection
         tuningSection
@@ -102,6 +105,17 @@ public struct SettingsView: View {
         }
       }
       .animation(.smooth, value: changingKeyWidth)
+    }
+  }
+
+  private var displaySection: some View {
+    Section("Presets") {
+      Toggle(isOn: $store.favoritesOnTop) {
+        Text("Favorites on top")
+      }
+      Toggle(isOn: $store.showOnlyFavorites) {
+        Text("Show only favorites")
+      }
     }
   }
 

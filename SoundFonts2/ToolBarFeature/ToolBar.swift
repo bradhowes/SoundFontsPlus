@@ -52,6 +52,7 @@ public struct ToolBar {
       case effectsVisibilityChanged(Bool)
       case presetNameTapped
       case tagsVisibilityChanged(Bool)
+      case settingsDismissed
     }
   }
 
@@ -60,7 +61,7 @@ public struct ToolBar {
       switch action {
       case .addSoundFontButtonTapped: return .send(.delegate(.addSoundFont))
       case .delegate: return .none
-      case .destination(.dismiss): return .none
+      case .destination(.dismiss): return .send(.delegate(.settingsDismissed))
       case .destination: return .none
       case .effectsVisibilityButtonTapped: return toggleEffectsVisibility(&state)
       case .helpButtonTapped: return showHelp(&state)

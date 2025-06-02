@@ -5,14 +5,31 @@ import SharingGRDB
 
 public enum Operations {
 
-  public static var presets: [Preset] {
-    guard let soundFontId = Preset.source else { return [] }
+  public static var presetsQuery: Where<Preset> {
+    @Shared(.showOnlyFavorites) var showOnlyFavorites
+    let soundFontId = Preset.source ?? -1
     let query = Preset
       .all
       .where { $0.soundFontId.eq(soundFontId) }
-      .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.favorite) }
+    if showOnlyFavorites {
+      return query
+        .where { $0.kind.eq(Preset.Kind.favorite) }
+    } else {
+      return query
+        .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.favorite) }
+    }
+  }
+
+  public static var presets: [Preset] {
+    @Shared(.favoritesOnTop) var favoritesOnTop
+    let query = favoritesOnTop
+    ? presetsQuery
+      .order { $0.kind.desc() }
+      .order(by: \.index)
+    : presetsQuery
       .order(by: \.index)
       .order(by: \.kind)
+      .order(by: \.displayName)
     @Dependency(\.defaultDatabase) var database
     return (try? database.read { try query.fetchAll($0) }) ?? []
   }

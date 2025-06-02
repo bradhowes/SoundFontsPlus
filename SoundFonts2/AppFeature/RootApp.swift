@@ -104,9 +104,14 @@ public struct RootApp {
     case let .editingPresetVisibility(active): return setEditingVisibility(&state, active: active)
     case .addSoundFont: return .none
     case .presetNameTapped: return showActivePreset(&state)
+    case .settingsDismissed: return fetchPresets(&state)
     case let .tagsVisibilityChanged(visible): return setTagsVisibility(&state, visible: visible)
     case let .effectsVisibilityChanged(visible): return setEffectsVisibiliy(&state, visible: visible)
     }
+  }
+
+  private func fetchPresets(_ state: inout State) -> Effect<Action> {
+    return reduce(into: &state, action: .presetsList(.fetchPresets))
   }
 
   private func setEditingVisibility(_ state: inout State, active: Bool) -> Effect<Action> {
