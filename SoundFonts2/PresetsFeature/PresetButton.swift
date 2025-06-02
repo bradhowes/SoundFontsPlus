@@ -121,6 +121,7 @@ public struct PresetButtonView: View {
       normalButton
         .transition(.opacity)
         .animation(.default, value: isEditing)
+        .id(store.preset.id)
     }
   }
 

@@ -207,9 +207,6 @@ extension PresetsList {
   }
 
   private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
-    @Environment(\.editMode) var editMode
-    editMode?.wrappedValue = .inactive
-
     @Dependency(\.defaultDatabase) var database
     @Shared(.activeState) var activeState
     if activeState.activeSoundFontId == soundFontId {
