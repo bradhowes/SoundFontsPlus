@@ -128,7 +128,8 @@ public struct PresetButtonView: View {
   public var normalButtonText: some View {
     HStack {
       if isFavorite {
-        Image(systemName: "star.circle.fill")
+        @Shared(.favoriteSymbolName) var symbolName
+        Image(systemName: symbolName)
       }
       Text(store.preset.displayName)
     }

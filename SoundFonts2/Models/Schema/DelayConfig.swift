@@ -23,6 +23,13 @@ extension DelayConfig.Draft: Equatable, Sendable {}
 
 extension DelayConfig {
 
+  public static func with(key audioConfigId: AudioConfig.ID) -> Self? {
+    @Dependency(\.defaultDatabase) var database
+    return try? database.read {
+      try Self.all.where { $0.audioConfigId.eq(audioConfigId) }.fetchOne($0)
+    }
+  }
+
   /**
    Create a duplicate of our settings.
 

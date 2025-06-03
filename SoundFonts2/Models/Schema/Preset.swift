@@ -145,8 +145,6 @@ extension Preset {
   }
 
   static let wherePreset = Self.where { $0.kind == Kind.preset }
-
-  static let whereFavorite = Self.where { $0.kind == Kind.preset }
-
+  static let whereFavorite = Self.where { $0.kind == Kind.favorite }
   static let whereVisible = Self.where { $0.kind != Kind.hidden }
 }

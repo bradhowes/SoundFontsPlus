@@ -11,7 +11,12 @@ public struct KeyboardFeature {
   @ObservableState
   public struct State: Equatable {
     var active: [Bool] = .init(repeating: false, count: Note.midiRange.count)
+
     @Shared(.firstVisibleKey) var lowestKey
+    @Shared(.keyWidth) var keyWidth
+    @Shared(.keyboardSlides) var keyboardSlides
+    @Shared(.keyLabels) var keyLabels
+
     var highestKey: Note = .C4
     var scrollTo: Note?
     let settingsDemo: Bool
@@ -24,9 +29,12 @@ public struct KeyboardFeature {
   public enum Action: Equatable {
     case allOff
     case assigned(previous: Note?, note: Note)
+    case keyLabelsChanged
+    case monitorActivePreset
     case noteOff(Note)
     case noteOn(Note)
     case released(note: Note)
+    case activePresetIdChanged(Preset.ID?)
     case updatedVisibleKeys(lowest: Note, highest: Note)
     case postScrollTo
     case clearScrollTo
@@ -41,6 +49,7 @@ public struct KeyboardFeature {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
+      case let .activePresetIdChanged(presetId): return activePresetIdChanged(&state, presetId: presetId)
       case .allOff:
         state.active = .init(repeating: false, count: state.active.count)
         return .none
@@ -50,6 +59,8 @@ public struct KeyboardFeature {
         }
         state.active[note.midiNoteValue] = true
         return .none
+      case .keyLabelsChanged: return .none
+      case .monitorActivePreset: return monitorActivePreset(&state)
       case let .noteOff(note):
         state.active[note.midiNoteValue] = false
         return .none
@@ -72,9 +83,34 @@ public struct KeyboardFeature {
       }
     }
   }
+
+  let publisherCancelId = "PresetsList.publisherCancelId"
 }
 
 extension KeyboardFeature {
+
+  private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+    guard let presetId = presetId else { return .none }
+    guard let preset = Preset.with(key: presetId) else { return .none }
+    guard let audioConfig = preset.audioConfig else { return .none }
+    guard audioConfig.keyboardLowestNoteEnabled else { return .none }
+    state.$lowestKey.withLock { $0 = audioConfig.keyboardLowestNote }
+    return .none
+  }
+
+  private func monitorActivePreset(_ state: inout State) -> Effect<Action> {
+    return .publisher {
+      @Shared(.activeState) var activeState
+      return $activeState.activePresetId.publisher.map { Action.activePresetIdChanged($0) }
+    }.cancellable(id: publisherCancelId, cancelInFlight: true)
+  }
+
+  private func monitorKeyLabels(_ state: inout State) -> Effect<Action> {
+    return .publisher {
+      @Shared(.keyLabels) var keyLabels
+      return $keyLabels.publisher.map { _ in Action.keyLabelsChanged }
+    }.cancellable(id: publisherCancelId, cancelInFlight: true)
+  }
 
   private func assign(_ state: inout State, event: Event, note: Note) -> Effect<Action> {
     // _ = state.eventNoteMap.assign(event: event, note: note)
@@ -89,11 +125,6 @@ extension KeyboardFeature {
 
 public struct KeyboardView: View {
   typealias Event = SpatialEventGesture.Value.Element
-
-  @Shared(.keyWidth) var keyWidth
-  @Shared(.keyboardSlides) var keyboardSlides
-  @Shared(.keyLabels) var keyLabels
-
   @State private var store: StoreOf<KeyboardFeature>
 
   public let whiteNotes: [Note] = .init(WhiteKeySequenceGenerator().makeIterator())
@@ -115,7 +146,7 @@ public struct KeyboardView: View {
   public var body: some View {
     ScrollViewReader { proxy in
       ScrollView(.horizontal) {
-        if keyboardSlides {
+        if store.keyboardSlides {
           scrollingKeys
         } else {
           fixedKeys
@@ -140,6 +171,7 @@ public struct KeyboardView: View {
           )
         }
       }
+      .onAppear { store.send(.monitorActivePreset) }
     }
   }
 
@@ -217,9 +249,9 @@ public struct KeyboardView: View {
   }
 
   private var blackKeys: some View {
-    let blackKeyWidth: Double = keyWidth * 0.75
+    let blackKeyWidth: Double = store.keyWidth * 0.75
     let offset = blackKeyWidth / 2.0
-    let spacing = keyWidth + whiteKeySpacing - blackKeyWidth
+    let spacing = store.keyWidth + whiteKeySpacing - blackKeyWidth
     return HStack(alignment: .top, spacing: spacing) {
       Color(.clear)
         .frame(width: offset)
@@ -244,7 +276,7 @@ public struct KeyboardView: View {
 
   private func key(note: Note) -> some View {
     let color: Color = note.accented ? .black : .white
-    let width: Double = note.accented ? keyWidth * 0.75 : keyWidth
+    let width: Double = note.accented ? store.keyWidth * 0.75 : store.keyWidth
     let height: Double = (note.accented ? keyboardHeight * 0.6 : keyboardHeight) * keyboardHeightScaling
     let cornerRadius: Double = 8
 
@@ -259,7 +291,7 @@ public struct KeyboardView: View {
   private func labeledKey(note: Note) -> some View {
     key(note: note)
       .overlay(alignment: .bottom) {
-        if (keyLabels.all && !note.accented) || (keyLabels.cOnly && note.noteIndex == 0) {
+        if (store.keyLabels.all && !note.accented) || (store.keyLabels.cOnly && note.noteIndex == 0) {
           Text(note.description)
             .foregroundStyle(.gray)
             .offset(y: -12)
@@ -271,7 +303,7 @@ public struct KeyboardView: View {
     let pos = frames.orderedInsertionIndex(for: event.location)
     guard pos < frames.endIndex else { return }
     let note = Note(midiNoteValue: frames.distance(from: frames.startIndex, to: pos))
-    let update = eventNoteMap.assign(event: event, note: note, fixedKeys: !keyboardSlides)
+    let update = eventNoteMap.assign(event: event, note: note, fixedKeys: !store.keyboardSlides)
     if update.previous != nil || update.firstTime {
       store.send(.assigned(previous: update.previous, note: note))
     }

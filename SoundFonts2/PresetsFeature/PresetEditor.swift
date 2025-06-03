@@ -22,6 +22,8 @@ public struct PresetEditor: Equatable {
 
     var tuning: TuningFeature.State
 
+    var isFavorite: Bool { preset.kind == .favorite }
+
     public init(preset: Preset) {
       self.preset = preset
       self.displayName = preset.displayName
@@ -45,7 +47,9 @@ public struct PresetEditor: Equatable {
         try Preset.update {
           $0.displayName = displayName
           $0.notes = notes
-          $0.kind = visible ? .preset : .hidden
+          if !isFavorite {
+            $0.kind = visible ? .preset : .hidden
+          }
         }
         .where { $0.id == preset.id }
         .execute(db)
@@ -197,7 +201,9 @@ public struct PresetEditorView: View {
 
   var nameSection: some View {
     Section {
-      Toggle("Visible", isOn: $store.visible)
+      if !store.isFavorite {
+        Toggle("Visible", isOn: $store.visible)
+      }
       TextField("Name", text: $store.displayName.sending(\.displayNameChanged))
         .focused($focusField, equals: .displayName)
         .textFieldStyle(.roundedBorder)

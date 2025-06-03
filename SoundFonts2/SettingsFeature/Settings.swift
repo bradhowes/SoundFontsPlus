@@ -19,6 +19,8 @@ public struct SettingsFeature {
     @Shared(.pitchBendRange) var pitchBendRange
     @Shared(.favoritesOnTop) var favoritesOnTop
     @Shared(.showOnlyFavorites) var showOnlyFavorites
+    @Shared(.starFavoriteNames) var starFavoriteNames
+    @Shared(.favoriteSymbolName) var favoriteSymbolName
 
     var tuning: TuningFeature.State
 
@@ -115,6 +117,13 @@ public struct SettingsView: View {
       }
       Toggle(isOn: $store.showOnlyFavorites) {
         Text("Show only favorites")
+      }
+      Toggle(isOn: $store.starFavoriteNames) {
+        HStack {
+          Text("Show")
+          Image(systemName: store.favoriteSymbolName)
+          Text("in favorites")
+        }
       }
     }
   }

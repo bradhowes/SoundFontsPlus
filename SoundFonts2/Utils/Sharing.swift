@@ -10,6 +10,7 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var tagsListVisible: Self { Self[.appStorage("tagsListVisible"), default: false] }
   public static var favoritesOnTop: Self { Self[.appStorage("favoritesOnTop"), default: false] }
   public static var showOnlyFavorites: Self { Self[.appStorage("showOnlyFavorites"), default: false] }
+  public static var starFavoriteNames: Self { Self[.appStorage("starFavoriteNames"), default: true] }
 }
 
 extension SharedKey where Self == AppStorageKey<Double>.Default {
@@ -34,4 +35,8 @@ extension SharedKey where Self == AppStorageKey<KeyLabels>.Default {
 
 extension SharedKey where Self == AppStorageKey<Note>.Default {
   public static var firstVisibleKey: Self { Self[.appStorage("firstVisibleKey"), default: Note(midiNoteValue: 60)] }
+}
+
+extension SharedKey where Self == AppStorageKey<String>.Default {
+  public static var favoriteSymbolName: Self { Self[.appStorage("favoriteSymbolName"), default: "star.circle.fill"] }
 }

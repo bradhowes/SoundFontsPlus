@@ -19,6 +19,13 @@ public struct ReverbConfig: Hashable, Identifiable, Sendable {
 
 extension ReverbConfig {
 
+  public static func with(key audioConfigId: AudioConfig.ID) -> Self? {
+    @Dependency(\.defaultDatabase) var database
+    return try? database.read {
+      try Self.all.where { $0.audioConfigId.eq(audioConfigId) }.fetchOne($0)
+    }
+  }
+
   public func clone(audioConfigId: AudioConfig.ID) -> Self? {
     let dupe = Draft(
       preset: self.preset,

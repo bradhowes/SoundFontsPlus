@@ -25,6 +25,13 @@ extension AudioConfig.Draft: Equatable, Sendable {}
 
 extension AudioConfig {
 
+  public static func with(key presetId: Preset.ID) -> AudioConfig? {
+    @Dependency(\.defaultDatabase) var database
+    return try? database.read {
+      try Self.all.where { $0.presetId.eq(presetId) }.fetchOne($0)
+    }
+  }
+
   /// Obtain the `DelayConfig.Draft` value associated with this config/preset. If one does not exist, then
   /// return one with default values. Goal is to only save an entry when there is a deviation from
   /// the default values.
