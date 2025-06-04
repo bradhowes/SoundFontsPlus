@@ -25,7 +25,7 @@ public struct PresetButton {
     case delegate(Delegate)
     case editButtonTapped
     case favoriteButtonTapped
-    case hideButtonTapped
+    case hideOrDeleteButtonTapped
     case toggleVisibility
 
     @CasePathable
@@ -39,7 +39,7 @@ public struct PresetButton {
   public enum Delegate: Equatable {
     case createFavorite(Preset)
     case editPreset(Preset)
-    case hidePreset(Preset)
+    case hideOrDeletePreset(Preset)
     case selectPreset(Preset)
   }
 
@@ -50,12 +50,12 @@ public struct PresetButton {
       switch action {
       case .buttonTapped: return .send(.delegate(.selectPreset(state.preset)))
       case .confirmationDialog(.presented(.hideButtonTapped)):
-        return .send(.delegate(.hidePreset(state.preset))).animation(.default)
+        return .send(.delegate(.hideOrDeletePreset(state.preset))).animation(.default)
       case .confirmationDialog: return .none
       case .delegate: return .none
       case .editButtonTapped: return .send(.delegate(.editPreset(state.preset)))
       case .favoriteButtonTapped: return .send(.delegate(.createFavorite(state.preset)))
-      case .hideButtonTapped: return .send(.delegate(.hidePreset(state.preset)))
+      case .hideOrDeleteButtonTapped: return .send(.delegate(.hideOrDeletePreset(state.preset)))
       case .toggleVisibility: return toggleVisibility(&state)
       }
     }
@@ -126,14 +126,8 @@ public struct PresetButtonView: View {
   }
 
   public var normalButtonText: some View {
-    HStack {
-      if isFavorite {
-        @Shared(.favoriteSymbolName) var symbolName
-        Image(systemName: symbolName)
-      }
-      Text(store.preset.displayName)
-    }
-    .indicator(state)
+    PresetNameView(preset: store.preset)
+      .indicator(state)
   }
 
   public var normalButton: some View {
@@ -154,16 +148,21 @@ public struct PresetButtonView: View {
       Button {
         store.send(.favoriteButtonTapped, animation: .default)
       } label: {
-        Image(systemName: "star")
+        Image(systemName: store.preset.isFavorite ? "document.on.document.fill" : "star")
           .tint(.yellow)
       }
     }
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
       Button {
-        store.send(.hideButtonTapped, animation: .default)
+        store.send(.hideOrDeleteButtonTapped, animation: .default)
       } label: {
-        Image(systemName: "eye.slash")
-          .tint(.gray)
+        if store.preset.isFavorite {
+          Image(systemName: "trash")
+            .tint(.red)
+        } else {
+          Image(systemName: "eye.slash")
+            .tint(.gray)
+        }
       }
     }
   }

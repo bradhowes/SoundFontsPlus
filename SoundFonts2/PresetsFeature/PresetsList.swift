@@ -96,7 +96,7 @@ public struct PresetsList {
         switch action {
         case let .createFavorite(preset): return createPreset(&state, preset: preset)
         case let .editPreset(preset): return editPreset(&state, preset: preset)
-        case let .hidePreset(preset): return hidePreset(&state, preset: preset)
+        case let .hideOrDeletePreset(preset): return hideOrDeletePreset(&state, preset: preset)
         case let .selectPreset(preset): return selectPreset(&state, preset: preset)
         }
       case .sections: return .none
@@ -156,9 +156,14 @@ extension PresetsList {
     return .none
   }
 
-  private func hidePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
-    var preset = preset
-    preset.toggleVisibility()
+  private func hideOrDeletePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
+    if preset.isFavorite {
+      @Dependency(\.defaultDatabase) var database
+      try? database.write { try Preset.delete(preset).execute($0) }
+    } else {
+      var preset = preset
+      preset.toggleVisibility()
+    }
     return generatePresetSections(&state)
   }
 

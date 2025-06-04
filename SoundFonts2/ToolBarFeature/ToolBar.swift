@@ -203,9 +203,9 @@ public struct ToolBarView: View {
   private var presetTitle: some View {
     HStack {
       Spacer()
-      Text(Preset.active?.displayName ?? "-")
-        .font(auv3ControlsTheme.font)
-        .foregroundStyle(auv3ControlsTheme.textColor)
+      PresetNameView(preset: Preset.active)
+        .font(.statusFont)
+        .indicator(.none)
         .onTapGesture {
           store.send(.delegate(.presetNameTapped))
         }

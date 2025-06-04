@@ -15,5 +15,6 @@ extension CGFloat {
 }
 
 extension Font {
+  public static var statusFont: Font { Font.custom("EurostileRegular", size: .infoBarStatusSize) }
   public static var buttonFont: Font { Font.custom("EurostileRegular", size: .buttonFontSize) }
 }

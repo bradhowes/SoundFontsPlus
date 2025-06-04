@@ -30,6 +30,8 @@ public struct Preset: Hashable, Identifiable, Sendable {
 
 extension Preset {
 
+  public var isFavorite: Bool { kind == .favorite }
+
   public var soundFontName: String {
     @Dependency(\.defaultDatabase) var database
     let query = SoundFont.find(self.soundFontId).select { $0.displayName }
@@ -98,7 +100,7 @@ extension Preset {
       program: self.program,
       originalName: self.originalName,
       soundFontId: self.soundFontId,
-      displayName: self.displayName,
+      displayName: self.uniqueName,
       notes: self.notes,
       kind: .favorite
     )
@@ -126,6 +128,23 @@ extension Preset {
     let query = Self.find(self.id).update { $0.kind = kind }
     @Dependency(\.defaultDatabase) var database
     try? database.write { try query.execute($0) }
+  }
+
+  public var uniqueName: String {
+    let query = Preset.all
+      .where { $0.soundFontId.eq(self.soundFontId) }
+      .where { $0.index.eq(self.index) }
+      .select { $0.displayName }
+    @Dependency(\.defaultDatabase) var database
+    let names = Set<String>((try? database.read { try query.fetchAll($0) }) ?? [])
+    var index = 0
+    var candidate = self.displayName + " copy"
+    while names.contains(candidate) {
+      index += 1
+      candidate = self.displayName + " copy \(index)"
+    }
+
+    return candidate
   }
 
   public static var active: Preset? {

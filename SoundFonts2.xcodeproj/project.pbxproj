@@ -64,7 +64,6 @@
 		BDAF5B042DE2558C00B8FB13 /* TextFieldClearButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B002DE2558C00B8FB13 /* TextFieldClearButton.swift */; };
 		BDAF5B052DE2558C00B8FB13 /* StyledList.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AFF2DE2558C00B8FB13 /* StyledList.swift */; };
 		BDAF5B062DE2558C00B8FB13 /* AlertsAndConfirmationDialogs.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AF92DE2558C00B8FB13 /* AlertsAndConfirmationDialogs.swift */; };
-		BDAF5B072DE2558C00B8FB13 /* VisibilityEditMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B012DE2558C00B8FB13 /* VisibilityEditMode.swift */; };
 		BDAF5B082DE2558C00B8FB13 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AFE2DE2558C00B8FB13 /* Notifications.swift */; };
 		BDAF5B092DE2558C00B8FB13 /* LongPressModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AFD2DE2558C00B8FB13 /* LongPressModifier.swift */; };
 		BDAF5B0A2DE2558C00B8FB13 /* CheckToggleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AFA2DE2558C00B8FB13 /* CheckToggleStyle.swift */; };
@@ -121,6 +120,7 @@
 		BDAF5BC92DE26BFC00B8FB13 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC82DE26BFC00B8FB13 /* SnapshotTesting */; };
 		BDBDDEB12DE658E700C2CD87 /* SoundFontInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */; };
 		BDD531B92DEADADD00B4B104 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD531B82DEADADA00B4B104 /* String.swift */; };
+		BDF14C492DF0AF0100BDDB0E /* PresetNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -205,7 +205,6 @@
 		BDAF5AFE2DE2558C00B8FB13 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		BDAF5AFF2DE2558C00B8FB13 /* StyledList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyledList.swift; sourceTree = "<group>"; };
 		BDAF5B002DE2558C00B8FB13 /* TextFieldClearButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldClearButton.swift; sourceTree = "<group>"; };
-		BDAF5B012DE2558C00B8FB13 /* VisibilityEditMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisibilityEditMode.swift; sourceTree = "<group>"; };
 		BDAF5B0E2DE2559100B8FB13 /* TagNameEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagNameEditor.swift; sourceTree = "<group>"; };
 		BDAF5B0F2DE2559100B8FB13 /* TagsEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsEditor.swift; sourceTree = "<group>"; };
 		BDAF5B102DE2559100B8FB13 /* TagsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsList.swift; sourceTree = "<group>"; };
@@ -248,6 +247,7 @@
 		BDAF5B7E2DE256C500B8FB13 /* NoteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteTests.swift; sourceTree = "<group>"; };
 		BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundFontInfo.swift; sourceTree = "<group>"; };
 		BDD531B82DEADADA00B4B104 /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
+		BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetNameView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -531,9 +531,9 @@
 				BDAF5AFC2DE2558C00B8FB13 /* IndicatorModifier.swift */,
 				BDAF5AFD2DE2558C00B8FB13 /* LongPressModifier.swift */,
 				BDAF5AFE2DE2558C00B8FB13 /* Notifications.swift */,
+				BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */,
 				BDAF5AFF2DE2558C00B8FB13 /* StyledList.swift */,
 				BDAF5B002DE2558C00B8FB13 /* TextFieldClearButton.swift */,
-				BDAF5B012DE2558C00B8FB13 /* VisibilityEditMode.swift */,
 			);
 			path = SwiftUISupport;
 			sourceTree = "<group>";
@@ -877,6 +877,7 @@
 				BDAF5AC32DE2555000B8FB13 /* AppDatabase.swift in Sources */,
 				BDAF5AC42DE2555000B8FB13 /* AudioConfig.swift in Sources */,
 				BDAF5AC52DE2555000B8FB13 /* SoundFontKind.swift in Sources */,
+				BDF14C492DF0AF0100BDDB0E /* PresetNameView.swift in Sources */,
 				BDAF5AD52DE2555B00B8FB13 /* PresetsListSection.swift in Sources */,
 				BDAF5AD62DE2555B00B8FB13 /* PresetsList.swift in Sources */,
 				BDAF5AD72DE2555B00B8FB13 /* PresetEditor.swift in Sources */,
@@ -886,7 +887,6 @@
 				BDAF5B042DE2558C00B8FB13 /* TextFieldClearButton.swift in Sources */,
 				BDAF5B052DE2558C00B8FB13 /* StyledList.swift in Sources */,
 				BDAF5B062DE2558C00B8FB13 /* AlertsAndConfirmationDialogs.swift in Sources */,
-				BDAF5B072DE2558C00B8FB13 /* VisibilityEditMode.swift in Sources */,
 				BDAF5B082DE2558C00B8FB13 /* Notifications.swift in Sources */,
 				BDAF5B092DE2558C00B8FB13 /* LongPressModifier.swift in Sources */,
 				BDAF5B122DE2559100B8FB13 /* TagsList.swift in Sources */,
