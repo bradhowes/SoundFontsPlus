@@ -11,7 +11,8 @@ public struct AudioConfig: Hashable, Identifiable, Sendable {
   public let id: ID
   public var gain: Double = 0.0
   public var pan: Double = 0.0
-  public var keyboardLowestNoteEnabled: Bool = true
+
+  public var keyboardLowestNoteEnabled: Bool = false
   public var keyboardLowestNote: Note = .C4
   public var pitchBendRange: Int = 2
 
