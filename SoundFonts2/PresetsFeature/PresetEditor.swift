@@ -230,11 +230,8 @@ public struct PresetEditorView: View {
         Spacer()
         Stepper(
           "",
-          value: Binding(
-            get: { store.audioConfig.keyboardLowestNote.midiNoteValue },
-            set: { store.audioConfig.keyboardLowestNote = Note(midiNoteValue: $0) }
-          ),
-          in: 0...127,
+          value: $store.audioConfig.keyboardLowestNote,
+          in: Note(midiNoteValue: 0)...Note(midiNoteValue: 127),
           step: 1
         )
         .labelsHidden()

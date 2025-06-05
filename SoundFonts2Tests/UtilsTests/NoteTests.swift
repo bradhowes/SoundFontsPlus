@@ -91,4 +91,11 @@ struct NoteTests {
 
     #expect(hasher1.finalize() == hasher2.finalize())
   }
+
+  @Test func range() throws {
+    #expect((Note(midiNoteValue: 60)...Note(midiNoteValue: 60)).count == 1)
+    #expect((Note(midiNoteValue: 60)..<Note(midiNoteValue: 61)).count == 1)
+    #expect((Note(midiNoteValue: 60)...Note(midiNoteValue: 70)).count == 11)
+    #expect(Note(midiNoteValue: 60).advanced(by: 3) == Note(midiNoteValue: 63))
+  }
 }

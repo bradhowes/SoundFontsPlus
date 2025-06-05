@@ -202,3 +202,8 @@ extension Note: Hashable {
 extension Note: QueryBindable {
   public var queryBinding: QueryBinding { .text(rawValue) }
 }
+
+extension Note: Strideable {
+  public func distance(to other: Note) -> Int { other.midiNoteValue - midiNoteValue }
+  public func advanced(by delta: Int) -> Note { .init(midiNoteValue: midiNoteValue + delta) }
+}
