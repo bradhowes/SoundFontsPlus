@@ -99,11 +99,12 @@ public struct PresetEditor: Equatable {
 
   public enum Action: Equatable, BindableAction {
     case binding(BindingAction<State>)
-    case dismissButtonTapped
+    case cancelButtonTapped
     case displayNameChanged(String)
     case notesChanged(String)
     case resetGainTapped
     case resetPanTapped
+    case saveButtonTapped
     case tuning(TuningFeature.Action)
     case useLowestKeyTapped
     case useOriginalNameTapped
@@ -115,7 +116,7 @@ public struct PresetEditor: Equatable {
     Reduce { state, action in
       switch action {
       case .binding: return .none
-      case .dismissButtonTapped: return dismiss(&state)
+      case .cancelButtonTapped: return dismiss(&state, save: false)
       case .displayNameChanged(let value): return updateName(&state, value: value)
       case .notesChanged(let value): return updateNotes(&state, value: value)
       case .resetGainTapped:
@@ -124,6 +125,7 @@ public struct PresetEditor: Equatable {
       case .resetPanTapped:
         state.audioConfig.pan = 0.0
         return.none
+      case .saveButtonTapped: return dismiss(&state, save: true)
       case .tuning: return .none
       case .useLowestKeyTapped: return useLowestKey(&state)
       case .useOriginalNameTapped: return updateName(&state, value: state.preset.originalName)
@@ -136,8 +138,10 @@ public struct PresetEditor: Equatable {
 
 extension PresetEditor {
 
-  private func dismiss(_ state: inout State) -> Effect<Action> {
-    state.save()
+  private func dismiss(_ state: inout State, save: Bool) -> Effect<Action> {
+    if save {
+      state.save()
+    }
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
   }
@@ -189,8 +193,13 @@ public struct PresetEditorView: View {
       .navigationTitle("Preset")
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button("Dismiss") {
-            store.send(.dismissButtonTapped, animation: .default)
+          Button("Cancel") {
+            store.send(.cancelButtonTapped, animation: .default)
+          }
+        }
+        ToolbarItem(placement: .confirmationAction) {
+          Button("Save") {
+            store.send(.saveButtonTapped, animation: .default)
           }
         }
       }

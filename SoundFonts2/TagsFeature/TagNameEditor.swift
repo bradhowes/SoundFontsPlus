@@ -85,15 +85,25 @@ public struct TagNameEditorView: View {
   }
 
   public var body: some View {
-    if store.membership == nil || isEditing {
+    if readOnly {
+      name
+    }
+    else if store.membership == nil || isEditing {
       nameField
     } else {
       toggleNameField
     }
   }
 
+  private var name: some View {
+    Text(store.newName)
+      .foregroundStyle(editable ? .blue : .secondary)
+      .font(Font.custom("Eurostile", size: 20))
+  }
+
   private var nameField: some View {
     TextField("", text: $store.newName.sending(\.nameChanged))
+      .textFieldStyle(.roundedBorder)
       .disabled(readOnly || isEditing)
       .deleteDisabled(readOnly)
       .foregroundStyle(editable ? .blue : .secondary)

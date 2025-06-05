@@ -57,12 +57,13 @@ public struct SoundFontEditor {
 
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
+    case cancelButtonTapped
     case changeTagsButtonTapped
-    case dismissButtonTapped
     case destination(PresentationAction<Destination.Action>)
     case displayNameChanged(String)
     case notesChanged(String)
     case pathButtonTapped
+    case saveButtonTapped
     case useEmbeddedNameTapped
     case useOriginalNameTapped
   }
@@ -72,12 +73,13 @@ public struct SoundFontEditor {
       switch action {
       case .binding: return .none
       case .changeTagsButtonTapped: return editTags(&state)
-      case .dismissButtonTapped: return dismiss(&state)
+      case .cancelButtonTapped: return dismiss(&state, save: false)
       case .destination(.dismiss): return updateTagsList(&state)
       case .destination: return .none
       case .displayNameChanged(let value): return updateDisplayName(&state, value: value)
       case .notesChanged(let value): return updateNotes(&state, value: value)
       case .pathButtonTapped: return visitPath(&state)
+      case .saveButtonTapped: return dismiss(&state, save: true)
       case .useEmbeddedNameTapped: return updateDisplayName(&state, value: state.soundFont.embeddedName)
       case .useOriginalNameTapped: return updateDisplayName(&state, value: state.soundFont.originalName)
       }
@@ -91,8 +93,10 @@ public struct SoundFontEditor {
 
 extension SoundFontEditor {
 
-  private func dismiss(_ state: inout State) -> Effect<Action> {
-    state.save()
+  private func dismiss(_ state: inout State, save: Bool) -> Effect<Action> {
+    if save {
+      state.save()
+    }
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
   }
@@ -151,9 +155,14 @@ public struct SoundFontEditorView: View {
       }
       .navigationTitle("SoundFont")
       .toolbar {
-        ToolbarItem(placement: .automatic) {
-          Button("Dismiss") {
-            store.send(.dismissButtonTapped, animation: .default)
+        ToolbarItem(placement: .cancellationAction) {
+          Button("Cancel") {
+            store.send(.cancelButtonTapped, animation: .default)
+          }
+        }
+        ToolbarItem(placement: .confirmationAction) {
+          Button("Save") {
+            store.send(.saveButtonTapped, animation: .default)
           }
         }
       }
@@ -214,7 +223,7 @@ public struct SoundFontEditorView: View {
   var infoSection: some View {
     Section(header: Text("Contents")) {
       LabeledContent("Presets", value: presetCountLabel)
-      LabeledContent("Favorites", value: "\(store.favoriteCount)")
+      LabeledContent("Favorites/Copies", value: "\(store.favoriteCount)")
       LabeledContent("Author", value: store.soundFont.embeddedAuthor)
       LabeledContent("Copyright", value: store.soundFont.embeddedCopyright)
       LabeledContent("Comment", value: store.soundFont.embeddedComment)
