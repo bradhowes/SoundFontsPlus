@@ -154,6 +154,9 @@
 		BD1D27A32B6F13DE005C3ED0 /* SoundFonts2UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFonts2UITestsLaunchTests.swift; sourceTree = "<group>"; };
 		BD2A26032CC849E0000CC1DF /* Eurostile.ttc */ = {isa = PBXFileReference; lastKnownFileType = file; path = Eurostile.ttc; sourceTree = "<group>"; };
 		BD5A65612D984945008B8117 /* SoundFonts2.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SoundFonts2.xctestplan; sourceTree = "<group>"; };
+		BD7DBC892DF36955005A31DE /* Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Development.xcconfig; sourceTree = "<group>"; };
+		BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		BDAF5A8E2DE254E000B8FB13 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		BDAF5A8F2DE254E000B8FB13 /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		BDAF5A912DE254E000B8FB13 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
@@ -292,6 +295,9 @@
 			isa = PBXGroup;
 			children = (
 				BD5A65612D984945008B8117 /* SoundFonts2.xctestplan */,
+				BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */,
+				BD7DBC892DF36955005A31DE /* Development.xcconfig */,
+				BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */,
 				BD1D27812B6F13DD005C3ED0 /* SoundFonts2 */,
 				BD1D27962B6F13DE005C3ED0 /* SoundFonts2Tests */,
 				BD1D27A02B6F13DE005C3ED0 /* SoundFonts2UITests */,
@@ -991,6 +997,7 @@
 /* Begin XCBuildConfiguration section */
 		BD1D27A52B6F13DE005C3ED0 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BD7DBC892DF36955005A31DE /* Development.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -1049,7 +1056,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited) SWIFT_ENABLE_OPAQUE_TYPE_ERASURE=NO";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OBJC_INTEROP_MODE = objcxx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -1058,6 +1065,7 @@
 		};
 		BD1D27A62B6F13DE005C3ED0 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -1117,6 +1125,7 @@
 		};
 		BD1D27A82B6F13DE005C3ED0 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BD7DBC892DF36955005A31DE /* Development.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1159,6 +1168,7 @@
 		};
 		BD1D27A92B6F13DE005C3ED0 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1201,6 +1211,7 @@
 		};
 		BD1D27AB2B6F13DE005C3ED0 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BD7DBC892DF36955005A31DE /* Development.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -1223,6 +1234,7 @@
 		};
 		BD1D27AC2B6F13DE005C3ED0 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -1245,6 +1257,7 @@
 		};
 		BD1D27AE2B6F13DE005C3ED0 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BD7DBC892DF36955005A31DE /* Development.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1266,6 +1279,7 @@
 		};
 		BD1D27AF2B6F13DE005C3ED0 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

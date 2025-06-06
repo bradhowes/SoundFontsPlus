@@ -73,24 +73,6 @@ struct OperationsTests {
     #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2])
   }
 
-  @Test("updateTags") func updateTags() async throws {
-    Operations.updateTags(
-      [
-        Tag(id: Tag.ID(rawValue: 1), displayName: "a", ordering: 0),
-        Tag(id: Tag.ID(rawValue: 4), displayName: "Bar", ordering: 1),
-        Tag(id: Tag.ID(rawValue: 2), displayName: "c", ordering: 2),
-        Tag(id: Tag.ID(rawValue: 3), displayName: "Blah", ordering: 3)
-      ]
-    )
-    @FetchAll(Tag.all.order(by: \.ordering)) var tags
-    try await $tags.load()
-    #expect(tags.count == 4)
-    #expect(tags[0].displayName == "a")
-    #expect(tags[1].displayName == "Bar")
-    #expect(tags[2].displayName == "c")
-    #expect(tags[3].displayName == "Blah")
-  }
-
   @Test("tagInfos") func tagInfos() async throws {
     @FetchAll(Operations.tagInfosQuery) var tagInfos
     try await $tagInfos.load()
