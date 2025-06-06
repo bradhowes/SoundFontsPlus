@@ -29,12 +29,11 @@ public struct PresetEditor: Equatable {
       self.displayName = preset.displayName
       self.visible = preset.kind == .preset
       self.notes = preset.notes
-      self.soundFontName = preset.soundFontName
-      let audioConfig = preset.audioConfig
       let audioConfigDraft = preset.audioConfigDraft
+      self.soundFontName = preset.soundFontName
       self.audioConfig = audioConfigDraft
-      self.delayConfig = audioConfig?.delayConfigDraft ?? .init()
-      self.reverbConfig = audioConfig?.reverbConfigDraft ?? .init()
+      self.delayConfig = preset.delayConfigDraft
+      self.reverbConfig = preset.reverbConfigDraft
       self.tuning = .init(frequency: audioConfigDraft.customTuning, enabled: audioConfigDraft.customTuningEnabled)
     }
 
@@ -63,35 +62,31 @@ public struct PresetEditor: Equatable {
 
         precondition(audioConfig.presetId == nil || audioConfig.presetId == preset.id)
 
-        audioConfig.presetId = preset.id
-
-        guard let audioConfigId = (try AudioConfig
-          .upsert(audioConfig)
-          .returning(\.id)
-          .fetchOne(db)
-        ) else {
-          print("*** failed to upsert audioConfig")
-          return
+        if audioConfig != AudioConfig.Draft() {
+          audioConfig.presetId = preset.id
+          withErrorReporting {
+            try AudioConfig
+              .upsert(audioConfig)
+              .execute(db)
+          }
         }
 
-        print("audioConfigId: \(audioConfigId)")
-
         if delayConfig != DelayConfig.Draft() {
-          delayConfig.audioConfigId = audioConfigId
-          let delayConfigId = try DelayConfig
-            .upsert(delayConfig)
-            .returning(\.id)
-            .fetchOne(db)
-          print("delayConfigId: \(delayConfigId ?? -1)")
+          delayConfig.presetId = preset.id
+          withErrorReporting {
+            try DelayConfig
+              .upsert(delayConfig)
+              .execute(db)
+          }
         }
 
         if reverbConfig != ReverbConfig.Draft() {
-          reverbConfig.audioConfigId = audioConfigId
-          let reverbConfigId = try ReverbConfig
-            .upsert(reverbConfig)
-            .returning(\.id)
-            .fetchOne(db)
-          print("reverbConfigId: \(reverbConfigId ?? -1)")
+          reverbConfig.presetId = preset.id
+          withErrorReporting {
+            try ReverbConfig
+              .upsert(reverbConfig)
+              .execute(db)
+          }
         }
       }
     }

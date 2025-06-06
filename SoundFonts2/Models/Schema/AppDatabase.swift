@@ -60,6 +60,12 @@ public func appDatabase() throws -> any DatabaseWriter {
     }
   }
 
+  migrator.registerMigration("Add global audio configs") { db in
+    try AudioConfig.insert(AudioConfig.Draft(AudioConfig(id: AudioConfig.global))).execute(db)
+    try DelayConfig.insert(DelayConfig.Draft(DelayConfig(id: DelayConfig.global))).execute(db)
+    try ReverbConfig.insert(ReverbConfig.Draft(ReverbConfig(id: ReverbConfig.global))).execute(db)
+  }
+
 #if DEBUG && targetEnvironment(simulator)
   if context != .test {
     migrator.registerMigration("Seed sample data") { db in

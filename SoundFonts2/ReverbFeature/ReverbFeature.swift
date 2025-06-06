@@ -4,41 +4,41 @@ import AudioUnit
 import AVFoundation
 import AUv3Controls
 import ComposableArchitecture
-import Sharing
+import SharingGRDB
 import SwiftUI
 
 extension AVAudioUnitReverbPreset: @retroactive Identifiable {
   public var id: Int { rawValue }
 
   static let allCases: [AVAudioUnitReverbPreset] = [
-    AVAudioUnitReverbPreset.smallRoom,
-    AVAudioUnitReverbPreset.mediumRoom,
-    AVAudioUnitReverbPreset.largeRoom,
-    AVAudioUnitReverbPreset.largeRoom2,
-    AVAudioUnitReverbPreset.mediumHall,
-    AVAudioUnitReverbPreset.mediumHall2,
-    AVAudioUnitReverbPreset.mediumHall3,
-    AVAudioUnitReverbPreset.largeHall,
-    AVAudioUnitReverbPreset.largeHall2,
-    AVAudioUnitReverbPreset.mediumChamber,
-    AVAudioUnitReverbPreset.largeChamber,
-    AVAudioUnitReverbPreset.cathedral,
-    AVAudioUnitReverbPreset.plate
+    .smallRoom,
+    .mediumRoom,
+    .largeRoom,
+    .largeRoom2,
+    .mediumHall,
+    .mediumHall2,
+    .mediumHall3,
+    .largeHall,
+    .largeHall2,
+    .mediumChamber,
+    .largeChamber,
+    .cathedral,
+    .plate
   ]
 
   public var name: String {
     switch self {
-    case .smallRoom: return "Small Room"
-    case .mediumRoom: return "Medium Room"
-    case .largeRoom: return "Large Room 1"
-    case .largeRoom2: return "Large Room 2"
-    case .mediumHall: return "Medium Hall 1"
-    case .mediumHall2: return "Medium Hall 2"
-    case .mediumHall3: return "Medium Hall 3"
-    case .largeHall: return "Large Hall 1"
-    case .largeHall2: return "Large Hall 2"
-    case .mediumChamber: return "Medium Chamber"
-    case .largeChamber: return "Large Chamber"
+    case .smallRoom: return "Room 1"
+    case .mediumRoom: return "Room 2"
+    case .largeRoom: return "Room 3"
+    case .largeRoom2: return "Room 4"
+    case .mediumHall: return "Hall 1"
+    case .mediumHall2: return "Hall 2"
+    case .mediumHall3: return "Hall 3"
+    case .largeHall: return "Hall 4"
+    case .largeHall2: return "Hall 5"
+    case .mediumChamber: return "Chamber 1"
+    case .largeChamber: return "Chamber 2"
     case .cathedral: return "Cathedral"
     case .plate: return "Plate"
     @unknown default:
@@ -57,6 +57,8 @@ public struct ReverbFeature {
     public var wetDryMix: KnobFeature.State
     public var room: AVAudioUnitReverbPreset
 
+    public var reverbConfigId: ReverbConfig.ID?
+
     public init() {
       self.enabled = .init(isOn: false, displayName: "On")
       self.locked = .init(isOn: false, displayName: "Locked")
@@ -71,18 +73,27 @@ public struct ReverbFeature {
     }
   }
 
-  public enum Action: BindableAction {
-    case binding(BindingAction<State>)
+  @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.reverb) private var reverb
+  @Shared(.activeState) private var activeState
+
+  public enum Action {
+    case debouncedSave(ReverbConfig.Draft)
+    case debouncedUpdate(ReverbConfig.Draft)
     case enabled(ToggleFeature.Action)
     case locked(ToggleFeature.Action)
     case room(AVAudioUnitReverbPreset)
     case wetDryMix(KnobFeature.Action)
   }
-  
+
+  private enum CancelID {
+    case debouncedSave
+    case debouncedUpdate
+  }
+
   public init() {}
   
   public var body: some ReducerOf<Self> {
-    BindingReducer()
 
     Scope(state: \.enabled, action: \.enabled) { ToggleFeature() }
     Scope(state: \.locked, action: \.locked) { ToggleFeature() }
@@ -90,15 +101,51 @@ public struct ReverbFeature {
 
     Reduce { state, action in
       switch action {
-      case .binding: return .none
-      case .enabled: return .none
-      case .locked: return .none
-      case let .room(value):
-        state.room = value
+      case let .debouncedSave(config):
+        reverb.setConfig(config)
         return .none
-      case .wetDryMix: return .none
+
+      case let .debouncedUpdate(config):
+        if config.id != nil {
+          withErrorReporting {
+            try database.write { db in
+              try ReverbConfig.upsert(config).execute(db)
+            }
+          }
+        }
+        return .none
+
+      case .enabled: return updateReverb(&state)
+      case .locked: return .none
+      case let .room(value): return changeRoom(&state, room: value)
+      case .wetDryMix: return updateReverb(&state)
       }
     }
+  }
+
+  private func changeRoom(_ state: inout State, room: AVAudioUnitReverbPreset) -> Effect<Action> {
+    state.room = room
+    return updateReverb(&state)
+  }
+
+  private func updateReverb(_ state: inout State) -> Effect<Action> {
+    let config = ReverbConfig.Draft(
+      id: state.reverbConfigId,
+      preset: state.room.rawValue,
+      wetDryMix: state.wetDryMix.value / 100.0,
+      enabled: state.enabled.isOn
+    )
+
+    return .merge(
+      .run { send in
+        try await Task.sleep(for: .milliseconds(300))
+        await send(.debouncedUpdate(config))
+      }.cancellable(id: CancelID.debouncedUpdate),
+      .run { send in
+        try await Task.sleep(for: .milliseconds(500))
+        await send(.debouncedSave(config))
+      }.cancellable(id: CancelID.debouncedSave)
+    )
   }
 }
 
@@ -116,14 +163,13 @@ public struct ReverbView: View {
         Text("Reverb")
           .foregroundStyle(theme.controlForegroundColor)
           .font(.caption.smallCaps())
-
         ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
         ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
           Image(systemName: "lock")
         }
       }
       HStack(alignment: .center, spacing: 16) {
-        Picker("Room", selection: $store.room) {
+        Picker("Room", selection: $store.room.sending(\.room)) {
           ForEach(AVAudioUnitReverbPreset.allCases, id: \.self) { room in
             Text(room.name).tag(room)
               .font(theme.font)
@@ -131,21 +177,7 @@ public struct ReverbView: View {
           }
         }
         .pickerStyle(.wheel)
-        .frame(width: 165)  // !!! Magic size that fits all of the strings without wasted space
-//        VStack {
-//          Text("Room")
-//          Menu("\(store.room.name)") {
-//            ForEach(AVAudioUnitReverbPreset.allCases) { room in
-//              Button(room.name) {
-//                store.send(.room(room))
-//              }
-//              .font(theme.font)
-//              .foregroundStyle(theme.textColor)
-//            }
-//          }
-//          .font(theme.font)
-//          .foregroundStyle(theme.textColor)
-//        }
+        .frame(width: 110)  // !!! Magic size that fits all of the strings without wasted space
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
     }

@@ -8,34 +8,25 @@ import Tagged
 public struct DelayConfig: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>
 
-  public let id: ID
+  public static let global = ID(rawValue: 1)
 
-  public var time: AUValue = 0.25
-  public var feedback: AUValue = 0.70
-  public var cutoff: AUValue = 2000.0
-  public var wetDryMix: AUValue = 0.5
+  public let id: ID
+  public var time: Double = 0.25
+  public var feedback: Double = 0.70
+  public var cutoff: Double = 2000.0
+  public var wetDryMix: Double = 0.5
   public var enabled: Bool = false
 
-  public var audioConfigId: AudioConfig.ID?
+  public var presetId: Preset.ID?
 }
-
-extension DelayConfig.Draft: Equatable, Sendable {}
 
 extension DelayConfig {
 
-  public static func with(key audioConfigId: AudioConfig.ID) -> Self? {
+  public static func with(key presetId: Preset.ID) -> Self? {
     @Dependency(\.defaultDatabase) var database
-    return try? database.read {
-      try Self.all.where { $0.audioConfigId.eq(audioConfigId) }.fetchOne($0)
-    }
+    return try? database.read { try Self.all.where { $0.presetId.eq(presetId) }.fetchOne($0) }
   }
 
-  /**
-   Create a duplicate of our settings.
-
-   - parameter audioConfigId: the AudioConfig row to associate with
-   - returns: cloned instance
-   */
   public func clone(audioConfigId: AudioConfig.ID) -> Self? {
     let dupe = Draft(
       time: self.time,
@@ -43,15 +34,15 @@ extension DelayConfig {
       cutoff: self.cutoff,
       wetDryMix: self.wetDryMix,
       enabled: self.enabled,
-      audioConfigId: audioConfigId
+      presetId: presetId
     )
 
     @Dependency(\.defaultDatabase) var database
-    return try? database.write {
-      try Self.insert(dupe).returning(\.self).fetchOne($0)
-    }
+    return try? database.write { try Self.insert(dupe).returning(\.self).fetchOne($0) }
   }
 }
+
+extension DelayConfig.Draft: Equatable, Sendable {}
 
 extension DelayConfig {
 
@@ -66,9 +57,9 @@ extension DelayConfig {
         "cutoff" REAL NOT NULL,
         "wetDryMix" REAL NOT NULL,
         "enabled" INTEGER NOT NULL CHECK ("enabled" in (0, 1)),
-        "audioConfigId" INTEGER NOT NULL,
+        "presetId" INTEGER,
 
-        FOREIGN KEY("audioConfigId") REFERENCES "audioConfigs"("id") ON DELETE CASCADE
+        FOREIGN KEY("presetId") REFERENCES "presets"("id") ON DELETE CASCADE
       ) STRICT
       """
       )

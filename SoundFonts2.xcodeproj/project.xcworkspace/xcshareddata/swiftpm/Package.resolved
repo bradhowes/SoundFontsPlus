@@ -1,13 +1,13 @@
 {
-  "originHash" : "e250065c475a2781a5fa35401bcee5df52254d9d1344099e1d78cf46e132c8b6",
+  "originHash" : "d22a3dce967fcca3fa957cfeddce6b76ef2005246cb08dbf9cd8225d708f51a1",
   "pins" : [
     {
       "identity" : "auv3controls",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/AUv3Controls",
       "state" : {
-        "revision" : "80e96c3133cf6bd879a80c5fc4a8362f492e00ab",
-        "version" : "0.17.2"
+        "revision" : "5319bbd0863cd372793a352b793ab613a1587286",
+        "version" : "0.17.4"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sharing-grdb",
       "state" : {
-        "revision" : "af01e23147159b5fab1630ad3a5c7e38f8098392",
-        "version" : "0.3.0"
+        "revision" : "27aa92082156aaaecd002620ff200723eaf3f239",
+        "version" : "0.4.1"
       }
     },
     {
@@ -105,8 +105,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "294ac2cbfe48a41a6bd3c294fbb7bc5f0f5194d6",
-        "version" : "1.20.1"
+        "revision" : "6574de2396319a58e86e2178577268cb4aeccc30",
+        "version" : "1.20.2"
       }
     },
     {
@@ -195,8 +195,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "c851cb42573a407e2746ec7f1ff4f6d3b5cdc894",
-        "version" : "0.3.0"
+        "revision" : "9045819f2fc3681ea98c95b2a15d98c459141c98",
+        "version" : "0.5.1"
       }
     },
     {
@@ -204,8 +204,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax",
       "state" : {
-        "revision" : "0687f71944021d616d34d922343dcef086855920",
-        "version" : "600.0.1"
+        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
+        "version" : "601.0.1"
       }
     },
     {

@@ -56,6 +56,50 @@ extension Preset {
       return .init()
     }
   }
+
+  /// Obtain the `DelayConfig.Draft` value associated with this config/preset. If one does not exist, then
+  /// return one with default values. Goal is to only save an entry when there is a deviation from
+  /// the default values.
+  public var delayConfig: DelayConfig? {
+    @Dependency(\.defaultDatabase) var database
+    return withErrorReporting {
+      try database.read { db in
+        try DelayConfig.all
+          .where { $0.presetId.eq(self.id) }
+          .fetchOne(db)
+      }
+    } ?? nil
+  }
+  
+  public var delayConfigDraft: DelayConfig.Draft {
+    if let delayConfig = self.delayConfig {
+      return .init(delayConfig)
+    } else {
+      return .init(presetId: self.id)
+    }
+  }
+  
+  /// Obtain the `ReverbConfig.Draft` value associated with this config/preset. If one does not exist, then
+  /// return one with default values. Goal is to only save an entry when there is a deviation from
+  /// the default values.
+  public var reverbConfig: ReverbConfig? {
+    @Dependency(\.defaultDatabase) var database
+    return withErrorReporting {
+      try database.read { db in
+        try ReverbConfig.all
+          .where { $0.presetId.eq(self.id) }
+          .fetchOne(db)
+      }
+    } ?? nil
+  }
+  
+  public var reverbConfigDraft: ReverbConfig.Draft {
+    if let reverbConfig = self.reverbConfig {
+      return .init(reverbConfig)
+    } else {
+      return .init(presetId: self.id)
+    }
+  }
 }
 
 extension Preset {

@@ -8,36 +8,33 @@ import Tagged
 public struct ReverbConfig: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>
 
-  public let id: ID
+  public static let global = ID(rawValue: 1)
 
+  public let id: ID
   public var preset: Int = 3
-  public var wetDryMix: AUValue = 0.4
+  public var wetDryMix: Double = 0.4
   public var enabled: Bool = false
 
-  public var audioConfigId: AudioConfig.ID?
+  public var presetId: Preset.ID?
 }
 
 extension ReverbConfig {
 
-  public static func with(key audioConfigId: AudioConfig.ID) -> Self? {
+  public static func with(key presetId: Preset.ID) -> Self? {
     @Dependency(\.defaultDatabase) var database
-    return try? database.read {
-      try Self.all.where { $0.audioConfigId.eq(audioConfigId) }.fetchOne($0)
-    }
+    return try? database.read { try Self.all.where { $0.presetId.eq(presetId) }.fetchOne($0) }
   }
 
-  public func clone(audioConfigId: AudioConfig.ID) -> Self? {
+  public func clone(presetId: Preset.ID) -> Self? {
     let dupe = Draft(
       preset: self.preset,
       wetDryMix: self.wetDryMix,
       enabled: self.enabled,
-      audioConfigId: audioConfigId
+      presetId: presetId
     )
 
     @Dependency(\.defaultDatabase) var database
-    return try? database.write {
-      try Self.insert(dupe).returning(\.self).fetchOne($0)
-    }
+    return try? database.write { try Self.insert(dupe).returning(\.self).fetchOne($0) }
   }
 }
 
@@ -51,14 +48,12 @@ extension ReverbConfig {
       """
       CREATE TABLE "\(raw: Self.tableName)" (
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-
         "preset" INTEGER NOT NULL,
         "wetDryMix" REAL NOT NULL,
         "enabled" INTEGER NOT NULL CHECK ("enabled" in (0, 1)),
+        "presetId" INTEGER,
 
-        "audioConfigId" INTEGER NOT NULL,
-      
-        FOREIGN KEY("audioConfigId") REFERENCES "audioConfigs"("id") ON DELETE CASCADE
+        FOREIGN KEY("presetId") REFERENCES "presets"("id") ON DELETE CASCADE
       ) STRICT
       """
       )

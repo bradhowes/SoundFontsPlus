@@ -14,13 +14,14 @@ public struct TagNameEditor {
   @ObservableState
   public struct State: Equatable, Identifiable, Sendable {
     public var draft: Tag.Draft
-    public let id: Tag.ID
+    public var id: Tag.ID { tagId }
+    public let tagId: Tag.ID
     public let originalMembership: Bool?
     public let originalDisplayName: String
     public var membership: Bool?
 
     public init(id: Tag.ID, draft: Tag.Draft, membership: Bool? = nil) {
-      self.id = id
+      self.tagId = id
       self.draft = draft
       self.originalDisplayName = draft.displayName
       self.originalMembership = membership
@@ -108,6 +109,7 @@ public struct TagNameEditorView: View {
   }
 
   public var body: some View {
+    let _ = print("rendering cell \(store.tagId)")
     if readOnly {
       name
     }
