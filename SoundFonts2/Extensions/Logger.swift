@@ -10,7 +10,3 @@ extension Logger {
   public static let soundFonts = Logger(subsystem: subsystem, category: "soundFonts")
   public static let tags = Logger(subsystem: subsystem, category: "tags")
 }
-
-#if compiler(<6.0) || !hasFeature(InferSendableFromCaptures)
-extension Logger: @unchecked @retroactive Sendable {}
-#endif

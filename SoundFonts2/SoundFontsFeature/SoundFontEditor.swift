@@ -64,6 +64,7 @@ public struct SoundFontEditor {
     case notesChanged(String)
     case pathButtonTapped
     case saveButtonTapped
+    case unhideAllButtonTapped
     case useEmbeddedNameTapped
     case useOriginalNameTapped
   }
@@ -80,6 +81,7 @@ public struct SoundFontEditor {
       case .notesChanged(let value): return updateNotes(&state, value: value)
       case .pathButtonTapped: return visitPath(&state)
       case .saveButtonTapped: return dismiss(&state, save: true)
+      case .unhideAllButtonTapped: return .none
       case .useEmbeddedNameTapped: return updateDisplayName(&state, value: state.soundFont.embeddedName)
       case .useOriginalNameTapped: return updateDisplayName(&state, value: state.soundFont.originalName)
       }
@@ -152,6 +154,21 @@ public struct SoundFontEditorView: View {
         tagsSection
         notesSection
         infoSection
+        Section(header: Text("Author")) {
+          Text(store.soundFont.embeddedAuthor)
+        }
+        Section(header: Text("Copyright")) {
+          Text(store.soundFont.embeddedCopyright)
+        }
+        Section(header: Text("Comment")) {
+          Text(store.soundFont.embeddedComment)
+        }
+        Section(header: Text("Path")) {
+          Button {
+          } label: {
+            Text(store.soundFont.sourcePath)
+          }
+        }
       }
       .navigationTitle("SoundFont")
       .toolbar {
@@ -222,18 +239,18 @@ public struct SoundFontEditorView: View {
 
   var infoSection: some View {
     Section(header: Text("Contents")) {
-      LabeledContent("Presets", value: presetCountLabel)
-      LabeledContent("Favorites/Copies", value: "\(store.favoriteCount)")
-      LabeledContent("Author", value: store.soundFont.embeddedAuthor)
-      LabeledContent("Copyright", value: store.soundFont.embeddedCopyright)
-      LabeledContent("Comment", value: store.soundFont.embeddedComment)
-      LabeledContent("Kind", value: store.soundFont.sourceKind)
+      LabeledContent("Presets", value: "\(store.presetCount + store.hiddenCount)")
       LabeledContent {
-        Button(store.soundFont.sourcePath) {}
+        Button {
+          store.send(.unhideAllButtonTapped)
+        } label: {
+          Text("\(store.hiddenCount)")
+        }
       } label: {
-        Text("Path")
+        Text("Hidden presets")
       }
-    }.font(.footnote)
+      LabeledContent("Favorites/Copies", value: "\(store.favoriteCount)")
+    }
   }
 
   var presetCountLabel: String {

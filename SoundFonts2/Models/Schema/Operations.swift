@@ -78,21 +78,20 @@ public enum Operations {
     try? database.write { try query.execute($0); }
   }
 
-  public static func updateTags(_ tags: [Tag]) {
-    @Dependency(\.defaultDatabase) var database
-    withErrorReporting {
-      try database.write { db in
-        for tag in tags {
-          try Tag.find(tag.id)
-            .update {
-              $0.displayName = tag.displayName
-              $0.ordering = tag.ordering
-            }
-            .execute(db)
-        }
-      }
-    }
-  }
+//  public static func updateTags(_ tags: [Tag.Draft]) {
+//    @Dependency(\.defaultDatabase) var database
+//    withErrorReporting {
+//      try database.write { db in
+//        for tag in tags {
+//          withErrorReporting {
+//            if tag.displayName && tag.id != nil {
+//            }
+//            try Tag.insert(tag).execute(db)
+//          }
+//        }
+//      }
+//    }
+//  }
 
   public static var soundFontInfosQuery: Select<SoundFontInfo.Columns.QueryValue, TaggedSoundFont, SoundFont> {
     @Shared(.activeState) var activeState

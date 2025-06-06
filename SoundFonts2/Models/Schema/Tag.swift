@@ -184,7 +184,7 @@ extension Tag.ID {
 
   public var isUbiquitous: Bool {
     guard let last = Tag.Ubiquitous.allCases.last else { fatalError() }
-    return self <= last.id
+    return self > 0 && self <= last.id
   }
 
   public var isUserDefined: Bool { !self.isUbiquitous }
@@ -196,3 +196,5 @@ extension Tag.ID {
     return nil
   }
 }
+
+extension Tag.Draft: Equatable, Sendable {}

@@ -12,8 +12,9 @@ public struct TagsEditor: Sendable {
     var rows: IdentifiedArrayOf<TagNameEditor.State>
     var editMode: EditMode = .inactive
     var focused: Tag.ID?
+    var deleted: Set<Tag.ID> = []
+
     let soundFontId: SoundFont.ID?
-    let showMemberships: Bool
 
     public init(
       focused: Tag.ID? = nil,
@@ -23,37 +24,41 @@ public struct TagsEditor: Sendable {
     ) {
       self.rows = .init(uniqueElements: Operations.tags.map {
         .init(
-          tag: $0,
-          soundFontId: soundFontId,
+          id: $0.id,
+          draft: .init($0),
           membership: memberships != nil ? (memberships?[$0.id] ?? false) : nil
         )
       })
       self.focused = focused
       self.editMode = editMode
       self.soundFontId = soundFontId
-      self.showMemberships = memberships != nil
     }
 
     public mutating func save() {
-      Operations.updateTags(
-        rows.enumerated().map { (index, row) in
-          Tag(
-            id: row.id,
-            displayName: row.tag.isUserDefined ? row.newName.trimmed(or: row.tag.displayName) : row.tag.displayName,
-            ordering: index
-          )
+      @Dependency(\.defaultDatabase) var database
+      withErrorReporting {
+        try database.write { db in
+          for id in deleted {
+            withErrorReporting {
+              try Tag.find(id).delete().execute(db)
+            }
+          }
+          for (index, var row) in rows.enumerated() {
+            row.save(db, ordering: index, soundFontId: soundFontId)
+          }
         }
-      )
+      }
     }
   }
 
   public enum Action: Equatable, BindableAction {
     case addButtonTapped
     case binding(BindingAction<State>)
+    case cancelButtonTapped
     case deleteButtonTapped(at: IndexSet)
-    case dismissButtonTapped
-    case finalizeDeleteTag(Tag.ID)
+    case finalizeDeleteTag(tagId: Tag.ID)
     case rows(IdentifiedActionOf<TagNameEditor>)
+    case saveButtonTapped
     case tagMoved(at: IndexSet, to: Int)
     case toggleEditMode
   }
@@ -66,11 +71,12 @@ public struct TagsEditor: Sendable {
       switch action {
       case .addButtonTapped: return addTag(&state)
       case .binding: return .none
+      case .cancelButtonTapped: return dismiss(&state, save: false)
       case .deleteButtonTapped(let indices): return deleteTag(&state, indices: indices)
-      case .dismissButtonTapped: return dismissButtonTapped(&state)
-      case let .finalizeDeleteTag(tagId): return finalizeDeleteTag(&state, tagId: tagId)
+      case .finalizeDeleteTag(let tagId): return finalizeDeleteTag(&state, tagId: tagId)
       case let .rows(.element(id: id, action: .delegate(.tagSwipedToDelete))): return deleteTag(&state, tagId: id)
       case .rows: return .none
+      case .saveButtonTapped: return dismiss(&state, save: true)
       case let .tagMoved(indices, offset): return moveTag(&state, at: indices, to: offset)
       case .toggleEditMode: return toggleEditMode(&state)
       }
@@ -87,21 +93,47 @@ public struct TagsEditor: Sendable {
 private extension TagsEditor {
 
   func addTag(_ state: inout State) -> Effect<Action> {
-    if let tag = try? Tag.make(displayName: "New Tag") {
-      state.rows.append(.init(
-        tag: tag,
-        soundFontId: state.soundFontId,
-        membership: state.showMemberships ? false : nil
-      ))
-      state.focused = tag.id
+    let base = "New Tag"
+    let existingNames = Set<String>(state.rows.map { $0.draft.displayName.trimmed(or: $0.originalDisplayName) })
+    var newName = base
+
+    var tagId: Tag.ID = 0
+    while existingNames.contains(newName) {
+      tagId += 1
+      newName = base + " \(tagId.rawValue)"
+    }
+
+    // Added tags always have negative Tag.ID values so we can properly handle them when we save.
+    tagId = Tag.ID(rawValue: -1)
+    while state.rows.index(id: tagId) != nil {
+      tagId -= 1
+    }
+
+    state.rows.append(.init(
+      id: tagId,
+      draft: .init(displayName: newName, ordering: state.rows.count),
+      membership: state.soundFontId != nil ? false : nil
+    ))
+
+    state.focused = tagId
+
+    return .none
+  }
+
+  func finalizeDeleteTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
+    withAnimation(.smooth) {
+      state.rows = state.rows.filter { $0.id != tagId }
+    }
+    if tagId > 0 {
+      state.deleted.insert(tagId)
     }
     return .none
   }
 
   func deleteTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
     return .run { send in
-      await send(.finalizeDeleteTag(tagId))
-    }.animation(.default)
+      await send(.finalizeDeleteTag(tagId: tagId))
+    }
   }
 
   func deleteTag(_ state: inout State, indices: IndexSet) -> Effect<Action> {
@@ -111,30 +143,23 @@ private extension TagsEditor {
     return .none
   }
 
-  func finalizeDeleteTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
-    if activeState.activeTagId == tagId {
-      $activeState.withLock {
-        $0.activeTagId = Tag.Ubiquitous.all.id
-      }
-    }
-    state.rows = state.rows.filter { $0.id != tagId }
-    Operations.deleteTag(tagId)
-    return .none
-  }
-
   func moveTag(_ state: inout State, at indices: IndexSet, to offset: Int) -> Effect<Action> {
     state.rows.move(fromOffsets: indices, toOffset: offset)
-    return .none
+    return .none.animation(.smooth)
   }
 
-  func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
-    state.save()
+  func dismiss(_ state: inout State, save: Bool) -> Effect<Action> {
+    if save {
+      state.save()
+    }
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
   }
 
   func toggleEditMode(_ state: inout State) -> Effect<Action> {
-    state.editMode = state.editMode.isEditing ? .inactive : .active
+    withAnimation {
+      state.editMode = state.editMode.isEditing ? .inactive : .active
+    }
     return .none
   }
 }
@@ -153,6 +178,7 @@ public struct TagsEditorView: View {
         if store.editMode.isEditing {
           ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
             TagNameEditorView(store: rowStore)
+              .deleteDisabled(rowStore.id.isUbiquitous)
           }
           .onMove { store.send(.tagMoved(at: $0, to: $1), animation: .default) }
           .onDelete { store.send(.deleteButtonTapped(at: $0), animation: .default) }
@@ -168,11 +194,7 @@ public struct TagsEditorView: View {
       .navigationTitle("Tags Editor")
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button("Dismiss") { store.send(.dismissButtonTapped, animation: .default) }
-            .disabled(store.editMode == .active)
-        }
-        ToolbarItem(placement: .automatic) {
-          Button("Add Tag", systemImage: "plus") { store.send(.addButtonTapped, animation: .default) }
+          Button("Cancel") { store.send(.cancelButtonTapped, animation: .default) }
             .disabled(store.editMode == .active)
         }
         ToolbarItem(placement: .automatic) {
@@ -186,6 +208,18 @@ public struct TagsEditorView: View {
               Text("Edit")
             }
           }
+        }
+        ToolbarItem(placement: .automatic) {
+          Button {
+            store.send(.addButtonTapped, animation: .default)
+          } label: {
+            Image(systemName: "plus")
+          }
+          .disabled(store.editMode == .active)
+        }
+        ToolbarItem(placement: .confirmationAction) {
+          Button("Save") { store.send(.saveButtonTapped, animation: .default) }
+            .disabled(store.editMode == .active)
         }
       }
     }

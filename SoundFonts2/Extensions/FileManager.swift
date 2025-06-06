@@ -3,7 +3,6 @@
 import Foundation
 import os
 import Dependencies
-import XCTestDynamicOverlay
 
 /**
  Collection of FileManager dependencies to allow for mocking and controlling in tests.
