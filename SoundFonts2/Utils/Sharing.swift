@@ -34,7 +34,7 @@ extension SharedKey where Self == AppStorageKey<KeyLabels>.Default {
 }
 
 extension SharedKey where Self == AppStorageKey<Note>.Default {
-  public static var firstVisibleKey: Self { Self[.appStorage("firstVisibleKey"), default: Note(midiNoteValue: 60)] }
+  public static var firstVisibleKey: Self { Self[.appStorage("firstVisibleKey"), default: .C4] }
 }
 
 extension SharedKey where Self == AppStorageKey<String>.Default {

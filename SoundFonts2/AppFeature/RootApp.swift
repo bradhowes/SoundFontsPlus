@@ -64,11 +64,10 @@ public struct RootApp {
 
     Reduce { state, action in
       switch action {
+      case let .keyboard(.updatedVisibleKeys(lowest, highest)):
+        print("rootApp: \(lowest) - \(highest)")
+        return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
 
-//      case let .keyboard(.delegate(.visibleKeyRangeChanged(lowest, highest))):
-//        print("keyboard delegate:", lowest, highest)
-//        return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
-//
       case let .tagsSplit(.delegate(.stateChanged(panesVisible, position))):
         let visible = panesVisible.contains(.bottom)
         ToolBar.setTagsListVisible(&state.toolBar, value: visible)

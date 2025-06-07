@@ -12,31 +12,32 @@ public struct KeyboardFeature {
   public struct State: Equatable {
     var active: [Bool] = .init(repeating: false, count: Note.midiRange.count)
 
-    @Shared(.firstVisibleKey) var lowestKey
     @Shared(.keyWidth) var keyWidth
     @Shared(.keyboardSlides) var keyboardSlides
     @Shared(.keyLabels) var keyLabels
 
+    var lowestKey: Note = .C4
     var highestKey: Note = .C4
     var scrollTo: Note?
     let settingsDemo: Bool
 
     public init(settingsDemo: Bool = false) {
       self.settingsDemo = settingsDemo
+      print("keyboard: \(lowestKey) - \(highestKey) \(settingsDemo)")
     }
   }
 
   public enum Action: Equatable {
     case allOff
     case assigned(previous: Note?, note: Note)
-    case keyLabelsChanged
+    case delegate(Delegate)
     case monitorActivePreset
     case noteOff(Note)
     case noteOn(Note)
     case released(note: Note)
     case activePresetIdChanged(Preset.ID?)
     case updatedVisibleKeys(lowest: Note, highest: Note)
-    case postScrollTo
+    case scrollTo(Note)
     case clearScrollTo
 
     public enum Delegate: Equatable {
@@ -59,7 +60,7 @@ public struct KeyboardFeature {
         }
         state.active[note.midiNoteValue] = true
         return .none
-      case .keyLabelsChanged: return .none
+      case .delegate: return .none
       case .monitorActivePreset: return monitorActivePreset(&state)
       case let .noteOff(note):
         state.active[note.midiNoteValue] = false
@@ -71,11 +72,13 @@ public struct KeyboardFeature {
         state.active[note.midiNoteValue] = false
         return .none
       case let .updatedVisibleKeys(lowest, highest):
-        state.$lowestKey.withLock { $0 = lowest }
+        print("updatedVisibleKeys: \(lowest) - \(highest)")
+        state.lowestKey = lowest
         state.highestKey = highest
+        print("updatedVisibleKeys: \(state.lowestKey) - \(state.highestKey)")
         return .none
-      case .postScrollTo:
-        state.scrollTo = state.settingsDemo ? Note.lowest : state.lowestKey
+      case let .scrollTo(lowestKey):
+        state.scrollTo = lowestKey
         return .none
       case .clearScrollTo:
         state.scrollTo = nil
@@ -94,7 +97,7 @@ extension KeyboardFeature {
     guard let preset = Preset.with(key: presetId) else { return .none }
     guard let audioConfig = preset.audioConfig else { return .none }
     guard audioConfig.keyboardLowestNoteEnabled else { return .none }
-    state.$lowestKey.withLock { $0 = audioConfig.keyboardLowestNote }
+    state.lowestKey = audioConfig.keyboardLowestNote
     return .none
   }
 
@@ -102,13 +105,6 @@ extension KeyboardFeature {
     return .publisher {
       @Shared(.activeState) var activeState
       return $activeState.activePresetId.publisher.map { Action.activePresetIdChanged($0) }
-    }.cancellable(id: publisherCancelId, cancelInFlight: true)
-  }
-
-  private func monitorKeyLabels(_ state: inout State) -> Effect<Action> {
-    return .publisher {
-      @Shared(.keyLabels) var keyLabels
-      return $keyLabels.publisher.map { _ in Action.keyLabelsChanged }
     }.cancellable(id: publisherCancelId, cancelInFlight: true)
   }
 
@@ -126,15 +122,14 @@ extension KeyboardFeature {
 public struct KeyboardView: View {
   typealias Event = SpatialEventGesture.Value.Element
   @State private var store: StoreOf<KeyboardFeature>
-
-  public let whiteNotes: [Note] = .init(WhiteKeySequenceGenerator().makeIterator())
-  public let blackNotes: [Note] = .init(BlackKeySequenceGenerator().makeIterator())
-
   @State private var eventNoteMap = EventNoteMap()
   @State private var frames: [CGRect] = Array(repeating: .zero, count: Note.midiRange.count)
 
   @Environment(\.verticalSizeClass) private var verticalSizeClass
   @Environment(\.keyboardHeight) private var keyboardHeight
+
+  private let whiteNotes: [Note] = .init(WhiteKeySequenceGenerator().makeIterator())
+  private let blackNotes: [Note] = .init(BlackKeySequenceGenerator().makeIterator())
 
   private var keyboardHeightScaling: Double { verticalSizeClass == .compact ? 0.5 : 1.0 }
   private let whiteKeySpacing: Double = 2.0
@@ -152,17 +147,17 @@ public struct KeyboardView: View {
           fixedKeys
         }
       }
-      .onAppear {
-        proxy.scrollTo(store.settingsDemo ? Note.lowest : store.lowestKey, anchor: .leading)
-      }
       .onChange(of: store.lowestKey) {
+        store.send(.scrollTo(store.lowestKey))
+      }
+      .onChange(of: store.scrollTo) {
         withAnimation {
-          proxy.scrollTo(store.settingsDemo ? Note.lowest : store.lowestKey, anchor: .leading)
+          proxy.scrollTo(store.settingsDemo ? Note.lowest : (store.scrollTo ?? store.lowestKey), anchor: .leading)
         }
       }
       .background(.black)
       .onScrollPhaseChange { oldPhase, newPhase, context in
-        if oldPhase != newPhase && newPhase == .idle {
+        if store.scrollTo != nil && newPhase == .idle {
           store.send(
             .updatedVisibleKeys(
               lowest: lowestNote(context.geometry),
@@ -171,7 +166,10 @@ public struct KeyboardView: View {
           )
         }
       }
-      .onAppear { store.send(.monitorActivePreset) }
+      .onAppear {
+        store.send(.monitorActivePreset)
+        store.send(.scrollTo(store.lowestKey))
+      }
     }
   }
 
@@ -242,7 +240,6 @@ public struct KeyboardView: View {
         $0.frame(in: .global)
       } action: {
         if note.isValidMidiNote {
-          print("key: \(note)")
           frames[note.midiNoteValue] = $0
         }
       }
@@ -268,7 +265,6 @@ public struct KeyboardView: View {
         $0.frame(in: .global)
       } action: {
         if note.isValidMidiNote {
-          print("key: \(note)")
           frames[note.midiNoteValue] = $0
         }
       }
@@ -367,16 +363,15 @@ extension RandomAccessCollection where Element == CGRect, Index == Int {
 }
 
 struct KeyboardPreview: View {
-  @State var highestKey: Note = .C4
+  @State var store: StoreOf<KeyboardFeature> = Store(initialState: .init()) { KeyboardFeature() }
 
   @Shared(.keyWidth) var keyWidth
   @Shared(.keyboardSlides) var keyboardSlides
   @Shared(.keyLabels) var keyLabels
-  @Shared(.firstVisibleKey) var lowestKey
 
   var body: some View {
     VStack {
-      KeyboardView(store: Store(initialState: .init()) { KeyboardFeature() })
+      KeyboardView(store: store)
         .animation(.smooth, value: keyWidth.rounded())
       Slider(
         value: Binding<Double>(
@@ -409,8 +404,8 @@ struct KeyboardPreview: View {
         }
       }
       HStack {
-        Text(lowestKey.label)
-        Text(highestKey.label)
+        Text(store.lowestKey.label)
+        Text(store.highestKey.label)
       }
     }
   }
@@ -422,5 +417,13 @@ extension FloatingPoint {
 }
 
 #Preview {
+  let _ = prepareDependencies {
+    $0.defaultDatabase = try! appDatabase()
+    @Shared(.firstVisibleKey) var firstVisibleKey
+    $firstVisibleKey.withLock { $0 = .C4 }
+    @Shared(.keyboardSlides) var keyboardSlides
+    $keyboardSlides.withLock { $0 = true }
+  }
+
   KeyboardPreview()
 }

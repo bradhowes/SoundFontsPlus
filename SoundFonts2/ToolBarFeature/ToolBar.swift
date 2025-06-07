@@ -17,7 +17,7 @@ public struct ToolBar {
     @Presents var destination: Destination.State?
 
     @Shared(.firstVisibleKey) var lowestKey
-    var highestKey: Note = .C4
+    var highestKey: Note
     @Shared(.keyboardSlides) var keyboardSlides
 
     var tagsListVisible: Bool
@@ -29,6 +29,7 @@ public struct ToolBar {
     public init(tagsListVisible: Bool, effectsVisible: Bool) {
       self.tagsListVisible = tagsListVisible
       self.effectsVisible = effectsVisible
+      self.highestKey = .C4
     }
   }
 
@@ -42,6 +43,7 @@ public struct ToolBar {
     case lowestKeyButtonTapped
     case presetsVisibilityButtonTapped
     case settingsButtonTapped
+    case setVisibleKeyRange(lowest: Note, highest: Note)
     case showMoreButtonTapped
     case slidingKeyboardButtonTapped
     case tagVisibilityButtonTapped
@@ -69,6 +71,7 @@ public struct ToolBar {
       case .lowestKeyButtonTapped: return lowestKeyButtonTapped(&state)
       case .presetsVisibilityButtonTapped: return editPresetVisibility(&state)
       case .settingsButtonTapped: return showSettings(&state)
+      case let .setVisibleKeyRange(lowest, highest): return setVisibleKeyRange(&state, lowest: lowest, highest: highest)
       case .showMoreButtonTapped: return toggleShowMoreButtons(&state)
       case .slidingKeyboardButtonTapped: return slidingKeyboardButtonTapped(&state)
       case .tagVisibilityButtonTapped: return toggleTagsVisibility(&state)
@@ -83,6 +86,12 @@ extension ToolBar {
 
   public static func setTagsListVisible(_ state: inout State, value: Bool) {
     state.tagsListVisible = value
+  }
+
+  private func setVisibleKeyRange(_ state: inout State, lowest: Note, highest: Note) -> Effect<Action> {
+    // state.$lowestKey.withLock { $0 = lowest }
+    state.highestKey = highest
+    return .none
   }
 
   private func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {

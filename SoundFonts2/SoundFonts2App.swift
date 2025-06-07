@@ -10,6 +10,7 @@ struct SoundFonts2App: App {
     prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
       $0.defaultFileStorage = .fileSystem
+      $0.reverb = .init(setConfig: { config in print(config) })
     }
   }
 
