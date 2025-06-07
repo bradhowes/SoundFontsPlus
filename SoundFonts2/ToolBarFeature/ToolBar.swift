@@ -39,8 +39,9 @@ public struct ToolBar {
     case destination(PresentationAction<Destination.Action>)
     case effectsVisibilityButtonTapped
     case helpButtonTapped
-    case highestKeyButtonTapped
-    case lowestKeyButtonTapped
+    case monitorStateChanges
+    case shiftKeyboardUpButtonTapped
+    case shiftKeyboardDownButtonTapped
     case presetsVisibilityButtonTapped
     case settingsButtonTapped
     case setVisibleKeyRange(lowest: Note, highest: Note)
@@ -67,8 +68,9 @@ public struct ToolBar {
       case .destination: return .none
       case .effectsVisibilityButtonTapped: return toggleEffectsVisibility(&state)
       case .helpButtonTapped: return showHelp(&state)
-      case .highestKeyButtonTapped: return highestKeyButtonTapped(&state)
-      case .lowestKeyButtonTapped: return lowestKeyButtonTapped(&state)
+      case .monitorStateChanges: return monitorStateChanges(&state)
+      case .shiftKeyboardDownButtonTapped: return shiftKeyboardDownButtonTapped(&state)
+      case .shiftKeyboardUpButtonTapped: return shiftKeyboardUpButtonTapped(&state)
       case .presetsVisibilityButtonTapped: return editPresetVisibility(&state)
       case .settingsButtonTapped: return showSettings(&state)
       case let .setVisibleKeyRange(lowest, highest): return setVisibleKeyRange(&state, lowest: lowest, highest: highest)
@@ -83,6 +85,10 @@ public struct ToolBar {
 }
 
 extension ToolBar {
+
+  public func monitorStateChanges(_ state: inout State) -> Effect<Action> {
+    return .none
+  }
 
   public static func setTagsListVisible(_ state: inout State, value: Bool) {
     state.tagsListVisible = value
@@ -122,29 +128,27 @@ extension ToolBar {
     return .none
   }
 
-  private func lowestKeyButtonTapped(_ state: inout State) -> Effect<Action> {
+  private func shiftKeyboardDownButtonTapped(_ state: inout State) -> Effect<Action> {
     let span = state.highestKey.midiNoteValue - state.lowestKey.midiNoteValue
-    // Move to the next lower C key
-    let newLow = state.lowestKey.noteIndex == 0
-    ? Note(midiNoteValue: max(Note.midiRange.lowerBound, state.lowestKey.midiNoteValue - span))
-    : Note(midiNoteValue: state.lowestKey.midiNoteValue - (state.lowestKey.midiNoteValue % 12))
+    var newLow = Note(midiNoteValue: max(Note.midiRange.lowerBound, state.lowestKey.midiNoteValue - span))
+    if newLow.accented {
+      newLow = Note(midiNoteValue: newLow.midiNoteValue - 1)
+    }
     let newHigh = Note(midiNoteValue: min(Note.midiRange.upperBound, newLow.midiNoteValue + span))
     state.$lowestKey.withLock { $0 = newLow }
     state.highestKey = newHigh
     return .none
   }
 
-  private func highestKeyButtonTapped(_ state: inout State) -> Effect<Action> {
+  private func shiftKeyboardUpButtonTapped(_ state: inout State) -> Effect<Action> {
     let span = state.highestKey.midiNoteValue - state.lowestKey.midiNoteValue
     let newHigh = Note(midiNoteValue: min(Note.midiRange.upperBound, state.highestKey.midiNoteValue + span))
-    let newLow = Note(midiNoteValue: max(Note.midiRange.lowerBound, newHigh.midiNoteValue - span))
-    if state.lowestKey.noteIndex != 0 && newLow.noteIndex != 0 {
-      state.$lowestKey.withLock { $0 = Note(midiNoteValue: newLow.midiNoteValue - newLow.noteIndex) }
-      state.highestKey = Note(midiNoteValue: newHigh.midiNoteValue - newLow.noteIndex)
-    } else {
-      state.$lowestKey.withLock { $0 = newLow }
-      state.highestKey = newHigh
+    var newLow = Note(midiNoteValue: max(Note.midiRange.lowerBound, newHigh.midiNoteValue - span))
+    if newLow.accented {
+      newLow = Note(midiNoteValue: newLow.midiNoteValue - 1)
     }
+    state.$lowestKey.withLock { $0 = newLow }
+    state.highestKey = newHigh
     return .none
   }
 
@@ -195,6 +199,12 @@ public struct ToolBarView: View {
       toggleMoreButton
         .zIndex(2)
     }
+    .onAppear {
+      store.send(.monitorStateChanges)
+    }
+    .onChange(of: store.lowestKey) {
+      print("lowestKey changed")
+    }
     .background(Color.black)
     .padding(.init(top: 8, leading: 8, bottom: 8, trailing: 0))
     .frame(height: 40)
@@ -203,10 +213,6 @@ public struct ToolBarView: View {
       item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { store in
         SettingsView(store: store)
       }
-//    .sheet(item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { settings in
-//      NavigationStack {
-//        SettingsView(store: settings)
-//      }
   }
 
   private var presetTitle: some View {
@@ -263,21 +269,25 @@ public struct ToolBarView: View {
     HStack {
       Spacer()
       Button {
-        store.send(.lowestKeyButtonTapped)
+        store.send(.shiftKeyboardDownButtonTapped)
       } label: {
         Text("❰" + store.lowestKey.label)
-      }.disabled(store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
+      }
       Button {
         store.send(.slidingKeyboardButtonTapped)
       } label: {
-        Image(systemName: store.keyboardSlides ? "arrow.left.and.right.circle.fill" : "arrow.left.and.right" )
-          .tint(store.keyboardSlides ? Color.indigo : Color.blue)
+        Image(
+          systemName: store.keyboardSlides
+          ? "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right.fill"
+          : "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right"
+        )
+        .tint(store.keyboardSlides ? Color.indigo : Color.blue)
       }
       Button {
-        store.send(.highestKeyButtonTapped)
+        store.send(.shiftKeyboardUpButtonTapped)
       } label: {
         Text(store.highestKey.label + "❱")
-      }.disabled(store.highestKey.midiNoteValue == Note.midiRange.upperBound)
+      }
       Button {
         store.send(.settingsButtonTapped)
       } label: {
@@ -304,8 +314,10 @@ extension ToolBarView {
     let _ = prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
     }
-    @Dependency(\.defaultDatabase) var db
-    return ToolBarView(store: Store(initialState: .init(tagsListVisible: true, effectsVisible: false)) { ToolBar() })
+    return VStack {
+      ToolBarView(store: Store(initialState: .init(tagsListVisible: true, effectsVisible: false)) { ToolBar() })
+      KeyboardView(store: Store(initialState: .init()) { KeyboardFeature() })
+    }
   }
 }
 

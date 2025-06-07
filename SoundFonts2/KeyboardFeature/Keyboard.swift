@@ -28,17 +28,17 @@ public struct KeyboardFeature {
   }
 
   public enum Action: Equatable {
+    case activePresetIdChanged(Preset.ID?)
     case allOff
     case assigned(previous: Note?, note: Note)
+    case clearScrollTo
     case delegate(Delegate)
-    case monitorActivePreset
+    case monitorStateChanges
     case noteOff(Note)
     case noteOn(Note)
     case released(note: Note)
-    case activePresetIdChanged(Preset.ID?)
-    case updatedVisibleKeys(lowest: Note, highest: Note)
     case scrollTo(Note)
-    case clearScrollTo
+    case updatedVisibleKeys(lowest: Note, highest: Note)
 
     public enum Delegate: Equatable {
       case visibleKeyRangeChanged(lowest: Note, highest: Note)
@@ -51,38 +51,16 @@ public struct KeyboardFeature {
     Reduce<State, Action> { state, action in
       switch action {
       case let .activePresetIdChanged(presetId): return activePresetIdChanged(&state, presetId: presetId)
-      case .allOff:
-        state.active = .init(repeating: false, count: state.active.count)
-        return .none
-      case let .assigned(previous, note):
-        if let previous {
-          state.active[previous.midiNoteValue] = false
-        }
-        state.active[note.midiNoteValue] = true
-        return .none
+      case .allOff: return allOff(&state)
+      case let .assigned(previous, key): return assigned(&state, previous: previous, key: key)
+      case .clearScrollTo: return clearScrollTo(&state)
       case .delegate: return .none
-      case .monitorActivePreset: return monitorActivePreset(&state)
-      case let .noteOff(note):
-        state.active[note.midiNoteValue] = false
-        return .none
-      case let .noteOn(note):
-        state.active[note.midiNoteValue] = true
-        return .none
-      case let .released(note):
-        state.active[note.midiNoteValue] = false
-        return .none
-      case let .updatedVisibleKeys(lowest, highest):
-        print("updatedVisibleKeys: \(lowest) - \(highest)")
-        state.lowestKey = lowest
-        state.highestKey = highest
-        print("updatedVisibleKeys: \(state.lowestKey) - \(state.highestKey)")
-        return .none
-      case let .scrollTo(lowestKey):
-        state.scrollTo = lowestKey
-        return .none
-      case .clearScrollTo:
-        state.scrollTo = nil
-        return .none
+      case .monitorStateChanges: return monitorStateChanges(&state)
+      case let .noteOff(note): return noteOff(&state, key: note)
+      case let .noteOn(note): return noteOn(&state, key: note)
+      case let .released(note): return noteOff(&state, key: note)
+      case let .scrollTo(key): return scrollTo(&state, key: key)
+      case let .updatedVisibleKeys(lowest, highest): return updateVisibleKeys(&state, lowest: lowest, highest: highest)
       }
     }
   }
@@ -101,21 +79,57 @@ extension KeyboardFeature {
     return .none
   }
 
-  private func monitorActivePreset(_ state: inout State) -> Effect<Action> {
-    return .publisher {
-      @Shared(.activeState) var activeState
-      return $activeState.activePresetId.publisher.map { Action.activePresetIdChanged($0) }
-    }.cancellable(id: publisherCancelId, cancelInFlight: true)
-  }
-
-  private func assign(_ state: inout State, event: Event, note: Note) -> Effect<Action> {
-    // _ = state.eventNoteMap.assign(event: event, note: note)
+  private func allOff(_ state: inout State) -> Effect<Action> {
+    state.active = .init(repeating: false, count: state.active.count)
     return .none
   }
 
-  private func release(_ state: inout State, event: Event) -> Effect<Action> {
-    // _ = state.eventNoteMap.release(event: event)
+  private func assigned(_ state: inout State, previous: Note?, key: Note) -> Effect<Action> {
+    if let previous {
+      state.active[previous.midiNoteValue] = false
+    }
+    state.active[key.midiNoteValue] = true
     return .none
+  }
+
+  private func clearScrollTo(_ state: inout State) -> Effect<Action> {
+    state.scrollTo = nil
+    return .none
+  }
+
+  private func monitorStateChanges(_ state: inout State) -> Effect<Action> {
+    state.scrollTo = state.lowestKey
+    return .merge(
+      .publisher {
+        @Shared(.activeState) var activeState
+        return $activeState.activePresetId.publisher.map { Action.activePresetIdChanged($0) }
+      }.cancellable(id: publisherCancelId, cancelInFlight: true),
+      .publisher {
+        @Shared(.firstVisibleKey) var firstVisibleKey
+        return $firstVisibleKey.publisher.map { Action.scrollTo($0) }
+      }
+    )
+  }
+
+  private func noteOff(_ state: inout State, key: Note) -> Effect<Action> {
+    state.active[key.midiNoteValue] = false
+    return .none
+  }
+
+  private func noteOn(_ state: inout State, key: Note) -> Effect<Action> {
+    state.active[key.midiNoteValue] = true
+    return .none
+  }
+
+  private func scrollTo(_ state: inout State, key: Note) -> Effect<Action> {
+    state.scrollTo = key
+    return .none
+  }
+
+  private func updateVisibleKeys(_ state: inout State, lowest: Note, highest: Note) -> Effect<Action> {
+    state.lowestKey = lowest
+    state.highestKey = highest
+    return .send(.delegate(.visibleKeyRangeChanged(lowest: lowest, highest: highest)))
   }
 }
 
@@ -167,8 +181,7 @@ public struct KeyboardView: View {
         }
       }
       .onAppear {
-        store.send(.monitorActivePreset)
-        store.send(.scrollTo(store.lowestKey))
+        store.send(.monitorStateChanges)
       }
     }
   }
