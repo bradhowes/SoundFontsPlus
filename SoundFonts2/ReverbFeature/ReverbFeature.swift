@@ -183,7 +183,7 @@ public struct ReverbView: View {
           .disabled(!store.enabled.isOn)
       }
       .padding(.init(top: 16, leading: 0, bottom: 0, trailing: 0))
-      .disableWithScreenedContent(enabled: store.enabled.isOn)
+      .dimmedAppearanceModifier(enabled: store.enabled.isOn)
     }
     .padding(.init(top: 4, leading: 4, bottom: 4, trailing: 4))
   }
