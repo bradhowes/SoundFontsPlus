@@ -105,10 +105,14 @@ public struct DelayView: View {
           Image(systemName: "lock")
         }
       }
-      KnobView(store: store.scope(state: \.time, action: \.time))
-      KnobView(store: store.scope(state: \.feedback, action: \.feedback))
-      KnobView(store: store.scope(state: \.cutoff, action: \.cutoff))
-      KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
+      HStack(alignment: .center, spacing: 8) {
+        KnobView(store: store.scope(state: \.time, action: \.time))
+        KnobView(store: store.scope(state: \.feedback, action: \.feedback))
+        KnobView(store: store.scope(state: \.cutoff, action: \.cutoff))
+        KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
+      }
+      .padding(.init(top: 16, leading: 0, bottom: 0, trailing: 0))
+      .disableWithScreenedContent(enabled: store.enabled.isOn)
     }
     .padding(.init(top: 4, leading: 4, bottom: 4, trailing: 4))
   }

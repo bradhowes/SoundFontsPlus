@@ -168,7 +168,7 @@ public struct ReverbView: View {
           Image(systemName: "lock")
         }
       }
-      HStack(alignment: .center, spacing: 16) {
+      HStack(alignment: .center, spacing: 8) {
         Picker("Room", selection: $store.room.sending(\.room)) {
           ForEach(AVAudioUnitReverbPreset.allCases, id: \.self) { room in
             Text(room.name).tag(room)
@@ -178,8 +178,12 @@ public struct ReverbView: View {
         }
         .pickerStyle(.wheel)
         .frame(width: 110)  // !!! Magic size that fits all of the strings without wasted space
+        .disabled(!store.enabled.isOn)
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
+          .disabled(!store.enabled.isOn)
       }
+      .padding(.init(top: 16, leading: 0, bottom: 0, trailing: 0))
+      .disableWithScreenedContent(enabled: store.enabled.isOn)
     }
     .padding(.init(top: 4, leading: 4, bottom: 4, trailing: 4))
   }
