@@ -3,6 +3,7 @@
 import AUv3Controls
 import BRHSplitView
 import ComposableArchitecture
+import SharingGRDB
 import Sharing
 import SwiftUI
 
@@ -17,6 +18,10 @@ public struct RootApp {
   @ObservableState
   public struct State: Equatable {
     @Presents var destination: Destination.State?
+
+    @ObservationStateIgnored
+    @FetchAll var soundFontInfos: [SoundFontInfo]
+
     public var soundFontsList: SoundFontsList.State = .init()
     public var presetsList: PresetsList.State = .init()
     public var tagsList: TagsList.State = .init()
@@ -28,6 +33,8 @@ public struct RootApp {
     public var keyboard: KeyboardFeature.State = .init()
 
     public init() {
+      _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
+
       @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsPosition
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsPosition
       @Shared(.tagsListVisible) var tagsListVisible
@@ -64,6 +71,7 @@ public struct RootApp {
 
     Reduce { state, action in
       switch action {
+
       case let .keyboard(.delegate(.visibleKeyRangeChanged(lowest, highest))):
         return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
 
@@ -135,15 +143,23 @@ public struct RootApp {
   }
 }
 
-public struct RootAppView: View {
+public struct RootAppView: View, KeyboardReadable {
   private let store: StoreOf<RootApp>
   private let theme: Theme
   private let appPanelBackground = Color.black
   private let dividerBorderColor: Color = Color.gray.opacity(0.15)
 
+  @State private var isInputKeyboardVisible = false
+
   @Shared(.effectsVisible) private var effectsVisible
-  @Environment(\.keyboardHeight) private var keyboardHeight
+  @Environment(\.keyboardHeight) private var maxKeyboardHeight
   @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+  private var keyboardHeight: CGFloat {
+    isInputKeyboardVisible
+    ? 1.0
+    : maxKeyboardHeight * (verticalSizeClass == .compact ? 0.5 : 1.0)
+  }
 
   public init(store: StoreOf<RootApp>) {
     self.store = store
@@ -154,6 +170,7 @@ public struct RootAppView: View {
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
+    theme.font = .effectsControlFont
     self.theme = theme
   }
 
@@ -165,8 +182,13 @@ public struct RootAppView: View {
       toolbarAndKeyboard
     }
     .animation(.smooth, value: effectsVisible)
+    .animation(.smooth, value: isInputKeyboardVisible)
     .environment(\.auv3ControlsTheme, theme)
     .environment(\.appPanelBackground, appPanelBackground)
+    .onReceive(keyboardPublisher) {
+      print("isInputKeyboardVisible: \($0)")
+      isInputKeyboardVisible = $0
+    }
   }
 
   private var listViews: some View {
@@ -176,10 +198,7 @@ public struct RootAppView: View {
         fontsAndTags
       },
       divider: {
-        HandleDivider(
-          dividerColor: dividerBorderColor,
-          handleColor: .accentColor
-        )
+        handleDivider
       },
       secondary: {
         PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
@@ -194,10 +213,7 @@ public struct RootAppView: View {
         SoundFontsListView(store: store.scope(state: \.soundFontsList, action: \.soundFontsList))
       },
       divider: {
-        HandleDivider(
-          dividerColor: dividerBorderColor,
-          handleColor: .accentColor
-        )
+        handleDivider
       },
       secondary: {
         TagsListView(store: store.scope(state: \.tagsList, action: \.tagsList))
@@ -209,6 +225,17 @@ public struct RootAppView: View {
         dragToHidePanes: .secondary,
         doubleClickToClose: .secondary
       )
+    )
+  }
+
+  private var handleDivider: some View {
+    HandleDivider(
+      dividerColor: dividerBorderColor,
+      handleColor: .black,
+      dotColor: .accentColor,
+      handleLength: 32.0,
+      handleWidth: 8.0,
+      paddingInsets: 4.0
     )
   }
 
@@ -226,9 +253,9 @@ public struct RootAppView: View {
         }
         .frame(height: effectsHeight)
         .background(Color.black)
-        .padding(EdgeInsets.init(top: padding, leading: 0, bottom: padding, trailing: 0))
+        .padding(.init(top: padding, leading: 0, bottom: padding, trailing: 0))
         .background(dividerBorderColor)
-        .padding(EdgeInsets.init(top: 0, leading: padding, bottom: 0, trailing: padding))
+        .padding(.init(top: 0, leading: padding, bottom: 0, trailing: padding))
       }
     }
     .frame(height: effectsVisible ? viewHeight : padding)
@@ -245,7 +272,8 @@ public struct RootAppView: View {
 
   private var keyboardView: some View {
     KeyboardView(store: store.scope(state: \.keyboard, action: \.keyboard))
-      .frame(height: keyboardHeight * (verticalSizeClass == .compact ? 0.5 : 1.0))
+      .frame(height: keyboardHeight)
+      .opacity(isInputKeyboardVisible ? 0.0 : 1.0)
   }
 }
 

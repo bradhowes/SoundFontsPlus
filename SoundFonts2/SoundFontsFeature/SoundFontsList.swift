@@ -27,24 +27,12 @@ public struct SoundFontsList {
     var addedSummary: String = ""
 
     public init() {
-      _soundFontInfos = FetchAll(soundFontsQuery, animation: .default)
-    }
-
-    var soundFontsQuery: Select<SoundFontInfo.Columns.QueryValue, TaggedSoundFont, SoundFont> {
-      @Shared(.activeState) var activeState
-      return TaggedSoundFont
-        .join(SoundFont.all) {
-          $0.tagId.eq(activeState.activeTagId ?? Tag.Ubiquitous.all.id) && $0.soundFontId.eq($1.id)
-        }
-        .select {
-          SoundFontInfo.Columns(id: $1.id, displayName: $1.displayName, kind: $1.kind, location: $1.location)
-        }
-        .order { $1.displayName }
+      _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
     }
 
     func updateQuery() async {
       await withErrorReporting {
-        try await $soundFontInfos.load(soundFontsQuery, animation: .default)
+        try await $soundFontInfos.load(SoundFontInfo.taggedQuery, animation: .default)
       }
     }
   }

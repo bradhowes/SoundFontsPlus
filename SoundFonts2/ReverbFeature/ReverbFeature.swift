@@ -162,7 +162,8 @@ public struct ReverbView: View {
       VStack(alignment: .leading, spacing: 18) {
         Text("Reverb")
           .foregroundStyle(theme.controlForegroundColor)
-          .font(.caption.smallCaps())
+          .font(.effectsTitleFont)
+
         ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
         ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
           Image(systemName: "lock")
@@ -178,14 +179,13 @@ public struct ReverbView: View {
         }
         .pickerStyle(.wheel)
         .frame(width: 110)  // !!! Magic size that fits all of the strings without wasted space
-        .disabled(!store.enabled.isOn)
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
-          .disabled(!store.enabled.isOn)
       }
-      .padding(.init(top: 16, leading: 0, bottom: 0, trailing: 0))
+      .padding(.init(top: 4, leading: 0, bottom: 4, trailing: 0))
       .dimmedAppearanceModifier(enabled: store.enabled.isOn)
     }
-    .padding(.init(top: 4, leading: 4, bottom: 4, trailing: 4))
+    .frame(maxHeight: 102)
+    .frame(height: 102)
   }
 }
 
@@ -203,8 +203,8 @@ extension ReverbView {
       ReverbView(store: Store(initialState: .init()) { ReverbFeature() })
         .environment(\.auv3ControlsTheme, theme)
     }
-    .frame(height: 102)
-    .frame(maxHeight: 102)
+    .padding()
+    .border(theme.controlBackgroundColor, width: 1)
   }
 }
 

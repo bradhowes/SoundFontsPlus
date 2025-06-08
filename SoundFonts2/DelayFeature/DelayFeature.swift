@@ -98,7 +98,7 @@ public struct DelayView: View {
       VStack(alignment: .leading, spacing: 18) {
         Text("Delay")
           .foregroundStyle(theme.controlForegroundColor)
-          .font(.caption.smallCaps())
+          .font(.effectsTitleFont)
 
         ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
         ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
@@ -111,10 +111,11 @@ public struct DelayView: View {
         KnobView(store: store.scope(state: \.cutoff, action: \.cutoff))
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
-      .padding(.init(top: 16, leading: 0, bottom: 0, trailing: 0))
+      .padding(.init(top: 4, leading: 0, bottom: 4, trailing: 0))
       .dimmedAppearanceModifier(enabled: store.enabled.isOn)
     }
-    .padding(.init(top: 4, leading: 4, bottom: 4, trailing: 4))
+    .frame(maxHeight: 102)
+    .frame(height: 102)
   }
 }
 
@@ -133,8 +134,8 @@ extension DelayView {
       DelayView(store: Store(initialState: .init()) { DelayFeature() })
         .environment(\.auv3ControlsTheme, theme)
     }
-    .frame(height: 110)
-    .frame(maxHeight: 110)
+    .padding()
+    .border(theme.controlBackgroundColor, width: 1)
   }
 }
 
