@@ -9,26 +9,32 @@ struct TitleOnOff<T1: View, T2: View>: View {
   let globalLockToggleView: T2
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 10) {
+    VStack(alignment: .leading, spacing: 16) {
       Text(title)
         .foregroundStyle(theme.controlForegroundColor)
         .font(.effectsTitleFont)
-
       onOffToggleView
       globalLockToggleView
     }
   }
 }
 
-struct EffectsContainer<T: View, C: View>: View {
-  let titleStack: T
-  let contentStack: C
+struct EffectsContainer<T1: View, T2: View, C: View>: View {
+  @Environment(\.effectsHeight) var effectsHeight
   let enabled: Bool
+  let titleStack: TitleOnOff<T1, T2>
+  let contentStack: C
 
-  init(enabled: Bool, title: T, content: C) {
+  init(
+    enabled: Bool,
+    title: String,
+    onOff: T1,
+    globalLock: T2,
+    @ViewBuilder content: () -> C
+  ) {
     self.enabled = enabled
-    self.titleStack = title
-    self.contentStack = content
+    self.titleStack = TitleOnOff(title: title, onOffToggleView: onOff, globalLockToggleView: globalLock)
+    self.contentStack = content()
   }
 
   var body: some View {
@@ -38,7 +44,7 @@ struct EffectsContainer<T: View, C: View>: View {
         .padding(.init(top: 4, leading: 0, bottom: 4, trailing: 0))
         .dimmedAppearanceModifier(enabled: enabled)
     }
-    .frame(maxWidth: 102)
-    .frame(height: 102)
+    .frame(maxHeight: effectsHeight)
+    .frame(height: effectsHeight)
   }
 }

@@ -158,17 +158,14 @@ public struct ReverbView: View {
   }
 
   public var body: some View {
-    HStack(alignment: .top, spacing: 12) {
-      VStack(alignment: .leading, spacing: 18) {
-        Text("Reverb")
-          .foregroundStyle(theme.controlForegroundColor)
-          .font(.effectsTitleFont)
-
-        ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
-        ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
-          Image(systemName: "lock")
-        }
+    EffectsContainer(
+      enabled: store.enabled.isOn,
+      title: "Reverb",
+      onOff: ToggleView(store: store.scope(state: \.enabled, action: \.enabled)),
+      globalLock: ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
+        Image(systemName: "lock")
       }
+    ) {
       HStack(alignment: .center, spacing: 8) {
         Picker("Room", selection: $store.room.sending(\.room)) {
           ForEach(AVAudioUnitReverbPreset.allCases, id: \.self) { room in
@@ -181,11 +178,7 @@ public struct ReverbView: View {
         .frame(width: 110)  // !!! Magic size that fits all of the strings without wasted space
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
-      .padding(.init(top: 4, leading: 0, bottom: 4, trailing: 0))
-      .dimmedAppearanceModifier(enabled: store.enabled.isOn)
     }
-    .frame(maxHeight: 102)
-    .frame(height: 102)
   }
 }
 
