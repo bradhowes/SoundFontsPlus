@@ -145,6 +145,10 @@ public struct SoundFontEditorView: View {
 
   public init(store: StoreOf<SoundFontEditor>) {
     self.store = store
+    UINavigationBar.appearance().largeTitleTextAttributes = [
+      .font : UIFont(name: "Eurostile", size: 48)!,
+      .foregroundColor : UIColor.systemBlue
+    ]
   }
 
   public var body: some View {
@@ -170,6 +174,7 @@ public struct SoundFontEditorView: View {
           }
         }
       }
+      .font(.soundFontEditor)
       .navigationTitle("SoundFont")
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {

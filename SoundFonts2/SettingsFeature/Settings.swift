@@ -87,8 +87,13 @@ public struct SettingsFeature {
 public struct SettingsView: View {
   @State private var store: StoreOf<SettingsFeature>
   @State private var changingKeyWidth: Bool = false
+
   public init(store: StoreOf<SettingsFeature>) {
     self.store = store
+    UINavigationBar.appearance().largeTitleTextAttributes = [
+      .font : UIFont(name: "Eurostile", size: 48)!,
+      .foregroundColor : UIColor.systemBlue
+    ]
   }
 
   public var body: some View {
@@ -99,11 +104,12 @@ public struct SettingsView: View {
         midiSection
         tuningSection
       }
+      .font(.settings)
       .formStyle(.grouped)
       .navigationTitle("Settings")
       .toolbar {
         ToolbarItem(placement: .automatic) {
-          Button("Dismiss") { store.send(.dismissButtonTapped, animation: .default) }
+          Button("Done") { store.send(.dismissButtonTapped, animation: .default) }
         }
       }
       .animation(.smooth, value: changingKeyWidth)

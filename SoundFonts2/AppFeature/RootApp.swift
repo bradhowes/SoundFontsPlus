@@ -177,7 +177,7 @@ public struct RootAppView: View, KeyboardReadable {
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
-    theme.font = .effectsControlFont
+    theme.font = .effectsControl
     self.theme = theme
   }
 

@@ -219,7 +219,7 @@ public struct ToolBarView: View {
     HStack {
       Spacer()
       PresetNameView(preset: Preset.active)
-        .font(.statusFont)
+        .font(.status)
         .indicator(.none)
         .onTapGesture {
           store.send(.delegate(.presetNameTapped))

@@ -170,6 +170,10 @@ public struct TagsEditorView: View {
 
   public init(store: StoreOf<TagsEditor>) {
     self.store = store
+    UINavigationBar.appearance().largeTitleTextAttributes = [
+      .font : UIFont(name: "Eurostile", size: 48)!,
+      .foregroundColor : UIColor.systemBlue
+    ]
   }
 
   public var body: some View {
@@ -191,6 +195,7 @@ public struct TagsEditorView: View {
         }
       }
       .environment(\.editMode, $store.editMode)
+      .font(.tagsEditor)
       .navigationTitle("Tags Editor")
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {

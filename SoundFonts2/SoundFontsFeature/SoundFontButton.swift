@@ -123,7 +123,7 @@ struct SoundFontButtonView: View {
       store.send(.buttonTapped, animation: .default)
     } label: {
       Text(store.soundFontInfo.displayName)
-        .font(.buttonFont)
+        .font(.button)
         .indicator(state)
     }
     .listRowSeparatorTint(.accentColor.opacity(0.5))

@@ -25,6 +25,10 @@ public struct PresetEditor: Equatable {
     var isFavorite: Bool { preset.kind == .favorite }
 
     public init(preset: Preset) {
+      UINavigationBar.appearance().largeTitleTextAttributes = [
+        .font : UIFont(name: "Eurostile", size: 48)!,
+        .foregroundColor : UIColor.systemBlue
+      ]
       self.preset = preset
       self.displayName = preset.displayName
       self.visible = preset.kind == .preset
@@ -170,6 +174,10 @@ public struct PresetEditorView: View {
 
   public init(store: StoreOf<PresetEditor>) {
     self.store = store
+    UINavigationBar.appearance().largeTitleTextAttributes = [
+      .font : UIFont(name: "Eurostile", size: 48)!,
+      .foregroundColor : UIColor.systemBlue
+    ]
   }
 
   public var body: some View {
@@ -185,6 +193,7 @@ public struct PresetEditorView: View {
         notesSection
         infoSection
       }
+      .font(.presetEditor)
       .navigationTitle("Preset")
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {

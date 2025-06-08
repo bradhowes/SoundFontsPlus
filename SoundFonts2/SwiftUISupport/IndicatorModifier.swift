@@ -49,7 +49,7 @@ public struct IndicatorModifier: ViewModifier {
         .offset(x: offset)
         .animation(.linear(duration: isEditing ? 0.0 : 0.5), value: indicator)
       content
-        .font(.buttonFont)
+        .font(.button)
         .foregroundStyle(labelColor)
         .animation(.linear(duration: isEditing ? 0.0 : 0.5), value: labelColor)
     }
