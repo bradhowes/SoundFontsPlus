@@ -186,7 +186,6 @@ public struct RootAppView: View, KeyboardReadable {
     .environment(\.auv3ControlsTheme, theme)
     .environment(\.appPanelBackground, appPanelBackground)
     .onReceive(keyboardPublisher) {
-      print("isInputKeyboardVisible: \($0)")
       isInputKeyboardVisible = $0
     }
   }
@@ -233,7 +232,7 @@ public struct RootAppView: View, KeyboardReadable {
       dividerColor: dividerBorderColor,
       handleColor: .black,
       dotColor: .accentColor,
-      handleLength: 32.0,
+      handleLength: 48,
       handleWidth: 8.0,
       paddingInsets: 4.0
     )
