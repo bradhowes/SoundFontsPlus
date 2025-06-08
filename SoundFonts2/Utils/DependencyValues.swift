@@ -1,3 +1,4 @@
+import AudioUnit.AUParameters
 import Dependencies
 
 public struct DelayConfigurable: Sendable {
@@ -20,6 +21,14 @@ extension ReverbConfigurable: DependencyKey {
   public static var testValue: ReverbConfigurable { .init(setConfig: { _ in unimplemented("setConfig") } ) }
 }
 
+extension AUParameterTree: @retroactive TestDependencyKey {}
+
+extension AUParameterTree: @retroactive DependencyKey {
+  public static var liveValue: AUParameterTree { ParameterAddress.createParameterTree() }
+  public static var previewValue: AUParameterTree { ParameterAddress.createParameterTree() }
+  public static var testValue: AUParameterTree { ParameterAddress.createParameterTree() }
+}
+
 extension DependencyValues {
 
   public var delay: DelayConfigurable {
@@ -30,5 +39,10 @@ extension DependencyValues {
   public var reverb: ReverbConfigurable {
     get { self[ReverbConfigurable.self] }
     set { self[ReverbConfigurable.self] = newValue }
+  }
+
+  public var parameters: AUParameterTree {
+    get { self[AUParameterTree.self] }
+    set { self[AUParameterTree.self] = newValue }
   }
 }

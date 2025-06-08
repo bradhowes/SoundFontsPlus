@@ -8,6 +8,13 @@ import SwiftUI
 
 @Reducer
 public struct DelayFeature {
+  let parameters: AUParameterTree
+
+  public init(parameters: AUParameterTree) {
+    self.parameters = parameters
+  }
+
+  public var state: State { .init(parameters: self.parameters) }
 
   @ObservableState
   public struct State: Equatable {
@@ -18,37 +25,13 @@ public struct DelayFeature {
     public var cutoff: KnobFeature.State
     public var wetDryMix: KnobFeature.State
 
-    public init() {
+    public init(parameters: AUParameterTree) {
       self.enabled = .init(isOn: false, displayName: "On")
       self.locked = .init(isOn: false, displayName: "Lock")
-      self.time = .init(
-        value: 0.0,
-        displayName: "Time",
-        minimumValue: 0.0,
-        maximumValue: 2.0,
-        logarithmic: false
-      )
-      self.feedback = .init(
-        value: -0.0,
-        displayName: "Feedback",
-        minimumValue: -100.0,
-        maximumValue: 100.0,
-        logarithmic: false
-      )
-      self.cutoff = .init(
-        value: 10.0,
-        displayName: "Cutoff",
-        minimumValue: 10.0,
-        maximumValue: 20_000,
-        logarithmic: true
-      )
-      self.wetDryMix = .init(
-        value: 50.0,
-        displayName: "Mix",
-        minimumValue: 0.0,
-        maximumValue: 100.0,
-        logarithmic: false
-      )
+      self.time = .init(parameter: parameters[.delayTime])
+      self.feedback = .init(parameter: parameters[.delayFeedback])
+      self.cutoff = .init(parameter: parameters[.delayCutoff])
+      self.wetDryMix = .init(parameter: parameters[.delayWetDryMix])
     }
   }
 
@@ -61,16 +44,14 @@ public struct DelayFeature {
     case wetDryMix(KnobFeature.Action)
   }
 
-  public init() {}
-
   public var body: some ReducerOf<Self> {
 
     Scope(state: \.enabled, action: \.enabled) { ToggleFeature() }
     Scope(state: \.locked, action: \.locked) { ToggleFeature() }
-    Scope(state: \.time, action: \.time) { KnobFeature() }
-    Scope(state: \.feedback, action: \.feedback) { KnobFeature() }
-    Scope(state: \.cutoff, action: \.cutoff) { KnobFeature() }
-    Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature() }
+    Scope(state: \.time, action: \.time) { KnobFeature(parameter: parameters[.delayTime]) }
+    Scope(state: \.feedback, action: \.feedback) { KnobFeature(parameter: parameters[.delayFeedback]) }
+    Scope(state: \.cutoff, action: \.cutoff) { KnobFeature(parameter: parameters[.delayCutoff]) }
+    Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature(parameter: parameters[.delayWetDryMix]) }
 
     Reduce { state, action in
       switch action {
@@ -118,12 +99,17 @@ extension DelayView {
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
+
+    let parameterTree = ParameterAddress.createParameterTree()
     let _ = prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
     }
+
     return ScrollView(.horizontal) {
-      DelayView(store: Store(initialState: .init()) { DelayFeature() })
-        .environment(\.auv3ControlsTheme, theme)
+      DelayView(store: Store(initialState: .init(parameters: parameterTree)) {
+        DelayFeature(parameters: parameterTree)
+      })
+      .environment(\.auv3ControlsTheme, theme)
     }
     .padding()
     .border(theme.controlBackgroundColor, width: 1)

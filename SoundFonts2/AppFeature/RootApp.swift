@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AudioUnit.AUParameters
 import AUv3Controls
 import BRHSplitView
 import ComposableArchitecture
@@ -9,6 +10,9 @@ import SwiftUI
 
 @Reducer
 public struct RootApp {
+  @Dependency(\.parameters) private var parameters
+
+  var state: State { .init(parameters: parameters) }
 
   @Reducer(state: .equatable, .sendable, action: .equatable)
   public enum Destination {
@@ -28,11 +32,11 @@ public struct RootApp {
     public var toolBar: ToolBar.State
     public var tagsSplit: SplitViewReducer.State
     public var presetsSplit: SplitViewReducer.State
-    public var delay: DelayFeature.State = .init()
-    public var reverb: ReverbFeature.State = .init()
+    public var delay: DelayFeature.State
+    public var reverb: ReverbFeature.State
     public var keyboard: KeyboardFeature.State = .init()
 
-    public init() {
+    public init(parameters: AUParameterTree) {
       _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
 
       @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsPosition
@@ -43,6 +47,9 @@ public struct RootApp {
       self.tagsSplit = .init(panesVisible: tagsListVisible ? .both : .primary, initialPosition: fontsAndTagsPosition)
       self.presetsSplit = .init(panesVisible: .both, initialPosition: fontsAndPresetsPosition)
       self.toolBar = ToolBar.State(tagsListVisible: tagsListVisible, effectsVisible: effectsVisible)
+
+      self.delay = DelayFeature.State(parameters: parameters)
+      self.reverb = ReverbFeature.State(parameters: parameters)
     }
   }
 
@@ -65,8 +72,8 @@ public struct RootApp {
     Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
     Scope(state: \.tagsSplit, action: \.tagsSplit) { SplitViewReducer() }
     Scope(state: \.presetsSplit, action: \.presetsSplit) { SplitViewReducer() }
-    Scope(state: \.delay, action: \.delay) { DelayFeature() }
-    Scope(state: \.reverb, action: \.reverb) { ReverbFeature() }
+    Scope(state: \.delay, action: \.delay) { DelayFeature(parameters: parameters) }
+    Scope(state: \.reverb, action: \.reverb) { ReverbFeature(parameters: parameters) }
     Scope(state: \.keyboard, action: \.keyboard) { KeyboardFeature() }
 
     Reduce { state, action in
@@ -281,8 +288,11 @@ extension RootAppView {
   static var preview: some View {
     let _ = prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
+      $0.parameters = ParameterAddress.createParameterTree()
     }
-    return RootAppView(store: Store(initialState: .init()) { RootApp() })
+
+    let rootApp = RootApp()
+    return RootAppView(store: Store(initialState: rootApp.state) { rootApp })
   }
 }
 
