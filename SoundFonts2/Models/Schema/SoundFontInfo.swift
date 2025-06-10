@@ -31,12 +31,12 @@ public struct SoundFontInfo: Equatable, Identifiable, Sendable {
 }
 
 extension SoundFontInfo {
-  @Shared(.activeState) private static var activeState
 
   static var taggedQuery: Select<SoundFontInfo.Columns.QueryValue, TaggedSoundFont, SoundFont> {
-    TaggedSoundFont
+    @Shared(.activeState) var activeState
+    return TaggedSoundFont
       .join(SoundFont.all) {
-        $0.tagId.eq(activeState.activeTagId ?? Tag.Ubiquitous.all.id) && $0.soundFontId.eq($1.id)
+        $0.tagId.eq(activeState.activeTagId ?? FontTag.Ubiquitous.all.id) && $0.soundFontId.eq($1.id)
       }
       .select {
         SoundFontInfo.Columns(id: $1.id, displayName: $1.displayName, kind: $1.kind, location: $1.location)

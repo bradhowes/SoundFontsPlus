@@ -80,8 +80,8 @@ public extension SoundFontKind {
     return false
   }
 
-  var tagIds: [Tag.ID] {
-    var ubiTags: [Tag.Ubiquitous] = [.all]
+  var tagIds: [FontTag.ID] {
+    var ubiTags: [FontTag.Ubiquitous] = [.all]
     switch self {
     case .builtin: ubiTags.append(.builtIn)
     case .installed: ubiTags.append(.added)

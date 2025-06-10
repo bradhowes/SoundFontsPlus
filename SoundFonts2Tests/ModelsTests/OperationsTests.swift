@@ -34,10 +34,10 @@ struct OperationsTests {
   }
 
   @Test("soundFontIdsForTag") func soundFontIdsForTag() async throws {
-    #expect(Operations.soundFontIds(for: Tag.Ubiquitous.all.id) == [1, 2, 3])
-    #expect(Operations.soundFontIds(for: Tag.Ubiquitous.builtIn.id) == [1, 2, 3])
-    #expect(Operations.soundFontIds(for: Tag.Ubiquitous.added.id) == [])
-    #expect(Operations.soundFontIds(for: Tag.Ubiquitous.external.id) == [])
+    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.all.id) == [1, 2, 3])
+    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.builtIn.id) == [1, 2, 3])
+    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.added.id) == [])
+    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.external.id) == [])
   }
 
   @Test("tagIdsForSoundFont") func tagIdsForSoundFont() async throws {
@@ -48,7 +48,7 @@ struct OperationsTests {
 
   @Test("tagSoundFont") func tagSoundFont() async throws {
     @Dependency(\.defaultDatabase) var database
-    let newTag = try Tag.make(displayName: "New Tag")
+    let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
     #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2, 5])
     Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
@@ -57,7 +57,7 @@ struct OperationsTests {
 
   @Test("untagSoundFont") func untagSoundFont() async throws {
     @Dependency(\.defaultDatabase) var database
-    let newTag = try Tag.make(displayName: "New Tag")
+    let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
     #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2, 5])
     Operations.untagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
@@ -66,7 +66,7 @@ struct OperationsTests {
 
   @Test("deleteTag") func deleteTag() async throws {
     @Dependency(\.defaultDatabase) var database
-    let newTag = try Tag.make(displayName: "New Tag")
+    let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
     #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2, 5])
     Operations.deleteTag(newTag.id)
@@ -78,10 +78,10 @@ struct OperationsTests {
     try await $tagInfos.load()
     #expect(tagInfos.count == 4)
     #expect(tagInfos.map(\.displayName) == [
-      Tag.Ubiquitous.all.displayName,
-      Tag.Ubiquitous.builtIn.displayName,
-      Tag.Ubiquitous.added.displayName,
-      Tag.Ubiquitous.external.displayName
+      FontTag.Ubiquitous.all.displayName,
+      FontTag.Ubiquitous.builtIn.displayName,
+      FontTag.Ubiquitous.added.displayName,
+      FontTag.Ubiquitous.external.displayName
     ])
     #expect(tagInfos.map(\.soundFontsCount) == [
       3,

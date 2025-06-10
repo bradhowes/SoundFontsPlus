@@ -16,14 +16,11 @@ public struct KeyboardFeature {
     @Shared(.keyboardSlides) var keyboardSlides
     @Shared(.keyLabels) var keyLabels
 
-    var lowestKey: Note = .C4
-    var highestKey: Note = .C4
     var scrollTo: Note?
     let settingsDemo: Bool
 
     public init(settingsDemo: Bool = false) {
       self.settingsDemo = settingsDemo
-      print("keyboard: \(lowestKey) - \(highestKey) \(settingsDemo)")
     }
   }
 
@@ -33,12 +30,12 @@ public struct KeyboardFeature {
     case assigned(previous: Note?, note: Note)
     case clearScrollTo
     case delegate(Delegate)
-    case monitorStateChanges
+    case monitorActivePreset
     case noteOff(Note)
     case noteOn(Note)
     case released(note: Note)
     case scrollTo(Note)
-    case updatedVisibleKeys(lowest: Note, highest: Note)
+    case updateVisibleKeys(lowest: Note, highest: Note)
 
     public enum Delegate: Equatable {
       case visibleKeyRangeChanged(lowest: Note, highest: Note)
@@ -55,28 +52,31 @@ public struct KeyboardFeature {
       case let .assigned(previous, key): return assigned(&state, previous: previous, key: key)
       case .clearScrollTo: return clearScrollTo(&state)
       case .delegate: return .none
-      case .monitorStateChanges: return monitorStateChanges(&state)
+      case .monitorActivePreset: return monitorActivePreset(&state)
       case let .noteOff(note): return noteOff(&state, key: note)
       case let .noteOn(note): return noteOn(&state, key: note)
       case let .released(note): return noteOff(&state, key: note)
       case let .scrollTo(key): return scrollTo(&state, key: key)
-      case let .updatedVisibleKeys(lowest, highest): return updateVisibleKeys(&state, lowest: lowest, highest: highest)
+      case let .updateVisibleKeys(lowest, highest): return updateVisibleKeys(&state, lowest: lowest, highest: highest)
       }
     }
   }
 
-  let publisherCancelId = "PresetsList.publisherCancelId"
+  private enum CancelId {
+    case activePresetId
+    case scrollTo
+  }
 }
 
 extension KeyboardFeature {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     guard let presetId = presetId else { return .none }
-    guard let preset = Preset.with(key: presetId) else { return .none }
-    guard let audioConfig = preset.audioConfig else { return .none }
+    guard let audioConfig = AudioConfig.with(key: presetId) else { return .none }
     guard audioConfig.keyboardLowestNoteEnabled else { return .none }
-    state.lowestKey = audioConfig.keyboardLowestNote
-    return .none
+    return .run { send in
+      await send(.scrollTo(audioConfig.keyboardLowestNote))
+    }.cancellable(id: CancelId.scrollTo)
   }
 
   private func allOff(_ state: inout State) -> Effect<Action> {
@@ -97,18 +97,17 @@ extension KeyboardFeature {
     return .none
   }
 
-  private func monitorStateChanges(_ state: inout State) -> Effect<Action> {
-    state.scrollTo = state.lowestKey
-    return .merge(
-      .publisher {
-        @Shared(.activeState) var activeState
-        return $activeState.activePresetId.publisher.map { Action.activePresetIdChanged($0) }
-      }.cancellable(id: publisherCancelId, cancelInFlight: true),
-      .publisher {
-        @Shared(.firstVisibleKey) var firstVisibleKey
-        return $firstVisibleKey.publisher.map { Action.scrollTo($0) }
+  private func monitorActivePreset(_ state: inout State) -> Effect<Action> {
+    return .publisher {
+      @Shared(.activeState) var activeState
+      return $activeState.activePresetId.publisher.compactMap { activePresetId in
+        if let activePresetId {
+          print("activePresetId changed to \(activePresetId)")
+          return Action.activePresetIdChanged(activePresetId)
+        }
+        return nil
       }
-    )
+    }.cancellable(id: CancelId.activePresetId, cancelInFlight: true)
   }
 
   private func noteOff(_ state: inout State, key: Note) -> Effect<Action> {
@@ -127,9 +126,9 @@ extension KeyboardFeature {
   }
 
   private func updateVisibleKeys(_ state: inout State, lowest: Note, highest: Note) -> Effect<Action> {
-    state.lowestKey = lowest
-    state.highestKey = highest
-    return .send(.delegate(.visibleKeyRangeChanged(lowest: lowest, highest: highest)))
+    return .run { send in
+      await send(.delegate(.visibleKeyRangeChanged(lowest: lowest, highest: highest)))
+    }
   }
 }
 
@@ -161,28 +160,45 @@ public struct KeyboardView: View {
           fixedKeys
         }
       }
-      .onChange(of: store.lowestKey) {
-        store.send(.scrollTo(store.lowestKey))
-      }
-      .onChange(of: store.scrollTo) {
-        withAnimation {
-          proxy.scrollTo(store.settingsDemo ? Note.lowest : (store.scrollTo ?? store.lowestKey), anchor: .leading)
+      .onChange(of: store.scrollTo) { old, new in
+        if let key = new, old != key {
+          if store.settingsDemo {
+            proxy.scrollTo(Note.lowest, anchor: .leading)
+            store.send(.clearScrollTo)
+          } else {
+            proxy.scrollTo(key, anchor: .leading)
+          }
         }
       }
       .background(.black)
+      .onScrollGeometryChange(for: CGRect.self) { geometry in
+        geometry.visibleRect
+      } action: { oldValue, newValue in
+        updateVisibleKeys(visibleRect: newValue)
+      }
       .onScrollPhaseChange { oldPhase, newPhase, context in
-        if store.scrollTo != nil && newPhase == .idle {
+        print("onScrollPhasechange - \(oldPhase) \(newPhase) \(context) \(String(describing: store.scrollTo))")
+        if oldPhase != .idle && newPhase == .idle {
+          let low = lowestNote(context.geometry)
+          let high = highestNote(context.geometry)
+          print("low: \(low) high: \(high)")
           store.send(
-            .updatedVisibleKeys(
-              lowest: lowestNote(context.geometry),
-              highest: highestNote(context.geometry)
-            )
+            .updateVisibleKeys(lowest: lowestNote(context.geometry), highest: highestNote(context.geometry))
           )
         }
       }
       .onAppear {
-        store.send(.monitorStateChanges)
+        store.send(.monitorActivePreset)
       }
+    }
+  }
+
+  private func updateVisibleKeys(visibleRect: CGRect) {
+    print(visibleRect)
+    let low = Int(visibleRect.origin.x / (store.keyWidth + whiteKeySpacing))
+    let high = Int((visibleRect.origin.x + visibleRect.size.width) / (store.keyWidth + whiteKeySpacing))
+    if low >= 0 && high <= 127 {
+      store.send(.updateVisibleKeys(lowest: whiteNotes[low], highest: whiteNotes[high]))
     }
   }
 
@@ -415,10 +431,6 @@ struct KeyboardPreview: View {
         } label: {
           Text("Labels")
         }
-      }
-      HStack {
-        Text(store.lowestKey.label)
-        Text(store.highestKey.label)
       }
     }
   }

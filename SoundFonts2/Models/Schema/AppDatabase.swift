@@ -44,14 +44,14 @@ public func appDatabase() throws -> any DatabaseWriter {
   AudioConfig.migrate(&migrator)
   DelayConfig.migrate(&migrator)
   ReverbConfig.migrate(&migrator)
-  Tag.migrate(&migrator)
+  FontTag.migrate(&migrator)
   TaggedSoundFont.migrate(&migrator)
 
   migrator.registerMigration("Add ubiquitous tags") { db in
-    let drafts: [Tag.Draft] = Tag.Ubiquitous.allCases.enumerated().map {
+    let drafts: [FontTag.Draft] = FontTag.Ubiquitous.allCases.enumerated().map {
       .init(displayName: $0.1.displayName, ordering: $0.0)
     }
-    try Tag.insert(drafts).execute(db)
+    try FontTag.insert(drafts).execute(db)
   }
 
   migrator.registerMigration("Add builtin fonts") { db in

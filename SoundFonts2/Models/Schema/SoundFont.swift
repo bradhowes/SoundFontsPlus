@@ -179,9 +179,9 @@ extension SoundFont {
 
   public var sourcePath: String { (try? source())?.path.absoluteString ?? "N/A" }
 
-  public var tags: [Tag] {
+  public var tags: [FontTag] {
     let query = TaggedSoundFont
-      .join(Tag.all) {
+      .join(FontTag.all) {
         $0.tagId.eq($1.id) && $0.soundFontId.eq(self.id)
       }
       .select {
@@ -289,8 +289,8 @@ extension SoundFont {
       try Preset.insert(presets).execute(db)
 
       for tagName in tags.enumerated() {
-        if let tagId = try Tag.insert(
-          Tag.Draft(
+        if let tagId = try FontTag.insert(
+          FontTag.Draft(
             displayName: tagName.1,
             ordering: tagName.0 + 5
           )

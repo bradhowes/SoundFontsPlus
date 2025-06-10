@@ -16,7 +16,7 @@ import Tagged
  deleting SF2 files.
  */
 @Table
-public struct Tag: Hashable, Identifiable, Sendable {
+public struct FontTag: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>
 
   /**
@@ -64,7 +64,7 @@ public struct Tag: Hashable, Identifiable, Sendable {
   }
 }
 
-extension Tag {
+extension FontTag {
 
   static func migrate(_ migrator: inout DatabaseMigrator) {
     migrator.registerMigration(Self.tableName) { db in
@@ -82,9 +82,9 @@ extension Tag {
   }
 }
 
-extension Tag {
+extension FontTag {
 
-  public static func make(displayName: String) throws -> Tag {
+  public static func make(displayName: String) throws -> FontTag {
     let base = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
     if base.isEmpty {
       throw ModelError.emptyTagName
@@ -107,7 +107,7 @@ extension Tag {
     return result[0]
   }
 
-  public static func with(key tagId: Tag.ID) -> Self? {
+  public static func with(key tagId: FontTag.ID) -> Self? {
     @Dependency(\.defaultDatabase) var database
     return try? database.read { try Self.find(tagId).fetchOne($0) }
   }
@@ -117,7 +117,7 @@ extension Tag {
     try Self.delete(id: self.id)
   }
 
-  public static func delete(id: Tag.ID) throws {
+  public static func delete(id: FontTag.ID) throws {
     guard !id.isUbiquitous else { throw ModelError.deleteUbiquitous(name: id.displayName!) }
     @Dependency(\.defaultDatabase) var database
     try database.write { db in
@@ -125,17 +125,17 @@ extension Tag {
     }
   }
 
-  public static var ordered: [Tag] {
+  public static var ordered: [FontTag] {
     let query = Operations.tagsQuery
     @Dependency(\.defaultDatabase) var database
     return (try? database.read { try query.fetchAll($0) }) ?? []
   }
 
-  static func reorder(tagIds: [Tag.ID]) throws {
+  static func reorder(tagIds: [FontTag.ID]) throws {
     @Dependency(\.defaultDatabase) var database
     try database.write { db in
       for tagId in tagIds.enumerated() {
-        try Tag
+        try FontTag
           .find(tagId.1)
           .update { $0.ordering = tagId.0 }
           .execute(db)
@@ -155,7 +155,7 @@ extension Tag {
     guard existing.isEmpty else { throw ModelError.duplicateTag(name: displayName) }
 
     try database.write { db in
-      try Tag
+      try FontTag
         .update {$0.displayName = displayName}
         .where({ $0.id == id })
         .execute(db)
@@ -180,7 +180,7 @@ extension Tag {
   }
 }
 
-extension Tag.ID {
+extension FontTag.ID {
 
   public var isUbiquitous: Bool {
     guard let last = Tag.Ubiquitous.allCases.last else { fatalError() }
@@ -197,4 +197,4 @@ extension Tag.ID {
   }
 }
 
-extension Tag.Draft: Equatable, Sendable {}
+extension FontTag.Draft: Equatable, Sendable {}

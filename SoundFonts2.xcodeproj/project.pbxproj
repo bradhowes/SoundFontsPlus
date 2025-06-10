@@ -38,7 +38,7 @@
 		BDAF5AC72DE2555000B8FB13 /* TaggedSoundFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AB62DE2555000B8FB13 /* TaggedSoundFont.swift */; };
 		BDAF5AC82DE2555000B8FB13 /* SoundFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AB42DE2555000B8FB13 /* SoundFont.swift */; };
 		BDAF5AC92DE2555000B8FB13 /* ModelError.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AB02DE2555000B8FB13 /* ModelError.swift */; };
-		BDAF5ACA2DE2555000B8FB13 /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AB52DE2555000B8FB13 /* Tag.swift */; };
+		BDAF5ACA2DE2555000B8FB13 /* FontTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AB52DE2555000B8FB13 /* FontTag.swift */; };
 		BDAF5ACB2DE2555000B8FB13 /* Bookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5ABA2DE2555000B8FB13 /* Bookmark.swift */; };
 		BDAF5ACC2DE2555000B8FB13 /* TagInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AB72DE2555000B8FB13 /* TagInfo.swift */; };
 		BDAF5ACD2DE2555000B8FB13 /* Operations.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AB12DE2555000B8FB13 /* Operations.swift */; };
@@ -178,7 +178,7 @@
 		BDAF5AB22DE2555000B8FB13 /* Preset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preset.swift; sourceTree = "<group>"; };
 		BDAF5AB32DE2555000B8FB13 /* ReverbConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReverbConfig.swift; sourceTree = "<group>"; };
 		BDAF5AB42DE2555000B8FB13 /* SoundFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFont.swift; sourceTree = "<group>"; };
-		BDAF5AB52DE2555000B8FB13 /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
+		BDAF5AB52DE2555000B8FB13 /* FontTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontTag.swift; sourceTree = "<group>"; };
 		BDAF5AB62DE2555000B8FB13 /* TaggedSoundFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaggedSoundFont.swift; sourceTree = "<group>"; };
 		BDAF5AB72DE2555000B8FB13 /* TagInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagInfo.swift; sourceTree = "<group>"; };
 		BDAF5AB92DE2555000B8FB13 /* ActiveState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveState.swift; sourceTree = "<group>"; };
@@ -448,7 +448,7 @@
 				BDAF5AB32DE2555000B8FB13 /* ReverbConfig.swift */,
 				BDAF5AB42DE2555000B8FB13 /* SoundFont.swift */,
 				BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */,
-				BDAF5AB52DE2555000B8FB13 /* Tag.swift */,
+				BDAF5AB52DE2555000B8FB13 /* FontTag.swift */,
 				BDAF5AB62DE2555000B8FB13 /* TaggedSoundFont.swift */,
 				BDAF5AB72DE2555000B8FB13 /* TagInfo.swift */,
 			);
@@ -922,7 +922,7 @@
 				BDAF5ADF2DE2556600B8FB13 /* Settings.swift in Sources */,
 				BDAF5AC82DE2555000B8FB13 /* SoundFont.swift in Sources */,
 				BDAF5AC92DE2555000B8FB13 /* ModelError.swift in Sources */,
-				BDAF5ACA2DE2555000B8FB13 /* Tag.swift in Sources */,
+				BDAF5ACA2DE2555000B8FB13 /* FontTag.swift in Sources */,
 				BDAF5ACB2DE2555000B8FB13 /* Bookmark.swift in Sources */,
 				BDAF5ACC2DE2555000B8FB13 /* TagInfo.swift in Sources */,
 				BDAF5ACD2DE2555000B8FB13 /* Operations.swift in Sources */,
@@ -1076,6 +1076,8 @@
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OBJC_INTEROP_MODE = objcxx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_MEMORY_SAFETY = NO;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -1136,6 +1138,8 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OBJC_INTEROP_MODE = objcxx;
+				SWIFT_STRICT_MEMORY_SAFETY = NO;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};

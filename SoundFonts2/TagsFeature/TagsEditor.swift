@@ -11,15 +11,15 @@ public struct TagsEditor: Sendable {
   public struct State: Equatable, Sendable {
     var rows: IdentifiedArrayOf<TagNameEditor.State>
     var editMode: EditMode = .inactive
-    var focused: Tag.ID?
-    var deleted: Set<Tag.ID> = []
+    var focused: FontTag.ID?
+    var deleted: Set<FontTag.ID> = []
 
     let soundFontId: SoundFont.ID?
 
     public init(
-      focused: Tag.ID? = nil,
+      focused: FontTag.ID? = nil,
       soundFontId: SoundFont.ID? = nil,
-      memberships: [Tag.ID:Bool]? = nil,
+      memberships: [FontTag.ID:Bool]? = nil,
       editMode: EditMode = .inactive,
     ) {
       self.rows = .init(uniqueElements: Operations.tags.map {
@@ -40,7 +40,7 @@ public struct TagsEditor: Sendable {
         try database.write { db in
           for id in deleted {
             withErrorReporting {
-              try Tag.find(id).delete().execute(db)
+              try FontTag.find(id).delete().execute(db)
             }
           }
           for (index, var row) in rows.enumerated() {
@@ -56,7 +56,7 @@ public struct TagsEditor: Sendable {
     case binding(BindingAction<State>)
     case cancelButtonTapped
     case deleteButtonTapped(at: IndexSet)
-    case finalizeDeleteTag(tagId: Tag.ID)
+    case finalizeDeleteTag(tagId: FontTag.ID)
     case rows(IdentifiedActionOf<TagNameEditor>)
     case saveButtonTapped
     case tagMoved(at: IndexSet, to: Int)
@@ -97,14 +97,14 @@ private extension TagsEditor {
     let existingNames = Set<String>(state.rows.map { $0.draft.displayName.trimmed(or: $0.originalDisplayName) })
     var newName = base
 
-    var tagId: Tag.ID = 0
+    var tagId: FontTag.ID = 0
     while existingNames.contains(newName) {
       tagId += 1
       newName = base + " \(tagId.rawValue)"
     }
 
     // Added tags always have negative Tag.ID values so we can properly handle them when we save.
-    tagId = Tag.ID(rawValue: -1)
+    tagId = FontTag.ID(rawValue: -1)
     while state.rows.index(id: tagId) != nil {
       tagId -= 1
     }
@@ -120,7 +120,7 @@ private extension TagsEditor {
     return .none
   }
 
-  func finalizeDeleteTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
+  func finalizeDeleteTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
     withAnimation(.smooth) {
       state.rows = state.rows.filter { $0.id != tagId }
     }
@@ -130,7 +130,7 @@ private extension TagsEditor {
     return .none
   }
 
-  func deleteTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
+  func deleteTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
     return .run { send in
       await send(.finalizeDeleteTag(tagId: tagId))
     }
@@ -138,7 +138,7 @@ private extension TagsEditor {
 
   func deleteTag(_ state: inout State, indices: IndexSet) -> Effect<Action> {
     if let tagId = indices.first, state.rows.first(where: { $0.id.rawValue == tagId }) != nil {
-      return deleteTag(&state, tagId: Tag.ID(rawValue: Int64(tagId)))
+      return deleteTag(&state, tagId: FontTag.ID(rawValue: Int64(tagId)))
     }
     return .none
   }
@@ -166,7 +166,7 @@ private extension TagsEditor {
 
 public struct TagsEditorView: View {
   @Bindable private var store: StoreOf<TagsEditor>
-  @FocusState private var focused: Tag.ID?
+  @FocusState private var focused: FontTag.ID?
 
   public init(store: StoreOf<TagsEditor>) {
     self.store = store
@@ -236,7 +236,7 @@ extension TagsEditorView {
   static var preview: some View {
     let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     @Dependency(\.defaultDatabase) var db
-    let _ = try? Tag.make(displayName: "New Tag")
+    let _ = try? FontTag.make(displayName: "New Tag")
     let tags = Operations.tags
     return TagsEditorView(store: Store(initialState: .init(focused: tags.last?.id)) { TagsEditor() })
   }
@@ -251,10 +251,10 @@ extension TagsEditorView {
 
   static var previewWithMemberships: some View {
     let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
-    let _ = try? Tag.make(displayName: "New Tag 1")
-    let _ = try? Tag.make(displayName: "New Tag 2")
+    let _ = try? FontTag.make(displayName: "New Tag 1")
+    let _ = try? FontTag.make(displayName: "New Tag 2")
     let tags = Operations.tags
-    var memberships = [Tag.ID:Bool]()
+    var memberships = [FontTag.ID:Bool]()
     memberships[tags[0].id] = true
     memberships[tags[1].id] = true
     memberships[tags[4].id] = true

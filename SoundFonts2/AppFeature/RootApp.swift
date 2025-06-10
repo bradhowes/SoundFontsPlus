@@ -80,6 +80,7 @@ public struct RootApp {
       switch action {
 
       case let .keyboard(.delegate(.visibleKeyRangeChanged(lowest, highest))):
+        print("visibleKeyRangeChanged: lowest: \(lowest), highest: \(highest)")
         return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
 
       case let .tagsSplit(.delegate(.stateChanged(panesVisible, position))):
@@ -107,19 +108,21 @@ public struct RootApp {
       default: return .none
       }
     }
-    ._printChanges()
+    // ._printChanges()
   }
 
   public init() {}
 
   private func toolBarDelegation(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
     switch action {
-    case let .editingPresetVisibility(active): return setEditingVisibility(&state, active: active)
     case .addSoundFont: return .none
+    case let .editingPresetVisibility(active): return setEditingVisibility(&state, active: active)
+    case let .effectsVisibilityChanged(visible): return setEffectsVisibiliy(&state, visible: visible)
     case .presetNameTapped: return showActivePreset(&state)
     case .settingsDismissed: return fetchPresets(&state)
     case let .tagsVisibilityChanged(visible): return setTagsVisibility(&state, visible: visible)
-    case let .effectsVisibilityChanged(visible): return setEffectsVisibiliy(&state, visible: visible)
+    case let .visibleKeyRangeChanged(lowest, _):
+      return reduce(into: &state, action: .keyboard(.scrollTo(lowest)))
     }
   }
 

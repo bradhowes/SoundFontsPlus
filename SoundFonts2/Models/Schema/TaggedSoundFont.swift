@@ -10,7 +10,7 @@ import Tagged
 @Table
 public struct TaggedSoundFont: Hashable, Sendable {
   public let soundFontId: SoundFont.ID
-  public let tagId: Tag.ID
+  public let tagId: FontTag.ID
 }
 
 extension TaggedSoundFont {
@@ -25,7 +25,7 @@ extension TaggedSoundFont {
       
         PRIMARY KEY("soundFontId", "tagId")
         FOREIGN KEY("soundFontId") REFERENCES "soundFonts"("id") ON DELETE CASCADE,
-        FOREIGN KEY("tagId") REFERENCES "tags"("id") ON DELETE CASCADE
+        FOREIGN KEY("tagId") REFERENCES "fontTags"("id") ON DELETE CASCADE
       ) STRICT
       """
       )

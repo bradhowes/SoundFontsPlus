@@ -55,17 +55,17 @@ public struct TagsList {
 
 private extension TagsList {
 
-  func activateTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
+  func activateTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
     $activeState.withLock {
       $0.activeTagId = tagId
     }
     return .none
   }
 
-  func deleteTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
+  func deleteTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
     if activeState.activeTagId == tagId {
       $activeState.withLock {
-        $0.activeTagId = Tag.Ubiquitous.all.id
+        $0.activeTagId = FontTag.Ubiquitous.all.id
       }
     }
     Operations.deleteTag(tagId)
@@ -137,7 +137,7 @@ extension TagsListView {
   static var preview: some View {
     let _ = prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
-      let tag = try! Tag.make(displayName: "Another Tag")
+      let tag = try! FontTag.make(displayName: "Another Tag")
       Operations.tagSoundFont(tag.id, soundFontId: .init(rawValue: 1))
     }
 

@@ -16,8 +16,9 @@ public struct ToolBar {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
 
-    @Shared(.firstVisibleKey) var lowestKey
+    var lowestKey: Note
     var highestKey: Note
+
     @Shared(.keyboardSlides) var keyboardSlides
 
     var tagsListVisible: Bool
@@ -27,8 +28,10 @@ public struct ToolBar {
     var showMoreButtons: Bool = false
 
     public init(tagsListVisible: Bool, effectsVisible: Bool) {
+      @Shared(.firstVisibleKey) var firstVisibleKey: Note
       self.tagsListVisible = tagsListVisible
       self.effectsVisible = effectsVisible
+      self.lowestKey = firstVisibleKey
       self.highestKey = .C4
     }
   }
@@ -56,8 +59,11 @@ public struct ToolBar {
       case presetNameTapped
       case tagsVisibilityChanged(Bool)
       case settingsDismissed
+      case visibleKeyRangeChanged(lowest: Note, highest: Note)
     }
   }
+
+  @Shared(.firstVisibleKey) var firstVisibleKey: Note
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
@@ -95,8 +101,9 @@ extension ToolBar {
   }
 
   private func setVisibleKeyRange(_ state: inout State, lowest: Note, highest: Note) -> Effect<Action> {
-    // state.$lowestKey.withLock { $0 = lowest }
+    state.lowestKey = lowest
     state.highestKey = highest
+    $firstVisibleKey.withLock { $0 = lowest }
     return .none
   }
 
@@ -135,9 +142,10 @@ extension ToolBar {
       newLow = Note(midiNoteValue: newLow.midiNoteValue - 1)
     }
     let newHigh = Note(midiNoteValue: min(Note.midiRange.upperBound, newLow.midiNoteValue + span))
-    state.$lowestKey.withLock { $0 = newLow }
+    $firstVisibleKey.withLock { $0 = newLow }
+    state.lowestKey = newLow
     state.highestKey = newHigh
-    return .none
+    return .send(.delegate(.visibleKeyRangeChanged(lowest: newLow, highest: newHigh)))
   }
 
   private func shiftKeyboardUpButtonTapped(_ state: inout State) -> Effect<Action> {
@@ -147,9 +155,10 @@ extension ToolBar {
     if newLow.accented {
       newLow = Note(midiNoteValue: newLow.midiNoteValue - 1)
     }
-    state.$lowestKey.withLock { $0 = newLow }
+    $firstVisibleKey.withLock { $0 = newLow }
+    state.lowestKey = newLow
     state.highestKey = newHigh
-    return .none
+    return .send(.delegate(.visibleKeyRangeChanged(lowest: newLow, highest: newHigh)))
   }
 
   private func hideMoreButtons(_ state: inout State) -> Effect<Action> {

@@ -14,8 +14,8 @@ struct TagNameEditorTests {
     try await withDependencies {
       $0.defaultDatabase = try appDatabase()
     } operation: {
-      let newTag = try Tag.make(displayName: "New Tag")
-      try await body(TestStore(initialState: TagNameEditor.State(id: newTag.id, draft: Tag.Draft(newTag))) {
+      let newTag = try FontTag.make(displayName: "New Tag")
+      try await body(TestStore(initialState: TagNameEditor.State(id: newTag.id, draft: FontTag.Draft(newTag))) {
         TagNameEditor()
       })
     }

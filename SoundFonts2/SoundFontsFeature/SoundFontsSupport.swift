@@ -6,7 +6,7 @@ import SwiftUI
 
 enum SoundFontsSupport {
 
-  static public func generateTagsList(from tags: [Tag]) -> String {
+  static public func generateTagsList(from tags: [FontTag]) -> String {
     tags.map(\.displayName).sorted().joined(separator: ", ")
   }
 

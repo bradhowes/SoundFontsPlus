@@ -9,7 +9,7 @@ import Testing
 struct SoundFontTests {
 
   @Test("migration") func migration() async throws {
-    @FetchAll(Tag.all.order(by: \.id)) var tags
+    @FetchAll(FontTag.all.order(by: \.id)) var tags
     try await $tags.load()
 
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts

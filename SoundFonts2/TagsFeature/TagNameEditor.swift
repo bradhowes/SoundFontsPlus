@@ -13,14 +13,14 @@ public struct TagNameEditor {
 
   @ObservableState
   public struct State: Equatable, Identifiable, Sendable {
-    public var draft: Tag.Draft
-    public var id: Tag.ID { tagId }
-    public let tagId: Tag.ID
+    public var draft: FontTag.Draft
+    public var id: FontTag.ID { tagId }
+    public let tagId: FontTag.ID
     public let originalMembership: Bool?
     public let originalDisplayName: String
     public var membership: Bool?
 
-    public init(id: Tag.ID, draft: Tag.Draft, membership: Bool? = nil) {
+    public init(id: FontTag.ID, draft: FontTag.Draft, membership: Bool? = nil) {
       self.tagId = id
       self.draft = draft
       self.originalDisplayName = draft.displayName
@@ -37,7 +37,7 @@ public struct TagNameEditor {
         if id < 0 || newName != originalDisplayName || ordering != draft.ordering {
           draft.displayName = newName
           draft.ordering = ordering
-          if let tagId = try Tag.upsert(draft).returning(\.id).fetchOne(db) {
+          if let tagId = try FontTag.upsert(draft).returning(\.id).fetchOne(db) {
             id = tagId
           }
         }
@@ -64,7 +64,7 @@ public struct TagNameEditor {
 
     @CasePathable
     public enum Delegate: Equatable {
-      case tagSwipedToDelete(Tag.ID)
+      case tagSwipedToDelete(FontTag.ID)
     }
   }
 
@@ -159,8 +159,8 @@ extension TagNameEditorView {
 
   static var preview: some View {
     let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
-    _ = try? Tag.make(displayName: "New Tag")
-    _ = try? Tag.make(displayName: "Another Tag")
+    _ = try? FontTag.make(displayName: "New Tag")
+    _ = try? FontTag.make(displayName: "Another Tag")
     let tags = Operations.tags
     return VStack {
       Form {
