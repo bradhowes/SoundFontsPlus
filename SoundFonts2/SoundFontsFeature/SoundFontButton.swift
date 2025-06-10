@@ -126,7 +126,7 @@ struct SoundFontButtonView: View {
         .font(.button)
         .indicator(state)
     }
-    .listRowSeparatorTint(.accentColor.opacity(0.5))
+    .listRowSeparator(.hidden)
     .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
@@ -171,9 +171,8 @@ extension SoundFontButtonView {
           SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[1])) { SoundFontButton() })
           SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[2])) { SoundFontButton() })
         }
+        .listRowSeparator(.hidden)
         .listStyle(.plain)
-        .listRowSeparator(.visible)
-        .listRowSeparatorTint(.green, edges: .all)
       }
       List {
         SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[0])) { SoundFontButton() })

@@ -61,7 +61,6 @@ public struct PresetsList {
     case sections(IdentifiedActionOf<PresetsListSection>)
     case selectedSoundFontIdChanged(SoundFont.ID?)
     case showActivePreset
-    case stop
     case visibilityEditModeChanged(Bool)
   }
 
@@ -70,28 +69,31 @@ public struct PresetsList {
   @Dependency(\.defaultDatabase) var database
   @Shared(.activeState) var activeState
 
-  private let pubisherCancelId = "selectedSoundFontChangedPublisher"
+  private enum CancelId {
+    case monitorSelectedSoundFont
+  }
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce<State, Action> { state, action in
       switch action {
-      case .clearScrollToPresetId:
-        state.scrollToPresetId = nil
-        return .none
-
       case .binding: return .none
       case .cancelSearchButtonTapped: return dismissSearch(&state)
+      case .clearScrollToPresetId: return clearScrollToPresetId(&state)
       case .destination(.dismiss): return updatePreset(&state)
       case .destination: return .none
       case .fetchPresets: return generatePresetSections(&state)
       case .onAppear: return monitorSelectedSoundFont()
       case .searchTextChanged(let value): return searchTextChanged(&state, searchText: value)
+
+        // Preset sections delegated actions
       case let .sections(.element(id: _, action: .delegate(action))):
         switch action {
         case let .headerTapped(presetId): return headerTapped(&state, presetId: presetId)
         case .searchButtonTapped: return searchButtonTapped(&state)
         }
+
+        // Preset delegated actions
       case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(action))))):
         switch action {
         case let .createFavorite(preset): return createPreset(&state, preset: preset)
@@ -101,11 +103,8 @@ public struct PresetsList {
         }
       case .sections: return .none
       case .selectedSoundFontIdChanged(let soundFontId): return setSoundFont(&state, soundFontId: soundFontId)
-      case .stop: return .cancel(id: pubisherCancelId)
       case .showActivePreset: return showActivePreset(&state)
-      case let .visibilityEditModeChanged(value):
-        state.visibilityEditMode = value ? .active : .inactive
-        return generatePresetSections(&state)
+      case let .visibilityEditModeChanged(value): return visibilityEditModeChanged(&state, editing: value)
       }
     }
     .forEach(\.sections, action: \.sections) {
@@ -116,6 +115,11 @@ public struct PresetsList {
 }
 
 extension PresetsList {
+
+  private func clearScrollToPresetId(_ state: inout State) -> Effect<Action> {
+    state.scrollToPresetId = nil
+    return .none
+  }
 
   private func generatePresetSections(_ state: inout State) -> Effect<Action> {
     let grouping = state.optionalSearchText != nil ? 10_000 : 20
@@ -171,7 +175,7 @@ extension PresetsList {
     return .publisher {
       $activeState.selectedSoundFontId.publisher.map {
         return Action.selectedSoundFontIdChanged($0) }
-    }.cancellable(id: pubisherCancelId)
+    }.cancellable(id: CancelId.monitorSelectedSoundFont, cancelInFlight: true)
   }
 
   private func searchButtonTapped(_ state: inout State) -> Effect<Action> {
@@ -225,6 +229,11 @@ extension PresetsList {
   private func updatePreset(_ state: inout State) -> Effect<Action> {
     guard case let Destination.State.edit(editorState)? = state.destination else { return .none }
     state.update(preset: editorState.preset)
+    return generatePresetSections(&state)
+  }
+
+  private func visibilityEditModeChanged(_ state: inout State, editing: Bool) -> Effect<Action> {
+    state.visibilityEditMode = editing ? .active : .inactive
     return generatePresetSections(&state)
   }
 }

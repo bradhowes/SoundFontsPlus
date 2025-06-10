@@ -136,7 +136,7 @@ public struct PresetButtonView: View {
     } label: {
       normalButtonText
     }
-    .listRowSeparatorTint(.accentColor.opacity(0.5))
+    .listRowSeparator(.hidden)
     .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {

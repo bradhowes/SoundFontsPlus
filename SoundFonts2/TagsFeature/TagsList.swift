@@ -110,7 +110,7 @@ public struct TagsListView: View {
       .font(Font.custom("Eurostile", size: 20))
       .indicator(activeState.activeTagId == tagInfo.id ? .active : .none )
     }
-    .listRowSeparatorTint(.accentColor.opacity(0.5))
+    .listRowSeparator(.hidden)
     .withLongPressGesture {
       store.send(.longPressGestureFired, animation: .default)
     }
