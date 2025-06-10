@@ -191,6 +191,7 @@ public struct RootAppView: View, KeyboardReadable {
       effectsView
       toolbarAndKeyboard
     }
+    .padding(0)
     .animation(.smooth, value: effectsVisible)
     .animation(.smooth, value: isInputKeyboardVisible)
     .environment(\.auv3ControlsTheme, theme)

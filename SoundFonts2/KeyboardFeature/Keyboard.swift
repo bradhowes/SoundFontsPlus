@@ -178,17 +178,6 @@ public struct KeyboardView: View {
       } action: { oldValue, newValue in
         updateVisibleKeys(visibleRect: newValue)
       }
-      .onScrollPhaseChange { oldPhase, newPhase, context in
-        print("onScrollPhasechange - \(oldPhase) \(newPhase) \(context) \(String(describing: store.scrollTo))")
-        if oldPhase != .idle && newPhase == .idle {
-          let low = lowestNote(context.geometry)
-          let high = highestNote(context.geometry)
-          print("low: \(low) high: \(high)")
-          store.send(
-            .updateVisibleKeys(lowest: lowestNote(context.geometry), highest: highestNote(context.geometry))
-          )
-        }
-      }
       .onAppear {
         store.send(.monitorActivePreset)
       }
@@ -200,27 +189,13 @@ public struct KeyboardView: View {
     let low = Int(visibleRect.origin.x / (store.keyWidth + whiteKeySpacing))
     let high = Int((visibleRect.origin.x + visibleRect.size.width) / (store.keyWidth + whiteKeySpacing))
     if low >= 0 && high <= 127 {
-      store.send(.updateVisibleKeys(lowest: whiteNotes[low], highest: whiteNotes[high]))
+      store.send(
+        .updateVisibleKeys(
+          lowest: whiteNotes[max(0, low)],
+          highest: whiteNotes[min(high, whiteNotes.count - 1)]
+        )
+      )
     }
-  }
-
-  private func lowestNote(_ geometry: ScrollGeometry) -> Note {
-    // This is not exactly right since the last key does not have `whiteKeySpacing` but it is good enough for the
-    // lowest note calculation.
-    let numerator = geometry.contentOffset.x + whiteKeySpacing - 1
-    let denominator = geometry.contentSize.width
-    let position = numerator / denominator * Double(whiteNotes.count)
-    let index = max(0, Int(position.fraction > 0.8 ? position + 1 : position))
-    return whiteNotes[index]
-  }
-
-  private func highestNote(_ geometry: ScrollGeometry) -> Note {
-    // Use the right (trailing) side of the scroll view to determine what key is visible.
-    let numerator = geometry.contentOffset.x + geometry.bounds.width - 1
-    let denominator = geometry.contentSize.width
-    let position = numerator / denominator * Double(whiteNotes.count)
-    let index = min(whiteNotes.count - 1, Int(position.fraction < 0.2 ? position - 1 : position))
-    return whiteNotes[index]
   }
 
   public var fixedKeys: some View {

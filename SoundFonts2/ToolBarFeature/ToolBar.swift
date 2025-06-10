@@ -282,6 +282,7 @@ public struct ToolBarView: View {
       } label: {
         Text("❰" + store.lowestKey.label)
       }
+      .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
       Button {
         store.send(.slidingKeyboardButtonTapped)
       } label: {
@@ -297,6 +298,7 @@ public struct ToolBarView: View {
       } label: {
         Text(store.highestKey.label + "❱")
       }
+      .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
       Button {
         store.send(.settingsButtonTapped)
       } label: {
