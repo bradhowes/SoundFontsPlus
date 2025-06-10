@@ -166,7 +166,9 @@ public struct KeyboardView: View {
             proxy.scrollTo(Note.lowest, anchor: .leading)
             store.send(.clearScrollTo)
           } else {
-            proxy.scrollTo(key, anchor: .leading)
+            withAnimation {
+              proxy.scrollTo(key, anchor: .leading)
+            }
           }
         }
       }
