@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -119,6 +119,8 @@
 		BDAF5BC12DE25C9200B8FB13 /* Tagged in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC02DE25C9200B8FB13 /* Tagged */; };
 		BDAF5BC42DE269C300B8FB13 /* DependenciesTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC32DE269C300B8FB13 /* DependenciesTestSupport */; };
 		BDAF5BC92DE26BFC00B8FB13 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC82DE26BFC00B8FB13 /* SnapshotTesting */; };
+		BDB9FEF42E04B795003BA0A2 /* ParameterAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB9FEF22E04B795003BA0A2 /* ParameterAddress.swift */; };
+		BDB9FEF52E04B795003BA0A2 /* ParameterDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB9FEF32E04B795003BA0A2 /* ParameterDefinition.swift */; };
 		BDB9FEF72E067A25003BA0A2 /* AVAudioUnitReverbPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB9FEF62E067A1C003BA0A2 /* AVAudioUnitReverbPreset.swift */; };
 		BDB9FEF92E06875D003BA0A2 /* ReverbRoomPresetPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB9FEF82E068751003BA0A2 /* ReverbRoomPresetPickerView.swift */; };
 		BDBDDEB12DE658E700C2CD87 /* SoundFontInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */; };
@@ -254,6 +256,8 @@
 		BDAF5B7A2DE256C500B8FB13 /* TagsListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsListTests.swift; sourceTree = "<group>"; };
 		BDAF5B7C2DE256C500B8FB13 /* ToolBarFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolBarFeatureTests.swift; sourceTree = "<group>"; };
 		BDAF5B7E2DE256C500B8FB13 /* NoteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteTests.swift; sourceTree = "<group>"; };
+		BDB9FEF22E04B795003BA0A2 /* ParameterAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterAddress.swift; sourceTree = "<group>"; };
+		BDB9FEF32E04B795003BA0A2 /* ParameterDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterDefinition.swift; sourceTree = "<group>"; };
 		BDB9FEF62E067A1C003BA0A2 /* AVAudioUnitReverbPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAudioUnitReverbPreset.swift; sourceTree = "<group>"; };
 		BDB9FEF82E068751003BA0A2 /* ReverbRoomPresetPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReverbRoomPresetPickerView.swift; sourceTree = "<group>"; };
 		BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundFontInfo.swift; sourceTree = "<group>"; };
@@ -262,10 +266,6 @@
 		BDE572C02DF3182400646D0E /* DependencyValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyValues.swift; sourceTree = "<group>"; };
 		BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetNameView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		BD46FC7B2DF61EC300CB20F1 /* AudioParameters */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AudioParameters; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		BD1D277C2B6F13DD005C3ED0 /* Frameworks */ = {
@@ -333,7 +333,7 @@
 		BD1D27812B6F13DD005C3ED0 /* SoundFonts2 */ = {
 			isa = PBXGroup;
 			children = (
-				BD46FC7B2DF61EC300CB20F1 /* AudioParameters */,
+				BDB9FEFB2E06A67B003BA0A2 /* AudioUnitParameters */,
 				BDAF5A992DE254F400B8FB13 /* AppFeature */,
 				BDAF5A9C2DE2550700B8FB13 /* DelayFeature */,
 				BDAF5A922DE254E000B8FB13 /* Extensions */,
@@ -731,6 +731,15 @@
 			path = UtilsTests;
 			sourceTree = "<group>";
 		};
+		BDB9FEFB2E06A67B003BA0A2 /* AudioUnitParameters */ = {
+			isa = PBXGroup;
+			children = (
+				BDB9FEF22E04B795003BA0A2 /* ParameterAddress.swift */,
+				BDB9FEF32E04B795003BA0A2 /* ParameterDefinition.swift */,
+			);
+			path = AudioUnitParameters;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -745,9 +754,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				BD46FC7B2DF61EC300CB20F1 /* AudioParameters */,
 			);
 			name = SoundFonts2;
 			packageProductDependencies = (
@@ -948,6 +954,8 @@
 				BDAF5AA32DE2551A00B8FB13 /* Keyboard.swift in Sources */,
 				BDB9FEF72E067A25003BA0A2 /* AVAudioUnitReverbPreset.swift in Sources */,
 				BDAF5AA42DE2551A00B8FB13 /* KeySequenceGenerators.swift in Sources */,
+				BDB9FEF42E04B795003BA0A2 /* ParameterAddress.swift in Sources */,
+				BDB9FEF52E04B795003BA0A2 /* ParameterDefinition.swift in Sources */,
 				BD46FC832DF62C3100CB20F1 /* AUParameterTree.swift in Sources */,
 				BD7DBC8D2DF45904005A31DE /* DimmedAppearanceModifier.swift in Sources */,
 				BDAF5AF32DE2558800B8FB13 /* SF2LoadFailure.swift in Sources */,

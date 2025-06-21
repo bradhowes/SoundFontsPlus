@@ -11,7 +11,7 @@ public struct ReverbConfig: Hashable, Identifiable, Sendable {
 
   public let id: ID
   public var roomPreset: AVAudioUnitReverbPreset = .mediumHall
-  public var wetDryMix: Double = 0.4
+  public var wetDryMix: Double = 40.0
   public var enabled: Bool = false
 
   public var presetId: Preset.ID?
@@ -56,6 +56,13 @@ extension ReverbConfig {
       }
       return found
     }
+  }
+}
+
+extension ReverbConfig.Draft: CustomStringConvertible {
+
+  public var description: String {
+    "ReverbConfig(\(id ?? -1), roomPreset: \(roomPreset.rawValue), wetDryMix: \(wetDryMix), enabled: \(enabled), presetId: \(presetId ?? -1))"
   }
 }
 

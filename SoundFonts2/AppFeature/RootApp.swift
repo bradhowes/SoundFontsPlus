@@ -293,6 +293,8 @@ extension RootAppView {
     let _ = prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
       $0.parameters = ParameterAddress.createParameterTree()
+      $0.delayDevice = .init(getConfig: { DelayConfig.Draft() }, setConfig: { print("delayDevice.set: ", $0) })
+      $0.reverbDevice = .init(getConfig: { ReverbConfig.Draft() }, setConfig: { print("reverbDevice.set: ", $0) })
     }
 
     let rootApp = RootApp()

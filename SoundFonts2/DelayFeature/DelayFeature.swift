@@ -26,7 +26,7 @@ public struct DelayFeature {
   @ObservableState
   public struct State: Equatable {
 
-    public var delayConfigDraft: DelayConfig.Draft
+    public var draft: DelayConfig.Draft
 
     public var enabled: ToggleFeature.State
     public var locked: ToggleFeature.State
@@ -39,22 +39,22 @@ public struct DelayFeature {
       @Shared(.delayLockEnabled) var lockEnabled
 
       let draft = DelayConfig.active
-      self.delayConfigDraft = draft
+      self.draft = draft
 
       self.locked = .init(isOn: lockEnabled, displayName: "Lock")
       self.enabled = .init(isOn: draft.enabled, displayName: "On")
       self.time = .init(parameter: parameters[.delayTime])
       self.feedback = .init(parameter: parameters[.delayFeedback])
       self.cutoff = .init(parameter: parameters[.delayCutoff])
-      self.wetDryMix = .init(parameter: parameters[.delayWetDryMix])
+      self.wetDryMix = .init(parameter: parameters[.delayAmount])
     }
   }
 
   public enum Action {
     case activePresetIdChanged(Preset.ID?)
     case cutoff(KnobFeature.Action)
-    case debouncedSave(DelayConfig.Draft)
-    case debouncedUpdate(DelayConfig.Draft)
+    case debouncedSave
+    case debouncedUpdate
     case enabled(ToggleFeature.Action)
     case feedback(KnobFeature.Action)
     case locked(ToggleFeature.Action)
@@ -69,6 +69,7 @@ public struct DelayFeature {
     case monitorActivePresetId
   }
 
+  @Dependency(\.mainQueue) var mainQueue
   @Dependency(\.defaultDatabase) var database
   @Dependency(\.delayDevice) var delayDevice
   @Shared(.activeState) var activeState
@@ -80,34 +81,20 @@ public struct DelayFeature {
     Scope(state: \.time, action: \.time) { KnobFeature(parameter: parameters[.delayTime]) }
     Scope(state: \.feedback, action: \.feedback) { KnobFeature(parameter: parameters[.delayFeedback]) }
     Scope(state: \.cutoff, action: \.cutoff) { KnobFeature(parameter: parameters[.delayCutoff]) }
-    Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature(parameter: parameters[.delayWetDryMix]) }
+    Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature(parameter: parameters[.delayAmount]) }
 
     Reduce { state, action in
       switch action {
       case let .activePresetIdChanged(presetId): return activePresetIdChanged(&state, presetId: presetId)
-      case let .debouncedSave(config):
-        delayDevice.setConfig(config)
-        return .none
-      case let .debouncedUpdate(config):
-        if config.id != nil {
-          withErrorReporting {
-            try database.write { db in
-              try DelayConfig.upsert{ config }.execute(db)
-            }
-          }
-        }
-        return .none
-
-      case .enabled: return .none
-      case .locked:
-        @Shared(.delayLockEnabled) var lockEnabled
-        $lockEnabled.withLock { $0.toggle() }
-        return .none
+      case .debouncedSave: return debouncedSave(&state)
+      case .debouncedUpdate: return debouncedUpdate(&state)
+      case .enabled: return applyAndSave(&state)
+      case .locked: return updateLocked(&state)
       case .onAppear: return monitorActivePresetId()
-      case .time: return .none
-      case .feedback: return .none
-      case .cutoff: return .none
-      case .wetDryMix: return .none
+      case .time: return applyAndSave(&state)
+      case .feedback: return applyAndSave(&state)
+      case .cutoff: return applyAndSave(&state)
+      case .wetDryMix: return applyAndSave(&state)
       }
     }
   }
@@ -124,20 +111,66 @@ extension DelayFeature {
 
     // If no presetId then just take current configuration of delay effect
     guard let presetId else {
-      state.delayConfigDraft = delayDevice.getConfig()
+      state.draft = delayDevice.getConfig()
       return .none
     }
 
-    state.delayConfigDraft = DelayConfig.draft(for: presetId)
-    state.enabled.isOn = state.delayConfigDraft.id != nil
+    state.draft = DelayConfig.draft(for: presetId)
+    state.enabled.isOn = state.draft.id != nil
 
     return .merge(
-      reduce(into: &state, action: .enabled(.setValue(state.delayConfigDraft.enabled))),
-      reduce(into: &state, action: .time(.setValue(state.delayConfigDraft.time))),
-      reduce(into: &state, action: .feedback(.setValue(state.delayConfigDraft.feedback))),
-      reduce(into: &state, action: .cutoff(.setValue(state.delayConfigDraft.cutoff))),
-      reduce(into: &state, action: .wetDryMix(.setValue(state.delayConfigDraft.wetDryMix))),
+      reduce(into: &state, action: .enabled(.setValue(state.draft.enabled))),
+      reduce(into: &state, action: .time(.setValue(state.draft.time))),
+      reduce(into: &state, action: .feedback(.setValue(state.draft.feedback))),
+      reduce(into: &state, action: .cutoff(.setValue(state.draft.cutoff))),
+      reduce(into: &state, action: .wetDryMix(.setValue(state.draft.wetDryMix))),
     )
+  }
+
+  private func applyAndSave(_ state: inout State) -> Effect<Action> {
+
+    let draft = DelayConfig.Draft(
+      id: state.draft.id,
+      time: state.time.value,
+      feedback: state.feedback.value,
+      cutoff: state.cutoff.value,
+      wetDryMix: state.wetDryMix.value,
+      enabled: state.enabled.isOn
+    )
+
+    guard state.draft != draft else {
+      return .none
+    }
+
+    state.draft = draft
+
+    return .merge(
+      .run { send in
+        await send(.debouncedUpdate)
+      }.debounce(id: CancelId.debouncedUpdate, for: .milliseconds(100), scheduler: mainQueue),
+      .run { send in
+        await send(.debouncedSave)
+      }.debounce(id: CancelId.debouncedSave, for: .milliseconds(1000), scheduler: mainQueue)
+    )
+  }
+
+  private func debouncedSave(_ state: inout State) -> Effect<Action> {
+    print("debouncedSave")
+    if state.draft.id != nil {
+      withErrorReporting {
+        try database.write { db in
+          try DelayConfig.upsert {
+            state.draft
+          }.execute(db)
+        }
+      }
+    }
+    return .none
+  }
+
+  private func debouncedUpdate(_ state: inout State) -> Effect<Action> {
+    delayDevice.setConfig(state.draft)
+    return .none
   }
 
   private func monitorActivePresetId() -> Effect<Action> {
@@ -145,6 +178,12 @@ extension DelayFeature {
       $activeState.activePresetId.publisher.map {
         return Action.activePresetIdChanged($0) }
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
+  }
+
+  private func updateLocked(_ state: inout State) -> Effect<Action> {
+    @Shared(.delayLockEnabled) var lockEnabled
+    $lockEnabled.withLock { $0.toggle() }
+    return .none
   }
 }
 
@@ -185,6 +224,11 @@ extension DelayView {
     let parameterTree = ParameterAddress.createParameterTree()
     let _ = prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
+      $0.delayDevice = .init(getConfig: {
+        DelayConfig.Draft()
+      }, setConfig: {
+        print("DelayDevice.setConfig:", $0)
+      })
     }
 
     return ScrollView(.horizontal) {

@@ -6,11 +6,11 @@ enum ParameterAddress: AUParameterAddress, CaseIterable {
   case delayTime
   case delayFeedback
   case delayCutoff
-  case delayWetDryMix
+  case delayAmount
 
   case reverbEnabled = 3000
   case reverbRoomIndex
-  case reverbWetDryMix
+  case reverbAmount
 }
 
 extension ParameterAddress {
@@ -50,13 +50,12 @@ extension ParameterAddress {
         unit: .hertz,
         logScale: true
       )
-    case .delayWetDryMix:
+    case .delayAmount:
       return .percent(
-        "delayMix",
-        localized: "DelayMix",
+        "delayAmount",
+        localized: "Amount",
         address: self
       )
-
     case .reverbEnabled: return
         .bool(
           "reverbEnabled",
@@ -71,10 +70,10 @@ extension ParameterAddress {
           range: 0...13,
           unit: .generic
         )
-    case .reverbWetDryMix: return
+    case .reverbAmount: return
         .percent(
-          "reverbMix",
-          localized: "ReverbMix",
+          "reverbAmount",
+          localized: "Amount",
           address: self
         )
     }
