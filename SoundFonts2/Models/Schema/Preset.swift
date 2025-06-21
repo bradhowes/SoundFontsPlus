@@ -152,7 +152,9 @@ extension Preset {
     @Dependency(\.defaultDatabase) var database
     guard let clone = (
       try? database.write {
-        try Self.insert(dupe).returning(\.self).fetchOne($0)
+        try Self.insert {
+          dupe
+        }.returning(\.self).fetchOne($0)
       }
     ) else {
       return nil

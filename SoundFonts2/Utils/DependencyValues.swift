@@ -1,24 +1,60 @@
 import AudioUnit.AUParameters
 import Dependencies
 
-public struct DelayConfigurable: Sendable {
+public struct DelayDevice {
+  public var getConfig: @Sendable () -> DelayConfig.Draft
   public var setConfig: @Sendable (DelayConfig.Draft) -> Void
 }
 
-extension DelayConfigurable: DependencyKey {
-  public static var liveValue: DelayConfigurable { .init(setConfig: { _ in unimplemented("setConfig") } ) }
-  public static var previewValue: DelayConfigurable { .init(setConfig: { _ in unimplemented("setConfig") } ) }
-  public static var testValue: DelayConfigurable { .init(setConfig: { _ in unimplemented("setConfig") } ) }
+extension DelayDevice: DependencyKey {
+  public static var liveValue: DelayDevice {
+    .init(
+      getConfig: { unimplemented("DelayDevice.getConfig", placeholder: DelayConfig.Draft()) },
+      setConfig: { _ in unimplemented("DelayDevice.setConfig") }
+    )
+  }
+
+  public static var previewValue: DelayDevice {
+    .init(
+      getConfig: { unimplemented("DelayDevice.getConfig", placeholder: DelayConfig.Draft()) },
+      setConfig: { _ in unimplemented("DelayDevice.setConfig") }
+    )
+  }
+
+  public static var testValue: DelayDevice {
+    .init(
+      getConfig: { unimplemented("DelayDevice.getConfig", placeholder: DelayConfig.Draft()) },
+      setConfig: { _ in unimplemented("DelayDevice.setConfig") }
+    )
+  }
 }
 
-public struct ReverbConfigurable: Sendable {
+public struct ReverbDevice: Sendable {
+  public var getConfig: @Sendable () -> ReverbConfig.Draft
   public var setConfig: @Sendable (ReverbConfig.Draft) -> Void
 }
 
-extension ReverbConfigurable: DependencyKey {
-  public static var liveValue: ReverbConfigurable { .init(setConfig: { _ in unimplemented("setConfig") } ) }
-  public static var previewValue: ReverbConfigurable { .init(setConfig: { _ in unimplemented("setConfig") } ) }
-  public static var testValue: ReverbConfigurable { .init(setConfig: { _ in unimplemented("setConfig") } ) }
+extension ReverbDevice: DependencyKey {
+  public static var liveValue: ReverbDevice {
+    .init(
+      getConfig: { unimplemented("ReverbDevice.getConfig", placeholder: ReverbConfig.Draft()) },
+      setConfig: { _ in unimplemented("ReverbDevice.setConfig") }
+    )
+  }
+
+  public static var previewValue: ReverbDevice {
+    .init(
+      getConfig: { unimplemented("ReverbDevice.getConfig", placeholder: ReverbConfig.Draft()) },
+      setConfig: { _ in unimplemented("ReverbDevice.setConfig") }
+    )
+  }
+
+  public static var testValue: ReverbDevice {
+    .init(
+      getConfig: { unimplemented("ReverbDevice.getConfig", placeholder: ReverbConfig.Draft()) },
+      setConfig: { _ in unimplemented("ReverbDevice.setConfig") }
+    )
+  }
 }
 
 extension AUParameterTree: @retroactive TestDependencyKey {}
@@ -31,14 +67,14 @@ extension AUParameterTree: @retroactive DependencyKey {
 
 extension DependencyValues {
 
-  public var delay: DelayConfigurable {
-    get { self[DelayConfigurable.self] }
-    set { self[DelayConfigurable.self] = newValue }
+  public var delayDevice: DelayDevice {
+    get { self[DelayDevice.self] }
+    set { self[DelayDevice.self] = newValue }
   }
 
-  public var reverb: ReverbConfigurable {
-    get { self[ReverbConfigurable.self] }
-    set { self[ReverbConfigurable.self] = newValue }
+  public var reverbDevice: ReverbDevice {
+    get { self[ReverbDevice.self] }
+    set { self[ReverbDevice.self] = newValue }
   }
 
   public var parameters: AUParameterTree {

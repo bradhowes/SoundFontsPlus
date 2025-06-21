@@ -98,9 +98,9 @@ extension FontTag {
       newName = base + " \(index)"
     }
 
-    let insertTag = Self
-      .insert(Self.Draft(displayName: newName, ordering: existingNames.count))
-      .returning(\.self)
+    let insertTag = Self.insert {
+      Draft(displayName: newName, ordering: existingNames.count)
+    }.returning(\.self)
 
     @Dependency(\.defaultDatabase) var database
     let result: [Self] = try database.write { try insertTag.fetchAll($0) }

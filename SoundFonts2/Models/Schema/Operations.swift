@@ -59,7 +59,9 @@ public enum Operations {
   
   public static func tagSoundFont(_ tagId: FontTag.ID, soundFontId: SoundFont.ID) {
     if tagId.isUbiquitous { return }
-    let query = TaggedSoundFont.insert(.init(soundFontId: soundFontId, tagId: tagId))
+    let query = TaggedSoundFont.insert {
+      .init(soundFontId: soundFontId, tagId: tagId)
+    }
     @Dependency(\.defaultDatabase) var database
     try? database.write { try query.execute($0) }
   }

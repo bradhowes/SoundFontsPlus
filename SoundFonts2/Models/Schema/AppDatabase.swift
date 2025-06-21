@@ -51,7 +51,9 @@ public func appDatabase() throws -> any DatabaseWriter {
     let drafts: [FontTag.Draft] = FontTag.Ubiquitous.allCases.enumerated().map {
       .init(displayName: $0.1.displayName, ordering: $0.0)
     }
-    try FontTag.insert(drafts).execute(db)
+    try FontTag.insert {
+      drafts
+    }.execute(db)
   }
 
   migrator.registerMigration("Add builtin fonts") { db in
@@ -61,9 +63,15 @@ public func appDatabase() throws -> any DatabaseWriter {
   }
 
   migrator.registerMigration("Add global audio configs") { db in
-    try AudioConfig.insert(AudioConfig.Draft(AudioConfig(id: AudioConfig.global))).execute(db)
-    try DelayConfig.insert(DelayConfig.Draft(DelayConfig(id: DelayConfig.global))).execute(db)
-    try ReverbConfig.insert(ReverbConfig.Draft(ReverbConfig(id: ReverbConfig.global))).execute(db)
+    try AudioConfig.insert {
+      AudioConfig.Draft(AudioConfig(id: AudioConfig.global))
+    }.execute(db)
+    try DelayConfig.insert {
+      DelayConfig.Draft(DelayConfig(id: DelayConfig.global))
+    }.execute(db)
+    try ReverbConfig.insert {
+      ReverbConfig.Draft(ReverbConfig(id: ReverbConfig.global))
+    }.execute(db)
   }
 
 #if DEBUG && targetEnvironment(simulator)

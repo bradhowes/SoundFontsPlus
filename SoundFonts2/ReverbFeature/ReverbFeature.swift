@@ -7,46 +7,13 @@ import ComposableArchitecture
 import SharingGRDB
 import SwiftUI
 
-extension AVAudioUnitReverbPreset: @retroactive Identifiable {
-  public var id: Int { rawValue }
-
-  static let allCases: [AVAudioUnitReverbPreset] = [
-    .smallRoom,
-    .mediumRoom,
-    .largeRoom,
-    .largeRoom2,
-    .mediumHall,
-    .mediumHall2,
-    .mediumHall3,
-    .largeHall,
-    .largeHall2,
-    .mediumChamber,
-    .largeChamber,
-    .cathedral,
-    .plate
-  ]
-
-  public var name: String {
-    switch self {
-    case .smallRoom: return "Room 1"
-    case .mediumRoom: return "Room 2"
-    case .largeRoom: return "Room 3"
-    case .largeRoom2: return "Room 4"
-    case .mediumHall: return "Hall 1"
-    case .mediumHall2: return "Hall 2"
-    case .mediumHall3: return "Hall 3"
-    case .largeHall: return "Hall 4"
-    case .largeHall2: return "Hall 5"
-    case .mediumChamber: return "Chamber 1"
-    case .largeChamber: return "Chamber 2"
-    case .cathedral: return "Cathedral"
-    case .plate: return "Plate"
-    @unknown default:
-      fatalError()
-    }
-  }
-}
-
+/**
+ Reverb effect controls. A preset can have a reverb configuration. By default all start with none. When enabled, they
+ acquire the current settings of the reverb effect, and subsequent changes will update the active preset's configuration.
+ There is also a control to "lock" the configuration so that future preset chnages will not affect the delay effect
+ value, and changes to the effect controls will affect the preset that was active at the time that the lock was
+ enabled.
+ */
 @Reducer
 public struct ReverbFeature {
   let parameters: AUParameterTree
@@ -59,38 +26,45 @@ public struct ReverbFeature {
 
   @ObservableState
   public struct State: Equatable {
+
+    public var draft: ReverbConfig.Draft
+
     public var enabled: ToggleFeature.State
     public var locked: ToggleFeature.State
     public var wetDryMix: KnobFeature.State
-    public var room: AVAudioUnitReverbPreset
-
-    public var reverbConfigId: ReverbConfig.ID?
 
     public init(parameters: AUParameterTree) {
-      self.enabled = .init(isOn: false, displayName: "On")
-      self.locked = .init(isOn: false, displayName: "Locked")
+      @Shared(.reverbLockEnabled) var lockEnabled
+
+      let draft = ReverbConfig.active
+      self.draft = draft
+
+      self.locked = .init(isOn: lockEnabled, displayName: "Lock")
+      self.enabled = .init(isOn: draft.enabled, displayName: "On")
       self.wetDryMix = .init(parameter: parameters[.delayWetDryMix])
-      self.room = .mediumChamber
     }
   }
 
-  @Dependency(\.defaultDatabase) private var database
-  @Dependency(\.reverb) private var reverb
-  @Shared(.activeState) private var activeState
-
   public enum Action {
+    case activePresetIdChanged(Preset.ID?)
     case debouncedSave(ReverbConfig.Draft)
     case debouncedUpdate(ReverbConfig.Draft)
     case enabled(ToggleFeature.Action)
     case locked(ToggleFeature.Action)
-    case room(AVAudioUnitReverbPreset)
+    case onAppear
+    case roomPreset(AVAudioUnitReverbPreset)
     case wetDryMix(KnobFeature.Action)
   }
 
-  private enum CancelID {
+  private enum CancelId {
     case debouncedSave
     case debouncedUpdate
+    case monitorActivePreset
   }
+
+  @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.reverbDevice) private var reverbDevice
+  @Shared(.activeState) private var activeState
 
   public var body: some ReducerOf<Self> {
 
@@ -100,37 +74,75 @@ public struct ReverbFeature {
 
     Reduce { state, action in
       switch action {
+      case let .activePresetIdChanged(presetId): return activePresetIdChanged(&state, presetId: presetId)
       case let .debouncedSave(config):
-        reverb.setConfig(config)
+        reverbDevice.setConfig(config)
         return .none
 
       case let .debouncedUpdate(config):
         if config.id != nil {
           withErrorReporting {
             try database.write { db in
-              try ReverbConfig.upsert(config).execute(db)
+              try ReverbConfig.upsert{ config }.execute(db)
             }
           }
         }
         return .none
 
       case .enabled: return updateReverb(&state)
-      case .locked: return .none
-      case let .room(value): return changeRoom(&state, room: value)
+      case .locked:
+        @Shared(.reverbLockEnabled) var lockEnabled
+        $lockEnabled.withLock { $0.toggle() }
+        return .none
+      case .onAppear: return monitorActivePreset()
+      case let .roomPreset(value): return changeRoomPreset(&state, room: value)
       case .wetDryMix: return updateReverb(&state)
       }
     }
   }
+}
 
-  private func changeRoom(_ state: inout State, room: AVAudioUnitReverbPreset) -> Effect<Action> {
-    state.room = room
+extension ReverbFeature {
+
+  private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+
+    // Disregard change if locked
+    guard !state.locked.isOn else {
+      return .none
+    }
+
+    // If no presetId then just take current configuration of delay effect
+    guard let presetId else {
+      state.draft = reverbDevice.getConfig()
+      return .none
+    }
+
+    state.draft = ReverbConfig.draft(for: presetId)
+    state.enabled.isOn = state.draft.id != nil
+
+    return .merge(
+      reduce(into: &state, action: .enabled(.setValue(state.draft.enabled))),
+      reduce(into: &state, action: .wetDryMix(.setValue(state.draft.wetDryMix))),
+    )
+  }
+
+  private func changeRoomPreset(_ state: inout State, room: AVAudioUnitReverbPreset) -> Effect<Action> {
+    state.draft.roomPreset = room
     return updateReverb(&state)
   }
 
+  private func monitorActivePreset() -> Effect<Action> {
+    return .publisher {
+      $activeState.activePresetId.publisher.map {
+        return Action.activePresetIdChanged($0) }
+    }.cancellable(id: CancelId.monitorActivePreset, cancelInFlight: true)
+  }
+
   private func updateReverb(_ state: inout State) -> Effect<Action> {
+
     let _ = ReverbConfig.Draft(
-      id: state.reverbConfigId,
-      preset: state.room.rawValue,
+      id: state.draft.id,
+      roomPreset: state.draft.roomPreset,
       wetDryMix: state.wetDryMix.value / 100.0,
       enabled: state.enabled.isOn
     )
@@ -167,7 +179,7 @@ public struct ReverbView: View {
       }
     ) {
       HStack(alignment: .center, spacing: 8) {
-        Picker("Room", selection: $store.room.sending(\.room)) {
+        Picker("Room", selection: $store.draft.roomPreset.sending(\.roomPreset)) {
           ForEach(AVAudioUnitReverbPreset.allCases, id: \.self) { room in
             Text(room.name).tag(room)
               .font(theme.font)

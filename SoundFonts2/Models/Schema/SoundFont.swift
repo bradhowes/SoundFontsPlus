@@ -48,7 +48,7 @@ extension SoundFont {
       let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
       let (kind, location) = try soundFontKind.data()
       let fileInfo = try soundFontKind.fileInfo()
-      let insertSoundFontDraft = SoundFont.insert(
+      let insertSoundFontDraft = SoundFont.insert {
         SoundFont.Draft(
           displayName: sf2.name,
           kind: kind,
@@ -60,7 +60,7 @@ extension SoundFont {
           embeddedCopyright: String(fileInfo.embeddedCopyright()),
           notes: ""
         )
-      ).returning(\.id)
+      }.returning(\.id)
 
       if let soundFontId = try insertSoundFontDraft.fetchOne(db) {
 
@@ -71,7 +71,9 @@ extension SoundFont {
               tagId: tagId
             )
         }
-        try TaggedSoundFont.insert(taggedSoundFonts).execute(db)
+        try TaggedSoundFont.insert {
+          taggedSoundFonts
+        }.execute(db)
 
         // Insert presets in one shot
         let presets: [Preset.Draft] = (0..<fileInfo.size()).map { presetIndex in
@@ -88,7 +90,9 @@ extension SoundFont {
             kind: .preset
           )
         }
-        try Preset.insert(presets).execute(db)
+        try Preset.insert {
+          presets
+        }.execute(db)
       }
     }
   }
@@ -96,7 +100,7 @@ extension SoundFont {
   public static func add(displayName: String, soundFontKind: SoundFontKind) throws {
     let (kind, location) = try soundFontKind.data()
     let fileInfo = try soundFontKind.fileInfo()
-    let insertSoundFontDraft = SoundFont.insert(
+    let insertSoundFontDraft = SoundFont.insert {
       SoundFont.Draft(
         displayName: displayName,
         kind: kind,
@@ -108,7 +112,7 @@ extension SoundFont {
         embeddedCopyright: String(fileInfo.embeddedCopyright()),
         notes: ""
       )
-    ).returning(\.id)
+    }.returning(\.id)
 
     @Dependency(\.defaultDatabase) var database
     try database.write { db in
@@ -121,7 +125,9 @@ extension SoundFont {
               tagId: tagId
             )
         }
-        try TaggedSoundFont.insert(taggedSoundFonts).execute(db)
+        try TaggedSoundFont.insert {
+          taggedSoundFonts
+        }.execute(db)
 
         // Insert presets in one shot
         let presets: [Preset.Draft] = (0..<fileInfo.size()).map { presetIndex in
@@ -138,7 +144,9 @@ extension SoundFont {
             kind: .preset,
           )
         }
-        try Preset.insert(presets).execute(db)
+        try Preset.insert {
+          presets
+        }.execute(db)
       }
     }
   }
@@ -249,7 +257,7 @@ extension SoundFont {
     : SoundFontKind.external(bookmark: .init(url: tmp, name: name))
     let (kind, location) = try soundFontKind.data()
 
-    let insertSoundFontDraft = SoundFont.insert(
+    let insertSoundFontDraft = SoundFont.insert {
       SoundFont.Draft(
         displayName: name,
         kind: kind,
@@ -261,7 +269,7 @@ extension SoundFont {
         embeddedCopyright: "copyright",
         notes: ""
       )
-    ).returning(\.id)
+    }.returning(\.id)
 
     if let soundFontId = try insertSoundFontDraft.fetchOne(db) {
       let taggedSoundFonts: [TaggedSoundFont] = soundFontKind.tagIds.map { tagId in
@@ -270,7 +278,9 @@ extension SoundFont {
             tagId: tagId
           )
       }
-      try TaggedSoundFont.insert(taggedSoundFonts).execute(db)
+      try TaggedSoundFont.insert {
+        taggedSoundFonts
+      }.execute(db)
 
       let presets: [Preset.Draft] = presetNames.enumerated().map { indexedPresetName in
         let displayName = indexedPresetName.1
@@ -286,21 +296,25 @@ extension SoundFont {
         )
       }
 
-      try Preset.insert(presets).execute(db)
+      try Preset.insert {
+        presets
+      }.execute(db)
 
       for tagName in tags.enumerated() {
-        if let tagId = try FontTag.insert(
+        let query = FontTag.insert {
           FontTag.Draft(
             displayName: tagName.1,
             ordering: tagName.0 + 5
           )
-        ).returning(\.id).fetchOne(db) {
-          try TaggedSoundFont.insert(
+        }.returning(\.id)
+
+        if let tagId = try query.fetchOne(db) {
+          try TaggedSoundFont.insert {
             .init(
               soundFontId: soundFontId,
               tagId: tagId
             )
-          ).execute(db)
+          }.execute(db)
         }
       }
     }

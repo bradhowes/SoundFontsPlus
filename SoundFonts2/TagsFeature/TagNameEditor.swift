@@ -37,7 +37,10 @@ public struct TagNameEditor {
         if id < 0 || newName != originalDisplayName || ordering != draft.ordering {
           draft.displayName = newName
           draft.ordering = ordering
-          if let tagId = try FontTag.upsert(draft).returning(\.id).fetchOne(db) {
+          let query = FontTag.upsert {
+            draft
+          }.returning(\.id)
+          if let tagId = try query.fetchOne(db) {
             id = tagId
           }
         }
@@ -47,7 +50,9 @@ public struct TagNameEditor {
 
         if membership != originalMembership {
           if membership {
-            try TaggedSoundFont.insert(.init(soundFontId: soundFontId, tagId: id)).execute(db)
+            try TaggedSoundFont.insert {
+              .init(soundFontId: soundFontId, tagId: id)
+            }.execute(db)
           } else {
             try TaggedSoundFont.delete().where { $0.soundFontId.eq(soundFontId) && $0.tagId.eq(id) }.execute(db)
           }

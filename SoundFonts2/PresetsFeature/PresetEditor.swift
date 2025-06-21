@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AVFoundation
 import ComposableArchitecture
 import SharingGRDB
 import SwiftUI
@@ -69,27 +70,27 @@ public struct PresetEditor: Equatable {
         if audioConfig != AudioConfig.Draft() {
           audioConfig.presetId = preset.id
           withErrorReporting {
-            try AudioConfig
-              .upsert(audioConfig)
-              .execute(db)
+            try AudioConfig.upsert {
+              audioConfig
+            }.execute(db)
           }
         }
 
         if delayConfig != DelayConfig.Draft() {
           delayConfig.presetId = preset.id
           withErrorReporting {
-            try DelayConfig
-              .upsert(delayConfig)
-              .execute(db)
+            try DelayConfig.upsert {
+              delayConfig
+            }.execute(db)
           }
         }
 
         if reverbConfig != ReverbConfig.Draft() {
           reverbConfig.presetId = preset.id
           withErrorReporting {
-            try ReverbConfig
-              .upsert(reverbConfig)
-              .execute(db)
+            try ReverbConfig.upsert {
+              reverbConfig
+            }.execute(db)
           }
         }
       }
@@ -376,12 +377,7 @@ public struct PresetEditorView: View {
       Toggle("Enabled", isOn: $store.reverbConfig.enabled)
       HStack {
         Text("Preset:")
-        Spacer()
-        Text("\(store.reverbConfig.preset)")
-        Spacer()
-        Stepper("", value: $store.reverbConfig.preset, in: 0...11)
-          .labelsHidden()
-          .disabled(!store.reverbConfig.enabled)
+        ReverbRoomPresetPickerView(value: store.reverbConfig.roomPreset)
       }
       HStack {
         Text("WetDry:")
@@ -396,6 +392,18 @@ public struct PresetEditorView: View {
   var tuningSection: some View {
     TuningView(store: Store(initialState: store.tuning) { TuningFeature() })
   }
+}
+
+extension AVAudioUnitReverbPreset: @retroactive Strideable {
+  public func distance(to other: AVAudioUnitReverbPreset) -> Int {
+    other.rawValue - self.rawValue
+  }
+  
+  public func advanced(by n: Int) -> AVAudioUnitReverbPreset {
+    .init(rawValue: self.rawValue + n)!
+  }
+  
+  public typealias Stride = Int
 }
 
 extension PresetEditorView {

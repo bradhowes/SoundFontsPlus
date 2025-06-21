@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/AUv3Controls",
       "state" : {
-        "revision" : "d2b60f078d5a503b1345d1465de21190fb71aa05",
-        "version" : "0.18.1"
+        "revision" : "9aedf712fa8baac8675aaef19857e3472a5abf2e",
+        "version" : "0.18.6"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sharing-grdb",
       "state" : {
-        "revision" : "27aa92082156aaaecd002620ff200723eaf3f239",
-        "version" : "0.4.1"
+        "revision" : "9ccd88799dcf20c2f2ba8cd2771de5031bebab05",
+        "version" : "0.5.0"
       }
     },
     {
@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "41b89b8b68d8c56c622dbb7132258f1a3e638b25",
-        "version" : "1.7.0"
+        "revision" : "9810c8d6c2914de251e072312f01d3bf80071852",
+        "version" : "1.7.1"
       }
     },
     {
@@ -150,8 +150,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
-        "revision" : "db6bc9dbfed001f21e6728fd36413d9342c235b4",
-        "version" : "2.3.0"
+        "revision" : "ae208d1a5cf33aee1d43734ea780a09ada6e2a21",
+        "version" : "2.3.1"
       }
     },
     {
@@ -195,8 +195,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "9045819f2fc3681ea98c95b2a15d98c459141c98",
-        "version" : "0.5.1"
+        "revision" : "6bd870099083ef269eeee8835808cb6233151654",
+        "version" : "0.7.0"
       }
     },
     {

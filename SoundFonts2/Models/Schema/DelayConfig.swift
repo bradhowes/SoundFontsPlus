@@ -1,13 +1,13 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFoundation
+import Sharing
 import SharingGRDB
 import Tagged
 
 @Table
 public struct DelayConfig: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>
-
   public static let global = ID(rawValue: 1)
 
   public let id: ID
@@ -22,9 +22,24 @@ public struct DelayConfig: Hashable, Identifiable, Sendable {
 
 extension DelayConfig {
 
-  public static func with(key presetId: Preset.ID) -> Self? {
-    @Dependency(\.defaultDatabase) var database
-    return try? database.read { try Self.all.where { $0.presetId.eq(presetId) }.fetchOne($0) }
+  public static var active: Draft {
+    @Shared(.activeState) var activeState
+    @Shared(.delayLockEnabled) var lockEnabled
+    if lockEnabled {
+      let configId = activeState.activeDelayConfigId ?? global
+      return draft(for: configId)
+    } else if let presetId = activeState.activePresetId {
+      return draft(for: presetId)
+    }
+    return draft(for: global)
+  }
+
+  public static func draft(for presetId: Preset.ID) -> Draft {
+    draft(where: Self.all.where { $0.presetId.eq(presetId) })
+  }
+
+  public static func draft(for key: DelayConfig.ID) -> Draft {
+    draft(where: Self.find(key))
   }
 
   public func clone(audioConfigId: AudioConfig.ID) -> Self? {
@@ -37,8 +52,25 @@ extension DelayConfig {
       presetId: presetId
     )
 
-    @Dependency(\.defaultDatabase) var database
-    return try? database.write { try Self.insert(dupe).returning(\.self).fetchOne($0) }
+    return withDatabase {
+      let query = Self.insert {
+        dupe
+      }.returning(\.self)
+      guard let found = try query.fetchOne($0) else {
+        throw DatabaseError(resultCode: .SQLITE_ERROR, message: "unexpectedly failed fetchOne")
+      }
+      return found
+    }
+  }
+}
+
+extension DelayConfig {
+
+  private static func draft(where: Where<Self>) -> Draft {
+    withDatabase { db in
+      guard let found = try `where`.fetchOne(db) else { return Draft() }
+      return Draft(found)
+    } ?? Draft()
   }
 }
 

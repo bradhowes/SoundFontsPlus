@@ -66,12 +66,12 @@ public struct PresetsList {
 
   public init() {}
 
+  private enum CancelId {
+    case monitorSelectedSoundFontId
+  }
+
   @Dependency(\.defaultDatabase) var database
   @Shared(.activeState) var activeState
-
-  private enum CancelId {
-    case monitorSelectedSoundFont
-  }
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -83,7 +83,7 @@ public struct PresetsList {
       case .destination(.dismiss): return updatePreset(&state)
       case .destination: return .none
       case .fetchPresets: return generatePresetSections(&state)
-      case .onAppear: return monitorSelectedSoundFont()
+      case .onAppear: return monitorSelectedSoundFontId()
       case .searchTextChanged(let value): return searchTextChanged(&state, searchText: value)
 
         // Preset sections delegated actions
@@ -171,11 +171,11 @@ extension PresetsList {
     return generatePresetSections(&state)
   }
 
-  private func monitorSelectedSoundFont() -> Effect<Action> {
+  private func monitorSelectedSoundFontId() -> Effect<Action> {
     return .publisher {
       $activeState.selectedSoundFontId.publisher.map {
         return Action.selectedSoundFontIdChanged($0) }
-    }.cancellable(id: CancelId.monitorSelectedSoundFont, cancelInFlight: true)
+    }.cancellable(id: CancelId.monitorSelectedSoundFontId, cancelInFlight: true)
   }
 
   private func searchButtonTapped(_ state: inout State) -> Effect<Action> {

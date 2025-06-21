@@ -6,6 +6,13 @@ import ComposableArchitecture
 import Sharing
 import SwiftUI
 
+/**
+ Delay effect controls. A preset can have a delay configuration. By default all start with none. When enabled, they
+ acquire the current settings of the delay effect, and subsequent changes will update the active preset's configuration.
+ There is also a control to "lock" the configuration so that future preset chnages will not affect the delay effect
+ value, and changes to the effect controls will affect the preset that was active at the time that the lock was
+ enabled.
+ */
 @Reducer
 public struct DelayFeature {
   let parameters: AUParameterTree
@@ -18,6 +25,9 @@ public struct DelayFeature {
 
   @ObservableState
   public struct State: Equatable {
+
+    public var delayConfigDraft: DelayConfig.Draft
+
     public var enabled: ToggleFeature.State
     public var locked: ToggleFeature.State
     public var time: KnobFeature.State
@@ -26,8 +36,13 @@ public struct DelayFeature {
     public var wetDryMix: KnobFeature.State
 
     public init(parameters: AUParameterTree) {
-      self.enabled = .init(isOn: false, displayName: "On")
-      self.locked = .init(isOn: false, displayName: "Lock")
+      @Shared(.delayLockEnabled) var lockEnabled
+
+      let draft = DelayConfig.active
+      self.delayConfigDraft = draft
+
+      self.locked = .init(isOn: lockEnabled, displayName: "Lock")
+      self.enabled = .init(isOn: draft.enabled, displayName: "On")
       self.time = .init(parameter: parameters[.delayTime])
       self.feedback = .init(parameter: parameters[.delayFeedback])
       self.cutoff = .init(parameter: parameters[.delayCutoff])
@@ -36,13 +51,27 @@ public struct DelayFeature {
   }
 
   public enum Action {
-    case enabled(ToggleFeature.Action)
-    case locked(ToggleFeature.Action)
-    case time(KnobFeature.Action)
-    case feedback(KnobFeature.Action)
+    case activePresetIdChanged(Preset.ID?)
     case cutoff(KnobFeature.Action)
+    case debouncedSave(DelayConfig.Draft)
+    case debouncedUpdate(DelayConfig.Draft)
+    case enabled(ToggleFeature.Action)
+    case feedback(KnobFeature.Action)
+    case locked(ToggleFeature.Action)
+    case onAppear
+    case time(KnobFeature.Action)
     case wetDryMix(KnobFeature.Action)
   }
+
+  private enum CancelId {
+    case debouncedSave
+    case debouncedUpdate
+    case monitorActivePresetId
+  }
+
+  @Dependency(\.defaultDatabase) var database
+  @Dependency(\.delayDevice) var delayDevice
+  @Shared(.activeState) var activeState
 
   public var body: some ReducerOf<Self> {
 
@@ -55,14 +84,67 @@ public struct DelayFeature {
 
     Reduce { state, action in
       switch action {
+      case let .activePresetIdChanged(presetId): return activePresetIdChanged(&state, presetId: presetId)
+      case let .debouncedSave(config):
+        delayDevice.setConfig(config)
+        return .none
+      case let .debouncedUpdate(config):
+        if config.id != nil {
+          withErrorReporting {
+            try database.write { db in
+              try DelayConfig.upsert{ config }.execute(db)
+            }
+          }
+        }
+        return .none
+
       case .enabled: return .none
-      case .locked: return .none
+      case .locked:
+        @Shared(.delayLockEnabled) var lockEnabled
+        $lockEnabled.withLock { $0.toggle() }
+        return .none
+      case .onAppear: return monitorActivePresetId()
       case .time: return .none
       case .feedback: return .none
       case .cutoff: return .none
       case .wetDryMix: return .none
       }
     }
+  }
+}
+
+extension DelayFeature {
+
+  private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+
+    // Disregard change if locked
+    guard !state.locked.isOn else {
+      return .none
+    }
+
+    // If no presetId then just take current configuration of delay effect
+    guard let presetId else {
+      state.delayConfigDraft = delayDevice.getConfig()
+      return .none
+    }
+
+    state.delayConfigDraft = DelayConfig.draft(for: presetId)
+    state.enabled.isOn = state.delayConfigDraft.id != nil
+
+    return .merge(
+      reduce(into: &state, action: .enabled(.setValue(state.delayConfigDraft.enabled))),
+      reduce(into: &state, action: .time(.setValue(state.delayConfigDraft.time))),
+      reduce(into: &state, action: .feedback(.setValue(state.delayConfigDraft.feedback))),
+      reduce(into: &state, action: .cutoff(.setValue(state.delayConfigDraft.cutoff))),
+      reduce(into: &state, action: .wetDryMix(.setValue(state.delayConfigDraft.wetDryMix))),
+    )
+  }
+
+  private func monitorActivePresetId() -> Effect<Action> {
+    return .publisher {
+      $activeState.activePresetId.publisher.map {
+        return Action.activePresetIdChanged($0) }
+    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 }
 
