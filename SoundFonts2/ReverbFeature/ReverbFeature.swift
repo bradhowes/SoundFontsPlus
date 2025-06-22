@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AudioUnit
+import AVFoundation
 import AUv3Controls
 import ComposableArchitecture
 import Sharing
@@ -19,21 +20,24 @@ public struct ReverbFeature {
   @ObservableState
   public struct State: Equatable {
 
-    public var device: ReverbConfig.Draft
-    public var pending: ReverbConfig.Draft
+    @ObservationStateIgnored
+    public var device: ReverbConfig.Draft = .init()
+    public var pending: ReverbConfig.Draft = .init()
 
     public var enabled: ToggleFeature.State
     public var locked: ToggleFeature.State
     public var wetDryMix: KnobFeature.State
 
+    public var isDirty: Bool {
+      pending.enabled != device.enabled ||
+      pending.roomPreset != device.roomPreset ||
+      pending.wetDryMix != device.wetDryMix
+    }
+
     public init(parameters: AUParameterTree) {
-      @Dependency(\.reverbDevice) var reverbDevice
       @Shared(.reverbLockEnabled) var lockEnabled
-      let device = reverbDevice.getConfig()
-      self.pending = device
-      self.device = device
       self.locked = .init(isOn: lockEnabled, displayName: "Lock")
-      self.enabled = .init(isOn: pending.enabled, displayName: "On")
+      self.enabled = .init(isOn: false, displayName: "On")
       self.wetDryMix = .init(parameter: parameters[.reverbAmount])
     }
   }
@@ -69,13 +73,13 @@ public struct ReverbFeature {
     Reduce { state, action in
       switch action {
       case let .activePresetIdChanged(presetId): return activePresetIdChanged(&state, presetId: presetId)
-      case .debouncedSave: return debouncedSave(&state)
-      case .debouncedUpdate: return debouncedUpdate(&state)
-      case .enabled: return applyAndSave(&state, path: \.enabled, value: state.enabled.isOn)
+      case .debouncedSave: return save(&state)
+      case .debouncedUpdate: return update(&state)
+      case .enabled: return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
       case .locked: return updateLocked(&state)
       case .task: return monitorActivePreset()
       case let .roomPresetChanged(value): return roomPresetChanged(&state, room: value)
-      case .wetDryMix: return applyAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
+      case .wetDryMix: return updateAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
       }
     }
   }
@@ -88,29 +92,70 @@ extension ReverbFeature {
     print("activePresetIdChanged: \(String(describing: presetId))")
 
     guard !state.locked.isOn else {
+      print("locked: \(String(describing: presetId))")
       return .none
     }
 
     guard let presetId else {
+      print("nil presetId")
       state.pending = state.device
       state.pending.presetId = nil
       return .none
     }
 
     guard state.pending.presetId != presetId else {
+      print("same presetId")
       return .none
     }
 
-    state.pending = ReverbConfig.draft(for: presetId)
-    print("ReverbFeature.pending(for: \(presetId)): \(state.pending)")
+    if state.isDirty && state.pending.presetId != nil {
+      print("saving \(state.pending)")
+      withDatabaseWriter { db in
+        try ReverbConfig.upsert {
+          state.pending
+        }
+        .execute(db)
+      }
+    }
+
+    let config = ReverbConfig.draft(for: presetId)
+    print("loaded \(config)")
+    reverbDevice.setConfig(config)
+    state.device = config
+    state.pending = config
 
     return .merge(
-      reduce(into: &state, action: .enabled(.setValue(state.pending.enabled))),
-      reduce(into: &state, action: .wetDryMix(.setValue(pending.draft.wetDryMix))),
+      reduce(into: &state, action: .enabled(.setValue(state.device.enabled))),
+      reduce(into: &state, action: .wetDryMix(.setValue(state.device.wetDryMix))),
     )
   }
 
-  private func applyAndSave<T: Equatable>(
+  private func updateAndSave<T: BinaryFloatingPoint>(
+    _ state: inout State,
+    path: WritableKeyPath<ReverbConfig.Draft, T>,
+    value: T
+  ) -> Effect<Action> {
+
+    state.pending[keyPath: path] = value
+    if abs(state.device[keyPath: path] - value) < 1e-6 {
+      print("no change in \(path)")
+      return .none
+    }
+
+    print("setting presetId due to change in \(path)")
+    state.pending.presetId = activeState.activePresetId
+
+    return .merge(
+      .run { send in
+        await send(.debouncedUpdate)
+      }.debounce(id: CancelId.debouncedUpdate, for: .milliseconds(100), scheduler: mainQueue),
+      .run { send in
+        await send(.debouncedSave)
+      }.debounce(id: CancelId.debouncedSave, for: .milliseconds(1000), scheduler: mainQueue)
+    )
+  }
+
+  private func updateAndSave<T: Equatable>(
     _ state: inout State,
     path: WritableKeyPath<ReverbConfig.Draft, T>,
     value: T
@@ -131,49 +176,40 @@ extension ReverbFeature {
     )
   }
 
-  private func debouncedSave(_ state: inout State) -> Effect<Action> {
-    print("debouncedSave")
+  private func save(_ state: inout State) -> Effect<Action> {
 
-    guard let presetId = activeState.activePresetId else {
-      print("skipping nil activePresetId")
+    guard state.device.presetId != nil else {
+      print("save - skipping nil presetId")
       return .none
     }
 
-    state.device.presetId = presetId
+    print("save")
 
-    let found = withErrorReporting {
-      try database.write { db in
-        try ReverbConfig.upsert {
-          state.device
-        }.returning(\.self).fetchOne(db)
+    let found = withDatabaseWriter { db in
+      try ReverbConfig.upsert {
+        state.device
       }
+      .returning(\.self)
+      .fetchOneForced(db)
     }
 
-    guard let found1 = found, let found2 = found1 else {
-      print("skipping nil found")
+    guard let unwrapped = found else {
+      print("skipping unwrapped nil")
       return .none
     }
 
-    state.device = .init(found2)
-    print("upsert: ", state.draft)
+    let config: ReverbConfig.Draft = .init(unwrapped)
+    state.device = config
+    state.pending = config
+
+    print("upsert: ", state.device)
 
     return .none
   }
 
-  private func debouncedUpdate(_ state: inout State) -> Effect<Action> {
-    // Update reverb device with new setting
-    reverbDevice.setConfig(state.pending)
-    // If the last device setting has another presetId, be sure to save it before overwriting it
-//    if state.device.presetId != nil && state.device.presetId != state.pending.presetId {
-//      withErrorReporting {
-//        try database.write { db in
-//          try ReverbConfig.upsert {
-//            state.device
-//          }.execute(db)
-//        }
-//      }
-//    }
+  private func update(_ state: inout State) -> Effect<Action> {
     state.device = state.pending
+    reverbDevice.setConfig(state.device)
     return .none
   }
 
@@ -184,11 +220,7 @@ extension ReverbFeature {
   }
 
   private func roomPresetChanged(_ state: inout State, room: AVAudioUnitReverbPreset) -> Effect<Action> {
-    guard room != state.draft.roomPreset else {
-      return .none
-    }
-
-    return applyAndSave(&state, path: \.roomPreset, value: room)
+    return updateAndSave(&state, path: \.roomPreset, value: room)
   }
 
   private func updateLocked(_ state: inout State) -> Effect<Action> {
@@ -216,7 +248,7 @@ public struct ReverbView: View {
       }
     ) {
       HStack(alignment: .center, spacing: 8) {
-        Picker("Room", selection: $store.draft.roomPreset.sending(\.roomPresetChanged)) {
+        Picker("Room", selection: $store.pending.roomPreset.sending(\.roomPresetChanged)) {
           ForEach(AVAudioUnitReverbPreset.allCases, id: \.self) { room in
             Text(room.name).tag(room)
               .font(theme.font)

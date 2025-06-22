@@ -13,6 +13,10 @@ struct SoundFonts2App: App {
     self.parameters = prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
       $0.defaultFileStorage = .fileSystem
+      $0.delayDevice = .init(
+        getConfig: { DelayConfig.Draft() },
+        setConfig: { config in print(config) }
+      )
       $0.reverbDevice = .init(
         getConfig: { ReverbConfig.Draft() },
         setConfig: { config in print(config) }

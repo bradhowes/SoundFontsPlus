@@ -58,7 +58,7 @@ extension ReverbConfig {
 extension ReverbConfig.Draft: CustomStringConvertible {
 
   public var description: String {
-    "ReverbConfig(\(id ?? -1), roomPreset: \(roomPreset.rawValue), wetDryMix: \(wetDryMix), enabled: \(enabled), presetId: \(presetId ?? -1))"
+    "ReverbConfig(\(id ?? -1), roomPreset: \(roomPreset.name), wetDryMix: \(wetDryMix), enabled: \(enabled), presetId: \(presetId ?? -1))"
   }
 }
 

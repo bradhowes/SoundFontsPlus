@@ -35,19 +35,6 @@ public struct PresetsList {
       self.visibilityEditMode = visibilityEditMode ? .active : .inactive
       self.sections = []
     }
-
-    /**
-     Update any group that is showing the given preset
-
-     - parameter preset: the preset to update with
-     - returns: true if updated
-     */
-    mutating func update(preset: Preset) {
-      for var section in sections where section.update(preset: preset) {
-        sections[section.section] = section
-        break
-      }
-    }
   }
 
   public enum Action: Equatable, BindableAction {
@@ -227,8 +214,7 @@ extension PresetsList {
   }
 
   private func updatePreset(_ state: inout State) -> Effect<Action> {
-    guard case let Destination.State.edit(editorState)? = state.destination else { return .none }
-    state.update(preset: editorState.preset)
+    guard case Destination.State.edit? = state.destination else { return .none }
     return generatePresetSections(&state)
   }
 

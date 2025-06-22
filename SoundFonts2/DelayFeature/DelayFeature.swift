@@ -58,7 +58,7 @@ public struct DelayFeature {
     case enabled(ToggleFeature.Action)
     case feedback(KnobFeature.Action)
     case locked(ToggleFeature.Action)
-    case onAppear
+    case task
     case time(KnobFeature.Action)
     case wetDryMix(KnobFeature.Action)
   }
@@ -90,7 +90,7 @@ public struct DelayFeature {
       case .debouncedUpdate: return update(&state)
       case .enabled: return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
       case .locked: return updateLocked(&state)
-      case .onAppear: return monitorActivePresetId()
+      case .task: return monitorActivePresetId()
       case .time: return updateAndSave(&state, path: \.time, value: state.time.value)
       case .feedback: return updateAndSave(&state, path: \.feedback, value: state.feedback.value)
       case .cutoff: return updateAndSave(&state, path: \.cutoff, value: state.cutoff.value)
@@ -140,11 +140,11 @@ extension DelayFeature {
     state.pending = config
 
     return .merge(
-      reduce(into: &state, action: .enabled(.setValue(state.pending.enabled))),
-      reduce(into: &state, action: .time(.setValue(state.pending.time))),
-      reduce(into: &state, action: .feedback(.setValue(state.pending.feedback))),
-      reduce(into: &state, action: .cutoff(.setValue(state.pending.cutoff))),
-      reduce(into: &state, action: .wetDryMix(.setValue(state.pending.wetDryMix))),
+      reduce(into: &state, action: .enabled(.setValue(state.device.enabled))),
+      reduce(into: &state, action: .time(.setValue(state.device.time))),
+      reduce(into: &state, action: .feedback(.setValue(state.device.feedback))),
+      reduce(into: &state, action: .cutoff(.setValue(state.device.cutoff))),
+      reduce(into: &state, action: .wetDryMix(.setValue(state.device.wetDryMix))),
     )
   }
 
@@ -230,8 +230,8 @@ extension DelayFeature {
   }
 
   private func update(_ state: inout State) -> Effect<Action> {
-    delayDevice.setConfig(state.device)
     state.device = state.pending
+    delayDevice.setConfig(state.device)
     return .none
   }
 
@@ -271,7 +271,7 @@ public struct DelayView: View {
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
     }.task {
-      await store.send(.onAppear).finish()
+      await store.send(.task).finish()
     }
   }
 }

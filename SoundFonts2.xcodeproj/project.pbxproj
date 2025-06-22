@@ -124,6 +124,7 @@
 		BDB9FEF92E06875D003BA0A2 /* ReverbRoomPresetPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB9FEF82E068751003BA0A2 /* ReverbRoomPresetPickerView.swift */; };
 		BDBDDEB12DE658E700C2CD87 /* SoundFontInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */; };
 		BDD531B92DEADADD00B4B104 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD531B82DEADADA00B4B104 /* String.swift */; };
+		BDD96E902E080575000FCF1E /* ReverbFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5ADA2DE2556000B8FB13 /* ReverbFeature.swift */; };
 		BDE572BF2DF317D400646D0E /* FileManagerClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE572BE2DF317D400646D0E /* FileManagerClient.swift */; };
 		BDE572C12DF3183700646D0E /* DependencyValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE572C02DF3182400646D0E /* DependencyValues.swift */; };
 		BDF14C492DF0AF0100BDDB0E /* PresetNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */; };
@@ -898,6 +899,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BDAF5A9D2DE2550700B8FB13 /* DelayFeature.swift in Sources */,
+				BDD96E902E080575000FCF1E /* ReverbFeature.swift in Sources */,
 				BD1D27832B6F13DD005C3ED0 /* SoundFonts2App.swift in Sources */,
 				BDAF5AE72DE2557300B8FB13 /* SF2ResourceFileTag.swift in Sources */,
 				BDAF5AE82DE2557300B8FB13 /* SF2ResourceFiles.swift in Sources */,
