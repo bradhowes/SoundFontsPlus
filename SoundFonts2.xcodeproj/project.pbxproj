@@ -49,7 +49,6 @@
 		BDAF5AD72DE2555B00B8FB13 /* PresetEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AD02DE2555B00B8FB13 /* PresetEditor.swift */; };
 		BDAF5AD82DE2555B00B8FB13 /* PresetButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5ACF2DE2555B00B8FB13 /* PresetButton.swift */; };
 		BDAF5AD92DE2555B00B8FB13 /* PresetError.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AD12DE2555B00B8FB13 /* PresetError.swift */; };
-		BDAF5ADC2DE2556000B8FB13 /* ReverbFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5ADA2DE2556000B8FB13 /* ReverbFeature.swift */; };
 		BDAF5ADF2DE2556600B8FB13 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5ADD2DE2556600B8FB13 /* Settings.swift */; };
 		BDAF5AE72DE2557300B8FB13 /* SF2ResourceFileTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AE52DE2557300B8FB13 /* SF2ResourceFileTag.swift */; };
 		BDAF5AE82DE2557300B8FB13 /* SF2ResourceFiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AE42DE2557300B8FB13 /* SF2ResourceFiles.swift */; };
@@ -934,7 +933,6 @@
 				BDAF5B0B2DE2558C00B8FB13 /* IndicatorModifier.swift in Sources */,
 				BDAF5AC62DE2555000B8FB13 /* DelayConfig.swift in Sources */,
 				BDAF5AC72DE2555000B8FB13 /* TaggedSoundFont.swift in Sources */,
-				BDAF5ADC2DE2556000B8FB13 /* ReverbFeature.swift in Sources */,
 				BDAF5ADF2DE2556600B8FB13 /* Settings.swift in Sources */,
 				BDAF5AC82DE2555000B8FB13 /* SoundFont.swift in Sources */,
 				BDAF5AC92DE2555000B8FB13 /* ModelError.swift in Sources */,

@@ -1,19 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AudioUnit
-import AVFoundation
 import AUv3Controls
 import ComposableArchitecture
-import SharingGRDB
+import Sharing
 import SwiftUI
 
-/**
- Reverb effect controls. A preset can have a reverb configuration. By default all start with none. When enabled, they
- acquire the current settings of the reverb effect, and subsequent changes will update the active preset's configuration.
- There is also a control to "lock" the configuration so that future preset chnages will not affect the delay effect
- value, and changes to the effect controls will affect the preset that was active at the time that the lock was
- enabled.
- */
 @Reducer
 public struct ReverbFeature {
   let parameters: AUParameterTree
@@ -27,29 +19,21 @@ public struct ReverbFeature {
   @ObservableState
   public struct State: Equatable {
 
-    public enum Source: Equatable {
-      case none
-      case preset(Preset.ID)
-    }
-
-    public var source: Source
-    public var draft: ReverbConfig.Draft
     public var device: ReverbConfig.Draft
+    public var pending: ReverbConfig.Draft
 
-    public var presetHasConfig: Bool
     public var enabled: ToggleFeature.State
     public var locked: ToggleFeature.State
     public var wetDryMix: KnobFeature.State
 
     public init(parameters: AUParameterTree) {
+      @Dependency(\.reverbDevice) var reverbDevice
       @Shared(.reverbLockEnabled) var lockEnabled
-      let draft = ReverbConfig.Draft()
-      self.source = .none
-      self.draft = draft
-      self.device = draft
-      self.presetHasConfig = false
+      let device = reverbDevice.getConfig()
+      self.pending = device
+      self.device = device
       self.locked = .init(isOn: lockEnabled, displayName: "Lock")
-      self.enabled = .init(isOn: draft.enabled, displayName: "On")
+      self.enabled = .init(isOn: pending.enabled, displayName: "On")
       self.wetDryMix = .init(parameter: parameters[.reverbAmount])
     }
   }
@@ -103,31 +87,26 @@ extension ReverbFeature {
 
     print("activePresetIdChanged: \(String(describing: presetId))")
 
-    state.presetHasConfig = false
-
-    // Disregard change if locked
     guard !state.locked.isOn else {
       return .none
     }
 
-    // If no presetId then just take current configuration of delay effect
     guard let presetId else {
-      state.draft = reverbDevice.getConfig()
+      state.pending = state.device
+      state.pending.presetId = nil
       return .none
     }
 
-    guard state.draft.presetId != presetId else {
+    guard state.pending.presetId != presetId else {
       return .none
     }
 
-    state.draft = ReverbConfig.draft(for: presetId)
-    state.presetHasConfig = true
-
-    print("ReverbConfig.draft(for: \(presetId)): \(state.draft)")
+    state.pending = ReverbConfig.draft(for: presetId)
+    print("ReverbFeature.pending(for: \(presetId)): \(state.pending)")
 
     return .merge(
-      reduce(into: &state, action: .enabled(.setValue(state.draft.enabled))),
-      reduce(into: &state, action: .wetDryMix(.setValue(state.draft.wetDryMix))),
+      reduce(into: &state, action: .enabled(.setValue(state.pending.enabled))),
+      reduce(into: &state, action: .wetDryMix(.setValue(pending.draft.wetDryMix))),
     )
   }
 
@@ -137,9 +116,10 @@ extension ReverbFeature {
     value: T
   ) -> Effect<Action> {
 
-    print("\(path) - \(value)")
-
-    state.draft[keyPath: path] = value
+    state.pending[keyPath: path] = value
+    if state.device[keyPath: path] == value {
+      return .none
+    }
 
     return .merge(
       .run { send in
@@ -154,22 +134,17 @@ extension ReverbFeature {
   private func debouncedSave(_ state: inout State) -> Effect<Action> {
     print("debouncedSave")
 
-    if state.locked.isOn {
-      print("skipping locked")
-      return .none
-    }
-
     guard let presetId = activeState.activePresetId else {
       print("skipping nil activePresetId")
       return .none
     }
 
-    state.draft.presetId = presetId
+    state.device.presetId = presetId
 
     let found = withErrorReporting {
       try database.write { db in
         try ReverbConfig.upsert {
-          state.draft
+          state.device
         }.returning(\.self).fetchOne(db)
       }
     }
@@ -179,22 +154,32 @@ extension ReverbFeature {
       return .none
     }
 
-    state.draft = .init(found2)
+    state.device = .init(found2)
     print("upsert: ", state.draft)
 
     return .none
   }
 
   private func debouncedUpdate(_ state: inout State) -> Effect<Action> {
-    reverbDevice.setConfig(state.draft)
-    state.device = state.draft
+    // Update reverb device with new setting
+    reverbDevice.setConfig(state.pending)
+    // If the last device setting has another presetId, be sure to save it before overwriting it
+//    if state.device.presetId != nil && state.device.presetId != state.pending.presetId {
+//      withErrorReporting {
+//        try database.write { db in
+//          try ReverbConfig.upsert {
+//            state.device
+//          }.execute(db)
+//        }
+//      }
+//    }
+    state.device = state.pending
     return .none
   }
 
   private func monitorActivePreset() -> Effect<Action> {
-    return .publisher {
-      $activeState.activePresetId.publisher.map {
-        return Action.activePresetIdChanged($0) }
+    .publisher {
+      $activeState.activePresetId.publisher.map { Action.activePresetIdChanged($0) }
     }.cancellable(id: CancelId.monitorActivePreset, cancelInFlight: true)
   }
 

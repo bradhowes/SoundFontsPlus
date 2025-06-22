@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFoundation
+import Sharing
 import SharingGRDB
 import Tagged
 
@@ -11,9 +12,8 @@ public struct ReverbConfig: Hashable, Identifiable, Sendable {
 
   public let id: ID
   public var roomPreset: AVAudioUnitReverbPreset = .mediumHall
-  public var wetDryMix: Double = 40.0
+  public var wetDryMix: Double = 30.0
   public var enabled: Bool = false
-
   public var presetId: Preset.ID?
 }
 
@@ -40,21 +40,17 @@ extension ReverbConfig {
   }
 
   public func clone(presetId: Preset.ID) -> Self? {
-    let dupe = Draft(
-      roomPreset: self.roomPreset,
-      wetDryMix: self.wetDryMix,
-      enabled: self.enabled,
-      presetId: presetId
-    )
-
-    return withDatabase {
-      let query = Self.insert {
-        dupe
-      }.returning(\.self)
-      guard let found = try query.fetchOne($0) else {
-        throw DatabaseError(resultCode: .SQLITE_ERROR, message: "unexpectedly failed fetchOne")
+    withDatabaseWriter { db in
+      try Self.insert {
+        Draft(
+          roomPreset: self.roomPreset,
+          wetDryMix: self.wetDryMix,
+          enabled: self.enabled,
+          presetId: presetId
+        )
       }
-      return found
+      .returning(\.self)
+      .fetchOneForced(db)
     }
   }
 }
@@ -69,7 +65,7 @@ extension ReverbConfig.Draft: CustomStringConvertible {
 extension ReverbConfig {
 
   private static func draft(where: Where<Self>) -> Draft {
-    withDatabase { db in
+    withDatabaseReader { db in
       guard let found = try `where`.fetchOne(db) else { return Draft() }
       return Draft(found)
     } ?? Draft()

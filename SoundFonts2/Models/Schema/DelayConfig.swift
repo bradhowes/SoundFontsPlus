@@ -14,9 +14,8 @@ public struct DelayConfig: Hashable, Identifiable, Sendable {
   public var time: Double = 0.25
   public var feedback: Double = 0.70
   public var cutoff: Double = 2000.0
-  public var wetDryMix: Double = 0.5
+  public var wetDryMix: Double = 25.0
   public var enabled: Bool = false
-
   public var presetId: Preset.ID?
 }
 
@@ -52,14 +51,11 @@ extension DelayConfig {
       presetId: presetId
     )
 
-    return withDatabase {
+    return withDatabaseReader {
       let query = Self.insert {
         dupe
       }.returning(\.self)
-      guard let found = try query.fetchOne($0) else {
-        throw DatabaseError(resultCode: .SQLITE_ERROR, message: "unexpectedly failed fetchOne")
-      }
-      return found
+      return try query.fetchOneForced($0)
     }
   }
 }
@@ -67,7 +63,7 @@ extension DelayConfig {
 extension DelayConfig {
 
   private static func draft(where: Where<Self>) -> Draft {
-    withDatabase { db in
+    withDatabaseReader { db in
       guard let found = try `where`.fetchOne(db) else { return Draft() }
       return Draft(found)
     } ?? Draft()

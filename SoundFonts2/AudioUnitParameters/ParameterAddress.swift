@@ -21,13 +21,13 @@ extension ParameterAddress {
     case .delayEnabled:
       return .bool(
         "delayEnabled",
-        localized: "DelayEnabled",
+        localized: "Enabled",
         address: self
       )
     case .delayTime:
       return .float(
         "delayTime",
-        localized: "DelayTime",
+        localized: "Time",
         address: self,
         range: 0.0...2,
         unit: .seconds,
@@ -36,7 +36,7 @@ extension ParameterAddress {
     case .delayFeedback:
       return .float(
         "delayFeedback",
-        localized: "DelayFeedback",
+        localized: "Feedback",
         address: self,
         range: -100...100,
         unit: .percent
@@ -44,7 +44,7 @@ extension ParameterAddress {
     case .delayCutoff:
       return .float(
         "delayCutoff",
-        localized: "DelayCutoff",
+        localized: "Cutoff",
         address: self,
         range: 10...20_000,
         unit: .hertz,
@@ -59,13 +59,13 @@ extension ParameterAddress {
     case .reverbEnabled: return
         .bool(
           "reverbEnabled",
-          localized: "ReverbEnabled",
+          localized: "Enabled",
           address: self
         )
     case .reverbRoomIndex: return
         .float(
           "reverbRoom",
-          localized: "ReverbRoom",
+          localized: "Room",
           address: self,
           range: 0...13,
           unit: .generic

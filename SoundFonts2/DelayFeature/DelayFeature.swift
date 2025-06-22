@@ -6,13 +6,6 @@ import ComposableArchitecture
 import Sharing
 import SwiftUI
 
-/**
- Delay effect controls. A preset can have a delay configuration. By default all start with none. When enabled, they
- acquire the current settings of the delay effect, and subsequent changes will update the active preset's configuration.
- There is also a control to "lock" the configuration so that future preset chnages will not affect the delay effect
- value, and changes to the effect controls will affect the preset that was active at the time that the lock was
- enabled.
- */
 @Reducer
 public struct DelayFeature {
   let parameters: AUParameterTree
@@ -26,7 +19,10 @@ public struct DelayFeature {
   @ObservableState
   public struct State: Equatable {
 
-    public var draft: DelayConfig.Draft
+    @ObservationStateIgnored
+    public var device: DelayConfig.Draft = .init()
+    @ObservationStateIgnored
+    public var pending: DelayConfig.Draft = .init()
 
     public var enabled: ToggleFeature.State
     public var locked: ToggleFeature.State
@@ -35,14 +31,18 @@ public struct DelayFeature {
     public var cutoff: KnobFeature.State
     public var wetDryMix: KnobFeature.State
 
+    public var isDirty: Bool {
+      pending.enabled != device.enabled ||
+      pending.time != device.time ||
+      pending.feedback != device.feedback ||
+      pending.cutoff != device.cutoff ||
+      pending.wetDryMix != device.wetDryMix
+    }
+
     public init(parameters: AUParameterTree) {
       @Shared(.delayLockEnabled) var lockEnabled
-
-      let draft = DelayConfig.active
-      self.draft = draft
-
       self.locked = .init(isOn: lockEnabled, displayName: "Lock")
-      self.enabled = .init(isOn: draft.enabled, displayName: "On")
+      self.enabled = .init(isOn: false, displayName: "On")
       self.time = .init(parameter: parameters[.delayTime])
       self.feedback = .init(parameter: parameters[.delayFeedback])
       self.cutoff = .init(parameter: parameters[.delayCutoff])
@@ -86,15 +86,15 @@ public struct DelayFeature {
     Reduce { state, action in
       switch action {
       case let .activePresetIdChanged(presetId): return activePresetIdChanged(&state, presetId: presetId)
-      case .debouncedSave: return debouncedSave(&state)
-      case .debouncedUpdate: return debouncedUpdate(&state)
-      case .enabled: return applyAndSave(&state)
+      case .debouncedSave: return save(&state)
+      case .debouncedUpdate: return update(&state)
+      case .enabled: return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
       case .locked: return updateLocked(&state)
       case .onAppear: return monitorActivePresetId()
-      case .time: return applyAndSave(&state)
-      case .feedback: return applyAndSave(&state)
-      case .cutoff: return applyAndSave(&state)
-      case .wetDryMix: return applyAndSave(&state)
+      case .time: return updateAndSave(&state, path: \.time, value: state.time.value)
+      case .feedback: return updateAndSave(&state, path: \.feedback, value: state.feedback.value)
+      case .cutoff: return updateAndSave(&state, path: \.cutoff, value: state.cutoff.value)
+      case .wetDryMix: return updateAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
       }
     }
   }
@@ -104,45 +104,64 @@ extension DelayFeature {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
 
-    // Disregard change if locked
+    print("activePresetIdChanged: \(String(describing: presetId))")
+
     guard !state.locked.isOn else {
+      print("locked: \(String(describing: presetId))")
       return .none
     }
 
-    // If no presetId then just take current configuration of delay effect
     guard let presetId else {
-      state.draft = delayDevice.getConfig()
+      print("nil presetId")
+      state.pending = state.device
+      state.pending.presetId = nil
       return .none
     }
 
-    state.draft = DelayConfig.draft(for: presetId)
-    state.enabled.isOn = state.draft.id != nil
+    guard state.pending.presetId != presetId else {
+      print("same presetId")
+      return .none
+    }
+
+    if state.isDirty && state.pending.presetId != nil {
+      print("saving \(state.pending)")
+      withDatabaseWriter { db in
+        try DelayConfig.upsert {
+          state.pending
+        }
+        .execute(db)
+      }
+    }
+
+    let config = DelayConfig.draft(for: presetId)
+    print("loaded \(config)")
+    delayDevice.setConfig(config)
+    state.device = config
+    state.pending = config
 
     return .merge(
-      reduce(into: &state, action: .enabled(.setValue(state.draft.enabled))),
-      reduce(into: &state, action: .time(.setValue(state.draft.time))),
-      reduce(into: &state, action: .feedback(.setValue(state.draft.feedback))),
-      reduce(into: &state, action: .cutoff(.setValue(state.draft.cutoff))),
-      reduce(into: &state, action: .wetDryMix(.setValue(state.draft.wetDryMix))),
+      reduce(into: &state, action: .enabled(.setValue(state.pending.enabled))),
+      reduce(into: &state, action: .time(.setValue(state.pending.time))),
+      reduce(into: &state, action: .feedback(.setValue(state.pending.feedback))),
+      reduce(into: &state, action: .cutoff(.setValue(state.pending.cutoff))),
+      reduce(into: &state, action: .wetDryMix(.setValue(state.pending.wetDryMix))),
     )
   }
 
-  private func applyAndSave(_ state: inout State) -> Effect<Action> {
+  private func updateAndSave<T: BinaryFloatingPoint>(
+    _ state: inout State,
+    path: WritableKeyPath<DelayConfig.Draft, T>,
+    value: T
+  ) -> Effect<Action> {
 
-    let draft = DelayConfig.Draft(
-      id: state.draft.id,
-      time: state.time.value,
-      feedback: state.feedback.value,
-      cutoff: state.cutoff.value,
-      wetDryMix: state.wetDryMix.value,
-      enabled: state.enabled.isOn
-    )
-
-    guard state.draft != draft else {
+    state.pending[keyPath: path] = value
+    if abs(state.device[keyPath: path] - value) < 1e-6 {
+      print("no change in \(path)")
       return .none
     }
 
-    state.draft = draft
+    print("setting presetId due to change in \(path)")
+    state.pending.presetId = activeState.activePresetId
 
     return .merge(
       .run { send in
@@ -154,29 +173,71 @@ extension DelayFeature {
     )
   }
 
-  private func debouncedSave(_ state: inout State) -> Effect<Action> {
-    print("debouncedSave")
-    if state.draft.id != nil {
-      withErrorReporting {
-        try database.write { db in
-          try DelayConfig.upsert {
-            state.draft
-          }.execute(db)
-        }
-      }
+  private func updateAndSave<T: Equatable>(
+    _ state: inout State,
+    path: WritableKeyPath<DelayConfig.Draft, T>,
+    value: T
+  ) -> Effect<Action> {
+
+    state.pending[keyPath: path] = value
+    if state.device[keyPath: path] == value {
+      print("no change in \(path)")
+      return .none
     }
+
+    print("setting presetId due to change in \(path)")
+    state.pending.presetId = activeState.activePresetId
+
+    return .merge(
+      .run { send in
+        await send(.debouncedUpdate)
+      }.debounce(id: CancelId.debouncedUpdate, for: .milliseconds(100), scheduler: mainQueue),
+      .run { send in
+        await send(.debouncedSave)
+      }.debounce(id: CancelId.debouncedSave, for: .milliseconds(1000), scheduler: mainQueue)
+    )
+  }
+
+  private func save(_ state: inout State) -> Effect<Action> {
+
+    guard state.device.presetId != nil else {
+      print("save - skipping nil presetId")
+      return .none
+    }
+
+    print("save")
+
+    let found = withDatabaseWriter { db in
+      try DelayConfig.upsert {
+        state.device
+      }
+      .returning(\.self)
+      .fetchOneForced(db)
+    }
+
+    guard let unwrapped = found else {
+      print("skipping unwrapped nil")
+      return .none
+    }
+
+    let config: DelayConfig.Draft = .init(unwrapped)
+    state.device = config
+    state.pending = config
+
+    print("upsert: ", state.device)
+
     return .none
   }
 
-  private func debouncedUpdate(_ state: inout State) -> Effect<Action> {
-    delayDevice.setConfig(state.draft)
+  private func update(_ state: inout State) -> Effect<Action> {
+    delayDevice.setConfig(state.device)
+    state.device = state.pending
     return .none
   }
 
   private func monitorActivePresetId() -> Effect<Action> {
-    return .publisher {
-      $activeState.activePresetId.publisher.map {
-        return Action.activePresetIdChanged($0) }
+    .publisher {
+      $activeState.activePresetId.publisher.map { Action.activePresetIdChanged($0) }
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
@@ -209,12 +270,19 @@ public struct DelayView: View {
         KnobView(store: store.scope(state: \.cutoff, action: \.cutoff))
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
+    }.task {
+      await store.send(.onAppear).finish()
     }
   }
 }
 
 extension DelayView {
   static var preview: some View {
+    @Shared(.activeState) var activeState
+    $activeState.withLock {
+      $0.activePresetId = 1
+    }
+
     var theme = Theme()
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
@@ -231,14 +299,26 @@ extension DelayView {
       })
     }
 
-    return ScrollView(.horizontal) {
-      DelayView(store: Store(initialState: .init(parameters: parameterTree)) {
-        DelayFeature(parameters: parameterTree)
-      })
-      .environment(\.auv3ControlsTheme, theme)
+    return VStack {
+      ScrollView(.horizontal) {
+        DelayView(store: Store(initialState: .init(parameters: parameterTree)) {
+          DelayFeature(parameters: parameterTree)
+        })
+        .environment(\.auv3ControlsTheme, theme)
+      }
+      .padding()
+      .border(theme.controlBackgroundColor, width: 1)
+      Button("Preset 1") {
+        $activeState.withLock {
+          $0.activePresetId = 1
+        }
+      }
+      Button("Preset 2") {
+        $activeState.withLock {
+          $0.activePresetId = 2
+        }
+      }
     }
-    .padding()
-    .border(theme.controlBackgroundColor, width: 1)
   }
 }
 

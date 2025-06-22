@@ -33,7 +33,7 @@ public struct RootApp {
     public var tagsSplit: SplitViewReducer.State
     public var presetsSplit: SplitViewReducer.State
     public var delay: DelayFeature.State
-    public var reverb: ReverbFeature.State
+    // public var reverb: ReverbFeature.State
     public var keyboard: KeyboardFeature.State = .init()
 
     public init(parameters: AUParameterTree) {
@@ -49,7 +49,7 @@ public struct RootApp {
       self.toolBar = ToolBar.State(tagsListVisible: tagsListVisible, effectsVisible: effectsVisible)
 
       self.delay = DelayFeature.State(parameters: parameters)
-      self.reverb = ReverbFeature.State(parameters: parameters)
+      // self.reverb = ReverbFeature.State(parameters: parameters)
     }
   }
 
@@ -61,7 +61,7 @@ public struct RootApp {
     case tagsSplit(SplitViewReducer.Action)
     case presetsSplit(SplitViewReducer.Action)
     case delay(DelayFeature.Action)
-    case reverb(ReverbFeature.Action)
+    // case reverb(ReverbFeature.Action)
     case keyboard(KeyboardFeature.Action)
   }
 
@@ -73,7 +73,7 @@ public struct RootApp {
     Scope(state: \.tagsSplit, action: \.tagsSplit) { SplitViewReducer() }
     Scope(state: \.presetsSplit, action: \.presetsSplit) { SplitViewReducer() }
     Scope(state: \.delay, action: \.delay) { DelayFeature(parameters: parameters) }
-    Scope(state: \.reverb, action: \.reverb) { ReverbFeature(parameters: parameters) }
+    // Scope(state: \.reverb, action: \.reverb) { ReverbFeature(parameters: parameters) }
     Scope(state: \.keyboard, action: \.keyboard) { KeyboardFeature() }
 
     Reduce { state, action in
@@ -256,7 +256,7 @@ public struct RootAppView: View, KeyboardReadable {
     return VStack {
       ScrollView(.horizontal) {
         HStack() {
-          ReverbView(store: store.scope(state: \.reverb, action: \.reverb))
+          // ReverbView(store: store.scope(state: \.reverb, action: \.reverb))
           dividerBorderColor
             .frame(width: padding)
           DelayView(store: store.scope(state: \.delay, action: \.delay))

@@ -30,5 +30,5 @@ extension View {
 }
 
 #Preview {
-  ReverbView.preview
+  DelayView.preview
 }
