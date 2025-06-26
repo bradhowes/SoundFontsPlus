@@ -66,6 +66,8 @@ public struct KeyboardFeature {
     case activePresetId
     case scrollTo
   }
+
+  @Shared(.activeState) var activeState
 }
 
 extension KeyboardFeature {
@@ -98,14 +100,10 @@ extension KeyboardFeature {
   }
 
   private func monitorActivePreset(_ state: inout State) -> Effect<Action> {
-    return .publisher {
-      @Shared(.activeState) var activeState
-      return $activeState.activePresetId.publisher.compactMap { activePresetId in
-        if let activePresetId {
-          print("activePresetId changed to \(activePresetId)")
-          return Action.activePresetIdChanged(activePresetId)
-        }
-        return nil
+    .publisher {
+      $activeState.activePresetId.publisher.compactMap { activePresetId in
+        guard let activePresetId else { return nil }
+        return Action.activePresetIdChanged(activePresetId)
       }
     }.cancellable(id: CancelId.activePresetId, cancelInFlight: true)
   }
