@@ -1,0 +1,24 @@
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+// Periodically force an AV media services restart sequence
+TEST_MEDIA_SERVICES_RESTART = -DTEST_MEDIA_SERVICES_RESTART
+
+// Play rendered samples in unit tests
+PLAY_AUDIO = -DPLAY_AUDIO
+
+// Show contents of events in internal render block
+DEBUG_INTERNAL_RENDER_BLOCK = -DDEBUG_INTERNAL_RENDER_BLOCK
+// All of the flags above. To disable one, just prepend an 'x' to its name.
+DEBUG_FLAGS = $(xTEST_MEDIA_SERVICES_RESTART) $(xDELAY_NOTIFICATIONS) $(PLAY_AUDIO) $(xDEBUG_INTERNAL_RENDER_BLOCK)
+
+NAME_SUFFIX = Dev
+VOICE_COUNT = 64
+
+SWIFT_ENABLE_OPAQUE_TYPE_ERASURE = NO
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited)
+OTHER_SWIFT_FLAGS = $(inherited) -DDev $(DEBUG_FLAGS) -DDEBUG
+
+OTHER_CPLUSPLUSFLAGS = $(inherited) $(DEBUG_FLAGS)
+
+OTHER_LDFLAGS = $(inherited)
