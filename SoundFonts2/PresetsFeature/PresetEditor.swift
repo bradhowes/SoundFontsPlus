@@ -14,6 +14,7 @@ public struct PresetEditor: Equatable {
     let soundFontName: String
 
     var displayName: String
+    var originalName: String
     var visible: Bool
     var notes: String
 
@@ -32,6 +33,7 @@ public struct PresetEditor: Equatable {
       ]
       self.preset = preset
       self.displayName = preset.displayName
+      self.originalName = preset.originalName
       self.visible = preset.kind == .preset
       self.notes = preset.notes
       let audioConfigDraft = preset.audioConfigDraft
@@ -228,7 +230,7 @@ public struct PresetEditorView: View {
           Text("Original")
         }
         Spacer()
-        Text(store.preset.displayName)
+        Text(store.preset.originalName)
           .foregroundStyle(.secondary)
       }
     }
