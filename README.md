@@ -4,11 +4,11 @@ SwiftUI version of my [SoundFonts](https://github.com/bradhowes/SoundFonts) app.
 
 Main dependencies:
 
-* [Composable Architecture (TCA)](https://github.com/pointfree/swift-composable-architecture) -- opinionated approach to
+* [Composable Architecture (TCA)](https://github.com/pointfreeco/swift-composable-architecture) -- opinionated approach to
   structuring an iOS app as composable features that provide for well-structured and understandable event flows and data
   transformation that drive the SwiftUI views.
-* [sharing-grdb](https://github.com/pointfree/sharing-grdb) -- provides a shared-data capability by combining Point-Free's
-  [Sharing](https://github.com/pointfree/swift-sharing) and 
+* [sharing-grdb](https://github.com/pointfreeco/sharing-grdb) -- provides a shared-data capability by combining Point-Free's
+  [Sharing](https://github.com/pointfreeco/swift-sharing) and 
   [StructuredQueries](https://github.com/pointfreeco/swift-structured-queries) libraries with the robust
   [GRDB](https://github.com/groue/GRDB.swift) toolkit for SQLite
 
