@@ -13,6 +13,8 @@ Main dependencies:
   [GRDB](https://github.com/groue/GRDB.swift) toolkit for SQLite
 
 
+![demo](media/demo.gif)
+
 # Status
 
 At present this is just the user interface and SQLite backing store. It has served as a playground while I've been
