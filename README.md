@@ -11,7 +11,10 @@ Main dependencies:
   [Sharing](https://github.com/pointfreeco/swift-sharing) and 
   [StructuredQueries](https://github.com/pointfreeco/swift-structured-queries) libraries with the robust
   [GRDB](https://github.com/groue/GRDB.swift) toolkit for SQLite
-
+* [AUv3Controls](https://github.com/bradhowes/AUv3Controls) -- custom SwiftUI controls (a circular knob and a toggle)
+  that supports easy integration with AUv3 AUParameter entities.
+* [SF2Lib](https://github.com/bradhowes/SF2Lib) -- an audio synthesizer in Objective-C++ that reads sound font (SF2)
+  files. It is used here to read the files and provide the presets info and meta data that goes into the SQLite tables.
 
 ![demo](media/demo.gif)
 
@@ -20,6 +23,23 @@ Main dependencies:
 At present this is just the user interface and SQLite backing store. It has served as a playground while I've been
 learning about TCA and SQLite.
 
+Nearly all app data resides in SQLite database, though there are some `UserDefaults` settings and a file-based `@Shared`
+struct that holds:
+
+* selected SoundFont ID
+* active SoundFont ID
+* active preset ID
+* active tag ID
+
+When any of these values change, the various views update as would be expected:
+
+* active tag ID changes --> list of SoundFont entries adapts
+* selected SoundFont ID changes --> list of preset entries updates
+* active preset ID changes:
+    * audio effects update if preset has custom config
+    * keyboard shifts to a configured value
+    * SF2 engine loads preset (TBD)
+    * MIDI mapping updated if preset has custom config (TBD)
 
 # History
 
