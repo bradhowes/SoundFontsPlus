@@ -11,15 +11,6 @@
       }
     },
     {
-      "identity" : "auv3support",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bradhowes/AUv3Support",
-      "state" : {
-        "revision" : "110b68b5be77248e09a3347abd6dc60b1b350ba0",
-        "version" : "11.1.4"
-      }
-    },
-    {
       "identity" : "combine-schedulers",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/combine-schedulers",

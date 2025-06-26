@@ -21,6 +21,7 @@
 		BD673BB72DFB44D600574F9C /* WithDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD673BB62DFB44D100574F9C /* WithDatabase.swift */; };
 		BD7DBC8D2DF45904005A31DE /* DimmedAppearanceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */; };
 		BD812F652DF4BF3500D2B344 /* KeyboardReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */; };
+		BDA917E02E08247700FD3257 /* AudioEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA917DF2E08247700FD3257 /* AudioEngine.swift */; };
 		BDAF5A932DE254E000B8FB13 /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A8F2DE254E000B8FB13 /* FileManager.swift */; };
 		BDAF5A942DE254E000B8FB13 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A8E2DE254E000B8FB13 /* Environment.swift */; };
 		BDAF5A972DE254E000B8FB13 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A912DE254E000B8FB13 /* Logger.swift */; };
@@ -168,6 +169,7 @@
 		BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DimmedAppearanceModifier.swift; sourceTree = "<group>"; };
 		BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardReadable.swift; sourceTree = "<group>"; };
+		BDA917DF2E08247700FD3257 /* AudioEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngine.swift; sourceTree = "<group>"; };
 		BDAF5A8E2DE254E000B8FB13 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		BDAF5A8F2DE254E000B8FB13 /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		BDAF5A912DE254E000B8FB13 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
@@ -333,8 +335,10 @@
 		BD1D27812B6F13DD005C3ED0 /* SoundFonts2 */ = {
 			isa = PBXGroup;
 			children = (
+				BD1D27822B6F13DD005C3ED0 /* SoundFonts2App.swift */,
 				BDB9FEFB2E06A67B003BA0A2 /* AudioUnitParameters */,
 				BDAF5A992DE254F400B8FB13 /* AppFeature */,
+				BDA917DE2E0823F200FD3257 /* AudioEngine */,
 				BDAF5A9C2DE2550700B8FB13 /* DelayFeature */,
 				BDAF5A922DE254E000B8FB13 /* Extensions */,
 				BDAF5AA12DE2551A00B8FB13 /* KeyboardFeature */,
@@ -350,7 +354,6 @@
 				BDAF5B1B2DE2559900B8FB13 /* TuningFeature */,
 				BDAF5B202DE2559E00B8FB13 /* Utils */,
 				BD2A26032CC849E0000CC1DF /* Eurostile.ttc */,
-				BD1D27822B6F13DD005C3ED0 /* SoundFonts2App.swift */,
 				BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */,
 				BD1D278A2B6F13DE005C3ED0 /* SoundFonts2.entitlements */,
 				BD1D278E2B6F13DE005C3ED0 /* Info.plist */,
@@ -402,6 +405,14 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		BDA917DE2E0823F200FD3257 /* AudioEngine */ = {
+			isa = PBXGroup;
+			children = (
+				BDA917DF2E08247700FD3257 /* AudioEngine.swift */,
+			);
+			path = AudioEngine;
 			sourceTree = "<group>";
 		};
 		BDAF5A922DE254E000B8FB13 /* Extensions */ = {
@@ -933,6 +944,7 @@
 				BDAF5B152DE2559100B8FB13 /* TagNameEditor.swift in Sources */,
 				BDAF5B0A2DE2558C00B8FB13 /* CheckToggleStyle.swift in Sources */,
 				BDAF5B0B2DE2558C00B8FB13 /* IndicatorModifier.swift in Sources */,
+				BDA917E02E08247700FD3257 /* AudioEngine.swift in Sources */,
 				BDAF5AC62DE2555000B8FB13 /* DelayConfig.swift in Sources */,
 				BDAF5AC72DE2555000B8FB13 /* TaggedSoundFont.swift in Sources */,
 				BDAF5ADF2DE2556600B8FB13 /* Settings.swift in Sources */,
@@ -1039,7 +1051,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -1072,7 +1084,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_C_LANGUAGE_STANDARD = c23;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -1109,7 +1121,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -1142,7 +1154,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_C_LANGUAGE_STANDARD = c23;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;

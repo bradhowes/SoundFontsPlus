@@ -299,6 +299,9 @@ extension RootAppView {
 
     let rootApp = RootApp()
     return RootAppView(store: Store(initialState: rootApp.state) { rootApp })
+      .environment(\.colorScheme, .dark)
+      .preferredColorScheme(.dark)
+
   }
 }
 
