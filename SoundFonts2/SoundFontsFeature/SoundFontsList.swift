@@ -58,6 +58,9 @@ public struct SoundFontsList {
     case activeTagId
     case fetchAll
   }
+
+  @Dependency(\.defaultDatabase) var database
+  @Shared(.activeState) var activeState
 }
 
 extension SoundFontsList.Destination.State: Equatable {}
@@ -89,7 +92,6 @@ extension SoundFontsList {
   }
 
   private func edit(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
-    @Dependency(\.defaultDatabase) var database
     guard let soundFont = try? database.read({ db in
       return try SoundFont.all.find(soundFontId).fetchOne(db)
     })
@@ -129,12 +131,8 @@ extension SoundFontsList {
   }
 
   private func monitorActiveTag(_ state: inout State) -> Effect<Action> {
-    return .publisher {
-      @Shared(.activeState) var activeState
-      return $activeState.activeTagId.publisher.map {
-        print("activeTagId changed to \(String(describing: $0))")
-        return Action.activeTagIdChanged($0)
-      }
+    .publisher {
+      $activeState.activeTagId.publisher.map { Action.activeTagIdChanged($0) }
     }.cancellable(id: CancelId.activeTagId, cancelInFlight: true)
   }
 
@@ -143,7 +141,6 @@ extension SoundFontsList {
       // Create a query for the SoundFonf list view. When the DB changes, this will emit a `soundFontInfoChanged` action
       // causing the rows to change. The query depends on the value of `activeState.activeTagId` so when that changes,
       // `monitorFetchAll` reruns which cancels the old query and installs a new one.
-      print("start monitoring fetchAll")
       @FetchAll(SoundFontInfo.taggedQuery) var soundFontInfos
       try await $soundFontInfos.load(SoundFontInfo.taggedQuery)
       for try await update in $soundFontInfos.publisher.values {
@@ -153,7 +150,6 @@ extension SoundFontsList {
   }
 
   private func select(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
-    @Shared(.activeState) var activeState
     $activeState.withLock {
       $0.selectedSoundFontId = soundFontId
     }
@@ -161,7 +157,6 @@ extension SoundFontsList {
   }
 
   private func showActiveSoundFont(_ state: inout State) -> Effect<Action> {
-    @Shared(.activeState) var activeState
     if let activeSoundFontId = activeState.activeSoundFontId {
       return select(&state, soundFontId: activeSoundFontId)
     } else {
@@ -169,7 +164,6 @@ extension SoundFontsList {
     }
   }
 
-  @discardableResult
   private func updateRows(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
     let update = IdentifiedArrayOf<SoundFontButton.State>(uncheckedUniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
     if state.rows != update {
@@ -181,7 +175,6 @@ extension SoundFontsList {
 
 public struct SoundFontsListView: View {
   @Bindable private var store: StoreOf<SoundFontsList>
-  @Shared(.activeState) private var activeState
 
   let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
 

@@ -127,7 +127,6 @@ extension PresetsList {
   }
 
   private func showActivePreset(_ state: inout State) -> Effect<Action> {
-    @Shared(.activeState) var activeState
     state.scrollToPresetId = activeState.activePresetId
     return .none
   }
@@ -149,7 +148,6 @@ extension PresetsList {
 
   private func hideOrDeletePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
     if preset.isFavorite {
-      @Dependency(\.defaultDatabase) var database
       try? database.write { try Preset.delete(preset).execute($0) }
     } else {
       var preset = preset
@@ -203,8 +201,6 @@ extension PresetsList {
   }
 
   private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
-    @Dependency(\.defaultDatabase) var database
-    @Shared(.activeState) var activeState
     if activeState.activeSoundFontId == soundFontId {
       state.scrollToPresetId = activeState.activePresetId
     } else {
