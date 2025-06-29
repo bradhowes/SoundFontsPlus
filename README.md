@@ -1,4 +1,4 @@
-# SoundFonts2
+# SoundFontsPlus
 
 SwiftUI version of my [SoundFonts][0] app.
 
@@ -117,7 +117,7 @@ Originally it was based on SwiftData, but I encountered too many issues and hurd
 [8]: https://github.com/bradhowes/SwiftDataTCA
 [9]: https://github.com/bradhowes/brh-splitview
 
-[tags]: https://github.com/bradhowes/SoundFonts2/blob/main/SoundFonts2/TagsFeature/TagsList.swift#L25
-[activeTagId]: https://github.com/bradhowes/SoundFonts2/blob/main/SoundFonts2/SoundFontsFeature/SoundFontsList.swift#L133
-[sf2]: https://github.com/bradhowes/SoundFonts2/blob/main/SoundFonts2/SoundFontsFeature/SoundFontsList.swift#L147
-[selectedSoundFontId]: https://github.com/bradhowes/SoundFonts2/blob/main/SoundFonts2/PresetsFeature/PresetsList.swift#L161
+[tags]: https://github.com/bradhowes/SoundFonts2/blob/main/SoundFontsPlus/TagsFeature/TagsList.swift#L25
+[activeTagId]: https://github.com/bradhowes/SoundFontsPlus/blob/main/SoundFontsPlus/SoundFontsFeature/SoundFontsList.swift#L133
+[sf2]: https://github.com/bradhowes/SoundFontsPlus/blob/main/SoundFontsPlus/SoundFontsFeature/SoundFontsList.swift#L147
+[selectedSoundFontId]: https://github.com/bradhowes/SoundFontsPlus/blob/main/SoundFontsPlus/PresetsFeature/PresetsList.swift#L161
