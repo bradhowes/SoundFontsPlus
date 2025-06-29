@@ -111,8 +111,13 @@ public struct TagsListView: View {
       .indicator(activeState.activeTagId == tagInfo.id ? .active : .none )
     }
     .listRowSeparator(.hidden)
-    .withLongPressGesture {
-      store.send(.longPressGestureFired, animation: .default)
+    .swipeActions(edge: .leading, allowsFullSwipe: false) {
+      Button {
+        store.send(.editButtonTapped(tagInfo), animation: .smooth)
+      } label: {
+        Image(systemName: "pencil")
+          .tint(.cyan)
+      }
     }
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
       if tagInfo.id.isUserDefined {
@@ -122,11 +127,6 @@ public struct TagsListView: View {
           Image(systemName: "trash")
             .tint(.red)
         }
-      }
-      Button {
-        store.send(.editButtonTapped(tagInfo), animation: .smooth)
-      } label: {
-        Image(systemName: "pencil.circle")
       }
     }
   }
