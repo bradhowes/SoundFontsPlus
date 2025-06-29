@@ -54,64 +54,90 @@ public struct RootApp {
   }
 
   public enum Action {
+    case delay(DelayFeature.Action)
+    case destination(PresentationAction<Destination.Action>)
+    case keyboard(KeyboardFeature.Action)
     case presetsList(PresetsList.Action)
+    case presetsSplit(SplitViewReducer.Action)
+    case reverb(ReverbFeature.Action)
     case soundFontsList(SoundFontsList.Action)
     case tagsList(TagsList.Action)
-    case toolBar(ToolBar.Action)
     case tagsSplit(SplitViewReducer.Action)
-    case presetsSplit(SplitViewReducer.Action)
-    case delay(DelayFeature.Action)
-    case reverb(ReverbFeature.Action)
-    case keyboard(KeyboardFeature.Action)
+    case toolBar(ToolBar.Action)
   }
 
   public var body: some ReducerOf<Self> {
-    Scope(state: \.soundFontsList, action: \.soundFontsList) { SoundFontsList() }
-    Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
-    Scope(state: \.tagsList, action: \.tagsList) { TagsList() }
-    Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
-    Scope(state: \.tagsSplit, action: \.tagsSplit) { SplitViewReducer() }
-    Scope(state: \.presetsSplit, action: \.presetsSplit) { SplitViewReducer() }
+
     Scope(state: \.delay, action: \.delay) { DelayFeature(parameters: parameters) }
-    Scope(state: \.reverb, action: \.reverb) { ReverbFeature(parameters: parameters) }
     Scope(state: \.keyboard, action: \.keyboard) { KeyboardFeature() }
+    Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
+    Scope(state: \.presetsSplit, action: \.presetsSplit) { SplitViewReducer() }
+    Scope(state: \.reverb, action: \.reverb) { ReverbFeature(parameters: parameters) }
+    Scope(state: \.soundFontsList, action: \.soundFontsList) { SoundFontsList() }
+    Scope(state: \.tagsList, action: \.tagsList) { TagsList() }
+    Scope(state: \.tagsSplit, action: \.tagsSplit) { SplitViewReducer() }
+    Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
 
     Reduce { state, action in
       switch action {
-
-      case let .keyboard(.delegate(.visibleKeyRangeChanged(lowest, highest))):
-        print("visibleKeyRangeChanged: lowest: \(lowest), highest: \(highest)")
-        return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
-
-      case let .tagsSplit(.delegate(.stateChanged(panesVisible, position))):
-        let visible = panesVisible.contains(.bottom)
-        ToolBar.setTagsListVisible(&state.toolBar, value: visible)
-        @Shared(.tagsListVisible) var tagsListVisible
-        $tagsListVisible.withLock { $0 = panesVisible.contains(.bottom) }
-        @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
-        $tagsListVisible.withLock { $0 = visible }
-        $fontsAndTagsSplitPosition.withLock { $0 = position }
-        return .none
-
-      case let .presetsSplit(.delegate(.stateChanged(_, position))):
-        @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
-        $fontsAndPresetsSplitPosition.withLock { $0 = position }
-        return .none
-
+      case .delay: return .none
+      case .destination: return .none
+      case let .keyboard(.delegate(action)): return keyboardAction(&state, action: action)
+      case .keyboard: return .none
+      case .presetsList: return .none
+      case let .presetsSplit(.delegate(action)): return presetsSplitAction(&state, action: action)
+      case .presetsSplit: return .none
+      case .reverb: return .none
+      case .soundFontsList: return .none
+      case .tagsList: return .none
+      case let .tagsSplit(.delegate(action)): return tagsSplitAction(&state, action: action)
+      case .tagsSplit: return .none
       case .toolBar(.tagVisibilityButtonTapped):
         @Shared(.tagsListVisible) var tagsListVisible
         let panes: SplitViewPanes = tagsListVisible ? .both : .primary
         return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
 
       case let .toolBar(.delegate(action)): return toolBarDelegation(&state, action: action)
-
-      default: return .none
+      case .toolBar: return .none
       }
-    }
-    // ._printChanges()
+    }.ifLet(\.$destination, action: \.destination)
   }
 
   public init() {}
+}
+
+extension RootApp {
+
+  private func keyboardAction(_ state: inout State, action: KeyboardFeature.Action.Delegate) -> Effect<Action> {
+    switch action {
+    case let .visibleKeyRangeChanged(lowest, highest):
+      print("visibleKeyRangeChanged: lowest: \(lowest), highest: \(highest)")
+      return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
+    }
+  }
+
+  private func presetsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
+    switch action {
+    case let .stateChanged(_, position):
+      @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
+      $fontsAndPresetsSplitPosition.withLock { $0 = position }
+      return .none
+    }
+  }
+
+  private func tagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
+    switch action {
+    case let .stateChanged(panesVisible, position):
+      let visible = panesVisible.contains(.bottom)
+      ToolBar.setTagsListVisible(&state.toolBar, value: visible)
+      @Shared(.tagsListVisible) var tagsListVisible
+      $tagsListVisible.withLock { $0 = panesVisible.contains(.bottom) }
+      @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
+      $tagsListVisible.withLock { $0 = visible }
+      $fontsAndTagsSplitPosition.withLock { $0 = position }
+      return .none
+    }
+  }
 
   private func toolBarDelegation(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
     switch action {
@@ -119,7 +145,12 @@ public struct RootApp {
     case let .editingPresetVisibility(active): return setEditingVisibility(&state, active: active)
     case let .effectsVisibilityChanged(visible): return setEffectsVisibiliy(&state, visible: visible)
     case .presetNameTapped: return showActivePreset(&state)
-    case .settingsDismissed: return fetchPresets(&state)
+    case .settingsDismissed:
+      state.destination = nil
+      return fetchPresets(&state)
+    case .settingsButtonTapped:
+      state.destination = .settings(SettingsFeature.State())
+      return .none
     case let .tagsVisibilityChanged(visible): return setTagsVisibility(&state, visible: visible)
     case let .visibleKeyRangeChanged(lowest, _):
       return reduce(into: &state, action: .keyboard(.scrollTo(lowest)))
@@ -154,7 +185,7 @@ public struct RootApp {
 }
 
 public struct RootAppView: View, KeyboardReadable {
-  private let store: StoreOf<RootApp>
+  @Bindable private var store: StoreOf<RootApp>
   private let theme: Theme
   private let appPanelBackground = Color.black
   private let dividerBorderColor: Color = Color.gray.opacity(0.15)
@@ -163,6 +194,7 @@ public struct RootAppView: View, KeyboardReadable {
 
   @Shared(.effectsVisible) private var effectsVisible
   @Environment(\.keyboardHeight) private var maxKeyboardHeight
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @Environment(\.verticalSizeClass) private var verticalSizeClass
 
   private var keyboardHeight: CGFloat {
@@ -199,6 +231,10 @@ public struct RootAppView: View, KeyboardReadable {
     .onReceive(keyboardPublisher) {
       isInputKeyboardVisible = $0
     }
+    .sheet(
+      item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { store in
+        SettingsView(store: store, showFakeKeyboard: horizontalSizeClass == .compact || verticalSizeClass == .compact)
+      }
   }
 
   private var listViews: some View {

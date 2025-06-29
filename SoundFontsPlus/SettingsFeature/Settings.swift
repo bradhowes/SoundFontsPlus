@@ -21,7 +21,6 @@ public struct SettingsFeature {
     @Shared(.showOnlyFavorites) var showOnlyFavorites
     @Shared(.starFavoriteNames) var starFavoriteNames
     @Shared(.favoriteSymbolName) var favoriteSymbolName
-
     var tuning: TuningFeature.State
 
     public init() {
@@ -87,9 +86,11 @@ public struct SettingsFeature {
 public struct SettingsView: View {
   @State private var store: StoreOf<SettingsFeature>
   @State private var changingKeyWidth: Bool = false
+  private let showFakeKeyboard: Bool
 
-  public init(store: StoreOf<SettingsFeature>) {
+  public init(store: StoreOf<SettingsFeature>, showFakeKeyboard: Bool) {
     self.store = store
+    self.showFakeKeyboard = showFakeKeyboard
     UINavigationBar.appearance().largeTitleTextAttributes = [
       .font : UIFont(name: "Eurostile", size: 48)!,
       .foregroundColor : UIColor.systemBlue
@@ -164,7 +165,7 @@ public struct SettingsView: View {
           changingKeyWidth = editing
         }
       }
-      if changingKeyWidth {
+      if showFakeKeyboard && changingKeyWidth {
         KeyboardView(store: Store(initialState: .init(settingsDemo: true)) { KeyboardFeature() })
           .transition(.opacity)
       }
@@ -233,10 +234,12 @@ public struct SettingsView: View {
 extension SettingsView {
   static var preview: some View {
     VStack {
-      SettingsView(store: Store(initialState: .init()) {
-        SettingsFeature()
-      })
-      KeyboardView(store: Store(initialState: .init()) { KeyboardFeature() })
+      SettingsView(
+        store: Store(initialState: .init()) {
+          SettingsFeature()
+        },
+        showFakeKeyboard: false
+      )
     }
   }
 }

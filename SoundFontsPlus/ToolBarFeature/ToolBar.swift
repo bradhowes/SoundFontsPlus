@@ -58,6 +58,7 @@ public struct ToolBar {
       case effectsVisibilityChanged(Bool)
       case presetNameTapped
       case tagsVisibilityChanged(Bool)
+      case settingsButtonTapped
       case settingsDismissed
       case visibleKeyRangeChanged(lowest: Note, highest: Note)
     }
@@ -78,7 +79,7 @@ public struct ToolBar {
       case .shiftKeyboardDownButtonTapped: return shiftKeyboardDownButtonTapped(&state)
       case .shiftKeyboardUpButtonTapped: return shiftKeyboardUpButtonTapped(&state)
       case .presetsVisibilityButtonTapped: return editPresetVisibility(&state)
-      case .settingsButtonTapped: return showSettings(&state)
+      case .settingsButtonTapped: return settingsButtonTapped(&state)
       case let .setVisibleKeyRange(lowest, highest): return setVisibleKeyRange(&state, lowest: lowest, highest: highest)
       case .showMoreButtonTapped: return toggleShowMoreButtons(&state)
       case .slidingKeyboardButtonTapped: return slidingKeyboardButtonTapped(&state)
@@ -171,9 +172,9 @@ extension ToolBar {
     return .send(.delegate(.editingPresetVisibility(state.editingPresetVisibility)))
   }
 
-  private func showSettings(_ state: inout State) -> Effect<Action> {
-    state.destination = .settings(SettingsFeature.State())
-    return hideMoreButtons(&state)
+  private func settingsButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.showMoreButtons = false
+    return .send(.delegate(.settingsButtonTapped))
   }
 
   private func showHelp(_ state: inout State) -> Effect<Action> {
@@ -217,17 +218,10 @@ public struct ToolBarView: View {
     .onAppear {
       store.send(.monitorStateChanges)
     }
-    .onChange(of: store.lowestKey) {
-      print("lowestKey changed")
-    }
     .background(Color.black)
     .padding(.init(top: 8, leading: 8, bottom: 8, trailing: 0))
     .frame(height: 40)
     .animation(.smooth, value: store.showMoreButtons)
-    .popover(
-      item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { store in
-        SettingsView(store: store)
-      }
   }
 
   private var presetTitle: some View {
