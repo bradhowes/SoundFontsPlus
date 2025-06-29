@@ -44,8 +44,7 @@ When any of these values change, the various views update as would be expected:
 The keyboard is one SwiftUI view that leverages the latest SwiftUI features to be able to draw the keys and track
 multiple touches that the same time. It too is a [TCA][1] feature but for performance reasons, the amount of info kept
 in the state is minimal. The keyboad can be set to remain in place during a drag, or to slide as a touch moves. This all
-replicates what currently exists in the original [SoundFonts][0] UIKit version. Years ago I played around with a
-prototype but I was unable to get multi-touch tracking to work.
+replicates what currently exists in the original [SoundFonts][0] UIKit version. 
 
 ## Effects Controls
 
