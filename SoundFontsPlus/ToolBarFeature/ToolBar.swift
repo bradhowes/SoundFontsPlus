@@ -42,7 +42,6 @@ public struct ToolBar {
     case destination(PresentationAction<Destination.Action>)
     case effectsVisibilityButtonTapped
     case helpButtonTapped
-    case monitorStateChanges
     case shiftKeyboardUpButtonTapped
     case shiftKeyboardDownButtonTapped
     case presetsVisibilityButtonTapped
@@ -75,7 +74,6 @@ public struct ToolBar {
       case .destination: return .none
       case .effectsVisibilityButtonTapped: return toggleEffectsVisibility(&state)
       case .helpButtonTapped: return showHelp(&state)
-      case .monitorStateChanges: return monitorStateChanges(&state)
       case .shiftKeyboardDownButtonTapped: return shiftKeyboardDownButtonTapped(&state)
       case .shiftKeyboardUpButtonTapped: return shiftKeyboardUpButtonTapped(&state)
       case .presetsVisibilityButtonTapped: return editPresetVisibility(&state)
@@ -92,10 +90,6 @@ public struct ToolBar {
 }
 
 extension ToolBar {
-
-  public func monitorStateChanges(_ state: inout State) -> Effect<Action> {
-    return .none
-  }
 
   public static func setTagsListVisible(_ state: inout State, value: Bool) {
     state.tagsListVisible = value
@@ -214,9 +208,6 @@ public struct ToolBarView: View {
         presetTitle
         moreButtons
       }
-    }
-    .onAppear {
-      store.send(.monitorStateChanges)
     }
     .background(Color.black)
     .padding(.init(top: 8, leading: 8, bottom: 8, trailing: 0))

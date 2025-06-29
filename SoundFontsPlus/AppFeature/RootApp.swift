@@ -92,11 +92,6 @@ public struct RootApp {
       case .tagsList: return .none
       case let .tagsSplit(.delegate(action)): return tagsSplitAction(&state, action: action)
       case .tagsSplit: return .none
-      case .toolBar(.tagVisibilityButtonTapped):
-        @Shared(.tagsListVisible) var tagsListVisible
-        let panes: SplitViewPanes = tagsListVisible ? .both : .primary
-        return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
-
       case let .toolBar(.delegate(action)): return toolBarDelegation(&state, action: action)
       case .toolBar: return .none
       }
@@ -145,16 +140,22 @@ extension RootApp {
     case let .editingPresetVisibility(active): return setEditingVisibility(&state, active: active)
     case let .effectsVisibilityChanged(visible): return setEffectsVisibiliy(&state, visible: visible)
     case .presetNameTapped: return showActivePreset(&state)
-    case .settingsDismissed:
-      state.destination = nil
-      return fetchPresets(&state)
-    case .settingsButtonTapped:
-      state.destination = .settings(SettingsFeature.State())
-      return .none
+    case .settingsDismissed: return dismissSettingsEditor(&state)
+    case .settingsButtonTapped: return showSettingsEditor(&state)
     case let .tagsVisibilityChanged(visible): return setTagsVisibility(&state, visible: visible)
     case let .visibleKeyRangeChanged(lowest, _):
       return reduce(into: &state, action: .keyboard(.scrollTo(lowest)))
     }
+  }
+
+  private func dismissSettingsEditor(_ state: inout State) -> Effect<Action> {
+    state.destination = nil
+    return fetchPresets(&state)
+  }
+
+  private func showSettingsEditor(_ state: inout State) -> Effect<Action> {
+    state.destination = .settings(SettingsFeature.State())
+    return .none
   }
 
   private func fetchPresets(_ state: inout State) -> Effect<Action> {
