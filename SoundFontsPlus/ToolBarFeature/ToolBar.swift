@@ -186,6 +186,7 @@ public struct ToolBarView: View {
   @Shared(.activeState) var activeState
   @Environment(\.appPanelBackground) private var appPanelBackground
   @Environment(\.auv3ControlsTheme) private var auv3ControlsTheme
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   public init(store: StoreOf<ToolBar>) {
     self.store = store
@@ -196,17 +197,22 @@ public struct ToolBarView: View {
       addSoundFontButton
       toggleTagsButton
       toggleEffectsButton
-      ZStack {
-        presetTitle
-          .zIndex(0)
-        if store.showMoreButtons {
-          moreButtons
-            .zIndex(1)
-            .transition(.move(edge: .trailing))
+      if horizontalSizeClass == .compact {
+        ZStack {
+          presetTitle
+            .zIndex(0)
+          if store.showMoreButtons {
+            moreButtons
+              .zIndex(1)
+              .transition(.move(edge: .trailing))
+          }
         }
+        toggleMoreButton
+          .zIndex(2)
+      } else {
+        presetTitle
+        moreButtons
       }
-      toggleMoreButton
-        .zIndex(2)
     }
     .onAppear {
       store.send(.monitorStateChanges)
