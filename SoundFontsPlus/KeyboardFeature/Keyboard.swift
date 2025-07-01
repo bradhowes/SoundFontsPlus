@@ -20,6 +20,8 @@ public struct KeyboardFeature {
     let settingsDemo: Bool
 
     public init(settingsDemo: Bool = false) {
+      @Shared(.firstVisibleKey) var firstVisibleKey
+      self.scrollTo = firstVisibleKey
       self.settingsDemo = settingsDemo
     }
   }
@@ -174,7 +176,12 @@ public struct KeyboardView: View {
       .onScrollGeometryChange(for: CGRect.self) { geometry in
         geometry.visibleRect
       } action: { oldValue, newValue in
-        updateVisibleKeys(visibleRect: newValue)
+        if store.scrollTo != nil {
+          proxy.scrollTo(store.scrollTo, anchor: .leading)
+          store.send(.clearScrollTo)
+        } else {
+          updateVisibleKeys(visibleRect: newValue)
+        }
       }
       .onAppear {
         store.send(.monitorActivePreset)
@@ -183,7 +190,6 @@ public struct KeyboardView: View {
   }
 
   private func updateVisibleKeys(visibleRect: CGRect) {
-    print(visibleRect)
     let low = Int(visibleRect.origin.x / (store.keyWidth + whiteKeySpacing))
     let high = Int((visibleRect.origin.x + visibleRect.size.width) / (store.keyWidth + whiteKeySpacing))
     if low >= 0 && high <= 127 {

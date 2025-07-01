@@ -98,7 +98,6 @@ extension ToolBar {
   private func setVisibleKeyRange(_ state: inout State, lowest: Note, highest: Note) -> Effect<Action> {
     state.lowestKey = lowest
     state.highestKey = highest
-    $firstVisibleKey.withLock { $0 = lowest }
     return .none
   }
 
@@ -137,7 +136,6 @@ extension ToolBar {
       newLow = Note(midiNoteValue: newLow.midiNoteValue - 1)
     }
     let newHigh = Note(midiNoteValue: min(Note.midiRange.upperBound, newLow.midiNoteValue + span))
-    $firstVisibleKey.withLock { $0 = newLow }
     state.lowestKey = newLow
     state.highestKey = newHigh
     return .send(.delegate(.visibleKeyRangeChanged(lowest: newLow, highest: newHigh)))
@@ -150,7 +148,6 @@ extension ToolBar {
     if newLow.accented {
       newLow = Note(midiNoteValue: newLow.midiNoteValue - 1)
     }
-    $firstVisibleKey.withLock { $0 = newLow }
     state.lowestKey = newLow
     state.highestKey = newHigh
     return .send(.delegate(.visibleKeyRangeChanged(lowest: newLow, highest: newHigh)))
