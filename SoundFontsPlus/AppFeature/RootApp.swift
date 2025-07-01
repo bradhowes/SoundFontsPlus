@@ -92,13 +92,15 @@ public struct RootApp {
       case .tagsList: return .none
       case let .tagsSplit(.delegate(action)): return tagsSplitAction(&state, action: action)
       case .tagsSplit: return .none
-      case let .toolBar(.delegate(action)): return toolBarDelegation(&state, action: action)
+      case let .toolBar(.delegate(action)): return toolBarAction(&state, action: action)
       case .toolBar: return .none
       }
     }.ifLet(\.$destination, action: \.destination)
   }
 
   public init() {}
+
+  @Shared(.firstVisibleKey) var firstVisibleKey
 }
 
 extension RootApp {
@@ -106,7 +108,8 @@ extension RootApp {
   private func keyboardAction(_ state: inout State, action: KeyboardFeature.Action.Delegate) -> Effect<Action> {
     switch action {
     case let .visibleKeyRangeChanged(lowest, highest):
-      print("visibleKeyRangeChanged: lowest: \(lowest), highest: \(highest)")
+      $firstVisibleKey.withLock { $0 = lowest }
+      print("lowest:", lowest)
       return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
     }
   }
@@ -134,7 +137,7 @@ extension RootApp {
     }
   }
 
-  private func toolBarDelegation(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
+  private func toolBarAction(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
     switch action {
     case .addSoundFont: return .none
     case let .editingPresetVisibility(active): return setEditingVisibility(&state, active: active)
@@ -144,6 +147,8 @@ extension RootApp {
     case .settingsButtonTapped: return showSettingsEditor(&state)
     case let .tagsVisibilityChanged(visible): return setTagsVisibility(&state, visible: visible)
     case let .visibleKeyRangeChanged(lowest, _):
+      print("lowest:", lowest)
+      $firstVisibleKey.withLock { $0 = lowest }
       return reduce(into: &state, action: .keyboard(.scrollTo(lowest)))
     }
   }
