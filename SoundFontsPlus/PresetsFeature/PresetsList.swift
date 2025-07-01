@@ -235,7 +235,7 @@ public struct PresetsListView: View {
       }
       ScrollViewReader { proxy in
         StyledList {
-          ForEach(store.scope(state: \.sections, action: \.sections), id: \.id) { rowStore in
+          ForEach(store.scope(state: \.sections, action: \.sections)) { rowStore in
             PresetsListSectionView(store: rowStore, searching: store.isSearchFieldPresented)
           }
           .environment(\.editMode, $store.visibilityEditMode)

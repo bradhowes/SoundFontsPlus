@@ -7,9 +7,22 @@ import Tagged
 @Reducer
 public struct TagsEditor: Sendable {
 
+  public enum Mode: Sendable {
+    case tagEditing
+    case fontEditing
+
+    public var title: String {
+      switch self {
+      case .tagEditing: return "Tags Editor"
+      case .fontEditing: return "Font Tags"
+      }
+    }
+  }
+
   @ObservableState
   public struct State: Equatable, Sendable {
     var rows: IdentifiedArrayOf<TagNameEditor.State>
+    let mode: Mode
     var editMode: EditMode = .inactive
     var focused: FontTag.ID?
     var deleted: Set<FontTag.ID> = []
@@ -17,11 +30,13 @@ public struct TagsEditor: Sendable {
     let soundFontId: SoundFont.ID?
 
     public init(
+      mode: Mode,
       focused: FontTag.ID? = nil,
       soundFontId: SoundFont.ID? = nil,
       memberships: [FontTag.ID:Bool]? = nil,
       editMode: EditMode = .inactive,
     ) {
+      self.mode = mode
       self.rows = .init(uniqueElements: Operations.tags.map {
         .init(
           id: $0.id,
@@ -67,6 +82,7 @@ public struct TagsEditor: Sendable {
   @Shared(.activeState) var activeState
 
   public var body: some ReducerOf<Self> {
+    BindingReducer()
     Reduce { state, action in
       switch action {
       case .addButtonTapped: return addTag(&state)
@@ -81,7 +97,6 @@ public struct TagsEditor: Sendable {
       case .toggleEditMode: return toggleEditMode(&state)
       }
     }
-    BindingReducer()
     .forEach(\.rows, action: \.rows) {
       TagNameEditor()
     }
@@ -179,38 +194,38 @@ public struct TagsEditorView: View {
   public var body: some View {
     NavigationStack {
       List {
-        if store.editMode.isEditing {
-          ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
-            TagNameEditorView(store: rowStore)
-              .deleteDisabled(rowStore.id.isUbiquitous)
-          }
-          .onMove { store.send(.tagMoved(at: $0, to: $1), animation: .default) }
-          .onDelete { store.send(.deleteButtonTapped(at: $0), animation: .default) }
-        } else {
-          ForEach(store.scope(state: \.rows, action: \.rows), id: \.state.id) { rowStore in
-            TagNameEditorView(store: rowStore)
-              .focused($focused, equals: rowStore.id)
-          }
-          .bind($store.focused, to: self.$focused)
+        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+          TagNameEditorView(store: rowStore)
+            .deleteDisabled(rowStore.id.isUbiquitous)
+            .focused($focused, equals: rowStore.id)
         }
+        .onMove { indices, destination in
+          store.send(.tagMoved(at: indices, to: destination), animation: .default)
+        }
+        .onDelete {
+          print("onDelete: at: \($0)")
+          store.send(.deleteButtonTapped(at: $0), animation: .default)
+        }
+        .bind($store.focused, to: self.$focused)
       }
-      .environment(\.editMode, $store.editMode)
       .font(.tagsEditor)
-      .navigationTitle("Tags Editor")
+      .navigationTitle(store.mode.title)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button("Cancel") { store.send(.cancelButtonTapped, animation: .default) }
             .disabled(store.editMode == .active)
         }
-        ToolbarItem(placement: .automatic) {
-          Button {
-            store.send(.toggleEditMode, animation: .default)
-          } label: {
-            if store.editMode.isEditing {
-              Text("Done")
-                .foregroundStyle(.red)
-            } else {
-              Text("Edit")
+        if store.mode == .tagEditing {
+          ToolbarItem(placement: .automatic) {
+            Button {
+              store.send(.toggleEditMode, animation: .default)
+            } label: {
+              if store.editMode.isEditing {
+                Text("Done")
+                  .foregroundStyle(.red)
+              } else {
+                Text("Edit")
+              }
             }
           }
         }
@@ -227,6 +242,7 @@ public struct TagsEditorView: View {
             .disabled(store.editMode == .active)
         }
       }
+      .environment(\.editMode, $store.editMode)
     }
   }
 }
@@ -238,13 +254,13 @@ extension TagsEditorView {
     @Dependency(\.defaultDatabase) var db
     let _ = try? FontTag.make(displayName: "New Tag")
     let tags = Operations.tags
-    return TagsEditorView(store: Store(initialState: .init(focused: tags.last?.id)) { TagsEditor() })
+    return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.id)) { TagsEditor() })
   }
 
   static var previewInEditMode: some View {
     let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     let tags = Operations.tags
-    return TagsEditorView(store: Store(initialState: .init(focused: tags.last?.id, editMode: .active)) {
+    return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.id, editMode: .active)) {
       TagsEditor()
     })
   }
@@ -260,6 +276,7 @@ extension TagsEditorView {
     memberships[tags[4].id] = true
 
     return TagsEditorView(store: Store(initialState: .init(
+      mode: .fontEditing,
       focused: tags.last?.id,
       soundFontId: SoundFont.ID(rawValue: 1),
       memberships: memberships)) {

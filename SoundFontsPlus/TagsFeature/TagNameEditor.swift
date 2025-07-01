@@ -18,14 +18,14 @@ public struct TagNameEditor {
     public let tagId: FontTag.ID
     public let originalMembership: Bool?
     public let originalDisplayName: String
-    public var membership: Bool?
+    public var membership: Bool
 
     public init(id: FontTag.ID, draft: FontTag.Draft, membership: Bool? = nil) {
       self.tagId = id
       self.draft = draft
       self.originalDisplayName = draft.displayName
       self.originalMembership = membership
-      self.membership = membership
+      self.membership = membership ?? false
     }
 
     public mutating func save(_ db: Database, ordering: Int, soundFontId: SoundFont.ID?) {
@@ -46,7 +46,7 @@ public struct TagNameEditor {
         }
 
         precondition(id > 0)
-        guard let membership, let soundFontId else { return }
+        guard let soundFontId else { return }
 
         if membership != originalMembership {
           if membership {
@@ -61,10 +61,10 @@ public struct TagNameEditor {
     }
   }
 
-  public enum Action: Equatable {
+  public enum Action: BindableAction, Equatable {
+    case binding(BindingAction<State>)
     case delegate(Delegate)
     case membershipButtonTapped(Bool)
-    case nameChanged(String)
     case tagSwipedToDelete
 
     @CasePathable
@@ -76,11 +76,12 @@ public struct TagNameEditor {
   @Dependency(\.defaultDatabase) var database
 
   public var body: some ReducerOf<Self> {
+    BindingReducer()
     Reduce { state, action in
       switch action {
+      case .binding: return .none
       case .delegate: return .none
       case .membershipButtonTapped(let value): return toggleMembership(&state, value: value)
-      case .nameChanged(let newName): return updateName(&state, value: newName)
       case .tagSwipedToDelete: return .send(.delegate(.tagSwipedToDelete(state.id)), animation: .default)
       }
     }
@@ -90,7 +91,6 @@ public struct TagNameEditor {
 private extension TagNameEditor {
 
   func toggleMembership(_ state: inout State, value: Bool) -> Effect<Action> {
-    precondition(state.membership != nil)
     state.membership = value
     return .none
   }
@@ -114,26 +114,11 @@ public struct TagNameEditorView: View {
   }
 
   public var body: some View {
-    let _ = print("rendering cell \(store.tagId)")
-    if readOnly {
-      name
-    }
-    else if store.membership == nil || isEditing {
-      nameField
-    } else {
-      toggleNameField
-    }
-  }
-
-  private var name: some View {
-    Text(store.draft.displayName)
-      .foregroundStyle(editable ? .blue : .secondary)
-      .font(Font.custom("Eurostile", size: 20))
+    toggleNameField
   }
 
   private var nameField: some View {
-    TextField("", text: $store.draft.displayName.sending(\.nameChanged))
-      .textFieldStyle(.roundedBorder)
+    TextField("", text: $store.draft.displayName)
       .disabled(readOnly || isEditing)
       .deleteDisabled(readOnly)
       .foregroundStyle(editable ? .blue : .secondary)
@@ -152,9 +137,11 @@ public struct TagNameEditorView: View {
 
   private var toggleNameField: some View {
     HStack {
-      Toggle("", isOn: Binding(get: { store.membership ?? false }, set: { store.send(.membershipButtonTapped($0)) }))
-        .disabled(store.id.isUbiquitous)
-        .checkedStyle()
+      if store.originalMembership != nil {
+        Toggle("", isOn: $store.membership)
+          .disabled(store.id.isUbiquitous)
+          .checkedStyle()
+      }
       nameField
     }
   }

@@ -73,7 +73,7 @@ private extension TagsList {
   }
 
   func editTags(_ state: inout State, focused: TagInfo? = nil) -> Effect<Action> {
-    state.destination = .edit(TagsEditor.State(focused: focused?.id))
+    state.destination = .edit(TagsEditor.State(mode: .tagEditing, focused: focused?.id))
     return .none
   }
 }
@@ -147,7 +147,7 @@ extension TagsListView {
   static var previewWithEditor: some View {
     let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     var state = TagsList.State()
-    state.destination = .edit(TagsEditor.State(focused: nil))
+    state.destination = .edit(TagsEditor.State(mode: .tagEditing, focused: nil))
     return TagsListView(store: Store(initialState: state) { TagsList() })
   }
 }

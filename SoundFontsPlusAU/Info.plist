@@ -2,6 +2,38 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>AU_BASE_NAME</key>
+	<string>$(AU_BASE_NAME)</string>
+	<key>AU_COMPONENT_MANUFACTURER</key>
+	<string>$(AU_COMPONENT_MANUFACTURER)</string>
+	<key>AU_COMPONENT_NAME</key>
+	<string>$(AU_COMPONENT_NAME)</string>
+	<key>AU_COMPONENT_SUBTYPE</key>
+	<string>$(AU_COMPONENT_SUBTYPE)</string>
+	<key>AU_COMPONENT_TYPE</key>
+	<string>$(AU_COMPONENT_TYPE)</string>
+	<key>AU_FACTORY_FUNCTION</key>
+	<string>$(AU_FACTORY_FUNCTION)</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>SoundFontsPlus</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(AU_BASE_NAME) AUv3</string>
+	<key>CFBundlePackageType</key>
+	<string>XPC!</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionAttributes</key>
@@ -10,32 +42,36 @@
 			<array>
 				<dict>
 					<key>description</key>
-					<string>SoundFontsPlusAU</string>
+					<string>$(AU_BASE_NAME)</string>
 					<key>factoryFunction</key>
-					<string>$(PRODUCT_MODULE_NAME).AudioUnitViewController</string>
+					<string>$(AU_FACTORY_FUNCTION)</string>
 					<key>manufacturer</key>
-					<string>BRay</string>
+					<string>$(AU_COMPONENT_MANUFACTURER)</string>
 					<key>name</key>
-					<string>B-Ray Software: SoundFontsPlusAU</string>
+					<string>$(AU_COMPONENT_NAME)</string>
 					<key>sandboxSafe</key>
 					<true/>
 					<key>subtype</key>
-					<string>sf22</string>
+					<string>$(AU_COMPONENT_SUBTYPE)</string>
 					<key>tags</key>
 					<array>
-						<string>Synthesizer</string>
+						<string>Instruments</string>
 					</array>
 					<key>type</key>
-					<string>aumu</string>
+					<string>$(AU_COMPONENT_TYPE)</string>
 					<key>version</key>
-					<integer>67072</integer>
+					<real>196608</real>
 				</dict>
 			</array>
 		</dict>
+		<key>NSExtensionMainStoryboard</key>
+		<string>MainInterface</string>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.AudioUnit-UI</string>
-		<key>NSExtensionPrincipalClass</key>
-		<string>$(PRODUCT_MODULE_NAME).AudioUnitViewController</string>
 	</dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Desdemona.ttf</string>
+	</array>
 </dict>
 </plist>
