@@ -204,6 +204,7 @@ public struct ToolBarView: View {
       } else {
         presetTitle
         moreButtons
+          .padding(.trailing, 8)
       }
     }
     .background(Color.black)
