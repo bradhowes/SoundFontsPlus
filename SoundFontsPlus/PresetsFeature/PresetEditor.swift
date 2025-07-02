@@ -165,14 +165,8 @@ extension PresetEditor {
   }
 }
 
-enum Field {
-  case displayName
-  case notes
-}
-
 public struct PresetEditorView: View {
   @Bindable private var store: StoreOf<PresetEditor>
-  @FocusState private var focusField: Field?
   @Shared(.firstVisibleKey) private var lowestKey
 
   public init(store: StoreOf<PresetEditor>) {
@@ -210,8 +204,6 @@ public struct PresetEditorView: View {
           }
         }
       }
-    }.onAppear {
-      focusField = .displayName
     }
   }
 
@@ -220,9 +212,7 @@ public struct PresetEditorView: View {
       if !store.isFavorite {
         Toggle("Visible", isOn: $store.visible)
       }
-      TextField("Name", text: $store.displayName.sending(\.displayNameChanged))
-        .focused($focusField, equals: .displayName)
-        .textFieldStyle(.roundedBorder)
+      NameField(text: $store.displayName.sending(\.displayNameChanged), readOnly: false)
       HStack {
         Button {
           store.send(.useOriginalNameTapped)
@@ -269,7 +259,6 @@ public struct PresetEditorView: View {
   var notesSection: some View {
     Section(header: Text("Notes")) {
       TextEditor(text: $store.notes.sending(\.notesChanged))
-        .focused($focusField, equals: .notes)
     }
   }
 

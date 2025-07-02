@@ -193,6 +193,8 @@ public struct SoundFontsListView: View {
     }
     .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
       SoundFontEditorView(store: $0)
+        .preferredColorScheme(.dark)
+        .environment(\.colorScheme, .dark)
     }
 //    .fileImporter(isPresented: $store.addingSoundFonts, allowedContentTypes: types, allowsMultipleSelection: true) {
 //      store.send(.importFiles($0))

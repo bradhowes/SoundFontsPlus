@@ -240,6 +240,8 @@ public struct RootAppView: View, KeyboardReadable {
     .sheet(
       item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { store in
         SettingsView(store: store, showFakeKeyboard: horizontalSizeClass == .compact || verticalSizeClass == .compact)
+          .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
       }
   }
 
@@ -341,9 +343,8 @@ extension RootAppView {
 
     let rootApp = RootApp()
     return RootAppView(store: Store(initialState: rootApp.state) { rootApp })
-      .environment(\.colorScheme, .dark)
       .preferredColorScheme(.dark)
-
+      .environment(\.colorScheme, .dark)
   }
 }
 

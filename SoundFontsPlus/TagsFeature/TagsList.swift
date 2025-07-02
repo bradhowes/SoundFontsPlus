@@ -94,6 +94,8 @@ public struct TagsListView: View {
     }
     .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
       TagsEditorView(store: $0)
+        .preferredColorScheme(.dark)
+        .environment(\.colorScheme, .dark)
     }
   }
 

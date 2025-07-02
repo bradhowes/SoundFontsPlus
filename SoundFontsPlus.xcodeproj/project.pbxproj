@@ -129,6 +129,7 @@
 		BDD96E902E080575000FCF1E /* ReverbFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5ADA2DE2556000B8FB13 /* ReverbFeature.swift */; };
 		BDE572BF2DF317D400646D0E /* FileManagerClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE572BE2DF317D400646D0E /* FileManagerClient.swift */; };
 		BDE572C12DF3183700646D0E /* DependencyValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE572C02DF3182400646D0E /* DependencyValues.swift */; };
+		BDEB8F6B2E15C51600BF16B5 /* NameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDEB8F6A2E15C51200BF16B5 /* NameField.swift */; };
 		BDF14C492DF0AF0100BDDB0E /* PresetNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */; };
 /* End PBXBuildFile section */
 
@@ -290,6 +291,7 @@
 		BDD531B82DEADADA00B4B104 /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		BDE572BE2DF317D400646D0E /* FileManagerClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FileManagerClient.swift; path = SoundFontsPlus/Utils/FileManagerClient.swift; sourceTree = SOURCE_ROOT; };
 		BDE572C02DF3182400646D0E /* DependencyValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyValues.swift; sourceTree = "<group>"; };
+		BDEB8F6A2E15C51200BF16B5 /* NameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameField.swift; sourceTree = "<group>"; };
 		BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetNameView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -617,6 +619,7 @@
 		BDAF5B022DE2558C00B8FB13 /* SwiftUISupport */ = {
 			isa = PBXGroup;
 			children = (
+				BDEB8F6A2E15C51200BF16B5 /* NameField.swift */,
 				BDAF5AF92DE2558C00B8FB13 /* AlertsAndConfirmationDialogs.swift */,
 				BDAF5AFA2DE2558C00B8FB13 /* CheckToggleStyle.swift */,
 				BDAF5AFB2DE2558C00B8FB13 /* Fonts.swift */,
@@ -1030,6 +1033,7 @@
 				BDAF5B032DE2558C00B8FB13 /* Fonts.swift in Sources */,
 				BDAF5B042DE2558C00B8FB13 /* TextFieldClearButton.swift in Sources */,
 				BDAF5B052DE2558C00B8FB13 /* StyledList.swift in Sources */,
+				BDEB8F6B2E15C51600BF16B5 /* NameField.swift in Sources */,
 				BD673BB72DFB44D600574F9C /* WithDatabase.swift in Sources */,
 				BDAF5B062DE2558C00B8FB13 /* AlertsAndConfirmationDialogs.swift in Sources */,
 				BDAF5B092DE2558C00B8FB13 /* LongPressModifier.swift in Sources */,
@@ -1323,7 +1327,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1369,7 +1373,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

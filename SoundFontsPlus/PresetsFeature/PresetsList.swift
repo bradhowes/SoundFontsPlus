@@ -249,6 +249,8 @@ public struct PresetsListView: View {
       }
       .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
         PresetEditorView(store: $0)
+          .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
       }
     }
     .animation(.smooth, value: store.isSearchFieldPresented)

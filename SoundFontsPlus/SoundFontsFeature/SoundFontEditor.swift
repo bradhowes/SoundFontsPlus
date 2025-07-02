@@ -25,7 +25,6 @@ public struct SoundFontEditor {
     let favoriteCount: Int
     let hiddenCount: Int
 
-    var focusField: Field?
     var tagsList: String
     var displayName: String
     var notes: String
@@ -70,6 +69,7 @@ public struct SoundFontEditor {
   }
 
   public var body: some ReducerOf<Self> {
+    BindingReducer()
     Reduce { state, action in
       switch action {
       case .binding: return .none
@@ -87,7 +87,6 @@ public struct SoundFontEditor {
       }
     }
     .ifLet(\.$destination, action: \.destination)
-    BindingReducer()
   }
 
   public init() {}
@@ -142,7 +141,6 @@ extension SoundFontEditor {
 
 public struct SoundFontEditorView: View {
   @Bindable private var store: StoreOf<SoundFontEditor>
-  @FocusState private var focusField: SoundFontEditor.Field?
 
   public init(store: StoreOf<SoundFontEditor>) {
     self.store = store
@@ -189,18 +187,17 @@ public struct SoundFontEditorView: View {
           }
         }
       }
-      .bind($store.focusField, to: self.$focusField)
     }
     .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) { editorStore in
       TagsEditorView(store: editorStore)
+        .preferredColorScheme(.dark)
+        .environment(\.colorScheme, .dark)
     }
   }
 
   var nameSection: some View {
     Section {
-      TextField("Name", text: $store.displayName.sending(\.displayNameChanged))
-        .focused($focusField, equals: .displayName)
-        .textFieldStyle(.roundedBorder)
+      NameField(text: $store.displayName, readOnly: false)
       HStack {
         Button {
           store.send(.useOriginalNameTapped)
@@ -225,7 +222,6 @@ public struct SoundFontEditorView: View {
       TextEditor(text: $store.notes.sending(\.notesChanged))
         .textEditorStyle(.automatic)
         .lineLimit(1...5)
-        .focused($focusField, equals: .notes)
     }
   }
 
