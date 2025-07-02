@@ -26,7 +26,12 @@ struct SoundFontsPlusApp: App {
   }
 
   func contentView() -> some View {
-    RootAppView(store: Store(initialState: .init(parameters: parameters)) { RootApp() })
+    ZStack {
+      Color.black
+        .ignoresSafeArea(edges: .all)
+      RootAppView(store: Store(initialState: .init(parameters: parameters)) { RootApp() })
+        .environment(\.colorScheme, .dark)
+    }
   }
 
   var body: some Scene {

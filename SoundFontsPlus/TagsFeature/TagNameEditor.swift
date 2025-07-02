@@ -118,21 +118,27 @@ public struct TagNameEditorView: View {
   }
 
   private var nameField: some View {
-    TextField("", text: $store.draft.displayName)
-      .disabled(readOnly || isEditing)
-      .deleteDisabled(readOnly)
-      .foregroundStyle(editable ? .blue : .secondary)
-      .font(Font.custom("Eurostile", size: 20))
-      .swipeActions(edge: .trailing) {
-        if editable {
-          Button {
-            store.send(.tagSwipedToDelete)
-          } label: {
-            Image(systemName: "trash")
-              .tint(.red)
+    let backgroundColor: Color = readOnly ? .clear : .init(hex: "101010")!
+    return ZStack {
+      RoundedRectangle(cornerRadius: 8)
+        .padding(.init(top: 0, leading: -4, bottom: 0, trailing: 4))
+        .foregroundStyle(backgroundColor)
+      TextField("", text: $store.draft.displayName)
+        .disabled(readOnly || isEditing)
+        .deleteDisabled(readOnly)
+        .foregroundStyle(editable ? .blue : .secondary)
+        .font(Font.custom("Eurostile", size: 20))
+        .swipeActions(edge: .trailing) {
+          if editable {
+            Button {
+              store.send(.tagSwipedToDelete)
+            } label: {
+              Image(systemName: "trash")
+                .tint(.red)
+            }
           }
         }
-      }
+    }
   }
 
   private var toggleNameField: some View {
@@ -142,7 +148,17 @@ public struct TagNameEditorView: View {
           .disabled(store.id.isUbiquitous)
           .checkedStyle()
       }
-      nameField
+      NameField(text: $store.draft.displayName, readOnly: readOnly)
+        .swipeActions(edge: .trailing) {
+          if editable {
+            Button {
+              store.send(.tagSwipedToDelete)
+            } label: {
+              Image(systemName: "trash")
+                .tint(.red)
+            }
+          }
+        }
     }
   }
 }
