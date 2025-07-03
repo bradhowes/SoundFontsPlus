@@ -7,7 +7,7 @@ import Tagged
 @Reducer
 public struct TagsEditor: Sendable {
 
-  public enum Mode: Sendable {
+  public enum Mode: Sendable, Equatable {
     case tagEditing
     case fontEditing
 

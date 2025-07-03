@@ -8,7 +8,7 @@ import Tagged
 @Reducer
 public struct SoundFontEditor {
 
-  @Reducer(state: .equatable)
+  @Reducer(state: .equatable, action: .equatable)
   public enum Destination {
     case edit(TagsEditor)
   }
@@ -49,7 +49,7 @@ public struct SoundFontEditor {
     }
   }
 
-  public enum Action: BindableAction {
+  public enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
     case cancelButtonTapped
     case changeTagsButtonTapped
