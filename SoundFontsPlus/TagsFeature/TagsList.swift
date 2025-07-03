@@ -131,6 +131,9 @@ public struct TagsListView: View {
         }
       }
     }
+    .onLongPressGesture {
+      store.send(.longPressGestureFired)
+    }
   }
 }
 
@@ -144,13 +147,6 @@ extension TagsListView {
     }
 
     return TagsListView(store: Store(initialState: .init()) { TagsList() })
-  }
-
-  static var previewWithEditor: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
-    var state = TagsList.State()
-    state.destination = .edit(TagsEditor.State(mode: .tagEditing, focused: nil))
-    return TagsListView(store: Store(initialState: state) { TagsList() })
   }
 }
 
