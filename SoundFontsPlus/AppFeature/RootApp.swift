@@ -203,6 +203,10 @@ public struct RootAppView: View, KeyboardReadable {
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @Environment(\.verticalSizeClass) private var verticalSizeClass
 
+  private var showFakeKeyboard: Bool {
+    horizontalSizeClass == .compact || verticalSizeClass == .compact
+  }
+
   private var keyboardHeight: CGFloat {
     isInputKeyboardVisible
     ? 1.0
@@ -237,12 +241,7 @@ public struct RootAppView: View, KeyboardReadable {
     .onReceive(keyboardPublisher) {
       isInputKeyboardVisible = $0
     }
-    .sheet(
-      item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { store in
-        SettingsView(store: store, showFakeKeyboard: horizontalSizeClass == .compact || verticalSizeClass == .compact)
-          .preferredColorScheme(.dark)
-          .environment(\.colorScheme, .dark)
-      }
+    .destinations(store: $store, horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
   }
 
   private var listViews: some View {
@@ -328,6 +327,36 @@ public struct RootAppView: View, KeyboardReadable {
     KeyboardView(store: store.scope(state: \.keyboard, action: \.keyboard))
       .frame(height: keyboardHeight)
       .opacity(isInputKeyboardVisible ? 0.0 : 1.0)
+  }
+}
+
+extension View {
+  func destinations(
+    store: Bindable<StoreOf<RootApp>>,
+    horizontalSizeClass: UserInterfaceSizeClass?,
+    verticalSizeClass: UserInterfaceSizeClass?
+  ) -> some View {
+    self
+      .sheet(item: store.scope(state: \.destination?.settings, action: \.destination.settings)) {
+        SettingsView(store: $0, showFakeKeyboard: horizontalSizeClass == .compact || verticalSizeClass == .compact)
+          .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
+      }
+//      .sheet(item: store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor)) {
+//        TagsEditorView(store: $0)
+//          .preferredColorScheme(.dark)
+//          .environment(\.colorScheme, .dark)
+//      }
+//      .sheet(item: store.scope(state: \.destination?.soundFontEditor, action: \.destination.soundFontEditor)) {
+//        SoundFontEditorView(store: $0)
+//          .preferredColorScheme(.dark)
+//          .environment(\.colorScheme, .dark)
+//      }
+//      .sheet(item: store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
+//        PresetEditorView(store: $0)
+//          .preferredColorScheme(.dark)
+//          .environment(\.colorScheme, .dark)
+//      }
   }
 }
 
