@@ -26,6 +26,7 @@ public struct PresetButton {
     case editButtonTapped
     case favoriteButtonTapped
     case hideOrDeleteButtonTapped
+    case longPressGestureFired
     case toggleVisibility
 
     @CasePathable
@@ -56,6 +57,7 @@ public struct PresetButton {
       case .editButtonTapped: return .send(.delegate(.editPreset(state.preset)))
       case .favoriteButtonTapped: return .send(.delegate(.createFavorite(state.preset)))
       case .hideOrDeleteButtonTapped: return .send(.delegate(.hideOrDeletePreset(state.preset)))
+      case .longPressGestureFired: return .send(.delegate(.editPreset(state.preset)))
       case .toggleVisibility: return toggleVisibility(&state)
       }
     }
@@ -122,6 +124,9 @@ public struct PresetButtonView: View {
         .transition(.opacity)
         .animation(.default, value: isEditing)
         .id(store.preset.id)
+        .onLongPressGesture {
+          store.send(.longPressGestureFired)
+        }
     }
   }
 

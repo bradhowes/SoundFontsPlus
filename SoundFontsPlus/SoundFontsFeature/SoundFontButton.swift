@@ -27,6 +27,7 @@ public struct SoundFontButton {
     case delegate(Delegate)
     case deleteButtonTapped
     case editButtonTapped
+    case longPressGestureFired
 
     @CasePathable
     public enum ConfirmationDialog {
@@ -52,6 +53,7 @@ public struct SoundFontButton {
       case .delegate: return .none
       case .deleteButtonTapped: return deleteButtonTapped(&state)
       case .editButtonTapped: return .send(.delegate(.editSoundFont(state.soundFontInfo)))
+      case .longPressGestureFired: return .send(.delegate(.editSoundFont(state.soundFontInfo)))
       }
     }
     .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
@@ -145,6 +147,9 @@ struct SoundFontButtonView: View {
             .tint(.red)
         }
       }
+    }
+    .onLongPressGesture {
+      store.send(.longPressGestureFired)
     }
   }
 }
