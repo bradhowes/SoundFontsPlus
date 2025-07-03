@@ -148,9 +148,10 @@ struct SoundFontButtonView: View {
         }
       }
     }
-    .onLongPressGesture {
-      store.send(.longPressGestureFired)
-    }
+    .simultaneousGesture(
+      LongPressGesture()
+        .onEnded { _ in store.send(.longPressGestureFired) }
+    )
   }
 }
 
