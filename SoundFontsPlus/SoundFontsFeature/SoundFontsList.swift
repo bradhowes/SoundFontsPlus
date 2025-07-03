@@ -9,14 +9,8 @@ import UniformTypeIdentifiers
 @Reducer
 public struct SoundFontsList {
 
-  @Reducer
-  public enum Destination {
-    case edit(SoundFontEditor)
-  }
-
   @ObservableState
   public struct State: Equatable {
-    @Presents var destination: Destination.State?
     var rows: IdentifiedArrayOf<SoundFontButton.State> = []
     var addingSoundFonts: Bool = false
     var showingAddedSummary: Bool = false
@@ -27,11 +21,15 @@ public struct SoundFontsList {
 
   public enum Action {
     case activeTagIdChanged(FontTag.ID?)
-    case destination(PresentationAction<Destination.Action>)
+    case delegate(Delegate)
     case onAppear
     case rows(IdentifiedActionOf<SoundFontButton>)
     case showActiveSoundFont
     case soundFontInfosChanged([SoundFontInfo])
+
+    public enum Delegate {
+      case edit(SoundFont)
+    }
   }
 
   public init() {}
@@ -40,7 +38,7 @@ public struct SoundFontsList {
     Reduce { state, action in
       switch action {
       case .activeTagIdChanged: return monitorFetchAll(&state)
-      case .destination: return .none
+      case .delegate: return .none
       case .onAppear: return monitorActiveTag(&state)
       case let .rows(.element(_, .delegate(action))): return dispatchRowAction(&state, action: action)
       case .rows: return .none
@@ -51,7 +49,6 @@ public struct SoundFontsList {
     .forEach(\.rows, action: \.rows) {
       SoundFontButton()
     }
-    .ifLet(\.$destination, action: \.destination)
   }
 
   private enum CancelId {
@@ -62,8 +59,6 @@ public struct SoundFontsList {
   @Dependency(\.defaultDatabase) var database
   @Shared(.activeState) var activeState
 }
-
-extension SoundFontsList.Destination.State: Equatable {}
 
 extension SoundFontsList {
 
@@ -99,8 +94,7 @@ extension SoundFontsList {
       return .none
     }
 
-    state.destination = .edit(SoundFontEditor.State(soundFont: soundFont))
-    return .none
+    return .send(.delegate(.edit(soundFont)))
   }
 
   private func importFiles(_ state: inout State, result: Result<[URL], Error>) -> Effect<Action> {
@@ -190,11 +184,6 @@ public struct SoundFontsListView: View {
     }
     .onAppear {
       store.send(.onAppear)
-    }
-    .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
-      SoundFontEditorView(store: $0)
-        .preferredColorScheme(.dark)
-        .environment(\.colorScheme, .dark)
     }
 //    .fileImporter(isPresented: $store.addingSoundFonts, allowedContentTypes: types, allowsMultipleSelection: true) {
 //      store.send(.importFiles($0))

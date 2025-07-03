@@ -28,7 +28,7 @@ public struct TagsList {
     case longPressGestureFired
     case tagButtonTapped(TagInfo)
     public enum Delegate: Equatable {
-      case editTags(TagInfo.ID?)
+      case edit(TagInfo.ID?)
     }
   }
 
@@ -69,7 +69,7 @@ private extension TagsList {
   }
 
   func editTags(_ state: inout State, focused: TagInfo? = nil) -> Effect<Action> {
-    return .send(.delegate(.editTags(focused?.id)))
+    return .send(.delegate(.edit(focused?.id)))
   }
 }
 

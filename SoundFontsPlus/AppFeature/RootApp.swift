@@ -18,6 +18,7 @@ public struct RootApp {
   public enum Destination {
     case settings(SettingsFeature)
     case tagsEditor(TagsEditor)
+    case soundFontEditor(SoundFontEditor)
   }
 
   @ObservableState
@@ -89,8 +90,9 @@ public struct RootApp {
       case let .presetsSplit(.delegate(action)): return presetsSplitAction(&state, action: action)
       case .presetsSplit: return .none
       case .reverb: return .none
+      case let .soundFontsList(.delegate(.edit(soundFont))): return editFont(&state, soundFont: soundFont)
       case .soundFontsList: return .none
-      case let .tagsList(.delegate(.editTags(focused))): return editTags(&state, focused: focused)
+      case let .tagsList(.delegate(.edit(focused))): return editTags(&state, focused: focused)
       case .tagsList: return .none
       case let .tagsSplit(.delegate(action)): return tagsSplitAction(&state, action: action)
       case .tagsSplit: return .none
@@ -106,6 +108,11 @@ public struct RootApp {
 }
 
 extension RootApp {
+
+  func editFont(_ state: inout State, soundFont: SoundFont) -> Effect<Action> {
+    state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
+    return .none
+  }
 
   func editTags(_ state: inout State, focused: TagInfo.ID? = nil) -> Effect<Action> {
     state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
@@ -354,11 +361,11 @@ extension View {
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }
-//      .sheet(item: store.scope(state: \.destination?.soundFontEditor, action: \.destination.soundFontEditor)) {
-//        SoundFontEditorView(store: $0)
-//          .preferredColorScheme(.dark)
-//          .environment(\.colorScheme, .dark)
-//      }
+      .sheet(item: store.scope(state: \.destination?.soundFontEditor, action: \.destination.soundFontEditor)) {
+        SoundFontEditorView(store: $0)
+          .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
+      }
 //      .sheet(item: store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
 //        PresetEditorView(store: $0)
 //          .preferredColorScheme(.dark)
