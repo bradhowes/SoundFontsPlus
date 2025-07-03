@@ -14,25 +14,22 @@ import SwiftUI
 @Reducer
 public struct TagsList {
 
-  @Reducer(state: .equatable, .sendable, action: .equatable)
-  public enum Destination: Sendable {
-    case edit(TagsEditor)
-  }
-
   @ObservableState
   public struct State: Equatable {
-    @Presents var destination: Destination.State?
     @FetchAll(Operations.tagInfosQuery, animation: .smooth) var tagInfos
 
     public init() {}
   }
 
   public enum Action: Equatable {
+    case delegate(Delegate)
     case deleteButtonTapped(TagInfo)
-    case destination(PresentationAction<Destination.Action>)
     case editButtonTapped(TagInfo)
     case longPressGestureFired
     case tagButtonTapped(TagInfo)
+    public enum Delegate: Equatable {
+      case editTags(TagInfo.ID?)
+    }
   }
 
   public init() {}
@@ -42,14 +39,13 @@ public struct TagsList {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .destination: return .none
+      case .delegate: return .none
       case let .deleteButtonTapped(tagInfo): return deleteTag(&state, tagId: tagInfo.id)
       case let .editButtonTapped(tagInfo): return editTags(&state, focused: tagInfo)
       case let .tagButtonTapped(tagInfo): return activateTag(&state, tagId: tagInfo.id)
       case .longPressGestureFired: return editTags(&state, focused: nil)
       }
     }
-    .ifLet(\.$destination, action: \.destination)
   }
 }
 
@@ -73,8 +69,7 @@ private extension TagsList {
   }
 
   func editTags(_ state: inout State, focused: TagInfo? = nil) -> Effect<Action> {
-    state.destination = .edit(TagsEditor.State(mode: .tagEditing, focused: focused?.id))
-    return .none
+    return .send(.delegate(.editTags(focused?.id)))
   }
 }
 
@@ -91,11 +86,6 @@ public struct TagsListView: View {
       ForEach(store.tagInfos, id: \.id) { tagInfo in
         button(tagInfo)
       }
-    }
-    .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
-      TagsEditorView(store: $0)
-        .preferredColorScheme(.dark)
-        .environment(\.colorScheme, .dark)
     }
   }
 
