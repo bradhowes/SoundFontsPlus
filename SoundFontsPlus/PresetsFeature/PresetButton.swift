@@ -124,9 +124,10 @@ public struct PresetButtonView: View {
         .transition(.opacity)
         .animation(.default, value: isEditing)
         .id(store.preset.id)
-        .onLongPressGesture {
-          store.send(.longPressGestureFired)
-        }
+        .simultaneousGesture(
+          LongPressGesture()
+            .onEnded { _ in store.send(.longPressGestureFired) }
+        )
     }
   }
 
