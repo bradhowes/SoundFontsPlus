@@ -192,7 +192,7 @@ public struct SoundFontEditorView: View {
 
   var nameSection: some View {
     Section {
-      NameField(text: $store.displayName, readOnly: false)
+      NameFieldView(text: $store.displayName, readOnly: false)
       HStack {
         Button {
           store.send(.useOriginalNameTapped)

@@ -148,7 +148,7 @@ public struct TagNameEditorView: View {
           .disabled(store.id.isUbiquitous)
           .checkedStyle()
       }
-      NameField(text: $store.draft.displayName, readOnly: readOnly)
+      NameFieldView(text: $store.draft.displayName, readOnly: readOnly)
         .swipeActions(edge: .trailing) {
           if editable {
             Button {
