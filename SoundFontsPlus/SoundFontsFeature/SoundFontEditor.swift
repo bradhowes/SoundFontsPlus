@@ -8,11 +8,6 @@ import Tagged
 @Reducer
 public struct SoundFontEditor {
 
-  public enum Field {
-    case displayName
-    case notes
-  }
-
   @Reducer(state: .equatable)
   public enum Destination {
     case edit(TagsEditor)
