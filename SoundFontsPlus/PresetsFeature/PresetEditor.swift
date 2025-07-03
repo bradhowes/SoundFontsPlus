@@ -212,7 +212,7 @@ public struct PresetEditorView: View {
       if !store.isFavorite {
         Toggle("Visible", isOn: $store.visible)
       }
-      NameField(text: $store.displayName.sending(\.displayNameChanged), readOnly: false)
+      NameFieldView(text: $store.displayName.sending(\.displayNameChanged), readOnly: false)
       HStack {
         Button {
           store.send(.useOriginalNameTapped)

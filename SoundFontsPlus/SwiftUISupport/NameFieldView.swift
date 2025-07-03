@@ -1,7 +1,9 @@
 import SwiftUI
 
-
-public struct NameField: View {
+/**
+ Customized `TextField` that shows a dark background to indicate that it is editable.
+ */
+public struct NameFieldView: View {
   private var text: Binding<String>
   private let readOnly: Bool
   @Environment(\.editMode) private var editMode

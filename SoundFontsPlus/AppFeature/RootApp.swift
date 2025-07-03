@@ -19,6 +19,7 @@ public struct RootApp {
     case settings(SettingsFeature)
     case tagsEditor(TagsEditor)
     case soundFontEditor(SoundFontEditor)
+    case presetEditor(PresetEditor)
   }
 
   @ObservableState
@@ -83,9 +84,11 @@ public struct RootApp {
     Reduce { state, action in
       switch action {
       case .delay: return .none
+      case .destination(.dismiss): return dismissingSheet(&state)
       case .destination: return .none
       case let .keyboard(.delegate(action)): return keyboardAction(&state, action: action)
       case .keyboard: return .none
+      case let .presetsList(.delegate(.edit(preset))): return editPreset(&state, preset: preset)
       case .presetsList: return .none
       case let .presetsSplit(.delegate(action)): return presetsSplitAction(&state, action: action)
       case .presetsSplit: return .none
@@ -108,6 +111,16 @@ public struct RootApp {
 }
 
 extension RootApp {
+
+  func dismissingSheet(_ state: inout State) -> Effect<Action> {
+    guard case Destination.State.presetEditor? = state.destination else { return .none }
+    return reduce(into: &state, action: .presetsList(.fetchPresets))
+  }
+
+  func editPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
+    state.destination = .presetEditor(PresetEditor.State(preset: preset))
+    return .none
+  }
 
   func editFont(_ state: inout State, soundFont: SoundFont) -> Effect<Action> {
     state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
@@ -366,11 +379,11 @@ extension View {
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }
-//      .sheet(item: store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
-//        PresetEditorView(store: $0)
-//          .preferredColorScheme(.dark)
-//          .environment(\.colorScheme, .dark)
-//      }
+      .sheet(item: store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
+        PresetEditorView(store: $0)
+          .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
+      }
   }
 }
 

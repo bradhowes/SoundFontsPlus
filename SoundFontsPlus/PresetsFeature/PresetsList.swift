@@ -7,14 +7,8 @@ import SwiftUI
 @Reducer
 public struct PresetsList {
 
-  @Reducer(state: .equatable, .sendable, action: .equatable)
-  public enum Destination: Equatable {
-    case edit(PresetEditor)
-  }
-
   @ObservableState
   public struct State: Equatable {
-    @Presents var destination: Destination.State?
     var sections: IdentifiedArrayOf<PresetsListSection.State>
     var searchText: String
     var isSearchFieldPresented: Bool
@@ -37,11 +31,11 @@ public struct PresetsList {
     }
   }
 
-  public enum Action: Equatable, BindableAction {
+  public enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
     case cancelSearchButtonTapped
     case clearScrollToPresetId
-    case destination(PresentationAction<Destination.Action>)
+    case delegate(Delegate)
     case fetchPresets
     case onAppear
     case searchTextChanged(String)
@@ -49,6 +43,10 @@ public struct PresetsList {
     case selectedSoundFontIdChanged(SoundFont.ID?)
     case showActivePreset
     case visibilityEditModeChanged(Bool)
+
+    public enum Delegate: Equatable {
+      case edit(Preset)
+    }
   }
 
   public init() {}
@@ -67,8 +65,7 @@ public struct PresetsList {
       case .binding: return .none
       case .cancelSearchButtonTapped: return dismissSearch(&state)
       case .clearScrollToPresetId: return clearScrollToPresetId(&state)
-      case .destination(.dismiss): return updatePreset(&state)
-      case .destination: return .none
+      case .delegate: return .none
       case .fetchPresets: return generatePresetSections(&state)
       case .onAppear: return monitorSelectedSoundFontId()
       case .searchTextChanged(let value): return searchTextChanged(&state, searchText: value)
@@ -97,7 +94,6 @@ public struct PresetsList {
     .forEach(\.sections, action: \.sections) {
       PresetsListSection()
     }
-    .ifLet(\.$destination, action: \.destination)
   }
 }
 
@@ -142,8 +138,7 @@ extension PresetsList {
   }
 
   private func editPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
-    state.destination = .edit(PresetEditor.State(preset: preset))
-    return .none
+    return .send(.delegate(.edit(preset)))
   }
 
   private func hideOrDeletePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
@@ -209,11 +204,6 @@ extension PresetsList {
     return generatePresetSections(&state)
   }
 
-  private func updatePreset(_ state: inout State) -> Effect<Action> {
-    guard case Destination.State.edit? = state.destination else { return .none }
-    return generatePresetSections(&state)
-  }
-
   private func visibilityEditModeChanged(_ state: inout State, editing: Bool) -> Effect<Action> {
     state.visibilityEditMode = editing ? .active : .inactive
     return generatePresetSections(&state)
@@ -246,11 +236,6 @@ public struct PresetsListView: View {
       }
       .onAppear {
         store.send(.onAppear)
-      }
-      .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) {
-        PresetEditorView(store: $0)
-          .preferredColorScheme(.dark)
-          .environment(\.colorScheme, .dark)
       }
     }
     .animation(.smooth, value: store.isSearchFieldPresented)
