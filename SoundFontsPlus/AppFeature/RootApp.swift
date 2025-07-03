@@ -17,6 +17,7 @@ public struct RootApp {
   @Reducer(state: .equatable, .sendable, action: .equatable)
   public enum Destination {
     case settings(SettingsFeature)
+    case tagsEditor(TagsEditor)
   }
 
   @ObservableState
@@ -89,6 +90,7 @@ public struct RootApp {
       case .presetsSplit: return .none
       case .reverb: return .none
       case .soundFontsList: return .none
+      case let .tagsList(.delegate(.editTags(focused))): return editTags(&state, focused: focused)
       case .tagsList: return .none
       case let .tagsSplit(.delegate(action)): return tagsSplitAction(&state, action: action)
       case .tagsSplit: return .none
@@ -104,6 +106,11 @@ public struct RootApp {
 }
 
 extension RootApp {
+
+  func editTags(_ state: inout State, focused: TagInfo.ID? = nil) -> Effect<Action> {
+    state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
+    return .none
+  }
 
   private func keyboardAction(_ state: inout State, action: KeyboardFeature.Action.Delegate) -> Effect<Action> {
     switch action {
@@ -342,11 +349,11 @@ extension View {
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }
-//      .sheet(item: store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor)) {
-//        TagsEditorView(store: $0)
-//          .preferredColorScheme(.dark)
-//          .environment(\.colorScheme, .dark)
-//      }
+      .sheet(item: store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor)) {
+        TagsEditorView(store: $0)
+          .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
+      }
 //      .sheet(item: store.scope(state: \.destination?.soundFontEditor, action: \.destination.soundFontEditor)) {
 //        SoundFontEditorView(store: $0)
 //          .preferredColorScheme(.dark)
