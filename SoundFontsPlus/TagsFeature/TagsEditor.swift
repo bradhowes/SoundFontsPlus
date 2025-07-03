@@ -243,7 +243,6 @@ public struct TagsEditorView: View {
         }
       }
       .environment(\.editMode, $store.editMode)
-      .environment(\.colorScheme, .dark)
     }
   }
 }
