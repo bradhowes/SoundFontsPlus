@@ -364,13 +364,13 @@ extension View {
     verticalSizeClass: UserInterfaceSizeClass?
   ) -> some View {
     self
-      .sheet(item: store.scope(state: \.destination?.settings, action: \.destination.settings)) {
-        SettingsView(store: $0, showFakeKeyboard: horizontalSizeClass == .compact || verticalSizeClass == .compact)
+      .sheet(item: store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
+        PresetEditorView(store: $0)
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }
-      .sheet(item: store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor)) {
-        TagsEditorView(store: $0)
+      .sheet(item: store.scope(state: \.destination?.settings, action: \.destination.settings)) {
+        SettingsView(store: $0, showFakeKeyboard: horizontalSizeClass == .compact || verticalSizeClass == .compact)
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }
@@ -379,8 +379,8 @@ extension View {
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }
-      .sheet(item: store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
-        PresetEditorView(store: $0)
+      .sheet(item: store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor)) {
+        TagsEditorView(store: $0)
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }
