@@ -115,7 +115,6 @@ public struct SettingsView: View {
       }
       .animation(.smooth, value: changingKeyWidth)
     }
-    .environment(\.colorScheme, .dark)
   }
 
   private var displaySection: some View {
