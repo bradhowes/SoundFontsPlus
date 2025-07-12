@@ -39,7 +39,7 @@ public struct PresetsListSection {
 
   public enum Action: Equatable {
     case delegate(Delegate)
-    case headerTapped
+    case headerTapped(Int)
     case rows(IdentifiedActionOf<PresetButton>)
     case searchButtonTapped
 
@@ -55,13 +55,21 @@ public struct PresetsListSection {
     Reduce<State, Action> { state, action in
       switch action {
       case .delegate: return .none
-      case .headerTapped: return .send(.delegate(.headerTapped(Preset.ID(rawValue: Int64(state.section - 19)))))
+      case let .headerTapped(count): return headerTapped(&state, count: count)
       case .rows: return .none
       case .searchButtonTapped: return .send(.delegate(.searchButtonTapped))
       }
     }
     .forEach(\.rows, action: \.rows) {
       PresetButton()
+    }
+  }
+
+  private func headerTapped(_ state: inout State, count: Int) -> Effect<Action> {
+    if count == 1 {
+      return .send(.delegate(.headerTapped(Preset.ID(rawValue: Int64(state.section - 19)))))
+    } else {
+      return .send(.delegate(.headerTapped(Preset.ID(rawValue: Int64(1)))))
     }
   }
 }
@@ -83,8 +91,11 @@ public struct PresetsListSectionView: View {
       buttonRows
     } header: {
       sectionHeader
-        .onTapGesture {
-          store.send(.headerTapped)
+        .onTapGesture(count: 2) {
+          store.send(.headerTapped(2))
+        }
+        .onTapGesture(count: 1) {
+          store.send(.headerTapped(1))
         }
     }
     .id(store.sectionId)
@@ -94,11 +105,13 @@ public struct PresetsListSectionView: View {
   private var sectionHeader: some View {
     if searching {
       Text(sectionText)
-        .foregroundStyle(.indigo)
+        .foregroundStyle(Color.accentColor)
     } else {
       HStack {
         Text(sectionText)
-          .foregroundStyle(.indigo)
+          .foregroundStyle(Color.accentColor)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .contentShape(Rectangle())
         Spacer()
         if (showSearchButton || store.section == 0) && !(editMode?.wrappedValue.isEditing ?? false) {
           Button {

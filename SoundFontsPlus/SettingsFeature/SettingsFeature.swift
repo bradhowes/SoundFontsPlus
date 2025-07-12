@@ -91,10 +91,6 @@ public struct SettingsView: View {
   public init(store: StoreOf<SettingsFeature>, showFakeKeyboard: Bool) {
     self.store = store
     self.showFakeKeyboard = showFakeKeyboard
-    UINavigationBar.appearance().largeTitleTextAttributes = [
-      .font : UIFont(name: "Eurostile", size: 48)!,
-      .foregroundColor : UIColor.systemBlue
-    ]
   }
 
   public var body: some View {
@@ -233,7 +229,8 @@ public struct SettingsView: View {
 
 extension SettingsView {
   static var preview: some View {
-    VStack {
+    navigationBarTitleStyle()
+    return VStack {
       SettingsView(
         store: Store(initialState: .init()) {
           SettingsFeature()

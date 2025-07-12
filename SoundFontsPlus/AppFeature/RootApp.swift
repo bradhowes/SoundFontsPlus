@@ -243,13 +243,16 @@ public struct RootAppView: View, KeyboardReadable {
   public init(store: StoreOf<RootApp>) {
     self.store = store
     var theme = Theme()
-    theme.controlForegroundColor = .indigo
-    theme.textColor = .indigo
+    theme.controlForegroundColor = .teal
+    theme.textColor = .teal.mix(with: .black, by: 0.2)
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
     theme.font = .effectsControl
+
+    navigationBarTitleStyle()
+
     self.theme = theme
   }
 
@@ -258,6 +261,7 @@ public struct RootAppView: View, KeyboardReadable {
     VStack(spacing: 0) {
       listViews
       effectsView
+        .knobCustomValueEditorHost()
       toolbarAndKeyboard
     }
     .padding(0)
@@ -395,12 +399,17 @@ extension RootAppView {
       $0.parameters = ParameterAddress.createParameterTree()
       $0.delayDevice = .init(getConfig: { DelayConfig.Draft() }, setConfig: { print("delayDevice.set: ", $0) })
       $0.reverbDevice = .init(getConfig: { ReverbConfig.Draft() }, setConfig: { print("reverbDevice.set: ", $0) })
+      navigationBarTitleStyle()
     }
 
     let rootApp = RootApp()
-    return RootAppView(store: Store(initialState: rootApp.state) { rootApp })
-      .preferredColorScheme(.dark)
-      .environment(\.colorScheme, .dark)
+    return ZStack {
+      Color.black
+        .ignoresSafeArea(edges: .all)
+      RootAppView(store: Store(initialState: rootApp.state) { rootApp })
+        .preferredColorScheme(.dark)
+        .environment(\.colorScheme, .dark)
+    }
   }
 }
 

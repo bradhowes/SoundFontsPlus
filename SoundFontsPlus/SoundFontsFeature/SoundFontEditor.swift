@@ -139,10 +139,6 @@ public struct SoundFontEditorView: View {
 
   public init(store: StoreOf<SoundFontEditor>) {
     self.store = store
-    UINavigationBar.appearance().largeTitleTextAttributes = [
-      .font : UIFont(name: "Eurostile", size: 48)!,
-      .foregroundColor : UIColor.systemBlue
-    ]
   }
 
   public var body: some View {
@@ -185,8 +181,6 @@ public struct SoundFontEditorView: View {
     }
     .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) { editorStore in
       TagsEditorView(store: editorStore)
-        .preferredColorScheme(.dark)
-        .environment(\.colorScheme, .dark)
     }
   }
 
@@ -194,20 +188,20 @@ public struct SoundFontEditorView: View {
     Section {
       NameFieldView(text: $store.displayName, readOnly: false)
       HStack {
+        Text(store.soundFont.originalName)
+          .foregroundStyle(.secondary)
+          .frame(maxWidth: .infinity, alignment: .leading)
         Button {
           store.send(.useOriginalNameTapped)
         } label: {
           Text("Original")
         }
-        Spacer()
-        Text(store.soundFont.originalName)
-          .foregroundStyle(.secondary)
       }
       HStack {
-        Button("Embedded") { store.send(.useEmbeddedNameTapped) }
-        Spacer()
         Text(store.soundFont.embeddedName)
           .foregroundStyle(.secondary)
+          .frame(maxWidth: .infinity, alignment: .leading)
+        Button("Embedded") { store.send(.useEmbeddedNameTapped) }
       }
     }
   }
@@ -264,6 +258,7 @@ extension SoundFontEditorView {
   static var preview: some View {
     var soundFonts = try! prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
+      navigationBarTitleStyle()
       return try $0.defaultDatabase.read { try SoundFont.all.fetchAll($0) }
     }
 

@@ -185,10 +185,6 @@ public struct TagsEditorView: View {
 
   public init(store: StoreOf<TagsEditor>) {
     self.store = store
-    UINavigationBar.appearance().largeTitleTextAttributes = [
-      .font : UIFont(name: "Eurostile", size: 48)!,
-      .foregroundColor : UIColor.systemBlue
-    ]
   }
 
   public var body: some View {
@@ -250,7 +246,11 @@ public struct TagsEditorView: View {
 extension TagsEditorView {
 
   static var preview: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
+    let _ = prepareDependencies {
+      $0.defaultDatabase = try! appDatabase()
+      navigationBarTitleStyle()
+    }
+
     @Dependency(\.defaultDatabase) var db
     let _ = try? FontTag.make(displayName: "New Tag")
     let tags = Operations.tags

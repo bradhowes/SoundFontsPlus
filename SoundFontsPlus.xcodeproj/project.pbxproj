@@ -18,6 +18,7 @@
 		BD3311432DE2700500A73BA8 /* InlineSnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311422DE2700500A73BA8 /* InlineSnapshotTesting */; };
 		BD3311452DE2700500A73BA8 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311442DE2700500A73BA8 /* SnapshotTesting */; };
 		BD3311472DE2700500A73BA8 /* SnapshotTestingCustomDump in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311462DE2700500A73BA8 /* SnapshotTestingCustomDump */; };
+		BD33FF572E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */; };
 		BD46FC832DF62C3100CB20F1 /* AUParameterTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */; };
 		BD673BB72DFB44D600574F9C /* WithDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD673BB62DFB44D100574F9C /* WithDatabase.swift */; };
 		BD7DBC8D2DF45904005A31DE /* DimmedAppearanceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */; };
@@ -130,6 +131,8 @@
 		BDE572BF2DF317D400646D0E /* FileManagerClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE572BE2DF317D400646D0E /* FileManagerClient.swift */; };
 		BDE572C12DF3183700646D0E /* DependencyValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE572C02DF3182400646D0E /* DependencyValues.swift */; };
 		BDEB8F6B2E15C51600BF16B5 /* NameFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDEB8F6A2E15C51200BF16B5 /* NameFieldView.swift */; };
+		BDEB8F952E17287E00BF16B5 /* SF2LibAU in Frameworks */ = {isa = PBXBuildFile; productRef = BDEB8F942E17287E00BF16B5 /* SF2LibAU */; };
+		BDEB90092E19B00A00BF16B5 /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = BDEB90082E19B00A00BF16B5 /* SwiftUIIntrospect */; };
 		BDF14C492DF0AF0100BDDB0E /* PresetNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */; };
 /* End PBXBuildFile section */
 
@@ -185,6 +188,7 @@
 		BD1D27A12B6F13DE005C3ED0 /* SoundFontsPlusUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFontsPlusUITests.swift; sourceTree = "<group>"; };
 		BD1D27A32B6F13DE005C3ED0 /* SoundFontsPlusUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFontsPlusUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		BD2A26032CC849E0000CC1DF /* Eurostile.ttc */ = {isa = PBXFileReference; lastKnownFileType = file; path = Eurostile.ttc; sourceTree = "<group>"; };
+		BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarTitleStyle.swift; sourceTree = "<group>"; };
 		BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AUParameterTree.swift; sourceTree = "<group>"; };
 		BD5A65612D984945008B8117 /* SoundFontsPlus.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SoundFontsPlus.xctestplan; sourceTree = "<group>"; };
 		BD61F0242E11A69800DD8903 /* SoundFontsPlusAU.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SoundFontsPlusAU.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -328,10 +332,12 @@
 				BDAF5BBC2DE259DF00B8FB13 /* SF2Lib in Frameworks */,
 				BDAF5BBF2DE25A7900B8FB13 /* Algorithms in Frameworks */,
 				BDAF5BC12DE25C9200B8FB13 /* Tagged in Frameworks */,
+				BDEB90092E19B00A00BF16B5 /* SwiftUIIntrospect in Frameworks */,
 				BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */,
 				BDAF5B2C2DE2560400B8FB13 /* ComposableArchitecture in Frameworks */,
 				BDAF5B292DE255EE00B8FB13 /* AUv3Controls in Frameworks */,
 				BDAF5B2F2DE2565000B8FB13 /* SharingGRDB in Frameworks */,
+				BDEB8F952E17287E00BF16B5 /* SF2LibAU in Frameworks */,
 				BDAF5B262DE255D900B8FB13 /* BRHSplitView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -621,15 +627,16 @@
 			children = (
 				BDAF5AF92DE2558C00B8FB13 /* AlertsAndConfirmationDialogs.swift */,
 				BDAF5AFA2DE2558C00B8FB13 /* CheckToggleStyle.swift */,
+				BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */,
 				BDAF5AFB2DE2558C00B8FB13 /* Fonts.swift */,
-				BDB9FEF82E068751003BA0A2 /* ReverbRoomPresetPickerView.swift */,
 				BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */,
 				BDAF5AFC2DE2558C00B8FB13 /* IndicatorModifier.swift */,
 				BDAF5AFD2DE2558C00B8FB13 /* LongPressModifier.swift */,
 				BDEB8F6A2E15C51200BF16B5 /* NameFieldView.swift */,
+				BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */,
 				BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */,
+				BDB9FEF82E068751003BA0A2 /* ReverbRoomPresetPickerView.swift */,
 				BDAF5AFF2DE2558C00B8FB13 /* StyledList.swift */,
-				BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */,
 				BDAF5B002DE2558C00B8FB13 /* TextFieldClearButton.swift */,
 			);
 			path = SwiftUISupport;
@@ -840,6 +847,8 @@
 				BDAF5BBB2DE259DF00B8FB13 /* SF2Lib */,
 				BDAF5BBE2DE25A7900B8FB13 /* Algorithms */,
 				BDAF5BC02DE25C9200B8FB13 /* Tagged */,
+				BDEB8F942E17287E00BF16B5 /* SF2LibAU */,
+				BDEB90082E19B00A00BF16B5 /* SwiftUIIntrospect */,
 			);
 			productName = SoundFontsPlus;
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */;
@@ -911,7 +920,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 1630;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					BD1D277E2B6F13DD005C3ED0 = {
 						CreatedOnToolsVersion = 15.2;
@@ -944,10 +953,11 @@
 				BDAF5B272DE255EE00B8FB13 /* XCRemoteSwiftPackageReference "AUv3Controls" */,
 				BDAF5B2A2DE2560400B8FB13 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				BDAF5B2D2DE2565000B8FB13 /* XCRemoteSwiftPackageReference "sharing-grdb" */,
-				BDAF5BB82DE259DF00B8FB13 /* XCLocalSwiftPackageReference "../SF2Lib" */,
 				BDAF5BBD2DE25A7900B8FB13 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 				BDAF5BC22DE269C300B8FB13 /* XCRemoteSwiftPackageReference "swift-dependencies" */,
 				BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
+				BDEB8F932E17287E00BF16B5 /* XCLocalSwiftPackageReference "../SF2LibAU" */,
+				BDEB90072E19B00A00BF16B5 /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 			);
 			preferredProjectObjectVersion = 56;
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
@@ -1042,6 +1052,7 @@
 				BDAF5B152DE2559100B8FB13 /* TagNameEditor.swift in Sources */,
 				BDAF5B0A2DE2558C00B8FB13 /* CheckToggleStyle.swift in Sources */,
 				BDAF5B0B2DE2558C00B8FB13 /* IndicatorModifier.swift in Sources */,
+				BD33FF572E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift in Sources */,
 				BDA917E02E08247700FD3257 /* AudioEngine.swift in Sources */,
 				BDAF5AC62DE2555000B8FB13 /* DelayConfig.swift in Sources */,
 				BDAF5AC72DE2555000B8FB13 /* TaggedSoundFont.swift in Sources */,
@@ -1299,7 +1310,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = UP6SS5ES7E;
 				ENABLE_APP_SANDBOX = NO;
-				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SoundFontsPlus/Info.plist;
@@ -1313,6 +1324,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -1345,7 +1357,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = UP6SS5ES7E;
 				ENABLE_APP_SANDBOX = NO;
-				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SoundFontsPlus/Info.plist;
@@ -1359,6 +1371,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -1620,9 +1633,9 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "../brh-splitview";
 		};
-		BDAF5BB82DE259DF00B8FB13 /* XCLocalSwiftPackageReference "../SF2Lib" */ = {
+		BDEB8F932E17287E00BF16B5 /* XCLocalSwiftPackageReference "../SF2LibAU" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../SF2Lib;
+			relativePath = ../SF2LibAU;
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -1691,6 +1704,14 @@
 				minimumVersion = 1.9.2;
 			};
 		};
+		BDEB90072E19B00A00BF16B5 /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/swiftui-introspect";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1754,6 +1775,15 @@
 		BDAF5BC82DE26BFC00B8FB13 /* SnapshotTesting */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SnapshotTesting;
+		};
+		BDEB8F942E17287E00BF16B5 /* SF2LibAU */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SF2LibAU;
+		};
+		BDEB90082E19B00A00BF16B5 /* SwiftUIIntrospect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BDEB90072E19B00A00BF16B5 /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
+			productName = SwiftUIIntrospect;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
