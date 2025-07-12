@@ -20,7 +20,7 @@ public struct StyledList<Content: View>: View {
     List {
       if let title {
         let header = Text(title)
-          .foregroundStyle(.indigo)
+          .foregroundStyle(Color.accentColor)
         Section(header: header) {
           content
         }

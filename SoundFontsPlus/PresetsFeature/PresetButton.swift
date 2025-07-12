@@ -115,20 +115,22 @@ public struct PresetButtonView: View {
   }
 
   public var body: some View {
-    if isEditing {
-      editVisibilityButton
-        .transition(.opacity)
-        .animation(.default, value: isEditing)
-    } else {
-      normalButton
-        .transition(.opacity)
-        .animation(.default, value: isEditing)
-        .id(store.preset.id)
-        .simultaneousGesture(
-          LongPressGesture()
-            .onEnded { _ in store.send(.longPressGestureFired) }
-        )
+    Group {
+      if isEditing {
+        editVisibilityButton
+          .transition(.opacity)
+      } else {
+        normalButton
+          .transition(.opacity)
+          .animation(.default, value: isEditing)
+          .id(store.preset.id)
+          .simultaneousGesture(
+            LongPressGesture()
+              .onEnded { _ in store.send(.longPressGestureFired) }
+          )
+      }
     }
+    .animation(.default, value: isEditing)
   }
 
   public var normalButtonText: some View {
@@ -179,7 +181,7 @@ public struct PresetButtonView: View {
     } label: {
       HStack {
         Image(systemName: store.preset.kind == .hidden ? "circle" : "inset.filled.circle")
-          .foregroundStyle(.blue)
+          .foregroundStyle(Color.gold)
           .animation(.smooth, value: store.preset.kind)
           .frame(maxWidth: 24)
         Text(store.preset.displayName)

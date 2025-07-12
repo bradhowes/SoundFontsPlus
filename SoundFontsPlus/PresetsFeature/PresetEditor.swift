@@ -19,18 +19,11 @@ public struct PresetEditor: Equatable {
     var notes: String
 
     var audioConfig: AudioConfig.Draft
-    var delayConfig: DelayConfig.Draft
-    var reverbConfig: ReverbConfig.Draft
-
     var tuning: TuningFeature.State
 
     var isFavorite: Bool { preset.kind == .favorite }
 
     public init(preset: Preset) {
-      UINavigationBar.appearance().largeTitleTextAttributes = [
-        .font : UIFont(name: "Eurostile", size: 48)!,
-        .foregroundColor : UIColor.systemBlue
-      ]
       self.preset = preset
       self.displayName = preset.displayName
       self.originalName = preset.originalName
@@ -39,8 +32,6 @@ public struct PresetEditor: Equatable {
       let audioConfigDraft = preset.audioConfigDraft
       self.soundFontName = preset.soundFontName
       self.audioConfig = audioConfigDraft
-      self.delayConfig = preset.delayConfigDraft
-      self.reverbConfig = preset.reverbConfigDraft
       self.tuning = .init(frequency: audioConfigDraft.customTuning, enabled: audioConfigDraft.customTuningEnabled)
     }
 
@@ -61,11 +52,7 @@ public struct PresetEditor: Equatable {
         .execute(db)
 
         // If no changes from default config values then we are done.
-        guard audioConfig != AudioConfig.Draft() ||
-                delayConfig != DelayConfig.Draft() ||
-                reverbConfig != ReverbConfig.Draft() else {
-          return
-        }
+        guard audioConfig != AudioConfig.Draft() else { return }
 
         precondition(audioConfig.presetId == nil || audioConfig.presetId == preset.id)
 
@@ -74,24 +61,6 @@ public struct PresetEditor: Equatable {
           withErrorReporting {
             try AudioConfig.upsert {
               audioConfig
-            }.execute(db)
-          }
-        }
-
-        if delayConfig != DelayConfig.Draft() {
-          delayConfig.presetId = preset.id
-          withErrorReporting {
-            try DelayConfig.upsert {
-              delayConfig
-            }.execute(db)
-          }
-        }
-
-        if reverbConfig != ReverbConfig.Draft() {
-          reverbConfig.presetId = preset.id
-          withErrorReporting {
-            try ReverbConfig.upsert {
-              reverbConfig
             }.execute(db)
           }
         }
@@ -171,10 +140,6 @@ public struct PresetEditorView: View {
 
   public init(store: StoreOf<PresetEditor>) {
     self.store = store
-    UINavigationBar.appearance().largeTitleTextAttributes = [
-      .font : UIFont(name: "Eurostile", size: 48)!,
-      .foregroundColor : UIColor.systemBlue
-    ]
   }
 
   public var body: some View {
@@ -183,8 +148,6 @@ public struct PresetEditorView: View {
         nameSection
         keyboardSection
         audioSection
-        delaySection
-        reverbSection
         midiSection
         tuningSection
         notesSection
@@ -214,14 +177,14 @@ public struct PresetEditorView: View {
       }
       NameFieldView(text: $store.displayName.sending(\.displayNameChanged), readOnly: false)
       HStack {
+        Text(store.preset.originalName)
+          .foregroundStyle(.secondary)
+        Spacer()
         Button {
           store.send(.useOriginalNameTapped)
         } label: {
           Text("Original")
         }
-        Spacer()
-        Text(store.preset.originalName)
-          .foregroundStyle(.secondary)
       }
     }
   }
@@ -231,9 +194,9 @@ public struct PresetEditorView: View {
       Toggle("Enabled", isOn: $store.audioConfig.keyboardLowestNoteEnabled)
       HStack {
         Text("First key:")
-        Spacer()
+        // Spacer()
         Text(store.audioConfig.keyboardLowestNote.label)
-        Spacer()
+          .frame(maxWidth: .infinity, alignment: Alignment.center)
         Stepper(
           "",
           value: $store.audioConfig.keyboardLowestNote,
@@ -244,14 +207,15 @@ public struct PresetEditorView: View {
         .disabled(!store.audioConfig.keyboardLowestNoteEnabled)
       }
       HStack {
+        Text("Current:")
+        Text(lowestKey.label)
+          .frame(maxWidth: .infinity, alignment: Alignment.center)
         Button {
           store.send(.useLowestKeyTapped)
         } label: {
-          Text("Current")
+          Text("Use")
         }
         .disabled(!store.audioConfig.keyboardLowestNoteEnabled)
-        Spacer()
-        Text(lowestKey.label)
       }
     }
   }
@@ -329,57 +293,6 @@ public struct PresetEditorView: View {
     }
   }
 
-  var delaySection: some View {
-    Section(header: Text("Delay")) {
-      Toggle("Enabled", isOn: $store.delayConfig.enabled)
-      HStack {
-        Text("Time:")
-        Spacer()
-        Text("\(store.delayConfig.time) ms")
-      }
-      Slider(value: $store.delayConfig.time, in: 0...2000)
-        .disabled(!store.delayConfig.enabled)
-      HStack {
-        Text("Feedback:")
-        Spacer()
-        Text("\(store.delayConfig.feedback)%")
-      }
-      Slider(value: $store.delayConfig.feedback, in: -100...100)
-        .disabled(!store.delayConfig.enabled)
-      HStack {
-        Text("Cutoff:")
-        Spacer()
-        Text("\(store.delayConfig.cutoff)")
-      }
-      Slider(value: $store.delayConfig.cutoff, in: 12...20000)
-        .disabled(!store.delayConfig.enabled)
-      HStack {
-        Text("WetDry:")
-        Spacer()
-        Text("\(store.delayConfig.wetDryMix)")
-      }
-      Slider(value: $store.delayConfig.wetDryMix, in: 0...100)
-        .disabled(!store.delayConfig.enabled)
-    }
-  }
-
-  var reverbSection: some View {
-    Section(header: Text("Reverb")) {
-      Toggle("Enabled", isOn: $store.reverbConfig.enabled)
-      HStack {
-        Text("Preset:")
-        ReverbRoomPresetPickerView(value: store.reverbConfig.roomPreset)
-      }
-      HStack {
-        Text("WetDry:")
-        Spacer()
-        Text("\(store.reverbConfig.wetDryMix)")
-      }
-      Slider(value: $store.reverbConfig.wetDryMix, in: 0...100)
-        .disabled(!store.reverbConfig.enabled)
-    }
-  }
-
   var tuningSection: some View {
     TuningView(store: Store(initialState: store.tuning) { TuningFeature() })
   }
@@ -401,6 +314,7 @@ extension PresetEditorView {
   static var preview: some View {
     let _ = prepareDependencies {
       $0.defaultDatabase = try! appDatabase()
+      navigationBarTitleStyle()
     }
 
     let presets = Operations.presets

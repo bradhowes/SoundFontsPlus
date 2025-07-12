@@ -12,26 +12,35 @@ public struct IndicatorModifier: ViewModifier {
     // Active item -- shows the active SoundFont, Tag, or Preset
     case active
 
+    case activeNoIndicator
+
     var labelColor: Color {
       switch self {
-      case .none: return .blue
-      case .active: return .indigo
-      case .selected: return .purple
+      case .none: return .whiteText
+      case .active, .activeNoIndicator: return .accentColor
+      case .selected: return .white
       }
     }
 
     var indicatorColor: Color {
       switch self {
-      case .none: return .clear
-      case .active: return .indigo
+      case .none, .activeNoIndicator: return .clear
+      case .active: return .accentColor
       case .selected: return .clear
+      }
+    }
+
+    var indicatorGradient: Gradient {
+      switch self {
+      case .active: return .init(colors: [.black, indicatorColor, .black])
+      default: return .init(colors: [.clear, .clear])
       }
     }
   }
 
   let state: State
 
-  private var indicatorWidth: CGFloat { 6 }
+  private var indicatorWidth: CGFloat { 4 }
   private var cornerRadius: CGFloat { indicatorWidth / 2.0 }
   private var offset: CGFloat { -2.0 * indicatorWidth }
   private var indicator: Color { state.indicatorColor }
@@ -43,7 +52,7 @@ public struct IndicatorModifier: ViewModifier {
   public func body(content: Content) -> some View {
     ZStack(alignment: .leading) {
       Rectangle()
-        .fill(indicator.gradient)
+        .fill(state.indicatorGradient)
         .frame(width: indicatorWidth)
         .cornerRadius(cornerRadius)
         .offset(x: offset)

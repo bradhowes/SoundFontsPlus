@@ -207,9 +207,9 @@ public struct ToolBarView: View {
           .padding(.trailing, 8)
       }
     }
+    .padding([.top, .bottom, .leading], 4)
     .background(Color.black)
-    .padding(.init(top: 8, leading: 8, bottom: 8, trailing: 0))
-    .frame(height: 40)
+    .frame(maxHeight: 40)
     .animation(.smooth, value: store.showMoreButtons)
   }
 
@@ -218,7 +218,7 @@ public struct ToolBarView: View {
       Spacer()
       PresetNameView(preset: Preset.active)
         .font(.status)
-        .indicator(.none)
+        .indicator(.activeNoIndicator)
         .onTapGesture {
           store.send(.delegate(.presetNameTapped))
         }
@@ -239,7 +239,7 @@ public struct ToolBarView: View {
       store.send(.tagVisibilityButtonTapped)
     } label: {
       Image(systemName: "tag").imageScale(.large)
-        .tint(store.tagsListVisible ? Color.indigo : Color.blue)
+        .tint(store.tagsListVisible ? Color.orange : Color.accentColor)
     }
   }
 
@@ -248,19 +248,20 @@ public struct ToolBarView: View {
       store.send(.effectsVisibilityButtonTapped)
     } label: {
       Image(systemName: "waveform").imageScale(.large)
-        .tint(store.effectsVisible ? Color.indigo : Color.blue)
+        .tint(store.effectsVisible ? Color.orange : Color.accentColor)
     }
   }
 
   private var toggleMoreButton: some View {
-    HStack {
+    HStack(spacing: 0) {
       Button { store.send(.showMoreButtonTapped) } label: {
         Image(systemName: "chevron.left").imageScale(.large)
-          .tint(store.showMoreButtons ? Color.indigo : Color.blue)
+          .tint(store.showMoreButtons ? Color.orange : Color.accentColor)
       }
       Color.black
         .frame(width: 4)
-    }.background(.black)
+    }
+    .background(.black)
   }
 
   private var moreButtons: some View {
@@ -280,7 +281,7 @@ public struct ToolBarView: View {
           ? "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right.fill"
           : "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right"
         )
-        .tint(store.keyboardSlides ? Color.indigo : Color.blue)
+        .tint(store.keyboardSlides ? Color.orange : Color.accentColor)
       }
       Button {
         store.send(.shiftKeyboardUpButtonTapped)
@@ -297,7 +298,7 @@ public struct ToolBarView: View {
         store.send(.presetsVisibilityButtonTapped)
       } label: {
         Image(systemName: "list.bullet").imageScale(.large)
-          .tint(store.editingPresetVisibility ? Color.indigo : Color.blue)
+          .tint(store.editingPresetVisibility ? Color.orange : Color.accentColor)
       }
       Button {
         store.send(.helpButtonTapped)

@@ -172,7 +172,7 @@ public struct KeyboardView: View {
           }
         }
       }
-      .background(.black)
+      .background(.panelBackground)
       .onScrollGeometryChange(for: CGRect.self) { geometry in
         geometry.visibleRect
       } action: { oldValue, newValue in
