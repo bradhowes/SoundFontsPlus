@@ -20,32 +20,7 @@ enum SoundFontsSupport {
     }
   }
 
-  public static func addSoundFonts(urls: [URL]) -> AddSoundFontsStatus? {
-    guard !urls.isEmpty else { return nil }
-    var good = [URL]()
-    var bad = [String]()
-
-    for url in urls {
-      do {
-        try addSoundFont(url: url, copyFileWhenAdding: true)
-        good.append(url)
-      } catch let err as NSError {
-        let fileName = url.lastPathComponent
-        if err.code == NSFileWriteFileExistsError {
-          bad.append("\(fileName): already exists")
-        } else {
-          bad.append("\(fileName): \(err.localizedDescription)")
-        }
-      } catch {
-        let fileName = url.lastPathComponent
-        bad.append("\(fileName): \(error.localizedDescription)")
-      }
-    }
-    return .init(good: good, bad: bad)
-  }
-
-  static func addSoundFont(url: URL, copyFileWhenAdding: Bool) throws {
-
+  static func addSoundFont(url: URL, copyFileWhenAdding: Bool) throws -> String {
     // Attempt to load the file to see if there are any errors
     var fileInfo = SF2FileInfo(url.path(percentEncoded: false))
     fileInfo.load()
@@ -61,6 +36,8 @@ enum SoundFontsSupport {
     }
 
     try SoundFont.add(displayName: displayName, soundFontKind: location)
+
+    return displayName
   }
 
   static func copyToSharedFolder(source: URL) throws -> URL {

@@ -4,7 +4,6 @@ import ComposableArchitecture
 import Dependencies
 import SharingGRDB
 import SwiftUI
-import UniformTypeIdentifiers
 
 @Reducer
 public struct SoundFontsList {
@@ -12,9 +11,6 @@ public struct SoundFontsList {
   @ObservableState
   public struct State: Equatable {
     var rows: IdentifiedArrayOf<SoundFontButton.State> = []
-    var addingSoundFonts: Bool = false
-    var showingAddedSummary: Bool = false
-    var addedSummary: String = ""
 
     public init() {}
   }
@@ -62,19 +58,9 @@ public struct SoundFontsList {
 
 extension SoundFontsList {
 
-  private func add(_ state: inout State) -> Effect<Action> {
-    state.addingSoundFonts = true
-    return .none
-  }
-
   private func delete(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
+    SoundFont.delete(id: soundFontId)
     return .none
-
-    //    do {
-    //      try SoundFontModel.delete(key: key)
-    //    } catch {
-    //      print("failed to delete font \(key) - \(error.localizedDescription)")
-    //    }
   }
 
   private func dispatchRowAction(_ state: inout State, action: SoundFontButton.Delegate) -> Effect<Action> {
@@ -95,33 +81,6 @@ extension SoundFontsList {
     }
 
     return .send(.delegate(.edit(soundFont)))
-  }
-
-  private func importFiles(_ state: inout State, result: Result<[URL], Error>) -> Effect<Action> {
-    return .none
-
-    //    guard !urls.isEmpty,
-    //          let result = Support.addSoundFonts(urls: urls)
-    //    else {
-    //      return
-    //    }
-    //
-    //    if result.bad.isEmpty {
-    //      if result.good.count == 1 {
-    //        state.addedSummary = "Added sound font \(result.good[0].displayName)."
-    //      } else {
-    //        state.addedSummary = "Added all of the sound fonts."
-    //      }
-    //    } else {
-    //      if urls.count == 1 {
-    //        state.addedSummary = "Failed to add sound font."
-    //      } else if result.good.isEmpty {
-    //        state.addedSummary = "Failed to add any sound fonts."
-    //      } else {
-    //        state.addedSummary = "Added \(result.good.count) out of \(urls.count) sound fonts."
-    //      }
-    //    }
-    //    state.showingAddedSummary = true
   }
 
   private func monitorActiveTag(_ state: inout State) -> Effect<Action> {
@@ -170,8 +129,6 @@ extension SoundFontsList {
 public struct SoundFontsListView: View {
   @Bindable private var store: StoreOf<SoundFontsList>
 
-  let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
-
   public init(store: StoreOf<SoundFontsList>) {
     self.store = store
   }
@@ -185,56 +142,7 @@ public struct SoundFontsListView: View {
     .onAppear {
       store.send(.onAppear)
     }
-//    .fileImporter(isPresented: $store.addingSoundFonts, allowedContentTypes: types, allowsMultipleSelection: true) {
-//      store.send(.importFiles($0))
-//    }
-//    .alert("Add Complete", isPresented: $store.showingAddedSummary) {
-//      Button("OK") {}
-//    } message: {
-//      Text(store.addedSummary)
-//    }
-//    .sheet(
-//      item: $store.scope(state: \.destination?.edit, action: \.destination.edit)
-//    ) { editorStore in
-//      SoundFontEditorView(store: editorStore)
-//    }
   }
-
-//  @ViewBuilder
-//  private func button(_ soundFontInfo: SoundFontInfo) -> some View {
-//    let state: IndicatorModifier.State = {
-//      activeState.activeSoundFontId == soundFontInfo.id ? .active :
-//      activeState.selectedSoundFontId == soundFontInfo.id ? .selected : .none
-//    }()
-//
-//    Button {
-//      store.send(.soundFontButtonTapped(soundFontInfo), animation: .default)
-//    } label: {
-//      Text(soundFontInfo.displayName)
-//        .font(.buttonFont)
-//        .indicator(state)
-//    }
-//    .listRowSeparatorTint(.accentColor.opacity(0.5))
-////    .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
-//    .swipeActions(edge: .leading, allowsFullSwipe: false) {
-//      Button {
-//        store.send(.soundFontSwipedToEdit(soundFontInfo), animation: .default)
-//      } label: {
-//        Image(systemName: "pencil")
-//          .tint(.cyan)
-//      }
-//    }
-//    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-//      if !soundFontInfo.isBuiltIn {
-//        Button {
-//          store.send(.soundFontSwipedToDelete(soundFontInfo), animation: .default)
-//        } label: {
-//          Image(systemName: "trash")
-//            .tint(.red)
-//        }
-//      }
-//    }
-//  }
 }
 
 extension SoundFontsListView {

@@ -7,6 +7,7 @@ import ComposableArchitecture
 import SharingGRDB
 import Sharing
 import SwiftUI
+import UniformTypeIdentifiers
 
 @Reducer
 public struct RootApp {
@@ -39,6 +40,9 @@ public struct RootApp {
     public var reverb: ReverbFeature.State
     public var keyboard: KeyboardFeature.State = .init()
 
+    public var addSoundFonts: Bool = false
+    public var addedSummary: String? = nil
+
     public init(parameters: AUParameterTree) {
       _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
 
@@ -56,9 +60,11 @@ public struct RootApp {
     }
   }
 
-  public enum Action {
+  public enum Action: BindableAction {
+    case binding(BindingAction<State>)
     case delay(DelayFeature.Action)
     case destination(PresentationAction<Destination.Action>)
+    case importFile(Result<URL, Error>)
     case keyboard(KeyboardFeature.Action)
     case presetsList(PresetsList.Action)
     case presetsSplit(SplitViewReducer.Action)
@@ -70,6 +76,8 @@ public struct RootApp {
   }
 
   public var body: some ReducerOf<Self> {
+
+    BindingReducer()
 
     Scope(state: \.delay, action: \.delay) { DelayFeature(parameters: parameters) }
     Scope(state: \.keyboard, action: \.keyboard) { KeyboardFeature() }
@@ -83,11 +91,13 @@ public struct RootApp {
 
     Reduce { state, action in
       switch action {
+      case .binding: return .none
       case .delay: return .none
       case .destination(.dismiss): return dismissingSheet(&state)
       case .destination: return .none
       case let .keyboard(.delegate(action)): return keyboardAction(&state, action: action)
       case .keyboard: return .none
+      case let .importFile(result): return importFile(&state, result: result)
       case let .presetsList(.delegate(.edit(preset))): return editPreset(&state, preset: preset)
       case .presetsList: return .none
       case let .presetsSplit(.delegate(action)): return presetsSplitAction(&state, action: action)
@@ -132,6 +142,22 @@ extension RootApp {
     return .none
   }
 
+  private func importFile(_ state: inout State, result: Result<URL, Error>) -> Effect<Action> {
+    switch result {
+    case .success(let url):
+      do {
+        let displayName = try SoundFontsSupport.addSoundFont(url: url, copyFileWhenAdding: true)
+        state.addedSummary = "Added sound font \(displayName)."
+      } catch {
+        state.addedSummary = "Failed to add sound font: \(error)"
+      }
+    case .failure(let error):
+      state.addedSummary = "Failed to add sound font: \(error)"
+    }
+
+    return .none
+  }
+
   private func keyboardAction(_ state: inout State, action: KeyboardFeature.Action.Delegate) -> Effect<Action> {
     switch action {
     case let .visibleKeyRangeChanged(lowest, highest):
@@ -166,7 +192,9 @@ extension RootApp {
 
   private func toolBarAction(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
     switch action {
-    case .addSoundFont: return .none
+    case .addSoundFontButtonTapped:
+      state.addSoundFonts = true
+      return .none
     case let .editingPresetVisibility(active): return setEditingVisibility(&state, active: active)
     case let .effectsVisibilityChanged(visible): return setEffectsVisibiliy(&state, visible: visible)
     case .presetNameTapped: return showActivePreset(&state)
@@ -193,6 +221,7 @@ extension RootApp {
   private func fetchPresets(_ state: inout State) -> Effect<Action> {
     return reduce(into: &state, action: .presetsList(.fetchPresets))
   }
+
 
   private func setEditingVisibility(_ state: inout State, active: Bool) -> Effect<Action> {
     return reduce(into: &state, action: .presetsList(.visibilityEditModeChanged(active)))
@@ -222,7 +251,6 @@ public struct RootAppView: View, KeyboardReadable {
   private let theme: Theme
   private let appPanelBackground = Color.black
   private let dividerBorderColor: Color = Color.gray.opacity(0.15)
-
   @State private var isInputKeyboardVisible = false
 
   @Shared(.effectsVisible) private var effectsVisible
@@ -257,6 +285,8 @@ public struct RootAppView: View, KeyboardReadable {
   }
 
   public var body: some View {
+    let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
+
     // let _ = Self._printChanges()
     VStack(spacing: 0) {
       listViews
@@ -273,6 +303,20 @@ public struct RootAppView: View, KeyboardReadable {
       isInputKeyboardVisible = $0
     }
     .destinations(store: $store, horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
+    .fileImporter(
+      isPresented: $store.addSoundFonts,
+      allowedContentTypes: types
+    ) { result in
+      store.send(.importFile(result))
+    }
+    .alert("Add Complete", isPresented: Binding<Bool>(
+      get: { store.addedSummary != nil },
+      set: { _ in store.addedSummary = nil }
+    )) {
+      Button("OK") {}
+    } message: {
+      Text(store.addedSummary ?? "")
+    }
   }
 
   private var listViews: some View {

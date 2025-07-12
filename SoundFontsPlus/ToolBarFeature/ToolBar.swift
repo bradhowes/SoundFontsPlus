@@ -52,7 +52,7 @@ public struct ToolBar {
     case tagVisibilityButtonTapped
 
     public enum Delegate: Equatable {
-      case addSoundFont
+      case addSoundFontButtonTapped
       case editingPresetVisibility(Bool)
       case effectsVisibilityChanged(Bool)
       case presetNameTapped
@@ -68,7 +68,7 @@ public struct ToolBar {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .addSoundFontButtonTapped: return .send(.delegate(.addSoundFont))
+      case .addSoundFontButtonTapped: return .send(.delegate(.addSoundFontButtonTapped))
       case .delegate: return .none
       case .destination(.dismiss): return .send(.delegate(.settingsDismissed))
       case .destination: return .none

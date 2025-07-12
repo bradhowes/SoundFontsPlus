@@ -30,11 +30,28 @@ public struct NameFieldView: View {
 //  }
 
   public var body: some View {
-    TextField("", text: text)
-      .textFieldStyle(.roundedBorder)
+    textField
       .disabled(readOnly || isEditing)
       .deleteDisabled(readOnly)
       .foregroundStyle(editable ? .white : .secondary)
       .font(Font.custom("Eurostile", size: 20))
+  }
+
+  @ViewBuilder
+  public var textField: some View {
+    if readOnly {
+      readonlyTextField
+    } else {
+      editableTextField
+    }
+  }
+
+  private var readonlyTextField: some View {
+    TextField("", text: text)
+  }
+
+  private var editableTextField: some View {
+    TextField("", text: text)
+      .textFieldStyle(.roundedBorder)
   }
 }
