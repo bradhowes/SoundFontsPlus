@@ -150,6 +150,15 @@ extension SoundFont {
       }
     }
   }
+
+  public static func delete(id: SoundFont.ID) {
+    @Dependency(\.defaultDatabase) var database
+    withErrorReporting {
+      try database.write { db in
+        try Self.delete().where({ $0.id == id }).execute(db)
+      }
+    }
+  }
 }
 
 extension SoundFont {
