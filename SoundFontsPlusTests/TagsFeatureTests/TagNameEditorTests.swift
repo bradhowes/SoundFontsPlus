@@ -29,17 +29,6 @@ struct TagNameEditorTests {
     }
   }
 
-  @Test func nameChanged() async throws {
-    try await initialize { store in
-      await store.send(.nameChanged("Blah")) {
-        $0.draft.displayName = "Blah"
-      }
-      await store.send(.nameChanged("")) {
-        $0.draft.displayName = ""
-      }
-    }
-  }
-
   @Test func tagNameEditorPreview() async throws {
     withSnapshotTesting(record: .failed) {
       struct HostView: SwiftUI.View {

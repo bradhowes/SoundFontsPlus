@@ -1,0 +1,44 @@
+PLATFORM_IOS = iOS Simulator,name=iPad mini (A17 Pro)
+PLATFORM_MACOS = macOS
+XCCOV = xcrun xccov view --report --only-targets
+
+DEST = -scheme 'SoundFontsPlus' -destination platform="$(PLATFORM_IOS)"
+
+default: report
+
+build: clean
+	xcodebuild -scheme 'SoundFontsPlus' build-for-testing $(DEST)
+
+test: build
+	xcodebuild -scheme 'SoundFontsPlus' test-without-building $(DEST) 
+
+test-iOS:
+	rm -rf "$(PWD)/.DerivedData-iOS"
+	xcodebuild test  \
+		-scheme 'SoundFontsPlus' \
+		-derivedDataPath "$(PWD)/.DerivedData-iOS" \
+		-destination platform="$(PLATFORM_IOS)" \
+		-enableCodeCoverage YES \
+		ENABLE_TESTING_SEARCH_PATHS=YES
+
+coverage-iOS: test-iOS
+	$(XCCOV) $(PWD)/.DerivedData-iOS/Logs/Test/*.xcresult > coverage_iOS.txt
+	echo "iOS Coverage:"
+	cat coverage_iOS.txt
+
+PATTERN = (SF2Files|SoundFontInfoLib|SoundFontsFramework).framework|SooundFontsApp.app|SoundFonts.appex
+
+percentage-iOS: coverage-iOS
+	awk '/$(PATTERN)/ {s+=$$4;++c} END {print s/c;}' coverage_iOS.txt > percentage_iOS.txt
+	echo "iOS Coverage Pct:"
+	cat percentage_iOS.txt
+
+report: percentage-iOS
+	@if [[ -n "$$GITHUB_ENV" ]]; then \
+		echo "PERCENTAGE=$$(< percentage_iOS.txt)" >> $$GITHUB_ENV; \
+	fi
+
+clean:
+	-rm -rf $(PWD)/.DerivedData-iOS coverage*.txt percentage*.txt
+
+.PHONY: report percentage-iOS coverage-iOS test-iOS
