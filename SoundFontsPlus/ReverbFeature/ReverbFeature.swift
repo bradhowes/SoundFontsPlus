@@ -278,7 +278,8 @@ extension ReverbView {
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
 
     let parameterTree = ParameterAddress.createParameterTree()
-    let _ = prepareDependencies {
+    prepareDependencies {
+      // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       $0.reverbDevice = .init(getConfig: {
         ReverbConfig.Draft()

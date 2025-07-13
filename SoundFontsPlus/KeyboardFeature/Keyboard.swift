@@ -175,7 +175,7 @@ public struct KeyboardView: View {
       .background(.panelBackground)
       .onScrollGeometryChange(for: CGRect.self) { geometry in
         geometry.visibleRect
-      } action: { oldValue, newValue in
+      } action: { _, newValue in
         if store.scrollTo != nil {
           proxy.scrollTo(store.scrollTo, anchor: .leading)
           store.send(.clearScrollTo)
@@ -237,7 +237,7 @@ public struct KeyboardView: View {
   }
 
   private var whiteKeys: some View {
-    HStack(alignment: .top, spacing: whiteKeySpacing){
+    HStack(alignment: .top, spacing: whiteKeySpacing) {
       ForEach(0..<75) { noteIndex in
         whiteKey(note: whiteNotes[noteIndex])
       }
@@ -423,7 +423,8 @@ extension FloatingPoint {
 }
 
 #Preview {
-  let _ = prepareDependencies {
+  prepareDependencies {
+    // swiftlint:disable:next force_try
     $0.defaultDatabase = try! appDatabase()
     @Shared(.firstVisibleKey) var firstVisibleKey
     $firstVisibleKey.withLock { $0 = .C4 }
@@ -431,5 +432,5 @@ extension FloatingPoint {
     $keyboardSlides.withLock { $0 = true }
   }
 
-  KeyboardPreview()
+  return KeyboardPreview()
 }

@@ -117,7 +117,6 @@ struct AlertAndConfirmationDialogView: View {
   }
 }
 
-
 struct FileDetails: Identifiable {
   var id: String { name }
   let name: String
@@ -156,4 +155,3 @@ struct ConfirmFileImport: View {
     }
   }
 }
-

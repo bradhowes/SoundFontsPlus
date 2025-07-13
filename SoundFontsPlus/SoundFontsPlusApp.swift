@@ -11,6 +11,7 @@ struct SoundFontsPlusApp: App {
 
   init() {
     self.parameters = prepareDependencies {
+      // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       $0.defaultFileStorage = .fileSystem
       $0.delayDevice = .init(

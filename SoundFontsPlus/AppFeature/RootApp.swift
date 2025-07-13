@@ -41,7 +41,7 @@ public struct RootApp {
     public var keyboard: KeyboardFeature.State = .init()
 
     public var addSoundFonts: Bool = false
-    public var addedSummary: String? = nil
+    public var addedSummary: String?
 
     public init(parameters: AUParameterTree) {
       _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
@@ -222,7 +222,6 @@ extension RootApp {
     return reduce(into: &state, action: .presetsList(.fetchPresets))
   }
 
-
   private func setEditingVisibility(_ state: inout State, active: Bool) -> Effect<Action> {
     return reduce(into: &state, action: .presetsList(.visibilityEditModeChanged(active)))
   }
@@ -373,7 +372,7 @@ public struct RootAppView: View, KeyboardReadable {
     let viewHeight = effectsHeight + padding * 4
     return VStack {
       ScrollView(.horizontal) {
-        HStack() {
+        HStack {
           ReverbView(store: store.scope(state: \.reverb, action: \.reverb))
           dividerBorderColor
             .frame(width: padding)
@@ -438,7 +437,8 @@ extension View {
 extension RootAppView {
 
   static var preview: some View {
-    let _ = prepareDependencies {
+    prepareDependencies {
+      // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       $0.parameters = ParameterAddress.createParameterTree()
       $0.delayDevice = .init(getConfig: { DelayConfig.Draft() }, setConfig: { print("delayDevice.set: ", $0) })

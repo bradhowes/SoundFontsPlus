@@ -835,6 +835,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				BD050EDF2E23BAA700706CC4 /* PBXTargetDependency */,
 				BD0BD8CE2E11E23000772FE5 /* PBXTargetDependency */,
 			);
 			name = SoundFontsPlus;
@@ -958,6 +959,7 @@
 				BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
 				BDEB8F932E17287E00BF16B5 /* XCLocalSwiftPackageReference "../SF2LibAU" */,
 				BDEB90072E19B00A00BF16B5 /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
+				BD33FF7F2E23B2900085D3C3 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 			);
 			preferredProjectObjectVersion = 56;
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
@@ -1146,6 +1148,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		BD050EDF2E23BAA700706CC4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = BD050EDE2E23BAA700706CC4 /* SwiftLintBuildToolPlugin */;
+		};
 		BD0BD8CE2E11E23000772FE5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = BD61F0232E11A69800DD8903 /* SoundFontsPlusAU */;
@@ -1648,6 +1654,14 @@
 				minimumVersion = 1.18.4;
 			};
 		};
+		BD33FF7F2E23B2900085D3C3 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.59.1;
+			};
+		};
 		BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-tagged";
@@ -1715,6 +1729,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		BD050EDE2E23BAA700706CC4 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD33FF7F2E23B2900085D3C3 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
 		BD3311422DE2700500A73BA8 /* InlineSnapshotTesting */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;

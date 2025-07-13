@@ -5,7 +5,7 @@ import SwiftUI
 public struct CheckToggleStyle: ToggleStyle {
 
   public init() {}
-  
+
   public func makeBody(configuration: Configuration) -> some View {
     Button {
       configuration.isOn.toggle()

@@ -66,11 +66,9 @@ public struct SettingsFeature {
 
   private func updateKeyWidth(_ state: inout State) -> Effect<Action> {
     var value = state.keyWidth
-    for stop in [48.0, 64.0, 80.0] {
-      if Swift.abs(value - stop) < 3.0 {
-        value = stop
-        break
-      }
+    for stop in [48.0, 64.0, 80.0] where Swift.abs(value - stop) < 3.0 {
+      value = stop
+      break
     }
 
     return updateShared(.keyWidth, value: value)

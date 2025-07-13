@@ -256,7 +256,9 @@ public struct SoundFontEditorView: View {
 
 extension SoundFontEditorView {
   static var preview: some View {
+    // swiftlint:disable:next force_try
     var soundFonts = try! prepareDependencies {
+      // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       navigationBarTitleStyle()
       return try $0.defaultDatabase.read { try SoundFont.all.fetchAll($0) }

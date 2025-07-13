@@ -50,13 +50,13 @@ public enum Operations {
     @Dependency(\.defaultDatabase) var database
     return (try? database.read { try query.fetchAll($0) }) ?? []
   }
-  
+
   public static func tagIds(for soundFontId: SoundFont.ID) -> [FontTag.ID] {
     let query = TaggedSoundFont.select { $0.tagId }.where { $0.soundFontId.eq(soundFontId) }
     @Dependency(\.defaultDatabase) var database
     return (try? database.read { try query.fetchAll($0) }) ?? []
   }
-  
+
   public static func tagSoundFont(_ tagId: FontTag.ID, soundFontId: SoundFont.ID) {
     if tagId.isUbiquitous { return }
     let query = TaggedSoundFont.insert {
@@ -65,7 +65,7 @@ public enum Operations {
     @Dependency(\.defaultDatabase) var database
     try? database.write { try query.execute($0) }
   }
-  
+
   public static func untagSoundFont(_ tagId: FontTag.ID, soundFontId: SoundFont.ID) {
     if tagId.isUbiquitous { return }
     let query = TaggedSoundFont.all.delete().where { $0.soundFontId.eq(soundFontId) && $0.tagId.eq(tagId) }

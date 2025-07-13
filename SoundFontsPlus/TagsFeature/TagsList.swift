@@ -131,8 +131,10 @@ public struct TagsListView: View {
 extension TagsListView {
 
   static var preview: some View {
-    let _ = prepareDependencies {
+    prepareDependencies {
+      // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
+      // swiftlint:disable:next force_try
       let tag = try! FontTag.make(displayName: "Another Tag")
       Operations.tagSoundFont(tag.id, soundFontId: .init(rawValue: 1))
     }

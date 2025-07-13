@@ -30,6 +30,7 @@ extension FileManager {
   /// Location of app documents that we want to keep private but backed-up. We need to create it if it does not
   /// exist, so this could be a high latency call.
   public var privateDocumentsDirectory: URL {
+    // swiftlint:disable:next force_unwrapping
     let url = urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
     if !self.fileExists(atPath: url.path) {
       try? self.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
@@ -62,6 +63,7 @@ extension FileManager {
 
   /// Location of documents on device that can be backed-up to iCloud if enabled.
   public var localDocumentsDirectory: URL {
+    // swiftlint:disable:next force_unwrapping
     self.urls(for: .documentDirectory, in: .userDomainMask).last!
   }
 

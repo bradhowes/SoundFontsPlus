@@ -302,17 +302,19 @@ extension AVAudioUnitReverbPreset: @retroactive Strideable {
   public func distance(to other: AVAudioUnitReverbPreset) -> Int {
     other.rawValue - self.rawValue
   }
-  
-  public func advanced(by n: Int) -> AVAudioUnitReverbPreset {
-    .init(rawValue: self.rawValue + n)!
+
+  public func advanced(by distance: Int) -> AVAudioUnitReverbPreset {
+    // swiftlint:disable:next force_unwrapping
+    .init(rawValue: self.rawValue + distance)!
   }
-  
+
   public typealias Stride = Int
 }
 
 extension PresetEditorView {
   static var preview: some View {
-    let _ = prepareDependencies {
+    prepareDependencies {
+      // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       navigationBarTitleStyle()
     }

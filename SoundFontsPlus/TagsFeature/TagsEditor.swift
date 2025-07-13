@@ -33,7 +33,7 @@ public struct TagsEditor: Sendable {
       mode: Mode,
       focused: FontTag.ID? = nil,
       soundFontId: SoundFont.ID? = nil,
-      memberships: [FontTag.ID:Bool]? = nil,
+      memberships: [FontTag.ID: Bool]? = nil,
       editMode: EditMode = .inactive,
     ) {
       self.mode = mode
@@ -246,19 +246,21 @@ public struct TagsEditorView: View {
 extension TagsEditorView {
 
   static var preview: some View {
-    let _ = prepareDependencies {
+    prepareDependencies {
+      // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       navigationBarTitleStyle()
     }
 
     @Dependency(\.defaultDatabase) var db
-    let _ = try? FontTag.make(displayName: "New Tag")
+    _ = try? FontTag.make(displayName: "New Tag")
     let tags = Operations.tags
     return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.id)) { TagsEditor() })
   }
 
   static var previewInEditMode: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
+    // swiftlint:disable:next force_try
+    prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     let tags = Operations.tags
     return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.id, editMode: .active)) {
       TagsEditor()
@@ -266,11 +268,12 @@ extension TagsEditorView {
   }
 
   static var previewWithMemberships: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
-    let _ = try? FontTag.make(displayName: "New Tag 1")
-    let _ = try? FontTag.make(displayName: "New Tag 2")
+    // swiftlint:disable:next force_try
+    prepareDependencies { $0.defaultDatabase = try! appDatabase() }
+    _ = try? FontTag.make(displayName: "New Tag 1")
+    _ = try? FontTag.make(displayName: "New Tag 2")
     let tags = Operations.tags
-    var memberships = [FontTag.ID:Bool]()
+    var memberships = [FontTag.ID: Bool]()
     memberships[tags[0].id] = true
     memberships[tags[1].id] = true
     memberships[tags[4].id] = true

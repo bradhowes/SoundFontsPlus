@@ -14,14 +14,14 @@ public enum SoundFontKindError: Error {
 
 /// Indicators for the various types of SoundFont installs
 public enum SoundFontKind: Equatable {
-  
+
   /// Built-in sound font file that is comes with the app. Holds a URL to a bundle resource
   case builtin(resource: URL)
-  
+
   /// Sound font file that was installed by the user into the app's working directory on the device where the app is
   /// running. Holds the URL to the SF2 file.
   case installed(file: URL)
-  
+
   /// Sound font file that was installed by the user but that was *not* copied into the app's working
   /// directory. This could reside on an external disk for instance, or on the iCloud Drive. As such it is possible it
   /// is not currently available.

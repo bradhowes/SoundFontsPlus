@@ -12,9 +12,15 @@ public struct WhiteKeySequenceGenerator: Sequence, IteratorProtocol {
   @inlinable public func makeIterator() -> WhiteKeySequenceGenerator { self }
 
   public mutating func next() -> Note? {
-    guard nextMidiNote <= Note.midiRange.upperBound else { return nil }
+    guard
+      nextMidiNote <= Note.midiRange.upperBound,
+      let step = steps.next()
+    else {
+      return nil
+    }
+
     let note = Note(midiNoteValue: nextMidiNote)
-    nextMidiNote += steps.next()!
+    nextMidiNote += step
     return note
   }
 
@@ -30,16 +36,21 @@ public struct WhiteKeySequenceGenerator: Sequence, IteratorProtocol {
  */
 public struct BlackKeySequenceGenerator: Sequence, IteratorProtocol {
   // Number of note steps to move to the next accented note
-  private var deltas = [2, 3, 0, 2, 2, 3, 0].cycled().makeIterator()
+  private var steps = [2, 3, 0, 2, 2, 3, 0].cycled().makeIterator()
   private var nextMidiNote: Int = Note.midiRange.lowerBound + 1
 
   @inlinable public func makeIterator() -> BlackKeySequenceGenerator { self }
 
   public mutating func next() -> Note? {
-    guard nextMidiNote <= Note.midiRange.upperBound else { return nil }
-    let delta = deltas.next()!
-    let note = delta > 0 ? Note(midiNoteValue: nextMidiNote) : Note.phantomNote
-    nextMidiNote += delta
+    guard
+      nextMidiNote <= Note.midiRange.upperBound,
+      let step = steps.next()
+    else {
+      return nil
+    }
+
+    let note = step > 0 ? Note(midiNoteValue: nextMidiNote) : Note.phantomNote
+    nextMidiNote += step
     return note
   }
 }
