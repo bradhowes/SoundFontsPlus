@@ -20,6 +20,7 @@ public struct SF2ResourceFiles {
   /// Collection of all available SF2 files in this bundle -- order the URLs here to match the order of cases in
   /// SF2FileTag
   public static let resources: [URL] = SF2ResourceFileTag.allCases.map {
+    // swiftlint:disable:next force_unwrapping
     Bundle.main.url(forResource: $0.fileName, withExtension: sf2Extension)!
   }
 

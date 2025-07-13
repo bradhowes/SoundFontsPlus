@@ -118,7 +118,7 @@ extension FontTag {
   }
 
   public static func delete(id: FontTag.ID) throws {
-    guard !id.isUbiquitous else { throw ModelError.deleteUbiquitous(name: id.displayName!) }
+    guard !id.isUbiquitous else { throw ModelError.deleteUbiquitous(name: id.displayName) }
     @Dependency(\.defaultDatabase) var database
     try database.write { db in
       try Self.delete().where({ $0.id == id }).execute(db)

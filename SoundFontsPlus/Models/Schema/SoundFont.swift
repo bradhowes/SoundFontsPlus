@@ -229,6 +229,7 @@ extension SoundFont {
     return (try? database.read { try query.fetchAll($0) }) ?? []
   }
 
+  // swiftlint:disable:next large_tuple
   public var elementCounts: (presetCount: Int, favoriteCount: Int, hiddenCount: Int) {
     @Dependency(\.defaultDatabase) var database
     let found = try? database.read { db in
@@ -248,6 +249,7 @@ extension SoundFont {
 
 extension SoundFont {
 
+  // swiftlint:disable:next function_body_length
   public static func mock(
     _ db: Database,
     kind: Kind,

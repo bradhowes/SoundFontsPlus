@@ -1,6 +1,5 @@
 import AVFoundation
 
-
 extension AVAudioUnitReverbPreset: @retroactive Identifiable {
   public var id: Int { rawValue }
 
@@ -44,4 +43,3 @@ extension AVAudioUnitReverbPreset: @retroactive Identifiable {
     }
   }
 }
-

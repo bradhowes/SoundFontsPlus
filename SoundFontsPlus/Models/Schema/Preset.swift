@@ -70,7 +70,7 @@ extension Preset {
       }
     } ?? nil
   }
-  
+
   public var delayConfigDraft: DelayConfig.Draft {
     if let delayConfig = self.delayConfig {
       return .init(delayConfig)
@@ -78,7 +78,7 @@ extension Preset {
       return .init(presetId: self.id)
     }
   }
-  
+
   /// Obtain the `ReverbConfig.Draft` value associated with this config/preset. If one does not exist, then
   /// return one with default values. Goal is to only save an entry when there is a deviation from
   /// the default values.
@@ -92,7 +92,7 @@ extension Preset {
       }
     } ?? nil
   }
-  
+
   public var reverbConfigDraft: ReverbConfig.Draft {
     if let reverbConfig = self.reverbConfig {
       return .init(reverbConfig)
@@ -118,7 +118,6 @@ extension Preset {
         "displayName" TEXT NOT NULL,
         "kind" INTEGER NOT NULL CHECK ("kind" in (0, 1, 2)),
         "notes" TEXT NOT NULL,
-      
         FOREIGN KEY("soundFontId") REFERENCES "soundFonts"("id") ON DELETE CASCADE
       ) STRICT
       """

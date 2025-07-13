@@ -261,7 +261,7 @@ public struct PresetsListView: View {
     .padding(EdgeInsets(top: 8, leading: 8, bottom: 0, trailing: 8))
   }
 
-  private func doScrollTo(proxy: ScrollViewProxy, oldValue: Optional<Preset.ID>, newValue: Optional<Preset.ID>) {
+  private func doScrollTo(proxy: ScrollViewProxy, oldValue: Preset.ID?, newValue: Preset.ID?) {
     if let newValue {
       withAnimation {
         proxy.scrollTo(newValue)
@@ -278,7 +278,8 @@ public struct PresetsListView: View {
 extension PresetsListView {
 
   static var preview: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
+    // swiftlint:disable:next force_try
+    prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 1) }
     return VStack {
@@ -293,7 +294,8 @@ extension PresetsListView {
   }
 
   static var previewEditing: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
+    // swiftlint:disable:next force_try
+    prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 1) }
     return PresetsListView(store: Store(initialState: .init(visibilityEditMode: true)) { PresetsList() })

@@ -101,7 +101,7 @@ public struct PresetButtonView: View {
   @Shared(.activeState) var activeState
   @Environment(\.editMode) private var editMode
   private var isFavorite: Bool { store.preset.kind == .favorite }
-  private var isEditing : Bool { editMode?.wrappedValue == .active }
+  private var isEditing: Bool { editMode?.wrappedValue == .active }
 
   public init(store: StoreOf<PresetButton>) {
     self.store = store
@@ -194,10 +194,12 @@ public struct PresetButtonView: View {
 extension PresetButtonView {
   static var preview: some View {
     var presets = prepareDependencies {
+      // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       return Operations.presets
     }
 
+    // swiftlint:disable:next force_unwrapping
     if let clone = presets.last!.clone() {
       presets.append(clone)
     }
@@ -206,6 +208,7 @@ extension PresetButtonView {
       List {
         PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
         PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
+        // swiftlint:disable:next force_unwrapping
         PresetButtonView(store: Store(initialState: .init(preset: presets.last!)) { PresetButton() })
       }
       .listStyle(.plain)

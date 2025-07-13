@@ -22,7 +22,7 @@ extension TaggedSoundFont {
       CREATE TABLE "\(raw: Self.tableName)" (
         "soundFontId" INTEGER NOT NULL,
         "tagId" INTEGER NOT NULL,
-      
+
         PRIMARY KEY("soundFontId", "tagId")
         FOREIGN KEY("soundFontId") REFERENCES "soundFonts"("id") ON DELETE CASCADE,
         FOREIGN KEY("tagId") REFERENCES "fontTags"("id") ON DELETE CASCADE

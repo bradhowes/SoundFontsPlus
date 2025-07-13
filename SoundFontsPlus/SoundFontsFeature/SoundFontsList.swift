@@ -147,10 +147,12 @@ public struct SoundFontsListView: View {
 
 extension SoundFontsListView {
   static var preview: some View {
-    let _ = prepareDependencies {
+    prepareDependencies {
+      // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
     }
 
+    // swiftlint:disable:next force_try
     let tag = try! FontTag.make(displayName: "My Tag")
     Operations.tagSoundFont(tag.id, soundFontId: .init(rawValue: 2))
 

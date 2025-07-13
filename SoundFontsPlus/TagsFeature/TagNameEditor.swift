@@ -117,30 +117,6 @@ public struct TagNameEditorView: View {
     toggleNameField
   }
 
-  private var nameField: some View {
-    let backgroundColor: Color = readOnly ? .clear : .init(hex: "101010")!
-    return ZStack {
-      RoundedRectangle(cornerRadius: 8)
-        .padding(.init(top: 0, leading: -4, bottom: 0, trailing: 4))
-        .foregroundStyle(backgroundColor)
-      TextField("", text: $store.draft.displayName)
-        .disabled(readOnly || isEditing)
-        .deleteDisabled(readOnly)
-        .foregroundStyle(editable ? .blue : .secondary)
-        .font(Font.custom("Eurostile", size: 20))
-        .swipeActions(edge: .trailing) {
-          if editable {
-            Button {
-              store.send(.tagSwipedToDelete)
-            } label: {
-              Image(systemName: "trash")
-                .tint(.red)
-            }
-          }
-        }
-    }
-  }
-
   private var toggleNameField: some View {
     HStack {
       if store.originalMembership != nil {
@@ -166,7 +142,8 @@ public struct TagNameEditorView: View {
 extension TagNameEditorView {
 
   static var preview: some View {
-    let _ = prepareDependencies { $0.defaultDatabase = try! appDatabase() }
+    // swiftlint:disable:next force_try
+    prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     _ = try? FontTag.make(displayName: "New Tag")
     _ = try? FontTag.make(displayName: "Another Tag")
     let tags = Operations.tags

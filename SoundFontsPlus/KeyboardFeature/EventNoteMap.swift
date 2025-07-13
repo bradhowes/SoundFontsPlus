@@ -27,7 +27,7 @@ public struct EventNoteMap: Equatable {
    and a bool if first assignment for the `Note`.
    */
   public mutating func assign(event: Event, note: Note, fixedKeys: Bool) -> AssignResult {
-    var previousReleased: Note? = nil
+    var previousReleased: Note?
     if let previous = events[event.id] {
       // Same note being activated?
       guard previous != note && fixedKeys else { return .init(previous: note, firstTime: true) }
@@ -41,6 +41,7 @@ public struct EventNoteMap: Equatable {
     events[event.id] = note
     let count = notes[note, default: 0]
     notes[note] = count + 1
+    // swiftlint:disable:next empty_count
     return .init(previous: previousReleased, firstTime: count == 0)
   }
 

@@ -1,13 +1,17 @@
 import SwiftUI
 
 public func navigationBarTitleStyle() {
-  UINavigationBar.appearance().largeTitleTextAttributes = [
-    .font : UIFont(name: "Eurostile", size: 48)!,
-    .foregroundColor : UIColor.whiteText // accentText
-  ]
+  if let big = UIFont(name: "Eurostile", size: 48) {
+    UINavigationBar.appearance().largeTitleTextAttributes = [
+      .font: big,
+      .foregroundColor: UIColor.whiteText
+    ]
+  }
 
-  UINavigationBar.appearance().titleTextAttributes = [
-    .font : UIFont(name: "Eurostile", size: 20)!,
-    .foregroundColor : UIColor.whiteText // accentText
-  ]
+  if let normal = UIFont(name: "Eurostile", size: 20) {
+    UINavigationBar.appearance().titleTextAttributes = [
+      .font: normal,
+      .foregroundColor: UIColor.whiteText
+    ]
+  }
 }

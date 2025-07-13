@@ -6,6 +6,7 @@ import SharingGRDB
 
 private let logger = Logger(subsystem: "SoundFonts", category: "Database")
 
+// swiftlint:disable:next function_body_length
 public func appDatabase() throws -> any DatabaseWriter {
   @Dependency(\.context) var context
 

@@ -7,7 +7,7 @@ import Dependencies
 /**
  Collection of FileManager dependencies to allow for mocking and controlling in tests.
  */
-public struct FileManagerClient : Sendable {
+public struct FileManagerClient: Sendable {
   public var newTemporaryFile: @Sendable () throws -> URL
   public var privateDocumentsDirectory: @Sendable () -> URL
   public var sharedDocumentsDirectory: @Sendable () -> URL
@@ -44,7 +44,7 @@ extension FileManagerClient: DependencyKey {
   }
 
   /// Mapping of FileManager functionality to use in SwiftUI previews
-  public static var previewValue: FileManagerClient { 
+  public static var previewValue: FileManagerClient {
     .init(
       newTemporaryFile: { try FileManager.default.newTemporaryFile() },
       privateDocumentsDirectory: { FileManager.default.localDocumentsDirectory },

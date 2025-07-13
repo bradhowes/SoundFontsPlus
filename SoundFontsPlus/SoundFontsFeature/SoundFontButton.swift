@@ -157,7 +157,9 @@ struct SoundFontButtonView: View {
 
 extension SoundFontButtonView {
   static var preview: some View {
+    // swiftlint:disable:next force_try
     let soundFontInfos = try! prepareDependencies {
+      // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       return try $0.defaultDatabase.read { db in
         try Operations.soundFontInfosQuery.fetchAll(db)
