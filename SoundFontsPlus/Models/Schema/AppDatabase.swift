@@ -4,7 +4,7 @@ import Foundation
 import OSLog
 import SharingGRDB
 
-private let logger = Logger(subsystem: "SoundFonts", category: "Database")
+private let logger = Logger(category: "Database")
 
 // swiftlint:disable:next function_body_length
 public func appDatabase() throws -> any DatabaseWriter {

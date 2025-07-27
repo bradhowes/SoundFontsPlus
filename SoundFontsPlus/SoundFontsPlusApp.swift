@@ -27,18 +27,24 @@ struct SoundFontsPlusApp: App {
     }
   }
 
-  func contentView() -> some View {
+  var body: some Scene {
+    WindowGroup {
+      ContentView(parameters: parameters)
+    }
+  }
+}
+
+struct ContentView: View {
+  let parameters: AUParameterTree
+
+  var body: some View {
     ZStack {
       Color.black
         .ignoresSafeArea(edges: .all)
+
       RootAppView(store: Store(initialState: .init(parameters: parameters)) { RootApp() })
         .environment(\.colorScheme, .dark)
-    }
-  }
-
-  var body: some Scene {
-    WindowGroup {
-      contentView()
+        .defersSystemGestures(on: .bottom)
     }
   }
 }
