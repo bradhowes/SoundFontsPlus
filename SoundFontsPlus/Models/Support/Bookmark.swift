@@ -3,10 +3,6 @@
 import Dependencies
 import Foundation
 
-extension Notification.Name {
-  static let bookmarkChanged = Self("SoundFonts.bookmarkChanged")
-}
-
 /// A bookmark represents a file located outside of the app's own storage space. It is used to reference sound font files
 /// without making a copy of them. However there are risks involved, namely that the bookmark may not resolve to a real
 /// file.

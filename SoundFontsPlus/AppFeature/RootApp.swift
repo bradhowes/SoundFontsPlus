@@ -12,6 +12,7 @@ import UniformTypeIdentifiers
 @Reducer
 public struct RootApp {
   @Dependency(\.parameters) private var parameters
+  private let volumeMonitor: VolumeMonitor = .init()
 
   var state: State { .init(parameters: parameters) }
 
@@ -66,6 +67,7 @@ public struct RootApp {
     case destination(PresentationAction<Destination.Action>)
     case importFile(Result<URL, Error>)
     case keyboard(KeyboardFeature.Action)
+    case phaseChange(ScenePhase)
     case presetsList(PresetsList.Action)
     case presetsSplit(SplitViewReducer.Action)
     case reverb(ReverbFeature.Action)
@@ -98,6 +100,7 @@ public struct RootApp {
       case let .keyboard(.delegate(action)): return keyboardAction(&state, action: action)
       case .keyboard: return .none
       case let .importFile(result): return importFile(&state, result: result)
+      case let .phaseChange(phase): return phaseChange(&state, phase: phase)
       case let .presetsList(.delegate(.edit(preset))): return editPreset(&state, preset: preset)
       case .presetsList: return .none
       case let .presetsSplit(.delegate(action)): return presetsSplitAction(&state, action: action)
@@ -115,7 +118,9 @@ public struct RootApp {
     }.ifLet(\.$destination, action: \.destination)
   }
 
-  public init() {}
+  public init() {
+    volumeMonitor.start()
+  }
 
   @Shared(.firstVisibleKey) var firstVisibleKey
 }
@@ -164,6 +169,15 @@ extension RootApp {
       $firstVisibleKey.withLock { $0 = lowest }
       print("lowest:", lowest)
       return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
+    }
+  }
+
+  private func phaseChange(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
+    switch phase {
+    case .active: return .none
+    case .background: return .none
+    case .inactive: return .none
+    @unknown default: fatalError("Unhandled ScenePhase \(phase):")
     }
   }
 
@@ -246,6 +260,7 @@ extension RootApp {
 }
 
 public struct RootAppView: View, KeyboardReadable {
+  @Environment(\.scenePhase) var scenePhase
   @Bindable private var store: StoreOf<RootApp>
   private let theme: Theme
   private let appPanelBackground = Color.black
@@ -298,6 +313,15 @@ public struct RootAppView: View, KeyboardReadable {
     .animation(.smooth, value: isInputKeyboardVisible)
     .environment(\.auv3ControlsTheme, theme)
     .environment(\.appPanelBackground, appPanelBackground)
+    .onChange(of: scenePhase) { _, newPhase in
+      if newPhase == .active {
+        print("Active")
+      } else if newPhase == .inactive {
+        print("Inactive")
+      } else if newPhase == .background {
+        print("Background")
+      }
+    }
     .onReceive(keyboardPublisher) {
       isInputKeyboardVisible = $0
     }

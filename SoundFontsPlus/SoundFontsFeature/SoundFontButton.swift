@@ -9,6 +9,7 @@ import Tagged
 
 @Reducer
 public struct SoundFontButton {
+  let logger = Logger(category: "SoundFontButton")
 
   @ObservableState
   public struct State: Equatable, Identifiable {
@@ -102,7 +103,7 @@ extension SoundFontButton {
       state.confirmationDialog = Self.deleteFromAppConfirmationDialogState(displayName: state.soundFontInfo.displayName)
     } else {
       let name = state.soundFontInfo.displayName
-      Logger.soundFonts.warning("request to delete built-in soundfont \(name)")
+      logger.error("request to delete built-in soundfont \(name)")
     }
     return .none.animation(.default)
   }
