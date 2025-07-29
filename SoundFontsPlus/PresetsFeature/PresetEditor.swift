@@ -10,6 +10,7 @@ public struct PresetEditor: Equatable {
 
   @ObservableState
   public struct State: Equatable, Sendable {
+    let sectionId: Int
     let preset: Preset
     let soundFontName: String
 
@@ -23,7 +24,8 @@ public struct PresetEditor: Equatable {
 
     var isFavorite: Bool { preset.kind == .favorite }
 
-    public init(preset: Preset) {
+    public init(sectionId: Int, preset: Preset) {
+      self.sectionId = sectionId
       self.preset = preset
       self.displayName = preset.displayName
       self.originalName = preset.originalName
@@ -320,7 +322,7 @@ extension PresetEditorView {
     }
 
     let presets = Operations.presets
-    return PresetEditorView(store: Store(initialState: .init(preset: presets[0])) { PresetEditor() })
+    return PresetEditorView(store: Store(initialState: .init(sectionId: 0, preset: presets[0])) { PresetEditor() })
   }
 }
 

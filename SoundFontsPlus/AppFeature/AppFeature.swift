@@ -10,7 +10,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 @Reducer
-public struct RootApp {
+public struct AppFeature {
   @Dependency(\.parameters) private var parameters
   private let volumeMonitor: VolumeMonitor = .init()
 
@@ -18,10 +18,10 @@ public struct RootApp {
 
   @Reducer(state: .equatable, .sendable, action: .equatable)
   public enum Destination {
-    case settings(SettingsFeature)
-    case tagsEditor(TagsEditor)
-    case soundFontEditor(SoundFontEditor)
     case presetEditor(PresetEditor)
+    case settings(SettingsFeature)
+    case soundFontEditor(SoundFontEditor)
+    case tagsEditor(TagsEditor)
   }
 
   @ObservableState
@@ -101,7 +101,8 @@ public struct RootApp {
       case .keyboard: return .none
       case let .importFile(result): return importFile(&state, result: result)
       case let .phaseChange(phase): return phaseChange(&state, phase: phase)
-      case let .presetsList(.delegate(.edit(preset))): return editPreset(&state, preset: preset)
+      case let .presetsList(.delegate(.edit(sectionId, preset))):
+        return editPreset(&state, sectionId: sectionId, preset: preset)
       case .presetsList: return .none
       case let .presetsSplit(.delegate(action)): return presetsSplitAction(&state, action: action)
       case .presetsSplit: return .none
@@ -125,15 +126,31 @@ public struct RootApp {
   @Shared(.firstVisibleKey) var firstVisibleKey
 }
 
-extension RootApp {
+extension AppFeature {
 
   func dismissingSheet(_ state: inout State) -> Effect<Action> {
-    guard case Destination.State.presetEditor? = state.destination else { return .none }
-    return reduce(into: &state, action: .presetsList(.fetchPresets))
+    switch state.destination {
+    case let .presetEditor(editor): return dismissingEditor(&state, editor: editor)
+    case .settings: return reduce(into: &state, action: .presetsList(.fetchPresets))
+    case .soundFontEditor: return .none
+    case .tagsEditor: return .none
+    case nil: return .none
+    }
   }
 
-  func editPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
-    state.destination = .presetEditor(PresetEditor.State(preset: preset))
+  func dismissingEditor(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
+    guard let sectionIndex = state.presetsList.sections.index(id: editor.sectionId),
+          let rowIndex = state.presetsList.sections[sectionIndex].rows.index(id: editor.preset.id)
+    else {
+      fatalError("unexpected indexing failure")
+    }
+
+    state.presetsList.sections[sectionIndex].rows[rowIndex].preset.displayName = editor.displayName
+    return .none
+  }
+
+  func editPreset(_ state: inout State, sectionId: Int, preset: Preset) -> Effect<Action> {
+    state.destination = .presetEditor(PresetEditor.State(sectionId: sectionId, preset: preset))
     return .none
   }
 
@@ -261,7 +278,7 @@ extension RootApp {
 
 public struct RootAppView: View, KeyboardReadable {
   @Environment(\.scenePhase) var scenePhase
-  @Bindable private var store: StoreOf<RootApp>
+  @Bindable private var store: StoreOf<AppFeature>
   private let theme: Theme
   private let appPanelBackground = Color.black
   private let dividerBorderColor: Color = Color.gray.opacity(0.15)
@@ -282,7 +299,7 @@ public struct RootAppView: View, KeyboardReadable {
     : maxKeyboardHeight * (verticalSizeClass == .compact ? 0.5 : 1.0)
   }
 
-  public init(store: StoreOf<RootApp>) {
+  public init(store: StoreOf<AppFeature>) {
     self.store = store
     var theme = Theme()
     theme.controlForegroundColor = .teal
@@ -305,7 +322,7 @@ public struct RootAppView: View, KeyboardReadable {
     VStack(spacing: 0) {
       listViews
       effectsView
-        .knobCustomValueEditorHost()
+        .knobNativeValueEditorHost()
       toolbarAndKeyboard
     }
     .padding(0)
@@ -430,7 +447,7 @@ public struct RootAppView: View, KeyboardReadable {
 
 extension View {
   func destinations(
-    store: Bindable<StoreOf<RootApp>>,
+    store: Bindable<StoreOf<AppFeature>>,
     horizontalSizeClass: UserInterfaceSizeClass?,
     verticalSizeClass: UserInterfaceSizeClass?
   ) -> some View {
@@ -470,7 +487,7 @@ extension RootAppView {
       navigationBarTitleStyle()
     }
 
-    let rootApp = RootApp()
+    let rootApp = AppFeature()
     return ZStack {
       Color.black
         .ignoresSafeArea(edges: .all)
