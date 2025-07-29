@@ -33,7 +33,7 @@
 		BDA917E02E08247700FD3257 /* AudioEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA917DF2E08247700FD3257 /* AudioEngine.swift */; };
 		BDAF5A932DE254E000B8FB13 /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A8F2DE254E000B8FB13 /* FileManager.swift */; };
 		BDAF5A942DE254E000B8FB13 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A8E2DE254E000B8FB13 /* Environment.swift */; };
-		BDAF5A9A2DE254F400B8FB13 /* RootApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A982DE254F400B8FB13 /* RootApp.swift */; };
+		BDAF5A9A2DE254F400B8FB13 /* AppFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A982DE254F400B8FB13 /* AppFeature.swift */; };
 		BDAF5A9D2DE2550700B8FB13 /* DelayFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A9B2DE2550700B8FB13 /* DelayFeature.swift */; };
 		BDAF5AA22DE2551A00B8FB13 /* EventNoteMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A9E2DE2551A00B8FB13 /* EventNoteMap.swift */; };
 		BDAF5AA32DE2551A00B8FB13 /* Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A9F2DE2551A00B8FB13 /* Keyboard.swift */; };
@@ -213,7 +213,7 @@
 		BDA917DF2E08247700FD3257 /* AudioEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngine.swift; sourceTree = "<group>"; };
 		BDAF5A8E2DE254E000B8FB13 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		BDAF5A8F2DE254E000B8FB13 /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
-		BDAF5A982DE254F400B8FB13 /* RootApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootApp.swift; sourceTree = "<group>"; };
+		BDAF5A982DE254F400B8FB13 /* AppFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFeature.swift; sourceTree = "<group>"; };
 		BDAF5A9B2DE2550700B8FB13 /* DelayFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayFeature.swift; sourceTree = "<group>"; };
 		BDAF5A9E2DE2551A00B8FB13 /* EventNoteMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventNoteMap.swift; sourceTree = "<group>"; };
 		BDAF5A9F2DE2551A00B8FB13 /* Keyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keyboard.swift; sourceTree = "<group>"; };
@@ -513,7 +513,7 @@
 			isa = PBXGroup;
 			children = (
 				BD050EE02E23C2EB00706CC4 /* LaunchScreen.storyboard */,
-				BDAF5A982DE254F400B8FB13 /* RootApp.swift */,
+				BDAF5A982DE254F400B8FB13 /* AppFeature.swift */,
 				BD76C1582E23C57E00F5B1F5 /* VolumeMonitor.swift */,
 			);
 			path = AppFeature;
@@ -1044,7 +1044,7 @@
 				BDAF5AE72DE2557300B8FB13 /* SF2ResourceFileTag.swift in Sources */,
 				BDAF5AE82DE2557300B8FB13 /* SF2ResourceFiles.swift in Sources */,
 				BDD531B92DEADADD00B4B104 /* String.swift in Sources */,
-				BDAF5A9A2DE254F400B8FB13 /* RootApp.swift in Sources */,
+				BDAF5A9A2DE254F400B8FB13 /* AppFeature.swift in Sources */,
 				BDAF5A932DE254E000B8FB13 /* FileManager.swift in Sources */,
 				BDAF5A942DE254E000B8FB13 /* Environment.swift in Sources */,
 				BDAF5ABF2DE2555000B8FB13 /* ReverbConfig.swift in Sources */,

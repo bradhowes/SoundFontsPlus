@@ -45,7 +45,7 @@ public struct PresetsList {
     case visibilityEditModeChanged(Bool)
 
     public enum Delegate: Equatable {
-      case edit(Preset)
+      case edit(sectionId: Int, preset: Preset)
     }
   }
 
@@ -78,10 +78,10 @@ public struct PresetsList {
         }
 
         // Preset delegated actions
-      case let .sections(.element(id: _, action: .rows(.element(id: _, action: .delegate(action))))):
+      case let .sections(.element(id: sectionId, action: .rows(.element(id: _, action: .delegate(action))))):
         switch action {
         case let .createFavorite(preset): return createPreset(&state, preset: preset)
-        case let .editPreset(preset): return editPreset(&state, preset: preset)
+        case let .editPreset(preset): return editPreset(&state, sectionId: sectionId, preset: preset)
         case let .hideOrDeletePreset(preset): return hideOrDeletePreset(&state, preset: preset)
         case let .selectPreset(preset): return selectPreset(&state, preset: preset)
         }
@@ -137,8 +137,8 @@ extension PresetsList {
     return .none
   }
 
-  private func editPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
-    return .send(.delegate(.edit(preset)))
+  private func editPreset(_ state: inout State, sectionId: Int, preset: Preset) -> Effect<Action> {
+    return .send(.delegate(.edit(sectionId: sectionId, preset: preset)))
   }
 
   private func hideOrDeletePreset(_ state: inout State, preset: Preset) -> Effect<Action> {

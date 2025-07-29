@@ -42,7 +42,7 @@ struct ContentView: View {
       Color.black
         .ignoresSafeArea(edges: .all)
 
-      RootAppView(store: Store(initialState: .init(parameters: parameters)) { RootApp() })
+      RootAppView(store: Store(initialState: .init(parameters: parameters)) { AppFeature() })
         .environment(\.colorScheme, .dark)
         .defersSystemGestures(on: .bottom)
     }
