@@ -1,6 +1,15 @@
 {
-  "originHash" : "e2c1c8aeba83e1d306d5f0e6e900c2116856dc5c48bcdcd93079b3339e29acb1",
+  "originHash" : "0cada50eada8a0b9f41655c997ced76d3515a60f4c7700b5946312ebf26270a5",
   "pins" : [
+    {
+      "identity" : "auv3-support",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bradhowes/auv3-support",
+      "state" : {
+        "revision" : "34699779f1b2caa4775fa2cc3575cfdca605500d",
+        "version" : "1.0.9"
+      }
+    },
     {
       "identity" : "auv3controls",
       "kind" : "remoteSourceControl",
@@ -11,12 +20,30 @@
       }
     },
     {
+      "identity" : "brh-segmented-control",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bradhowes/brh-segmented-control",
+      "state" : {
+        "revision" : "68c2aeacf7cf9d21482497de111bec8bed783a40",
+        "version" : "1.0.5"
+      }
+    },
+    {
       "identity" : "combine-schedulers",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/combine-schedulers",
       "state" : {
         "revision" : "5928286acce13def418ec36d05a001a9641086f2",
         "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "dspheaders",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bradhowes/DSPHeaders",
+      "state" : {
+        "revision" : "f83d1afbfeef92b592f2e88c3426e392084b17d7",
+        "version" : "1.0.7"
       }
     },
     {
@@ -51,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/SF2Lib",
       "state" : {
-        "revision" : "73112fd9c82a23f832168ebb6e557cf1f065f253",
-        "version" : "6.5.1"
+        "revision" : "7cb86f923405951b9e38ffc79b222b4b16abb9d2",
+        "version" : "6.7.0"
       }
     },
     {
@@ -114,8 +141,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "6574de2396319a58e86e2178577268cb4aeccc30",
-        "version" : "1.20.2"
+        "revision" : "4c47829a080789cf20d82c64d8c27291352391d4",
+        "version" : "1.21.1"
       }
     },
     {
@@ -141,8 +168,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-dependencies",
       "state" : {
-        "revision" : "4c90d6b2b9bf0911af87b103bb40f41771891596",
-        "version" : "1.9.2"
+        "revision" : "eefcdaa88d2e2fd82e3405dfb6eb45872011a0b5",
+        "version" : "1.9.3"
       }
     },
     {
@@ -159,8 +186,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
-        "revision" : "ae208d1a5cf33aee1d43734ea780a09ada6e2a21",
-        "version" : "2.3.2"
+        "revision" : "4e89284c1966538109dc783497405bc680e9bc96",
+        "version" : "2.4.0"
       }
     },
     {
@@ -177,8 +204,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-perception",
       "state" : {
-        "revision" : "d924c62a70fca5f43872f286dbd7cef0957f1c01",
-        "version" : "1.6.0"
+        "revision" : "328a0b49e2690135c4c2660661f0ed83f16853e3",
+        "version" : "2.0.4"
       }
     },
     {
@@ -186,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-sharing",
       "state" : {
-        "revision" : "75e846ee3159dc75b3a29bfc24b6ce5a557ddca9",
-        "version" : "2.5.2"
+        "revision" : "5d87dda90ed048f216826efbad404110141161bb",
+        "version" : "2.6.0"
       }
     },
     {
@@ -204,8 +231,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "a2a7c06f5b3c60811558bd9552fbbbd0cc027d91",
-        "version" : "0.9.0"
+        "revision" : "bb12b34a8bf88af3307784da94caee3765a066f2",
+        "version" : "0.11.0"
       }
     },
     {
@@ -249,8 +276,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "23e3442166b5122f73f9e3e622cd1e4bafeab3b7",
-        "version" : "1.6.0"
+        "revision" : "b2ed9eabefe56202ee4939dd9fc46b6241c88317",
+        "version" : "1.6.1"
       }
     }
   ],
