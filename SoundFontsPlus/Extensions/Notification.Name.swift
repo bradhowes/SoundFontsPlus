@@ -1,6 +1,6 @@
-import Foundation
+// Copyright © 2025 Brad Howes. All rights reserved.
 
-// Copyright © 2020 Brad Howes. All rights reserved.
+import Foundation
 
 extension Notification.Name {
   /// Notification to visit the app store to review the app

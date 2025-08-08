@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BD010CCA2E3AA5F100E0DC0D /* AVSF2Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD010CC92E3AA5F100E0DC0D /* AVSF2Engine.swift */; };
+		BD010CCD2E3AA76400E0DC0D /* AUv3Component in Frameworks */ = {isa = PBXBuildFile; productRef = BD010CCC2E3AA76400E0DC0D /* AUv3Component */; };
+		BD010CCF2E3AA76400E0DC0D /* AUv3Shared in Frameworks */ = {isa = PBXBuildFile; productRef = BD010CCE2E3AA76400E0DC0D /* AUv3Shared */; };
 		BD050EE12E23C2EB00706CC4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BD050EE02E23C2EB00706CC4 /* LaunchScreen.storyboard */; };
 		BD0BD8CC2E11E23000772FE5 /* SoundFontsPlusAU.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BD61F0242E11A69800DD8903 /* SoundFontsPlusAU.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BD1D27832B6F13DD005C3ED0 /* SoundFontsPlusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27822B6F13DD005C3ED0 /* SoundFontsPlusApp.swift */; };
@@ -181,6 +184,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		BD010CC92E3AA5F100E0DC0D /* AVSF2Engine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVSF2Engine.swift; sourceTree = "<group>"; };
 		BD050EE02E23C2EB00706CC4 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		BD0BD9172E11E7E400772FE5 /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Common.xcconfig; sourceTree = "<group>"; };
 		BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SoundFontsPlus.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -345,12 +349,14 @@
 				BD76C15C2E23C5F700F5B1F5 /* ProgressHUD in Frameworks */,
 				BDAF5BC12DE25C9200B8FB13 /* Tagged in Frameworks */,
 				BDEB90092E19B00A00BF16B5 /* SwiftUIIntrospect in Frameworks */,
+				BD010CCF2E3AA76400E0DC0D /* AUv3Shared in Frameworks */,
 				BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */,
 				BDAF5B2C2DE2560400B8FB13 /* ComposableArchitecture in Frameworks */,
 				BDAF5B292DE255EE00B8FB13 /* AUv3Controls in Frameworks */,
 				BDAF5B2F2DE2565000B8FB13 /* SharingGRDB in Frameworks */,
 				BDEB8F952E17287E00BF16B5 /* SF2LibAU in Frameworks */,
 				BDAF5B262DE255D900B8FB13 /* BRHSplitView in Frameworks */,
+				BD010CCD2E3AA76400E0DC0D /* AUv3Component in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -489,6 +495,7 @@
 		BDA917DE2E0823F200FD3257 /* AudioEngine */ = {
 			isa = PBXGroup;
 			children = (
+				BD010CC92E3AA5F100E0DC0D /* AVSF2Engine.swift */,
 				BD76C15D2E23C91E00F5B1F5 /* AudioSession.swift */,
 				BDA917DF2E08247700FD3257 /* AudioEngine.swift */,
 				BD76C1612E23E17800F5B1F5 /* MIDISynth.swift */,
@@ -868,6 +875,8 @@
 				BDEB8F942E17287E00BF16B5 /* SF2LibAU */,
 				BDEB90082E19B00A00BF16B5 /* SwiftUIIntrospect */,
 				BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */,
+				BD010CCC2E3AA76400E0DC0D /* AUv3Component */,
+				BD010CCE2E3AA76400E0DC0D /* AUv3Shared */,
 			);
 			productName = SoundFontsPlus;
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */;
@@ -979,6 +988,7 @@
 				BDEB90072E19B00A00BF16B5 /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 				BD33FF7F2E23B2900085D3C3 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 				BD76C15A2E23C5F700F5B1F5 /* XCRemoteSwiftPackageReference "ProgressHUD" */,
+				BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */,
 			);
 			preferredProjectObjectVersion = 56;
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
@@ -1084,6 +1094,7 @@
 				BDAF5AC92DE2555000B8FB13 /* ModelError.swift in Sources */,
 				BDAF5ACA2DE2555000B8FB13 /* FontTag.swift in Sources */,
 				BDAF5ACB2DE2555000B8FB13 /* Bookmark.swift in Sources */,
+				BD010CCA2E3AA5F100E0DC0D /* AVSF2Engine.swift in Sources */,
 				BDAF5ACC2DE2555000B8FB13 /* TagInfo.swift in Sources */,
 				BDAF5ACD2DE2555000B8FB13 /* Operations.swift in Sources */,
 				BDAF5ACE2DE2555000B8FB13 /* ActiveState.swift in Sources */,
@@ -1672,6 +1683,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bradhowes/auv3-support";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.8;
+			};
+		};
 		BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
@@ -1763,6 +1782,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		BD010CCC2E3AA76400E0DC0D /* AUv3Component */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */;
+			productName = AUv3Component;
+		};
+		BD010CCE2E3AA76400E0DC0D /* AUv3Shared */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */;
+			productName = AUv3Shared;
+		};
 		BD050EDE2E23BAA700706CC4 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BD33FF7F2E23B2900085D3C3 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
