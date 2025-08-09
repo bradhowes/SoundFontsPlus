@@ -13,8 +13,8 @@ public struct SettingsFeature {
     @Shared(.keyboardSlides) var keyboardSlides
     @Shared(.showSolfegeTags) var showSolfegeTags
     @Shared(.keyLabels) var keyLabels
-    @Shared(.midiChannel) var midiChannel
     @Shared(.midiAutoConnect) var midiAutoConnect
+    @Shared(.midiChannel) var midiChannel
     @Shared(.backgroundProcessing) var backgroundProcessing
     @Shared(.pitchBendRange) var pitchBendRange
     @Shared(.favoritesOnTop) var favoritesOnTop
@@ -34,9 +34,9 @@ public struct SettingsFeature {
     case binding(BindingAction<State>)
     case bluetoothMIDILocateButtonTapped
     case dismissButtonTapped
+    case midiAssignmentsButtonTapped
     case midiConnectionsButtonTapped
     case midiControllersButtonTapped
-    case midiAssignmentsButtonTapped
     case tuning(TuningFeature.Action)
   }
 
@@ -51,9 +51,9 @@ public struct SettingsFeature {
       case .binding: return .none
       case .bluetoothMIDILocateButtonTapped: return .none
       case .dismissButtonTapped: return dismissButtonTapped(&state)
+      case .midiAssignmentsButtonTapped: return .none
       case .midiConnectionsButtonTapped: return .none
       case .midiControllersButtonTapped: return .none
-      case .midiAssignmentsButtonTapped: return .none
       case .tuning: return .none
       }
     }

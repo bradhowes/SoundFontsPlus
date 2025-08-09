@@ -34,6 +34,11 @@ public enum Operations {
     return (try? database.read { try query.fetchAll($0) }) ?? []
   }
 
+  public static var activePresetLoadingInfo: PresetLoadingInfo? {
+    @Dependency(\.defaultDatabase) var database
+    return (try? database.read { try PresetLoadingInfo.query.fetchOne($0) })
+  }
+
   public static var allPresets: [Preset] {
     guard let soundFontId = Preset.source else { return [] }
     let query = Preset

@@ -7,7 +7,7 @@ import Sharing
 import SwiftUI
 
 @Reducer
-public struct ToolBar {
+public struct ToolBarFeature {
 
   @Reducer(state: .equatable, .sendable, action: .equatable)
   public enum Destination {
@@ -91,7 +91,7 @@ public struct ToolBar {
   public init() {}
 }
 
-extension ToolBar {
+extension ToolBarFeature {
 
   public static func setTagsListVisible(_ state: inout State, value: Bool) {
     state.tagsListVisible = value
@@ -175,14 +175,14 @@ extension ToolBar {
   }
 }
 
-public struct ToolBarView: View {
-  @Bindable private var store: StoreOf<ToolBar>
+public struct ToolBarFeatureView: View {
+  @Bindable private var store: StoreOf<ToolBarFeature>
   @Shared(.activeState) var activeState
   @Environment(\.appPanelBackground) private var appPanelBackground
   @Environment(\.auv3ControlsTheme) private var auv3ControlsTheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
-  public init(store: StoreOf<ToolBar>) {
+  public init(store: StoreOf<ToolBarFeature>) {
     self.store = store
   }
 
@@ -312,19 +312,20 @@ public struct ToolBarView: View {
   }
 }
 
-extension ToolBarView {
+extension ToolBarFeatureView {
   static var preview: some View {
     prepareDependencies {
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
     }
     return VStack {
-      ToolBarView(store: Store(initialState: .init(tagsListVisible: true, effectsVisible: false)) { ToolBar() })
+      ToolBarFeatureView(store: Store(initialState: .init(tagsListVisible: true, effectsVisible: false)) {
+        ToolBarFeature() })
       KeyboardView(store: Store(initialState: .init()) { KeyboardFeature() })
     }
   }
 }
 
 #Preview {
-  ToolBarView.preview
+  ToolBarFeatureView.preview
 }

@@ -34,12 +34,13 @@ public struct AppFeature {
     public var soundFontsList: SoundFontsList.State = .init()
     public var presetsList: PresetsList.State = .init()
     public var tagsList: TagsList.State = .init()
-    public var toolBar: ToolBar.State
+    public var toolBar: ToolBarFeature.State
     public var tagsSplit: SplitViewReducer.State
     public var presetsSplit: SplitViewReducer.State
     public var delay: DelayFeature.State
     public var reverb: ReverbFeature.State
     public var keyboard: KeyboardFeature.State = .init()
+    public var synth: SynthFeature.State = .init()
 
     public var addSoundFonts: Bool = false
     public var addedSummary: String?
@@ -54,7 +55,7 @@ public struct AppFeature {
 
       self.tagsSplit = .init(panesVisible: tagsListVisible ? .both : .primary, initialPosition: fontsAndTagsPosition)
       self.presetsSplit = .init(panesVisible: .both, initialPosition: fontsAndPresetsPosition)
-      self.toolBar = ToolBar.State(tagsListVisible: tagsListVisible, effectsVisible: effectsVisible)
+      self.toolBar = ToolBarFeature.State(tagsListVisible: tagsListVisible, effectsVisible: effectsVisible)
 
       self.delay = DelayFeature.State(parameters: parameters)
       self.reverb = ReverbFeature.State(parameters: parameters)
@@ -67,14 +68,16 @@ public struct AppFeature {
     case destination(PresentationAction<Destination.Action>)
     case importFile(Result<URL, Error>)
     case keyboard(KeyboardFeature.Action)
+    case initialize
     case phaseChange(ScenePhase)
     case presetsList(PresetsList.Action)
     case presetsSplit(SplitViewReducer.Action)
     case reverb(ReverbFeature.Action)
     case soundFontsList(SoundFontsList.Action)
+    case synth(SynthFeature.Action)
     case tagsList(TagsList.Action)
     case tagsSplit(SplitViewReducer.Action)
-    case toolBar(ToolBar.Action)
+    case toolBar(ToolBarFeature.Action)
   }
 
   public var body: some ReducerOf<Self> {
@@ -87,9 +90,10 @@ public struct AppFeature {
     Scope(state: \.presetsSplit, action: \.presetsSplit) { SplitViewReducer() }
     Scope(state: \.reverb, action: \.reverb) { ReverbFeature(parameters: parameters) }
     Scope(state: \.soundFontsList, action: \.soundFontsList) { SoundFontsList() }
+    Scope(state: \.synth, action: \.synth) { SynthFeature() }
     Scope(state: \.tagsList, action: \.tagsList) { TagsList() }
     Scope(state: \.tagsSplit, action: \.tagsSplit) { SplitViewReducer() }
-    Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
+    Scope(state: \.toolBar, action: \.toolBar) { ToolBarFeature() }
 
     Reduce { state, action in
       switch action {
@@ -99,6 +103,7 @@ public struct AppFeature {
       case .destination: return .none
       case let .keyboard(.delegate(action)): return keyboardAction(&state, action: action)
       case .keyboard: return .none
+      case .initialize: return reduce(into: &state, action: .synth(.initialize))
       case let .importFile(result): return importFile(&state, result: result)
       case let .phaseChange(phase): return phaseChange(&state, phase: phase)
       case let .presetsList(.delegate(.edit(sectionId, preset))):
@@ -109,6 +114,7 @@ public struct AppFeature {
       case .reverb: return .none
       case let .soundFontsList(.delegate(.edit(soundFont))): return editFont(&state, soundFont: soundFont)
       case .soundFontsList: return .none
+      case .synth: return .none
       case let .tagsList(.delegate(.edit(focused))): return editTags(&state, focused: focused)
       case .tagsList: return .none
       case let .tagsSplit(.delegate(action)): return tagsSplitAction(&state, action: action)
@@ -211,7 +217,7 @@ extension AppFeature {
     switch action {
     case let .stateChanged(panesVisible, position):
       let visible = panesVisible.contains(.bottom)
-      ToolBar.setTagsListVisible(&state.toolBar, value: visible)
+      ToolBarFeature.setTagsListVisible(&state.toolBar, value: visible)
       @Shared(.tagsListVisible) var tagsListVisible
       $tagsListVisible.withLock { $0 = panesVisible.contains(.bottom) }
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
@@ -221,7 +227,7 @@ extension AppFeature {
     }
   }
 
-  private func toolBarAction(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
+  private func toolBarAction(_ state: inout State, action: ToolBarFeature.Action.Delegate) -> Effect<Action> {
     switch action {
     case .addSoundFontButtonTapped:
       state.addSoundFonts = true
@@ -339,6 +345,9 @@ public struct RootAppView: View, KeyboardReadable {
         print("Background")
       }
     }
+    .task {
+      await store.send(.initialize).finish()
+    }
     .onReceive(keyboardPublisher) {
       isInputKeyboardVisible = $0
     }
@@ -433,7 +442,7 @@ public struct RootAppView: View, KeyboardReadable {
 
   private var toolbarAndKeyboard: some View {
     VStack {
-      ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
+      ToolBarFeatureView(store: store.scope(state: \.toolBar, action: \.toolBar))
       keyboardView
     }
   }
