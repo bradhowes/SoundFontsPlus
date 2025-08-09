@@ -44,6 +44,7 @@ public struct SoundFont: Hashable, Identifiable, Sendable {
 extension SoundFont {
 
   public static func insert(_ db: Database, sf2: SF2ResourceFileTag) {
+    let log = Logger(category: "SoundFont.insert")
     withErrorReporting {
       let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
       let (kind, location) = try soundFontKind.data()
@@ -63,14 +64,15 @@ extension SoundFont {
       }.returning(\.id)
 
       if let soundFontId = try insertSoundFontDraft.fetchOne(db) {
+        log.info("soundFontId: \(soundFontId)")
 
-        // Insert tagging in one shot
         let taggedSoundFonts: [TaggedSoundFont] = soundFontKind.tagIds.map { tagId in
             .init(
               soundFontId: soundFontId,
               tagId: tagId
             )
         }
+
         try TaggedSoundFont.insert {
           taggedSoundFonts
         }.execute(db)

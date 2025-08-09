@@ -19,9 +19,11 @@ public struct SynthFeature {
   public struct State: Equatable {
     let engine = AVAudioEngine()
     var avAudioUnit: AVAudioUnit?
+    var midiSynth: AVAudioUnitMIDIInstrument? { avAudioUnit as? AVAudioUnitMIDIInstrument }
     var audioUnit: SF2LibAU? { avAudioUnit?.auAudioUnit as? SF2LibAU }
     @ObservationStateIgnored
     var loadedSoundFontId: SoundFont.ID?
+    var loadedPresetIndex: Int?
   }
 
   public enum Action {
@@ -53,6 +55,8 @@ public struct SynthFeature {
   @Shared(.activeState) var activeState
 }
 
+extension SF2LibAU: @retroactive @unchecked Sendable {}
+
 extension SynthFeature {
 
   func activePresetChanged(_ state: inout State) -> Effect<Action> {
@@ -66,6 +70,11 @@ extension SynthFeature {
       return .none
     }
 
+    guard state.loadedPresetIndex != presetInfo.presetIndex || state.loadedSoundFontId != presetInfo.soundFontId else {
+      log.info("already loaded")
+      return .none
+    }
+
     let result: Bool
     if presetInfo.soundFontId == state.loadedSoundFontId {
       log.info("loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
@@ -76,16 +85,29 @@ extension SynthFeature {
         log.error("unexpected nil location for \(presetInfo)")
         return .none
       }
-      log.info("loading \(location.path.absoluteString) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = audioUnit.sendLoadFileUsePreset(path: location.path.absoluteString, preset: presetInfo.presetIndex)
+      let path = location.path.path(percentEncoded: false)
+      log.info("loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
+      result = audioUnit.sendLoadFileUsePreset(path: path, preset: presetInfo.presetIndex)
     }
 
     log.info("loaded \(result)")
     if result {
+      let firstTime = state.loadedSoundFontId == nil
       state.loadedSoundFontId = presetInfo.soundFontId
+      state.loadedPresetIndex = presetInfo.presetIndex
+      return firstTime ? .none : playSample(state, audioUnit: audioUnit)
     }
 
     return .none
+  }
+
+  func playSample(_ state: State, audioUnit: SF2LibAU) -> Effect<Action> {
+    return .run { _ in
+      // Play a short note using the new preset
+      _ = audioUnit.sendNoteOn(note: 60)
+      try await Task.sleep(for: .milliseconds(1000))
+      _ = audioUnit.sendNoteOff(note: 60)
+    }
   }
 
   func initialize(_ state: inout State) -> Effect<Action> {
