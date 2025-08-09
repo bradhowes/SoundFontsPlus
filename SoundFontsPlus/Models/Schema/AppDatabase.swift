@@ -61,6 +61,7 @@ public func appDatabase() throws -> any DatabaseWriter {
 
   migrator.registerMigration("Add builtin fonts") { db in
     for sf2 in SF2ResourceFileTag.allCases {
+      log.info("add \(sf2)")
       SoundFont.insert(db, sf2: sf2)
     }
   }
@@ -86,6 +87,23 @@ public func appDatabase() throws -> any DatabaseWriter {
 #endif
 
   try migrator.migrate(database)
+
+  // Update locations of builtin SF2 files everytime we startup
+  try database.write { db in
+    for sf2 in SF2ResourceFileTag.allCases {
+      withErrorReporting {
+        let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
+        let (kind, location) = try soundFontKind.data()
+        let update = SoundFont
+          .where { $0.id.eq(sf2.id) }
+          .update {
+            $0.kind = kind
+            $0.location = location
+          }
+        try update.execute(db)
+      }
+    }
+  }
 
   return database
 }

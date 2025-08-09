@@ -8,13 +8,15 @@ import Engine
  */
 public enum SF2ResourceFileTag: Int, CaseIterable, Sendable {
 
-  case freeFont
-  case museScore
-  case rolandNicePiano
+  case freeFont = 1
+  case museScore = 2
+  case rolandNicePiano = 3
 
   static let freeFontFileName = "FreeFont"
   static let museScoreFileName = "GeneralUser GS MuseScore v1.442"
   static let rolandNicePianoFileName = "RolandNicePiano"
+
+  public var id: SoundFont.ID { .init(rawValue: Int64(self.rawValue)) }
 
   /// Obtain the name of the SF2 resource file without suffix
   public var fileName: String {
@@ -38,11 +40,8 @@ public enum SF2ResourceFileTag: Int, CaseIterable, Sendable {
     }
   }
 
-  /// Obtain the `resources` index associated with the tag
-  public var resourceIndex: Int { self.rawValue }
-
   /// Obtain the URL for an SF2 file in the bundle
-  public var url: URL { SF2ResourceFiles.resources[resourceIndex] }
+  public var url: URL { SF2ResourceFiles.resources[rawValue - 1] }
 
   /// Obtain info and preset info about an SF2 file
   public var fileInfo: Engine.SF2FileInfo? {
