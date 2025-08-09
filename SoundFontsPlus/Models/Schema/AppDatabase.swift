@@ -6,7 +6,7 @@ import Foundation
 import OSLog
 import SharingGRDB
 
-private let logger = Logger(category: "Database")
+private let log = Logger(category: "Database")
 
 // swiftlint:disable:next function_body_length
 public func appDatabase() throws -> any DatabaseWriter {
@@ -21,7 +21,7 @@ public func appDatabase() throws -> any DatabaseWriter {
 #if DEBUG
     db.trace(options: .profile) {
       if context == .live {
-        logger.debug("\($0.expandedDescription)")
+        log.debug("\($0.expandedDescription)")
       } else {
         print("\($0.expandedDescription)")
       }
@@ -31,7 +31,7 @@ public func appDatabase() throws -> any DatabaseWriter {
 
   if context == .live {
     let path = URL.documentsDirectory.appending(component: "db.sqlite").path()
-    logger.info("open \(path)")
+    log.info("open \(path)")
     database = try DatabasePool(path: path, configuration: configuration)
   } else {
     database = try DatabaseQueue(configuration: configuration)
