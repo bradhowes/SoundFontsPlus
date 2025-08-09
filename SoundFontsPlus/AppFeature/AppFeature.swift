@@ -4,6 +4,7 @@ import AudioUnit.AUParameters
 import AUv3Controls
 import BRHSplitView
 import ComposableArchitecture
+import SF2LibAU
 import SharingGRDB
 import Sharing
 import SwiftUI
@@ -114,6 +115,7 @@ public struct AppFeature {
       case .reverb: return .none
       case let .soundFontsList(.delegate(.edit(soundFont))): return editFont(&state, soundFont: soundFont)
       case .soundFontsList: return .none
+      case .synth(.delegate(.activeSynth(let synth))): return setActiveSynth(&state, synth: synth)
       case .synth: return .none
       case let .tagsList(.delegate(.edit(focused))): return editTags(&state, focused: focused)
       case .tagsList: return .none
@@ -211,6 +213,11 @@ extension AppFeature {
       $fontsAndPresetsSplitPosition.withLock { $0 = position }
       return .none
     }
+  }
+
+  private func setActiveSynth(_ state: inout State, synth: SF2LibAU) -> Effect<Action> {
+    state.keyboard.synth = synth
+    return .none
   }
 
   private func tagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {

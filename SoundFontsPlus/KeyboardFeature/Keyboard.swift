@@ -2,6 +2,7 @@
 
 import ComposableArchitecture
 import Dependencies
+import SF2LibAU
 import SwiftUI
 
 @Reducer
@@ -16,6 +17,7 @@ public struct KeyboardFeature {
     @Shared(.keyboardSlides) var keyboardSlides
     @Shared(.keyLabels) var keyLabels
 
+    var synth: SF2LibAU?
     var scrollTo: Note?
     let settingsDemo: Bool
 
@@ -78,6 +80,7 @@ extension KeyboardFeature {
     guard let presetId = presetId else { return .none }
     guard let audioConfig = AudioConfig.with(key: presetId) else { return .none }
     guard audioConfig.keyboardLowestNoteEnabled else { return .none }
+    state.active = .init(repeating: false, count: state.active.count)
     return .run { send in
       await send(.scrollTo(audioConfig.keyboardLowestNote))
     }.cancellable(id: CancelId.scrollTo)
@@ -89,10 +92,13 @@ extension KeyboardFeature {
   }
 
   private func assigned(_ state: inout State, previous: Note?, key: Note) -> Effect<Action> {
+    guard previous != key else { return .none }
     if let previous {
       state.active[previous.midiNoteValue] = false
+      state.synth?.sendNoteOff(note: UInt8(previous.midiNoteValue))
     }
     state.active[key.midiNoteValue] = true
+    state.synth?.sendNoteOn(note: UInt8(key.midiNoteValue))
     return .none
   }
 
@@ -112,11 +118,13 @@ extension KeyboardFeature {
 
   private func noteOff(_ state: inout State, key: Note) -> Effect<Action> {
     state.active[key.midiNoteValue] = false
+    state.synth?.sendNoteOff(note: UInt8(key.midiNoteValue))
     return .none
   }
 
   private func noteOn(_ state: inout State, key: Note) -> Effect<Action> {
     state.active[key.midiNoteValue] = true
+    state.synth?.sendNoteOn(note: UInt8(key.midiNoteValue))
     return .none
   }
 

@@ -28,9 +28,13 @@ public struct SynthFeature {
 
   public enum Action {
     case activePresetChanged
+    case delegate(Delegate)
     case initialize
     case routeChanged
     case useAudioUnit(AVAudioUnit)
+    public enum Delegate {
+      case activeSynth(SF2LibAU)
+    }
   }
 
   private enum CancelId {
@@ -44,6 +48,7 @@ public struct SynthFeature {
     Reduce { state, action in
       switch action {
       case .activePresetChanged: return activePresetChanged(&state)
+      case .delegate: return .none
       case .initialize: return initialize(&state)
       case .routeChanged: return routeChanged(&state)
       case .useAudioUnit(let audioUnit): return useAudioUnit(&state, audioUnit: audioUnit)
@@ -143,12 +148,15 @@ extension SynthFeature {
     ) {
       state.avAudioUnit = audioUnit
 
-      if let avMIDIInstrument = audioUnit as? AVAudioUnitMIDIInstrument {
+      if let avMIDIInstrument = state.avAudioUnit,
+         let au = state.audioUnit {
         state.engine.attach(avMIDIInstrument)
         state.engine.connect(avMIDIInstrument, to: state.engine.outputNode, format: audioFormat)
         try? state.engine.start()
-
-        return .send(.activePresetChanged)
+        return .merge(
+          .send(.activePresetChanged),
+          .send(.delegate(.activeSynth(au)))
+        )
       }
     }
 
