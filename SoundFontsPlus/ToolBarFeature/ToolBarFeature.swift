@@ -1,9 +1,9 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AUv3Controls
+import Combine
 import ComposableArchitecture
 import Dependencies
-import MorkAndMIDI
 import Sharing
 import SwiftUI
 
@@ -19,7 +19,19 @@ public struct ToolBarFeature {
   public struct State {
     @Presents var destination: Destination.State?
 
-    let midi: MIDI?
+    public enum TrafficKind {
+      case accepted
+      case blocked
+
+      var color: Color {
+        switch self {
+        case .accepted: return .accentColor
+        case .blocked: return .orange
+        }
+      }
+    }
+
+    let midiMonitor: MIDIMonitor?
     var lowestKey: Note
     var highestKey: Note
 
@@ -30,10 +42,14 @@ public struct ToolBarFeature {
 
     var editingPresetVisibility: Bool = false
     var showMoreButtons: Bool = false
+    var preset: Preset?
 
-    public init(tagsListVisible: Bool, effectsVisible: Bool, midi: MIDI? = nil) {
+    var showTrafficColor: Color = .clear
+    var showTrafficPublisher: PassthroughSubject<Void, Never> = .init()
+
+    public init(tagsListVisible: Bool, effectsVisible: Bool, midiMonitor: MIDIMonitor? = nil) {
       @Shared(.firstVisibleKey) var firstVisibleKey: Note
-      self.midi = midi
+      self.midiMonitor = midiMonitor
       self.tagsListVisible = tagsListVisible
       self.effectsVisible = effectsVisible
       self.lowestKey = firstVisibleKey
@@ -42,17 +58,20 @@ public struct ToolBarFeature {
   }
 
   public enum Action {
+    case activePresetIdChanged(Preset.ID?)
     case addSoundFontButtonTapped
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case effectsVisibilityButtonTapped
     case helpButtonTapped
-    case shiftKeyboardUpButtonTapped
-    case shiftKeyboardDownButtonTapped
+    case initialize
     case presetsVisibilityButtonTapped
     case settingsButtonTapped
     case setVisibleKeyRange(lowest: Note, highest: Note)
+    case shiftKeyboardUpButtonTapped
+    case shiftKeyboardDownButtonTapped
     case showMoreButtonTapped
+    case showTraffic(State.TrafficKind?)
     case slidingKeyboardButtonTapped
     case tagVisibilityButtonTapped
 
@@ -73,18 +92,21 @@ public struct ToolBarFeature {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
+      case .activePresetIdChanged(let presetId): return activePresetIdChanged(&state, presetId: presetId)
       case .addSoundFontButtonTapped: return .send(.delegate(.addSoundFontButtonTapped))
       case .delegate: return .none
       case .destination(.dismiss): return .send(.delegate(.settingsDismissed))
       case .destination: return .none
       case .effectsVisibilityButtonTapped: return toggleEffectsVisibility(&state)
       case .helpButtonTapped: return showHelp(&state)
+      case .initialize: return initialize(&state)
       case .shiftKeyboardDownButtonTapped: return shiftKeyboardDownButtonTapped(&state)
       case .shiftKeyboardUpButtonTapped: return shiftKeyboardUpButtonTapped(&state)
       case .presetsVisibilityButtonTapped: return editPresetVisibility(&state)
       case .settingsButtonTapped: return settingsButtonTapped(&state)
       case let .setVisibleKeyRange(lowest, highest): return setVisibleKeyRange(&state, lowest: lowest, highest: highest)
       case .showMoreButtonTapped: return toggleShowMoreButtons(&state)
+      case .showTraffic(let kind): return showTraffic(&state, value: kind)
       case .slidingKeyboardButtonTapped: return slidingKeyboardButtonTapped(&state)
       case .tagVisibilityButtonTapped: return toggleTagsVisibility(&state)
       }
@@ -92,49 +114,83 @@ public struct ToolBarFeature {
   }
 
   public init() {}
-}
 
-extension ToolBarFeature {
-
-  public static func setTagsListVisible(_ state: inout State, value: Bool) {
-    state.tagsListVisible = value
+  private enum CancelId {
+    case monitorActivePresetId
+    case monitorMIDITraffic
   }
 
-  private func setVisibleKeyRange(_ state: inout State, lowest: Note, highest: Note) -> Effect<Action> {
+  @Shared(.activeState) var activeState
+}
+
+public extension ToolBarFeature {
+
+  static func setTagsListVisible(_ state: inout State, value: Bool) {
+    state.tagsListVisible = value
+  }
+}
+
+private extension ToolBarFeature {
+
+  private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+    if let presetId = presetId,
+       let preset = Preset.with(key: presetId) {
+      state.preset = preset
+    } else {
+      state.preset = nil
+    }
+    return .none
+  }
+
+  func editPresetVisibility(_ state: inout State) -> Effect<Action> {
+    state.editingPresetVisibility.toggle()
+    return .send(.delegate(.editingPresetVisibility(state.editingPresetVisibility)))
+  }
+
+  func hideMoreButtons(_ state: inout State) -> Effect<Action> {
+    state.showMoreButtons = false
+    return .none
+  }
+
+  func initialize(_ state: inout State) -> Effect<Action> {
+    return .merge(
+      monitorActivePresetId(&state),
+      monitorMIDITraffic(&state)
+    )
+  }
+
+  private func monitorActivePresetId(_ state: inout State) -> Effect<Action> {
+    .publisher {
+      $activeState.activePresetId
+        .publisher
+        .map { .activePresetIdChanged($0) }
+    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
+  }
+
+  func monitorMIDITraffic(_ state: inout State) -> Effect<Action> {
+    guard let midiMonitor = state.midiMonitor else { return .none }
+    return .run { send in
+      for await traffic in midiMonitor.$traffic
+        .compactMap({$0})
+        .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
+        .values {
+        await send(.showTraffic(traffic.accepted ? .accepted : .blocked))
+      }
+    }.cancellable(id: CancelId.monitorMIDITraffic)
+  }
+
+  func settingsButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.showMoreButtons = false
+    return .send(.delegate(.settingsButtonTapped))
+  }
+
+  func setVisibleKeyRange(_ state: inout State, lowest: Note, highest: Note) -> Effect<Action> {
     state.lowestKey = lowest
     state.highestKey = highest
     return .none
   }
 
-  private func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
-    state.tagsListVisible.toggle()
-    state.showMoreButtons = false
-    return .send(.delegate(.tagsVisibilityChanged(state.tagsListVisible)))
-  }
-
-  private func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
-    state.effectsVisible.toggle()
-    state.showMoreButtons = false
-    return .send(.delegate(.effectsVisibilityChanged(state.effectsVisible)))
-  }
-
-  private func toggleShowMoreButtons(_ state: inout State) -> Effect<Action> {
-    state.showMoreButtons.toggle()
-    if !state.showMoreButtons && state.editingPresetVisibility {
-      state.editingPresetVisibility = false
-      return .send(.delegate(.editingPresetVisibility(false)))
-    }
-    return .none
-  }
-
-  private func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
-    @Shared(.keyboardSlides) var keyboardSlides
-    state.$keyboardSlides.withLock { $0.toggle() }
-    $keyboardSlides.withLock { $0 = state.keyboardSlides }
-    return .none
-  }
-
-  private func shiftKeyboardDownButtonTapped(_ state: inout State) -> Effect<Action> {
+  func shiftKeyboardDownButtonTapped(_ state: inout State) -> Effect<Action> {
     let span = state.highestKey.midiNoteValue - state.lowestKey.midiNoteValue
     var newLow = Note(midiNoteValue: max(Note.midiRange.lowerBound, state.lowestKey.midiNoteValue - span))
     if newLow.accented {
@@ -146,7 +202,7 @@ extension ToolBarFeature {
     return .send(.delegate(.visibleKeyRangeChanged(lowest: newLow, highest: newHigh)))
   }
 
-  private func shiftKeyboardUpButtonTapped(_ state: inout State) -> Effect<Action> {
+  func shiftKeyboardUpButtonTapped(_ state: inout State) -> Effect<Action> {
     let span = state.highestKey.midiNoteValue - state.lowestKey.midiNoteValue
     let newHigh = Note(midiNoteValue: min(Note.midiRange.upperBound, state.highestKey.midiNoteValue + span))
     var newLow = Note(midiNoteValue: max(Note.midiRange.lowerBound, newHigh.midiNoteValue - span))
@@ -158,29 +214,47 @@ extension ToolBarFeature {
     return .send(.delegate(.visibleKeyRangeChanged(lowest: newLow, highest: newHigh)))
   }
 
-  private func hideMoreButtons(_ state: inout State) -> Effect<Action> {
-    state.showMoreButtons = false
+  func showHelp(_ state: inout State) -> Effect<Action> {
+    return hideMoreButtons(&state)
+  }
+
+  func showTraffic(_ state: inout State, value: State.TrafficKind?) -> Effect<Action> {
+    state.showTrafficColor = value?.color ?? .clear
+    state.showTrafficPublisher.send()
     return .none
   }
 
-  private func editPresetVisibility(_ state: inout State) -> Effect<Action> {
-    state.editingPresetVisibility.toggle()
-    return .send(.delegate(.editingPresetVisibility(state.editingPresetVisibility)))
+  func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
+    @Shared(.keyboardSlides) var keyboardSlides
+    state.$keyboardSlides.withLock { $0.toggle() }
+    $keyboardSlides.withLock { $0 = state.keyboardSlides }
+    return .none
   }
 
-  private func settingsButtonTapped(_ state: inout State) -> Effect<Action> {
+  func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
+    state.effectsVisible.toggle()
     state.showMoreButtons = false
-    return .send(.delegate(.settingsButtonTapped))
+    return .send(.delegate(.effectsVisibilityChanged(state.effectsVisible)))
   }
 
-  private func showHelp(_ state: inout State) -> Effect<Action> {
-    return hideMoreButtons(&state)
+  func toggleShowMoreButtons(_ state: inout State) -> Effect<Action> {
+    state.showMoreButtons.toggle()
+    if !state.showMoreButtons && state.editingPresetVisibility {
+      state.editingPresetVisibility = false
+      return .send(.delegate(.editingPresetVisibility(false)))
+    }
+    return .none
+  }
+
+  func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
+    state.tagsListVisible.toggle()
+    state.showMoreButtons = false
+    return .send(.delegate(.tagsVisibilityChanged(state.tagsListVisible)))
   }
 }
 
 public struct ToolBarFeatureView: View {
   @Bindable private var store: StoreOf<ToolBarFeature>
-  @Shared(.activeState) var activeState
   @Environment(\.appPanelBackground) private var appPanelBackground
   @Environment(\.auv3ControlsTheme) private var auv3ControlsTheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -216,18 +290,25 @@ public struct ToolBarFeatureView: View {
     .background(Color.black)
     .frame(maxHeight: 40)
     .animation(.smooth, value: store.showMoreButtons)
+    .task {
+      await store.send(.initialize).finish()
+    }
   }
 
   private var presetTitle: some View {
-    HStack {
-      Spacer()
-      PresetNameView(preset: Preset.active)
-        .font(.status)
-        .indicator(.activeNoIndicator)
-        .onTapGesture {
-          store.send(.delegate(.presetNameTapped))
-        }
-      Spacer()
+    ZStack(alignment: .leading) {
+      Circle()
+        .trafficBlinker(subscribedTo: store.showTrafficPublisher, color: store.showTrafficColor, duration: 0.5)
+      HStack {
+        Spacer()
+        PresetNameView(preset: store.preset)
+          .font(.status)
+          .indicator(.activeNoIndicator)
+          .onTapGesture {
+            store.send(.delegate(.presetNameTapped))
+          }
+        Spacer()
+      }
     }
   }
 
@@ -323,7 +404,8 @@ extension ToolBarFeatureView {
     }
     return VStack {
       ToolBarFeatureView(store: Store(initialState: .init(tagsListVisible: true, effectsVisible: false)) {
-        ToolBarFeature() })
+        ToolBarFeature()
+      })
       KeyboardView(store: Store(initialState: .init()) { KeyboardFeature() })
     }
   }

@@ -192,12 +192,6 @@ extension Preset {
     return candidate
   }
 
-  public static var active: Preset? {
-    @Shared(.activeState) var activeState
-    guard let presetId = activeState.activePresetId else { return nil }
-    return with(key: presetId)
-  }
-
   public static var source: SoundFont.ID? {
     @Shared(.activeState) var activeState
     return activeState.presetSource

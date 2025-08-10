@@ -36,7 +36,7 @@ public struct SynthFeature {
     case routeChanged
     case useAudioUnit(AVAudioUnit)
     public enum Delegate {
-      case activeSynth(SF2LibAU)
+      case activeSynth(SF2LibAU, AVAudioUnitMIDIInstrument)
     }
   }
 
@@ -165,14 +165,14 @@ private extension SynthFeature {
     ) {
       state.avAudioUnit = audioUnit
 
-      if let avMIDIInstrument = state.avAudioUnit,
+      if let avMIDIInstrument = state.midiSynth,
          let au = state.audioUnit {
         state.engine.attach(avMIDIInstrument)
         state.engine.connect(avMIDIInstrument, to: state.engine.outputNode, format: audioFormat)
         startAudioSession(engine: state.engine)
         return .merge(
           .send(.activePresetIdChanged),
-          .send(.delegate(.activeSynth(au)))
+          .send(.delegate(.activeSynth(au, avMIDIInstrument)))
         )
       }
     }
