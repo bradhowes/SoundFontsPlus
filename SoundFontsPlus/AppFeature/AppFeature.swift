@@ -4,6 +4,7 @@ import AudioUnit.AUParameters
 import AUv3Controls
 import BRHSplitView
 import ComposableArchitecture
+@preconcurrency import MorkAndMIDI
 import SF2LibAU
 import SharingGRDB
 import Sharing
@@ -17,7 +18,7 @@ public struct AppFeature {
 
   var state: State { .init(parameters: parameters) }
 
-  @Reducer(state: .equatable, .sendable, action: .equatable)
+  @Reducer
   public enum Destination {
     case presetEditor(PresetEditor)
     case settings(SettingsFeature)
@@ -26,12 +27,12 @@ public struct AppFeature {
   }
 
   @ObservableState
-  public struct State: Equatable {
+  public struct State {
     @Presents var destination: Destination.State?
 
     @ObservationStateIgnored
     @FetchAll var soundFontInfos: [SoundFontInfo]
-
+    public let midi: MIDI
     public var soundFontsList: SoundFontsList.State = .init()
     public var presetsList: PresetsList.State = .init()
     public var tagsList: TagsList.State = .init()
@@ -47,6 +48,10 @@ public struct AppFeature {
     public var addedSummary: String?
 
     public init(parameters: AUParameterTree) {
+      @Shared(.midiInputPortId) var midiInputPortId
+      midi = .init(clientName: "SoundFonts+", uniqueId: Int32(midiInputPortId), midiProto: .legacy)
+      midi.start()
+
       _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
 
       @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsPosition
@@ -56,10 +61,16 @@ public struct AppFeature {
 
       self.tagsSplit = .init(panesVisible: tagsListVisible ? .both : .primary, initialPosition: fontsAndTagsPosition)
       self.presetsSplit = .init(panesVisible: .both, initialPosition: fontsAndPresetsPosition)
-      self.toolBar = ToolBarFeature.State(tagsListVisible: tagsListVisible, effectsVisible: effectsVisible)
+      self.toolBar = ToolBarFeature.State(
+        tagsListVisible: tagsListVisible,
+        effectsVisible: effectsVisible,
+        midi: midi
+      )
 
       self.delay = DelayFeature.State(parameters: parameters)
       self.reverb = ReverbFeature.State(parameters: parameters)
+
+      destination = .settings(SettingsFeature.State(midi: midi))
     }
   }
 
@@ -258,7 +269,7 @@ extension AppFeature {
   }
 
   private func showSettingsEditor(_ state: inout State) -> Effect<Action> {
-    state.destination = .settings(SettingsFeature.State())
+    state.destination = .settings(SettingsFeature.State(midi: state.midi))
     return .none
   }
 

@@ -49,6 +49,7 @@ public func appDatabase() throws -> any DatabaseWriter {
   ReverbConfig.migrate(&migrator)
   FontTag.migrate(&migrator)
   TaggedSoundFont.migrate(&migrator)
+  MIDIConfig.migrate(&migrator)
 
   migrator.registerMigration("Add ubiquitous tags") { db in
     let drafts: [FontTag.Draft] = FontTag.Ubiquitous.allCases.enumerated().map {
