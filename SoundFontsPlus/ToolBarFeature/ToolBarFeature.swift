@@ -3,21 +3,23 @@
 import AUv3Controls
 import ComposableArchitecture
 import Dependencies
+import MorkAndMIDI
 import Sharing
 import SwiftUI
 
 @Reducer
 public struct ToolBarFeature {
 
-  @Reducer(state: .equatable, .sendable, action: .equatable)
+  @Reducer
   public enum Destination {
     case settings(SettingsFeature)
   }
 
   @ObservableState
-  public struct State: Equatable {
+  public struct State {
     @Presents var destination: Destination.State?
 
+    let midi: MIDI?
     var lowestKey: Note
     var highestKey: Note
 
@@ -29,8 +31,9 @@ public struct ToolBarFeature {
     var editingPresetVisibility: Bool = false
     var showMoreButtons: Bool = false
 
-    public init(tagsListVisible: Bool, effectsVisible: Bool) {
+    public init(tagsListVisible: Bool, effectsVisible: Bool, midi: MIDI? = nil) {
       @Shared(.firstVisibleKey) var firstVisibleKey: Note
+      self.midi = midi
       self.tagsListVisible = tagsListVisible
       self.effectsVisible = effectsVisible
       self.lowestKey = firstVisibleKey
@@ -38,7 +41,7 @@ public struct ToolBarFeature {
     }
   }
 
-  public enum Action: Equatable {
+  public enum Action {
     case addSoundFontButtonTapped
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)

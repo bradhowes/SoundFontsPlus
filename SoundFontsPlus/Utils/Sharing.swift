@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import CoreMIDI
 import Foundation
 import Sharing
 import Tagged
@@ -17,6 +18,7 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var showSolfegeTags: Self { Self[.appStorage("showSolfegeTags"), default: false] }
   public static var starFavoriteNames: Self { Self[.appStorage("starFavoriteNames"), default: true] }
   public static var tagsListVisible: Self { Self[.appStorage("tagsListVisible"), default: false] }
+  public static var playSoundOnPresetChange: Self { Self[.appStorage("playSoundOnPresetChange"), default: true] }
 }
 
 extension SharedKey where Self == AppStorageKey<Double>.Default {
@@ -33,6 +35,7 @@ extension SharedKey where Self == AppStorageKey<Double>.Default {
 extension SharedKey where Self == AppStorageKey<Int>.Default {
   public static var midiChannel: Self { Self[.appStorage("midiChannel"), default: 0] }
   public static var pitchBendRange: Self { Self[.appStorage("pitchBendRange"), default: 2] }
+  public static var midiInputPortId: Self { Self[.appStorage("midiInputPortId"), default: 44_658]}
 }
 
 extension SharedKey where Self == AppStorageKey<KeyLabels>.Default {

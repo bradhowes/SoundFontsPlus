@@ -1,14 +1,25 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
+@preconcurrency import MorkAndMIDI
 import Sharing
 import SwiftUI
 
 @Reducer
 public struct SettingsFeature {
 
+  @Reducer
+  public enum Path {
+    case midiAssignments(MIDIAssignmentsFeature)
+    case midiConnections(MIDIConnectionsFeature)
+    case midiControllers(MIDIControllersFeature)
+  }
+
   @ObservableState
-  public struct State: Equatable, Sendable {
+  public struct State {
+    var path = StackState<Path.State>()
+    var midiConnectCount: Int = 0
+    let midi: MIDI?
     @Shared(.keyWidth) var keyWidth
     @Shared(.keyboardSlides) var keyboardSlides
     @Shared(.showSolfegeTags) var showSolfegeTags
@@ -21,23 +32,30 @@ public struct SettingsFeature {
     @Shared(.showOnlyFavorites) var showOnlyFavorites
     @Shared(.starFavoriteNames) var starFavoriteNames
     @Shared(.favoriteSymbolName) var favoriteSymbolName
+    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
+
     var tuning: TuningFeature.State
 
-    public init() {
+    public init(midi: MIDI? = nil) {
+      self.midi = midi
+      self.midiConnectCount = midi?.sourceConnections.count ?? 0
       @Shared(.globalTuningEnabled) var tuningEnabled
       @Shared(.globalTuning) var frequency
       self.tuning = .init(frequency: frequency, enabled: tuningEnabled)
     }
   }
 
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case bluetoothMIDILocateButtonTapped
     case dismissButtonTapped
     case midiAssignmentsButtonTapped
     case midiConnectionsButtonTapped
     case midiControllersButtonTapped
+    case path(StackActionOf<Path>)
+    case task
     case tuning(TuningFeature.Action)
+    case midiConnectionCountChanged(Int)
   }
 
   public init() {}
@@ -51,20 +69,59 @@ public struct SettingsFeature {
       case .binding: return .none
       case .bluetoothMIDILocateButtonTapped: return .none
       case .dismissButtonTapped: return dismissButtonTapped(&state)
-      case .midiAssignmentsButtonTapped: return .none
-      case .midiConnectionsButtonTapped: return .none
-      case .midiControllersButtonTapped: return .none
+      case .midiAssignmentsButtonTapped:
+        if state.midi != nil {
+          state.path.append(.midiAssignments(MIDIAssignmentsFeature.State()))
+        }
+        return .none
+      case .midiConnectionsButtonTapped:
+        if let midi = state.midi {
+          state.path.append(.midiConnections(MIDIConnectionsFeature.State(midi: midi)))
+        }
+        return .none
+      case .midiConnectionCountChanged(let count):
+        state.midiConnectCount = count
+        return .none
+      case .midiControllersButtonTapped:
+        if state.midi != nil {
+          state.path.append(.midiControllers(MIDIControllersFeature.State()))
+        }
+        return .none
+      case .path: return .none
+      case .task: return initialize(&state)
       case .tuning: return .none
       }
     }
+    .forEach(\.path, action: \.path)
   }
+
+  private enum CancelId {
+    case monitorActiveConnections
+  }
+}
+
+private extension SettingsFeature {
 
   func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
   }
 
-  private func updateKeyWidth(_ state: inout State) -> Effect<Action> {
+  func initialize(_ state: inout State) -> Effect<Action> {
+    if let midi = state.midi {
+      return .run { send in
+        for await count in midi.publisher(for: \.activeConnections)
+          .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
+          .map({ $0.count })
+          .values {
+          await send(.midiConnectionCountChanged(count))
+        }
+      }
+    }
+    return .none
+  }
+
+  func updateKeyWidth(_ state: inout State) -> Effect<Action> {
     var value = state.keyWidth
     for stop in [48.0, 64.0, 80.0] where Swift.abs(value - stop) < 3.0 {
       value = stop
@@ -74,7 +131,7 @@ public struct SettingsFeature {
     return updateShared(.keyWidth, value: value)
   }
 
-  private func updateShared<T>(_ key: AppStorageKey<T>.Default, value: T) -> Effect<Action> {
+  func updateShared<T>(_ key: AppStorageKey<T>.Default, value: T) -> Effect<Action> {
     @Shared(key) var store
     $store.withLock { $0 = value }
     return .none
@@ -82,7 +139,7 @@ public struct SettingsFeature {
 }
 
 public struct SettingsView: View {
-  @State private var store: StoreOf<SettingsFeature>
+  @Bindable private var store: StoreOf<SettingsFeature>
   @State private var changingKeyWidth: Bool = false
   private let showFakeKeyboard: Bool
 
@@ -92,11 +149,13 @@ public struct SettingsView: View {
   }
 
   public var body: some View {
-    NavigationStack {
+    NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
       Form {
-        displaySection
+        presetsSection
         keyboardSection
-        midiSection
+        if store.midi != nil {
+          midiSection
+        }
         tuningSection
       }
       .font(.settings)
@@ -108,10 +167,19 @@ public struct SettingsView: View {
         }
       }
       .animation(.smooth, value: changingKeyWidth)
+    } destination: { store in
+      switch store.case {
+      case .midiAssignments(let store): MIDIAssignmentsView(store: store)
+      case .midiConnections(let store): MIDIConnectionsView(store: store)
+      case .midiControllers(let store): MIDIControllersView(store: store)
+      }
+    }
+    .task {
+      await store.send(.task).finish()
     }
   }
 
-  private var displaySection: some View {
+  private var presetsSection: some View {
     Section("Presets") {
       Toggle(isOn: $store.favoritesOnTop) {
         Text("Favorites on top")
@@ -125,6 +193,9 @@ public struct SettingsView: View {
           Image(systemName: store.favoriteSymbolName)
           Text("in favorites")
         }
+      }
+      Toggle(isOn: $store.playSoundOnPresetChange) {
+        Text("Play sound on preset change")
       }
     }
   }
@@ -178,7 +249,7 @@ public struct SettingsView: View {
         Button {
           store.send(.midiConnectionsButtonTapped)
         } label: {
-          Text("1 connection")
+          Text("^[\(store.midiConnectCount) connection](inflect: true)")
         }
         Spacer()
       }

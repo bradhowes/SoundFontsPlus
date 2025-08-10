@@ -1,5 +1,5 @@
 {
-  "originHash" : "0cada50eada8a0b9f41655c997ced76d3515a60f4c7700b5946312ebf26270a5",
+  "originHash" : "58edff5ec9f1fc8d08589d3fb32029ff7870aa8d6efa1960a800942552c6c5bc",
   "pins" : [
     {
       "identity" : "auv3-support",
@@ -62,6 +62,15 @@
       "state" : {
         "revision" : "8ba1bc9a96afc731a000fd4136dd13a5a46297bd",
         "version" : "7.6.1"
+      }
+    },
+    {
+      "identity" : "morkandmidi",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bradhowes/morkandmidi",
+      "state" : {
+        "revision" : "57ff15f669b9129fda8530869608214133002f8a",
+        "version" : "4.0.0"
       }
     },
     {

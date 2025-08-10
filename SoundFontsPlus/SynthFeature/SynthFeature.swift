@@ -41,6 +41,7 @@ public struct SynthFeature {
     case createSynth
     case monitorActivePreset
     case monitorRouteChanged
+    case playSample
   }
 
   public var body: some ReducerOf<Self> {
@@ -107,12 +108,14 @@ extension SynthFeature {
   }
 
   func playSample(_ state: State, audioUnit: SF2LibAU) -> Effect<Action> {
+    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
+    guard playSoundOnPresetChange else { return .none }
     return .run { _ in
       // Play a short note using the new preset
       _ = audioUnit.sendNoteOn(note: 60)
       try await Task.sleep(for: .milliseconds(1000))
       _ = audioUnit.sendNoteOff(note: 60)
-    }
+    }.cancellable(id: CancelId.playSample, cancelInFlight: true)
   }
 
   func initialize(_ state: inout State) -> Effect<Action> {
