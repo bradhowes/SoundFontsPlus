@@ -6,18 +6,6 @@ import CoreMIDI
 import SharingGRDB
 import SwiftUI
 
-extension MIDI.SourceConnectionState: @retroactive Identifiable {
-  public var id: MIDIUniqueID { self.uniqueId }
-}
-
-struct MIDIConnectionState: Equatable, Identifiable {
-  let id: MIDIUniqueID
-  let name: String
-  let channel: Int?
-  var fixedVolume: Int
-  var autoConnect: Bool
-}
-
 @Reducer
 struct MIDIConnectionRow {
   @ObservableState
@@ -46,21 +34,17 @@ struct MIDIConnectionRow {
     }
   }
 
-  enum Action: BindableAction {
+  enum Action {
     case autoConnectTapped
-    case binding(BindingAction<State>)
     case decrementVolumeTapped
     case incrementVolumeTapped
   }
 
   var body: some ReducerOf<Self> {
-    BindingReducer()
     Reduce { state, action in
       switch action {
       case .autoConnectTapped:
         state.autoConnect.toggle()
-        return saveConfig(state)
-      case .binding:
         return saveConfig(state)
       case .decrementVolumeTapped:
         state.fixedVolume -= 1
@@ -92,7 +76,6 @@ struct MIDIConnectionRowView: View {
     Text("\(store.displayName)")
       .frame(maxWidth: .infinity)
     Text(store.channel?.description ?? "-")
-      .frame(maxWidth: .infinity)
     HStack(spacing: 0) {
       Text(store.fixedVolume == 128 ? "Off" : "\(store.fixedVolume)")
       Button {
@@ -101,6 +84,7 @@ struct MIDIConnectionRowView: View {
         Image(systemName: "arrowtriangle.down")
           .frame(width: 40, height: 40)
       }
+      .offset(x: 6)
       .disabled(store.fixedVolume == 1)
       .buttonRepeatBehavior(.enabled)
       Button {
@@ -112,6 +96,7 @@ struct MIDIConnectionRowView: View {
       .disabled(store.fixedVolume == 128)
       .buttonRepeatBehavior(.enabled)
     }
+    .offset(x: 8)
     Button {
       store.send(.autoConnectTapped)
     } label: {
@@ -157,8 +142,7 @@ public struct MIDIConnectionsFeature {
 private extension MIDIConnectionsFeature {
 
   func initialize(_ state: inout State) -> Effect<Action> {
-    let midi = state.midi
-    return .run { send in
+    .run { [midi = state.midi] send in
       for await _ in midi.publisher(for: \.activeConnections)
         .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
         .values {
@@ -181,9 +165,9 @@ public struct MIDIConnectionsView: View {
   private var store: StoreOf<MIDIConnectionsFeature>
   private let columns: [GridItem] = [
     .init(.flexible(minimum: 80, maximum: .infinity), alignment: .center),
-    .init(.fixed(40), alignment: .center),
-    .init(.fixed(140), alignment: .center),
-    .init(.fixed(80), alignment: .center)
+    .init(.fixed(30), alignment: .center),
+    .init(.fixed(120), alignment: .center),
+    .init(.fixed(48), alignment: .center)
   ]
 
   public init(store: StoreOf<MIDIConnectionsFeature>) {
@@ -192,8 +176,9 @@ public struct MIDIConnectionsView: View {
 
   public var body: some View {
     ScrollView {
-      LazyVGrid(columns: columns) {
+      LazyVGrid(columns: columns, spacing: 0) {
         Text("Name")
+          .frame(maxWidth: .infinity)
           .font(.footnote)
           .foregroundStyle(.secondary)
         Text("Ch")

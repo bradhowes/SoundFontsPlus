@@ -109,10 +109,9 @@ extension KeyboardFeature {
 
   private func monitorActivePreset(_ state: inout State) -> Effect<Action> {
     .publisher {
-      $activeState.activePresetId.publisher.compactMap { activePresetId in
-        guard let activePresetId else { return nil }
-        return Action.activePresetIdChanged(activePresetId)
-      }
+      $activeState.activePresetId
+        .publisher
+        .map { .activePresetIdChanged($0) }
     }.cancellable(id: CancelId.activePresetId, cancelInFlight: true)
   }
 

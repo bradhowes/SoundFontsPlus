@@ -152,9 +152,10 @@ extension PresetsList {
   }
 
   private func monitorSelectedSoundFontId() -> Effect<Action> {
-    return .publisher {
-      $activeState.selectedSoundFontId.publisher.map {
-        return Action.selectedSoundFontIdChanged($0) }
+    .publisher {
+      $activeState.selectedSoundFontId
+        .publisher
+        .map { .selectedSoundFontIdChanged($0) }
     }.cancellable(id: CancelId.monitorSelectedSoundFontId, cancelInFlight: true)
   }
 

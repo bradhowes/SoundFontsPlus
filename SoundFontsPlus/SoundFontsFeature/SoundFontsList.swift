@@ -48,8 +48,8 @@ public struct SoundFontsList {
   }
 
   private enum CancelId {
-    case activeTagId
-    case fetchAll
+    case monitorActiveTagId
+    case monitorFetchAll
   }
 
   @Dependency(\.defaultDatabase) var database
@@ -85,8 +85,10 @@ extension SoundFontsList {
 
   private func monitorActiveTag(_ state: inout State) -> Effect<Action> {
     .publisher {
-      $activeState.activeTagId.publisher.map { Action.activeTagIdChanged($0) }
-    }.cancellable(id: CancelId.activeTagId, cancelInFlight: true)
+      $activeState.activeTagId
+        .publisher
+        .map { .activeTagIdChanged($0) }
+    }.cancellable(id: CancelId.monitorActiveTagId, cancelInFlight: true)
   }
 
   private func monitorFetchAll(_ state: inout State) -> Effect<Action> {
@@ -99,7 +101,7 @@ extension SoundFontsList {
       for try await update in $soundFontInfos.publisher.values {
         await send(.soundFontInfosChanged(update))
       }
-    }.cancellable(id: CancelId.fetchAll, cancelInFlight: true)
+    }.cancellable(id: CancelId.monitorFetchAll, cancelInFlight: true)
   }
 
   private func select(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {

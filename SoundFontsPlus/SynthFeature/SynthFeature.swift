@@ -16,18 +16,21 @@ public struct SynthFeature {
   let sampleRate: Double = 48_000.0
 
   @ObservableState
-  public struct State: Equatable {
+  public struct State {
     let engine = AVAudioEngine()
     var avAudioUnit: AVAudioUnit?
     var midiSynth: AVAudioUnitMIDIInstrument? { avAudioUnit as? AVAudioUnitMIDIInstrument }
     var audioUnit: SF2LibAU? { avAudioUnit?.auAudioUnit as? SF2LibAU }
     @ObservationStateIgnored
     var loadedSoundFontId: SoundFont.ID?
+    @ObservationStateIgnored
     var loadedPresetIndex: Int?
+    @ObservationStateIgnored
+    var observers = [NSObjectProtocol]()
   }
 
   public enum Action {
-    case activePresetChanged
+    case activePresetIdChanged
     case delegate(Delegate)
     case initialize
     case routeChanged
@@ -39,7 +42,7 @@ public struct SynthFeature {
 
   private enum CancelId {
     case createSynth
-    case monitorActivePreset
+    case monitorActivePresetId
     case monitorRouteChanged
     case playSample
   }
@@ -48,7 +51,7 @@ public struct SynthFeature {
 
     Reduce { state, action in
       switch action {
-      case .activePresetChanged: return activePresetChanged(&state)
+      case .activePresetIdChanged: return activePresetIdChanged(&state)
       case .delegate: return .none
       case .initialize: return initialize(&state)
       case .routeChanged: return routeChanged(&state)
@@ -63,9 +66,9 @@ public struct SynthFeature {
 
 extension SF2LibAU: @retroactive @unchecked Sendable {}
 
-extension SynthFeature {
+private extension SynthFeature {
 
-  func activePresetChanged(_ state: inout State) -> Effect<Action> {
+  func activePresetIdChanged(_ state: inout State) -> Effect<Action> {
     guard let audioUnit = state.audioUnit else {
       log.info("nil audioUnit -- ignoring")
       return .none
@@ -101,13 +104,13 @@ extension SynthFeature {
       let firstTime = state.loadedSoundFontId == nil
       state.loadedSoundFontId = presetInfo.soundFontId
       state.loadedPresetIndex = presetInfo.presetIndex
-      return firstTime ? .none : playSample(state, audioUnit: audioUnit)
+      return firstTime ? .none : playNote(state, audioUnit: audioUnit)
     }
 
     return .none
   }
 
-  func playSample(_ state: State, audioUnit: SF2LibAU) -> Effect<Action> {
+  func playNote(_ state: State, audioUnit: SF2LibAU) -> Effect<Action> {
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
     guard playSoundOnPresetChange else { return .none }
     return .run { _ in
@@ -119,9 +122,20 @@ extension SynthFeature {
   }
 
   func initialize(_ state: inout State) -> Effect<Action> {
-    .merge(
+    let engine = state.engine
+    state.observers.append(
+      NotificationCenter.default
+        .addObserver(
+          forName: AVAudioSession.mediaServicesWereResetNotification,
+          object: nil,
+          queue: nil
+        ) { _ in
+          self.restartAudioSession(engine: engine)
+        }
+    )
+    return .merge(
       createSynth(&state),
-      monitorActivePreset(&state),
+      monitorActivePresetId(&state),
       monitorRouteChanged(&state)
     )
   }
@@ -155,9 +169,9 @@ extension SynthFeature {
          let au = state.audioUnit {
         state.engine.attach(avMIDIInstrument)
         state.engine.connect(avMIDIInstrument, to: state.engine.outputNode, format: audioFormat)
-        try? state.engine.start()
+        startAudioSession(engine: state.engine)
         return .merge(
-          .send(.activePresetChanged),
+          .send(.activePresetIdChanged),
           .send(.delegate(.activeSynth(au)))
         )
       }
@@ -166,16 +180,101 @@ extension SynthFeature {
     return .none
   }
 
-  private func monitorActivePreset(_ state: inout State) -> Effect<Action> {
+  func startAudioSession(engine: AVAudioEngine) {
+    log.debug("startAudioSession BEGIN")
+
+    let sampleRate: Double = 44100.0
+    let bufferSize: Int = 64
+    let session = AVAudioSession.sharedInstance()
+
+    do {
+      log.debug("startAudioSession - setting AudioSession category")
+      try session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+      log.debug("startAudioSession - done")
+    } catch let error as NSError {
+      log.error(
+        "startAudioSession - failed to set the audio session category and mode: \(error.localizedDescription)"
+      )
+    }
+
+    log.debug("startAudioSession - sampleRate: \(AVAudioSession.sharedInstance().sampleRate)")
+    log.debug("startAudioSession - preferredSampleRate: \(AVAudioSession.sharedInstance().sampleRate)")
+
+    do {
+      log.debug("startAudioSession - setting sample rate")
+      try session.setPreferredSampleRate(sampleRate)
+      log.debug("startAudioSession - done")
+    } catch let error as NSError {
+      log.error("startAudioSession - failed to set the preferred sample rate to \(sampleRate) - \(error.localizedDescription)")
+    }
+
+    do {
+      log.debug("startAudioSession - setting IO buffer duration")
+      try session.setPreferredIOBufferDuration(Double(bufferSize) / sampleRate)
+      log.debug("startAudioSession - done")
+    } catch let error as NSError {
+      log.error("startAudioSession - failed to set the preferred buffer size to \(bufferSize) - \(error.localizedDescription)")
+    }
+
+    do {
+      log.debug("startAudioSession - setting active audio session")
+      try session.setActive(true, options: [])
+      log.debug("startAudioSession - done")
+    } catch {
+      log.error("startAudioSession - failed to set active - \(error.localizedDescription)")
+    }
+
+    do {
+      log.debug("startAudioSession - starting engine")
+      try engine.start()
+    } catch {
+      log.error("startAudioSession - failed to start - \(error.localizedDescription)")
+    }
+
+    dump(route: session.currentRoute)
+  }
+
+  /**
+   Stop audio processing. This is only done if background running is disabled and then just before the app moves into
+   the background.
+   */
+  func stopAudioSession(engine: AVAudioEngine) {
+    log.debug("stopAudioSession BEGIN")
+
+    engine.stop()
+
+    let session = AVAudioSession.sharedInstance()
+    do {
+      log.debug("stopAudio - setting AudioSession to inactive")
+      try session.setActive(false, options: [])
+      log.debug("stopAudio - done")
+    } catch let error as NSError {
+      log.error("stopAudio - Failed session.setActive(false): \(error.localizedDescription)")
+    }
+
+    log.debug("stopAudio END")
+  }
+
+  func restartAudioSession(engine: AVAudioEngine) {
+    log.error("recreateSynth - BEGIN")
+    stopAudioSession(engine: engine)
+    startAudioSession(engine: engine)
+    log.error("recreateSynth - END")
+  }
+
+  func monitorActivePresetId(_ state: inout State) -> Effect<Action> {
     .publisher {
-      $activeState.activePresetId.publisher.map { _ in Action.activePresetChanged }
-    }.cancellable(id: CancelId.monitorActivePreset, cancelInFlight: true)
+      $activeState.activePresetId
+        .publisher
+        .map { _ in .activePresetIdChanged }
+    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
   func monitorRouteChanged(_ state: inout State) -> Effect<Action> {
     .publisher {
-      NotificationCenter.default.publisher(for: AVAudioSession.routeChangeNotification)
-        .map { _ in Action.routeChanged }
+      NotificationCenter.default
+        .publisher(for: AVAudioSession.routeChangeNotification)
+        .map { _ in .routeChanged }
     }.cancellable(id: CancelId.monitorRouteChanged, cancelInFlight: true)
   }
 
