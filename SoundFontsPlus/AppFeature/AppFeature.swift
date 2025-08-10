@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AudioUnit.AUParameters
+import AVFoundation
 import AUv3Controls
 import BRHSplitView
 import ComposableArchitecture
@@ -12,14 +13,14 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 @Reducer
-public struct AppFeature {
+struct AppFeature {
   @Dependency(\.parameters) private var parameters
   private let volumeMonitor: VolumeMonitor = .init()
 
   var state: State { .init(parameters: parameters) }
 
   @Reducer
-  public enum Destination {
+  enum Destination {
     case presetEditor(PresetEditor)
     case settings(SettingsFeature)
     case soundFontEditor(SoundFontEditor)
@@ -27,30 +28,37 @@ public struct AppFeature {
   }
 
   @ObservableState
-  public struct State {
+  struct State {
     @Presents var destination: Destination.State?
 
     @ObservationStateIgnored
     @FetchAll var soundFontInfos: [SoundFontInfo]
-    public let midi: MIDI
-    public var soundFontsList: SoundFontsList.State = .init()
-    public var presetsList: PresetsList.State = .init()
-    public var tagsList: TagsList.State = .init()
-    public var toolBar: ToolBarFeature.State
-    public var tagsSplit: SplitViewReducer.State
-    public var presetsSplit: SplitViewReducer.State
-    public var delay: DelayFeature.State
-    public var reverb: ReverbFeature.State
-    public var keyboard: KeyboardFeature.State = .init()
-    public var synth: SynthFeature.State = .init()
+    let midi: MIDI?
+    let midiMonitor: MIDIMonitor?
 
-    public var addSoundFonts: Bool = false
-    public var addedSummary: String?
+    var soundFontsList: SoundFontsList.State = .init()
+    var presetsList: PresetsList.State = .init()
+    var tagsList: TagsList.State = .init()
+    var toolBar: ToolBarFeature.State
+    var tagsSplit: SplitViewReducer.State
+    var presetsSplit: SplitViewReducer.State
+    var delay: DelayFeature.State
+    var reverb: ReverbFeature.State
+    var keyboard: KeyboardFeature.State = .init()
+    var synth: SynthFeature.State = .init()
+    var addSoundFonts: Bool = false
+    var addedSummary: String?
 
-    public init(parameters: AUParameterTree) {
+    init(parameters: AUParameterTree) {
       @Shared(.midiInputPortId) var midiInputPortId
-      midi = .init(clientName: "SoundFonts+", uniqueId: Int32(midiInputPortId), midiProto: .legacy)
+
+      let midi = MIDI(clientName: "SoundFonts+", uniqueId: Int32(midiInputPortId), midiProto: .legacy)
+      self.midi = midi
       midi.start()
+
+      let midiMonitor = MIDIMonitor()
+      self.midiMonitor = midiMonitor
+      midi.receiver = midiMonitor
 
       _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
 
@@ -61,10 +69,11 @@ public struct AppFeature {
 
       self.tagsSplit = .init(panesVisible: tagsListVisible ? .both : .primary, initialPosition: fontsAndTagsPosition)
       self.presetsSplit = .init(panesVisible: .both, initialPosition: fontsAndPresetsPosition)
+
       self.toolBar = ToolBarFeature.State(
         tagsListVisible: tagsListVisible,
         effectsVisible: effectsVisible,
-        midi: midi
+        midiMonitor: midiMonitor
       )
 
       self.delay = DelayFeature.State(parameters: parameters)
@@ -74,7 +83,7 @@ public struct AppFeature {
     }
   }
 
-  public enum Action: BindableAction {
+  enum Action: BindableAction {
     case binding(BindingAction<State>)
     case delay(DelayFeature.Action)
     case destination(PresentationAction<Destination.Action>)
@@ -92,7 +101,7 @@ public struct AppFeature {
     case toolBar(ToolBarFeature.Action)
   }
 
-  public var body: some ReducerOf<Self> {
+  var body: some ReducerOf<Self> {
 
     BindingReducer()
 
@@ -126,7 +135,8 @@ public struct AppFeature {
       case .reverb: return .none
       case let .soundFontsList(.delegate(.edit(soundFont))): return editFont(&state, soundFont: soundFont)
       case .soundFontsList: return .none
-      case .synth(.delegate(.activeSynth(let synth))): return setActiveSynth(&state, synth: synth)
+      case let .synth(.delegate(.activeSynth(audioUnit, instrument))):
+        return setActiveSynth(&state, audioUnit: audioUnit, instrument: instrument)
       case .synth: return .none
       case let .tagsList(.delegate(.edit(focused))): return editTags(&state, focused: focused)
       case .tagsList: return .none
@@ -138,14 +148,14 @@ public struct AppFeature {
     }.ifLet(\.$destination, action: \.destination)
   }
 
-  public init() {
+  init() {
     volumeMonitor.start()
   }
 
   @Shared(.firstVisibleKey) var firstVisibleKey
 }
 
-extension AppFeature {
+private extension AppFeature {
 
   func dismissingSheet(_ state: inout State) -> Effect<Action> {
     switch state.destination {
@@ -183,7 +193,7 @@ extension AppFeature {
     return .none
   }
 
-  private func importFile(_ state: inout State, result: Result<URL, Error>) -> Effect<Action> {
+  func importFile(_ state: inout State, result: Result<URL, Error>) -> Effect<Action> {
     switch result {
     case .success(let url):
       do {
@@ -199,7 +209,7 @@ extension AppFeature {
     return .none
   }
 
-  private func keyboardAction(_ state: inout State, action: KeyboardFeature.Action.Delegate) -> Effect<Action> {
+  func keyboardAction(_ state: inout State, action: KeyboardFeature.Action.Delegate) -> Effect<Action> {
     switch action {
     case let .visibleKeyRangeChanged(lowest, highest):
       $firstVisibleKey.withLock { $0 = lowest }
@@ -208,7 +218,7 @@ extension AppFeature {
     }
   }
 
-  private func phaseChange(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
+  func phaseChange(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
     switch phase {
     case .active: return .none
     case .background: return .none
@@ -217,7 +227,7 @@ extension AppFeature {
     }
   }
 
-  private func presetsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
+  func presetsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
     switch action {
     case let .stateChanged(_, position):
       @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
@@ -226,12 +236,17 @@ extension AppFeature {
     }
   }
 
-  private func setActiveSynth(_ state: inout State, synth: SF2LibAU) -> Effect<Action> {
-    state.keyboard.synth = synth
+  func setActiveSynth(
+    _ state: inout State,
+    audioUnit: SF2LibAU,
+    instrument: AVAudioUnitMIDIInstrument
+  ) -> Effect<Action> {
+    state.keyboard.synth = instrument
+    state.midiMonitor?.synth = instrument
     return .none
   }
 
-  private func tagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
+  func tagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
     switch action {
     case let .stateChanged(panesVisible, position):
       let visible = panesVisible.contains(.bottom)
@@ -245,7 +260,7 @@ extension AppFeature {
     }
   }
 
-  private func toolBarAction(_ state: inout State, action: ToolBarFeature.Action.Delegate) -> Effect<Action> {
+  func toolBarAction(_ state: inout State, action: ToolBarFeature.Action.Delegate) -> Effect<Action> {
     switch action {
     case .addSoundFontButtonTapped:
       state.addSoundFonts = true
@@ -263,36 +278,36 @@ extension AppFeature {
     }
   }
 
-  private func dismissSettingsEditor(_ state: inout State) -> Effect<Action> {
+  func dismissSettingsEditor(_ state: inout State) -> Effect<Action> {
     state.destination = nil
     return fetchPresets(&state)
   }
 
-  private func showSettingsEditor(_ state: inout State) -> Effect<Action> {
+  func showSettingsEditor(_ state: inout State) -> Effect<Action> {
     state.destination = .settings(SettingsFeature.State(midi: state.midi))
     return .none
   }
 
-  private func fetchPresets(_ state: inout State) -> Effect<Action> {
+  func fetchPresets(_ state: inout State) -> Effect<Action> {
     return reduce(into: &state, action: .presetsList(.fetchPresets))
   }
 
-  private func setEditingVisibility(_ state: inout State, active: Bool) -> Effect<Action> {
+  func setEditingVisibility(_ state: inout State, active: Bool) -> Effect<Action> {
     return reduce(into: &state, action: .presetsList(.visibilityEditModeChanged(active)))
   }
 
-  private func setTagsVisibility(_ state: inout State, visible: Bool) -> Effect<Action> {
+  func setTagsVisibility(_ state: inout State, visible: Bool) -> Effect<Action> {
     let panes: SplitViewPanes = visible ? .both : .primary
     return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
   }
 
-  private func setEffectsVisibiliy(_ state: inout State, visible: Bool) -> Effect<Action> {
+  func setEffectsVisibiliy(_ state: inout State, visible: Bool) -> Effect<Action> {
     @Shared(.effectsVisible) var effectsVisible
     $effectsVisible.withLock { $0 = visible }
     return .none
   }
 
-  private func showActivePreset(_ state: inout State) -> Effect<Action> {
+  func showActivePreset(_ state: inout State) -> Effect<Action> {
     return .merge(
       reduce(into: &state, action: .presetsList(.showActivePreset)),
       reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
@@ -300,7 +315,7 @@ extension AppFeature {
   }
 }
 
-public struct RootAppView: View, KeyboardReadable {
+struct RootAppView: View, KeyboardReadable {
   @Environment(\.scenePhase) var scenePhase
   @Bindable private var store: StoreOf<AppFeature>
   private let theme: Theme
@@ -323,7 +338,7 @@ public struct RootAppView: View, KeyboardReadable {
     : maxKeyboardHeight * (verticalSizeClass == .compact ? 0.5 : 1.0)
   }
 
-  public init(store: StoreOf<AppFeature>) {
+  init(store: StoreOf<AppFeature>) {
     self.store = store
     var theme = Theme()
     theme.controlForegroundColor = .teal
@@ -339,7 +354,7 @@ public struct RootAppView: View, KeyboardReadable {
     self.theme = theme
   }
 
-  public var body: some View {
+  var body: some View {
     let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
 
     // let _ = Self._printChanges()

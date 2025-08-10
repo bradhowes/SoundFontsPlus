@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AVFAudio
 import ComposableArchitecture
 import Dependencies
 import SF2LibAU
@@ -17,7 +18,7 @@ public struct KeyboardFeature {
     @Shared(.keyboardSlides) var keyboardSlides
     @Shared(.keyLabels) var keyLabels
 
-    var synth: SF2LibAU?
+    var synth: AVAudioUnitMIDIInstrument?
     var scrollTo: Note?
     let settingsDemo: Bool
 
@@ -95,10 +96,10 @@ extension KeyboardFeature {
     guard previous != key else { return .none }
     if let previous {
       state.active[previous.midiNoteValue] = false
-      state.synth?.sendNoteOff(note: UInt8(previous.midiNoteValue))
+      state.synth?.stopNote(UInt8(previous.midiNoteValue), onChannel: 0)
     }
     state.active[key.midiNoteValue] = true
-    state.synth?.sendNoteOn(note: UInt8(key.midiNoteValue))
+    state.synth?.startNote(UInt8(key.midiNoteValue), withVelocity: 127, onChannel: 0)
     return .none
   }
 
@@ -117,13 +118,13 @@ extension KeyboardFeature {
 
   private func noteOff(_ state: inout State, key: Note) -> Effect<Action> {
     state.active[key.midiNoteValue] = false
-    state.synth?.sendNoteOff(note: UInt8(key.midiNoteValue))
+    state.synth?.stopNote(UInt8(key.midiNoteValue), onChannel: 0)
     return .none
   }
 
   private func noteOn(_ state: inout State, key: Note) -> Effect<Action> {
     state.active[key.midiNoteValue] = true
-    state.synth?.sendNoteOn(note: UInt8(key.midiNoteValue))
+    state.synth?.startNote(UInt8(key.midiNoteValue), withVelocity: 127, onChannel: 0)
     return .none
   }
 
