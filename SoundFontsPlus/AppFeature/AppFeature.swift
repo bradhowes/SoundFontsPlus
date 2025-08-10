@@ -70,7 +70,7 @@ public struct AppFeature {
       self.delay = DelayFeature.State(parameters: parameters)
       self.reverb = ReverbFeature.State(parameters: parameters)
 
-      destination = .settings(SettingsFeature.State(midi: midi))
+      // destination = .settings(SettingsFeature.State(midi: midi))
     }
   }
 

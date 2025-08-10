@@ -104,27 +104,21 @@ extension DelayFeature {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
 
-    print("activePresetIdChanged: \(String(describing: presetId))")
-
     guard !state.locked.isOn else {
-      print("locked: \(String(describing: presetId))")
       return .none
     }
 
     guard let presetId else {
-      print("nil presetId")
       state.pending = state.device
       state.pending.presetId = nil
       return .none
     }
 
     guard state.pending.presetId != presetId else {
-      print("same presetId")
       return .none
     }
 
     if state.isDirty && state.pending.presetId != nil {
-      print("saving \(state.pending)")
       withDatabaseWriter { db in
         try DelayConfig.upsert {
           state.pending
@@ -134,7 +128,6 @@ extension DelayFeature {
     }
 
     let config = DelayConfig.draft(for: presetId)
-    print("loaded \(config)")
     delayDevice.setConfig(config)
     state.device = config
     state.pending = config
@@ -156,11 +149,9 @@ extension DelayFeature {
 
     state.pending[keyPath: path] = value
     if abs(state.device[keyPath: path] - value) < 1e-6 {
-      print("no change in \(path)")
       return .none
     }
 
-    print("setting presetId due to change in \(path)")
     state.pending.presetId = activeState.activePresetId
 
     return .merge(
@@ -181,11 +172,9 @@ extension DelayFeature {
 
     state.pending[keyPath: path] = value
     if state.device[keyPath: path] == value {
-      print("no change in \(path)")
       return .none
     }
 
-    print("setting presetId due to change in \(path)")
     state.pending.presetId = activeState.activePresetId
 
     return .merge(
@@ -201,11 +190,8 @@ extension DelayFeature {
   private func save(_ state: inout State) -> Effect<Action> {
 
     guard state.device.presetId != nil else {
-      print("save - skipping nil presetId")
       return .none
     }
-
-    print("save")
 
     let found = withDatabaseWriter { db in
       try DelayConfig.upsert {
@@ -216,15 +202,12 @@ extension DelayFeature {
     }
 
     guard let unwrapped = found else {
-      print("skipping unwrapped nil")
       return .none
     }
 
     let config: DelayConfig.Draft = .init(unwrapped)
     state.device = config
     state.pending = config
-
-    print("upsert: ", state.device)
 
     return .none
   }
@@ -237,7 +220,9 @@ extension DelayFeature {
 
   private func monitorActivePresetId() -> Effect<Action> {
     .publisher {
-      $activeState.activePresetId.publisher.map { Action.activePresetIdChanged($0) }
+      $activeState.activePresetId
+        .publisher
+        .map { .activePresetIdChanged($0) }
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 

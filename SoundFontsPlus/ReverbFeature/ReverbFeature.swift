@@ -56,7 +56,7 @@ public struct ReverbFeature {
   private enum CancelId {
     case debouncedSave
     case debouncedUpdate
-    case monitorActivePreset
+    case monitorActivePresetId
   }
 
   @Dependency(\.mainQueue) var mainQueue
@@ -77,7 +77,7 @@ public struct ReverbFeature {
       case .debouncedUpdate: return update(&state)
       case .enabled: return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
       case .locked: return updateLocked(&state)
-      case .task: return monitorActivePreset()
+      case .task: return monitorActivePresetId()
       case let .roomPresetChanged(value): return roomPresetChanged(&state, room: value)
       case .wetDryMix: return updateAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
       }
@@ -213,10 +213,12 @@ extension ReverbFeature {
     return .none
   }
 
-  private func monitorActivePreset() -> Effect<Action> {
+  private func monitorActivePresetId() -> Effect<Action> {
     .publisher {
-      $activeState.activePresetId.publisher.map { Action.activePresetIdChanged($0) }
-    }.cancellable(id: CancelId.monitorActivePreset, cancelInFlight: true)
+      $activeState.activePresetId
+        .publisher
+        .map { .activePresetIdChanged($0) }
+    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
   private func roomPresetChanged(_ state: inout State, room: AVAudioUnitReverbPreset) -> Effect<Action> {
