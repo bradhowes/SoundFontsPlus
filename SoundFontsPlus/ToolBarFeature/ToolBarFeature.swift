@@ -19,18 +19,6 @@ public struct ToolBarFeature {
   public struct State {
     @Presents var destination: Destination.State?
 
-    public enum TrafficKind {
-      case accepted
-      case blocked
-
-      var color: Color {
-        switch self {
-        case .accepted: return .accentColor
-        case .blocked: return .orange
-        }
-      }
-    }
-
     let midiMonitor: MIDIMonitor?
     var lowestKey: Note
     var highestKey: Note
@@ -44,8 +32,7 @@ public struct ToolBarFeature {
     var showMoreButtons: Bool = false
     var preset: Preset?
 
-    var showTrafficColor: Color = .clear
-    var showTrafficPublisher: PassthroughSubject<Void, Never> = .init()
+    var trafficIndicator: MIDITrafficIndicatorFeature.State
 
     public init(tagsListVisible: Bool, effectsVisible: Bool, midiMonitor: MIDIMonitor? = nil) {
       @Shared(.firstVisibleKey) var firstVisibleKey: Note
@@ -54,6 +41,7 @@ public struct ToolBarFeature {
       self.effectsVisible = effectsVisible
       self.lowestKey = firstVisibleKey
       self.highestKey = .C4
+      self.trafficIndicator = .init(tag: "ToolBar", midiMonitor: midiMonitor)
     }
   }
 
@@ -71,9 +59,9 @@ public struct ToolBarFeature {
     case shiftKeyboardUpButtonTapped
     case shiftKeyboardDownButtonTapped
     case showMoreButtonTapped
-    case showTraffic(State.TrafficKind?)
     case slidingKeyboardButtonTapped
     case tagVisibilityButtonTapped
+    case trafficIndicator(MIDITrafficIndicatorFeature.Action)
 
     public enum Delegate: Equatable {
       case addSoundFontButtonTapped
@@ -90,6 +78,9 @@ public struct ToolBarFeature {
   @Shared(.firstVisibleKey) var firstVisibleKey: Note
 
   public var body: some ReducerOf<Self> {
+
+    Scope(state: \.trafficIndicator, action: \.trafficIndicator) { MIDITrafficIndicatorFeature() }
+
     Reduce<State, Action> { state, action in
       switch action {
       case .activePresetIdChanged(let presetId): return activePresetIdChanged(&state, presetId: presetId)
@@ -106,9 +97,9 @@ public struct ToolBarFeature {
       case .settingsButtonTapped: return settingsButtonTapped(&state)
       case let .setVisibleKeyRange(lowest, highest): return setVisibleKeyRange(&state, lowest: lowest, highest: highest)
       case .showMoreButtonTapped: return toggleShowMoreButtons(&state)
-      case .showTraffic(let kind): return showTraffic(&state, value: kind)
       case .slidingKeyboardButtonTapped: return slidingKeyboardButtonTapped(&state)
       case .tagVisibilityButtonTapped: return toggleTagsVisibility(&state)
+      case .trafficIndicator: return .none
       }
     }.ifLet(\.$destination, action: \.destination)
   }
@@ -154,29 +145,17 @@ private extension ToolBarFeature {
 
   func initialize(_ state: inout State) -> Effect<Action> {
     return .merge(
+      reduce(into: &state, action: .trafficIndicator(.initialize)),
       monitorActivePresetId(&state),
-      monitorMIDITraffic(&state)
     )
   }
 
-  private func monitorActivePresetId(_ state: inout State) -> Effect<Action> {
+  func monitorActivePresetId(_ state: inout State) -> Effect<Action> {
     .publisher {
       $activeState.activePresetId
         .publisher
         .map { .activePresetIdChanged($0) }
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
-  }
-
-  func monitorMIDITraffic(_ state: inout State) -> Effect<Action> {
-    guard let midiMonitor = state.midiMonitor else { return .none }
-    return .run { send in
-      for await traffic in midiMonitor.$traffic
-        .compactMap({$0})
-        .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
-        .values {
-        await send(.showTraffic(traffic.accepted ? .accepted : .blocked))
-      }
-    }.cancellable(id: CancelId.monitorMIDITraffic)
   }
 
   func settingsButtonTapped(_ state: inout State) -> Effect<Action> {
@@ -216,12 +195,6 @@ private extension ToolBarFeature {
 
   func showHelp(_ state: inout State) -> Effect<Action> {
     return hideMoreButtons(&state)
-  }
-
-  func showTraffic(_ state: inout State, value: State.TrafficKind?) -> Effect<Action> {
-    state.showTrafficColor = value?.color ?? .clear
-    state.showTrafficPublisher.send()
-    return .none
   }
 
   func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
@@ -297,8 +270,7 @@ public struct ToolBarFeatureView: View {
 
   private var presetTitle: some View {
     ZStack(alignment: .leading) {
-      Circle()
-        .trafficBlinker(subscribedTo: store.showTrafficPublisher, color: store.showTrafficColor, duration: 0.5)
+      MIDITrafficIndicator(trafficPublisher: store.trafficIndicator.trafficPublisher)
       HStack {
         Spacer()
         PresetNameView(preset: store.preset)

@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import Combine
 import ComposableArchitecture
 @preconcurrency import MorkAndMIDI
 import Sharing
@@ -18,8 +19,9 @@ public struct SettingsFeature {
   @ObservableState
   public struct State {
     var path = StackState<Path.State>()
-    var midiConnectCount: Int = 0
     let midi: MIDI?
+    var midiConnectCount: Int = 0
+
     @Shared(.keyWidth) var keyWidth
     @Shared(.keyboardSlides) var keyboardSlides
     @Shared(.showSolfegeTags) var showSolfegeTags
@@ -34,14 +36,16 @@ public struct SettingsFeature {
     @Shared(.favoriteSymbolName) var favoriteSymbolName
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
 
+    var trafficIndicator: MIDITrafficIndicatorFeature.State
     var tuning: TuningFeature.State
 
-    public init(midi: MIDI? = nil) {
+    public init(midi: MIDI? = nil, midiMonitor: MIDIMonitor? = nil) {
       self.midi = midi
       self.midiConnectCount = midi?.sourceConnections.count ?? 0
       @Shared(.globalTuningEnabled) var tuningEnabled
       @Shared(.globalTuning) var frequency
       self.tuning = .init(frequency: frequency, enabled: tuningEnabled)
+      self.trafficIndicator = .init(tag: "Settings", midiMonitor: midiMonitor)
     }
   }
 
@@ -49,26 +53,31 @@ public struct SettingsFeature {
     case binding(BindingAction<State>)
     case bluetoothMIDILocateButtonTapped
     case dismissButtonTapped
+    case initialize
     case midiAssignmentsButtonTapped
     case midiConnectionsButtonTapped
     case midiControllersButtonTapped
     case path(StackActionOf<Path>)
-    case task
     case tuning(TuningFeature.Action)
     case midiConnectionCountChanged(Int)
+    case trafficIndicator(MIDITrafficIndicatorFeature.Action)
   }
 
   public init() {}
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
+
     Scope(state: \.tuning, action: \.tuning) { TuningFeature() }
+    Scope(state: \.trafficIndicator, action: \.trafficIndicator) { MIDITrafficIndicatorFeature() }
+
     Reduce { state, action in
       switch action {
       case .binding(\.keyWidth): return updateKeyWidth(&state)
       case .binding: return .none
       case .bluetoothMIDILocateButtonTapped: return .none
       case .dismissButtonTapped: return dismissButtonTapped(&state)
+      case .initialize: return initialize(&state)
       case .midiAssignmentsButtonTapped:
         if state.midi != nil {
           state.path.append(.midiAssignments(MIDIAssignmentsFeature.State()))
@@ -88,7 +97,7 @@ public struct SettingsFeature {
         }
         return .none
       case .path: return .none
-      case .task: return initialize(&state)
+      case .trafficIndicator: return .none
       case .tuning: return .none
       }
     }
@@ -96,7 +105,8 @@ public struct SettingsFeature {
   }
 
   private enum CancelId {
-    case monitorActiveConnections
+    case monitorMIDIConnections
+    case monitorMIDITraffic
   }
 }
 
@@ -108,6 +118,13 @@ private extension SettingsFeature {
   }
 
   func initialize(_ state: inout State) -> Effect<Action> {
+    return .merge(
+      reduce(into: &state, action: .trafficIndicator(.initialize)),
+      monitorMIDIConnections(&state)
+    )
+  }
+
+  func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
     if let midi = state.midi {
       return .run { send in
         for await count in midi.publisher(for: \.activeConnections)
@@ -116,7 +133,7 @@ private extension SettingsFeature {
           .values {
           await send(.midiConnectionCountChanged(count))
         }
-      }
+      }.cancellable(id: CancelId.monitorMIDIConnections)
     }
     return .none
   }
@@ -175,7 +192,7 @@ public struct SettingsView: View {
       }
     }
     .task {
-      await store.send(.task).finish()
+      await store.send(.initialize).finish()
     }
   }
 
@@ -241,6 +258,7 @@ public struct SettingsView: View {
     Section("MIDI") {
       HStack {
         Text("Channel:")
+        MIDITrafficIndicator(trafficPublisher: store.trafficIndicator.trafficPublisher)
         Spacer()
         Stepper(store.midiChannel == -1 ? "Any" : "\(store.midiChannel + 1)", value: $store.midiChannel, in: -1...15)
       }
