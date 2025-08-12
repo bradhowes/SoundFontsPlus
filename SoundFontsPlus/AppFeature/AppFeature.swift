@@ -79,7 +79,7 @@ struct AppFeature {
       self.delay = DelayFeature.State(parameters: parameters)
       self.reverb = ReverbFeature.State(parameters: parameters)
 
-      // destination = .settings(SettingsFeature.State(midi: midi))
+      destination = .settings(SettingsFeature.State(midi: midi, midiMonitor: midiMonitor))
     }
   }
 
@@ -284,7 +284,7 @@ private extension AppFeature {
   }
 
   func showSettingsEditor(_ state: inout State) -> Effect<Action> {
-    state.destination = .settings(SettingsFeature.State(midi: state.midi))
+    state.destination = .settings(SettingsFeature.State(midi: state.midi, midiMonitor: state.midiMonitor))
     return .none
   }
 

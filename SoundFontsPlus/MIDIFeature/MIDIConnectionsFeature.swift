@@ -1,106 +1,84 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import Combine
 import ComposableArchitecture
 import CoreMIDI
 @preconcurrency import MorkAndMIDI
 import SharingGRDB
 import SwiftUI
 
-@Reducer
-struct MIDIConnectionRow {
-  @ObservableState
-  struct State: Identifiable, Equatable, Sendable {
-    let id: MIDIUniqueID
-    let displayName: String
-    let channel: Int?
-    var fixedVolume: Int
-    var autoConnect: Bool
+public struct MIDIConnectionRow: Identifiable {
+  public let id: MIDIUniqueID
+  public let displayName: String
+  public var channel: UInt8
+  public var fixedVolume: Int
+  public var autoConnect: Bool
 
-    init(id: MIDIUniqueID, displayName: String, channel: Int?) {
-      self.id = id
-      self.displayName = displayName
-      self.channel = channel
+  public init(id: MIDIUniqueID, displayName: String, channel: UInt8) {
+    self.id = id
+    self.displayName = displayName
+    self.channel = channel
 
-      @Dependency(\.defaultDatabase) var database
-      if let config = ((try? database.read {
-        try MIDIConfig.all.where({$0.uniqueId.eq(id)}).fetchAll($0)
-      }) ?? []).first {
-        self.fixedVolume = config.fixedVolume
-        self.autoConnect = config.autoConnect
-      } else {
-        self.fixedVolume = 128
-        self.autoConnect = false
-      }
+    @Dependency(\.defaultDatabase) var database
+    if let config = ((try? database.read {
+      try MIDIConfig.all.where({$0.uniqueId.eq(id)}).fetchAll($0)
+    }) ?? []).first {
+      self.fixedVolume = config.fixedVolume
+      self.autoConnect = config.autoConnect
+    } else {
+      self.fixedVolume = 128
+      self.autoConnect = false
     }
   }
 
-  enum Action {
-    case autoConnectTapped
-    case decrementVolumeTapped
-    case incrementVolumeTapped
-  }
-
-  var body: some ReducerOf<Self> {
-    Reduce { state, action in
-      switch action {
-      case .autoConnectTapped:
-        state.autoConnect.toggle()
-        return saveConfig(state)
-      case .decrementVolumeTapped:
-        state.fixedVolume -= 1
-        return saveConfig(state)
-      case .incrementVolumeTapped:
-        state.fixedVolume += 1
-        return saveConfig(state)
-      }
-    }
-  }
-
-  private func saveConfig(_ state: State) -> Effect<Action> {
+  func saveConfig() {
     @Dependency(\.defaultDatabase) var database
     withErrorReporting {
       try database.write { db in
         try MIDIConfig.upsert {
-          .init(uniqueId: state.id, autoConnect: state.autoConnect, fixedVolume: state.fixedVolume)
+          .init(uniqueId: self.id, autoConnect: self.autoConnect, fixedVolume: self.fixedVolume)
         }.execute(db)
       }
     }
-    return .none
   }
 }
 
-struct MIDIConnectionRowView: View {
-  @Bindable var store: StoreOf<MIDIConnectionRow>
+public struct MIDIConnectionRowView: View {
+  @State var row: MIDIConnectionRow
 
-  var body: some View {
-    Text("\(store.displayName)")
+  public init(row: MIDIConnectionRow) {
+    self.row = row
+  }
+
+  public var body: some View {
+    Text("\(row.displayName)")
       .frame(maxWidth: .infinity)
-    Text(store.channel?.description ?? "-")
+    Text("\(row.channel)")
     HStack(spacing: 0) {
-      Text(store.fixedVolume == 128 ? "Off" : "\(store.fixedVolume)")
+      Text(row.fixedVolume == 128 ? "Off" : "\(row.fixedVolume)")
       Button {
-        store.send(.decrementVolumeTapped)
+        row.fixedVolume -= 1
       } label: {
         Image(systemName: "arrowtriangle.down")
           .frame(width: 40, height: 40)
       }
       .offset(x: 6)
-      .disabled(store.fixedVolume == 1)
+      .disabled(row.fixedVolume == 1)
       .buttonRepeatBehavior(.enabled)
       Button {
-        store.send(.incrementVolumeTapped)
+        row.fixedVolume += 1
       } label: {
         Image(systemName: "arrowtriangle.up")
           .frame(width: 40, height: 40)
       }
-      .disabled(store.fixedVolume == 128)
+      .disabled(row.fixedVolume == 128)
       .buttonRepeatBehavior(.enabled)
     }
     .offset(x: 8)
     Button {
-      store.send(.autoConnectTapped)
+      row.autoConnect.toggle()
     } label: {
-      Image(systemName: store.autoConnect ? "checkmark.circle.fill" : "circle")
+      Image(systemName: row.autoConnect ? "checkmark.circle.fill" : "circle")
         .frame(width: 40, height: 40)
     }
   }
@@ -110,51 +88,112 @@ struct MIDIConnectionRowView: View {
 public struct MIDIConnectionsFeature {
 
   @ObservableState
-  public struct State: Equatable, Sendable {
-    let midi: MIDI
-    var sources: IdentifiedArrayOf<MIDIConnectionRow.State>
+  public struct State {
+    fileprivate var rows: IdentifiedArrayOf<MIDIConnectionRow>
+    fileprivate var trafficIndicator: MIDITrafficIndicatorFeature.State
+    @ObservationStateIgnored
+    fileprivate let midi: MIDI
+    @ObservationStateIgnored
+    fileprivate var midiChannelsCache: [MIDIUniqueID: UInt8] = [:]
 
-    public init(midi: MIDI) {
+    public init(midi: MIDI, midiMonitor: MIDIMonitor) {
       self.midi = midi
-      self.sources = .init(
+      self.trafficIndicator = .init(tag: "MIDI Connections", midiMonitor: midiMonitor)
+      self.rows = .init(
         uniqueElements: midi.sourceConnections.map {
-          .init(id: $0.uniqueId, displayName: $0.displayName, channel: nil)
+          .init(id: $0.uniqueId, displayName: $0.displayName, channel: 255)
         }
       )
     }
   }
 
-  public enum Action: Equatable, Sendable {
-    case connectionsChanged
+  public enum Action {
+    case autoConnectToggleTapped(MIDIUniqueID)
+    case fixedVolumeDecrementTapped(MIDIUniqueID)
+    case fixedVolumeIncrementTapped(MIDIUniqueID)
     case initialize
+    case midiConnectionsChanged
+    case sawMIDITraffic(MIDITraffic)
+    case trafficIndicator(MIDITrafficIndicatorFeature.Action)
   }
 
   public var body: some ReducerOf<Self> {
+
+    Scope(state: \.trafficIndicator, action: \.trafficIndicator) { MIDITrafficIndicatorFeature() }
+
     Reduce { state, action in
       switch action {
-      case .connectionsChanged: return updateMidiConnections(&state)
+      case .autoConnectToggleTapped(let id):
+        if let index = state.rows.index(id: id) {
+          state.rows[index].autoConnect.toggle()
+        }
+        return .none
+
+      case .fixedVolumeDecrementTapped(let id): return decrementFixedVolume(&state, id: id)
+      case .fixedVolumeIncrementTapped(let id): return incrementFixedVolume(&state, id: id)
       case .initialize: return initialize(&state)
+      case .midiConnectionsChanged: return updateMidiConnections(&state)
+      case .sawMIDITraffic(let traffic): return updateMIDIChannel(&state, traffic: traffic)
+      case .trafficIndicator: return .none
       }
     }
+  }
+
+  private enum CancelId {
+    case monitorMIDIConnections
   }
 }
 
-private extension MIDIConnectionsFeature {
+extension MIDIConnectionsFeature {
 
-  func initialize(_ state: inout State) -> Effect<Action> {
-    .run { [midi = state.midi] send in
-      for await _ in midi.publisher(for: \.activeConnections)
-        .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
-        .values {
-        await send(.connectionsChanged)
-      }
+  private func updateMIDIChannel(_ state: inout State, traffic: MIDITraffic) -> Effect<Action> {
+    state.midiChannelsCache[traffic.id] = traffic.channel
+    if let index = state.rows.index(id: traffic.id) {
+      state.rows[index].channel = traffic.channel
     }
+    return .none
   }
 
-  func updateMidiConnections(_ state: inout State) -> Effect<Action> {
-    state.sources = .init(
+  private func decrementFixedVolume(_ state: inout State, id: MIDIUniqueID) -> Effect<Action> {
+    if let index = state.rows.index(id: id) {
+      state.rows[index].fixedVolume -= 1
+    }
+    return .none
+  }
+
+  private func incrementFixedVolume(_ state: inout State, id: MIDIUniqueID) -> Effect<Action> {
+    if let index = state.rows.index(id: id) {
+      state.rows[index].fixedVolume += 1
+    }
+    return .none
+  }
+
+  private func initialize(_ state: inout State) -> Effect<Action> {
+    .merge(
+      reduce(into: &state, action: .trafficIndicator(.initialize)),
+      monitorMIDIConnections(&state)
+    )
+  }
+
+  private func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
+    return .run { [midi = state.midi] send in
+      for await _ in midi.publisher(for: \.activeConnections)
+        .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
+        .map({ $0.count })
+        .values {
+        await send(.midiConnectionsChanged)
+      }
+    }.cancellable(id: CancelId.monitorMIDIConnections)
+  }
+
+  private func updateMidiConnections(_ state: inout State) -> Effect<Action> {
+    state.rows = .init(
       uniqueElements: state.midi.sourceConnections.map {
-        .init(id: $0.uniqueId, displayName: $0.displayName, channel: nil)
+        .init(
+          id: $0.uniqueId,
+          displayName: $0.displayName,
+          channel: state.midiChannelsCache[$0.uniqueId] ?? 255
+        )
       }
     )
     return .none
@@ -163,12 +202,7 @@ private extension MIDIConnectionsFeature {
 
 public struct MIDIConnectionsView: View {
   private var store: StoreOf<MIDIConnectionsFeature>
-  private let columns: [GridItem] = [
-    .init(.flexible(minimum: 80, maximum: .infinity), alignment: .center),
-    .init(.fixed(30), alignment: .center),
-    .init(.fixed(120), alignment: .center),
-    .init(.fixed(48), alignment: .center)
-  ]
+  @State private var animating: MIDIUniqueID?
 
   public init(store: StoreOf<MIDIConnectionsFeature>) {
     self.store = store
@@ -176,7 +210,12 @@ public struct MIDIConnectionsView: View {
 
   public var body: some View {
     ScrollView {
-      LazyVGrid(columns: columns, spacing: 0) {
+      LazyVGrid(columns: [
+        GridItem(.flexible(minimum: 20, maximum: .infinity)),
+        GridItem(.fixed(40)),
+        GridItem(.fixed(120)),
+        GridItem(.fixed(40))
+      ], spacing: 0) {
         Text("Name")
           .frame(maxWidth: .infinity)
           .font(.footnote)
@@ -190,8 +229,46 @@ public struct MIDIConnectionsView: View {
         Text("Active")
           .font(.footnote)
           .foregroundStyle(.gray)
-        ForEach(store.sources) { item in
-          MIDIConnectionRowView(store: Store(initialState: item) { MIDIConnectionRow() })
+
+        ForEach(store.rows) { row in
+          Text("\(row.displayName)")
+            .frame(maxWidth: .infinity)
+            .foregroundStyle(animating == row.id ? Color.accentColor : .primary)
+            .scaleEffect(animating == row.id ? 1.25 : 1.0)
+
+          Text(row.channel == 255 ? "-" : "\(row.channel)")
+            .frame(maxWidth: .infinity)
+
+          HStack(spacing: 0) {
+            Text(row.fixedVolume == 128 ? "Off" : "\(row.fixedVolume)")
+              .padding([.leading], 8)
+            Button {
+              store.send(.fixedVolumeDecrementTapped(row.id))
+            } label: {
+              Image(systemName: "arrowtriangle.down")
+                .frame(width: 30, height: 40)
+            }
+            .disabled(row.fixedVolume == 1)
+            .buttonRepeatBehavior(.enabled)
+
+            Button {
+              store.send(.fixedVolumeIncrementTapped(row.id))
+            } label: {
+              Image(systemName: "arrowtriangle.up")
+                .frame(width: 30, height: 40)
+            }
+            .disabled(row.fixedVolume == 128)
+            .buttonRepeatBehavior(.enabled)
+          }
+          .frame(maxWidth: .infinity)
+
+          Button {
+            store.send(.autoConnectToggleTapped(row.id))
+          } label: {
+            Image(systemName: row.autoConnect ? "checkmark.circle.fill" : "circle")
+              .frame(width: 40, height: 40)
+          }
+          .frame(maxWidth: .infinity)
         }
       }
     }
@@ -199,6 +276,17 @@ public struct MIDIConnectionsView: View {
     .navigationTitle(Text("Connections"))
     .task {
       await store.send(.initialize).finish()
+    }
+    .onReceive(store.trafficIndicator.trafficPublisher) { traffic in
+      store.send(.sawMIDITraffic(traffic))
+      withAnimation(.smooth(duration: 0.5)) {
+        animating = traffic.id
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+          withAnimation(.smooth(duration: 0.25)) {
+            animating = nil
+          }
+        }
+      }
     }
   }
 }

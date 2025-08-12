@@ -84,8 +84,9 @@ public struct SettingsFeature {
         }
         return .none
       case .midiConnectionsButtonTapped:
-        if let midi = state.midi {
-          state.path.append(.midiConnections(MIDIConnectionsFeature.State(midi: midi)))
+        if let midi = state.midi,
+           let midiMonitor = state.trafficIndicator.midiMonitor {
+          state.path.append(.midiConnections(MIDIConnectionsFeature.State(midi: midi, midiMonitor: midiMonitor)))
         }
         return .none
       case .midiConnectionCountChanged(let count):
@@ -106,7 +107,6 @@ public struct SettingsFeature {
 
   private enum CancelId {
     case monitorMIDIConnections
-    case monitorMIDITraffic
   }
 }
 
@@ -118,9 +118,10 @@ private extension SettingsFeature {
   }
 
   func initialize(_ state: inout State) -> Effect<Action> {
-    return .merge(
+    .merge(
       reduce(into: &state, action: .trafficIndicator(.initialize)),
-      monitorMIDIConnections(&state)
+      monitorMIDIConnections(&state),
+      .send(.midiConnectionsButtonTapped)
     )
   }
 
@@ -258,12 +259,12 @@ public struct SettingsView: View {
     Section("MIDI") {
       HStack {
         Text("Channel:")
-        MIDITrafficIndicator(trafficPublisher: store.trafficIndicator.trafficPublisher)
         Spacer()
         Stepper(store.midiChannel == -1 ? "Any" : "\(store.midiChannel + 1)", value: $store.midiChannel, in: -1...15)
       }
       HStack {
         Spacer()
+        MIDITrafficIndicator(tag: "Settings", trafficPublisher: store.trafficIndicator.trafficPublisher)
         Button {
           store.send(.midiConnectionsButtonTapped)
         } label: {
