@@ -10,6 +10,7 @@ import SharingGRDB
 private let log = Logger(category: "MIDIMonitor")
 
 public struct MIDITraffic {
+  public let id: MIDIUniqueID
   public let channel: UInt8
   public let accepted: Bool
 }
@@ -26,9 +27,9 @@ public final class MIDIMonitor {
 
 extension MIDIMonitor: Receiver {
 
-  private func accepts(channel: UInt8) -> Bool {
+  private func accepts(source: MIDIUniqueID, channel: UInt8) -> Bool {
     let accepted = midiChannel == -1 || midiChannel == Int(channel)
-    traffic = .init(channel: channel, accepted: accepted)
+    traffic = .init(id: source, channel: channel, accepted: accepted)
     return accepted
   }
 
@@ -51,7 +52,7 @@ extension MIDIMonitor: Receiver {
   public func perNoteManagement(source: MIDIUniqueID, note: UInt8, detach: Bool, reset: Bool) {}
 
   public func noteOff(source: MIDIUniqueID, note: UInt8, velocity: UInt8, channel: UInt8) {
-    if accepts(channel: channel) {
+    if accepts(source: source, channel: channel) {
       synth?.stopNote(note, onChannel: channel)
     }
   }
@@ -70,7 +71,7 @@ extension MIDIMonitor: Receiver {
   // swiftlint:enable function_parameter_count
 
   public func noteOn(source: MIDIUniqueID, note: UInt8, velocity: UInt8, channel: UInt8) {
-    if accepts(channel: channel) {
+    if accepts(source: source, channel: channel) {
       synth?.startNote(note, withVelocity: velocity, onChannel: channel)
     }
     // (note, velocity: connectionState.fixedVelocity ?? velocity)
@@ -91,7 +92,7 @@ extension MIDIMonitor: Receiver {
   // swiftlint:enable function_parameter_count
 
   public func polyphonicKeyPressure(source: MIDIUniqueID, note: UInt8, pressure: UInt8, channel: UInt8) {
-    if accepts(channel: channel) {
+    if accepts(source: source, channel: channel) {
       synth?.sendPressure(forKey: note, withValue: pressure, onChannel: channel)
     }
   }
@@ -123,7 +124,7 @@ extension MIDIMonitor: Receiver {
     //    }
     //
     // Hand the controller value change to the synth
-    if accepts(channel: channel) {
+    if accepts(source: source, channel: channel) {
       synth?.sendController(controller, withValue: value, onChannel: channel)
     }
   }
@@ -133,7 +134,7 @@ extension MIDIMonitor: Receiver {
   }
 
   public func programChange(source: MIDIUniqueID, program: UInt8, channel: UInt8) {
-    if accepts(channel: channel) {
+    if accepts(source: source, channel: channel) {
       synth?.sendProgramChange(program, onChannel: channel)
     }
   }
@@ -144,7 +145,7 @@ extension MIDIMonitor: Receiver {
   }
 
   public func channelPressure(source: MIDIUniqueID, pressure: UInt8, channel: UInt8) {
-    if accepts(channel: channel) {
+    if accepts(source: source, channel: channel) {
       synth?.sendPressure(pressure, onChannel: channel)
     }
   }
@@ -154,7 +155,7 @@ extension MIDIMonitor: Receiver {
   }
 
   public func pitchBendChange(source: MIDIUniqueID, value: UInt16, channel: UInt8) {
-    if accepts(channel: channel) {
+    if accepts(source: source, channel: channel) {
       synth?.sendPitchBend(value, onChannel: channel)
     }
   }

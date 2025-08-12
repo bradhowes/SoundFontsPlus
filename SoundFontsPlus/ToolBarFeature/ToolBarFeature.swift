@@ -108,7 +108,6 @@ public struct ToolBarFeature {
 
   private enum CancelId {
     case monitorActivePresetId
-    case monitorMIDITraffic
   }
 
   @Shared(.activeState) var activeState
@@ -144,9 +143,9 @@ private extension ToolBarFeature {
   }
 
   func initialize(_ state: inout State) -> Effect<Action> {
-    return .merge(
+    .merge(
       reduce(into: &state, action: .trafficIndicator(.initialize)),
-      monitorActivePresetId(&state),
+      monitorActivePresetId(&state)
     )
   }
 
@@ -270,7 +269,7 @@ public struct ToolBarFeatureView: View {
 
   private var presetTitle: some View {
     ZStack(alignment: .leading) {
-      MIDITrafficIndicator(trafficPublisher: store.trafficIndicator.trafficPublisher)
+      MIDITrafficIndicator(tag: "ToolBar", trafficPublisher: store.trafficIndicator.trafficPublisher)
       HStack {
         Spacer()
         PresetNameView(preset: store.preset)
