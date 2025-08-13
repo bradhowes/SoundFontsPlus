@@ -31,6 +31,13 @@ public struct Logger {
     }
   }
 
+#else
+
+  @inlinable @inline(__always)
+  public func log(level: OSLogType = .default, _ string: @autoclosure () -> String) {}
+
+#endif
+
   @inlinable @inline(__always)
   public func debug(_ string: @autoclosure () -> String) { self.log(level: .debug, string()) }
 
@@ -43,11 +50,6 @@ public struct Logger {
   @inlinable @inline(__always)
   public func fault(_ string: @autoclosure () -> String) { self.log(level: .fault, string()) }
 
-#else
-  @inlinable @inline(__always)
-  public func log(level: OSLogType = .default, _ string: @autoclosure () -> String) {
-  }
-#endif
 }
 
 private let isRunningForPreviews = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"

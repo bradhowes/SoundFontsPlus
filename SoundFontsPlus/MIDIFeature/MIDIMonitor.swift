@@ -19,8 +19,9 @@ public final class MIDIMonitor {
   @Shared(.midiChannel) var midiChannel
   var synth: AVAudioUnitMIDIInstrument?
 
+  // We want all traffic to appear in the `traffic` tap, regardless of channel.
   public var channel: Int { -1 }
-  public var group: Int = -1
+  public var group: Int { -1 }
 
   @Published public var traffic: MIDITraffic?
 }
