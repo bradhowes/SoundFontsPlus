@@ -67,19 +67,28 @@ public struct SoundFontEditor {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case .binding: return .none
-      case .changeTagsButtonTapped: return editTags(&state)
-      case .cancelButtonTapped: return dismiss(&state, save: false)
-      case .destination(.dismiss): return updateTagsList(&state)
-      case .destination: return .none
-      case .displayNameChanged(let value): return updateDisplayName(&state, value: value)
-      case .notesChanged(let value): return updateNotes(&state, value: value)
-      case .pathButtonTapped: return visitPath(&state)
-      case .saveButtonTapped: return dismiss(&state, save: true)
-      case .unhideAllButtonTapped: return .none
-      case .useEmbeddedNameTapped: return updateDisplayName(&state, value: state.soundFont.embeddedName)
-      case .useOriginalNameTapped: return updateDisplayName(&state, value: state.soundFont.originalName)
+      case .changeTagsButtonTapped:
+        return editTags(&state)
+      case .cancelButtonTapped:
+        return dismiss(&state, save: false)
+      case .destination(.dismiss):
+        state.tagsList = SoundFontsSupport.generateTagsList(from: state.soundFont.tags)
+      case .displayNameChanged(let value):
+        state.displayName = value
+      case .notesChanged(let value):
+        state.notes = value
+      case .pathButtonTapped:
+        return visitPath(&state)
+      case .saveButtonTapped:
+        return dismiss(&state, save: true)
+      case .useEmbeddedNameTapped:
+        state.displayName = state.soundFont.embeddedName
+      case .useOriginalNameTapped:
+        state.displayName = state.soundFont.originalName
+      default:
+        break
       }
+      return .none
     }
     .ifLet(\.$destination, action: \.destination)
   }
@@ -106,21 +115,6 @@ extension SoundFontEditor {
       soundFontId: state.soundFont.id,
       memberships: memberships
     ))
-    return .none
-  }
-
-  private func updateTagsList(_ state: inout State) -> Effect<Action> {
-    state.tagsList = SoundFontsSupport.generateTagsList(from: state.soundFont.tags)
-    return .none
-  }
-
-  private func updateDisplayName(_ state: inout State, value: String ) -> Effect<Action> {
-    state.displayName = value
-    return .none
-  }
-
-  private func updateNotes(_ state: inout State, value: String) -> Effect<Action> {
-    state.notes = value
     return .none
   }
 

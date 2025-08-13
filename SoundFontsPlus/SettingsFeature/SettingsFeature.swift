@@ -73,34 +73,27 @@ public struct SettingsFeature {
 
     Reduce { state, action in
       switch action {
-      case .binding(\.keyWidth): return updateKeyWidth(&state)
-      case .binding: return .none
-      case .bluetoothMIDILocateButtonTapped: return .none
-      case .dismissButtonTapped: return dismissButtonTapped(&state)
-      case .initialize: return initialize(&state)
+      case .binding(\.keyWidth):
+        return updateKeyWidth(&state)
+      case .dismissButtonTapped:
+        return dismissButtonTapped(&state)
+      case .initialize:
+        return initialize(&state)
       case .midiAssignmentsButtonTapped:
-        if state.midi != nil {
-          state.path.append(.midiAssignments(MIDIAssignmentsFeature.State()))
-        }
-        return .none
+        guard state.midi != nil else { return .none }
+        state.path.append(.midiAssignments(MIDIAssignmentsFeature.State()))
       case .midiConnectionsButtonTapped:
-        if let midi = state.midi,
-           let midiMonitor = state.trafficIndicator.midiMonitor {
-          state.path.append(.midiConnections(MIDIConnectionsFeature.State(midi: midi, midiMonitor: midiMonitor)))
-        }
-        return .none
+        guard let midi = state.midi, let midiMonitor = state.trafficIndicator.midiMonitor else { return .none }
+        state.path.append(.midiConnections(MIDIConnectionsFeature.State(midi: midi, midiMonitor: midiMonitor)))
       case .midiConnectionCountChanged(let count):
         state.midiConnectCount = count
-        return .none
       case .midiControllersButtonTapped:
-        if state.midi != nil {
-          state.path.append(.midiControllers(MIDIControllersFeature.State()))
-        }
-        return .none
-      case .path: return .none
-      case .trafficIndicator: return .none
-      case .tuning: return .none
+        guard state.midi != nil else { return .none }
+        state.path.append(.midiControllers(MIDIControllersFeature.State()))
+      default:
+        break
       }
+      return .none
     }
     .forEach(\.path, action: \.path)
   }
@@ -110,22 +103,21 @@ public struct SettingsFeature {
   }
 }
 
-private extension SettingsFeature {
+extension SettingsFeature {
 
-  func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
+  private func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
   }
 
-  func initialize(_ state: inout State) -> Effect<Action> {
+  private func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
       reduce(into: &state, action: .trafficIndicator(.initialize)),
-      monitorMIDIConnections(&state),
-      .send(.midiConnectionsButtonTapped)
+      monitorMIDIConnections(&state)
     )
   }
 
-  func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
+  private func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
     if let midi = state.midi {
       return .run { send in
         for await count in midi.publisher(for: \.activeConnections)
@@ -139,7 +131,7 @@ private extension SettingsFeature {
     return .none
   }
 
-  func updateKeyWidth(_ state: inout State) -> Effect<Action> {
+  private func updateKeyWidth(_ state: inout State) -> Effect<Action> {
     var value = state.keyWidth
     for stop in [48.0, 64.0, 80.0] where Swift.abs(value - stop) < 3.0 {
       value = stop
@@ -149,7 +141,7 @@ private extension SettingsFeature {
     return updateShared(.keyWidth, value: value)
   }
 
-  func updateShared<T>(_ key: AppStorageKey<T>.Default, value: T) -> Effect<Action> {
+  private func updateShared<T>(_ key: AppStorageKey<T>.Default, value: T) -> Effect<Action> {
     @Shared(key) var store
     $store.withLock { $0 = value }
     return .none

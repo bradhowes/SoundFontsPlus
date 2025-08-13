@@ -46,7 +46,7 @@ struct AppFeature {
     var reverb: ReverbFeature.State
     var keyboard: KeyboardFeature.State = .init()
     var synth: SynthFeature.State = .init()
-    var addSoundFonts: Bool = false
+    var showFileImporter: Bool = false
     var addedSummary: String?
 
     init(parameters: AUParameterTree) {
@@ -78,8 +78,7 @@ struct AppFeature {
 
       self.delay = DelayFeature.State(parameters: parameters)
       self.reverb = ReverbFeature.State(parameters: parameters)
-
-      destination = .settings(SettingsFeature.State(midi: midi, midiMonitor: midiMonitor))
+      // destination = .settings(SettingsFeature.State(midi: midi, midiMonitor: midiMonitor))
     }
   }
 
@@ -87,13 +86,13 @@ struct AppFeature {
     case binding(BindingAction<State>)
     case delay(DelayFeature.Action)
     case destination(PresentationAction<Destination.Action>)
-    case importFile(Result<URL, Error>)
-    case keyboard(KeyboardFeature.Action)
+    case finishedImportingFile(Result<URL, Error>)
     case initialize
-    case phaseChange(ScenePhase)
+    case keyboard(KeyboardFeature.Action)
     case presetsList(PresetsList.Action)
     case presetsSplit(SplitViewReducer.Action)
     case reverb(ReverbFeature.Action)
+    case scenePhaseChanged(ScenePhase)
     case soundFontsList(SoundFontsList.Action)
     case synth(SynthFeature.Action)
     case tagsList(TagsList.Action)
@@ -102,7 +101,6 @@ struct AppFeature {
   }
 
   var body: some ReducerOf<Self> {
-
     BindingReducer()
 
     Scope(state: \.delay, action: \.delay) { DelayFeature(parameters: parameters) }
@@ -118,33 +116,33 @@ struct AppFeature {
 
     Reduce { state, action in
       switch action {
-      case .binding: return .none
-      case .delay: return .none
-      case .destination(.dismiss): return dismissingSheet(&state)
-      case .destination: return .none
-      case let .keyboard(.delegate(action)): return keyboardAction(&state, action: action)
-      case .keyboard: return .none
-      case .initialize: return reduce(into: &state, action: .synth(.initialize))
-      case let .importFile(result): return importFile(&state, result: result)
-      case let .phaseChange(phase): return phaseChange(&state, phase: phase)
+      case .destination(.dismiss):
+        return destinationDismissed(&state)
+      case let .finishedImportingFile(result):
+        return finishedImportingFile(&state, result: result)
+      case .initialize:
+        return reduce(into: &state, action: .synth(.initialize))
+      case let .keyboard(.delegate(action)):
+        return monitorKeyboardAction(&state, action: action)
       case let .presetsList(.delegate(.edit(sectionId, preset))):
-        return editPreset(&state, sectionId: sectionId, preset: preset)
-      case .presetsList: return .none
-      case let .presetsSplit(.delegate(action)): return presetsSplitAction(&state, action: action)
-      case .presetsSplit: return .none
-      case .reverb: return .none
-      case let .soundFontsList(.delegate(.edit(soundFont))): return editFont(&state, soundFont: soundFont)
-      case .soundFontsList: return .none
-      case let .synth(.delegate(.activeSynth(audioUnit, instrument))):
-        return setActiveSynth(&state, audioUnit: audioUnit, instrument: instrument)
-      case .synth: return .none
-      case let .tagsList(.delegate(.edit(focused))): return editTags(&state, focused: focused)
-      case .tagsList: return .none
-      case let .tagsSplit(.delegate(action)): return tagsSplitAction(&state, action: action)
-      case .tagsSplit: return .none
-      case let .toolBar(.delegate(action)): return toolBarAction(&state, action: action)
-      case .toolBar: return .none
+        state.destination = .presetEditor(PresetEditor.State(sectionId: sectionId, preset: preset))
+      case let .presetsSplit(.delegate(action)):
+        return monitorPresetsSplitAction(&state, action: action)
+      case let .scenePhaseChanged(phase):
+        return scenePhaseChanged(&state, phase: phase)
+      case let .soundFontsList(.delegate(.edit(soundFont))):
+        state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
+      case let .synth(.delegate(.createdSynth(audioUnit, instrument))):
+        return installSynth(&state, audioUnit: audioUnit, instrument: instrument)
+      case let .tagsList(.delegate(.edit(focused))):
+        state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
+      case let .tagsSplit(.delegate(action)):
+        return monitorTagsSplitAction(&state, action: action)
+      case let .toolBar(.delegate(action)):
+        return monitorToolBarAction(&state, action: action)
+      default: return .none
       }
+      return .none
     }.ifLet(\.$destination, action: \.destination)
   }
 
@@ -157,17 +155,15 @@ struct AppFeature {
 
 private extension AppFeature {
 
-  func dismissingSheet(_ state: inout State) -> Effect<Action> {
+  func destinationDismissed(_ state: inout State) -> Effect<Action> {
     switch state.destination {
-    case let .presetEditor(editor): return dismissingEditor(&state, editor: editor)
+    case let .presetEditor(editor): return editorDismissed(&state, editor: editor)
     case .settings: return reduce(into: &state, action: .presetsList(.fetchPresets))
-    case .soundFontEditor: return .none
-    case .tagsEditor: return .none
-    case nil: return .none
+    default: return .none
     }
   }
 
-  func dismissingEditor(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
+  func editorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
     guard let sectionIndex = state.presetsList.sections.index(id: editor.sectionId),
           let rowIndex = state.presetsList.sections[sectionIndex].rows.index(id: editor.preset.id)
     else {
@@ -178,22 +174,7 @@ private extension AppFeature {
     return .none
   }
 
-  func editPreset(_ state: inout State, sectionId: Int, preset: Preset) -> Effect<Action> {
-    state.destination = .presetEditor(PresetEditor.State(sectionId: sectionId, preset: preset))
-    return .none
-  }
-
-  func editFont(_ state: inout State, soundFont: SoundFont) -> Effect<Action> {
-    state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
-    return .none
-  }
-
-  func editTags(_ state: inout State, focused: TagInfo.ID? = nil) -> Effect<Action> {
-    state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
-    return .none
-  }
-
-  func importFile(_ state: inout State, result: Result<URL, Error>) -> Effect<Action> {
+  func finishedImportingFile(_ state: inout State, result: Result<URL, Error>) -> Effect<Action> {
     switch result {
     case .success(let url):
       do {
@@ -209,34 +190,7 @@ private extension AppFeature {
     return .none
   }
 
-  func keyboardAction(_ state: inout State, action: KeyboardFeature.Action.Delegate) -> Effect<Action> {
-    switch action {
-    case let .visibleKeyRangeChanged(lowest, highest):
-      $firstVisibleKey.withLock { $0 = lowest }
-      print("lowest:", lowest)
-      return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
-    }
-  }
-
-  func phaseChange(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
-    switch phase {
-    case .active: return .none
-    case .background: return .none
-    case .inactive: return .none
-    @unknown default: fatalError("Unhandled ScenePhase \(phase):")
-    }
-  }
-
-  func presetsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
-    switch action {
-    case let .stateChanged(_, position):
-      @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
-      $fontsAndPresetsSplitPosition.withLock { $0 = position }
-      return .none
-    }
-  }
-
-  func setActiveSynth(
+  func installSynth(
     _ state: inout State,
     audioUnit: SF2LibAU,
     instrument: AVAudioUnitMIDIInstrument
@@ -246,9 +200,24 @@ private extension AppFeature {
     return .none
   }
 
-  func tagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
-    switch action {
-    case let .stateChanged(panesVisible, position):
+  func monitorKeyboardAction(_ state: inout State, action: KeyboardFeature.Action.Delegate) -> Effect<Action> {
+    if case let .visibleKeyRangeChanged(lowest, highest) = action {
+      $firstVisibleKey.withLock { $0 = lowest }
+      return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
+    }
+    return .none
+  }
+
+  func monitorPresetsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
+    if case let .stateChanged(_, position) = action {
+      @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
+      $fontsAndPresetsSplitPosition.withLock { $0 = position }
+    }
+    return .none
+  }
+
+  func monitorTagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
+    if case let .stateChanged(panesVisible, position) = action {
       let visible = panesVisible.contains(.bottom)
       ToolBarFeature.setTagsListVisible(&state.toolBar, value: visible)
       @Shared(.tagsListVisible) var tagsListVisible
@@ -256,62 +225,60 @@ private extension AppFeature {
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
       $tagsListVisible.withLock { $0 = visible }
       $fontsAndTagsSplitPosition.withLock { $0 = position }
-      return .none
     }
+    return .none
   }
 
-  func toolBarAction(_ state: inout State, action: ToolBarFeature.Action.Delegate) -> Effect<Action> {
+  func monitorToolBarAction(_ state: inout State, action: ToolBarFeature.Action.Delegate) -> Effect<Action> {
     switch action {
     case .addSoundFontButtonTapped:
-      state.addSoundFonts = true
+      state.showFileImporter = true
       return .none
-    case let .editingPresetVisibility(active): return setEditingVisibility(&state, active: active)
-    case let .effectsVisibilityChanged(visible): return setEffectsVisibiliy(&state, visible: visible)
-    case .presetNameTapped: return showActivePreset(&state)
-    case .settingsDismissed: return dismissSettingsEditor(&state)
-    case .settingsButtonTapped: return showSettingsEditor(&state)
-    case let .tagsVisibilityChanged(visible): return setTagsVisibility(&state, visible: visible)
+
+    case let .editingPresetVisibilityChanged(active):
+      return reduce(into: &state, action: .presetsList(.visibilityEditModeChanged(active)))
+
+    case let .effectsVisibilityChanged(visible):
+      @Shared(.effectsVisible) var effectsVisible
+      $effectsVisible.withLock { $0 = visible }
+      return .none
+
+    case .presetNameTapped:
+      return .merge(
+        reduce(into: &state, action: .presetsList(.showActivePreset)),
+        reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
+      )
+
+    case .settingsButtonTapped:
+      state.destination = .settings(SettingsFeature.State(midi: state.midi, midiMonitor: state.midiMonitor))
+      return .none
+
+    case .settingsDismissed:
+      state.destination = nil
+      return .none
+
+    case let .tagsVisibilityChanged(visible):
+      let panes: SplitViewPanes = visible ? .both : .primary
+      return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
+
     case let .visibleKeyRangeChanged(lowest, _):
-      print("lowest:", lowest)
       $firstVisibleKey.withLock { $0 = lowest }
       return reduce(into: &state, action: .keyboard(.scrollTo(lowest)))
     }
   }
 
-  func dismissSettingsEditor(_ state: inout State) -> Effect<Action> {
-    state.destination = nil
-    return fetchPresets(&state)
-  }
-
-  func showSettingsEditor(_ state: inout State) -> Effect<Action> {
-    state.destination = .settings(SettingsFeature.State(midi: state.midi, midiMonitor: state.midiMonitor))
-    return .none
-  }
-
-  func fetchPresets(_ state: inout State) -> Effect<Action> {
-    return reduce(into: &state, action: .presetsList(.fetchPresets))
-  }
-
-  func setEditingVisibility(_ state: inout State, active: Bool) -> Effect<Action> {
-    return reduce(into: &state, action: .presetsList(.visibilityEditModeChanged(active)))
-  }
-
-  func setTagsVisibility(_ state: inout State, visible: Bool) -> Effect<Action> {
-    let panes: SplitViewPanes = visible ? .both : .primary
-    return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
-  }
-
-  func setEffectsVisibiliy(_ state: inout State, visible: Bool) -> Effect<Action> {
-    @Shared(.effectsVisible) var effectsVisible
-    $effectsVisible.withLock { $0 = visible }
-    return .none
-  }
-
-  func showActivePreset(_ state: inout State) -> Effect<Action> {
-    return .merge(
-      reduce(into: &state, action: .presetsList(.showActivePreset)),
-      reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
-    )
+  func scenePhaseChanged(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
+    @Shared(.backgroundProcessing) var backgroundProcessing
+    switch phase {
+    case .active:
+      guard !backgroundProcessing else { return .none }
+      return reduce(into: &state, action: .synth(.startEngine))
+    case .background:
+      guard !backgroundProcessing else { return .none }
+      return reduce(into: &state, action: .synth(.stopEngine))
+    case .inactive: return .none
+    @unknown default: fatalError("Unhandled ScenePhase \(phase):")
+    }
   }
 }
 
@@ -386,10 +353,10 @@ struct RootAppView: View, KeyboardReadable {
     }
     .destinations(store: $store, horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
     .fileImporter(
-      isPresented: $store.addSoundFonts,
+      isPresented: $store.showFileImporter,
       allowedContentTypes: types
     ) { result in
-      store.send(.importFile(result))
+      store.send(.finishedImportingFile(result))
     }
     .alert("Add Complete", isPresented: Binding<Bool>(
       get: { store.addedSummary != nil },

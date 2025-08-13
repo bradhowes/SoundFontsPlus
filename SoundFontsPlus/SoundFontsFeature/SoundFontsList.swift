@@ -18,7 +18,7 @@ public struct SoundFontsList {
   public enum Action {
     case activeTagIdChanged(FontTag.ID?)
     case delegate(Delegate)
-    case onAppear
+    case initialize
     case rows(IdentifiedActionOf<SoundFontButton>)
     case showActiveSoundFont
     case soundFontInfosChanged([SoundFontInfo])
@@ -33,14 +33,20 @@ public struct SoundFontsList {
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
-      case .activeTagIdChanged: return monitorFetchAll(&state)
-      case .delegate: return .none
-      case .onAppear: return monitorActiveTag(&state)
-      case let .rows(.element(_, .delegate(action))): return dispatchRowAction(&state, action: action)
-      case .rows: return .none
-      case let .soundFontInfosChanged(soundFontInfos): return updateRows(&state, soundFontInfos: soundFontInfos)
-      case .showActiveSoundFont: return showActiveSoundFont(&state)
+      case .activeTagIdChanged:
+        return monitorFetchAll(&state)
+      case .initialize:
+        return monitorActiveTag(&state)
+      case .rows(.element(_, .delegate(let action))):
+        return dispatchRowAction(&state, action: action)
+      case .showActiveSoundFont:
+        return showActiveSoundFont(&state)
+      case .soundFontInfosChanged(let soundFontInfos):
+        return updateRows(&state, soundFontInfos: soundFontInfos)
+      default:
+        break
       }
+      return .none
     }
     .forEach(\.rows, action: \.rows) {
       SoundFontButton()
@@ -58,18 +64,17 @@ public struct SoundFontsList {
 
 extension SoundFontsList {
 
-  private func delete(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
-    SoundFont.delete(id: soundFontId)
-    return .none
-  }
-
   private func dispatchRowAction(_ state: inout State, action: SoundFontButton.Delegate) -> Effect<Action> {
     print("dispatchRowAction: \(action)")
     switch action {
-    case let .deleteSoundFont(soundFont): return delete(&state, soundFontId: soundFont.id)
-    case let .editSoundFont(soundFont): return edit(&state, soundFontId: soundFont.id)
-    case let .selectSoundFont(soundFont): return select(&state, soundFontId: soundFont.id)
+    case .deleteSoundFont(let soundFont):
+      SoundFont.delete(id: soundFont.id)
+    case .editSoundFont(let soundFont):
+      return edit(&state, soundFontId: soundFont.id)
+    case .selectSoundFont(let soundFont):
+      return select(&state, soundFontId: soundFont.id)
     }
+    return .none
   }
 
   private func edit(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
@@ -120,7 +125,11 @@ extension SoundFontsList {
   }
 
   private func updateRows(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
-    let update = IdentifiedArrayOf<SoundFontButton.State>(uncheckedUniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
+    let update = IdentifiedArrayOf<SoundFontButton.State>(
+      uncheckedUniqueElements: soundFontInfos.map {
+        .init(soundFontInfo: $0)
+      }
+    )
     if state.rows != update {
       state.rows = update
     }
@@ -142,7 +151,7 @@ public struct SoundFontsListView: View {
       }
     }
     .onAppear {
-      store.send(.onAppear)
+      store.send(.initialize)
     }
   }
 }
