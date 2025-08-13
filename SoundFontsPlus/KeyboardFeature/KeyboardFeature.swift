@@ -32,13 +32,11 @@ public struct KeyboardFeature {
   public enum Action: Equatable {
     case activePresetIdChanged(Preset.ID?)
     case allOff
-    case assigned(previous: Note?, note: Note)
+    case keyAssigned(previous: Note?, note: Note)
     case clearScrollTo
     case delegate(Delegate)
-    case monitorActivePreset
-    case noteOff(Note)
-    case noteOn(Note)
-    case released(note: Note)
+    case initialize
+    case keyReleased(note: Note)
     case scrollTo(Note)
     case updateVisibleKeys(lowest: Note, highest: Note)
 
@@ -52,18 +50,26 @@ public struct KeyboardFeature {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case let .activePresetIdChanged(presetId): return activePresetIdChanged(&state, presetId: presetId)
-      case .allOff: return allOff(&state)
-      case let .assigned(previous, key): return assigned(&state, previous: previous, key: key)
-      case .clearScrollTo: return clearScrollTo(&state)
-      case .delegate: return .none
-      case .monitorActivePreset: return monitorActivePreset(&state)
-      case let .noteOff(note): return noteOff(&state, key: note)
-      case let .noteOn(note): return noteOn(&state, key: note)
-      case let .released(note): return noteOff(&state, key: note)
-      case let .scrollTo(key): return scrollTo(&state, key: key)
-      case let .updateVisibleKeys(lowest, highest): return updateVisibleKeys(&state, lowest: lowest, highest: highest)
+      case let .activePresetIdChanged(presetId):
+        return activePresetIdChanged(&state, presetId: presetId)
+      case .allOff:
+        state.active = .init(repeating: false, count: state.active.count)
+      case let .keyAssigned(previous, key):
+        return keyAssigned(&state, previous: previous, key: key)
+      case let .keyReleased(note):
+        return noteOff(&state, key: note)
+      case .clearScrollTo:
+        state.scrollTo = nil
+      case .initialize:
+        return initialize(&state)
+      case let .scrollTo(key):
+        state.scrollTo = key
+      case let .updateVisibleKeys(lowest, highest):
+        return updateVisibleKeys(&state, lowest: lowest, highest: highest)
+      default:
+        return .none
       }
+      return .none
     }
   }
 
@@ -87,28 +93,15 @@ extension KeyboardFeature {
     }.cancellable(id: CancelId.scrollTo)
   }
 
-  private func allOff(_ state: inout State) -> Effect<Action> {
-    state.active = .init(repeating: false, count: state.active.count)
-    return .none
-  }
-
-  private func assigned(_ state: inout State, previous: Note?, key: Note) -> Effect<Action> {
+  private func keyAssigned(_ state: inout State, previous: Note?, key: Note) -> Effect<Action> {
     guard previous != key else { return .none }
     if let previous {
-      state.active[previous.midiNoteValue] = false
-      state.synth?.stopNote(UInt8(previous.midiNoteValue), onChannel: 0)
+      _ = noteOff(&state, key: previous)
     }
-    state.active[key.midiNoteValue] = true
-    state.synth?.startNote(UInt8(key.midiNoteValue), withVelocity: 127, onChannel: 0)
-    return .none
+    return noteOn(&state, key: key)
   }
 
-  private func clearScrollTo(_ state: inout State) -> Effect<Action> {
-    state.scrollTo = nil
-    return .none
-  }
-
-  private func monitorActivePreset(_ state: inout State) -> Effect<Action> {
+  private func initialize(_ state: inout State) -> Effect<Action> {
     .publisher {
       $activeState.activePresetId
         .publisher
@@ -125,11 +118,6 @@ extension KeyboardFeature {
   private func noteOn(_ state: inout State, key: Note) -> Effect<Action> {
     state.active[key.midiNoteValue] = true
     state.synth?.startNote(UInt8(key.midiNoteValue), withVelocity: 127, onChannel: 0)
-    return .none
-  }
-
-  private func scrollTo(_ state: inout State, key: Note) -> Effect<Action> {
-    state.scrollTo = key
     return .none
   }
 
@@ -192,7 +180,7 @@ public struct KeyboardView: View {
         }
       }
       .onAppear {
-        store.send(.monitorActivePreset)
+        store.send(.initialize)
       }
     }
   }
@@ -233,13 +221,13 @@ public struct KeyboardView: View {
           if event.phase == .active {
             assignNote(to: event)
           } else {
-            forgetNote(for: event)
+            releaseNote(for: event)
           }
         }
       }
       .onEnded { events in
         for event in events {
-          forgetNote(for: event)
+          releaseNote(for: event)
         }
       }
   }
@@ -319,13 +307,13 @@ public struct KeyboardView: View {
     let note = Note(midiNoteValue: frames.distance(from: frames.startIndex, to: pos))
     let update = eventNoteMap.assign(event: event, note: note, fixedKeys: !store.keyboardSlides)
     if update.previous != nil || update.firstTime {
-      store.send(.assigned(previous: update.previous, note: note))
+      store.send(.keyAssigned(previous: update.previous, note: note))
     }
   }
 
-  private func forgetNote(for event: Event) {
+  private func releaseNote(for event: Event) {
     if let note = eventNoteMap.release(event: event) {
-      store.send(.released(note: note))
+      store.send(.keyReleased(note: note))
     }
   }
 }

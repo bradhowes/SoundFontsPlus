@@ -45,7 +45,7 @@
 		BDAF5A9A2DE254F400B8FB13 /* AppFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A982DE254F400B8FB13 /* AppFeature.swift */; };
 		BDAF5A9D2DE2550700B8FB13 /* DelayFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A9B2DE2550700B8FB13 /* DelayFeature.swift */; };
 		BDAF5AA22DE2551A00B8FB13 /* EventNoteMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A9E2DE2551A00B8FB13 /* EventNoteMap.swift */; };
-		BDAF5AA32DE2551A00B8FB13 /* Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A9F2DE2551A00B8FB13 /* Keyboard.swift */; };
+		BDAF5AA32DE2551A00B8FB13 /* KeyboardFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A9F2DE2551A00B8FB13 /* KeyboardFeature.swift */; };
 		BDAF5AA42DE2551A00B8FB13 /* KeySequenceGenerators.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AA02DE2551A00B8FB13 /* KeySequenceGenerators.swift */; };
 		BDAF5ABF2DE2555000B8FB13 /* ReverbConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AB32DE2555000B8FB13 /* ReverbConfig.swift */; };
 		BDAF5AC12DE2555000B8FB13 /* Preset.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AB22DE2555000B8FB13 /* Preset.swift */; };
@@ -231,7 +231,7 @@
 		BDAF5A982DE254F400B8FB13 /* AppFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFeature.swift; sourceTree = "<group>"; };
 		BDAF5A9B2DE2550700B8FB13 /* DelayFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayFeature.swift; sourceTree = "<group>"; };
 		BDAF5A9E2DE2551A00B8FB13 /* EventNoteMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventNoteMap.swift; sourceTree = "<group>"; };
-		BDAF5A9F2DE2551A00B8FB13 /* Keyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keyboard.swift; sourceTree = "<group>"; };
+		BDAF5A9F2DE2551A00B8FB13 /* KeyboardFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardFeature.swift; sourceTree = "<group>"; };
 		BDAF5AA02DE2551A00B8FB13 /* KeySequenceGenerators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeySequenceGenerators.swift; sourceTree = "<group>"; };
 		BDAF5AAC2DE2555000B8FB13 /* AppDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDatabase.swift; sourceTree = "<group>"; };
 		BDAF5AAD2DE2555000B8FB13 /* AudioConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioConfig.swift; sourceTree = "<group>"; };
@@ -561,7 +561,7 @@
 			isa = PBXGroup;
 			children = (
 				BDAF5A9E2DE2551A00B8FB13 /* EventNoteMap.swift */,
-				BDAF5A9F2DE2551A00B8FB13 /* Keyboard.swift */,
+				BDAF5A9F2DE2551A00B8FB13 /* KeyboardFeature.swift */,
 				BDAF5AA02DE2551A00B8FB13 /* KeySequenceGenerators.swift */,
 			);
 			path = KeyboardFeature;
@@ -1139,7 +1139,7 @@
 				BD76C1592E23C57E00F5B1F5 /* VolumeMonitor.swift in Sources */,
 				BDB9FEF92E06875D003BA0A2 /* ReverbRoomPresetPickerView.swift in Sources */,
 				BDAF5AA22DE2551A00B8FB13 /* EventNoteMap.swift in Sources */,
-				BDAF5AA32DE2551A00B8FB13 /* Keyboard.swift in Sources */,
+				BDAF5AA32DE2551A00B8FB13 /* KeyboardFeature.swift in Sources */,
 				BDB9FEF72E067A25003BA0A2 /* AVAudioUnitReverbPreset.swift in Sources */,
 				BDAF5AA42DE2551A00B8FB13 /* KeySequenceGenerators.swift in Sources */,
 				BDB9FEF42E04B795003BA0A2 /* ParameterAddress.swift in Sources */,

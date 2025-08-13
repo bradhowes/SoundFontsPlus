@@ -22,6 +22,7 @@ public struct ReverbFeature {
 
     @ObservationStateIgnored
     public var device: ReverbConfig.Draft = .init()
+    @ObservationStateIgnored
     public var pending: ReverbConfig.Draft = .init()
 
     public var enabled: ToggleFeature.State
@@ -44,19 +45,21 @@ public struct ReverbFeature {
 
   public enum Action {
     case activePresetIdChanged(Preset.ID?)
-    case debouncedSave
-    case debouncedUpdate
+    case applyConfigForPreset(ReverbConfig.Draft)
     case enabled(ToggleFeature.Action)
+    case initialize
     case locked(ToggleFeature.Action)
-    case task
     case roomPresetChanged(AVAudioUnitReverbPreset)
+    case saveDebounced
+    case updateDebounced
     case wetDryMix(KnobFeature.Action)
   }
 
   private enum CancelId {
-    case debouncedSave
-    case debouncedUpdate
+    case applyConfigForPreset
     case monitorActivePresetId
+    case saveDebouncer
+    case updateDebouncer
   }
 
   @Dependency(\.mainQueue) var mainQueue
@@ -72,14 +75,24 @@ public struct ReverbFeature {
 
     Reduce { state, action in
       switch action {
-      case let .activePresetIdChanged(presetId): return activePresetIdChanged(&state, presetId: presetId)
-      case .debouncedSave: return save(&state)
-      case .debouncedUpdate: return update(&state)
-      case .enabled: return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
-      case .locked: return updateLocked(&state)
-      case .task: return monitorActivePresetId()
-      case let .roomPresetChanged(value): return roomPresetChanged(&state, room: value)
-      case .wetDryMix: return updateAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
+      case let .activePresetIdChanged(presetId):
+        return activePresetIdChanged(&state, presetId: presetId)
+      case let .applyConfigForPreset(config):
+        return applyConfigForPreset(&state, config: config)
+      case .enabled:
+        return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
+      case .initialize:
+        return monitorActivePresetId()
+      case .locked:
+        return updateLocked(&state)
+      case let .roomPresetChanged(value):
+        return updateAndSave(&state, path: \.roomPreset, value: value)
+      case .saveDebounced:
+        return saveDebounced(&state)
+      case .updateDebounced:
+        return updateDebounced(&state)
+      case .wetDryMix:
+        return updateAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
       }
     }
   }
@@ -89,45 +102,107 @@ extension ReverbFeature {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
 
-    print("activePresetIdChanged: \(String(describing: presetId))")
-
     guard !state.locked.isOn else {
-      print("locked: \(String(describing: presetId))")
       return .none
     }
 
     guard let presetId else {
-      print("nil presetId")
       state.pending = state.device
       state.pending.presetId = nil
       return .none
     }
 
     guard state.pending.presetId != presetId else {
-      print("same presetId")
       return .none
     }
 
+    let newConfig = ReverbConfig.draft(for: presetId)
+
     if state.isDirty && state.pending.presetId != nil {
-      print("saving \(state.pending)")
-      withDatabaseWriter { db in
-        try ReverbConfig.upsert {
-          state.pending
-        }
-        .execute(db)
-      }
+
+      // Protect the existing dirty config
+      let toSave = state.pending
+
+      return .merge(
+
+        // We always want a save to finish so it is not cancellable
+        .run { _ in
+          withDatabaseWriter { db in
+            try ReverbConfig.upsert {
+              toSave
+            }
+            .execute(db)
+          }
+        },
+
+        // With the dirty config protected we can safely execute the following to install the new config.
+        // Only let one change be active at a time.
+          .run { send in
+            await send(.applyConfigForPreset(newConfig))
+          }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
+      )
     }
 
-    let config = ReverbConfig.draft(for: presetId)
-    print("loaded \(config)")
+    // NOTE: it might be safe to run this immmediately if the old preset was not dirty, but there still could be an
+    // older task that is waiting to execute. Best approach is to allow TCA to cancel any active task even if it might
+    // be slightly slower.
+    return .run { send in
+      await send(.applyConfigForPreset(newConfig))
+    }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
+  }
+
+  private func applyConfigForPreset(_ state: inout State, config: ReverbConfig.Draft) -> Effect<Action> {
     reverbDevice.setConfig(config)
     state.device = config
     state.pending = config
-
     return .merge(
       reduce(into: &state, action: .enabled(.setValue(state.device.enabled))),
       reduce(into: &state, action: .wetDryMix(.setValue(state.device.wetDryMix))),
     )
+  }
+
+  private func monitorActivePresetId() -> Effect<Action> {
+    .publisher {
+      $activeState.activePresetId
+        .publisher
+        .map { .activePresetIdChanged($0) }
+    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
+  }
+
+  private func runDebouncers() -> Effect<Action> {
+    .merge(
+      .run { send in
+        await send(.updateDebounced)
+      }.debounce(id: CancelId.updateDebouncer, for: .milliseconds(100), scheduler: mainQueue),
+      .run { send in
+        await send(.saveDebounced)
+      }.debounce(id: CancelId.saveDebouncer, for: .milliseconds(1000), scheduler: mainQueue)
+    )
+  }
+
+  private func saveDebounced(_ state: inout State) -> Effect<Action> {
+
+    guard state.device.presetId != nil else {
+      return .none
+    }
+
+    let found = withDatabaseWriter { db in
+      try ReverbConfig.upsert {
+        state.device
+      }
+      .returning(\.self)
+      .fetchOneForced(db)
+    }
+
+    guard let unwrapped = found else {
+      return .none
+    }
+
+    let config: ReverbConfig.Draft = .init(unwrapped)
+    state.device = config
+    state.pending = config
+
+    return .none
   }
 
   private func updateAndSave<T: BinaryFloatingPoint>(
@@ -138,21 +213,12 @@ extension ReverbFeature {
 
     state.pending[keyPath: path] = value
     if abs(state.device[keyPath: path] - value) < 1e-6 {
-      print("no change in \(path)")
       return .none
     }
 
-    print("setting presetId due to change in \(path)")
     state.pending.presetId = activeState.activePresetId
 
-    return .merge(
-      .run { send in
-        await send(.debouncedUpdate)
-      }.debounce(id: CancelId.debouncedUpdate, for: .milliseconds(100), scheduler: mainQueue),
-      .run { send in
-        await send(.debouncedSave)
-      }.debounce(id: CancelId.debouncedSave, for: .milliseconds(1000), scheduler: mainQueue)
-    )
+    return runDebouncers()
   }
 
   private func updateAndSave<T: Equatable>(
@@ -166,63 +232,15 @@ extension ReverbFeature {
       return .none
     }
 
-    return .merge(
-      .run { send in
-        await send(.debouncedUpdate)
-      }.debounce(id: CancelId.debouncedUpdate, for: .milliseconds(100), scheduler: mainQueue),
-      .run { send in
-        await send(.debouncedSave)
-      }.debounce(id: CancelId.debouncedSave, for: .milliseconds(1000), scheduler: mainQueue)
-    )
+    state.pending.presetId = activeState.activePresetId
+
+    return runDebouncers()
   }
 
-  private func save(_ state: inout State) -> Effect<Action> {
-
-    guard state.device.presetId != nil else {
-      print("save - skipping nil presetId")
-      return .none
-    }
-
-    print("save")
-
-    let found = withDatabaseWriter { db in
-      try ReverbConfig.upsert {
-        state.device
-      }
-      .returning(\.self)
-      .fetchOneForced(db)
-    }
-
-    guard let unwrapped = found else {
-      print("skipping unwrapped nil")
-      return .none
-    }
-
-    let config: ReverbConfig.Draft = .init(unwrapped)
-    state.device = config
-    state.pending = config
-
-    print("upsert: ", state.device)
-
-    return .none
-  }
-
-  private func update(_ state: inout State) -> Effect<Action> {
+  private func updateDebounced(_ state: inout State) -> Effect<Action> {
     state.device = state.pending
     reverbDevice.setConfig(state.device)
     return .none
-  }
-
-  private func monitorActivePresetId() -> Effect<Action> {
-    .publisher {
-      $activeState.activePresetId
-        .publisher
-        .map { .activePresetIdChanged($0) }
-    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
-  }
-
-  private func roomPresetChanged(_ state: inout State, room: AVAudioUnitReverbPreset) -> Effect<Action> {
-    return updateAndSave(&state, path: \.roomPreset, value: room)
   }
 
   private func updateLocked(_ state: inout State) -> Effect<Action> {
@@ -262,7 +280,7 @@ public struct ReverbView: View {
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
     }
-    .task { await store.send(.task).finish() }
+    .task { await store.send(.initialize).finish() }
   }
 }
 

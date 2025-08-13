@@ -47,15 +47,20 @@ public struct SoundFontButton {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .buttonTapped: return .send(.delegate(.selectSoundFont(state.soundFontInfo)))
+      case .buttonTapped:
+        return .send(.delegate(.selectSoundFont(state.soundFontInfo)))
       case .confirmationDialog(.presented(.deleteButtonTapped)):
         return .send(.delegate(.deleteSoundFont(state.soundFontInfo))).animation(.default)
-      case .confirmationDialog: return .none
-      case .delegate: return .none
-      case .deleteButtonTapped: return deleteButtonTapped(&state)
-      case .editButtonTapped: return .send(.delegate(.editSoundFont(state.soundFontInfo)))
-      case .longPressGestureFired: return .send(.delegate(.editSoundFont(state.soundFontInfo)))
+      case .deleteButtonTapped:
+        return deleteButtonTapped(&state)
+      case .editButtonTapped:
+        return .send(.delegate(.editSoundFont(state.soundFontInfo)))
+      case .longPressGestureFired:
+        return .send(.delegate(.editSoundFont(state.soundFontInfo)))
+      default:
+        break
       }
+      return .none
     }
     .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
   }

@@ -52,21 +52,23 @@ public struct DelayFeature {
 
   public enum Action {
     case activePresetIdChanged(Preset.ID?)
+    case applyConfigForPreset(DelayConfig.Draft)
     case cutoff(KnobFeature.Action)
-    case debouncedSave
-    case debouncedUpdate
     case enabled(ToggleFeature.Action)
     case feedback(KnobFeature.Action)
+    case initialize
     case locked(ToggleFeature.Action)
-    case task
+    case saveDebounced
     case time(KnobFeature.Action)
+    case updateDebounced
     case wetDryMix(KnobFeature.Action)
   }
 
   private enum CancelId {
-    case debouncedSave
-    case debouncedUpdate
+    case applyConfigForPreset
     case monitorActivePresetId
+    case saveDebouncer
+    case updateDebouncer
   }
 
   @Dependency(\.mainQueue) var mainQueue
@@ -85,16 +87,28 @@ public struct DelayFeature {
 
     Reduce { state, action in
       switch action {
-      case let .activePresetIdChanged(presetId): return activePresetIdChanged(&state, presetId: presetId)
-      case .debouncedSave: return save(&state)
-      case .debouncedUpdate: return update(&state)
-      case .enabled: return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
-      case .locked: return updateLocked(&state)
-      case .task: return monitorActivePresetId()
-      case .time: return updateAndSave(&state, path: \.time, value: state.time.value)
-      case .feedback: return updateAndSave(&state, path: \.feedback, value: state.feedback.value)
-      case .cutoff: return updateAndSave(&state, path: \.cutoff, value: state.cutoff.value)
-      case .wetDryMix: return updateAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
+      case let .activePresetIdChanged(presetId):
+        return activePresetIdChanged(&state, presetId: presetId)
+      case let .applyConfigForPreset(config):
+        return applyConfigForPreset(&state, config: config)
+      case .cutoff:
+        return updateAndSave(&state, path: \.cutoff, value: state.cutoff.value)
+      case .enabled:
+        return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
+      case .feedback:
+        return updateAndSave(&state, path: \.feedback, value: state.feedback.value)
+      case .initialize:
+        return monitorActivePresetId()
+      case .locked:
+        return updateLocked(&state)
+      case .saveDebounced:
+        return saveDebounced(&state)
+      case .time:
+        return updateAndSave(&state, path: \.time, value: state.time.value)
+      case .updateDebounced:
+        return updateDebounced(&state)
+      case .wetDryMix:
+        return updateAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
       }
     }
   }
@@ -118,20 +132,45 @@ extension DelayFeature {
       return .none
     }
 
+    let newConfig = DelayConfig.draft(for: presetId)
+
     if state.isDirty && state.pending.presetId != nil {
-      withDatabaseWriter { db in
-        try DelayConfig.upsert {
-          state.pending
-        }
-        .execute(db)
-      }
+
+      // Protect the existing dirty config
+      let toSave = state.pending
+
+      return .merge(
+
+        // We always want a save to finish so it is not cancellable
+        .run { _ in
+          withDatabaseWriter { db in
+            try DelayConfig.upsert {
+              toSave
+            }
+            .execute(db)
+          }
+        },
+
+        // With the dirty config protected we can safely execute the following to install the new config.
+        // Only let one change be active at a time.
+        .run { send in
+          await send(.applyConfigForPreset(newConfig))
+        }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
+      )
     }
 
-    let config = DelayConfig.draft(for: presetId)
+    // NOTE: it might be safe to run this immmediately if the old preset was not dirty, but there still could be an
+    // older task that is waiting to execute. Best approach is to allow TCA to cancel any active task even if it might
+    // be slightly slower.
+    return .run { send in
+      await send(.applyConfigForPreset(newConfig))
+    }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
+  }
+
+  private func applyConfigForPreset(_ state: inout State, config: DelayConfig.Draft) -> Effect<Action> {
     delayDevice.setConfig(config)
     state.device = config
     state.pending = config
-
     return .merge(
       reduce(into: &state, action: .enabled(.setValue(state.device.enabled))),
       reduce(into: &state, action: .time(.setValue(state.device.time))),
@@ -141,53 +180,26 @@ extension DelayFeature {
     )
   }
 
-  private func updateAndSave<T: BinaryFloatingPoint>(
-    _ state: inout State,
-    path: WritableKeyPath<DelayConfig.Draft, T>,
-    value: T
-  ) -> Effect<Action> {
+  private func monitorActivePresetId() -> Effect<Action> {
+    .publisher {
+      $activeState.activePresetId
+        .publisher
+        .map { .activePresetIdChanged($0) }
+    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
+  }
 
-    state.pending[keyPath: path] = value
-    if abs(state.device[keyPath: path] - value) < 1e-6 {
-      return .none
-    }
-
-    state.pending.presetId = activeState.activePresetId
-
-    return .merge(
+  private func runDebouncers() -> Effect<Action> {
+    .merge(
       .run { send in
-        await send(.debouncedUpdate)
-      }.debounce(id: CancelId.debouncedUpdate, for: .milliseconds(100), scheduler: mainQueue),
+        await send(.updateDebounced)
+      }.debounce(id: CancelId.updateDebouncer, for: .milliseconds(100), scheduler: mainQueue),
       .run { send in
-        await send(.debouncedSave)
-      }.debounce(id: CancelId.debouncedSave, for: .milliseconds(1000), scheduler: mainQueue)
+        await send(.saveDebounced)
+      }.debounce(id: CancelId.saveDebouncer, for: .milliseconds(1000), scheduler: mainQueue)
     )
   }
 
-  private func updateAndSave<T: Equatable>(
-    _ state: inout State,
-    path: WritableKeyPath<DelayConfig.Draft, T>,
-    value: T
-  ) -> Effect<Action> {
-
-    state.pending[keyPath: path] = value
-    if state.device[keyPath: path] == value {
-      return .none
-    }
-
-    state.pending.presetId = activeState.activePresetId
-
-    return .merge(
-      .run { send in
-        await send(.debouncedUpdate)
-      }.debounce(id: CancelId.debouncedUpdate, for: .milliseconds(100), scheduler: mainQueue),
-      .run { send in
-        await send(.debouncedSave)
-      }.debounce(id: CancelId.debouncedSave, for: .milliseconds(1000), scheduler: mainQueue)
-    )
-  }
-
-  private func save(_ state: inout State) -> Effect<Action> {
+  private func saveDebounced(_ state: inout State) -> Effect<Action> {
 
     guard state.device.presetId != nil else {
       return .none
@@ -212,18 +224,42 @@ extension DelayFeature {
     return .none
   }
 
-  private func update(_ state: inout State) -> Effect<Action> {
+  private func updateAndSave<T: BinaryFloatingPoint>(
+    _ state: inout State,
+    path: WritableKeyPath<DelayConfig.Draft, T>,
+    value: T
+  ) -> Effect<Action> {
+
+    state.pending[keyPath: path] = value
+    if abs(state.device[keyPath: path] - value) < 1e-6 {
+      return .none
+    }
+
+    state.pending.presetId = activeState.activePresetId
+
+    return runDebouncers()
+  }
+
+  private func updateAndSave<T: Equatable>(
+    _ state: inout State,
+    path: WritableKeyPath<DelayConfig.Draft, T>,
+    value: T
+  ) -> Effect<Action> {
+
+    state.pending[keyPath: path] = value
+    if state.device[keyPath: path] == value {
+      return .none
+    }
+
+    state.pending.presetId = activeState.activePresetId
+
+    return runDebouncers()
+  }
+
+  private func updateDebounced(_ state: inout State) -> Effect<Action> {
     state.device = state.pending
     delayDevice.setConfig(state.device)
     return .none
-  }
-
-  private func monitorActivePresetId() -> Effect<Action> {
-    .publisher {
-      $activeState.activePresetId
-        .publisher
-        .map { .activePresetIdChanged($0) }
-    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
   private func updateLocked(_ state: inout State) -> Effect<Action> {
@@ -256,7 +292,7 @@ public struct DelayView: View {
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
     }.task {
-      await store.send(.task).finish()
+      await store.send(.initialize).finish()
     }
   }
 }

@@ -65,7 +65,7 @@ public struct ToolBarFeature {
 
     public enum Delegate: Equatable {
       case addSoundFontButtonTapped
-      case editingPresetVisibility(Bool)
+      case editingPresetVisibilityChanged(Bool)
       case effectsVisibilityChanged(Bool)
       case presetNameTapped
       case tagsVisibilityChanged(Bool)
@@ -83,11 +83,12 @@ public struct ToolBarFeature {
 
     Reduce<State, Action> { state, action in
       switch action {
-      case .activePresetIdChanged(let presetId): return activePresetIdChanged(&state, presetId: presetId)
-      case .addSoundFontButtonTapped: return .send(.delegate(.addSoundFontButtonTapped))
-      case .delegate: return .none
-      case .destination(.dismiss): return .send(.delegate(.settingsDismissed))
-      case .destination: return .none
+      case .activePresetIdChanged(let presetId):
+        return activePresetIdChanged(&state, presetId: presetId)
+      case .addSoundFontButtonTapped:
+        return .send(.delegate(.addSoundFontButtonTapped))
+      case .destination(.dismiss):
+        return .send(.delegate(.settingsDismissed))
       case .effectsVisibilityButtonTapped: return toggleEffectsVisibility(&state)
       case .helpButtonTapped: return showHelp(&state)
       case .initialize: return initialize(&state)
@@ -99,7 +100,7 @@ public struct ToolBarFeature {
       case .showMoreButtonTapped: return toggleShowMoreButtons(&state)
       case .slidingKeyboardButtonTapped: return slidingKeyboardButtonTapped(&state)
       case .tagVisibilityButtonTapped: return toggleTagsVisibility(&state)
-      case .trafficIndicator: return .none
+      default: return .none
       }
     }.ifLet(\.$destination, action: \.destination)
   }
@@ -134,7 +135,7 @@ private extension ToolBarFeature {
 
   func editPresetVisibility(_ state: inout State) -> Effect<Action> {
     state.editingPresetVisibility.toggle()
-    return .send(.delegate(.editingPresetVisibility(state.editingPresetVisibility)))
+    return .send(.delegate(.editingPresetVisibilityChanged(state.editingPresetVisibility)))
   }
 
   func hideMoreButtons(_ state: inout State) -> Effect<Action> {
@@ -213,7 +214,7 @@ private extension ToolBarFeature {
     state.showMoreButtons.toggle()
     if !state.showMoreButtons && state.editingPresetVisibility {
       state.editingPresetVisibility = false
-      return .send(.delegate(.editingPresetVisibility(false)))
+      return .send(.delegate(.editingPresetVisibilityChanged(false)))
     }
     return .none
   }
