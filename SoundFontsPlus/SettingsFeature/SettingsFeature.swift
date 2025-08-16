@@ -35,7 +35,7 @@ public struct SettingsFeature {
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
 
-    var trafficIndicator: MIDITrafficIndicatorFeature.State
+    var midiTrafficIndicator: MIDITrafficIndicatorFeature.State = .init(tag: "Settings")
     var tuning: TuningFeature.State
 
     let hasMIDI: Bool
@@ -46,7 +46,6 @@ public struct SettingsFeature {
       @Shared(.globalTuningEnabled) var tuningEnabled
       @Shared(.globalTuning) var frequency
       self.tuning = .init(frequency: frequency, enabled: tuningEnabled)
-      self.trafficIndicator = .init(tag: "Settings")
     }
   }
 
@@ -61,7 +60,7 @@ public struct SettingsFeature {
     case path(StackActionOf<Path>)
     case tuning(TuningFeature.Action)
     case midiConnectionCountChanged(Int)
-    case trafficIndicator(MIDITrafficIndicatorFeature.Action)
+    case midiTrafficIndicator(MIDITrafficIndicatorFeature.Action)
   }
 
   public init() {}
@@ -70,7 +69,7 @@ public struct SettingsFeature {
     BindingReducer()
 
     Scope(state: \.tuning, action: \.tuning) { TuningFeature() }
-    Scope(state: \.trafficIndicator, action: \.trafficIndicator) { MIDITrafficIndicatorFeature() }
+    Scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator) { MIDITrafficIndicatorFeature() }
 
     Reduce { state, action in
       switch action {
@@ -121,7 +120,7 @@ extension SettingsFeature {
 
   private func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
-      reduce(into: &state, action: .trafficIndicator(.initialize)),
+      reduce(into: &state, action: .midiTrafficIndicator(.initialize)),
       monitorMIDIConnections(&state)
     )
   }
@@ -264,7 +263,11 @@ public struct SettingsView: View {
       }
       HStack {
         Spacer()
-        MIDITrafficIndicator(tag: "Settings")
+        MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
+//        NavigationLink(
+//          "^[\(store.midiConnectCount) connection](inflect: true)",
+//          state: SettingsFeature.Path.State.midiConnections(MIDIConnectionsFeature.State())
+//        )
         Button {
           store.send(.midiConnectionsButtonTapped)
         } label: {

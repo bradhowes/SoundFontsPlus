@@ -30,13 +30,13 @@ public struct ToolBarFeature {
     var showMoreButtons: Bool = false
     var preset: Preset?
 
-    var trafficIndicator: MIDITrafficIndicatorFeature.State
+    var midiTrafficIndicator: MIDITrafficIndicatorFeature.State
 
     public init() {
       @Shared(.firstVisibleKey) var firstVisibleKey: Note
       self.lowestKey = firstVisibleKey
       self.highestKey = .C4
-      self.trafficIndicator = .init(tag: "ToolBar")
+      self.midiTrafficIndicator = .init(tag: "ToolBar")
     }
   }
 
@@ -48,6 +48,7 @@ public struct ToolBarFeature {
     case effectsVisibilityButtonTapped
     case helpButtonTapped
     case initialize
+    case midiTrafficIndicator(MIDITrafficIndicatorFeature.Action)
     case presetsVisibilityButtonTapped
     case settingsButtonTapped
     case setVisibleKeyRange(lowest: Note, highest: Note)
@@ -56,7 +57,6 @@ public struct ToolBarFeature {
     case showMoreButtonTapped
     case slidingKeyboardButtonTapped
     case tagVisibilityButtonTapped
-    case trafficIndicator(MIDITrafficIndicatorFeature.Action)
 
     public enum Delegate: Equatable {
       case addSoundFontButtonTapped
@@ -74,7 +74,7 @@ public struct ToolBarFeature {
 
   public var body: some ReducerOf<Self> {
 
-    Scope(state: \.trafficIndicator, action: \.trafficIndicator) { MIDITrafficIndicatorFeature() }
+    Scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator) { MIDITrafficIndicatorFeature() }
 
     Reduce<State, Action> { state, action in
       switch action {
@@ -140,7 +140,7 @@ private extension ToolBarFeature {
 
   func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
-      reduce(into: &state, action: .trafficIndicator(.initialize)),
+      reduce(into: &state, action: .midiTrafficIndicator(.initialize)),
       monitorActivePresetId(&state)
     )
   }
@@ -265,7 +265,7 @@ public struct ToolBarFeatureView: View {
 
   private var presetTitle: some View {
     ZStack(alignment: .leading) {
-      MIDITrafficIndicator(tag: "ToolBar")
+      MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
       HStack {
         Spacer()
         PresetNameView(preset: store.preset)
