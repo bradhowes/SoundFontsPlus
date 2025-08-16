@@ -5,7 +5,7 @@ import SwiftUI
 import Tagged
 
 @Reducer
-public struct TagsEditor: Sendable {
+public struct TagsEditor {
 
   public enum Mode: Sendable, Equatable {
     case tagEditing
@@ -37,13 +37,16 @@ public struct TagsEditor: Sendable {
       editMode: EditMode = .inactive,
     ) {
       self.mode = mode
-      self.rows = .init(uniqueElements: Operations.tags.map {
-        .init(
-          id: $0.id,
-          draft: .init($0),
-          membership: memberships != nil ? (memberships?[$0.id] ?? false) : nil
-        )
-      })
+      self.rows = .init(
+        uniqueElements: Operations.tags
+          .map {
+            .init(
+              id: $0.id,
+              draft: .init($0),
+              membership: memberships != nil ? (memberships?[$0.id] ?? false) : nil
+            )
+          }
+      )
       self.focused = focused
       self.editMode = editMode
       self.soundFontId = soundFontId

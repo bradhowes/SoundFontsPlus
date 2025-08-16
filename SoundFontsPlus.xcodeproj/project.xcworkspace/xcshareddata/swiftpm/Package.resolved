@@ -1,5 +1,5 @@
 {
-  "originHash" : "58edff5ec9f1fc8d08589d3fb32029ff7870aa8d6efa1960a800942552c6c5bc",
+  "originHash" : "ec7d8d16395453ebdbb1dce55dd170bdc5e1dbc81ad3c0849997b9160f39f49e",
   "pins" : [
     {
       "identity" : "auv3-support",
@@ -96,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sharing-grdb",
       "state" : {
-        "revision" : "9ccd88799dcf20c2f2ba8cd2771de5031bebab05",
-        "version" : "0.5.0"
+        "revision" : "f7f388be7a4b1f277b308c1090f90233e632e88e",
+        "version" : "0.5.1"
       }
     },
     {
@@ -213,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-perception",
       "state" : {
-        "revision" : "328a0b49e2690135c4c2660661f0ed83f16853e3",
-        "version" : "2.0.4"
+        "revision" : "7d3509c7f4de78ad3eb3d804e036fb62e3585141",
+        "version" : "2.0.5"
       }
     },
     {
@@ -222,8 +222,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-sharing",
       "state" : {
-        "revision" : "5d87dda90ed048f216826efbad404110141161bb",
-        "version" : "2.6.0"
+        "revision" : "bddb52233714512f63e0dfa8cd0ee8203103f3b1",
+        "version" : "2.7.1"
       }
     },
     {
@@ -240,8 +240,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "bb12b34a8bf88af3307784da94caee3765a066f2",
-        "version" : "0.11.0"
+        "revision" : "2468f4e34d909d11c053d773562c03ffea40a72e",
+        "version" : "0.12.1"
       }
     },
     {

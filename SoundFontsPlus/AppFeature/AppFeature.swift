@@ -5,7 +5,6 @@ import AVFoundation
 import AUv3Controls
 import BRHSplitView
 import ComposableArchitecture
-@preconcurrency import MorkAndMIDI
 import SF2LibAU
 import SharingGRDB
 import Sharing
@@ -14,12 +13,8 @@ import UniformTypeIdentifiers
 
 @Reducer
 struct AppFeature {
-  @Dependency(\.parameters) private var parameters
-  private let volumeMonitor: VolumeMonitor = .init()
 
-  var state: State { .init(parameters: parameters) }
-
-  @Reducer
+  @Reducer(state: .equatable)
   enum Destination {
     case presetEditor(PresetEditor)
     case settings(SettingsFeature)
@@ -28,56 +23,56 @@ struct AppFeature {
   }
 
   @ObservableState
-  struct State {
+  struct State: Equatable {
+
+//    static func == (lhs: AppFeature.State, rhs: AppFeature.State) -> Bool {
+//      lhs.destination == rhs.destination
+//      && lhs.soundFontInfos == rhs.soundFontInfos
+//      && lhs.soundFontsList == rhs.soundFontsList
+//      && lhs.presetsList == rhs.presetsList
+//      && lhs.tagsList == rhs.tagsList
+//      && lhs.toolBar == rhs.toolBar
+//      && lhs.tagsSplit == rhs.tagsSplit
+//      && lhs.presetsSplit == rhs.presetsSplit
+//      && lhs.keyboard == rhs.keyboard
+//      && lhs.synth == rhs.synth
+//      && lhs.fileImporter == rhs.fileImporter
+//      && lhs.delay == rhs.delay
+//      && lhs.reverb == rhs.reverb
+//    }
+//
     @Presents var destination: Destination.State?
 
     @ObservationStateIgnored
     @FetchAll var soundFontInfos: [SoundFontInfo]
-    let midi: MIDI?
-    let midiMonitor: MIDIMonitor?
 
     var soundFontsList: SoundFontsList.State = .init()
     var presetsList: PresetsList.State = .init()
     var tagsList: TagsList.State = .init()
-    var toolBar: ToolBarFeature.State
+    var toolBar: ToolBarFeature.State = .init()
     var tagsSplit: SplitViewReducer.State
     var presetsSplit: SplitViewReducer.State
-    var delay: DelayFeature.State
-    var reverb: ReverbFeature.State
     var keyboard: KeyboardFeature.State = .init()
     var synth: SynthFeature.State = .init()
-    var showFileImporter: Bool = false
-    var addedSummary: String?
+    var fileImporter: FileImporterFeature.State = .init()
+    var delay: DelayFeature.State = .init()
+    var reverb: ReverbFeature.State = .init()
 
-    init(parameters: AUParameterTree) {
-      @Shared(.midiInputPortId) var midiInputPortId
-
-      let midi = MIDI(clientName: "SoundFonts+", uniqueId: Int32(midiInputPortId), midiProto: .legacy)
-      self.midi = midi
-      midi.start()
-
-      let midiMonitor = MIDIMonitor()
-      self.midiMonitor = midiMonitor
-      midi.receiver = midiMonitor
+    init() {
+      @Shared(.midi) var midi
+      midi?.start()
+      @Shared(.midiMonitor) var midiMonitor
+      midi?.receiver = midiMonitor
 
       _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
 
-      @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsPosition
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsPosition
       @Shared(.tagsListVisible) var tagsListVisible
-      @Shared(.effectsVisible) var effectsVisible
-
       self.tagsSplit = .init(panesVisible: tagsListVisible ? .both : .primary, initialPosition: fontsAndTagsPosition)
+
+      @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsPosition
       self.presetsSplit = .init(panesVisible: .both, initialPosition: fontsAndPresetsPosition)
 
-      self.toolBar = ToolBarFeature.State(
-        tagsListVisible: tagsListVisible,
-        effectsVisible: effectsVisible,
-        midiMonitor: midiMonitor
-      )
-
-      self.delay = DelayFeature.State(parameters: parameters)
-      self.reverb = ReverbFeature.State(parameters: parameters)
       // destination = .settings(SettingsFeature.State(midi: midi, midiMonitor: midiMonitor))
     }
   }
@@ -86,7 +81,7 @@ struct AppFeature {
     case binding(BindingAction<State>)
     case delay(DelayFeature.Action)
     case destination(PresentationAction<Destination.Action>)
-    case finishedImportingFile(Result<URL, Error>)
+    case fileImporter(FileImporterFeature.Action)
     case initialize
     case keyboard(KeyboardFeature.Action)
     case presetsList(PresetsList.Action)
@@ -103,11 +98,12 @@ struct AppFeature {
   var body: some ReducerOf<Self> {
     BindingReducer()
 
-    Scope(state: \.delay, action: \.delay) { DelayFeature(parameters: parameters) }
+    Scope(state: \.delay, action: \.delay) { DelayFeature() }
+    Scope(state: \.fileImporter, action: \.fileImporter) { FileImporterFeature() }
     Scope(state: \.keyboard, action: \.keyboard) { KeyboardFeature() }
     Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
     Scope(state: \.presetsSplit, action: \.presetsSplit) { SplitViewReducer() }
-    Scope(state: \.reverb, action: \.reverb) { ReverbFeature(parameters: parameters) }
+    Scope(state: \.reverb, action: \.reverb) { ReverbFeature() }
     Scope(state: \.soundFontsList, action: \.soundFontsList) { SoundFontsList() }
     Scope(state: \.synth, action: \.synth) { SynthFeature() }
     Scope(state: \.tagsList, action: \.tagsList) { TagsList() }
@@ -118,8 +114,6 @@ struct AppFeature {
       switch action {
       case .destination(.dismiss):
         return destinationDismissed(&state)
-      case let .finishedImportingFile(result):
-        return finishedImportingFile(&state, result: result)
       case .initialize:
         return reduce(into: &state, action: .synth(.initialize))
       case let .keyboard(.delegate(action)):
@@ -132,22 +126,19 @@ struct AppFeature {
         return scenePhaseChanged(&state, phase: phase)
       case let .soundFontsList(.delegate(.edit(soundFont))):
         state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
-      case let .synth(.delegate(.createdSynth(audioUnit, instrument))):
-        return installSynth(&state, audioUnit: audioUnit, instrument: instrument)
+      case .synth(.delegate(.createdSynth)):
+        return installSynth(&state)
       case let .tagsList(.delegate(.edit(focused))):
         state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
       case let .tagsSplit(.delegate(action)):
         return monitorTagsSplitAction(&state, action: action)
       case let .toolBar(.delegate(action)):
         return monitorToolBarAction(&state, action: action)
-      default: return .none
+      default:
+        return .none
       }
       return .none
     }.ifLet(\.$destination, action: \.destination)
-  }
-
-  init() {
-    volumeMonitor.start()
   }
 
   @Shared(.firstVisibleKey) var firstVisibleKey
@@ -174,29 +165,7 @@ private extension AppFeature {
     return .none
   }
 
-  func finishedImportingFile(_ state: inout State, result: Result<URL, Error>) -> Effect<Action> {
-    switch result {
-    case .success(let url):
-      do {
-        let displayName = try SoundFontsSupport.addSoundFont(url: url, copyFileWhenAdding: true)
-        state.addedSummary = "Added sound font \(displayName)."
-      } catch {
-        state.addedSummary = "Failed to add sound font: \(error)"
-      }
-    case .failure(let error):
-      state.addedSummary = "Failed to add sound font: \(error)"
-    }
-
-    return .none
-  }
-
-  func installSynth(
-    _ state: inout State,
-    audioUnit: SF2LibAU,
-    instrument: AVAudioUnitMIDIInstrument
-  ) -> Effect<Action> {
-    state.keyboard.synth = instrument
-    state.midiMonitor?.synth = instrument
+  func installSynth(_ state: inout State) -> Effect<Action> {
     return .none
   }
 
@@ -232,8 +201,7 @@ private extension AppFeature {
   func monitorToolBarAction(_ state: inout State, action: ToolBarFeature.Action.Delegate) -> Effect<Action> {
     switch action {
     case .addSoundFontButtonTapped:
-      state.showFileImporter = true
-      return .none
+      return reduce(into: &state, action: .fileImporter(.showFileImporter))
 
     case let .editingPresetVisibilityChanged(active):
       return reduce(into: &state, action: .presetsList(.visibilityEditModeChanged(active)))
@@ -250,7 +218,7 @@ private extension AppFeature {
       )
 
     case .settingsButtonTapped:
-      state.destination = .settings(SettingsFeature.State(midi: state.midi, midiMonitor: state.midiMonitor))
+      state.destination = .settings(SettingsFeature.State())
       return .none
 
     case .settingsDismissed:
@@ -282,7 +250,7 @@ private extension AppFeature {
   }
 }
 
-struct RootAppView: View, KeyboardReadable {
+struct AppFeatureView: View, KeyboardReadable {
   @Environment(\.scenePhase) var scenePhase
   @Bindable private var store: StoreOf<AppFeature>
   private let theme: Theme
@@ -322,7 +290,6 @@ struct RootAppView: View, KeyboardReadable {
   }
 
   var body: some View {
-    let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
 
     // let _ = Self._printChanges()
     VStack(spacing: 0) {
@@ -352,20 +319,6 @@ struct RootAppView: View, KeyboardReadable {
       isInputKeyboardVisible = $0
     }
     .destinations(store: $store, horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
-    .fileImporter(
-      isPresented: $store.showFileImporter,
-      allowedContentTypes: types
-    ) { result in
-      store.send(.finishedImportingFile(result))
-    }
-    .alert("Add Complete", isPresented: Binding<Bool>(
-      get: { store.addedSummary != nil },
-      set: { _ in store.addedSummary = nil }
-    )) {
-      Button("OK") {}
-    } message: {
-      Text(store.addedSummary ?? "")
-    }
   }
 
   private var listViews: some View {
@@ -484,7 +437,7 @@ extension View {
   }
 }
 
-extension RootAppView {
+extension AppFeatureView {
 
   static var preview: some View {
     prepareDependencies {
@@ -496,11 +449,10 @@ extension RootAppView {
       navigationBarTitleStyle()
     }
 
-    let rootApp = AppFeature()
     return ZStack {
       Color.black
         .ignoresSafeArea(edges: .all)
-      RootAppView(store: Store(initialState: rootApp.state) { rootApp })
+      AppFeatureView(store: Store(initialState: .init()) { AppFeature() })
         .preferredColorScheme(.dark)
         .environment(\.colorScheme, .dark)
     }
@@ -508,5 +460,5 @@ extension RootAppView {
 }
 
 #Preview {
-  RootAppView.preview
+  AppFeatureView.preview
 }

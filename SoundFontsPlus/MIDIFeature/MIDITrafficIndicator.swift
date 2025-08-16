@@ -8,14 +8,11 @@ import SwiftUI
 public struct MIDITrafficIndicatorFeature {
 
   @ObservableState
-  public struct State {
+  public struct State: Equatable {
     let tag: String
-    let midiMonitor: MIDIMonitor?
-    var trafficPublisher: PassthroughSubject<MIDITraffic, Never> = .init()
 
-    public init(tag: String, midiMonitor: MIDIMonitor?) {
+    public init(tag: String) {
       self.tag = tag
-      self.midiMonitor = midiMonitor
     }
   }
 
@@ -33,6 +30,8 @@ public struct MIDITrafficIndicatorFeature {
     }
   }
 
+  static let midiTrafficPublisher: PassthroughSubject<MIDITraffic, Never> = .init()
+
   private enum CancelId {
     case monitorMIDITraffic
   }
@@ -44,7 +43,8 @@ private extension MIDITrafficIndicatorFeature {
   }
 
   func monitorMIDITraffic(_ state: inout State) -> Effect<Action> {
-    guard let midiMonitor = state.midiMonitor else { return .none }
+    @Shared(.midiMonitor) var midiMonitor
+    guard let midiMonitor else { return .none }
     return .run { send in
       for await traffic in midiMonitor.$traffic
         .compactMap({$0})
@@ -56,18 +56,18 @@ private extension MIDITrafficIndicatorFeature {
   }
 
   func showMIDITraffic(_ state: inout State, value: MIDITraffic) -> Effect<Action> {
-    state.trafficPublisher.send(value)
+    Self.midiTrafficPublisher.send(value)
     return .none
   }
 }
 
-public struct MIDITrafficIndicator<T: Publisher>: View where T.Output == MIDITraffic, T.Failure == Never {
+public struct MIDITrafficIndicator: View {
   private let tag: String
-  private var trafficPublisher: T
+  private var trafficPublisher: PassthroughSubject<MIDITraffic, Never>
 
-  public init(tag: String, trafficPublisher: T) {
+  public init(tag: String) {
     self.tag = tag
-    self.trafficPublisher = trafficPublisher
+    self.trafficPublisher = MIDITrafficIndicatorFeature.midiTrafficPublisher
   }
 
   public var body: some View {

@@ -9,7 +9,7 @@ import SharingGRDB
 
 private let log = Logger(category: "MIDIMonitor")
 
-public struct MIDITraffic {
+public struct MIDITraffic: Equatable {
   public let id: MIDIUniqueID
   public let channel: UInt8
   public let accepted: Bool
@@ -17,7 +17,8 @@ public struct MIDITraffic {
 
 public final class MIDIMonitor {
   @Shared(.midiChannel) var midiChannel
-  var synth: AVAudioUnitMIDIInstrument?
+  @Shared(.avAudioUnit) var avAudioUnit
+  var synth: AVAudioUnitMIDIInstrument? { avAudioUnit?.midiInstrument }
 
   // We want all traffic to appear in the `traffic` tap, regardless of channel.
   public var channel: Int { -1 }

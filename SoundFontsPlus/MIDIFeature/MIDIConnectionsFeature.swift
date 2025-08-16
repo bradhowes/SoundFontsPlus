@@ -7,7 +7,7 @@ import CoreMIDI
 import SharingGRDB
 import SwiftUI
 
-public struct MIDIConnectionRow: Identifiable {
+public struct MIDIConnectionRow: Equatable, Identifiable {
   public let id: MIDIUniqueID
   public let displayName: String
   public var channel: UInt8
@@ -88,19 +88,17 @@ public struct MIDIConnectionRowView: View {
 public struct MIDIConnectionsFeature {
 
   @ObservableState
-  public struct State {
-    fileprivate var rows: IdentifiedArrayOf<MIDIConnectionRow>
-    fileprivate var trafficIndicator: MIDITrafficIndicatorFeature.State
+  public struct State: Equatable {
+    var rows: IdentifiedArrayOf<MIDIConnectionRow>
+    var trafficIndicator: MIDITrafficIndicatorFeature.State = .init(tag: "MIDI Connections")
     @ObservationStateIgnored
-    fileprivate let midi: MIDI
-    @ObservationStateIgnored
-    fileprivate var midiChannelsCache: [MIDIUniqueID: UInt8] = [:]
+    var midiChannelsCache: [MIDIUniqueID: UInt8] = [:]
 
-    public init(midi: MIDI, midiMonitor: MIDIMonitor) {
-      self.midi = midi
-      self.trafficIndicator = .init(tag: "MIDI Connections", midiMonitor: midiMonitor)
+    public init() {
+      @Shared(.midi) var midi
+      let connections = midi?.sourceConnections ?? []
       self.rows = .init(
-        uniqueElements: midi.sourceConnections.map {
+        uniqueElements: connections.map {
           .init(id: $0.uniqueId, displayName: $0.displayName, channel: 255)
         }
       )
@@ -139,6 +137,8 @@ public struct MIDIConnectionsFeature {
     }
   }
 
+  @Shared(.midi) var midi
+
   private enum CancelId {
     case monitorMIDIConnections
   }
@@ -176,7 +176,8 @@ extension MIDIConnectionsFeature {
   }
 
   private func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
-    return .run { [midi = state.midi] send in
+    guard let midi else { return .none }
+    return .run { send in
       for await _ in midi.publisher(for: \.activeConnections)
         .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
         .map({ $0.count })
@@ -187,8 +188,9 @@ extension MIDIConnectionsFeature {
   }
 
   private func updateMidiConnections(_ state: inout State) -> Effect<Action> {
+    guard let midi else { return .none }
     state.rows = .init(
-      uniqueElements: state.midi.sourceConnections.map {
+      uniqueElements: midi.sourceConnections.map {
         .init(
           id: $0.uniqueId,
           displayName: $0.displayName,
@@ -277,7 +279,7 @@ public struct MIDIConnectionsView: View {
     .task {
       await store.send(.initialize).finish()
     }
-    .onReceive(store.trafficIndicator.trafficPublisher) { traffic in
+    .onReceive(MIDITrafficIndicatorFeature.midiTrafficPublisher) { traffic in
       store.send(.sawMIDITraffic(traffic))
       withAnimation(.smooth(duration: 0.5)) {
         animating = traffic.id

@@ -6,6 +6,8 @@ import Dependencies
 import SF2LibAU
 import SwiftUI
 
+private let log = Logger(category: "Keyboard")
+
 @Reducer
 public struct KeyboardFeature {
   public typealias Event = SpatialEventGesture.Value.Element
@@ -17,8 +19,9 @@ public struct KeyboardFeature {
     @Shared(.keyWidth) var keyWidth
     @Shared(.keyboardSlides) var keyboardSlides
     @Shared(.keyLabels) var keyLabels
+    @Shared(.avAudioUnit) var avAudioUnit
+    var synth: AVAudioUnitMIDIInstrument? { avAudioUnit?.midiInstrument }
 
-    var synth: AVAudioUnitMIDIInstrument?
     var scrollTo: Note?
     let settingsDemo: Bool
 
@@ -33,11 +36,10 @@ public struct KeyboardFeature {
     case activePresetIdChanged(Preset.ID?)
     case allOff
     case keyAssigned(previous: Note?, note: Note)
-    case clearScrollTo
     case delegate(Delegate)
     case initialize
     case keyReleased(note: Note)
-    case scrollTo(Note)
+    case scrollTo(Note?)
     case updateVisibleKeys(lowest: Note, highest: Note)
 
     public enum Delegate: Equatable {
@@ -50,26 +52,33 @@ public struct KeyboardFeature {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
+
       case let .activePresetIdChanged(presetId):
         return activePresetIdChanged(&state, presetId: presetId)
+
       case .allOff:
         state.active = .init(repeating: false, count: state.active.count)
+        return .none
+
       case let .keyAssigned(previous, key):
         return keyAssigned(&state, previous: previous, key: key)
+
       case let .keyReleased(note):
         return noteOff(&state, key: note)
-      case .clearScrollTo:
-        state.scrollTo = nil
+
       case .initialize:
         return initialize(&state)
+
       case let .scrollTo(key):
         state.scrollTo = key
+        return .none
+
       case let .updateVisibleKeys(lowest, highest):
         return updateVisibleKeys(&state, lowest: lowest, highest: highest)
+
       default:
         return .none
       }
-      return .none
     }
   }
 
@@ -88,6 +97,7 @@ extension KeyboardFeature {
     guard let audioConfig = AudioConfig.with(key: presetId) else { return .none }
     guard audioConfig.keyboardLowestNoteEnabled else { return .none }
     state.active = .init(repeating: false, count: state.active.count)
+    log.info("activePresetidChanged - scrollTo \(audioConfig.keyboardLowestNote)")
     return .run { send in
       await send(.scrollTo(audioConfig.keyboardLowestNote))
     }.cancellable(id: CancelId.scrollTo)
@@ -110,12 +120,14 @@ extension KeyboardFeature {
   }
 
   private func noteOff(_ state: inout State, key: Note) -> Effect<Action> {
+    log.info("noteOff - \(key) \(state.synth != nil)")
     state.active[key.midiNoteValue] = false
     state.synth?.stopNote(UInt8(key.midiNoteValue), onChannel: 0)
     return .none
   }
 
   private func noteOn(_ state: inout State, key: Note) -> Effect<Action> {
+    log.info("noteOn - \(key) \(state.synth != nil)")
     state.active[key.midiNoteValue] = true
     state.synth?.startNote(UInt8(key.midiNoteValue), withVelocity: 127, onChannel: 0)
     return .none
@@ -160,7 +172,7 @@ public struct KeyboardView: View {
         if let key = new, old != key {
           if store.settingsDemo {
             proxy.scrollTo(Note.lowest, anchor: .leading)
-            store.send(.clearScrollTo)
+            store.send(.scrollTo(nil))
           } else {
             withAnimation {
               proxy.scrollTo(key, anchor: .leading)
@@ -174,7 +186,7 @@ public struct KeyboardView: View {
       } action: { _, newValue in
         if store.scrollTo != nil {
           proxy.scrollTo(store.scrollTo, anchor: .leading)
-          store.send(.clearScrollTo)
+          store.send(.scrollTo(nil))
         } else {
           updateVisibleKeys(visibleRect: newValue)
         }

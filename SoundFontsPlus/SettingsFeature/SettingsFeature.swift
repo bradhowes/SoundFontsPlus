@@ -2,14 +2,13 @@
 
 import Combine
 import ComposableArchitecture
-@preconcurrency import MorkAndMIDI
 import Sharing
 import SwiftUI
 
 @Reducer
 public struct SettingsFeature {
 
-  @Reducer
+  @Reducer(state: .equatable)
   public enum Path {
     case midiAssignments(MIDIAssignmentsFeature)
     case midiConnections(MIDIConnectionsFeature)
@@ -17,9 +16,8 @@ public struct SettingsFeature {
   }
 
   @ObservableState
-  public struct State {
+  public struct State: Equatable {
     var path = StackState<Path.State>()
-    let midi: MIDI?
     var midiConnectCount: Int = 0
 
     @Shared(.keyWidth) var keyWidth
@@ -35,17 +33,18 @@ public struct SettingsFeature {
     @Shared(.starFavoriteNames) var starFavoriteNames
     @Shared(.favoriteSymbolName) var favoriteSymbolName
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
+    @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
 
     var trafficIndicator: MIDITrafficIndicatorFeature.State
     var tuning: TuningFeature.State
 
-    public init(midi: MIDI? = nil, midiMonitor: MIDIMonitor? = nil) {
-      self.midi = midi
+    public init() {
+      @Shared(.midi) var midi
       self.midiConnectCount = midi?.sourceConnections.count ?? 0
       @Shared(.globalTuningEnabled) var tuningEnabled
       @Shared(.globalTuning) var frequency
       self.tuning = .init(frequency: frequency, enabled: tuningEnabled)
-      self.trafficIndicator = .init(tag: "Settings", midiMonitor: midiMonitor)
+      self.trafficIndicator = .init(tag: "Settings")
     }
   }
 
@@ -75,21 +74,23 @@ public struct SettingsFeature {
       switch action {
       case .binding(\.keyWidth):
         return updateKeyWidth(&state)
-      case .dismissButtonTapped:
-        return dismissButtonTapped(&state)
-      case .initialize:
-        return initialize(&state)
-      case .midiAssignmentsButtonTapped:
-        guard state.midi != nil else { return .none }
-        state.path.append(.midiAssignments(MIDIAssignmentsFeature.State()))
-      case .midiConnectionsButtonTapped:
-        guard let midi = state.midi, let midiMonitor = state.trafficIndicator.midiMonitor else { return .none }
-        state.path.append(.midiConnections(MIDIConnectionsFeature.State(midi: midi, midiMonitor: midiMonitor)))
-      case .midiConnectionCountChanged(let count):
-        state.midiConnectCount = count
-      case .midiControllersButtonTapped:
-        guard state.midi != nil else { return .none }
-        state.path.append(.midiControllers(MIDIControllersFeature.State()))
+//      case .dismissButtonTapped:
+//        return dismissButtonTapped(&state)
+//      case .initialize:
+//        return initialize(&state)
+//      case .midiAssignmentsButtonTapped:
+//        guard state.midi != nil else { return .none }
+//        state.path.append(.midiAssignments(MIDIAssignmentsFeature.State()))
+//      case .midiConnectionsButtonTapped:
+//        @Shared(.midi) var midi
+//        @Shared(.midiMonitor) var midiMonitor
+//        guard let midi, let midiMonitor else { return .none }
+//        state.path.append(.midiConnections(MIDIConnectionsFeature.State()))
+//      case .midiConnectionCountChanged(let count):
+//        state.midiConnectCount = count
+//      case .midiControllersButtonTapped:
+//        guard state.midi != nil else { return .none }
+//        state.path.append(.midiControllers(MIDIControllersFeature.State()))
       default:
         break
       }
@@ -118,17 +119,16 @@ extension SettingsFeature {
   }
 
   private func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
-    if let midi = state.midi {
-      return .run { send in
-        for await count in midi.publisher(for: \.activeConnections)
-          .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
-          .map({ $0.count })
-          .values {
-          await send(.midiConnectionCountChanged(count))
-        }
-      }.cancellable(id: CancelId.monitorMIDIConnections)
-    }
-    return .none
+    @Shared(.midi) var midi
+    guard let midi else { return .none }
+    return .run { send in
+      for await count in midi.publisher(for: \.activeConnections)
+        .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
+        .map({ $0.count })
+        .values {
+        await send(.midiConnectionCountChanged(count))
+      }
+    }.cancellable(id: CancelId.monitorMIDIConnections)
   }
 
   private func updateKeyWidth(_ state: inout State) -> Effect<Action> {
@@ -152,6 +152,7 @@ public struct SettingsView: View {
   @Bindable private var store: StoreOf<SettingsFeature>
   @State private var changingKeyWidth: Bool = false
   private let showFakeKeyboard: Bool
+  @Shared(.midi) var midi
 
   public init(store: StoreOf<SettingsFeature>, showFakeKeyboard: Bool) {
     self.store = store
@@ -163,7 +164,7 @@ public struct SettingsView: View {
       Form {
         presetsSection
         keyboardSection
-        if store.midi != nil {
+        if midi != nil {
           midiSection
         }
         tuningSection
@@ -256,7 +257,7 @@ public struct SettingsView: View {
       }
       HStack {
         Spacer()
-        MIDITrafficIndicator(tag: "Settings", trafficPublisher: store.trafficIndicator.trafficPublisher)
+        MIDITrafficIndicator(tag: "Settings")
         Button {
           store.send(.midiConnectionsButtonTapped)
         } label: {
