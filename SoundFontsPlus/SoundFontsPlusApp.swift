@@ -26,8 +26,13 @@ struct SoundFontsPlusApp: App {
       )
 
       @Shared(.midiInputPortId) var midiInputPortId
-      @Shared(.midi) var midi = MIDI(clientName: "SoundFonts+", uniqueId: Int32(midiInputPortId), midiProto: .legacy)
+      @Shared(.midi) var midi
+      $midi.withLock { $0 = .init(clientName: "SoundFonts+", uniqueId: Int32(midiInputPortId), midiProto: .legacy) }
+
       @Shared(.midiMonitor) var midiMonitor
+      $midiMonitor.withLock { $0 = .init() }
+
+      midi?.receiver = midiMonitor
     }
   }
 

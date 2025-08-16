@@ -60,11 +60,6 @@ struct AppFeature {
     var reverb: ReverbFeature.State = .init()
 
     init() {
-      @Shared(.midi) var midi
-      midi?.start()
-      @Shared(.midiMonitor) var midiMonitor
-      midi?.receiver = midiMonitor
-
       _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
 
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsPosition
