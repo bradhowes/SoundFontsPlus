@@ -264,10 +264,6 @@ public struct SettingsView: View {
       HStack {
         Spacer()
         MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
-//        NavigationLink(
-//          "^[\(store.midiConnectCount) connection](inflect: true)",
-//          state: SettingsFeature.Path.State.midiConnections(MIDIConnectionsFeature.State())
-//        )
         Button {
           store.send(.midiConnectionsButtonTapped)
         } label: {
@@ -310,6 +306,7 @@ public struct SettingsView: View {
         }
         Spacer()
       }
+      .buttonStyle(.borderless) // !!! keep from activating entire row and *both* buttons when one is touched
     }
   }
 
