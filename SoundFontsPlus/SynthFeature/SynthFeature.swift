@@ -221,7 +221,7 @@ extension SynthFeature {
       // Play a short note using the new preset
       log.info("playNote - sendNoteOn")
       synth.sendNoteOn(note: 60)
-      try? await Task.sleep(for: .milliseconds(1000))
+      try? await Task.sleep(for: .milliseconds(250))
       log.info("playNote - sendNoteOff")
       synth.sendNoteOff(note: 60)
     }.cancellable(id: CancelId.playSample, cancelInFlight: true)

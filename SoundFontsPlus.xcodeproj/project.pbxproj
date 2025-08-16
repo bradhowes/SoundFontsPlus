@@ -35,7 +35,6 @@
 		BD76C1592E23C57E00F5B1F5 /* VolumeMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1582E23C57E00F5B1F5 /* VolumeMonitor.swift */; };
 		BD76C15C2E23C5F700F5B1F5 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */; };
 		BD76C1602E23CD2C00F5B1F5 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C15F2E23CD2C00F5B1F5 /* Logging.swift */; };
-		BD76C1622E23E17F00F5B1F5 /* MIDISynth.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1612E23E17800F5B1F5 /* MIDISynth.swift */; };
 		BD76C1642E23E27600F5B1F5 /* Notification.Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1632E23E27600F5B1F5 /* Notification.Name.swift */; };
 		BD7B05172E4FDD40006628F3 /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B05162E4FDD40006628F3 /* Alerts.swift */; };
 		BD7DBC8D2DF45904005A31DE /* DimmedAppearanceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */; };
@@ -220,7 +219,6 @@
 		BD673BB62DFB44D100574F9C /* WithDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithDatabase.swift; sourceTree = "<group>"; };
 		BD76C1582E23C57E00F5B1F5 /* VolumeMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeMonitor.swift; sourceTree = "<group>"; };
 		BD76C15F2E23CD2C00F5B1F5 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
-		BD76C1612E23E17800F5B1F5 /* MIDISynth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDISynth.swift; sourceTree = "<group>"; };
 		BD76C1632E23E27600F5B1F5 /* Notification.Name.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.Name.swift; sourceTree = "<group>"; };
 		BD7B05142E4FDCCE006628F3 /* FileImporterViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImporterViewModifier.swift; sourceTree = "<group>"; };
 		BD7B05162E4FDD40006628F3 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
@@ -536,7 +534,6 @@
 		BDA917DE2E0823F200FD3257 /* SynthFeature */ = {
 			isa = PBXGroup;
 			children = (
-				BD76C1612E23E17800F5B1F5 /* MIDISynth.swift */,
 				BDA917DF2E08247700FD3257 /* SynthFeature.swift */,
 			);
 			path = SynthFeature;
@@ -1162,7 +1159,6 @@
 				BDB9FEF42E04B795003BA0A2 /* ParameterAddress.swift in Sources */,
 				BD171ED92E47A98C00E2EDA7 /* MIDIMonitor.swift in Sources */,
 				BDB9FEF52E04B795003BA0A2 /* ParameterDefinition.swift in Sources */,
-				BD76C1622E23E17F00F5B1F5 /* MIDISynth.swift in Sources */,
 				BD46FC832DF62C3100CB20F1 /* AUParameterTree.swift in Sources */,
 				BD59D4EE2E47C80A00B2250B /* MIDIAssignmentsFeature.swift in Sources */,
 				BD7DBC8D2DF45904005A31DE /* DimmedAppearanceModifier.swift in Sources */,
