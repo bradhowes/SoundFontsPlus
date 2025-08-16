@@ -1,6 +1,6 @@
 # SoundFontsPlus
 
-SwiftUI version of my [SoundFonts][0] app.
+This is the SwiftUI version of my [SoundFonts][0] app.
 
 Main dependencies:
 
@@ -18,8 +18,12 @@ Main dependencies:
 
 # Status
 
-At present this is just the user interface and SQLite backing store. It has served as a playground while I've been
-learning about [TCA][1] and SQLite.
+The app is getting close to feature-parity with the the original UIKit version:
+
+* generates audio using both onscreen keyboard as well as from MIDI devices
+* imports SF2 files
+* supports cloning of presets (aka "favorites")
+* tagging fonts
 
 Nearly all app data resides in SQLite database, though there are some `UserDefaults` settings and a file-based `@Shared`
 struct that holds:
@@ -38,6 +42,8 @@ When any of these values change, the various views update as would be expected:
     * keyboard shifts to a configured value
     * SF2 engine loads preset (TBD)
     * MIDI mapping updated if preset has custom config (TBD)
+
+The app also relies on in-memory `@Shared` values to simplify the logic and API.
 
 ## Keyboard
 
