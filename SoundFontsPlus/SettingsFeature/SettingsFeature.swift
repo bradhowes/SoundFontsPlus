@@ -38,8 +38,10 @@ public struct SettingsFeature {
     var trafficIndicator: MIDITrafficIndicatorFeature.State
     var tuning: TuningFeature.State
 
+    let hasMIDI: Bool
     public init() {
       @Shared(.midi) var midi
+      hasMIDI = midi != nil
       self.midiConnectCount = midi?.sourceConnections.count ?? 0
       @Shared(.globalTuningEnabled) var tuningEnabled
       @Shared(.globalTuning) var frequency
@@ -72,29 +74,35 @@ public struct SettingsFeature {
 
     Reduce { state, action in
       switch action {
+
       case .binding(\.keyWidth):
         return updateKeyWidth(&state)
-//      case .dismissButtonTapped:
-//        return dismissButtonTapped(&state)
-//      case .initialize:
-//        return initialize(&state)
-//      case .midiAssignmentsButtonTapped:
-//        guard state.midi != nil else { return .none }
-//        state.path.append(.midiAssignments(MIDIAssignmentsFeature.State()))
-//      case .midiConnectionsButtonTapped:
-//        @Shared(.midi) var midi
-//        @Shared(.midiMonitor) var midiMonitor
-//        guard let midi, let midiMonitor else { return .none }
-//        state.path.append(.midiConnections(MIDIConnectionsFeature.State()))
-//      case .midiConnectionCountChanged(let count):
-//        state.midiConnectCount = count
-//      case .midiControllersButtonTapped:
-//        guard state.midi != nil else { return .none }
-//        state.path.append(.midiControllers(MIDIControllersFeature.State()))
+
+      case .dismissButtonTapped:
+        return dismissButtonTapped(&state)
+
+      case .initialize:
+        return initialize(&state)
+
+      case .midiAssignmentsButtonTapped:
+        state.path.append(.midiAssignments(MIDIAssignmentsFeature.State()))
+        return .none
+
+      case .midiConnectionsButtonTapped:
+        state.path.append(.midiConnections(MIDIConnectionsFeature.State()))
+        return .none
+
+      case .midiConnectionCountChanged(let count):
+        state.midiConnectCount = count
+        return .none
+
+      case .midiControllersButtonTapped:
+        state.path.append(.midiControllers(MIDIControllersFeature.State()))
+        return .none
+
       default:
-        break
+        return .none
       }
-      return .none
     }
     .forEach(\.path, action: \.path)
   }
@@ -152,7 +160,6 @@ public struct SettingsView: View {
   @Bindable private var store: StoreOf<SettingsFeature>
   @State private var changingKeyWidth: Bool = false
   private let showFakeKeyboard: Bool
-  @Shared(.midi) var midi
 
   public init(store: StoreOf<SettingsFeature>, showFakeKeyboard: Bool) {
     self.store = store
@@ -164,7 +171,7 @@ public struct SettingsView: View {
       Form {
         presetsSection
         keyboardSection
-        if midi != nil {
+        if store.hasMIDI {
           midiSection
         }
         tuningSection
