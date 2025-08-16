@@ -70,22 +70,31 @@ public struct ReverbFeature {
 
     Reduce { state, action in
       switch action {
+
       case let .activePresetIdChanged(presetId):
         return activePresetIdChanged(&state, presetId: presetId)
+
       case let .applyConfigForPreset(config):
         return applyConfigForPreset(&state, config: config)
+
       case .enabled:
         return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
+
       case .initialize:
         return monitorActivePresetId()
+
       case .locked:
         return updateLocked(&state)
+
       case let .roomPresetChanged(value):
         return updateAndSave(&state, path: \.roomPreset, value: value)
+
       case .saveDebounced:
         return saveDebounced(&state)
+
       case .updateDebounced:
         return updateDebounced(&state)
+
       case .wetDryMix:
         return updateAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
       }
