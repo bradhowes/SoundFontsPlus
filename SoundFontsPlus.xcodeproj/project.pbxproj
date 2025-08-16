@@ -37,6 +37,7 @@
 		BD76C1602E23CD2C00F5B1F5 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C15F2E23CD2C00F5B1F5 /* Logging.swift */; };
 		BD76C1622E23E17F00F5B1F5 /* MIDISynth.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1612E23E17800F5B1F5 /* MIDISynth.swift */; };
 		BD76C1642E23E27600F5B1F5 /* Notification.Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1632E23E27600F5B1F5 /* Notification.Name.swift */; };
+		BD7B05172E4FDD40006628F3 /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B05162E4FDD40006628F3 /* Alerts.swift */; };
 		BD7DBC8D2DF45904005A31DE /* DimmedAppearanceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */; };
 		BD812F652DF4BF3500D2B344 /* KeyboardReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */; };
 		BDA917E02E08247700FD3257 /* SynthFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA917DF2E08247700FD3257 /* SynthFeature.swift */; };
@@ -143,6 +144,7 @@
 		BDBDDEB12DE658E700C2CD87 /* SoundFontInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */; };
 		BDD531B92DEADADD00B4B104 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD531B82DEADADA00B4B104 /* String.swift */; };
 		BDD96E902E080575000FCF1E /* ReverbFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5ADA2DE2556000B8FB13 /* ReverbFeature.swift */; };
+		BDDC25BD2E4E679D0098CA10 /* FileImporterFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDDC25BC2E4E67990098CA10 /* FileImporterFeature.swift */; };
 		BDE572BF2DF317D400646D0E /* FileManagerClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE572BE2DF317D400646D0E /* FileManagerClient.swift */; };
 		BDE572C12DF3183700646D0E /* DependencyValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE572C02DF3182400646D0E /* DependencyValues.swift */; };
 		BDEB8F6B2E15C51600BF16B5 /* NameFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDEB8F6A2E15C51200BF16B5 /* NameFieldView.swift */; };
@@ -220,6 +222,8 @@
 		BD76C15F2E23CD2C00F5B1F5 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		BD76C1612E23E17800F5B1F5 /* MIDISynth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDISynth.swift; sourceTree = "<group>"; };
 		BD76C1632E23E27600F5B1F5 /* Notification.Name.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.Name.swift; sourceTree = "<group>"; };
+		BD7B05142E4FDCCE006628F3 /* FileImporterViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImporterViewModifier.swift; sourceTree = "<group>"; };
+		BD7B05162E4FDD40006628F3 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		BD7DBC892DF36955005A31DE /* Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Development.xcconfig; sourceTree = "<group>"; };
 		BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
@@ -319,6 +323,7 @@
 		BDB9FEF82E068751003BA0A2 /* ReverbRoomPresetPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReverbRoomPresetPickerView.swift; sourceTree = "<group>"; };
 		BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundFontInfo.swift; sourceTree = "<group>"; };
 		BDD531B82DEADADA00B4B104 /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
+		BDDC25BC2E4E67990098CA10 /* FileImporterFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImporterFeature.swift; sourceTree = "<group>"; };
 		BDE572BE2DF317D400646D0E /* FileManagerClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FileManagerClient.swift; path = SoundFontsPlus/Utils/FileManagerClient.swift; sourceTree = SOURCE_ROOT; };
 		BDE572C02DF3182400646D0E /* DependencyValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyValues.swift; sourceTree = "<group>"; };
 		BDEB8F6A2E15C51200BF16B5 /* NameFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameFieldView.swift; sourceTree = "<group>"; };
@@ -447,9 +452,9 @@
 				BD1D27822B6F13DD005C3ED0 /* SoundFontsPlusApp.swift */,
 				BDB9FEFB2E06A67B003BA0A2 /* AudioUnitParameters */,
 				BDAF5A992DE254F400B8FB13 /* AppFeature */,
-				BDA917DE2E0823F200FD3257 /* SynthFeature */,
 				BDAF5A9C2DE2550700B8FB13 /* DelayFeature */,
 				BDAF5A922DE254E000B8FB13 /* Extensions */,
+				BD7B05152E4FDD01006628F3 /* FileImporterFeature */,
 				BDAF5AA12DE2551A00B8FB13 /* KeyboardFeature */,
 				BD171ED72E47A97400E2EDA7 /* MIDIFeature */,
 				BDAF5ABE2DE2555000B8FB13 /* Models */,
@@ -459,6 +464,7 @@
 				BDAF5AE62DE2557300B8FB13 /* SF2ResourceFiles */,
 				BDAF5AF22DE2558800B8FB13 /* SoundFontsFeature */,
 				BDAF5B022DE2558C00B8FB13 /* SwiftUISupport */,
+				BDA917DE2E0823F200FD3257 /* SynthFeature */,
 				BDAF5B112DE2559100B8FB13 /* TagsFeature */,
 				BDAF5B182DE2559400B8FB13 /* ToolBarFeature */,
 				BDAF5B1B2DE2559900B8FB13 /* TuningFeature */,
@@ -517,11 +523,21 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		BD7B05152E4FDD01006628F3 /* FileImporterFeature */ = {
+			isa = PBXGroup;
+			children = (
+				BD7B05162E4FDD40006628F3 /* Alerts.swift */,
+				BDDC25BC2E4E67990098CA10 /* FileImporterFeature.swift */,
+				BD7B05142E4FDCCE006628F3 /* FileImporterViewModifier.swift */,
+			);
+			path = FileImporterFeature;
+			sourceTree = "<group>";
+		};
 		BDA917DE2E0823F200FD3257 /* SynthFeature */ = {
 			isa = PBXGroup;
 			children = (
-				BDA917DF2E08247700FD3257 /* SynthFeature.swift */,
 				BD76C1612E23E17800F5B1F5 /* MIDISynth.swift */,
+				BDA917DF2E08247700FD3257 /* SynthFeature.swift */,
 			);
 			path = SynthFeature;
 			sourceTree = "<group>";
@@ -720,11 +736,11 @@
 		BDAF5B202DE2559E00B8FB13 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				BDE572C02DF3182400646D0E /* DependencyValues.swift */,
+				BDE572BE2DF317D400646D0E /* FileManagerClient.swift */,
 				BDAF5B1D2DE2559E00B8FB13 /* KeyLabels.swift */,
 				BDAF5B1E2DE2559E00B8FB13 /* Note.swift */,
-				BDE572BE2DF317D400646D0E /* FileManagerClient.swift */,
 				BDAF5B1F2DE2559E00B8FB13 /* Sharing.swift */,
-				BDE572C02DF3182400646D0E /* DependencyValues.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1126,6 +1142,7 @@
 				BDAF5AC92DE2555000B8FB13 /* ModelError.swift in Sources */,
 				BDAF5ACA2DE2555000B8FB13 /* FontTag.swift in Sources */,
 				BDAF5ACB2DE2555000B8FB13 /* Bookmark.swift in Sources */,
+				BD7B05172E4FDD40006628F3 /* Alerts.swift in Sources */,
 				BDAF5ACC2DE2555000B8FB13 /* TagInfo.swift in Sources */,
 				BDAF5ACD2DE2555000B8FB13 /* Operations.swift in Sources */,
 				BDAF5ACE2DE2555000B8FB13 /* ActiveState.swift in Sources */,
@@ -1152,6 +1169,7 @@
 				BDAF5AF32DE2558800B8FB13 /* SF2LoadFailure.swift in Sources */,
 				BDAF5AF42DE2558800B8FB13 /* SoundFontsSupport.swift in Sources */,
 				BDAF5AF52DE2558800B8FB13 /* SoundFontEditor.swift in Sources */,
+				BDDC25BD2E4E679D0098CA10 /* FileImporterFeature.swift in Sources */,
 				BDAF5AF62DE2558800B8FB13 /* SoundFontButton.swift in Sources */,
 				BDAF5AF72DE2558800B8FB13 /* SoundFontsList.swift in Sources */,
 				BDAF5AF82DE2558800B8FB13 /* SoundFontError.swift in Sources */,
@@ -1735,7 +1753,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
 			requirement = {
-				kind = upToNextMajorVersion;
+				kind = upToNextMinorVersion;
 				minimumVersion = 1.18.4;
 			};
 		};

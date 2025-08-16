@@ -1,9 +1,13 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import CoreMIDI
-import Foundation
+import AVFAudio
+import Combine
+import MorkAndMIDI
+import SF2LibAU
 import Sharing
 import Tagged
+
+// MARK: - AppStorage Bool settings
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var backgroundProcessing: Self { Self[.appStorage("backgroundProcessing"), default: true] }
@@ -19,7 +23,10 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var starFavoriteNames: Self { Self[.appStorage("starFavoriteNames"), default: true] }
   public static var tagsListVisible: Self { Self[.appStorage("tagsListVisible"), default: false] }
   public static var playSoundOnPresetChange: Self { Self[.appStorage("playSoundOnPresetChange"), default: true] }
+  public static var copyFileWhenInstalling: Self { Self[.appStorage("copyFileWhenInstalling"), default: true]}
 }
+
+// MARK: - AppStorage Double settings
 
 extension SharedKey where Self == AppStorageKey<Double>.Default {
   public static var fontsAndPresetsSplitPosition: Self {
@@ -31,6 +38,8 @@ extension SharedKey where Self == AppStorageKey<Double>.Default {
   public static var globalTuning: Self { Self[.appStorage("globalTuning"), default: 440.0 ] }
   public static var keyWidth: Self { Self[.appStorage("keyWidth"), default: 64.0] }
 }
+
+// MARK: - AppStorage Int settings
 
 extension SharedKey where Self == AppStorageKey<Int>.Default {
   public static var midiChannel: Self { Self[.appStorage("midiChannel"), default: 0] }
@@ -58,4 +67,29 @@ extension SharedKey where Self == FileStorageKey<ActiveState>.Default {
   public static var activeState: Self {
     Self[.fileStorage(.activeStateURL), default: .init()]
   }
+}
+
+// MARK: - InMemory settings
+
+extension SharedKey where Self == InMemoryKey<AUParameterTree>.Default {
+  public static var parameterTree: Self {
+    Self[.inMemory("parameterTree"), default: ParameterAddress.createParameterTree()]
+  }
+}
+
+extension SharedKey where Self == InMemoryKey<MIDI?>.Default {
+  public static var midi: Self { Self[.inMemory("midi"), default: nil] }
+}
+
+extension SharedKey where Self == InMemoryKey<MIDIMonitor?>.Default {
+  public static var midiMonitor: Self { Self[.inMemory("midiMonitor"), default: nil] }
+}
+
+extension SharedKey where Self == InMemoryKey<AVAudioUnit?>.Default {
+  public static var avAudioUnit: Self { Self[.inMemory("avAudioUnit"), default: nil] }
+}
+
+extension AVAudioUnit {
+  var midiInstrument: AVAudioUnitMIDIInstrument? { self as? AVAudioUnitMIDIInstrument }
+  var synth: SF2LibAU? { self.auAudioUnit as? SF2LibAU }
 }

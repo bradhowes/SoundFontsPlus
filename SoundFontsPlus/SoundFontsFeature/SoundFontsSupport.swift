@@ -51,6 +51,6 @@ enum SoundFontsSupport {
   }
 }
 
-extension String {
+private extension String {
   var withoutExtension: Substring { self[self.startIndex..<(self.lastIndex(of: ".") ?? self.endIndex)] }
 }

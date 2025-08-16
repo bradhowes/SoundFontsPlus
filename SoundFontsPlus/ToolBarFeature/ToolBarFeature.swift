@@ -10,23 +10,21 @@ import SwiftUI
 @Reducer
 public struct ToolBarFeature {
 
-  @Reducer
+  @Reducer(state: .equatable)
   public enum Destination {
     case settings(SettingsFeature)
   }
 
   @ObservableState
-  public struct State {
+  public struct State: Equatable {
     @Presents var destination: Destination.State?
 
-    let midiMonitor: MIDIMonitor?
     var lowestKey: Note
     var highestKey: Note
 
     @Shared(.keyboardSlides) var keyboardSlides
-
-    var tagsListVisible: Bool
-    var effectsVisible: Bool
+    @Shared(.tagsListVisible) var tagsListVisible
+    @Shared(.effectsVisible) var effectsVisible
 
     var editingPresetVisibility: Bool = false
     var showMoreButtons: Bool = false
@@ -34,14 +32,11 @@ public struct ToolBarFeature {
 
     var trafficIndicator: MIDITrafficIndicatorFeature.State
 
-    public init(tagsListVisible: Bool, effectsVisible: Bool, midiMonitor: MIDIMonitor? = nil) {
+    public init() {
       @Shared(.firstVisibleKey) var firstVisibleKey: Note
-      self.midiMonitor = midiMonitor
-      self.tagsListVisible = tagsListVisible
-      self.effectsVisible = effectsVisible
       self.lowestKey = firstVisibleKey
       self.highestKey = .C4
-      self.trafficIndicator = .init(tag: "ToolBar", midiMonitor: midiMonitor)
+      self.trafficIndicator = .init(tag: "ToolBar")
     }
   }
 
@@ -117,7 +112,7 @@ public struct ToolBarFeature {
 public extension ToolBarFeature {
 
   static func setTagsListVisible(_ state: inout State, value: Bool) {
-    state.tagsListVisible = value
+    state.$tagsListVisible.withLock { $0 = value }
   }
 }
 
@@ -205,7 +200,7 @@ private extension ToolBarFeature {
   }
 
   func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
-    state.effectsVisible.toggle()
+    state.$effectsVisible.withLock { $0.toggle() }
     state.showMoreButtons = false
     return .send(.delegate(.effectsVisibilityChanged(state.effectsVisible)))
   }
@@ -220,7 +215,7 @@ private extension ToolBarFeature {
   }
 
   func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
-    state.tagsListVisible.toggle()
+    state.$tagsListVisible.withLock { $0.toggle() }
     state.showMoreButtons = false
     return .send(.delegate(.tagsVisibilityChanged(state.tagsListVisible)))
   }
@@ -270,7 +265,7 @@ public struct ToolBarFeatureView: View {
 
   private var presetTitle: some View {
     ZStack(alignment: .leading) {
-      MIDITrafficIndicator(tag: "ToolBar", trafficPublisher: store.trafficIndicator.trafficPublisher)
+      MIDITrafficIndicator(tag: "ToolBar")
       HStack {
         Spacer()
         PresetNameView(preset: store.preset)
@@ -375,7 +370,7 @@ extension ToolBarFeatureView {
       $0.defaultDatabase = try! appDatabase()
     }
     return VStack {
-      ToolBarFeatureView(store: Store(initialState: .init(tagsListVisible: true, effectsVisible: false)) {
+      ToolBarFeatureView(store: Store(initialState: .init()) {
         ToolBarFeature()
       })
       KeyboardView(store: Store(initialState: .init()) { KeyboardFeature() })

@@ -6,7 +6,7 @@ import SharingGRDB
 import SwiftUI
 
 @Reducer
-public struct PresetEditor: Equatable {
+public struct PresetEditor {
 
   @ObservableState
   public struct State: Equatable, Sendable {

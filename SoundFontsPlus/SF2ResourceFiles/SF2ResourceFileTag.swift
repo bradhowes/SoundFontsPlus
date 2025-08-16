@@ -40,8 +40,11 @@ public enum SF2ResourceFileTag: Int, CaseIterable, Sendable {
     }
   }
 
+  /// Obtain the `resources` index associated with the tag
+  public var resourceIndex: Int { self.rawValue - 1 }
+
   /// Obtain the URL for an SF2 file in the bundle
-  public var url: URL { SF2ResourceFiles.resources[rawValue - 1] }
+  public var url: URL { SF2ResourceFiles.resources[resourceIndex] }
 
   /// Obtain info and preset info about an SF2 file
   public var fileInfo: Engine.SF2FileInfo? {

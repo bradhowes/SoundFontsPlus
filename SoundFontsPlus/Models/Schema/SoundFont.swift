@@ -39,6 +39,28 @@ public struct SoundFont: Hashable, Identifiable, Sendable {
   public var isInstalled: Bool { kind == .installed }
   public var isExternal: Bool { kind == .external }
   public var isBuiltIn: Bool { kind == .builtin }
+
+  static func migrate(_ migrator: inout DatabaseMigrator) {
+    migrator.registerMigration(Self.tableName) { db in
+      try #sql(
+      """
+      CREATE TABLE "\(raw: Self.tableName)" (
+        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+        "displayName" TEXT NOT NULL,
+        "kind" TEXT NOT NULL,
+        "location" BLOB NOT NULL UNIQUE,
+        "originalName" TEXT NOT NULL,
+        "embeddedName" TEXT NOT NULL,
+        "embeddedComment" TEXT NOT NULL,
+        "embeddedAuthor" TEXT NOT NULL,
+        "embeddedCopyright" TEXT NOT NULL,
+        "notes" TEXT NOT NULL
+      ) STRICT
+      """
+      )
+      .execute(db)
+    }
+  }
 }
 
 extension SoundFont {
@@ -164,28 +186,6 @@ extension SoundFont {
 }
 
 extension SoundFont {
-
-  static func migrate(_ migrator: inout DatabaseMigrator) {
-    migrator.registerMigration(Self.tableName) { db in
-      try #sql(
-      """
-      CREATE TABLE "\(raw: Self.tableName)" (
-        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "displayName" TEXT NOT NULL,
-        "kind" TEXT NOT NULL,
-        "location" BLOB,
-        "originalName" TEXT NOT NULL,
-        "embeddedName" TEXT NOT NULL,
-        "embeddedComment" TEXT NOT NULL,
-        "embeddedAuthor" TEXT NOT NULL,
-        "embeddedCopyright" TEXT NOT NULL,
-        "notes" TEXT NOT NULL
-      ) STRICT
-      """
-      )
-      .execute(db)
-    }
-  }
 }
 
 extension SoundFont {

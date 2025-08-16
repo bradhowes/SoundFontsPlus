@@ -30,7 +30,7 @@ struct TagNameEditorTests {
   }
 
   @Test func tagNameEditorPreview() async throws {
-    withSnapshotTesting(record: .failed) {
+    withSnapshotTesting(record: .missing) {
       struct HostView: SwiftUI.View {
         var body: some SwiftUI.View {
           TagNameEditorView.preview

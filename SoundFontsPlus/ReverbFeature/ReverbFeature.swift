@@ -9,13 +9,6 @@ import SwiftUI
 
 @Reducer
 public struct ReverbFeature {
-  let parameters: AUParameterTree
-
-  public init(parameters: AUParameterTree) {
-    self.parameters = parameters
-  }
-
-  public var state: State { .init(parameters: self.parameters) }
 
   @ObservableState
   public struct State: Equatable {
@@ -35,11 +28,12 @@ public struct ReverbFeature {
       pending.wetDryMix != device.wetDryMix
     }
 
-    public init(parameters: AUParameterTree) {
+    public init() {
+      @Shared(.parameterTree) var parameterTree
       @Shared(.reverbLockEnabled) var lockEnabled
       self.locked = .init(isOn: lockEnabled, displayName: "Lock")
       self.enabled = .init(isOn: false, displayName: "On")
-      self.wetDryMix = .init(parameter: parameters[.reverbAmount])
+      self.wetDryMix = .init(parameter: parameterTree[.reverbAmount])
     }
   }
 
@@ -66,12 +60,13 @@ public struct ReverbFeature {
   @Dependency(\.defaultDatabase) private var database
   @Dependency(\.reverbDevice) private var reverbDevice
   @Shared(.activeState) private var activeState
+  @Shared(.parameterTree) var parameterTree
 
   public var body: some ReducerOf<Self> {
 
     Scope(state: \.enabled, action: \.enabled) { ToggleFeature() }
     Scope(state: \.locked, action: \.locked) { ToggleFeature() }
-    Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature(parameter: parameters[.reverbAmount]) }
+    Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature(parameter: parameterTree[.reverbAmount]) }
 
     Reduce { state, action in
       switch action {
@@ -297,7 +292,6 @@ extension ReverbView {
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
 
-    let parameterTree = ParameterAddress.createParameterTree()
     prepareDependencies {
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
@@ -310,9 +304,7 @@ extension ReverbView {
 
     return VStack {
       ScrollView(.horizontal) {
-        ReverbView(store: Store(initialState: .init(parameters: parameterTree)) {
-          ReverbFeature(parameters: parameterTree)
-        })
+        ReverbView(store: Store(initialState: .init()) { ReverbFeature() })
         .environment(\.auv3ControlsTheme, theme)
       }
       .padding()
