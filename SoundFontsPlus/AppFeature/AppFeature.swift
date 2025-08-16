@@ -13,6 +13,7 @@ import UniformTypeIdentifiers
 
 @Reducer
 struct AppFeature {
+  private let volumeMonitor: VolumeMonitor = .init()
 
   @Reducer(state: .equatable)
   enum Destination {
@@ -115,6 +116,7 @@ struct AppFeature {
       case .destination(.dismiss):
         return destinationDismissed(&state)
       case .initialize:
+        volumeMonitor.start()
         return reduce(into: &state, action: .synth(.initialize))
       case let .keyboard(.delegate(action)):
         return monitorKeyboardAction(&state, action: action)
