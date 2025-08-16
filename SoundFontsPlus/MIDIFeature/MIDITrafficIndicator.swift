@@ -9,7 +9,12 @@ public struct MIDITrafficIndicatorFeature {
 
   @ObservableState
   public struct State: Equatable {
+    public static func == (lhs: MIDITrafficIndicatorFeature.State, rhs: MIDITrafficIndicatorFeature.State) -> Bool {
+      lhs.tag == rhs.tag && lhs.midiTrafficPublisher === rhs.midiTrafficPublisher
+    }
+
     let tag: String
+    let midiTrafficPublisher: PassthroughSubject<MIDITraffic, Never> = .init()
 
     public init(tag: String) {
       self.tag = tag
@@ -29,8 +34,6 @@ public struct MIDITrafficIndicatorFeature {
       }
     }
   }
-
-  static let midiTrafficPublisher: PassthroughSubject<MIDITraffic, Never> = .init()
 
   private enum CancelId {
     case monitorMIDITraffic
@@ -56,23 +59,21 @@ private extension MIDITrafficIndicatorFeature {
   }
 
   func showMIDITraffic(_ state: inout State, value: MIDITraffic) -> Effect<Action> {
-    Self.midiTrafficPublisher.send(value)
+    state.midiTrafficPublisher.send(value)
     return .none
   }
 }
 
-public struct MIDITrafficIndicator: View {
-  private let tag: String
-  private var trafficPublisher: PassthroughSubject<MIDITraffic, Never>
+public struct MIDITrafficIndicatorView: View {
+  private var store: StoreOf<MIDITrafficIndicatorFeature>
 
-  public init(tag: String) {
-    self.tag = tag
-    self.trafficPublisher = MIDITrafficIndicatorFeature.midiTrafficPublisher
+  public init(store: StoreOf<MIDITrafficIndicatorFeature>) {
+    self.store = store
   }
 
   public var body: some View {
     Circle()
-      .trafficBlinker(tag: tag, subscribedTo: trafficPublisher, duration: 0.5)
+      .trafficBlinker(tag: store.tag, subscribedTo: store.midiTrafficPublisher, duration: 0.5)
   }
 }
 

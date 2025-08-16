@@ -90,7 +90,7 @@ public struct MIDIConnectionsFeature {
   @ObservableState
   public struct State: Equatable {
     var rows: IdentifiedArrayOf<MIDIConnectionRow>
-    var trafficIndicator: MIDITrafficIndicatorFeature.State = .init(tag: "MIDI Connections")
+    var midiTrafficIndicator: MIDITrafficIndicatorFeature.State = .init(tag: "MIDI Connections")
     @ObservationStateIgnored
     var midiChannelsCache: [MIDIUniqueID: UInt8] = [:]
 
@@ -111,13 +111,13 @@ public struct MIDIConnectionsFeature {
     case fixedVolumeIncrementTapped(MIDIUniqueID)
     case initialize
     case midiConnectionsChanged
+    case midiTrafficIndicator(MIDITrafficIndicatorFeature.Action)
     case sawMIDITraffic(MIDITraffic)
-    case trafficIndicator(MIDITrafficIndicatorFeature.Action)
   }
 
   public var body: some ReducerOf<Self> {
 
-    Scope(state: \.trafficIndicator, action: \.trafficIndicator) { MIDITrafficIndicatorFeature() }
+    Scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator) { MIDITrafficIndicatorFeature() }
 
     Reduce { state, action in
       switch action {
@@ -131,8 +131,8 @@ public struct MIDIConnectionsFeature {
       case .fixedVolumeIncrementTapped(let id): return incrementFixedVolume(&state, id: id)
       case .initialize: return initialize(&state)
       case .midiConnectionsChanged: return updateMidiConnections(&state)
+      case .midiTrafficIndicator: return .none
       case .sawMIDITraffic(let traffic): return updateMIDIChannel(&state, traffic: traffic)
-      case .trafficIndicator: return .none
       }
     }
   }
@@ -170,7 +170,7 @@ extension MIDIConnectionsFeature {
 
   private func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
-      reduce(into: &state, action: .trafficIndicator(.initialize)),
+      reduce(into: &state, action: .midiTrafficIndicator(.initialize)),
       monitorMIDIConnections(&state)
     )
   }
@@ -279,7 +279,7 @@ public struct MIDIConnectionsView: View {
     .task {
       await store.send(.initialize).finish()
     }
-    .onReceive(MIDITrafficIndicatorFeature.midiTrafficPublisher) { traffic in
+    .onReceive(store.midiTrafficIndicator.midiTrafficPublisher) { traffic in
       store.send(.sawMIDITraffic(traffic))
       withAnimation(.smooth(duration: 0.5)) {
         animating = traffic.id
