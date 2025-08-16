@@ -242,11 +242,10 @@ private extension AppFeature {
     switch phase {
     case .active:
       guard !backgroundProcessing else { return .none }
-      return reduce(into: &state, action: .synth(.startEngine))
-    case .background:
+      return reduce(into: &state, action: .synth(.becameActive))
+    case .background, .inactive:
       guard !backgroundProcessing else { return .none }
-      return reduce(into: &state, action: .synth(.stopEngine))
-    case .inactive: return .none
+      return reduce(into: &state, action: .synth(.becameInactive))
     @unknown default: fatalError("Unhandled ScenePhase \(phase):")
     }
   }

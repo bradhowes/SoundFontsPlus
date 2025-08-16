@@ -19,31 +19,28 @@ public struct SynthFeature {
     channels: 2,
     interleaved: false
   )
-  let engine = AVAudioEngine()
 
   @ObservableState
   public struct State: Equatable {
 
     public static func == (lhs: SynthFeature.State, rhs: SynthFeature.State) -> Bool {
-      lhs.loadedSoundFontId == rhs.loadedSoundFontId &&
-      lhs.loadedPresetIndex == rhs.loadedPresetIndex &&
-      lhs.observer === rhs.observer
+      lhs.loadedSoundFontId == rhs.loadedSoundFontId && lhs.loadedPresetIndex == rhs.loadedPresetIndex
     }
 
+    let engine = AVAudioEngine()
     var loadedSoundFontId: SoundFont.ID?
     var loadedPresetIndex: Int?
-    var observer: NSObjectProtocol?
   }
 
   public enum Action {
     case activePresetIdChanged
+    case audioUnitCreated
+    case becameActive
+    case becameInactive
     case delegate(Delegate)
     case initialize
     case mediaServicesWereReset
     case routeChanged
-    case startEngine
-    case stopEngine
-    case createdAudioUnit
     public enum Delegate {
       case createdSynth
     }
@@ -56,28 +53,27 @@ public struct SynthFeature {
       case .activePresetIdChanged:
         return activePresetIdChanged(&state)
 
-      case .createdAudioUnit:
+      case .audioUnitCreated:
         return installAudioUnit(&state)
+
+      case .becameActive:
+        return startAudioSession(&state)
+
+      case .becameInactive:
+        return stopAudioSession(&state)
 
       case .initialize:
         return initialize(&state)
 
       case .mediaServicesWereReset:
-        restartAudioSession()
-        return .none
+        return restartAudioSession(&state)
 
       case .routeChanged:
-        routeChanged()
+        return routeChanged(&state)
+
+      default:
         return .none
-
-      case .startEngine:
-        startAudioSession()
-
-      case .stopEngine:
-        stopAudioSession()
-      default: break
       }
-      return .none
     }
   }
 
@@ -159,7 +155,7 @@ extension SynthFeature {
       $avAudioUnit.withLock { $0 = au }
 
       log.info("createSynth - created")
-      await send(.createdAudioUnit)
+      await send(.audioUnitCreated)
     }.cancellable(id: CancelId.createSynth, cancelInFlight: true)
   }
 
@@ -181,11 +177,11 @@ extension SynthFeature {
     guard let avAudioUnit else { return .none }
 
     log.info("attaching to engine")
-    engine.attach(avAudioUnit)
-    engine.connect(avAudioUnit, to: engine.outputNode, format: audioFormat)
+    state.engine.attach(avAudioUnit)
+    state.engine.connect(avAudioUnit, to: state.engine.outputNode, format: audioFormat)
 
     log.info("starting")
-    startAudioSession()
+    _ = startAudioSession(&state)
 
     return .merge(
       .send(.activePresetIdChanged),
@@ -231,15 +227,15 @@ extension SynthFeature {
     }.cancellable(id: CancelId.playSample, cancelInFlight: true)
   }
 
-  func restartAudioSession() -> Effect<Action> {
+  func restartAudioSession(_ state: inout State) -> Effect<Action> {
     log.error("recreateSynth - BEGIN")
-    stopAudioSession()
-    startAudioSession()
+    _ = stopAudioSession(&state)
+    _ = startAudioSession(&state)
     log.error("recreateSynth - END")
     return .none
   }
 
-  func routeChanged() -> Effect<Action> {
+  func routeChanged(_ state: inout State) -> Effect<Action> {
     let bufferSize: Int = 64
     let session = AVAudioSession.sharedInstance()
 
@@ -284,23 +280,25 @@ extension SynthFeature {
     return .none
   }
 
-  func startAudioSession() {
+  func startAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("startAudioSession BEGIN")
 
-    _ = routeChanged()
+    _ = routeChanged(&state)
 
     do {
       log.info("startAudioSession - starting engine")
-      try engine.start()
+      try state.engine.start()
     } catch {
       log.error("startAudioSession - failed to start - \(error.localizedDescription)")
     }
+
+    return .none
   }
 
-  func stopAudioSession() {
+  func stopAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("stopAudioSession BEGIN")
 
-    engine.stop()
+    state.engine.stop()
 
     let session = AVAudioSession.sharedInstance()
     do {
@@ -312,6 +310,8 @@ extension SynthFeature {
     }
 
     log.info("stopAudio END")
+
+    return .none
   }
 }
 
