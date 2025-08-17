@@ -134,7 +134,6 @@ extension ReverbFeature {
       return .none
     }
 
-    // If this preset does not have a reverb config, assume the current settings.
     let config = ReverbConfig.draft(for: presetId, cloning: state.config)
     reverbDevice.setConfig(config)
     state.config = config
