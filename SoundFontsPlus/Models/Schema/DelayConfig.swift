@@ -10,10 +10,10 @@ public struct DelayConfig: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
-  public var time: Double = 0.25
-  public var feedback: Double = 0.70
-  public var cutoff: Double = 2000.0
-  public var wetDryMix: Double = 25.0
+  public var time: Double = 0.5
+  public var feedback: Double = 25.0
+  public var cutoff: Double = 12_000.0
+  public var wetDryMix: Double = 50.0
   public var enabled: Bool = false
   public var presetId: Preset.ID?
 }
