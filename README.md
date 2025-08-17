@@ -5,7 +5,7 @@ This is the SwiftUI version of my [SoundFonts][0] app.
 Main dependencies:
 
 * [Composable Architecture (TCA)][1] -- opinionated approach to structuring an iOS app as composable features that
-  provide for well-structured and understandable event flows and data transformation that drive the SwiftUI views.
+  provide for well-structured, understandable, testable, event flows and data transformations to drive SwiftUI views.
 * [sharing-grdb][2] -- provides a shared-data capability by combining Point-Free's [Sharing][3] and
   [StructuredQueries][4] libraries with the robust [GRDB][5] toolkit for SQLite
 * [AUv3Controls][6] -- custom SwiftUI controls (a circular knob and a toggle) that supports easy integration with AUv3
