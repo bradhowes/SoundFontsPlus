@@ -310,11 +310,7 @@ extension DelayView {
     prepareDependencies {
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
-      $0.delayDevice = .init(getConfig: {
-        DelayConfig.Draft()
-      }, setConfig: {
-        print("DelayDevice.setConfig:", $0)
-      })
+      $0.delayDevice = .init(setConfig: { print("DelayDevice.setConfig:", $0) })
     }
 
     return VStack {

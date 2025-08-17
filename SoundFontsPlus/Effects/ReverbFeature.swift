@@ -304,11 +304,7 @@ extension ReverbView {
     prepareDependencies {
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
-      $0.reverbDevice = .init(getConfig: {
-        ReverbConfig.Draft()
-      }, setConfig: {
-        print("ReverbDevice.setConfig:", $0)
-      })
+      $0.reverbDevice = .init(setConfig: { print("ReverbDevice.setConfig:", $0) })
     }
 
     return VStack {
