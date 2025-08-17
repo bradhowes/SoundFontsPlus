@@ -34,8 +34,8 @@ public struct DelayFeature {
 
     public init() {
       @Shared(.parameterTree) var parameterTree
-      @Shared(.delayLockEnabled) var lockEnabled
-      self.locked = .init(isOn: lockEnabled, displayName: "Lock")
+      @Shared(.delayLockEnabled) var locked
+      self.locked = .init(isOn: locked, displayName: "Lock")
       self.enabled = .init(isOn: false, displayName: "On")
       self.time = .init(parameter: parameterTree[.delayTime])
       self.feedback = .init(parameter: parameterTree[.delayFeedback])
@@ -258,8 +258,8 @@ extension DelayFeature {
   }
 
   private func updateLocked(_ state: inout State) -> Effect<Action> {
-    @Shared(.delayLockEnabled) var lockEnabled
-    $lockEnabled.withLock { $0.toggle() }
+    @Shared(.delayLockEnabled) var locked
+    $locked.withLock { $0 = state.locked.isOn }
     return .none
   }
 }

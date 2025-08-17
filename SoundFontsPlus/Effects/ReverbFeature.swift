@@ -30,8 +30,8 @@ public struct ReverbFeature {
 
     public init() {
       @Shared(.parameterTree) var parameterTree
-      @Shared(.reverbLockEnabled) var lockEnabled
-      self.locked = .init(isOn: lockEnabled, displayName: "Lock")
+      @Shared(.reverbLockEnabled) var locked
+      self.locked = .init(isOn: locked, displayName: "Lock")
       self.enabled = .init(isOn: false, displayName: "On")
       self.wetDryMix = .init(parameter: parameterTree[.reverbAmount])
     }
@@ -248,8 +248,8 @@ extension ReverbFeature {
   }
 
   private func updateLocked(_ state: inout State) -> Effect<Action> {
-    @Shared(.reverbLockEnabled) var lockEnabled
-    $lockEnabled.withLock { $0.toggle() }
+    @Shared(.reverbLockEnabled) var locked
+    $locked.withLock { $0 = state.locked.isOn }
     return .none
   }
 }
