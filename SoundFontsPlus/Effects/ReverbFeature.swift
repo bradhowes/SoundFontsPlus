@@ -219,9 +219,7 @@ extension ReverbFeature {
   private func globalToLocalConfig(_ state: inout State) -> Effect<Action> {
     guard let presetId = activeState.activePresetId else { return .none }
     var localConfig = ReverbConfig.draft(for: presetId)
-    localConfig.roomPreset = state.config.roomPreset
-    localConfig.wetDryMix = state.config.wetDryMix
-    localConfig.enabled = state.config.enabled
+    localConfig.copy(state.config)
     state.config = localConfig
     reverbDevice.setConfig(state.config)
     return saveDebounced(&state)

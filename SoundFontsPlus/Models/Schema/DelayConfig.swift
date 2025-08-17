@@ -42,6 +42,17 @@ extension DelayConfig {
   }
 }
 
+extension DelayConfig.Draft {
+
+  public mutating func copy(_ source: Self) {
+    self.time = source.time
+    self.feedback = source.feedback
+    self.cutoff = source.cutoff
+    self.wetDryMix = source.wetDryMix
+    self.enabled = source.enabled
+  }
+}
+
 extension DelayConfig {
 
   public static func draft(for presetId: Preset.ID, cloning: Draft? = nil) -> Draft {
@@ -62,7 +73,7 @@ extension DelayConfig {
           feedback: clone.feedback,
           cutoff: clone.cutoff,
           wetDryMix: clone.wetDryMix,
-          enabled: clone.enabled,
+          enabled: false,
           presetId: presetId
         )
       }
@@ -72,7 +83,7 @@ extension DelayConfig {
       feedback: clone.feedback,
       cutoff: clone.cutoff,
       wetDryMix: clone.wetDryMix,
-      enabled: clone.enabled,
+      enabled: false,
       presetId: presetId
     )
   }
