@@ -13,9 +13,7 @@ public struct DelayFeature {
   public struct State: Equatable {
 
     @ObservationStateIgnored
-    public var device: DelayConfig.Draft = .init()
-    @ObservationStateIgnored
-    public var pending: DelayConfig.Draft = .init()
+    public var config: DelayConfig.Draft = .init(presetId: -1)
 
     public var enabled: ToggleFeature.State
     public var locked: ToggleFeature.State
@@ -23,14 +21,7 @@ public struct DelayFeature {
     public var feedback: KnobFeature.State
     public var cutoff: KnobFeature.State
     public var wetDryMix: KnobFeature.State
-
-    public var isDirty: Bool {
-      pending.enabled != device.enabled ||
-      pending.time != device.time ||
-      pending.feedback != device.feedback ||
-      pending.cutoff != device.cutoff ||
-      pending.wetDryMix != device.wetDryMix
-    }
+    public var dirty: Bool = false
 
     public init() {
       @Shared(.parameterTree) var parameterTree
@@ -45,8 +36,8 @@ public struct DelayFeature {
   }
 
   public enum Action {
-    case activePresetIdChanged(Preset.ID?)
-    case applyConfigForPreset(DelayConfig.Draft)
+    case activePresetIdChanged
+    case applyConfigForPreset
     case cutoff(KnobFeature.Action)
     case enabled(ToggleFeature.Action)
     case feedback(KnobFeature.Action)
@@ -65,10 +56,10 @@ public struct DelayFeature {
     case updateDebouncer
   }
 
-  @Dependency(\.mainQueue) var mainQueue
+  @Shared(.activeState) var activeState
   @Dependency(\.defaultDatabase) var database
   @Dependency(\.delayDevice) var delayDevice
-  @Shared(.activeState) var activeState
+  @Dependency(\.mainQueue) var mainQueue
   @Shared(.parameterTree) var parameterTree
 
   public var body: some ReducerOf<Self> {
@@ -82,26 +73,37 @@ public struct DelayFeature {
 
     Reduce { state, action in
       switch action {
-      case let .activePresetIdChanged(presetId):
-        return activePresetIdChanged(&state, presetId: presetId)
-      case let .applyConfigForPreset(config):
-        return applyConfigForPreset(&state, config: config)
+
+      case .activePresetIdChanged:
+        return activePresetIdChanged(&state)
+
+      case .applyConfigForPreset:
+        return applyConfigForPreset(&state)
+
       case .cutoff:
         return updateAndSave(&state, path: \.cutoff, value: state.cutoff.value)
+
       case .enabled:
         return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
+
       case .feedback:
         return updateAndSave(&state, path: \.feedback, value: state.feedback.value)
+
       case .initialize:
         return monitorActivePresetId()
+
       case .locked:
         return updateLocked(&state)
+
       case .saveDebounced:
         return saveDebounced(&state)
+
       case .time:
         return updateAndSave(&state, path: \.time, value: state.time.value)
+
       case .updateDebounced:
         return updateDebounced(&state)
+
       case .wetDryMix:
         return updateAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
       }
@@ -111,32 +113,23 @@ public struct DelayFeature {
 
 extension DelayFeature {
 
-  private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+  private func activePresetIdChanged(_ state: inout State) -> Effect<Action> {
 
     guard !state.locked.isOn else {
       return .none
     }
 
-    guard let presetId else {
-      state.pending = state.device
-      state.pending.presetId = nil
+    guard let presetId = activeState.activePresetId else {
       return .none
     }
 
-    guard state.pending.presetId != presetId else {
+    guard state.config.presetId != presetId else {
       return .none
     }
 
-    let newConfig = DelayConfig.draft(for: presetId)
-
-    if state.isDirty && state.pending.presetId != nil {
-
-      // Protect the existing dirty config
-      let toSave = state.pending
-
+    if state.dirty {
+      let toSave = state.config
       return .merge(
-
-        // We always want a save to finish so it is not cancellable
         .run { _ in
           withDatabaseWriter { db in
             try DelayConfig.upsert {
@@ -145,33 +138,34 @@ extension DelayFeature {
             .execute(db)
           }
         },
-
-        // With the dirty config protected we can safely execute the following to install the new config.
-        // Only let one change be active at a time.
         .run { send in
-          await send(.applyConfigForPreset(newConfig))
+          await send(.applyConfigForPreset)
         }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
       )
     }
 
-    // NOTE: it might be safe to run this immmediately if the old preset was not dirty, but there still could be an
-    // older task that is waiting to execute. Best approach is to allow TCA to cancel any active task even if it might
-    // be slightly slower.
     return .run { send in
-      await send(.applyConfigForPreset(newConfig))
+      await send(.applyConfigForPreset)
     }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
   }
 
-  private func applyConfigForPreset(_ state: inout State, config: DelayConfig.Draft) -> Effect<Action> {
+  private func applyConfigForPreset(_ state: inout State) -> Effect<Action> {
+    guard let presetId = activeState.activePresetId else {
+      return .none
+    }
+
+    // If this preset does not have a delay config, assume the current settings.
+    let config = DelayConfig.draft(for: presetId, cloning: state.config)
     delayDevice.setConfig(config)
-    state.device = config
-    state.pending = config
+    state.config = config
+    state.dirty = false
+
     return .merge(
-      reduce(into: &state, action: .enabled(.setValue(state.device.enabled))),
-      reduce(into: &state, action: .time(.setValue(state.device.time))),
-      reduce(into: &state, action: .feedback(.setValue(state.device.feedback))),
-      reduce(into: &state, action: .cutoff(.setValue(state.device.cutoff))),
-      reduce(into: &state, action: .wetDryMix(.setValue(state.device.wetDryMix))),
+      reduce(into: &state, action: .enabled(.setValue(config.enabled))),
+      reduce(into: &state, action: .time(.setValue(config.time))),
+      reduce(into: &state, action: .feedback(.setValue(config.feedback))),
+      reduce(into: &state, action: .cutoff(.setValue(config.cutoff))),
+      reduce(into: &state, action: .wetDryMix(.setValue(config.wetDryMix))),
     )
   }
 
@@ -179,7 +173,7 @@ extension DelayFeature {
     .publisher {
       $activeState.activePresetId
         .publisher
-        .map { .activePresetIdChanged($0) }
+        .map { _ in .activePresetIdChanged }
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
@@ -195,26 +189,25 @@ extension DelayFeature {
   }
 
   private func saveDebounced(_ state: inout State) -> Effect<Action> {
+    guard let presetId = activeState.activePresetId else {
+      return .none
+    }
 
-    guard state.device.presetId != nil else {
+    guard state.config.presetId == presetId else {
       return .none
     }
 
     let found = withDatabaseWriter { db in
       try DelayConfig.upsert {
-        state.device
+        state.config
       }
       .returning(\.self)
       .fetchOneForced(db)
     }
 
-    guard let unwrapped = found else {
-      return .none
-    }
-
-    let config: DelayConfig.Draft = .init(unwrapped)
-    state.device = config
-    state.pending = config
+    // Update the draft with the info returned from upsert
+    guard let unwrapped = found else { return .none }
+    state.config = .init(unwrapped)
 
     return .none
   }
@@ -224,14 +217,9 @@ extension DelayFeature {
     path: WritableKeyPath<DelayConfig.Draft, T>,
     value: T
   ) -> Effect<Action> {
-
-    state.pending[keyPath: path] = value
-    if abs(state.device[keyPath: path] - value) < 1e-6 {
-      return .none
-    }
-
-    state.pending.presetId = activeState.activePresetId
-
+    guard abs(state.config[keyPath: path] - value) > 1e-8 else { return .none }
+    state.config[keyPath: path] = value
+    state.dirty = true
     return runDebouncers()
   }
 
@@ -240,26 +228,36 @@ extension DelayFeature {
     path: WritableKeyPath<DelayConfig.Draft, T>,
     value: T
   ) -> Effect<Action> {
-
-    state.pending[keyPath: path] = value
-    if state.device[keyPath: path] == value {
-      return .none
-    }
-
-    state.pending.presetId = activeState.activePresetId
-
+    guard state.config[keyPath: path] != value else { return .none }
+    state.config[keyPath: path] = value
+    state.dirty = true
     return runDebouncers()
   }
 
   private func updateDebounced(_ state: inout State) -> Effect<Action> {
-    state.device = state.pending
-    delayDevice.setConfig(state.device)
+    delayDevice.setConfig(state.config)
     return .none
+  }
+
+  private func globalToLocalConfig(_ state: inout State) -> Effect<Action> {
+    guard let presetId = activeState.activePresetId else { return .none }
+    var localConfig = DelayConfig.draft(for: presetId)
+    localConfig.time = state.config.time
+    localConfig.feedback = state.config.feedback
+    localConfig.cutoff = state.config.cutoff
+    localConfig.wetDryMix = state.config.wetDryMix
+    localConfig.enabled = state.config.enabled
+    state.config = localConfig
+    delayDevice.setConfig(state.config)
+    return saveDebounced(&state)
   }
 
   private func updateLocked(_ state: inout State) -> Effect<Action> {
     @Shared(.delayLockEnabled) var locked
     $locked.withLock { $0 = state.locked.isOn }
+    if !state.locked.isOn && state.config.enabled {
+      return globalToLocalConfig(&state)
+    }
     return .none
   }
 }
