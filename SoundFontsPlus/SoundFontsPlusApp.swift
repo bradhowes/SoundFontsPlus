@@ -14,18 +14,17 @@ struct SoundFontsPlusApp: App {
       $0.defaultDatabase = try! appDatabase()
       $0.defaultFileStorage = .fileSystem
 
+      let delay = AVAudioUnitDelay()
       $0.delayDevice = .init(
-        getConfig: { DelayConfig.Draft() },
-        setConfig: { config in print(config) }
+        setConfig: { delay.setConfig($0) }
       )
+      @Shared(.delayEffect) var delayEffect = delay
 
+      let reverb = AVAudioUnitReverb()
       $0.reverbDevice = .init(
-        getConfig: { ReverbConfig.Draft() },
-        setConfig: { config in print(config) }
+        setConfig: { reverb.setConfig($0) }
       )
-
-      @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
-      @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
+      @Shared(.reverbEffect) var reverbEffect = reverb
 
       @Shared(.midiInputPortId) var midiInputPortId
       @Shared(.midi) var midi = .init(clientName: "SoundFonts+", uniqueId: Int32(midiInputPortId), midiProto: .legacy)

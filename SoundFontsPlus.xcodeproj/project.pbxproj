@@ -150,6 +150,8 @@
 		BDEB8F952E17287E00BF16B5 /* SF2LibAU in Frameworks */ = {isa = PBXBuildFile; productRef = BDEB8F942E17287E00BF16B5 /* SF2LibAU */; };
 		BDEB90092E19B00A00BF16B5 /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = BDEB90082E19B00A00BF16B5 /* SwiftUIIntrospect */; };
 		BDF14C492DF0AF0100BDDB0E /* PresetNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */; };
+		BDFF8EFC2E51C02B00A893D7 /* AVAudioUnitDelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFF8EFB2E51C01F00A893D7 /* AVAudioUnitDelay.swift */; };
+		BDFF8EFE2E51C2E700A893D7 /* AVAudioUnitReverb.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFF8EFD2E51C2E700A893D7 /* AVAudioUnitReverb.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -326,6 +328,8 @@
 		BDE572C02DF3182400646D0E /* DependencyValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyValues.swift; sourceTree = "<group>"; };
 		BDEB8F6A2E15C51200BF16B5 /* NameFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameFieldView.swift; sourceTree = "<group>"; };
 		BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetNameView.swift; sourceTree = "<group>"; };
+		BDFF8EFB2E51C01F00A893D7 /* AVAudioUnitDelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAudioUnitDelay.swift; sourceTree = "<group>"; };
+		BDFF8EFD2E51C2E700A893D7 /* AVAudioUnitReverb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVAudioUnitReverb.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -542,6 +546,8 @@
 			isa = PBXGroup;
 			children = (
 				BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */,
+				BDFF8EFB2E51C01F00A893D7 /* AVAudioUnitDelay.swift */,
+				BDFF8EFD2E51C2E700A893D7 /* AVAudioUnitReverb.swift */,
 				BDB9FEF62E067A1C003BA0A2 /* AVAudioUnitReverbPreset.swift */,
 				BDAF5A8E2DE254E000B8FB13 /* Environment.swift */,
 				BDAF5A8F2DE254E000B8FB13 /* FileManager.swift */,
@@ -1102,6 +1108,7 @@
 				BDAF5AD52DE2555B00B8FB13 /* PresetsListSection.swift in Sources */,
 				BDAF5AD62DE2555B00B8FB13 /* PresetsList.swift in Sources */,
 				BDAF5AD72DE2555B00B8FB13 /* PresetEditor.swift in Sources */,
+				BDFF8EFE2E51C2E700A893D7 /* AVAudioUnitReverb.swift in Sources */,
 				BDAF5AD82DE2555B00B8FB13 /* PresetButton.swift in Sources */,
 				BDE572C12DF3183700646D0E /* DependencyValues.swift in Sources */,
 				BD812F652DF4BF3500D2B344 /* KeyboardReadable.swift in Sources */,
@@ -1147,6 +1154,7 @@
 				BDAF5AA22DE2551A00B8FB13 /* EventNoteMap.swift in Sources */,
 				BDAF5AA32DE2551A00B8FB13 /* KeyboardFeature.swift in Sources */,
 				BDB9FEF72E067A25003BA0A2 /* AVAudioUnitReverbPreset.swift in Sources */,
+				BDFF8EFC2E51C02B00A893D7 /* AVAudioUnitDelay.swift in Sources */,
 				BDAF5AA42DE2551A00B8FB13 /* KeySequenceGenerators.swift in Sources */,
 				BDB9FEF42E04B795003BA0A2 /* ParameterAddress.swift in Sources */,
 				BD171ED92E47A98C00E2EDA7 /* MIDIMonitor.swift in Sources */,
