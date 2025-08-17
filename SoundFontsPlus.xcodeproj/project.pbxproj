@@ -18,9 +18,6 @@
 		BD1D27832B6F13DD005C3ED0 /* SoundFontsPlusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27822B6F13DD005C3ED0 /* SoundFontsPlusApp.swift */; };
 		BD1D27892B6F13DE005C3ED0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */; };
 		BD1D278D2B6F13DE005C3ED0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */; };
-		BD1D27982B6F13DE005C3ED0 /* SoundFontsPlusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27972B6F13DE005C3ED0 /* SoundFontsPlusTests.swift */; };
-		BD1D27A22B6F13DE005C3ED0 /* SoundFontsPlusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27A12B6F13DE005C3ED0 /* SoundFontsPlusUITests.swift */; };
-		BD1D27A42B6F13DE005C3ED0 /* SoundFontsPlusUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27A32B6F13DE005C3ED0 /* SoundFontsPlusUITestsLaunchTests.swift */; };
 		BD2A26042CC849E0000CC1DF /* Eurostile.ttc in Resources */ = {isa = PBXBuildFile; fileRef = BD2A26032CC849E0000CC1DF /* Eurostile.ttc */; };
 		BD3311432DE2700500A73BA8 /* InlineSnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311422DE2700500A73BA8 /* InlineSnapshotTesting */; };
 		BD3311452DE2700500A73BA8 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311442DE2700500A73BA8 /* SnapshotTesting */; };
@@ -207,10 +204,7 @@
 		BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		BD1D278E2B6F13DE005C3ED0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BD1D27932B6F13DE005C3ED0 /* SoundFontsPlusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoundFontsPlusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		BD1D27972B6F13DE005C3ED0 /* SoundFontsPlusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFontsPlusTests.swift; sourceTree = "<group>"; };
 		BD1D279D2B6F13DE005C3ED0 /* SoundFontsPlusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoundFontsPlusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		BD1D27A12B6F13DE005C3ED0 /* SoundFontsPlusUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFontsPlusUITests.swift; sourceTree = "<group>"; };
-		BD1D27A32B6F13DE005C3ED0 /* SoundFontsPlusUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFontsPlusUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		BD2A26032CC849E0000CC1DF /* Eurostile.ttc */ = {isa = PBXFileReference; lastKnownFileType = file; path = Eurostile.ttc; sourceTree = "<group>"; };
 		BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarTitleStyle.swift; sourceTree = "<group>"; };
 		BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AUParameterTree.swift; sourceTree = "<group>"; };
@@ -434,7 +428,6 @@
 				BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */,
 				BD1D27812B6F13DD005C3ED0 /* SoundFontsPlus */,
 				BD1D27962B6F13DE005C3ED0 /* SoundFontsPlusTests */,
-				BD1D27A02B6F13DE005C3ED0 /* SoundFontsPlusUITests */,
 				BD61F0252E11A69800DD8903 /* SoundFontsPlusAU */,
 				BD1D27802B6F13DD005C3ED0 /* Products */,
 				BD6E7D9F2B6FC319004201F2 /* Frameworks */,
@@ -494,10 +487,8 @@
 		BD1D27962B6F13DE005C3ED0 /* SoundFontsPlusTests */ = {
 			isa = PBXGroup;
 			children = (
-				BDAF5B322DE256C500B8FB13 /* DelayFeatureTests */,
 				BDAF5B3F2DE256C500B8FB13 /* ModelsTests */,
 				BDAF5B4F2DE256C500B8FB13 /* PresetsFeatureTests */,
-				BDAF5B502DE256C500B8FB13 /* ReverbFeatureTests */,
 				BDAF5B522DE256C500B8FB13 /* SettingsFeatureTests */,
 				BDAF5B582DE256C500B8FB13 /* SF2LibAUTests */,
 				BDAF5B5A2DE256C500B8FB13 /* SF2PickerTests */,
@@ -507,18 +498,8 @@
 				BDAF5B7B2DE256C500B8FB13 /* TagsFeatureTests */,
 				BDAF5B7D2DE256C500B8FB13 /* ToolBarFeatureTests */,
 				BDAF5B802DE256C500B8FB13 /* UtilsTests */,
-				BD1D27972B6F13DE005C3ED0 /* SoundFontsPlusTests.swift */,
 			);
 			path = SoundFontsPlusTests;
-			sourceTree = "<group>";
-		};
-		BD1D27A02B6F13DE005C3ED0 /* SoundFontsPlusUITests */ = {
-			isa = PBXGroup;
-			children = (
-				BD1D27A12B6F13DE005C3ED0 /* SoundFontsPlusUITests.swift */,
-				BD1D27A32B6F13DE005C3ED0 /* SoundFontsPlusUITestsLaunchTests.swift */,
-			);
-			path = SoundFontsPlusUITests;
 			sourceTree = "<group>";
 		};
 		BD6E7D9F2B6FC319004201F2 /* Frameworks */ = {
@@ -744,13 +725,6 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
-		BDAF5B322DE256C500B8FB13 /* DelayFeatureTests */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = DelayFeatureTests;
-			sourceTree = "<group>";
-		};
 		BDAF5B3F2DE256C500B8FB13 /* ModelsTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -779,13 +753,6 @@
 				BDAF5B4E2DE256C500B8FB13 /* Support.swift */,
 			);
 			path = PresetsFeatureTests;
-			sourceTree = "<group>";
-		};
-		BDAF5B502DE256C500B8FB13 /* ReverbFeatureTests */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = ReverbFeatureTests;
 			sourceTree = "<group>";
 		};
 		BDAF5B522DE256C500B8FB13 /* SettingsFeatureTests */ = {
@@ -1212,7 +1179,6 @@
 				BDAF5B9F2DE256C500B8FB13 /* PresetEditorTests.swift in Sources */,
 				BDAF5BA02DE256C500B8FB13 /* SoundFontSupport.swift in Sources */,
 				BDAF5BA12DE256C500B8FB13 /* DelayConfigTests.swift in Sources */,
-				BD1D27982B6F13DE005C3ED0 /* SoundFontsPlusTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1220,8 +1186,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BD1D27A42B6F13DE005C3ED0 /* SoundFontsPlusUITestsLaunchTests.swift in Sources */,
-				BD1D27A22B6F13DE005C3ED0 /* SoundFontsPlusUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
