@@ -26,6 +26,8 @@
 		BD3311452DE2700500A73BA8 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311442DE2700500A73BA8 /* SnapshotTesting */; };
 		BD3311472DE2700500A73BA8 /* SnapshotTestingCustomDump in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311462DE2700500A73BA8 /* SnapshotTestingCustomDump */; };
 		BD33FF572E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */; };
+		BD3E3D802E520FA800523292 /* SF2LibAU in Frameworks */ = {isa = PBXBuildFile; productRef = BD3E3D7F2E520FA800523292 /* SF2LibAU */; };
+		BD3E3D832E520FEF00523292 /* BRHSplitView in Frameworks */ = {isa = PBXBuildFile; productRef = BD3E3D822E520FEF00523292 /* BRHSplitView */; };
 		BD46FC832DF62C3100CB20F1 /* AUParameterTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */; };
 		BD59D4EA2E47B62C00B2250B /* MIDIConnectionsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4E92E47B62500B2250B /* MIDIConnectionsFeature.swift */; };
 		BD59D4EC2E47C77C00B2250B /* MIDIControllersFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4EB2E47C77C00B2250B /* MIDIControllersFeature.swift */; };
@@ -375,7 +377,9 @@
 				BD171EDC2E47A9F700E2EDA7 /* MorkAndMIDI in Frameworks */,
 				BDEB8F952E17287E00BF16B5 /* SF2LibAU in Frameworks */,
 				BDAF5B262DE255D900B8FB13 /* BRHSplitView in Frameworks */,
+				BD3E3D802E520FA800523292 /* SF2LibAU in Frameworks */,
 				BD010CCD2E3AA76400E0DC0D /* AUv3Component in Frameworks */,
+				BD3E3D832E520FEF00523292 /* BRHSplitView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -914,6 +918,8 @@
 				BD010CCC2E3AA76400E0DC0D /* AUv3Component */,
 				BD010CCE2E3AA76400E0DC0D /* AUv3Shared */,
 				BD171EDB2E47A9F700E2EDA7 /* MorkAndMIDI */,
+				BD3E3D7F2E520FA800523292 /* SF2LibAU */,
+				BD3E3D822E520FEF00523292 /* BRHSplitView */,
 			);
 			productName = SoundFontsPlus;
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */;
@@ -1014,19 +1020,19 @@
 			packageReferences = (
 				BD89D64D2CB7AFF60016BC25 /* XCRemoteSwiftPackageReference "FileHash" */,
 				BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */,
-				BDAF5B242DE255D900B8FB13 /* XCLocalSwiftPackageReference "../brh-splitview" */,
 				BDAF5B272DE255EE00B8FB13 /* XCRemoteSwiftPackageReference "AUv3Controls" */,
 				BDAF5B2A2DE2560400B8FB13 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				BDAF5B2D2DE2565000B8FB13 /* XCRemoteSwiftPackageReference "sharing-grdb" */,
 				BDAF5BBD2DE25A7900B8FB13 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 				BDAF5BC22DE269C300B8FB13 /* XCRemoteSwiftPackageReference "swift-dependencies" */,
 				BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
-				BDEB8F932E17287E00BF16B5 /* XCLocalSwiftPackageReference "../SF2LibAU" */,
 				BDEB90072E19B00A00BF16B5 /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 				BD33FF7F2E23B2900085D3C3 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 				BD76C15A2E23C5F700F5B1F5 /* XCRemoteSwiftPackageReference "ProgressHUD" */,
 				BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */,
 				BD171EDA2E47A9F700E2EDA7 /* XCRemoteSwiftPackageReference "morkandmidi" */,
+				BD3E3D7E2E520FA800523292 /* XCRemoteSwiftPackageReference "SF2LibAU" */,
+				BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */,
 			);
 			preferredProjectObjectVersion = 56;
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
@@ -1717,17 +1723,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		BDAF5B242DE255D900B8FB13 /* XCLocalSwiftPackageReference "../brh-splitview" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = "../brh-splitview";
-		};
-		BDEB8F932E17287E00BF16B5 /* XCLocalSwiftPackageReference "../SF2LibAU" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../SF2LibAU;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -1759,6 +1754,22 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 0.59.1;
+			};
+		};
+		BD3E3D7E2E520FA800523292 /* XCRemoteSwiftPackageReference "SF2LibAU" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bradhowes/SF2LibAU";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.5;
+			};
+		};
+		BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bradhowes/brh-splitview";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.5;
 			};
 		};
 		BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
@@ -1870,6 +1881,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
 			productName = SnapshotTestingCustomDump;
+		};
+		BD3E3D7F2E520FA800523292 /* SF2LibAU */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD3E3D7E2E520FA800523292 /* XCRemoteSwiftPackageReference "SF2LibAU" */;
+			productName = SF2LibAU;
+		};
+		BD3E3D822E520FEF00523292 /* BRHSplitView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */;
+			productName = BRHSplitView;
 		};
 		BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */ = {
 			isa = XCSwiftPackageProductDependency;

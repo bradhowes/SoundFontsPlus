@@ -1,5 +1,5 @@
 {
-  "originHash" : "ec7d8d16395453ebdbb1dce55dd170bdc5e1dbc81ad3c0849997b9160f39f49e",
+  "originHash" : "fcceb3308f13ecf581abb6315b4bc8040086c7c0a4168c8b0770ee9c18c455e9",
   "pins" : [
     {
       "identity" : "auv3-support",
@@ -25,6 +25,15 @@
       "location" : "https://github.com/bradhowes/brh-segmented-control",
       "state" : {
         "revision" : "68c2aeacf7cf9d21482497de111bec8bed783a40",
+        "version" : "1.0.5"
+      }
+    },
+    {
+      "identity" : "brh-splitview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bradhowes/brh-splitview",
+      "state" : {
+        "revision" : "db70896b23330136b94f9ac256d70ec1a358a6b8",
         "version" : "1.0.5"
       }
     },
@@ -89,6 +98,15 @@
       "state" : {
         "revision" : "7cb86f923405951b9e38ffc79b222b4b16abb9d2",
         "version" : "6.7.0"
+      }
+    },
+    {
+      "identity" : "sf2libau",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bradhowes/SF2LibAU",
+      "state" : {
+        "revision" : "b2ba1d46d23a51d2dd01233bcd68e1dd16af612c",
+        "version" : "0.0.5"
       }
     },
     {
