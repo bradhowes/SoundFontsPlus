@@ -150,7 +150,7 @@ extension DelayFeature {
       return .none
     }
 
-    // If this preset does not have a delay config, assume the current settings.
+    // If this preset does not have a reverb config, assume the current settings.
     let config = DelayConfig.draft(for: presetId, cloning: state.config)
     delayDevice.setConfig(config)
     state.config = config

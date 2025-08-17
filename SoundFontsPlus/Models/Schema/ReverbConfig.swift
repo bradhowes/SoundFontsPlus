@@ -38,6 +38,15 @@ extension ReverbConfig {
   }
 }
 
+extension ReverbConfig.Draft {
+
+  public mutating func copy(_ source: Self) {
+    self.roomPreset = source.roomPreset
+    self.wetDryMix = source.wetDryMix
+    self.enabled = source.enabled
+  }
+}
+
 extension ReverbConfig {
 
   public static func draft(for presetId: Preset.ID, cloning: Draft? = nil) -> Draft {
@@ -56,7 +65,7 @@ extension ReverbConfig {
         return .init(
           roomPreset: clone.roomPreset,
           wetDryMix: clone.wetDryMix,
-          enabled: clone.enabled,
+          enabled: false,
           presetId: presetId
         )
       }
@@ -64,7 +73,7 @@ extension ReverbConfig {
     } ?? .init(
       roomPreset: clone.roomPreset,
       wetDryMix: clone.wetDryMix,
-      enabled: clone.enabled,
+      enabled: false,
       presetId: presetId
     )
   }
