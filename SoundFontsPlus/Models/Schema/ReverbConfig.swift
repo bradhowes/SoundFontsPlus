@@ -8,7 +8,6 @@ import Tagged
 @Table
 public struct ReverbConfig: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>
-  public static let global = ID(rawValue: 1)
 
   public let id: ID
   public var roomPreset: AVAudioUnitReverbPreset = .mediumHall
@@ -18,18 +17,6 @@ public struct ReverbConfig: Hashable, Identifiable, Sendable {
 }
 
 extension ReverbConfig {
-
-  public static var active: Draft {
-    @Shared(.activeState) var activeState
-    @Shared(.delayLockEnabled) var lockEnabled
-    if lockEnabled {
-      let configId = activeState.activeReverbConfigId ?? global
-      return draft(for: configId)
-    } else if let presetId = activeState.activePresetId {
-      return draft(for: presetId)
-    }
-    return draft(for: global)
-  }
 
   public static func draft(for presetId: Preset.ID) -> Draft {
     draft(where: Self.all.where { $0.presetId.eq(presetId) })

@@ -8,8 +8,6 @@ import Tagged
 public struct AudioConfig: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>
 
-  public static let global = ID(rawValue: 1)
-
   public let id: ID
   public var gain: Double = 0.0
   public var pan: Double = 0.0
