@@ -38,7 +38,7 @@ coverage-macOS: test-macOS
 	cat coverage_macOS.txt
 
 percentage-macOS: coverage-macOS
-	awk '/ SoundFontsPlus / { print $$4 }' coverage_macOS.txt > percentage_macOS.txt
+	awk '/ SoundFontsPlus.app / { print $$4 }' coverage_macOS.txt > percentage_macOS.txt
 	echo "macOS Coverage Pct:"
 	cat percentage_macOS.txt
 

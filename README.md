@@ -1,3 +1,9 @@
+[![CI][status]][ci]
+[![COV][cov]][ci]
+[![][spiv]][spi]
+[![][spip]][spi]
+[![License: MIT][mit]][license]
+
 # SoundFonts+
 
 This is the SwiftUI version of my [SoundFonts][0] app.
@@ -124,7 +130,17 @@ Originally it was based on SwiftData, but I encountered too many issues and hurd
 [8]: https://github.com/bradhowes/SwiftDataTCA
 [9]: https://github.com/bradhowes/brh-splitview
 
-[tags]: https://github.com/bradhowes/SoundFonts2/blob/main/SoundFontsPlus/TagsFeature/TagsList.swift#L25
+[tags]: https://github.com/bradhowes/SoundFontsPlus/blob/main/SoundFontsPlus/TagsFeature/TagsList.swift#L25
 [activeTagId]: https://github.com/bradhowes/SoundFontsPlus/blob/main/SoundFontsPlus/SoundFontsFeature/SoundFontsList.swift#L133
 [sf2]: https://github.com/bradhowes/SoundFontsPlus/blob/main/SoundFontsPlus/SoundFontsFeature/SoundFontsList.swift#L147
 [selectedSoundFontId]: https://github.com/bradhowes/SoundFontsPlus/blob/main/SoundFontsPlus/PresetsFeature/PresetsList.swift#L161
+
+
+[ci]: https://github.com/bradhowes/SoundFontsPlus/actions/workflows/CI.yml
+[status]: https://github.com/bradhowes/SoundFontsPlus/actions/workflows/CI.yml/badge.svg
+[cov]: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bradhowes/3489d8974ae6894967b2a43f657f9d70/raw/SoundFontsPlus-coverage.json
+[spi]: https://swiftpackageindex.com/bradhowes/SoundFontsPlus
+[spiv]: https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fbradhowes%2SoundFontsPlus%2Fbadge%3Ftype%3Dswift-versions
+[spip]: https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fbradhowes%2SoundFontsPlus%2Fbadge%3Ftype%3Dplatforms
+[mit]: https://img.shields.io/badge/License-MIT-A31F34.svg
+[license]: https://opensource.org/licenses/MIT
