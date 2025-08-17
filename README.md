@@ -1,4 +1,4 @@
-# SoundFontsPlus
+# SoundFonts+
 
 This is the SwiftUI version of my [SoundFonts][0] app.
 
