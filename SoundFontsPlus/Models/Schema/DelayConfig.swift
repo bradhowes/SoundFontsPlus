@@ -15,49 +15,8 @@ public struct DelayConfig: Hashable, Identifiable, Sendable {
   public var cutoff: Double = 12_000.0
   public var wetDryMix: Double = 50.0
   public var enabled: Bool = false
-  public var presetId: Preset.ID?
+  public var presetId: Preset.ID
 }
-
-extension DelayConfig {
-
-  public static func draft(for presetId: Preset.ID) -> Draft {
-    draft(where: Self.all.where { $0.presetId.eq(presetId) })
-  }
-
-  public static func draft(for key: DelayConfig.ID) -> Draft {
-    draft(where: Self.find(key))
-  }
-
-  public func clone(audioConfigId: AudioConfig.ID) -> Self? {
-    let dupe = Draft(
-      time: self.time,
-      feedback: self.feedback,
-      cutoff: self.cutoff,
-      wetDryMix: self.wetDryMix,
-      enabled: self.enabled,
-      presetId: presetId
-    )
-
-    return withDatabaseReader {
-      let query = Self.insert {
-        dupe
-      }.returning(\.self)
-      return try query.fetchOneForced($0)
-    }
-  }
-}
-
-extension DelayConfig {
-
-  private static func draft(where: Where<Self>) -> Draft {
-    withDatabaseReader { db in
-      guard let found = try `where`.fetchOne(db) else { return Draft() }
-      return Draft(found)
-    } ?? Draft()
-  }
-}
-
-extension DelayConfig.Draft: Equatable, Sendable {}
 
 extension DelayConfig {
 
@@ -72,7 +31,7 @@ extension DelayConfig {
         "cutoff" REAL NOT NULL,
         "wetDryMix" REAL NOT NULL,
         "enabled" INTEGER NOT NULL CHECK ("enabled" in (0, 1)),
-        "presetId" INTEGER,
+        "presetId" INTEGER NOT NULL,
 
         FOREIGN KEY("presetId") REFERENCES "presets"("id") ON DELETE CASCADE
       ) STRICT
@@ -82,3 +41,37 @@ extension DelayConfig {
     }
   }
 }
+
+extension DelayConfig {
+
+  public static func draft(for presetId: Preset.ID, cloning: Draft? = nil) -> Draft {
+    fetchDraft(
+      presetId: presetId,
+      clone: cloning ?? Draft(presetId: presetId),
+      where: Self.all.where { $0.presetId.eq(presetId) }
+    )
+  }
+
+  private static func fetchDraft(presetId: Preset.ID, clone: Draft, where: Where<Self>) -> Draft {
+    withDatabaseReader { db in
+      guard let found = try `where`.fetchOne(db) else {
+        return Draft(
+          time: clone.time,
+          feedback: clone.feedback,
+          cutoff: clone.cutoff,
+          wetDryMix: clone.wetDryMix,
+          presetId: presetId
+        )
+      }
+      return Draft(found)
+    } ?? Draft(
+      time: clone.time,
+      feedback: clone.feedback,
+      cutoff: clone.cutoff,
+      wetDryMix: clone.wetDryMix,
+      presetId: presetId
+    )
+  }
+}
+
+extension DelayConfig.Draft: Equatable, Sendable {}
