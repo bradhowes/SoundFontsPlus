@@ -96,8 +96,8 @@ extension SynthFeature {
   func activePresetIdChanged(_ state: inout State) -> Effect<Action> {
     log.info("activePresetIdChanged")
 
-    @Shared(.avAudioUnit) var avAudioUnit
-    guard let synth = avAudioUnit?.synth else {
+    @Shared(.synthAudioUnit) var synthAudioUnit
+    guard let synth = synthAudioUnit?.synth else {
       log.info("nil audioUnit -- ignoring")
       return .none
     }
@@ -151,8 +151,8 @@ extension SynthFeature {
 
       log.info("createSynth - instantiating audio unit")
       let au = try await AVAudioUnit.instantiate(with: acd, options: [])
-      @Shared(.avAudioUnit) var avAudioUnit
-      $avAudioUnit.withLock { $0 = au }
+      @Shared(.synthAudioUnit) var synthAudioUnit
+      $synthAudioUnit.withLock { $0 = au }
 
       log.info("createSynth - created")
       await send(.audioUnitCreated)
@@ -173,12 +173,20 @@ extension SynthFeature {
 
   func installAudioUnit(_ state: inout State) -> Effect<Action> {
     log.info("installAudioUnit")
-    @Shared(.avAudioUnit) var avAudioUnit
-    guard let avAudioUnit else { return .none }
+    @Shared(.synthAudioUnit) var synthAudioUnit
+    @Shared(.delayEffect) var delayEffect
+    @Shared(.reverbEffect) var reverbEffect
+
+    guard let synthAudioUnit, let delayEffect, let reverbEffect else { return .none }
 
     log.info("attaching to engine")
-    state.engine.attach(avAudioUnit)
-    state.engine.connect(avAudioUnit, to: state.engine.outputNode, format: audioFormat)
+    state.engine.attach(synthAudioUnit)
+    state.engine.attach(delayEffect)
+    state.engine.attach(reverbEffect)
+
+    state.engine.connect(reverbEffect, to: state.engine.outputNode, format: audioFormat)
+    state.engine.connect(delayEffect, to: reverbEffect, format: audioFormat)
+    state.engine.connect(synthAudioUnit, to: delayEffect, format: audioFormat)
 
     log.info("starting")
     _ = startAudioSession(&state)

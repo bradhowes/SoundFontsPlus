@@ -17,8 +17,8 @@ public struct MIDITraffic: Equatable {
 
 public final class MIDIMonitor {
   @Shared(.midiChannel) var midiChannel
-  @Shared(.avAudioUnit) var avAudioUnit
-  var synth: AVAudioUnitMIDIInstrument? { avAudioUnit?.midiInstrument }
+  @Shared(.synthAudioUnit) var synthAudioUnit
+  var midiInstrument: AVAudioUnitMIDIInstrument? { synthAudioUnit?.midiInstrument }
 
   // We want all traffic to appear in the `traffic` tap, regardless of channel.
   public var channel: Int { -1 }
@@ -55,7 +55,7 @@ extension MIDIMonitor: Receiver {
 
   public func noteOff(source: MIDIUniqueID, note: UInt8, velocity: UInt8, channel: UInt8) {
     if accepts(source: source, channel: channel) {
-      synth?.stopNote(note, onChannel: channel)
+      midiInstrument?.stopNote(note, onChannel: channel)
     }
   }
 
@@ -74,7 +74,7 @@ extension MIDIMonitor: Receiver {
 
   public func noteOn(source: MIDIUniqueID, note: UInt8, velocity: UInt8, channel: UInt8) {
     if accepts(source: source, channel: channel) {
-      synth?.startNote(note, withVelocity: velocity, onChannel: channel)
+      midiInstrument?.startNote(note, withVelocity: velocity, onChannel: channel)
     }
     // (note, velocity: connectionState.fixedVelocity ?? velocity)
     // keyboard.noteIsOn(note: note)
@@ -95,7 +95,7 @@ extension MIDIMonitor: Receiver {
 
   public func polyphonicKeyPressure(source: MIDIUniqueID, note: UInt8, pressure: UInt8, channel: UInt8) {
     if accepts(source: source, channel: channel) {
-      synth?.sendPressure(forKey: note, withValue: pressure, onChannel: channel)
+      midiInstrument?.sendPressure(forKey: note, withValue: pressure, onChannel: channel)
     }
   }
 
@@ -127,7 +127,7 @@ extension MIDIMonitor: Receiver {
     //
     // Hand the controller value change to the synth
     if accepts(source: source, channel: channel) {
-      synth?.sendController(controller, withValue: value, onChannel: channel)
+      midiInstrument?.sendController(controller, withValue: value, onChannel: channel)
     }
   }
 
@@ -137,7 +137,7 @@ extension MIDIMonitor: Receiver {
 
   public func programChange(source: MIDIUniqueID, program: UInt8, channel: UInt8) {
     if accepts(source: source, channel: channel) {
-      synth?.sendProgramChange(program, onChannel: channel)
+      midiInstrument?.sendProgramChange(program, onChannel: channel)
     }
   }
 
@@ -148,7 +148,7 @@ extension MIDIMonitor: Receiver {
 
   public func channelPressure(source: MIDIUniqueID, pressure: UInt8, channel: UInt8) {
     if accepts(source: source, channel: channel) {
-      synth?.sendPressure(pressure, onChannel: channel)
+      midiInstrument?.sendPressure(pressure, onChannel: channel)
     }
   }
 
@@ -158,7 +158,7 @@ extension MIDIMonitor: Receiver {
 
   public func pitchBendChange(source: MIDIUniqueID, value: UInt16, channel: UInt8) {
     if accepts(source: source, channel: channel) {
-      synth?.sendPitchBend(value, onChannel: channel)
+      midiInstrument?.sendPitchBend(value, onChannel: channel)
     }
   }
 
@@ -167,6 +167,6 @@ extension MIDIMonitor: Receiver {
   }
 
   public func systemReset(source: MIDIUniqueID) {
-    synth?.reset()
+    midiInstrument?.reset()
   }
 }
