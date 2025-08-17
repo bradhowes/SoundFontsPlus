@@ -54,17 +54,12 @@ public struct PresetEditor {
         .execute(db)
 
         // If no changes from default config values then we are done.
-        guard audioConfig != AudioConfig.Draft() else { return }
+        guard audioConfig.id != nil else { return }
 
-        precondition(audioConfig.presetId == nil || audioConfig.presetId == preset.id)
-
-        if audioConfig != AudioConfig.Draft() {
-          audioConfig.presetId = preset.id
-          withErrorReporting {
-            try AudioConfig.upsert {
-              audioConfig
-            }.execute(db)
-          }
+        withErrorReporting {
+          try AudioConfig.upsert {
+            audioConfig
+          }.execute(db)
         }
       }
     }

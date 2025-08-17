@@ -19,7 +19,33 @@ public struct AudioConfig: Hashable, Identifiable, Sendable {
   public var customTuningEnabled: Bool = false
   public var customTuning: Double = 440.0
 
-  public var presetId: Preset.ID?
+  public var presetId: Preset.ID
+}
+
+extension AudioConfig {
+
+  static func migrate(_ migrator: inout DatabaseMigrator) {
+    migrator.registerMigration(Self.tableName) { db in
+      try #sql(
+      """
+      CREATE TABLE "\(raw: Self.tableName)" (
+        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+        "gain" REAL NOT NULL,
+        "pan" REAL NOT NULL,
+        "keyboardLowestNoteEnabled" INTEGER NOT NULL CHECK ("keyboardLowestNoteEnabled" in (0, 1)),
+        "keyboardLowestNote" TEXT NOT NULL,
+        "pitchBendRange" INTEGER NOT NULL,
+        "customTuningEnabled" INTEGER NOT NULL CHECK ("customTuningEnabled" in (0, 1)),
+        "customTuning" REAL NOT NULL,
+        "presetId" INTEGER NOT NULL,
+
+        FOREIGN KEY("presetId") REFERENCES "presets"("id") ON DELETE CASCADE
+      ) STRICT
+      """
+      )
+      .execute(db)
+    }
+  }
 }
 
 extension AudioConfig.Draft: Equatable, Sendable {}
@@ -72,41 +98,5 @@ extension AudioConfig {
 //    }
 //
     return clone
-  }
-}
-
-extension AudioConfig {
-
-  static func migrate(_ migrator: inout DatabaseMigrator) {
-    migrator.registerMigration(Self.tableName) { db in
-      try #sql(
-      """
-      CREATE TABLE "\(raw: Self.tableName)" (
-        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "gain" REAL NOT NULL,
-        "pan" REAL NOT NULL,
-        "keyboardLowestNoteEnabled" INTEGER NOT NULL CHECK ("keyboardLowestNoteEnabled" in (0, 1)),
-        "keyboardLowestNote" TEXT NOT NULL,
-        "pitchBendRange" INTEGER NOT NULL,
-        "customTuningEnabled" INTEGER NOT NULL CHECK ("customTuningEnabled" in (0, 1)),
-        "customTuning" REAL NOT NULL,
-        "presetId" INTEGER,
-
-        FOREIGN KEY("presetId") REFERENCES "presets"("id") ON DELETE CASCADE
-      ) STRICT
-      """
-      )
-      .execute(db)
-//
-//      try #sql(
-//      """
-//      CREATE UNIQUE INDEX IF NOT EXISTS "audioConfigIndex" ON "\(raw: Self.tableName)" (
-//        "favoriteId" INTEGER,
-//        "presetId" INTEGER
-//      ) STRICT
-//      """
-//      )
-//      .execute(db)
-    }
   }
 }

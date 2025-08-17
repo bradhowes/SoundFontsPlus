@@ -53,7 +53,7 @@ extension Preset {
     if let audioConfig = self.audioConfig {
       return .init(audioConfig)
     } else {
-      return .init()
+      return .init(presetId: -1)
     }
   }
 
