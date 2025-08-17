@@ -14,19 +14,13 @@ public struct ReverbFeature {
   public struct State: Equatable {
 
     @ObservationStateIgnored
-    public var device: ReverbConfig.Draft = .init()
-    @ObservationStateIgnored
-    public var pending: ReverbConfig.Draft = .init()
+    public var config: ReverbConfig.Draft = .init(presetId: -1)
 
     public var enabled: ToggleFeature.State
     public var locked: ToggleFeature.State
     public var wetDryMix: KnobFeature.State
 
-    public var isDirty: Bool {
-      pending.enabled != device.enabled ||
-      pending.roomPreset != device.roomPreset ||
-      pending.wetDryMix != device.wetDryMix
-    }
+    public var dirty: Bool = false
 
     public init() {
       @Shared(.parameterTree) var parameterTree
@@ -39,7 +33,7 @@ public struct ReverbFeature {
 
   public enum Action {
     case activePresetIdChanged(Preset.ID?)
-    case applyConfigForPreset(ReverbConfig.Draft)
+    case applyConfigForPreset
     case enabled(ToggleFeature.Action)
     case initialize
     case locked(ToggleFeature.Action)
@@ -74,8 +68,8 @@ public struct ReverbFeature {
       case let .activePresetIdChanged(presetId):
         return activePresetIdChanged(&state, presetId: presetId)
 
-      case let .applyConfigForPreset(config):
-        return applyConfigForPreset(&state, config: config)
+      case .applyConfigForPreset:
+        return applyConfigForPreset(&state)
 
       case .enabled:
         return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
@@ -106,30 +100,17 @@ extension ReverbFeature {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
 
-    guard !state.locked.isOn else {
+    guard
+      !state.locked.isOn,
+      let presetId = activeState.activePresetId,
+      state.config.presetId != presetId
+    else {
       return .none
     }
 
-    guard let presetId else {
-      state.pending = state.device
-      state.pending.presetId = nil
-      return .none
-    }
-
-    guard state.pending.presetId != presetId else {
-      return .none
-    }
-
-    let newConfig = ReverbConfig.draft(for: presetId)
-
-    if state.isDirty && state.pending.presetId != nil {
-
-      // Protect the existing dirty config
-      let toSave = state.pending
-
+    if state.dirty {
+      let toSave = state.config
       return .merge(
-
-        // We always want a save to finish so it is not cancellable
         .run { _ in
           withDatabaseWriter { db in
             try ReverbConfig.upsert {
@@ -138,30 +119,29 @@ extension ReverbFeature {
             .execute(db)
           }
         },
-
-        // With the dirty config protected we can safely execute the following to install the new config.
-        // Only let one change be active at a time.
           .run { send in
-            await send(.applyConfigForPreset(newConfig))
+            await send(.applyConfigForPreset)
           }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
       )
     }
-
-    // NOTE: it might be safe to run this immmediately if the old preset was not dirty, but there still could be an
-    // older task that is waiting to execute. Best approach is to allow TCA to cancel any active task even if it might
-    // be slightly slower.
     return .run { send in
-      await send(.applyConfigForPreset(newConfig))
+      await send(.applyConfigForPreset)
     }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
   }
 
-  private func applyConfigForPreset(_ state: inout State, config: ReverbConfig.Draft) -> Effect<Action> {
+  private func applyConfigForPreset(_ state: inout State) -> Effect<Action> {
+    guard let presetId = activeState.activePresetId else {
+      return .none
+    }
+
+    // If this preset does not have a reverb config, assume the current settings.
+    let config = ReverbConfig.draft(for: presetId, cloning: state.config)
     reverbDevice.setConfig(config)
-    state.device = config
-    state.pending = config
+    state.config = config
+
     return .merge(
-      reduce(into: &state, action: .enabled(.setValue(state.device.enabled))),
-      reduce(into: &state, action: .wetDryMix(.setValue(state.device.wetDryMix))),
+      reduce(into: &state, action: .enabled(.setValue(config.enabled))),
+      reduce(into: &state, action: .wetDryMix(.setValue(config.wetDryMix))),
     )
   }
 
@@ -186,25 +166,25 @@ extension ReverbFeature {
 
   private func saveDebounced(_ state: inout State) -> Effect<Action> {
 
-    guard state.device.presetId != nil else {
+    guard let presetId = activeState.activePresetId else {
+      return .none
+    }
+
+    guard state.config.presetId == presetId else {
       return .none
     }
 
     let found = withDatabaseWriter { db in
       try ReverbConfig.upsert {
-        state.device
+        state.config
       }
       .returning(\.self)
       .fetchOneForced(db)
     }
 
-    guard let unwrapped = found else {
-      return .none
-    }
-
-    let config: ReverbConfig.Draft = .init(unwrapped)
-    state.device = config
-    state.pending = config
+    // Update the draft with the info returned from the upsert
+    guard let unwrapped = found else { return .none }
+    state.config = .init(unwrapped)
 
     return .none
   }
@@ -214,14 +194,9 @@ extension ReverbFeature {
     path: WritableKeyPath<ReverbConfig.Draft, T>,
     value: T
   ) -> Effect<Action> {
-
-    state.pending[keyPath: path] = value
-    if abs(state.device[keyPath: path] - value) < 1e-6 {
-      return .none
-    }
-
-    state.pending.presetId = activeState.activePresetId
-
+    guard abs(state.config[keyPath: path] - value) > 1e-8 else { return .none }
+    state.config[keyPath: path] = value
+    state.dirty = true
     return runDebouncers()
   }
 
@@ -230,26 +205,34 @@ extension ReverbFeature {
     path: WritableKeyPath<ReverbConfig.Draft, T>,
     value: T
   ) -> Effect<Action> {
-
-    state.pending[keyPath: path] = value
-    if state.device[keyPath: path] == value {
-      return .none
-    }
-
-    state.pending.presetId = activeState.activePresetId
-
+    guard state.config[keyPath: path] != value else { return .none }
+    state.config[keyPath: path] = value
+    state.dirty = true
     return runDebouncers()
   }
 
   private func updateDebounced(_ state: inout State) -> Effect<Action> {
-    state.device = state.pending
-    reverbDevice.setConfig(state.device)
+    reverbDevice.setConfig(state.config)
     return .none
+  }
+
+  private func globalToLocalConfig(_ state: inout State) -> Effect<Action> {
+    guard let presetId = activeState.activePresetId else { return .none }
+    var localConfig = ReverbConfig.draft(for: presetId)
+    localConfig.roomPreset = state.config.roomPreset
+    localConfig.wetDryMix = state.config.wetDryMix
+    localConfig.enabled = state.config.enabled
+    state.config = localConfig
+    reverbDevice.setConfig(state.config)
+    return saveDebounced(&state)
   }
 
   private func updateLocked(_ state: inout State) -> Effect<Action> {
     @Shared(.reverbLockEnabled) var locked
     $locked.withLock { $0 = state.locked.isOn }
+    if !state.locked.isOn && state.config.enabled {
+      return globalToLocalConfig(&state)
+    }
     return .none
   }
 }
@@ -272,7 +255,7 @@ public struct ReverbView: View {
       }
     ) {
       HStack(alignment: .center, spacing: 8) {
-        Picker("Room", selection: $store.pending.roomPreset.sending(\.roomPresetChanged)) {
+        Picker("Room", selection: $store.config.roomPreset.sending(\.roomPresetChanged)) {
           ForEach(AVAudioUnitReverbPreset.allCases, id: \.self) { room in
             Text(room.name).tag(room)
               .font(theme.font)

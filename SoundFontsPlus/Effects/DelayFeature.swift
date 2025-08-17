@@ -1,6 +1,5 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AudioUnit
 import AUv3Controls
 import ComposableArchitecture
 import Sharing
@@ -57,10 +56,11 @@ public struct DelayFeature {
   }
 
   @Shared(.activeState) var activeState
+  @Shared(.parameterTree) var parameterTree
+
   @Dependency(\.defaultDatabase) var database
   @Dependency(\.delayDevice) var delayDevice
   @Dependency(\.mainQueue) var mainQueue
-  @Shared(.parameterTree) var parameterTree
 
   public var body: some ReducerOf<Self> {
 
@@ -115,15 +115,11 @@ extension DelayFeature {
 
   private func activePresetIdChanged(_ state: inout State) -> Effect<Action> {
 
-    guard !state.locked.isOn else {
-      return .none
-    }
-
-    guard let presetId = activeState.activePresetId else {
-      return .none
-    }
-
-    guard state.config.presetId != presetId else {
+    guard
+      !state.locked.isOn,
+      let presetId = activeState.activePresetId,
+      state.config.presetId != presetId
+    else {
       return .none
     }
 
