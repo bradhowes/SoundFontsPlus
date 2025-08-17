@@ -247,6 +247,7 @@ struct AppFeatureView: View, KeyboardReadable {
   private let appPanelBackground = Color.black
   private let dividerBorderColor: Color = Color.gray.opacity(0.15)
   @State private var isInputKeyboardVisible = false
+  @State private var effectsOffset: CGFloat = 0.0
 
   @Shared(.effectsVisible) private var effectsVisible
   @Environment(\.keyboardHeight) private var maxKeyboardHeight
@@ -359,10 +360,17 @@ struct AppFeatureView: View, KeyboardReadable {
     )
   }
 
+  struct Info: Equatable {
+    let contentWidth: CGFloat
+    let visibleWidth: CGFloat
+    var offset: CGFloat { max((visibleWidth - contentWidth / 2), 0.0) }
+  }
+
   private var effectsView: some View {
     let effectsHeight = 110.0
     let padding = 4.0
     let viewHeight = effectsHeight + padding * 4
+
     return VStack {
       ScrollView(.horizontal) {
         HStack {
@@ -377,10 +385,18 @@ struct AppFeatureView: View, KeyboardReadable {
         .background(dividerBorderColor)
         .padding(.init(top: 0, leading: padding, bottom: 0, trailing: padding))
       }
+      .onScrollGeometryChange(for: CGFloat.self) { geometry in
+        max(0.0, (geometry.visibleRect.width - geometry.contentSize.width) / 2)
+      } action: { _, newValue in
+        print("***", newValue)
+        effectsOffset = newValue
+      }
+      .scrollDisabled(effectsOffset > 0)
+      .offset(x: effectsOffset)
+      .opacity(effectsVisible ? 1.0 : 0.0)
     }
     .frame(height: effectsVisible ? viewHeight : padding)
-    .offset(x: 0.0, y: effectsVisible ? 0.0 : viewHeight / 2 - padding - 1)
-    .clipped()
+    .offset(x: 0, y: effectsVisible ? 0.0 : viewHeight / 2 - padding - 1)
   }
 
   private var toolbarAndKeyboard: some View {
