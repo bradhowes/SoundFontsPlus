@@ -37,7 +37,6 @@ public struct SynthFeature {
     case audioUnitCreated
     case becameActive
     case becameInactive
-    case delegate(Delegate)
     case initialize
     case mediaServicesWereReset
     case routeChanged
@@ -70,9 +69,6 @@ public struct SynthFeature {
 
       case .routeChanged:
         return routeChanged(&state)
-
-      default:
-        return .none
       }
     }
   }
@@ -191,10 +187,7 @@ extension SynthFeature {
     log.info("starting")
     _ = startAudioSession(&state)
 
-    return .merge(
-      .send(.activePresetIdChanged),
-      .send(.delegate(.createdSynth))
-    )
+    return .send(.activePresetIdChanged)
   }
 
   func monitorActivePresetId(_ state: inout State) -> Effect<Action> {

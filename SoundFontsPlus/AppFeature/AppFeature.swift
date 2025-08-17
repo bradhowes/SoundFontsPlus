@@ -123,8 +123,6 @@ struct AppFeature {
         return scenePhaseChanged(&state, phase: phase)
       case let .soundFontsList(.delegate(.edit(soundFont))):
         state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
-      case .synth(.delegate(.createdSynth)):
-        return installSynth(&state)
       case let .tagsList(.delegate(.edit(focused))):
         state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
       case let .tagsSplit(.delegate(action)):
@@ -159,10 +157,6 @@ private extension AppFeature {
     }
 
     state.presetsList.sections[sectionIndex].rows[rowIndex].preset.displayName = editor.displayName
-    return .none
-  }
-
-  func installSynth(_ state: inout State) -> Effect<Action> {
     return .none
   }
 
