@@ -54,21 +54,25 @@ extension DelayConfig {
 
   private static func fetchDraft(presetId: Preset.ID, clone: Draft, where: Where<Self>) -> Draft {
     withDatabaseReader { db in
-      guard let found = try `where`.fetchOne(db) else {
-        return Draft(
+      guard
+        let found = try `where`.fetchOne(db)
+      else {
+        return .init(
           time: clone.time,
           feedback: clone.feedback,
           cutoff: clone.cutoff,
           wetDryMix: clone.wetDryMix,
+          enabled: clone.enabled,
           presetId: presetId
         )
       }
-      return Draft(found)
-    } ?? Draft(
+      return .init(found)
+    } ?? .init(
       time: clone.time,
       feedback: clone.feedback,
       cutoff: clone.cutoff,
       wetDryMix: clone.wetDryMix,
+      enabled: clone.enabled,
       presetId: presetId
     )
   }
