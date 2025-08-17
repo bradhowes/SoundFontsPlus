@@ -360,12 +360,6 @@ struct AppFeatureView: View, KeyboardReadable {
     )
   }
 
-  struct Info: Equatable {
-    let contentWidth: CGFloat
-    let visibleWidth: CGFloat
-    var offset: CGFloat { max((visibleWidth - contentWidth / 2), 0.0) }
-  }
-
   private var effectsView: some View {
     let effectsHeight = 110.0
     let padding = 4.0
@@ -388,7 +382,6 @@ struct AppFeatureView: View, KeyboardReadable {
       .onScrollGeometryChange(for: CGFloat.self) { geometry in
         max(0.0, (geometry.visibleRect.width - geometry.contentSize.width) / 2)
       } action: { _, newValue in
-        print("***", newValue)
         effectsOffset = newValue
       }
       .scrollDisabled(effectsOffset > 0)
