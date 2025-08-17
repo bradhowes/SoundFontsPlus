@@ -21,6 +21,7 @@ Main dependencies:
 The app is getting close to feature-parity with the the original UIKit version:
 
 * generates audio using both onscreen keyboard as well as from MIDI devices
+* reverb and delay effects
 * imports SF2 files
 * supports cloning of presets (aka "favorites")
 * tagging fonts
