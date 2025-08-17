@@ -450,14 +450,13 @@
 				BD1D27822B6F13DD005C3ED0 /* SoundFontsPlusApp.swift */,
 				BDB9FEFB2E06A67B003BA0A2 /* AudioUnitParameters */,
 				BDAF5A992DE254F400B8FB13 /* AppFeature */,
-				BDAF5A9C2DE2550700B8FB13 /* DelayFeature */,
+				BDAF5A9C2DE2550700B8FB13 /* Effects */,
 				BDAF5A922DE254E000B8FB13 /* Extensions */,
 				BD7B05152E4FDD01006628F3 /* FileImporterFeature */,
 				BDAF5AA12DE2551A00B8FB13 /* KeyboardFeature */,
 				BD171ED72E47A97400E2EDA7 /* MIDIFeature */,
 				BDAF5ABE2DE2555000B8FB13 /* Models */,
 				BDAF5AD42DE2555B00B8FB13 /* PresetsFeature */,
-				BDAF5ADB2DE2556000B8FB13 /* ReverbFeature */,
 				BDAF5ADE2DE2556600B8FB13 /* SettingsFeature */,
 				BDAF5AE62DE2557300B8FB13 /* SF2ResourceFiles */,
 				BDAF5AF22DE2558800B8FB13 /* SoundFontsFeature */,
@@ -562,12 +561,13 @@
 			path = AppFeature;
 			sourceTree = "<group>";
 		};
-		BDAF5A9C2DE2550700B8FB13 /* DelayFeature */ = {
+		BDAF5A9C2DE2550700B8FB13 /* Effects */ = {
 			isa = PBXGroup;
 			children = (
 				BDAF5A9B2DE2550700B8FB13 /* DelayFeature.swift */,
+				BDAF5ADA2DE2556000B8FB13 /* ReverbFeature.swift */,
 			);
-			path = DelayFeature;
+			path = Effects;
 			sourceTree = "<group>";
 		};
 		BDAF5AA12DE2551A00B8FB13 /* KeyboardFeature */ = {
@@ -633,14 +633,6 @@
 				BDAF5AD32DE2555B00B8FB13 /* PresetsListSection.swift */,
 			);
 			path = PresetsFeature;
-			sourceTree = "<group>";
-		};
-		BDAF5ADB2DE2556000B8FB13 /* ReverbFeature */ = {
-			isa = PBXGroup;
-			children = (
-				BDAF5ADA2DE2556000B8FB13 /* ReverbFeature.swift */,
-			);
-			path = ReverbFeature;
 			sourceTree = "<group>";
 		};
 		BDAF5ADE2DE2556600B8FB13 /* SettingsFeature */ = {
