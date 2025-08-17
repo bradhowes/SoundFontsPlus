@@ -20,7 +20,7 @@ coverage-iOS: test-iOS
 	cat coverage_iOS.txt
 
 percentage-iOS: coverage-iOS
-	awk '/ SoundFontsPlus / { print $$4 }' coverage_iOS.txt > percentage_iOS.txt
+	awk '/ SoundFontsPlus.app / { print $$4 }' coverage_iOS.txt > percentage_iOS.txt
 	echo "iOS Coverage Pct:"
 	cat percentage_iOS.txt
 
