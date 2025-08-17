@@ -19,8 +19,8 @@ public struct KeyboardFeature {
     @Shared(.keyWidth) var keyWidth
     @Shared(.keyboardSlides) var keyboardSlides
     @Shared(.keyLabels) var keyLabels
-    @Shared(.avAudioUnit) var avAudioUnit
-    var synth: AVAudioUnitMIDIInstrument? { avAudioUnit?.midiInstrument }
+    @Shared(.synthAudioUnit) var synthAudioUnit
+    var midiInstrument: AVAudioUnitMIDIInstrument? { synthAudioUnit?.midiInstrument }
 
     var scrollTo: Note?
     let settingsDemo: Bool
@@ -120,16 +120,16 @@ extension KeyboardFeature {
   }
 
   private func noteOff(_ state: inout State, key: Note) -> Effect<Action> {
-    log.info("noteOff - \(key) \(state.synth != nil)")
+    log.info("noteOff - \(key) \(state.midiInstrument != nil)")
     state.active[key.midiNoteValue] = false
-    state.synth?.stopNote(UInt8(key.midiNoteValue), onChannel: 0)
+    state.midiInstrument?.stopNote(UInt8(key.midiNoteValue), onChannel: 0)
     return .none
   }
 
   private func noteOn(_ state: inout State, key: Note) -> Effect<Action> {
-    log.info("noteOn - \(key) \(state.synth != nil)")
+    log.info("noteOn - \(key) \(state.midiInstrument != nil)")
     state.active[key.midiNoteValue] = true
-    state.synth?.startNote(UInt8(key.midiNoteValue), withVelocity: 127, onChannel: 0)
+    state.midiInstrument?.startNote(UInt8(key.midiNoteValue), withVelocity: 127, onChannel: 0)
     return .none
   }
 

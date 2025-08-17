@@ -86,10 +86,18 @@ extension SharedKey where Self == InMemoryKey<MIDIMonitor?>.Default {
 }
 
 extension SharedKey where Self == InMemoryKey<AVAudioUnit?>.Default {
-  public static var avAudioUnit: Self { Self[.inMemory("avAudioUnit"), default: nil] }
+  public static var synthAudioUnit: Self { Self[.inMemory("synthAudioUnit"), default: nil] }
 }
 
 extension AVAudioUnit {
   var midiInstrument: AVAudioUnitMIDIInstrument? { self as? AVAudioUnitMIDIInstrument }
   var synth: SF2LibAU? { self.auAudioUnit as? SF2LibAU }
+}
+
+extension SharedKey where Self == InMemoryKey<AVAudioUnitDelay?>.Default {
+  public static var delayEffect: Self { Self[.inMemory("delayEffect"), default: nil] }
+}
+
+extension SharedKey where Self == InMemoryKey<AVAudioUnitReverb?>.Default {
+  public static var reverbEffect: Self { Self[.inMemory("reverbEffect"), default: nil] }
 }

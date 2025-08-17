@@ -1,7 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AudioUnit.AUParameters
-// import BRHSplitView
+import AVFAudio
 import ComposableArchitecture
 import MorkAndMIDI
 import SwiftUI
@@ -24,6 +23,9 @@ struct SoundFontsPlusApp: App {
         getConfig: { ReverbConfig.Draft() },
         setConfig: { config in print(config) }
       )
+
+      @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
+      @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
 
       @Shared(.midiInputPortId) var midiInputPortId
       @Shared(.midi) var midi = .init(clientName: "SoundFonts+", uniqueId: Int32(midiInputPortId), midiProto: .legacy)
