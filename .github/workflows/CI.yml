@@ -16,12 +16,12 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - name: Build, test, and code coverage
       run: make
-    # - name: Create Coverage Badge
-    #   uses: schneegans/dynamic-badges-action@v1.7.0
-    #   with:
-    #     auth: ${{ secrets.GIST_UPDATE }}
-    #     gistID: 8a47cae880f266d624470c768706af2cBLAH
-    #     filename: SoundFontsPlus.json
-    #     label: Coverage
-    #     message: ${{ env.PERCENTAGE }}
-    #     color: success
+    - name: Create Coverage Badge
+      uses: schneegans/dynamic-badges-action@v1.7.0
+      with:
+        auth: ${{ secrets.GIST_UPDATE }}
+        gistID: 3489d8974ae6894967b2a43f657f9d70
+        filename: SoundFontsPlus-coverage.json
+        label: Coverage
+        message: ${{ env.PERCENTAGE }}
+        color: success
