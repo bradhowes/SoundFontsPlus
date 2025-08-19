@@ -25,6 +25,14 @@
 		BD33FF572E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */; };
 		BD3E3D802E520FA800523292 /* SF2LibAU in Frameworks */ = {isa = PBXBuildFile; productRef = BD3E3D7F2E520FA800523292 /* SF2LibAU */; };
 		BD3E3D832E520FEF00523292 /* BRHSplitView in Frameworks */ = {isa = PBXBuildFile; productRef = BD3E3D822E520FEF00523292 /* BRHSplitView */; };
+		BD4276332E53B44E00DC93BF /* Tagged in Frameworks */ = {isa = PBXBuildFile; productRef = BD4276322E53B44E00DC93BF /* Tagged */; };
+		BD4276352E53B44E00DC93BF /* AUv3Controls in Frameworks */ = {isa = PBXBuildFile; productRef = BD4276342E53B44E00DC93BF /* AUv3Controls */; };
+		BD4276372E53B44E00DC93BF /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = BD4276362E53B44E00DC93BF /* ComposableArchitecture */; };
+		BD4276392E53B44E00DC93BF /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = BD4276382E53B44E00DC93BF /* Dependencies */; };
+		BD42763B2E53B44E00DC93BF /* AUv3Component in Frameworks */ = {isa = PBXBuildFile; productRef = BD42763A2E53B44E00DC93BF /* AUv3Component */; };
+		BD42763D2E53B44E00DC93BF /* AUv3Shared in Frameworks */ = {isa = PBXBuildFile; productRef = BD42763C2E53B44E00DC93BF /* AUv3Shared */; };
+		BD42763F2E53B44E00DC93BF /* SF2LibAU in Frameworks */ = {isa = PBXBuildFile; productRef = BD42763E2E53B44E00DC93BF /* SF2LibAU */; };
+		BD4276412E53B44E00DC93BF /* BRHSplitView in Frameworks */ = {isa = PBXBuildFile; productRef = BD4276402E53B44E00DC93BF /* BRHSplitView */; };
 		BD46FC832DF62C3100CB20F1 /* AUParameterTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */; };
 		BD59D4EA2E47B62C00B2250B /* MIDIConnectionsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4E92E47B62500B2250B /* MIDIConnectionsFeature.swift */; };
 		BD59D4EC2E47C77C00B2250B /* MIDIControllersFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4EB2E47C77C00B2250B /* MIDIControllersFeature.swift */; };
@@ -400,6 +408,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD4276332E53B44E00DC93BF /* Tagged in Frameworks */,
+				BD4276352E53B44E00DC93BF /* AUv3Controls in Frameworks */,
+				BD42763F2E53B44E00DC93BF /* SF2LibAU in Frameworks */,
+				BD42763D2E53B44E00DC93BF /* AUv3Shared in Frameworks */,
+				BD42763B2E53B44E00DC93BF /* AUv3Component in Frameworks */,
+				BD4276372E53B44E00DC93BF /* ComposableArchitecture in Frameworks */,
+				BD4276392E53B44E00DC93BF /* Dependencies in Frameworks */,
+				BD4276412E53B44E00DC93BF /* BRHSplitView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -945,6 +961,14 @@
 			);
 			name = SoundFontsPlusAU;
 			packageProductDependencies = (
+				BD4276322E53B44E00DC93BF /* Tagged */,
+				BD4276342E53B44E00DC93BF /* AUv3Controls */,
+				BD4276362E53B44E00DC93BF /* ComposableArchitecture */,
+				BD4276382E53B44E00DC93BF /* Dependencies */,
+				BD42763A2E53B44E00DC93BF /* AUv3Component */,
+				BD42763C2E53B44E00DC93BF /* AUv3Shared */,
+				BD42763E2E53B44E00DC93BF /* SF2LibAU */,
+				BD4276402E53B44E00DC93BF /* BRHSplitView */,
 			);
 			productName = SoundFontsPlusAU;
 			productReference = BD61F0242E11A69800DD8903 /* SoundFontsPlusAU.appex */;
@@ -1852,6 +1876,46 @@
 			productName = SF2LibAU;
 		};
 		BD3E3D822E520FEF00523292 /* BRHSplitView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */;
+			productName = BRHSplitView;
+		};
+		BD4276322E53B44E00DC93BF /* Tagged */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */;
+			productName = Tagged;
+		};
+		BD4276342E53B44E00DC93BF /* AUv3Controls */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BDAF5B272DE255EE00B8FB13 /* XCRemoteSwiftPackageReference "AUv3Controls" */;
+			productName = AUv3Controls;
+		};
+		BD4276362E53B44E00DC93BF /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BDAF5B2A2DE2560400B8FB13 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		BD4276382E53B44E00DC93BF /* Dependencies */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BDAF5BC22DE269C300B8FB13 /* XCRemoteSwiftPackageReference "swift-dependencies" */;
+			productName = Dependencies;
+		};
+		BD42763A2E53B44E00DC93BF /* AUv3Component */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */;
+			productName = AUv3Component;
+		};
+		BD42763C2E53B44E00DC93BF /* AUv3Shared */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */;
+			productName = AUv3Shared;
+		};
+		BD42763E2E53B44E00DC93BF /* SF2LibAU */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD3E3D7E2E520FA800523292 /* XCRemoteSwiftPackageReference "SF2LibAU" */;
+			productName = SF2LibAU;
+		};
+		BD4276402E53B44E00DC93BF /* BRHSplitView */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */;
 			productName = BRHSplitView;

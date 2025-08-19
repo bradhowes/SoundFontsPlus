@@ -1,11 +1,6 @@
-//
-//  SoundFontsPlusAUAudioUnit.swift
-//  SoundFontsPlusAU
-//
-//  Created by Brad Howes on 6/29/25.
-//
-
 import AVFoundation
+import Engine
+import SF2LibAU
 
 public class SoundFontsPlusAUAudioUnit: AUAudioUnit, @unchecked Sendable
 {

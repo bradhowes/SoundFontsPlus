@@ -33,16 +33,22 @@ public struct SoundFontsList {
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
+
       case .activeTagIdChanged:
         return monitorFetchAll(&state)
+
       case .initialize:
         return monitorActiveTag(&state)
+
       case .rows(.element(_, .delegate(let action))):
         return dispatchRowAction(&state, action: action)
+
       case .showActiveSoundFont:
         return showActiveSoundFont(&state)
+
       case .soundFontInfosChanged(let soundFontInfos):
         return updateRows(&state, soundFontInfos: soundFontInfos)
+
       default:
         break
       }
@@ -97,7 +103,7 @@ extension SoundFontsList {
   }
 
   private func monitorFetchAll(_ state: inout State) -> Effect<Action> {
-    return .run { send in
+    .run { send in
       // Update a query for the SoundFont list view. When the DB changes, this will emit a `soundFontInfoChanged` action
       // causing the rows to change. The query depends on the value of `activeState.activeTagId` so when that changes,
       // `monitorFetchAll` reruns which cancels the old query and installs a new one.

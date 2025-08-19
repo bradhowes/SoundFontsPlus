@@ -6,21 +6,11 @@ import Tagged
 
 @Table
 public struct MIDIConfig: Identifiable, Hashable, Sendable {
-  public var id: Int64 { Int64(uniqueId) }
   @Column(primaryKey: true)
   public var uniqueId: MIDIUniqueID
+  public var id: Int64 { Int64(uniqueId) }
   public var autoConnect: Bool
   public var fixedVolume: Int
-}
-
-extension MIDIConfig {
-
-  public static func with(key uniqueId: MIDIUniqueID) -> MIDIConfig? {
-    @Dependency(\.defaultDatabase) var database
-    return try? database.read {
-      try Self.all.where { $0.uniqueId.eq(uniqueId) }.fetchOne($0)
-    }
-  }
 }
 
 extension MIDIConfig {
@@ -37,6 +27,16 @@ extension MIDIConfig {
       """
       )
       .execute(db)
+    }
+  }
+}
+
+extension MIDIConfig {
+
+  public static func with(key uniqueId: MIDIUniqueID) -> MIDIConfig? {
+    @Dependency(\.defaultDatabase) var database
+    return try? database.read {
+      try Self.all.where { $0.uniqueId.eq(uniqueId) }.fetchOne($0)
     }
   }
 }

@@ -52,7 +52,11 @@ public struct SettingsFeature {
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case bluetoothMIDILocateButtonTapped
+    case contactDeveloperTapped
     case dismissButtonTapped
+    case exportFilesTapped
+    case hideBuiltInFilesTapped
+    case importFilesTapped
     case initialize
     case midiAssignmentsButtonTapped
     case midiConnectionsButtonTapped
@@ -61,6 +65,10 @@ public struct SettingsFeature {
     case tuning(TuningFeature.Action)
     case midiConnectionCountChanged(Int)
     case midiTrafficIndicator(MIDITrafficIndicatorFeature.Action)
+    case reviewAppTapped
+    case unhideBuiltInFilesTapped
+    case viewChangeHistoryTapped
+    case viewTutorialScreensTapped
   }
 
   public init() {}
@@ -77,8 +85,23 @@ public struct SettingsFeature {
       case .binding(\.keyWidth):
         return updateKeyWidth(&state)
 
+      case .bluetoothMIDILocateButtonTapped:
+        return .none
+
+      case .contactDeveloperTapped:
+        return .none
+
       case .dismissButtonTapped:
         return dismissButtonTapped(&state)
+
+      case .exportFilesTapped:
+        return .none
+
+      case .hideBuiltInFilesTapped:
+        return .none
+
+      case .importFilesTapped:
+        return .none
 
       case .initialize:
         return initialize(&state)
@@ -97,6 +120,15 @@ public struct SettingsFeature {
 
       case .midiControllersButtonTapped:
         state.path.append(.midiControllers(MIDIControllersFeature.State()))
+        return .none
+
+      case .unhideBuiltInFilesTapped:
+        return .none
+
+      case .viewChangeHistoryTapped:
+        return .none
+
+      case .viewTutorialScreensTapped:
         return .none
 
       default:
@@ -174,6 +206,8 @@ public struct SettingsView: View {
           midiSection
         }
         tuningSection
+        fileSection
+        aboutSection
       }
       .font(.settings)
       .formStyle(.grouped)
@@ -312,6 +346,94 @@ public struct SettingsView: View {
 
   private var tuningSection: some View {
     TuningView(store: Store(initialState: store.tuning) { TuningFeature() })
+  }
+
+  private var fileSection: some View {
+    Section("Files") {
+      Group {
+        Toggle(isOn: $store.copyFileWhenInstalling) {
+          Text("Copy SF2 files when adding")
+        }
+        HStack {
+          Text("Hide built-in SF2 files")
+          Spacer()
+          Button {
+            store.send(.hideBuiltInFilesTapped)
+          } label: {
+            Text("Hide")
+          }
+        }
+        HStack {
+          Text("Unhide built-in SF2 files")
+          Spacer()
+          Button {
+            store.send(.unhideBuiltInFilesTapped)
+          } label: {
+            Text("Show")
+          }
+        }
+        HStack {
+          Text("Export all internal files to local SoundFonts folder on device.")
+          Spacer()
+          Button {
+            store.send(.exportFilesTapped)
+          } label: {
+            Text("Export")
+          }
+        }
+        HStack {
+          Text("Import all SF2 files in local SoundFonts folder on device.")
+          Spacer()
+          Button {
+            store.send(.importFilesTapped)
+          } label: {
+            Text("Import")
+          }
+        }
+      }
+    }
+  }
+  private var aboutSection: some View {
+    Section("About") {
+      Group {
+        HStack {
+          Text("View change history")
+          Spacer()
+          Button {
+            store.send(.viewChangeHistoryTapped)
+          } label: {
+            Text("Hide")
+          }
+        }
+        HStack {
+          Text("View tutorial screens")
+          Spacer()
+          Button {
+            store.send(.viewTutorialScreensTapped)
+          } label: {
+            Text("Show")
+          }
+        }
+        HStack {
+          Text("v1.0.0")
+          Spacer()
+          Button {
+            store.send(.reviewAppTapped)
+          } label: {
+            Text("Export")
+          }
+        }
+        HStack {
+          Text("Contact developer (bradhowes@mac.com)")
+          Spacer()
+          Button {
+            store.send(.contactDeveloperTapped)
+          } label: {
+            Image(systemName: "paperplane")
+          }
+        }
+      }
+    }
   }
 }
 

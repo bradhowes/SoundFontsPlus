@@ -39,6 +39,9 @@ public struct SoundFont: Hashable, Identifiable, Sendable {
   public var isInstalled: Bool { kind == .installed }
   public var isExternal: Bool { kind == .external }
   public var isBuiltIn: Bool { kind == .builtin }
+}
+
+extension SoundFont {
 
   static func migrate(_ migrator: inout DatabaseMigrator) {
     migrator.registerMigration(Self.tableName) { db in
