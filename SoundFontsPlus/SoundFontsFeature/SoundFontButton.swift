@@ -70,7 +70,9 @@ public struct SoundFontButton {
 
 extension SoundFontButton {
 
-  static func deleteFromAppConfirmationDialogState(displayName: String) -> ConfirmationDialogState<Action.ConfirmationDialog> {
+  static func deleteFromAppConfirmationDialogState(
+    displayName: String
+  ) -> ConfirmationDialogState<Action.ConfirmationDialog> {
     ConfirmationDialogState(
       titleVisibility: .visible,
       title: {
@@ -86,7 +88,9 @@ extension SoundFontButton {
     })
   }
 
-  static func deleteFromDeviceConfirmationDialogState(displayName: String) -> ConfirmationDialogState<Action.ConfirmationDialog> {
+  static func deleteFromDeviceConfirmationDialogState(
+    displayName: String
+  ) -> ConfirmationDialogState<Action.ConfirmationDialog> {
     ConfirmationDialogState(
       titleVisibility: .visible,
       title: {

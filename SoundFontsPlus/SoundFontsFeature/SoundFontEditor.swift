@@ -67,24 +67,34 @@ public struct SoundFontEditor {
     BindingReducer()
     Reduce { state, action in
       switch action {
+
       case .changeTagsButtonTapped:
         return editTags(&state)
+
       case .cancelButtonTapped:
         return dismiss(&state, save: false)
+
       case .destination(.dismiss):
         state.tagsList = SoundFontsSupport.generateTagsList(from: state.soundFont.tags)
+
       case .displayNameChanged(let value):
         state.displayName = value
+
       case .notesChanged(let value):
         state.notes = value
+
       case .pathButtonTapped:
         return visitPath(&state)
+
       case .saveButtonTapped:
         return dismiss(&state, save: true)
+
       case .useEmbeddedNameTapped:
         state.displayName = state.soundFont.embeddedName
+
       case .useOriginalNameTapped:
         state.displayName = state.soundFont.originalName
+
       default:
         break
       }

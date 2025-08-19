@@ -31,13 +31,13 @@ public struct FileImporterFeature {
   public struct State: Equatable {
     @Presents var destination: Destination.State?
     let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
-    var startImporting: Bool = false
+    var showChooser: Bool = false
     var notice: String?
   }
 
   public enum Action {
     case destination(PresentationAction<Destination.Action>)
-    case finishedImportingFile(Result<URL, Error>)
+    case filePicked(Result<URL, Error>)
     case showFileImporter
   }
 
@@ -53,12 +53,12 @@ public struct FileImporterFeature {
       case .destination:
         return .none
 
-      case let .finishedImportingFile(result):
-        state.startImporting = false
-        return finishedImportingFile(&state, result: result)
+      case let .filePicked(result):
+        state.showChooser = false
+        return filePicked(&state, result: result)
 
       case .showFileImporter:
-        state.startImporting = true
+        state.showChooser = true
       }
       return .none
     }
@@ -67,38 +67,46 @@ public struct FileImporterFeature {
 
 extension FileImporterFeature {
 
-  private func finishedImportingFile(_ state: inout State, result: Result<URL, Error>) -> Effect<Action> {
+  private func filePicked(_ state: inout State, result: Result<URL, Error>) -> Effect<Action> {
+
     switch result {
+
     case .success(let url):
       let displayName = String(url.lastPathComponent.withoutExtension)
+      return importFile(&state, displayName: displayName, url: url)
 
-      if !validateSoundFont(url: url) {
-        state.destination = .alert(.invalidSoundFontFormat(displayName: displayName))
-        return .none
-      }
-
-      do {
-        try addSoundFont(url: url, copyFileWhenAdding: true)
-        state.destination = .alert(.addedSummary(displayName: displayName))
-      } catch CocoaError.fileWriteFileExists {
-        state.destination = .alert(.continueWithDuplicateFile(url: url))
-      } catch {
-        state.destination = .alert(.genericFailureToImport(error: error))
-      }
     case .failure(let error):
-      state.destination = .alert(.genericFailureToImport(error: error))
+      state.destination = .alert(.failedToPick(error: error))
+      return .none
+    }
+  }
+
+  private func importFile(_ state: inout State, displayName: String, url: URL) -> Effect<Action> {
+    if !validateSoundFont(url: url) {
+      state.destination = .alert(.invalidSoundFontFormat(displayName: displayName))
+      return .none
     }
 
+    do {
+      let kind = try placeSoundFont(displayName: displayName, url: url)
+      try SoundFont.add(displayName: displayName, soundFontKind: kind)
+    } catch CocoaError.fileWriteFileExists {
+      state.destination = .alert(.continueWithDuplicateFile(url: url, action: .continueWithDuplicateFile))
+    } catch {
+      state.destination = .alert(.genericFailureToImport(displayName: displayName, error: error))
+      return .none
+    }
+
+    state.destination = .alert(.addedSummary(displayName: displayName))
     return .none
   }
 
   private func validateSoundFont(url: URL) -> Bool {
-    // Attempt to load the file to see if there are any errors
     var fileInfo = SF2FileInfo(url.path(percentEncoded: false))
     return fileInfo.load()
   }
 
-  private func installSoundFont(displayName: String, url: URL) throws -> SoundFontKind {
+  private func placeSoundFont(displayName: String, url: URL) throws -> SoundFontKind {
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
     let location: SoundFontKind
     if copyFileWhenInstalling {
@@ -107,19 +115,6 @@ extension FileImporterFeature {
       location = .external(bookmark: Bookmark(url: url, name: displayName))
     }
     return location
-  }
-
-  private func addSoundFont(url: URL, copyFileWhenAdding: Bool) throws {
-    // Use the file name for the initial display name. Users can change to other embedded values via editor.
-    let displayName = String(url.lastPathComponent.withoutExtension)
-    let location: SoundFontKind
-    if copyFileWhenAdding {
-      location = .installed(file: try copyToSharedFolder(source: url))
-    } else {
-      location = .external(bookmark: Bookmark(url: url, name: displayName))
-    }
-
-    try SoundFont.add(displayName: displayName, soundFontKind: location)
   }
 
   private func copyToSharedFolder(source: URL) throws -> URL {

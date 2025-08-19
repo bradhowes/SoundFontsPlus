@@ -30,6 +30,31 @@ public struct Preset: Hashable, Identifiable, Sendable {
 
 extension Preset {
 
+  static func migrate(_ migrator: inout DatabaseMigrator) {
+    migrator.registerMigration(Self.tableName) { db in
+      try #sql(
+      """
+      CREATE TABLE "\(raw: Self.tableName)" (
+        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+        "index" INTEGER NOT NULL,
+        "bank" INTEGER NOT NULL,
+        "program" INTEGER NOT NULL,
+        "originalName" TEXT NOT NULL,
+        "soundFontId" INTEGER NOT NULL,
+        "displayName" TEXT NOT NULL,
+        "kind" INTEGER NOT NULL CHECK ("kind" in (0, 1, 2)),
+        "notes" TEXT NOT NULL,
+        FOREIGN KEY("soundFontId") REFERENCES "soundFonts"("id") ON DELETE CASCADE
+      ) STRICT
+      """
+      )
+      .execute(db)
+    }
+  }
+}
+
+extension Preset {
+
   public var isFavorite: Bool { kind == .favorite }
 
   public var soundFontName: String {
@@ -98,31 +123,6 @@ extension Preset {
       return .init(reverbConfig)
     } else {
       return .init(presetId: self.id)
-    }
-  }
-}
-
-extension Preset {
-
-  static func migrate(_ migrator: inout DatabaseMigrator) {
-    migrator.registerMigration(Self.tableName) { db in
-      try #sql(
-      """
-      CREATE TABLE "\(raw: Self.tableName)" (
-        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "index" INTEGER NOT NULL,
-        "bank" INTEGER NOT NULL,
-        "program" INTEGER NOT NULL,
-        "originalName" TEXT NOT NULL,
-        "soundFontId" INTEGER NOT NULL,
-        "displayName" TEXT NOT NULL,
-        "kind" INTEGER NOT NULL CHECK ("kind" in (0, 1, 2)),
-        "notes" TEXT NOT NULL,
-        FOREIGN KEY("soundFontId") REFERENCES "soundFonts"("id") ON DELETE CASCADE
-      ) STRICT
-      """
-      )
-      .execute(db)
     }
   }
 }

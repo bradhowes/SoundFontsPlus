@@ -1,10 +1,9 @@
 //import Dependencies
 //import Foundation
 //import GRDB
-//import SF2ResourceFiles
 //import Testing
 //
-//@testable import Models
+//@testable import SoundFontsPlus
 //
 //@Suite("AudioConfig") struct AudioConfigTests {
 //
@@ -122,50 +121,50 @@
 //  }
 //}
 //
-////  func testAddGeneratorOverrides() throws {
-////    try withNewContext(ActiveSchema.self) { context in
-////      let entry = try makeMockAudioSettings(context: context)
-////      entry.addOverride(zone: 0, generator: 12, value: 3.45)
-////      entry.addOverride(zone: -1, generator: 24, value: -3.45)
-////      entry.addOverride(zone: .globalZone, generator: 25, value: 9.87)
-////      try context.save()
-////
-////      let found = try context.fetch(FetchDescriptor<AudioSettingsModel>())
-////      XCTAssertEqual(found.count, 1)
-////      XCTAssertEqual(found[0].overrides?.count, 2)
-////      XCTAssertEqual(found[0].overrides?[0]?.count, 2)
-////      XCTAssertEqual(found[0].overrides?[.globalZone]?.count, 2)
-////      XCTAssertEqual(found[0].overrides?[-1]?.count, 1)
-////    }
-////  }
-////
-////  func testRemoveGeneratorOverrides() throws {
-////    try withNewContext(ActiveSchema.self) { context in
-////      let entry = try makeMockAudioSettings(context: context)
-////
-////      entry.addOverride(zone: 0, generator: 12, value: 3.45)
-////      entry.addOverride(zone: 1, generator: 24, value: -3.45)
-////      entry.addOverride(zone: .globalZone, generator: 25, value: 9.87)
-////      try context.save()
-////
-////      var found = try context.fetch(FetchDescriptor<AudioSettingsModel>())[0]
-////      found.removeOverride(zone: 1, generator: 24)
-////      try context.save()
-////
-////      found = try context.fetch(FetchDescriptor<AudioSettingsModel>())[0]
-////      found.removeOverride(zone: 0, generator: 12)
-////      try context.save()
-////
-////      found = try context.fetch(FetchDescriptor<AudioSettingsModel>())[0]
-////      XCTAssertEqual(found.overrides?.count, 1)
-////      found.removeAllOverrides(zone: .globalZone)
-////      try context.save()
-////
-////      found = try context.fetch(FetchDescriptor<AudioSettingsModel>())[0]
-////      XCTAssertEqual(found.overrides?.count, 0)
-////
-////      found.removeOverride(zone: .globalZone, generator: 24)
-////      found.removeAllOverrides(zone: -99)
-////    }
-////  }
-////
+//  func testAddGeneratorOverrides() throws {
+//    try withNewContext(ActiveSchema.self) { context in
+//      let entry = try makeMockAudioSettings(context: context)
+//      entry.addOverride(zone: 0, generator: 12, value: 3.45)
+//      entry.addOverride(zone: -1, generator: 24, value: -3.45)
+//      entry.addOverride(zone: .globalZone, generator: 25, value: 9.87)
+//      try context.save()
+//
+//      let found = try context.fetch(FetchDescriptor<AudioSettingsModel>())
+//      XCTAssertEqual(found.count, 1)
+//      XCTAssertEqual(found[0].overrides?.count, 2)
+//      XCTAssertEqual(found[0].overrides?[0]?.count, 2)
+//      XCTAssertEqual(found[0].overrides?[.globalZone]?.count, 2)
+//      XCTAssertEqual(found[0].overrides?[-1]?.count, 1)
+//    }
+//  }
+//
+//  func testRemoveGeneratorOverrides() throws {
+//    try withNewContext(ActiveSchema.self) { context in
+//      let entry = try makeMockAudioSettings(context: context)
+//
+//      entry.addOverride(zone: 0, generator: 12, value: 3.45)
+//      entry.addOverride(zone: 1, generator: 24, value: -3.45)
+//      entry.addOverride(zone: .globalZone, generator: 25, value: 9.87)
+//      try context.save()
+//
+//      var found = try context.fetch(FetchDescriptor<AudioSettingsModel>())[0]
+//      found.removeOverride(zone: 1, generator: 24)
+//      try context.save()
+//
+//      found = try context.fetch(FetchDescriptor<AudioSettingsModel>())[0]
+//      found.removeOverride(zone: 0, generator: 12)
+//      try context.save()
+//
+//      found = try context.fetch(FetchDescriptor<AudioSettingsModel>())[0]
+//      XCTAssertEqual(found.overrides?.count, 1)
+//      found.removeAllOverrides(zone: .globalZone)
+//      try context.save()
+//
+//      found = try context.fetch(FetchDescriptor<AudioSettingsModel>())[0]
+//      XCTAssertEqual(found.overrides?.count, 0)
+//
+//      found.removeOverride(zone: .globalZone, generator: 24)
+//      found.removeAllOverrides(zone: -99)
+//    }
+//  }
+//

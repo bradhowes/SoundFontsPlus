@@ -4,7 +4,6 @@ import OSLog
 
 private class BundleTag {}
 
-// @preconcurrency@MainActor
 public struct Logger {
 
   /// The top-level identifier for the app.

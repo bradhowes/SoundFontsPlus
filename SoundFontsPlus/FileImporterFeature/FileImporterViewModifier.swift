@@ -16,10 +16,10 @@ public struct FileImporterViewModifier: ViewModifier {
   public func body(content: Content) -> some View {
     content
       .fileImporter(
-        isPresented: Binding(get: { store.startImporting }, set: { _ in }),
+        isPresented: Binding(get: { store.showChooser }, set: { _ in }),
         allowedContentTypes: store.types
       ) { result in
-        store.send(.finishedImportingFile(result))
+        store.send(.filePicked(result))
       }
       .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
@@ -31,4 +31,3 @@ extension View {
     modifier(FileImporterViewModifier(store: store))
   }
 }
-

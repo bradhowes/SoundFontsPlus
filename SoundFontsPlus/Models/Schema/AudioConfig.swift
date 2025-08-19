@@ -89,14 +89,6 @@ extension AudioConfig {
       return nil
     }
 
-//    if let delayConfig = self.delayConfig {
-//      _ = delayConfig.clone(audioConfigId: clone.id)
-//    }
-//
-//    if let reverbConfig = self.reverbConfig {
-//      _ = reverbConfig.clone(audioConfigId: clone.id)
-//    }
-//
     return clone
   }
 }
