@@ -309,7 +309,11 @@ struct AppFeatureView: View, KeyboardReadable {
     .onReceive(keyboardPublisher) {
       isInputKeyboardVisible = $0
     }
-    .destinations(store: $store, horizontalSizeClass: horizontalSizeClass, verticalSizeClass: verticalSizeClass)
+    .destinations(
+      store: $store,
+      horizontalSizeClass: horizontalSizeClass,
+      verticalSizeClass: verticalSizeClass
+    )
   }
 
   private var listViews: some View {

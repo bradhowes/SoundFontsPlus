@@ -1,23 +1,38 @@
-//import Dependencies
-//import Foundation
-//import GRDB
-//import Testing
+import Dependencies
+import Foundation
+import GRDB
+import Testing
+
+@testable import SoundFontsPlus
+
+//@Suite("AudioConfig", .dependencies { $0.defaultDatabase = try appDatabase() })
+//struct AudioConfigTests {
 //
-//@testable import SoundFontsPlus
+//  func setup() async throws -> ([Preset], AudioConfig) {
+//    @Dependency(\.defaultDatabase) var database
+//    let presets = try await database.read { try Preset.all.fetchAll($0) }
+//    let audioConfig = withDatabaseWriter { db in
+//      try AudioConfig.upsert {
+//        presets[0].audioConfigDraft
+//      }
+//      .returning(\.self)
+//      .fetchOneForced(db)
+//    }
 //
-//@Suite("AudioConfig") struct AudioConfigTests {
-//
-//  @Test("new") func createNew() async throws {
-//    let (_, _, audioConfigs) = try await setup()
-//    #expect(audioConfigs[0].gain == 1.0)
-//    #expect(audioConfigs[0].pan == 0.0)
-//    #expect(audioConfigs[0].keyboardLowestNoteEnabled == false)
-//    #expect(audioConfigs[0].keyboardLowestNote == nil)
-//    #expect(audioConfigs[0].pitchBendRange == nil)
-//    #expect(audioConfigs[0].presetTuning == nil)
-//    #expect(audioConfigs[0].presetTranspose == nil)
+//    return (presets, audioConfig!)
 //  }
 //
+//  @Test("new") func createNew() async throws {
+//    let (_, audioConfig) = try await setup()
+//    #expect(audioConfig.gain == 1.0)
+//    #expect(audioConfig.pan == 0.0)
+//    #expect(audioConfig.keyboardLowestNoteEnabled == false)
+//    #expect(audioConfig.keyboardLowestNote == nil)
+//    #expect(audioConfig.pitchBendRange == nil)
+//    #expect(audioConfig.presetTuning == nil)
+//    #expect(audioConfig.presetTranspose == nil)
+//  }
+
 //  @Test("updating") func updating() async throws {
 //    let (db, _, audioConfigs) = try await setup()
 //    let audioConfig = audioConfigs[0]
@@ -97,30 +112,6 @@
 //    #expect(rc.count == 0)
 //  }
 //
-//  private func setup() async throws -> (DatabaseQueue, [Preset], [AudioConfig]) {
-//    let db = try DatabaseQueue.appDatabase()
-//    let presets = try await db.read { try Preset.fetchAll($0) }
-//
-//    let audioConfigs: [AudioConfig] = try await db.write { db in
-//      var audioConfigs = [AudioConfig]()
-//      audioConfigs.append(try AudioConfig.make(db, presetId: presets[0].id))
-//      audioConfigs.append(try AudioConfig.make(db, presetId: presets[1].id))
-//      _ = try DelayConfig.make(db, for: audioConfigs.last!.id)
-//
-//      audioConfigs.append(try AudioConfig.make(db, presetId: presets[2].id))
-//      _ = try ReverbConfig.make(db, for: audioConfigs.last!.id)
-//
-//      audioConfigs.append(try AudioConfig.make(db, presetId: presets[3].id))
-//      _ = try DelayConfig.make(db, for: audioConfigs.last!.id)
-//      _ = try ReverbConfig.make(db, for: audioConfigs.last!.id)
-//
-//      return audioConfigs
-//    }
-//
-//    return (db, presets, audioConfigs)
-//  }
-//}
-//
 //  func testAddGeneratorOverrides() throws {
 //    try withNewContext(ActiveSchema.self) { context in
 //      let entry = try makeMockAudioSettings(context: context)
@@ -167,4 +158,4 @@
 //      found.removeAllOverrides(zone: -99)
 //    }
 //  }
-//
+//}

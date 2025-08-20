@@ -19,6 +19,9 @@
 		BD1D27892B6F13DE005C3ED0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */; };
 		BD1D278D2B6F13DE005C3ED0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */; };
 		BD2A26042CC849E0000CC1DF /* Eurostile.ttc in Resources */ = {isa = PBXBuildFile; fileRef = BD2A26032CC849E0000CC1DF /* Eurostile.ttc */; };
+		BD31A7EE2E5647300046F07C /* FileImporterViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B05142E4FDCCE006628F3 /* FileImporterViewModifier.swift */; };
+		BD31A7F32E5658CE0046F07C /* StructuredQueriesTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BD31A7F22E5658CE0046F07C /* StructuredQueriesTestSupport */; };
+		BD31A8BF2E5663500046F07C /* Internal.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD31A8BE2E56634D0046F07C /* Internal.swift */; };
 		BD3311432DE2700500A73BA8 /* InlineSnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311422DE2700500A73BA8 /* InlineSnapshotTesting */; };
 		BD3311452DE2700500A73BA8 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311442DE2700500A73BA8 /* SnapshotTesting */; };
 		BD3311472DE2700500A73BA8 /* SnapshotTestingCustomDump in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311462DE2700500A73BA8 /* SnapshotTestingCustomDump */; };
@@ -214,6 +217,7 @@
 		BD1D27932B6F13DE005C3ED0 /* SoundFontsPlusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoundFontsPlusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD1D279D2B6F13DE005C3ED0 /* SoundFontsPlusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoundFontsPlusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD2A26032CC849E0000CC1DF /* Eurostile.ttc */ = {isa = PBXFileReference; lastKnownFileType = file; path = Eurostile.ttc; sourceTree = "<group>"; };
+		BD31A8BE2E56634D0046F07C /* Internal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Internal.swift; sourceTree = "<group>"; };
 		BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarTitleStyle.swift; sourceTree = "<group>"; };
 		BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AUParameterTree.swift; sourceTree = "<group>"; };
 		BD59D4E92E47B62500B2250B /* MIDIConnectionsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDIConnectionsFeature.swift; sourceTree = "<group>"; };
@@ -389,6 +393,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD31A7F32E5658CE0046F07C /* StructuredQueriesTestSupport in Frameworks */,
 				BDAF5BC92DE26BFC00B8FB13 /* SnapshotTesting in Frameworks */,
 				BD3311472DE2700500A73BA8 /* SnapshotTestingCustomDump in Frameworks */,
 				BD3311452DE2700500A73BA8 /* SnapshotTesting in Frameworks */,
@@ -744,6 +749,7 @@
 		BDAF5B3F2DE256C500B8FB13 /* ModelsTests */ = {
 			isa = PBXGroup;
 			children = (
+				BD31A8BE2E56634D0046F07C /* Internal.swift */,
 				BDAF5B332DE256C500B8FB13 /* AudioConfigTests.swift */,
 				BDAF5B342DE256C500B8FB13 /* BookmarkTests.swift */,
 				BDAF5B352DE256C500B8FB13 /* DelayConfigTests.swift */,
@@ -1024,6 +1030,7 @@
 				BD171EDA2E47A9F700E2EDA7 /* XCRemoteSwiftPackageReference "morkandmidi" */,
 				BD3E3D7E2E520FA800523292 /* XCRemoteSwiftPackageReference "SF2LibAU" */,
 				BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */,
+				BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */,
 			);
 			preferredProjectObjectVersion = 56;
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
@@ -1128,6 +1135,7 @@
 				BD59D4EC2E47C77C00B2250B /* MIDIControllersFeature.swift in Sources */,
 				BDA917E02E08247700FD3257 /* SynthFeature.swift in Sources */,
 				BDAF5AC62DE2555000B8FB13 /* DelayConfig.swift in Sources */,
+				BD31A7EE2E5647300046F07C /* FileImporterViewModifier.swift in Sources */,
 				BDAF5AC72DE2555000B8FB13 /* TaggedSoundFont.swift in Sources */,
 				BDAF5ADF2DE2556600B8FB13 /* SettingsFeature.swift in Sources */,
 				BDAF5AC82DE2555000B8FB13 /* SoundFont.swift in Sources */,
@@ -1198,6 +1206,7 @@
 				BDAF5B992DE256C500B8FB13 /* ReverbConfigTests.swift in Sources */,
 				BDAF5B9A2DE256C500B8FB13 /* TagNameEditorTests.swift in Sources */,
 				BDAF5B9B2DE256C500B8FB13 /* TagsEditorTests.swift in Sources */,
+				BD31A8BF2E5663500046F07C /* Internal.swift in Sources */,
 				BDAF5B9C2DE256C500B8FB13 /* SoundFontsPlusLibTests.swift in Sources */,
 				BDAF5B9E2DE256C500B8FB13 /* SF2PickerTests.swift in Sources */,
 				BDAF5B9F2DE256C500B8FB13 /* PresetEditorTests.swift in Sources */,
@@ -1728,6 +1737,14 @@
 				minimumVersion = 4.0.0;
 			};
 		};
+		BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-structured-queries";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.12.1;
+			};
+		};
 		BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
@@ -1854,6 +1871,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BD171EDA2E47A9F700E2EDA7 /* XCRemoteSwiftPackageReference "morkandmidi" */;
 			productName = MorkAndMIDI;
+		};
+		BD31A7F22E5658CE0046F07C /* StructuredQueriesTestSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */;
+			productName = StructuredQueriesTestSupport;
 		};
 		BD3311422DE2700500A73BA8 /* InlineSnapshotTesting */ = {
 			isa = XCSwiftPackageProductDependency;

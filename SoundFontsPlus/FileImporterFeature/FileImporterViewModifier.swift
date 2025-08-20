@@ -1,10 +1,5 @@
-//
-//  FileImporterViewModifier.swift
-//  SoundFontsPlus
-//
-//  Created by Brad Howes on 8/15/25.
-//
-
+import ComposableArchitecture
+import SwiftUI
 
 public struct FileImporterViewModifier: ViewModifier {
   @Bindable private var store: StoreOf<FileImporterFeature>
