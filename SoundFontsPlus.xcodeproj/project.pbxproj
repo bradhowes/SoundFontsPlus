@@ -37,6 +37,7 @@
 		BD42763F2E53B44E00DC93BF /* SF2LibAU in Frameworks */ = {isa = PBXBuildFile; productRef = BD42763E2E53B44E00DC93BF /* SF2LibAU */; };
 		BD4276412E53B44E00DC93BF /* BRHSplitView in Frameworks */ = {isa = PBXBuildFile; productRef = BD4276402E53B44E00DC93BF /* BRHSplitView */; };
 		BD46FC832DF62C3100CB20F1 /* AUParameterTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */; };
+		BD561CA22E56847200D8FBB0 /* FluidR3_GM.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BD561CA12E56847200D8FBB0 /* FluidR3_GM.sf2 */; };
 		BD59D4EA2E47B62C00B2250B /* MIDIConnectionsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4E92E47B62500B2250B /* MIDIConnectionsFeature.swift */; };
 		BD59D4EC2E47C77C00B2250B /* MIDIControllersFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4EB2E47C77C00B2250B /* MIDIControllersFeature.swift */; };
 		BD59D4EE2E47C80A00B2250B /* MIDIAssignmentsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4ED2E47C80A00B2250B /* MIDIAssignmentsFeature.swift */; };
@@ -220,6 +221,7 @@
 		BD31A8BE2E56634D0046F07C /* Internal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Internal.swift; sourceTree = "<group>"; };
 		BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarTitleStyle.swift; sourceTree = "<group>"; };
 		BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AUParameterTree.swift; sourceTree = "<group>"; };
+		BD561CA12E56847200D8FBB0 /* FluidR3_GM.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = FluidR3_GM.sf2; sourceTree = "<group>"; };
 		BD59D4E92E47B62500B2250B /* MIDIConnectionsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDIConnectionsFeature.swift; sourceTree = "<group>"; };
 		BD59D4EB2E47C77C00B2250B /* MIDIControllersFeature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIControllersFeature.swift; sourceTree = "<group>"; };
 		BD59D4ED2E47C80A00B2250B /* MIDIAssignmentsFeature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIAssignmentsFeature.swift; sourceTree = "<group>"; };
@@ -659,6 +661,7 @@
 			isa = PBXGroup;
 			children = (
 				BDAF5AE02DE2557300B8FB13 /* FreeFont.sf2 */,
+				BD561CA12E56847200D8FBB0 /* FluidR3_GM.sf2 */,
 				BDAF5AE12DE2557300B8FB13 /* GeneralUser GS MuseScore v1.442.sf2 */,
 				BDAF5AE22DE2557300B8FB13 /* RolandNicePiano.sf2 */,
 			);
@@ -1053,6 +1056,7 @@
 				BD1D278D2B6F13DE005C3ED0 /* Preview Assets.xcassets in Resources */,
 				BD2A26042CC849E0000CC1DF /* Eurostile.ttc in Resources */,
 				BDAF5AE92DE2557300B8FB13 /* GeneralUser GS MuseScore v1.442.sf2 in Resources */,
+				BD561CA22E56847200D8FBB0 /* FluidR3_GM.sf2 in Resources */,
 				BDAF5AEA2DE2557300B8FB13 /* RolandNicePiano.sf2 in Resources */,
 				BD050EE12E23C2EB00706CC4 /* LaunchScreen.storyboard in Resources */,
 				BDAF5AEB2DE2557300B8FB13 /* FreeFont.sf2 in Resources */,

@@ -8,10 +8,12 @@ import Engine
  */
 public enum SF2ResourceFileTag: Int, CaseIterable, Sendable {
 
-  case freeFont = 1
-  case museScore = 2
-  case rolandNicePiano = 3
+  case fluidFont = 1
+  case freeFont = 2
+  case museScore = 3
+  case rolandNicePiano = 4
 
+  static let fluidFontFileName = "FluidR3_GM"
   static let freeFontFileName = "FreeFont"
   static let museScoreFileName = "GeneralUser GS MuseScore v1.442"
   static let rolandNicePianoFileName = "RolandNicePiano"
@@ -21,12 +23,14 @@ public enum SF2ResourceFileTag: Int, CaseIterable, Sendable {
   /// Obtain the name of the SF2 resource file without suffix
   public var fileName: String {
     switch self {
+    case .fluidFont: return Self.fluidFontFileName
     case .freeFont: return Self.freeFontFileName
     case .museScore: return Self.museScoreFileName
     case .rolandNicePiano: return Self.rolandNicePianoFileName
     }
   }
 
+  static let fluidFontName = "Fluid R3"
   static let freeFontName = freeFontFileName
   static let museScoreName = "MuseScore"
   static let rolandNicePianoName = "Roland Piano"
@@ -34,6 +38,7 @@ public enum SF2ResourceFileTag: Int, CaseIterable, Sendable {
   /// Obtain the name of the SF2 resource
   public var name: String {
     switch self {
+    case .fluidFont: return Self.fluidFontName
     case .freeFont: return Self.freeFontName
     case .museScore: return Self.museScoreName
     case .rolandNicePiano: return Self.rolandNicePianoName
