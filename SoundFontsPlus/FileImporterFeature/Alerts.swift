@@ -93,13 +93,16 @@ private struct AlertDemo {
   @ObservableState
   fileprivate struct State: Equatable {
     @Presents var destination: Destination.State?
+    var fileImporter: FileImporterFeature.State = .init()
   }
 
   fileprivate enum Action {
     case addedSummary
+    case beginTapped
     case continueWithDuplicateFile
     case destination(PresentationAction<Destination.Action>)
     case failedToPick
+    case fileImporter(FileImporterFeature.Action)
     case genericFailureToImport
     case invalidSoundFontFormat
   }
@@ -107,10 +110,17 @@ private struct AlertDemo {
   @Dependency(\.dismiss) var dismiss
 
   fileprivate var body: some ReducerOf<Self> {
+
+    Scope(state: \.fileImporter, action: \.fileImporter) { FileImporterFeature() }
+
     Reduce { state, action in
       switch action {
       case .addedSummary:
         state.destination = .alert(.addedSummary(displayName: "Foo"))
+        return .none
+
+      case .beginTapped:
+        state.fileImporter.showChooser = true
         return .none
 
       case .continueWithDuplicateFile:
@@ -129,6 +139,9 @@ private struct AlertDemo {
 
       case .failedToPick:
         state.destination = .alert(.failedToPick(error: ModelError.invalidLocation(name: "blah")))
+        return .none
+
+      case .fileImporter:
         return .none
 
       case .genericFailureToImport:
@@ -156,6 +169,11 @@ private struct AlertDemoView: View {
   var body: some View {
     VStack {
       Button {
+        store.send(.beginTapped)
+      } label: {
+        Text("Begin File Importer")
+      }
+      Button {
         store.send(.addedSummary)
       } label: {
         Text("Added Summary")
@@ -181,6 +199,7 @@ private struct AlertDemoView: View {
         Text("Invalid Format")
       }
     }
+    .fileImporterFeature(store.scope(state: \.fileImporter, action: \.fileImporter))
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
 }
