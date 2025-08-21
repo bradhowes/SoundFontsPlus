@@ -5,6 +5,8 @@ import ComposableArchitecture
 import Sharing
 import SwiftUI
 
+private let log = Logger(category: "SettingsFeature")
+
 @Reducer
 public struct SettingsFeature {
 
@@ -15,9 +17,20 @@ public struct SettingsFeature {
     case midiControllers(MIDIControllersFeature)
   }
 
+  @Reducer(state: .equatable)
+  public enum Destination: Equatable {
+    case alert(AlertState<Alert>)
+
+    @CasePathable
+    public enum Alert {
+      case disableCopyFileConfirmed
+    }
+  }
+
   @ObservableState
   public struct State: Equatable {
     var path = StackState<Path.State>()
+    @Presents var destination: Destination.State?
     var midiConnectCount: Int = 0
 
     @Shared(.keyWidth) var keyWidth
@@ -53,6 +66,7 @@ public struct SettingsFeature {
     case binding(BindingAction<State>)
     case bluetoothMIDILocateButtonTapped
     case contactDeveloperTapped
+    case destination(PresentationAction<Destination.Action>)
     case dismissButtonTapped
     case exportFilesTapped
     case hideBuiltInFilesTapped
@@ -85,6 +99,14 @@ public struct SettingsFeature {
       case .binding(\.keyWidth):
         return updateKeyWidth(&state)
 
+      case .binding(\.copyFileWhenInstalling):
+        log.info("value: \(state.copyFileWhenInstalling)")
+        if !state.copyFileWhenInstalling {
+          state.$copyFileWhenInstalling.withLock { $0 = true }
+          state.destination = .alert(.confirmDisableCopyFile(action: .disableCopyFileConfirmed))
+        }
+        return .none
+
       case .binding:
         return .none
 
@@ -92,6 +114,13 @@ public struct SettingsFeature {
         return .none
 
       case .contactDeveloperTapped:
+        return .none
+
+      case .destination(.presented(.alert(.disableCopyFileConfirmed))):
+        state.$copyFileWhenInstalling.withLock { $0 = false }
+        return .none
+
+      case .destination:
         return .none
 
       case .dismissButtonTapped:
@@ -148,11 +177,16 @@ public struct SettingsFeature {
       }
     }
     .forEach(\.path, action: \.path)
+    .ifLet(\.destination, action: \.destination)
   }
 
   private enum CancelId {
     case monitorMIDIConnections
   }
+}
+
+extension SettingsFeature.Destination.State: _EphemeralState {
+  public typealias Action = Alert
 }
 
 extension SettingsFeature {
@@ -237,6 +271,7 @@ public struct SettingsView: View {
       case .midiControllers(let store): MIDIControllersView(store: store)
       }
     }
+    .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     .task {
       await store.send(.initialize).finish()
     }

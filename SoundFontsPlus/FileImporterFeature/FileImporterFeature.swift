@@ -10,22 +10,13 @@ private let log = Logger(category: "FileImporterFeature")
 @Reducer
 public struct FileImporterFeature {
 
-  enum Failure: Error {
-    case duplicateFile(displayName: String, url: URL)
-    case invalidSoundFontFormat(displayName: String, url: URL)
-    case sqlFailure(displayName: String, url: URL, error: Error)
-    case fileManagerFailure(displayName: String, url: URL, error: CocoaError)
-  }
-
   @Reducer(state: .equatable)
   public enum Destination: Equatable {
     case alert(AlertState<Alert>)
 
     @CasePathable
     public enum Alert {
-      case addedSummary
-      case continueWithDuplicateFile
-      case genericFailureToImport
+      case importDuplicateFileConfirmed
     }
   }
 
@@ -37,8 +28,8 @@ public struct FileImporterFeature {
   }
 
   public enum Action {
-    case filePickerCancelled
     case destination(PresentationAction<Destination.Action>)
+    case filePickerCancelled
     case filePicked(Result<URL, Error>)
     case showFileImporter
   }
@@ -53,7 +44,7 @@ public struct FileImporterFeature {
         state.showChooser = false
         return .none
 
-      case .destination(.presented(.alert)):
+      case .destination(.presented(.alert(.importDuplicateFileConfirmed))):
         return .none
 
       case .destination:
@@ -101,7 +92,7 @@ extension FileImporterFeature {
       }
       try SoundFont.add(displayName: displayName, soundFontKind: kind)
     } catch CocoaError.fileWriteFileExists {
-      state.destination = .alert(.continueWithDuplicateFile(url: url, action: .continueWithDuplicateFile))
+      state.destination = .alert(.continueWithDuplicateFile(url: url, action: .importDuplicateFileConfirmed))
     } catch {
       state.destination = .alert(.genericFailureToImport(displayName: displayName, error: error))
       return .none
