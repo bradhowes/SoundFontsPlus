@@ -15,15 +15,18 @@ struct SoundFontTests {
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
 
-    #expect(soundFonts.count == 3)
-    #expect(soundFonts[0].displayName == SF2ResourceFileTag.freeFont.name)
+    #expect(soundFonts.count == 4)
+    #expect(soundFonts[0].displayName == SF2ResourceFileTag.fluidFont.name)
     #expect(soundFonts[0].id.rawValue == 1)
 
-    #expect(soundFonts[1].displayName == SF2ResourceFileTag.museScore.name)
+    #expect(soundFonts[1].displayName == SF2ResourceFileTag.freeFont.name)
     #expect(soundFonts[1].id.rawValue == 2)
 
-    #expect(soundFonts[2].displayName == SF2ResourceFileTag.rolandNicePiano.name)
+    #expect(soundFonts[2].displayName == SF2ResourceFileTag.museScore.name)
     #expect(soundFonts[2].id.rawValue == 3)
+
+    #expect(soundFonts[3].displayName == SF2ResourceFileTag.rolandNicePiano.name)
+    #expect(soundFonts[3].id.rawValue == 4)
 
     #expect(try soundFonts[0].source().isBuiltin)
     #expect(try soundFonts[1].source().isBuiltin)
@@ -37,11 +40,11 @@ struct SoundFontTests {
     #expect(!soundFonts[1].sourcePath.isEmpty && soundFonts[1].sourcePath != "N/A")
     #expect(!soundFonts[2].sourcePath.isEmpty && soundFonts[2].sourcePath != "N/A")
 
-    #expect(soundFonts[0].embeddedName == "Free Font GM Ver. 3.2")
-    #expect(soundFonts[0].embeddedComment == "")
-    #expect(soundFonts[0].embeddedAuthor == "")
-    #expect(soundFonts[0].embeddedCopyright == "")
-    #expect(soundFonts[0].notes == "")
+    #expect(soundFonts[1].embeddedName == "Free Font GM Ver. 3.2")
+    #expect(soundFonts[1].embeddedComment == "")
+    #expect(soundFonts[1].embeddedAuthor == "")
+    #expect(soundFonts[1].embeddedCopyright == "")
+    #expect(soundFonts[1].notes == "")
 
     #expect(soundFonts[0].tags.count == 2)
     #expect(soundFonts[1].tags.count == 2)
@@ -51,8 +54,9 @@ struct SoundFontTests {
   @Test("soundFonts") func active() async throws {
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
-    #expect(soundFonts.count == 3)
+    #expect(soundFonts.count == 4)
     #expect(soundFonts.map(\.displayName) == [
+      "Fluid R3",
       "FreeFont",
       "MuseScore",
       "Roland Piano"

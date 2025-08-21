@@ -6,7 +6,7 @@ import Engine
 final class SF2ResourceFilesTests: XCTestCase {
 
   func testResourcesExist() throws {
-    XCTAssertEqual(SF2ResourceFiles.resources.count, 3)
+    XCTAssertEqual(SF2ResourceFiles.resources.count, 4)
     for url in SF2ResourceFiles.resources {
       try XCTAssertTrue(url.checkResourceIsReachable())
     }
@@ -28,9 +28,19 @@ final class SF2ResourceFilesTests: XCTestCase {
   }
 
   func testResourceNames() throws {
+    XCTAssertEqual(SF2ResourceFileTag.fluidFont.name, "Fluid R3")
     XCTAssertEqual(SF2ResourceFileTag.freeFont.name, "FreeFont")
     XCTAssertEqual(SF2ResourceFileTag.museScore.name, "MuseScore")
     XCTAssertEqual(SF2ResourceFileTag.rolandNicePiano.name, "Roland Piano")
+  }
+
+  func testFluidFontFileInfo() throws {
+    let fileInfo = SF2ResourceFileTag.fluidFont.fileInfo!
+    XCTAssertEqual(fileInfo.embeddedName(), "Fluid R3 GM")
+    XCTAssertEqual(fileInfo.embeddedAuthor(), "Frank Wen")
+    XCTAssertEqual(fileInfo.embeddedComment(), "")
+    XCTAssertEqual(fileInfo.embeddedCopyright(), "Frank Wen 2000-2002")
+    XCTAssertEqual(fileInfo.size(), 189)
   }
 
   func testFreeFontFileInfo() throws {
