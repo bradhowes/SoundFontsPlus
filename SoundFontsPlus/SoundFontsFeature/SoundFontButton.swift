@@ -49,18 +49,25 @@ public struct SoundFontButton {
       switch action {
       case .buttonTapped:
         return .send(.delegate(.selectSoundFont(state.soundFontInfo)))
+
       case .confirmationDialog(.presented(.deleteButtonTapped)):
         return .send(.delegate(.deleteSoundFont(state.soundFontInfo))).animation(.default)
+
       case .deleteButtonTapped:
         return deleteButtonTapped(&state)
+
       case .editButtonTapped:
         return .send(.delegate(.editSoundFont(state.soundFontInfo)))
+
       case .longPressGestureFired:
         return .send(.delegate(.editSoundFont(state.soundFontInfo)))
-      default:
-        break
+
+      case .confirmationDialog:
+        return .none
+
+      case .delegate:
+        return .none
       }
-      return .none
     }
     .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
   }

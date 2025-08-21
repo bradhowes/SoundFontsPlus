@@ -39,11 +39,21 @@ public struct TagsList {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .delegate: return .none
-      case let .deleteButtonTapped(tagInfo): return deleteTag(&state, tagId: tagInfo.id)
-      case let .editButtonTapped(tagInfo): return editTags(&state, focused: tagInfo)
-      case let .tagButtonTapped(tagInfo): return activateTag(&state, tagId: tagInfo.id)
-      case .longPressGestureFired: return editTags(&state, focused: nil)
+
+      case .delegate:
+        return .none
+
+      case let .deleteButtonTapped(tagInfo):
+        return deleteTag(&state, tagId: tagInfo.id)
+
+      case let .editButtonTapped(tagInfo):
+        return editTags(&state, focused: tagInfo)
+
+      case let .tagButtonTapped(tagInfo):
+        return activateTag(&state, tagId: tagInfo.id)
+
+      case .longPressGestureFired:
+        return editTags(&state, focused: nil)
       }
     }
   }

@@ -49,16 +49,33 @@ public struct PresetButton {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .buttonTapped: return .send(.delegate(.selectPreset(state.preset)))
+      case .buttonTapped:
+        return .send(.delegate(.selectPreset(state.preset)))
+
       case .confirmationDialog(.presented(.hideButtonTapped)):
         return .send(.delegate(.hideOrDeletePreset(state.preset))).animation(.default)
-      case .confirmationDialog: return .none
-      case .delegate: return .none
-      case .editButtonTapped: return .send(.delegate(.editPreset(state.preset)))
-      case .favoriteButtonTapped: return .send(.delegate(.createFavorite(state.preset)))
-      case .hideOrDeleteButtonTapped: return .send(.delegate(.hideOrDeletePreset(state.preset)))
-      case .longPressGestureFired: return .send(.delegate(.editPreset(state.preset)))
-      case .toggleVisibility: return toggleVisibility(&state)
+
+      case .confirmationDialog:
+        return .none
+
+      case .delegate:
+        return .none
+
+      case .editButtonTapped:
+        return .send(.delegate(.editPreset(state.preset)))
+
+      case .favoriteButtonTapped:
+        return .send(.delegate(.createFavorite(state.preset)))
+
+      case .hideOrDeleteButtonTapped:
+        return .send(.delegate(.hideOrDeletePreset(state.preset)))
+
+      case .longPressGestureFired:
+        return .send(.delegate(.editPreset(state.preset)))
+
+      case .toggleVisibility:
+        state.preset.toggleVisibility()
+        return .none
       }
     }
     .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
@@ -82,11 +99,6 @@ extension PresetButton {
         "You can restore them via the visibility button in the toolbar."
       )
     }
-  }
-
-  private func toggleVisibility(_ state: inout State) -> Effect<Action> {
-    state.preset.toggleVisibility()
-    return .none
   }
 }
 
