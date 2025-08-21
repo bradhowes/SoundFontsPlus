@@ -62,7 +62,12 @@ public struct FileImporterFeature {
       }
       return .none
     }
+    .ifLet(\.destination, action: \.destination)
   }
+}
+
+extension FileImporterFeature.Destination.State: _EphemeralState {
+  public typealias Action = Alert
 }
 
 extension FileImporterFeature {
@@ -82,13 +87,10 @@ extension FileImporterFeature {
   }
 
   private func importFile(_ state: inout State, displayName: String, url: URL) -> Effect<Action> {
-    if !validateSoundFont(url: url) {
-      state.destination = .alert(.invalidSoundFontFormat(displayName: displayName))
-      return .none
-    }
-
     do {
-      let kind = try placeSoundFont(displayName: displayName, url: url)
+      guard let kind = try placeSoundFont(&state, displayName: displayName, source: url) else {
+        return .none
+      }
       try SoundFont.add(displayName: displayName, soundFontKind: kind)
     } catch CocoaError.fileWriteFileExists {
       state.destination = .alert(.continueWithDuplicateFile(url: url, action: .continueWithDuplicateFile))
@@ -106,23 +108,31 @@ extension FileImporterFeature {
     return fileInfo.load()
   }
 
-  private func placeSoundFont(displayName: String, url: URL) throws -> SoundFontKind {
+  private func placeSoundFont(_ state: inout State, displayName: String, source: URL) throws -> SoundFontKind? {
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
     let location: SoundFontKind
     if copyFileWhenInstalling {
-      location = .installed(file: try copyToSharedFolder(source: url))
+      guard let destination = try copyToSharedFolder(&state, displayName: displayName, source: source) else {
+        return nil
+      }
+      location = .installed(file: destination)
     } else {
-      location = .external(bookmark: Bookmark(url: url, name: displayName))
+      location = .external(bookmark: Bookmark(url: source, name: displayName))
     }
     return location
   }
 
-  private func copyToSharedFolder(source: URL) throws -> URL {
+  private func copyToSharedFolder(_ state: inout State, displayName: String, source: URL) throws -> URL? {
     let accessing = source.startAccessingSecurityScopedResource()
     defer { if accessing { source.stopAccessingSecurityScopedResource() } }
 
     let destination = FileManager.default.sharedPath(for: source.lastPathComponent)
     try FileManager.default.copyItem(at: source, to: destination)
+
+    if !validateSoundFont(url: destination) {
+      state.destination = .alert(.invalidSoundFontFormat(displayName: displayName))
+      return nil
+    }
 
     return destination
   }

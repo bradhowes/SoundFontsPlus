@@ -110,29 +110,41 @@ struct AppFeature {
       switch action {
       case .destination(.dismiss):
         return destinationDismissed(&state)
+
       case .initialize:
         volumeMonitor.start()
         return reduce(into: &state, action: .synth(.initialize))
+
       case let .keyboard(.delegate(action)):
         return monitorKeyboardAction(&state, action: action)
+
       case let .presetsList(.delegate(.edit(sectionId, preset))):
         state.destination = .presetEditor(PresetEditor.State(sectionId: sectionId, preset: preset))
+        return .none
+
       case let .presetsSplit(.delegate(action)):
         return monitorPresetsSplitAction(&state, action: action)
+
       case let .scenePhaseChanged(phase):
         return scenePhaseChanged(&state, phase: phase)
+
       case let .soundFontsList(.delegate(.edit(soundFont))):
         state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
+        return .none
+
       case let .tagsList(.delegate(.edit(focused))):
         state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
+        return .none
+
       case let .tagsSplit(.delegate(action)):
         return monitorTagsSplitAction(&state, action: action)
+
       case let .toolBar(.delegate(action)):
         return monitorToolBarAction(&state, action: action)
+
       default:
         return .none
       }
-      return .none
     }.ifLet(\.$destination, action: \.destination)
   }
 
@@ -191,6 +203,7 @@ private extension AppFeature {
 
   func monitorToolBarAction(_ state: inout State, action: ToolBarFeature.Action.Delegate) -> Effect<Action> {
     switch action {
+
     case .addSoundFontButtonTapped:
       return reduce(into: &state, action: .fileImporter(.showFileImporter))
 
@@ -314,6 +327,7 @@ struct AppFeatureView: View, KeyboardReadable {
       horizontalSizeClass: horizontalSizeClass,
       verticalSizeClass: verticalSizeClass
     )
+    .fileImporterFeature(store.scope(state: \.fileImporter, action: \.fileImporter))
   }
 
   private var listViews: some View {
