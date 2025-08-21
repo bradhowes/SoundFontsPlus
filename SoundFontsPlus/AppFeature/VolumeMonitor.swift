@@ -4,11 +4,11 @@ import AVKit
 import os
 import ProgressHUD
 
+private let log = Logger(category: "VolumeMonitor")
+
 /// Monitor volume setting on device and the "silence" or "mute" switch. When there is no apparent audio
 /// output, update the Keyboard and NotePlayer instances so that they can show an indication to the user.
 final class VolumeMonitor {
-
-  private let logger = Logger(category: "VolumeMonitor")
 
   private enum Reason {
     /// Volume level is at zero
@@ -19,7 +19,7 @@ final class VolumeMonitor {
 
   private var volume: Float = 1.0 {
     didSet {
-      logger.info("volume changed: \(volume)")
+      log.info("volume changed: \(volume)")
       update()
     }
   }
@@ -39,7 +39,7 @@ extension VolumeMonitor {
    - parameter session: the AVAudioSession to monitor
    */
   func start() {
-    logger.info("start")
+    log.info("start")
     reason = nil
     let session = AVAudioSession.sharedInstance()
     sessionVolumeObserver = session.observe(\.outputVolume) { [weak self] session, _ in
@@ -52,7 +52,7 @@ extension VolumeMonitor {
    Stop monitoring the output volume of an AVAudioSession
    */
   func stop() {
-    logger.info("stop")
+    log.info("stop")
     reason = nil
     sessionVolumeObserver?.invalidate()
     sessionVolumeObserver = nil

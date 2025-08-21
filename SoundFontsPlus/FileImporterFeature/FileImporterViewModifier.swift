@@ -11,7 +11,10 @@ public struct FileImporterViewModifier: ViewModifier {
   public func body(content: Content) -> some View {
     content
       .fileImporter(
-        isPresented: Binding(get: { store.showChooser }, set: { _ in }),
+        isPresented: Binding(
+          get: { store.showChooser },
+          set: { _ in store.send(.filePickerCancelled) }
+        ),
         allowedContentTypes: store.types
       ) { result in
         store.send(.filePicked(result))

@@ -5,6 +5,8 @@ import Engine
 import SwiftUI
 import UniformTypeIdentifiers
 
+private let log = Logger(category: "FileImporterFeature")
+
 @Reducer
 public struct FileImporterFeature {
 
@@ -29,13 +31,13 @@ public struct FileImporterFeature {
 
   @ObservableState
   public struct State: Equatable {
-    @Presents var destination: Destination.State?
     let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
     var showChooser: Bool = false
-    var notice: String?
+    @Presents var destination: Destination.State?
   }
 
   public enum Action {
+    case filePickerCancelled
     case destination(PresentationAction<Destination.Action>)
     case filePicked(Result<URL, Error>)
     case showFileImporter
@@ -46,6 +48,10 @@ public struct FileImporterFeature {
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
+
+      case .filePickerCancelled:
+        state.showChooser = false
+        return .none
 
       case .destination(.presented(.alert)):
         return .none
@@ -59,8 +65,8 @@ public struct FileImporterFeature {
 
       case .showFileImporter:
         state.showChooser = true
+        return .none
       }
-      return .none
     }
     .ifLet(\.destination, action: \.destination)
   }
@@ -78,9 +84,11 @@ extension FileImporterFeature {
 
     case .success(let url):
       let displayName = String(url.lastPathComponent.withoutExtension)
+      log.info("picked \(displayName) - \(url)")
       return importFile(&state, displayName: displayName, url: url)
 
     case .failure(let error):
+      log.info("failed to pick - \(error.localizedDescription)")
       state.destination = .alert(.failedToPick(error: error))
       return .none
     }
@@ -104,6 +112,8 @@ extension FileImporterFeature {
   }
 
   private func validateSoundFont(url: URL) -> Bool {
+    let accessing = url.startAccessingSecurityScopedResource()
+    defer { if accessing { url.stopAccessingSecurityScopedResource() } }
     var fileInfo = SF2FileInfo(url.path(percentEncoded: false))
     return fileInfo.load()
   }
@@ -112,12 +122,29 @@ extension FileImporterFeature {
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
     let location: SoundFontKind
     if copyFileWhenInstalling {
+      log.info("copying file to app folder")
       guard let destination = try copyToSharedFolder(&state, displayName: displayName, source: source) else {
+        log.info("copying failed")
         return nil
       }
+
+      if !validateSoundFont(url: destination) {
+        log.info("invalid SF2 file")
+        state.destination = .alert(.invalidSoundFontFormat(displayName: displayName))
+        return nil
+      }
+
       location = .installed(file: destination)
     } else {
-      location = .external(bookmark: Bookmark(url: source, name: displayName))
+      log.info("using external file")
+      if !validateSoundFont(url: source) {
+        log.info("invalid SF2 file")
+        state.destination = .alert(.invalidSoundFontFormat(displayName: displayName))
+        return nil
+      }
+
+      let bookmark = Bookmark(url: source, name: displayName)
+      location = .external(bookmark: bookmark)
     }
     return location
   }
@@ -128,11 +155,6 @@ extension FileImporterFeature {
 
     let destination = FileManager.default.sharedPath(for: source.lastPathComponent)
     try FileManager.default.copyItem(at: source, to: destination)
-
-    if !validateSoundFont(url: destination) {
-      state.destination = .alert(.invalidSoundFontFormat(displayName: displayName))
-      return nil
-    }
 
     return destination
   }
