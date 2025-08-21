@@ -121,14 +121,25 @@ public struct MIDIConnectionsFeature {
 
     Reduce { state, action in
       switch action {
+
       case .autoConnectToggleTapped(let id):
         if let index = state.rows.index(id: id) {
           state.rows[index].autoConnect.toggle()
         }
         return .none
 
-      case .fixedVolumeDecrementTapped(let id): return decrementFixedVolume(&state, id: id)
-      case .fixedVolumeIncrementTapped(let id): return incrementFixedVolume(&state, id: id)
+      case .fixedVolumeDecrementTapped(let id):
+        if let index = state.rows.index(id: id) {
+          state.rows[index].fixedVolume -= 1
+        }
+        return .none
+
+      case .fixedVolumeIncrementTapped(let id):
+        if let index = state.rows.index(id: id) {
+          state.rows[index].fixedVolume += 1
+        }
+        return .none
+
       case .initialize: return initialize(&state)
       case .midiConnectionsChanged: return updateMidiConnections(&state)
       case .midiTrafficIndicator: return .none
@@ -150,20 +161,6 @@ extension MIDIConnectionsFeature {
     state.midiChannelsCache[traffic.id] = traffic.channel
     if let index = state.rows.index(id: traffic.id) {
       state.rows[index].channel = traffic.channel
-    }
-    return .none
-  }
-
-  private func decrementFixedVolume(_ state: inout State, id: MIDIUniqueID) -> Effect<Action> {
-    if let index = state.rows.index(id: id) {
-      state.rows[index].fixedVolume -= 1
-    }
-    return .none
-  }
-
-  private func incrementFixedVolume(_ state: inout State, id: MIDIUniqueID) -> Effect<Action> {
-    if let index = state.rows.index(id: id) {
-      state.rows[index].fixedVolume += 1
     }
     return .none
   }

@@ -88,16 +88,35 @@ public struct TagsEditor {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case .addButtonTapped: return addTag(&state)
-      case .binding: return .none
-      case .cancelButtonTapped: return dismiss(&state, save: false)
-      case .deleteButtonTapped(let indices): return deleteTag(&state, indices: indices)
-      case .finalizeDeleteTag(let tagId): return finalizeDeleteTag(&state, tagId: tagId)
-      case let .rows(.element(id: id, action: .delegate(.tagSwipedToDelete))): return deleteTag(&state, tagId: id)
-      case .rows: return .none
-      case .saveButtonTapped: return dismiss(&state, save: true)
-      case let .tagMoved(indices, offset): return moveTag(&state, at: indices, to: offset)
-      case .toggleEditMode: return toggleEditMode(&state)
+      case .addButtonTapped:
+        return addTag(&state)
+
+      case .binding:
+        return .none
+
+      case .cancelButtonTapped:
+        return dismiss(&state, save: false)
+
+      case .deleteButtonTapped(let indices):
+        return deleteTag(&state, indices: indices)
+
+      case .finalizeDeleteTag(let tagId):
+        return finalizeDeleteTag(&state, tagId: tagId)
+
+      case let .rows(.element(id: id, action: .delegate(.tagSwipedToDelete))):
+        return deleteTag(&state, tagId: id)
+
+      case .rows:
+        return .none
+
+      case .saveButtonTapped:
+        return dismiss(&state, save: true)
+
+      case let .tagMoved(indices, offset):
+        return moveTag(&state, at: indices, to: offset)
+
+      case .toggleEditMode:
+        return toggleEditMode(&state)
       }
     }
     .forEach(\.rows, action: \.rows) {
@@ -138,16 +157,6 @@ private extension TagsEditor {
     return .none
   }
 
-  func finalizeDeleteTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
-    withAnimation(.smooth) {
-      state.rows = state.rows.filter { $0.id != tagId }
-    }
-    if tagId > 0 {
-      state.deleted.insert(tagId)
-    }
-    return .none
-  }
-
   func deleteTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
     return .run { send in
       await send(.finalizeDeleteTag(tagId: tagId))
@@ -161,17 +170,27 @@ private extension TagsEditor {
     return .none
   }
 
-  func moveTag(_ state: inout State, at indices: IndexSet, to offset: Int) -> Effect<Action> {
-    state.rows.move(fromOffsets: indices, toOffset: offset)
-    return .none.animation(.smooth)
-  }
-
   func dismiss(_ state: inout State, save: Bool) -> Effect<Action> {
     if save {
       state.save()
     }
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
+  }
+
+  func finalizeDeleteTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
+    withAnimation(.smooth) {
+      state.rows = state.rows.filter { $0.id != tagId }
+    }
+    if tagId > 0 {
+      state.deleted.insert(tagId)
+    }
+    return .none
+  }
+
+  func moveTag(_ state: inout State, at indices: IndexSet, to offset: Int) -> Effect<Action> {
+    state.rows.move(fromOffsets: indices, toOffset: offset)
+    return .none.animation(.smooth)
   }
 
   func toggleEditMode(_ state: inout State) -> Effect<Action> {

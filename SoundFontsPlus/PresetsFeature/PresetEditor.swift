@@ -83,20 +83,40 @@ public struct PresetEditor {
     Scope(state: \.tuning, action: \.tuning) { TuningFeature() }
     Reduce { state, action in
       switch action {
-      case .binding: return .none
-      case .cancelButtonTapped: return dismiss(&state, save: false)
-      case .displayNameChanged(let value): return updateName(&state, value: value)
-      case .notesChanged(let value): return updateNotes(&state, value: value)
+      case .binding:
+        return .none
+
+      case .cancelButtonTapped:
+        return dismiss(&state, save: false)
+
+      case .displayNameChanged(let value):
+        state.displayName = value
+        return .none
+
+      case .notesChanged(let value):
+        state.notes = value
+        return .none
+
       case .resetGainTapped:
         state.audioConfig.gain = 0.0
         return.none
+
       case .resetPanTapped:
         state.audioConfig.pan = 0.0
         return.none
-      case .saveButtonTapped: return dismiss(&state, save: true)
-      case .tuning: return .none
-      case .useLowestKeyTapped: return useLowestKey(&state)
-      case .useOriginalNameTapped: return updateName(&state, value: state.preset.originalName)
+
+      case .saveButtonTapped:
+        return dismiss(&state, save: true)
+
+      case .tuning:
+        return .none
+
+      case .useLowestKeyTapped:
+        return useLowestKey(&state)
+
+      case .useOriginalNameTapped:
+        state.displayName = state.preset.originalName
+        return .none
       }
     }
   }
@@ -112,16 +132,6 @@ extension PresetEditor {
     }
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
-  }
-
-  private func updateName(_ state: inout State, value: String) -> Effect<Action> {
-    state.displayName = value
-    return .none
-  }
-
-  private func updateNotes(_ state: inout State, value: String) -> Effect<Action> {
-    state.notes = value
-    return .none
   }
 
   private func useLowestKey(_ state: inout State) -> Effect<Action> {

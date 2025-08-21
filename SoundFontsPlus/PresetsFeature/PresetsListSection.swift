@@ -54,10 +54,17 @@ public struct PresetsListSection {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .delegate: return .none
-      case let .headerTapped(count): return headerTapped(&state, count: count)
-      case .rows: return .none
-      case .searchButtonTapped: return .send(.delegate(.searchButtonTapped))
+      case .delegate:
+        return .none
+
+      case let .headerTapped(count):
+        return headerTapped(&state, count: count)
+
+      case .rows:
+        return .none
+
+      case .searchButtonTapped:
+        return .send(.delegate(.searchButtonTapped))
       }
     }
     .forEach(\.rows, action: \.rows) {

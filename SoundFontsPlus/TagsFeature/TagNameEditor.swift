@@ -79,25 +79,21 @@ public struct TagNameEditor {
     BindingReducer()
     Reduce { state, action in
       switch action {
-      case .binding: return .none
-      case .delegate: return .none
-      case .membershipButtonTapped(let value): return toggleMembership(&state, value: value)
-      case .tagSwipedToDelete: return .send(.delegate(.tagSwipedToDelete(state.id)), animation: .default)
+
+      case .binding:
+        return .none
+
+      case .delegate:
+        return .none
+
+      case .membershipButtonTapped(let value):
+        state.membership = value
+        return .none
+
+      case .tagSwipedToDelete:
+        return .send(.delegate(.tagSwipedToDelete(state.id)), animation: .default)
       }
     }
-  }
-}
-
-private extension TagNameEditor {
-
-  func toggleMembership(_ state: inout State, value: Bool) -> Effect<Action> {
-    state.membership = value
-    return .none
-  }
-
-  func updateName(_ state: inout State, value: String) -> Effect<Action> {
-    state.draft.displayName = value
-    return .none
   }
 }
 
