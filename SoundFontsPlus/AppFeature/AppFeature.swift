@@ -11,6 +11,8 @@ import Sharing
 import SwiftUI
 import UniformTypeIdentifiers
 
+private let log = Logger(category: "AppFeature")
+
 @Reducer
 struct AppFeature {
   private let volumeMonitor: VolumeMonitor = .init()
@@ -55,7 +57,6 @@ struct AppFeature {
     var presetsSplit: SplitViewReducer.State
     var keyboard: KeyboardFeature.State = .init()
     var synth: SynthFeature.State = .init()
-    var fileImporter: FileImporterFeature.State = .init()
     var delay: DelayFeature.State = .init()
     var reverb: ReverbFeature.State = .init()
 
@@ -77,7 +78,6 @@ struct AppFeature {
     case binding(BindingAction<State>)
     case delay(DelayFeature.Action)
     case destination(PresentationAction<Destination.Action>)
-    case fileImporter(FileImporterFeature.Action)
     case initialize
     case keyboard(KeyboardFeature.Action)
     case presetsList(PresetsList.Action)
@@ -95,7 +95,6 @@ struct AppFeature {
     BindingReducer()
 
     Scope(state: \.delay, action: \.delay) { DelayFeature() }
-    Scope(state: \.fileImporter, action: \.fileImporter) { FileImporterFeature() }
     Scope(state: \.keyboard, action: \.keyboard) { KeyboardFeature() }
     Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
     Scope(state: \.presetsSplit, action: \.presetsSplit) { SplitViewReducer() }
@@ -191,7 +190,7 @@ private extension AppFeature {
   func monitorTagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
     if case let .stateChanged(panesVisible, position) = action {
       let visible = panesVisible.contains(.bottom)
-      ToolBarFeature.setTagsListVisible(&state.toolBar, value: visible)
+      state.toolBar.$tagsListVisible.withLock { $0 = visible }
       @Shared(.tagsListVisible) var tagsListVisible
       $tagsListVisible.withLock { $0 = panesVisible.contains(.bottom) }
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
@@ -203,9 +202,6 @@ private extension AppFeature {
 
   func monitorToolBarAction(_ state: inout State, action: ToolBarFeature.Action.Delegate) -> Effect<Action> {
     switch action {
-
-    case .addSoundFontButtonTapped:
-      return reduce(into: &state, action: .fileImporter(.showFileImporter))
 
     case let .editingPresetVisibilityChanged(active):
       return reduce(into: &state, action: .presetsList(.visibilityEditModeChanged(active)))
@@ -327,7 +323,6 @@ struct AppFeatureView: View, KeyboardReadable {
       horizontalSizeClass: horizontalSizeClass,
       verticalSizeClass: verticalSizeClass
     )
-    .fileImporterFeature(store.scope(state: \.fileImporter, action: \.fileImporter))
   }
 
   private var listViews: some View {

@@ -85,6 +85,9 @@ public struct SettingsFeature {
       case .binding(\.keyWidth):
         return updateKeyWidth(&state)
 
+      case .binding:
+        return .none
+
       case .bluetoothMIDILocateButtonTapped:
         return .none
 
@@ -122,6 +125,18 @@ public struct SettingsFeature {
         state.path.append(.midiControllers(MIDIControllersFeature.State()))
         return .none
 
+      case .midiTrafficIndicator:
+        return .none
+
+      case .path:
+        return .none
+
+      case .reviewAppTapped:
+        return .none
+
+      case .tuning:
+        return .none
+
       case .unhideBuiltInFilesTapped:
         return .none
 
@@ -129,9 +144,6 @@ public struct SettingsFeature {
         return .none
 
       case .viewTutorialScreensTapped:
-        return .none
-
-      default:
         return .none
       }
     }

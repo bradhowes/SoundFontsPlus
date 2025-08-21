@@ -30,13 +30,13 @@ public struct ToolBarFeature {
     var showMoreButtons: Bool = false
     var preset: Preset?
 
-    var midiTrafficIndicator: MIDITrafficIndicatorFeature.State
+    var midiTrafficIndicator: MIDITrafficIndicatorFeature.State = .init(tag: "ToolBar")
+    var fileImporter: FileImporterFeature.State = .init()
 
     public init() {
       @Shared(.firstVisibleKey) var firstVisibleKey: Note
       self.lowestKey = firstVisibleKey
       self.highestKey = .C4
-      self.midiTrafficIndicator = .init(tag: "ToolBar")
     }
   }
 
@@ -46,6 +46,7 @@ public struct ToolBarFeature {
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case effectsVisibilityButtonTapped
+    case fileImporter(FileImporterFeature.Action)
     case helpButtonTapped
     case initialize
     case midiTrafficIndicator(MIDITrafficIndicatorFeature.Action)
@@ -59,7 +60,6 @@ public struct ToolBarFeature {
     case tagVisibilityButtonTapped
 
     public enum Delegate: Equatable {
-      case addSoundFontButtonTapped
       case editingPresetVisibilityChanged(Bool)
       case effectsVisibilityChanged(Bool)
       case presetNameTapped
@@ -74,28 +74,65 @@ public struct ToolBarFeature {
 
   public var body: some ReducerOf<Self> {
 
+    Scope(state: \.fileImporter, action: \.fileImporter) { FileImporterFeature() }
     Scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator) { MIDITrafficIndicatorFeature() }
 
     Reduce<State, Action> { state, action in
       switch action {
+
       case .activePresetIdChanged(let presetId):
         return activePresetIdChanged(&state, presetId: presetId)
+
       case .addSoundFontButtonTapped:
-        return .send(.delegate(.addSoundFontButtonTapped))
+        return reduce(into: &state, action: .fileImporter(.showFileImporter))
+
+      case .delegate:
+        return .none
+
       case .destination(.dismiss):
         return .send(.delegate(.settingsDismissed))
-      case .effectsVisibilityButtonTapped: return toggleEffectsVisibility(&state)
-      case .helpButtonTapped: return showHelp(&state)
-      case .initialize: return initialize(&state)
-      case .shiftKeyboardDownButtonTapped: return shiftKeyboardDownButtonTapped(&state)
-      case .shiftKeyboardUpButtonTapped: return shiftKeyboardUpButtonTapped(&state)
-      case .presetsVisibilityButtonTapped: return editPresetVisibility(&state)
-      case .settingsButtonTapped: return settingsButtonTapped(&state)
-      case let .setVisibleKeyRange(lowest, highest): return setVisibleKeyRange(&state, lowest: lowest, highest: highest)
-      case .showMoreButtonTapped: return toggleShowMoreButtons(&state)
-      case .slidingKeyboardButtonTapped: return slidingKeyboardButtonTapped(&state)
-      case .tagVisibilityButtonTapped: return toggleTagsVisibility(&state)
-      default: return .none
+
+      case .destination:
+        return .none
+
+      case .effectsVisibilityButtonTapped:
+        return toggleEffectsVisibility(&state)
+
+      case .fileImporter:
+        return .none
+
+      case .helpButtonTapped:
+        return showHelp(&state)
+
+      case .initialize:
+        return initialize(&state)
+
+      case .midiTrafficIndicator:
+        return .none
+
+      case .shiftKeyboardDownButtonTapped:
+        return shiftKeyboardDownButtonTapped(&state)
+
+      case .shiftKeyboardUpButtonTapped:
+        return shiftKeyboardUpButtonTapped(&state)
+
+      case .presetsVisibilityButtonTapped:
+        return editPresetVisibility(&state)
+
+      case .settingsButtonTapped:
+        return settingsButtonTapped(&state)
+
+      case let .setVisibleKeyRange(lowest, highest):
+        return setVisibleKeyRange(&state, lowest: lowest, highest: highest)
+
+      case .showMoreButtonTapped:
+        return toggleShowMoreButtons(&state)
+
+      case .slidingKeyboardButtonTapped:
+        return slidingKeyboardButtonTapped(&state)
+
+      case .tagVisibilityButtonTapped:
+        return toggleTagsVisibility(&state)
       }
     }.ifLet(\.$destination, action: \.destination)
   }
@@ -107,13 +144,6 @@ public struct ToolBarFeature {
   }
 
   @Shared(.activeState) var activeState
-}
-
-public extension ToolBarFeature {
-
-  static func setTagsListVisible(_ state: inout State, value: Bool) {
-    state.$tagsListVisible.withLock { $0 = value }
-  }
 }
 
 private extension ToolBarFeature {
@@ -222,7 +252,7 @@ private extension ToolBarFeature {
 }
 
 public struct ToolBarFeatureView: View {
-  @Bindable private var store: StoreOf<ToolBarFeature>
+  private var store: StoreOf<ToolBarFeature>
   @Environment(\.appPanelBackground) private var appPanelBackground
   @Environment(\.auv3ControlsTheme) private var auv3ControlsTheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -254,6 +284,7 @@ public struct ToolBarFeatureView: View {
           .padding(.trailing, 8)
       }
     }
+    .fileImporterFeature(store.scope(state: \.fileImporter, action: \.fileImporter))
     .padding([.top, .bottom, .leading], 4)
     .background(Color.black)
     .frame(maxHeight: 40)
