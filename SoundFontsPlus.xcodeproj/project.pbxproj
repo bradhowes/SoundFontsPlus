@@ -39,6 +39,7 @@
 		BD46FC832DF62C3100CB20F1 /* AUParameterTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */; };
 		BD561CCA2E573EC100D8FBB0 /* FreeFont.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BDAF5AE02DE2557300B8FB13 /* FreeFont.sf2 */; };
 		BD561CD02E579EF100D8FBB0 /* FluidR3_GM.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BD561CCF2E579EF100D8FBB0 /* FluidR3_GM.sf2 */; };
+		BD561CD22E57B52300D8FBB0 /* SettingsPrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD561CD12E57B52000D8FBB0 /* SettingsPrompts.swift */; };
 		BD59D4EA2E47B62C00B2250B /* MIDIConnectionsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4E92E47B62500B2250B /* MIDIConnectionsFeature.swift */; };
 		BD59D4EC2E47C77C00B2250B /* MIDIControllersFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4EB2E47C77C00B2250B /* MIDIControllersFeature.swift */; };
 		BD59D4EE2E47C80A00B2250B /* MIDIAssignmentsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4ED2E47C80A00B2250B /* MIDIAssignmentsFeature.swift */; };
@@ -48,7 +49,7 @@
 		BD76C15C2E23C5F700F5B1F5 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */; };
 		BD76C1602E23CD2C00F5B1F5 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C15F2E23CD2C00F5B1F5 /* Logging.swift */; };
 		BD76C1642E23E27600F5B1F5 /* Notification.Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1632E23E27600F5B1F5 /* Notification.Name.swift */; };
-		BD7B05172E4FDD40006628F3 /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B05162E4FDD40006628F3 /* Alerts.swift */; };
+		BD7B05172E4FDD40006628F3 /* FileImporterPrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B05162E4FDD40006628F3 /* FileImporterPrompts.swift */; };
 		BD7DBC8D2DF45904005A31DE /* DimmedAppearanceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */; };
 		BD812F652DF4BF3500D2B344 /* KeyboardReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */; };
 		BDA917E02E08247700FD3257 /* SynthFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA917DF2E08247700FD3257 /* SynthFeature.swift */; };
@@ -225,6 +226,7 @@
 		BD561CCD2E578A2900D8FBB0 /* FluidR3_GM.sf2.2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = FluidR3_GM.sf2.2; sourceTree = "<group>"; };
 		BD561CCE2E578A2900D8FBB0 /* FluidR3_GM.sf2.3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = FluidR3_GM.sf2.3; sourceTree = "<group>"; };
 		BD561CCF2E579EF100D8FBB0 /* FluidR3_GM.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; name = FluidR3_GM.sf2; path = SoundFontsPlus/SF2ResourceFiles/Resources/FluidR3_GM.sf2; sourceTree = "<group>"; };
+		BD561CD12E57B52000D8FBB0 /* SettingsPrompts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPrompts.swift; sourceTree = "<group>"; };
 		BD59D4E92E47B62500B2250B /* MIDIConnectionsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDIConnectionsFeature.swift; sourceTree = "<group>"; };
 		BD59D4EB2E47C77C00B2250B /* MIDIControllersFeature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIControllersFeature.swift; sourceTree = "<group>"; };
 		BD59D4ED2E47C80A00B2250B /* MIDIAssignmentsFeature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIAssignmentsFeature.swift; sourceTree = "<group>"; };
@@ -236,7 +238,7 @@
 		BD76C15F2E23CD2C00F5B1F5 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		BD76C1632E23E27600F5B1F5 /* Notification.Name.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.Name.swift; sourceTree = "<group>"; };
 		BD7B05142E4FDCCE006628F3 /* FileImporterViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImporterViewModifier.swift; sourceTree = "<group>"; };
-		BD7B05162E4FDD40006628F3 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
+		BD7B05162E4FDD40006628F3 /* FileImporterPrompts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImporterPrompts.swift; sourceTree = "<group>"; };
 		BD7DBC892DF36955005A31DE /* Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Development.xcconfig; sourceTree = "<group>"; };
 		BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
@@ -539,7 +541,7 @@
 		BD7B05152E4FDD01006628F3 /* FileImporterFeature */ = {
 			isa = PBXGroup;
 			children = (
-				BD7B05162E4FDD40006628F3 /* Alerts.swift */,
+				BD7B05162E4FDD40006628F3 /* FileImporterPrompts.swift */,
 				BDDC25BC2E4E67990098CA10 /* FileImporterFeature.swift */,
 				BD7B05142E4FDCCE006628F3 /* FileImporterViewModifier.swift */,
 			);
@@ -656,6 +658,7 @@
 		BDAF5ADE2DE2556600B8FB13 /* SettingsFeature */ = {
 			isa = PBXGroup;
 			children = (
+				BD561CD12E57B52000D8FBB0 /* SettingsPrompts.swift */,
 				BDAF5ADD2DE2556600B8FB13 /* SettingsFeature.swift */,
 			);
 			path = SettingsFeature;
@@ -1179,7 +1182,7 @@
 				BDAF5AC92DE2555000B8FB13 /* ModelError.swift in Sources */,
 				BDAF5ACA2DE2555000B8FB13 /* FontTag.swift in Sources */,
 				BDAF5ACB2DE2555000B8FB13 /* Bookmark.swift in Sources */,
-				BD7B05172E4FDD40006628F3 /* Alerts.swift in Sources */,
+				BD7B05172E4FDD40006628F3 /* FileImporterPrompts.swift in Sources */,
 				BDAF5ACC2DE2555000B8FB13 /* TagInfo.swift in Sources */,
 				BDAF5ACD2DE2555000B8FB13 /* Operations.swift in Sources */,
 				BDAF5ACE2DE2555000B8FB13 /* ActiveState.swift in Sources */,
@@ -1187,6 +1190,7 @@
 				BDAF5B192DE2559500B8FB13 /* ToolBarFeature.swift in Sources */,
 				BD76C1602E23CD2C00F5B1F5 /* Logging.swift in Sources */,
 				BDAF5B212DE2559E00B8FB13 /* Sharing.swift in Sources */,
+				BD561CD22E57B52300D8FBB0 /* SettingsPrompts.swift in Sources */,
 				BDBDDEB12DE658E700C2CD87 /* SoundFontInfo.swift in Sources */,
 				BDAF5B222DE2559E00B8FB13 /* Note.swift in Sources */,
 				BDAF5B232DE2559E00B8FB13 /* KeyLabels.swift in Sources */,
