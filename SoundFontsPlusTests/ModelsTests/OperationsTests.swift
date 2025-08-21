@@ -13,7 +13,7 @@ extension BaseTestSuite {
 
     @Test("presetsOrdering") func presetsOrdering() async throws {
       var presets = Operations.presets
-      #expect(presets.count == 235)
+      #expect(presets.count == 189)
 
       let preset10Name = presets[10].displayName
       let clone10 = presets[10].clone()
@@ -26,7 +26,7 @@ extension BaseTestSuite {
       @Shared(.favoritesOnTop) var favoritesOnTop
       $favoritesOnTop.withLock { $0 = false }
       presets = Operations.presets
-      #expect(presets.count == 237)
+      #expect(presets.count == 191)
       #expect(presets[10].displayName == preset10Name)
       #expect(presets[11].displayName == clone10?.displayName)
       #expect(presets[21].displayName == preset20Name)
@@ -34,7 +34,7 @@ extension BaseTestSuite {
 
       $favoritesOnTop.withLock { $0 = true }
       presets = Operations.presets
-      #expect(presets.count == 237)
+      #expect(presets.count == 191)
       #expect(presets[0].displayName == clone10?.displayName)
       #expect(presets[1].displayName == clone20?.displayName)
       #expect(presets[12].displayName == preset10Name)
@@ -49,32 +49,32 @@ extension BaseTestSuite {
 
     @Test("presets") func presets() async throws {
       @Shared(.activeState) var activeState
-      #expect(Operations.presets.count == 235)
+      #expect(Operations.presets.count == 189)
       $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 2) }
-      #expect(Operations.presets.count == 270)
-      $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 3) }
-      #expect(Operations.presets.count == 1)
-      $activeState.withLock { $0.selectedSoundFontId = nil }
       #expect(Operations.presets.count == 235)
+      $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 3) }
+      #expect(Operations.presets.count == 270)
+      $activeState.withLock { $0.selectedSoundFontId = nil }
+      #expect(Operations.presets.count == 189)
       $activeState.withLock { $0.activeSoundFontId = nil }
       #expect(Operations.presets.count == 0)
     }
 
     @Test("allPresets") func allPresets() async throws {
       @Shared(.activeState) var activeState
-      #expect(Operations.allPresets.count == 235)
+      #expect(Operations.allPresets.count == 189)
       $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 2) }
-      #expect(Operations.allPresets.count == 270)
+      #expect(Operations.allPresets.count == 235)
       $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 3) }
-      #expect(Operations.allPresets.count == 1)
+      #expect(Operations.allPresets.count == 270)
       $activeState.withLock { $0.selectedSoundFontId = nil }
       $activeState.withLock { $0.activeSoundFontId = nil }
       #expect(Operations.allPresets.count == 0)
     }
 
     @Test("soundFontIdsForTag") func soundFontIdsForTag() async throws {
-      #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.all.id) == [1, 2, 3])
-      #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.builtIn.id) == [1, 2, 3])
+      #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.all.id) == [1, 2, 3, 4])
+      #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.builtIn.id) == [1, 2, 3, 4])
       #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.added.id) == [])
       #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.external.id) == [])
     }
@@ -117,7 +117,7 @@ extension BaseTestSuite {
       try await $tagInfos.load()
       #expect(tagInfos.count == 4)
       #expect(tagInfos.map(\.displayName) == FontTag.Ubiquitous.allCases.map(\.displayName))
-      #expect(tagInfos.map(\.soundFontsCount) == [3, 3, 0, 0])
+      #expect(tagInfos.map(\.soundFontsCount) == [4, 4, 0, 0])
 
       @Dependency(\.defaultDatabase) var database
 
@@ -135,7 +135,7 @@ extension BaseTestSuite {
       }
       try await $tagInfos.load()
       #expect(tagInfos.map(\.displayName) == FontTag.Ubiquitous.allCases.reversed().map(\.displayName))
-      #expect(tagInfos.map(\.soundFontsCount) == [0, 0, 3, 3])
+      #expect(tagInfos.map(\.soundFontsCount) == [0, 0, 4, 4])
     }
 
     @Test("activePresetLoadingInfo") func activePresetLoadingInfo() async throws {
