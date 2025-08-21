@@ -59,9 +59,9 @@ replicates what currently exists in the original [SoundFonts][0] UIKit version.
 
 ## Effects Controls
 
-The original [SoundFonts] app provides a UI for two effects -- reverb and delay -- provided by Apple on all iOS devices.
+The original [SoundFonts][0] app provides a UI for two effects -- reverb and delay -- provided by Apple on all iOS devices.
 This has been replicated in SwiftUI using my [AUv3Controls][6] package. The controls are also built using [TCA][1]
-though the knob control has a debounce effect to reduce the amount of updates sent through its reducer.
+with the knob control using a debounce effect to reduce the amount of updates sent through its reducer.
 
 ## Dividers
 
@@ -101,9 +101,9 @@ There may be a better way to do this, but it works without any perceptible delay
 ### Presets List
 
 The list of presets is the most complicated view due to the fact that the preset entries usually live in numbered
-sections, the view supports searching on preset names, and preset visibility can be toggle on/off. However, even with
+sections, the view supports searching on preset names, and preset visibility can be toggled on/off. However, even with
 all of this complication, the code is fairly straighforward due to the structured flow of actions and state
-transformations. 
+transformations due to TCA design.
 
 Like the sound fonts list, the presets list monitors the contents of the [@Shared(.activeState)'s
 selectedSoundFontId][selectedSoundFontId] to know when to change its contents.
@@ -111,11 +111,11 @@ selectedSoundFontId][selectedSoundFontId] to know when to change its contents.
 # History
 
 The original SoundFonts app is written in Swift and UIKit. The data store is a disk file and a collection of
-UserDefaults keys/value pairs. This repo is my attempt to replace the original with SwiftUI and SQLite.
+UserDefaults keys/value pairs, though there was a brief attempt at moving to CoreData for this storage.
+This repo is my attempt to replace the original with SwiftUI and SQLite.
 
 Originally it was based on SwiftData, but I encountered too many issues and hurdles. Another repo of mine
 [SwiftDataTCA][8] contains some of my experiments in this area.
-
 
 [0]: https://github.com/bradhowes/SoundFonts
 [1]: https://github.com/pointfreeco/swift-composable-architecture
