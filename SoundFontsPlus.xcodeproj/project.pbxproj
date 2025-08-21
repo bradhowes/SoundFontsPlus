@@ -37,7 +37,8 @@
 		BD42763F2E53B44E00DC93BF /* SF2LibAU in Frameworks */ = {isa = PBXBuildFile; productRef = BD42763E2E53B44E00DC93BF /* SF2LibAU */; };
 		BD4276412E53B44E00DC93BF /* BRHSplitView in Frameworks */ = {isa = PBXBuildFile; productRef = BD4276402E53B44E00DC93BF /* BRHSplitView */; };
 		BD46FC832DF62C3100CB20F1 /* AUParameterTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */; };
-		BD561CA22E56847200D8FBB0 /* FluidR3_GM.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BD561CA12E56847200D8FBB0 /* FluidR3_GM.sf2 */; };
+		BD561CCA2E573EC100D8FBB0 /* FreeFont.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BDAF5AE02DE2557300B8FB13 /* FreeFont.sf2 */; };
+		BD561CD02E579EF100D8FBB0 /* FluidR3_GM.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BD561CCF2E579EF100D8FBB0 /* FluidR3_GM.sf2 */; };
 		BD59D4EA2E47B62C00B2250B /* MIDIConnectionsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4E92E47B62500B2250B /* MIDIConnectionsFeature.swift */; };
 		BD59D4EC2E47C77C00B2250B /* MIDIControllersFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4EB2E47C77C00B2250B /* MIDIControllersFeature.swift */; };
 		BD59D4EE2E47C80A00B2250B /* MIDIAssignmentsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4ED2E47C80A00B2250B /* MIDIAssignmentsFeature.swift */; };
@@ -83,7 +84,6 @@
 		BDAF5AE82DE2557300B8FB13 /* SF2ResourceFiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AE42DE2557300B8FB13 /* SF2ResourceFiles.swift */; };
 		BDAF5AE92DE2557300B8FB13 /* GeneralUser GS MuseScore v1.442.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BDAF5AE12DE2557300B8FB13 /* GeneralUser GS MuseScore v1.442.sf2 */; };
 		BDAF5AEA2DE2557300B8FB13 /* RolandNicePiano.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BDAF5AE22DE2557300B8FB13 /* RolandNicePiano.sf2 */; };
-		BDAF5AEB2DE2557300B8FB13 /* FreeFont.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BDAF5AE02DE2557300B8FB13 /* FreeFont.sf2 */; };
 		BDAF5AF32DE2558800B8FB13 /* SF2LoadFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AEC2DE2558800B8FB13 /* SF2LoadFailure.swift */; };
 		BDAF5AF42DE2558800B8FB13 /* SoundFontsSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AF12DE2558800B8FB13 /* SoundFontsSupport.swift */; };
 		BDAF5AF52DE2558800B8FB13 /* SoundFontEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AEE2DE2558800B8FB13 /* SoundFontEditor.swift */; };
@@ -221,7 +221,10 @@
 		BD31A8BE2E56634D0046F07C /* Internal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Internal.swift; sourceTree = "<group>"; };
 		BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarTitleStyle.swift; sourceTree = "<group>"; };
 		BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AUParameterTree.swift; sourceTree = "<group>"; };
-		BD561CA12E56847200D8FBB0 /* FluidR3_GM.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = FluidR3_GM.sf2; sourceTree = "<group>"; };
+		BD561CCC2E578A2900D8FBB0 /* FluidR3_GM.sf2.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = FluidR3_GM.sf2.1; sourceTree = "<group>"; };
+		BD561CCD2E578A2900D8FBB0 /* FluidR3_GM.sf2.2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = FluidR3_GM.sf2.2; sourceTree = "<group>"; };
+		BD561CCE2E578A2900D8FBB0 /* FluidR3_GM.sf2.3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = FluidR3_GM.sf2.3; sourceTree = "<group>"; };
+		BD561CCF2E579EF100D8FBB0 /* FluidR3_GM.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; name = FluidR3_GM.sf2; path = SoundFontsPlus/SF2ResourceFiles/Resources/FluidR3_GM.sf2; sourceTree = "<group>"; };
 		BD59D4E92E47B62500B2250B /* MIDIConnectionsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDIConnectionsFeature.swift; sourceTree = "<group>"; };
 		BD59D4EB2E47C77C00B2250B /* MIDIControllersFeature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIControllersFeature.swift; sourceTree = "<group>"; };
 		BD59D4ED2E47C80A00B2250B /* MIDIAssignmentsFeature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIAssignmentsFeature.swift; sourceTree = "<group>"; };
@@ -444,6 +447,7 @@
 		BD1D27762B6F13DD005C3ED0 = {
 			isa = PBXGroup;
 			children = (
+				BD561CCF2E579EF100D8FBB0 /* FluidR3_GM.sf2 */,
 				BD5A65612D984945008B8117 /* SoundFontsPlus.xctestplan */,
 				BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */,
 				BD7DBC892DF36955005A31DE /* Development.xcconfig */,
@@ -660,8 +664,10 @@
 		BDAF5AE32DE2557300B8FB13 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				BD561CCC2E578A2900D8FBB0 /* FluidR3_GM.sf2.1 */,
+				BD561CCD2E578A2900D8FBB0 /* FluidR3_GM.sf2.2 */,
+				BD561CCE2E578A2900D8FBB0 /* FluidR3_GM.sf2.3 */,
 				BDAF5AE02DE2557300B8FB13 /* FreeFont.sf2 */,
-				BD561CA12E56847200D8FBB0 /* FluidR3_GM.sf2 */,
 				BDAF5AE12DE2557300B8FB13 /* GeneralUser GS MuseScore v1.442.sf2 */,
 				BDAF5AE22DE2557300B8FB13 /* RolandNicePiano.sf2 */,
 			);
@@ -885,6 +891,7 @@
 			buildPhases = (
 				BD1D277B2B6F13DD005C3ED0 /* Sources */,
 				BD1D277C2B6F13DD005C3ED0 /* Frameworks */,
+				BD561CCB2E5789BF00D8FBB0 /* Generate FluidR3_GM */,
 				BD1D277D2B6F13DD005C3ED0 /* Resources */,
 				BD0BD8CF2E11E23000772FE5 /* Embed Foundation Extensions */,
 			);
@@ -1053,13 +1060,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD561CD02E579EF100D8FBB0 /* FluidR3_GM.sf2 in Resources */,
 				BD1D278D2B6F13DE005C3ED0 /* Preview Assets.xcassets in Resources */,
 				BD2A26042CC849E0000CC1DF /* Eurostile.ttc in Resources */,
 				BDAF5AE92DE2557300B8FB13 /* GeneralUser GS MuseScore v1.442.sf2 in Resources */,
-				BD561CA22E56847200D8FBB0 /* FluidR3_GM.sf2 in Resources */,
 				BDAF5AEA2DE2557300B8FB13 /* RolandNicePiano.sf2 in Resources */,
 				BD050EE12E23C2EB00706CC4 /* LaunchScreen.storyboard in Resources */,
-				BDAF5AEB2DE2557300B8FB13 /* FreeFont.sf2 in Resources */,
+				BD561CCA2E573EC100D8FBB0 /* FreeFont.sf2 in Resources */,
 				BD1D27892B6F13DE005C3ED0 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1088,6 +1095,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		BD561CCB2E5789BF00D8FBB0 /* Generate FluidR3_GM */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/SoundFontsPlus/SF2ResourceFiles/Resources/FluidR3_GM.sf2.1",
+				"$(SRCROOT)/SoundFontsPlus/SF2ResourceFiles/Resources/FluidR3_GM.sf2.2",
+				"$(SRCROOT)/SoundFontsPlus/SF2ResourceFiles/Resources/FluidR3_GM.sf2.3",
+			);
+			name = "Generate FluidR3_GM";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/SoundFontsPlus/SF2ResourceFiles/Resources/FluidR3_GM.sf2",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "IN0=\"${SCRIPT_INPUT_FILE_0}\"\nIN1=\"${SCRIPT_INPUT_FILE_1}\"\nIN2=\"${SCRIPT_INPUT_FILE_2}\"\nOUT=\"${SCRIPT_OUTPUT_FILE_0}\"\ncat \"${IN0}\" \"${IN1}\" \"${IN2}\" > \"${OUT}\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		BD1D277B2B6F13DD005C3ED0 /* Sources */ = {
