@@ -18,10 +18,8 @@ public struct WhiteKeySequenceGenerator: Sequence, IteratorProtocol {
     else {
       return nil
     }
-
-    let note = Note(midiNoteValue: nextMidiNote)
-    nextMidiNote += step
-    return note
+    defer { nextMidiNote += step }
+    return Note(midiNoteValue: nextMidiNote)
   }
 
   public var whiteKeyNotes: [Note] {
@@ -31,8 +29,8 @@ public struct WhiteKeySequenceGenerator: Sequence, IteratorProtocol {
 
 /**
  Generate a sequence of MIDI values for the black keys. Generates up to MIDI note 127.
- NOTE: generates "phantom" MIDI keys that used by the Keyboard code to draw an invisible key at E# and B#.
- Consumers of this Note sequence must account for these in the stream.
+ NOTE: generates "phantom" MIDI keys that are used by the Keyboard code to draw an invisible key at E# and B#.
+ Consumers of this Note sequence must account for these phantom notes in the stream.
  */
 public struct BlackKeySequenceGenerator: Sequence, IteratorProtocol {
   // Number of note steps to move to the next accented note
@@ -48,9 +46,7 @@ public struct BlackKeySequenceGenerator: Sequence, IteratorProtocol {
     else {
       return nil
     }
-
-    let note = step > 0 ? Note(midiNoteValue: nextMidiNote) : Note.phantomNote
-    nextMidiNote += step
-    return note
+    defer { nextMidiNote += step }
+    return step > 0 ? Note(midiNoteValue: nextMidiNote) : Note.phantomNote
   }
 }

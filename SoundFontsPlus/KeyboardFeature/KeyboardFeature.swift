@@ -154,9 +154,11 @@ public struct KeyboardView: View {
 
   private var keyboardHeightScaling: Double { verticalSizeClass == .compact ? 0.5 : 1.0 }
   private let whiteKeySpacing: Double = 2.0
+  private let whiteKeyInset: Double
 
   public init(store: StoreOf<KeyboardFeature>) {
     self.store = store
+    self.whiteKeyInset = whiteKeySpacing / -2.0
   }
 
   public var body: some View {
@@ -258,7 +260,7 @@ public struct KeyboardView: View {
         $0.frame(in: .global)
       } action: {
         if note.isValidMidiNote {
-          frames[note.midiNoteValue] = $0
+          frames[note.midiNoteValue] = $0.insetBy(dx: whiteKeyInset, dy: 0)
         }
       }
   }
