@@ -205,11 +205,10 @@ private extension AppFeature {
   func monitorTagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
     if case let .stateChanged(panesVisible, position) = action {
       let visible = panesVisible.contains(.bottom)
-      state.toolBar.$tagsListVisible.withLock { $0 = visible }
+      state.toolBar.tagsListVisible = visible
       @Shared(.tagsListVisible) var tagsListVisible
-      $tagsListVisible.withLock { $0 = panesVisible.contains(.bottom) }
-      @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
       $tagsListVisible.withLock { $0 = visible }
+      @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
       $fontsAndTagsSplitPosition.withLock { $0 = position }
     }
     return .none

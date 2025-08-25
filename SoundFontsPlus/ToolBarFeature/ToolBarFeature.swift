@@ -22,9 +22,13 @@ public struct ToolBarFeature {
     var lowestKey: Note
     var highestKey: Note
 
-    @Shared(.keyboardSlides) var keyboardSlides
-    @Shared(.tagsListVisible) var tagsListVisible
-    @Shared(.effectsVisible) var effectsVisible
+//    @Shared(.keyboardSlides) var keyboardSlides
+//    @Shared(.tagsListVisible) var tagsListVisible
+//    @Shared(.effectsVisible) var effectsVisible
+
+    var keyboardSlides: Bool
+    var effectsVisible: Bool
+    var tagsListVisible: Bool
 
     var editingPresetVisibility: Bool = false
     var showMoreButtons: Bool = false
@@ -35,8 +39,15 @@ public struct ToolBarFeature {
 
     public init() {
       @Shared(.firstVisibleKey) var firstVisibleKey: Note
+      @Shared(.keyboardSlides) var keyboardSlides: Bool
+      @Shared(.effectsVisible) var effectsVisible: Bool
+      @Shared(.tagsListVisible) var tagsListVisible: Bool
+
       self.lowestKey = firstVisibleKey
       self.highestKey = .C4
+      self.keyboardSlides = keyboardSlides
+      self.effectsVisible = effectsVisible
+      self.tagsListVisible = tagsListVisible
     }
   }
 
@@ -223,14 +234,16 @@ private extension ToolBarFeature {
   }
 
   func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.keyboardSlides.toggle()
     @Shared(.keyboardSlides) var keyboardSlides
-    state.$keyboardSlides.withLock { $0.toggle() }
     $keyboardSlides.withLock { $0 = state.keyboardSlides }
     return .none
   }
 
   func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
-    state.$effectsVisible.withLock { $0.toggle() }
+    state.effectsVisible.toggle()
+    @Shared(.effectsVisible) var effectsVisible
+    $effectsVisible.withLock { $0 = state.effectsVisible }
     state.showMoreButtons = false
     return .send(.delegate(.effectsVisibilityChanged(state.effectsVisible)))
   }
@@ -245,7 +258,9 @@ private extension ToolBarFeature {
   }
 
   func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
-    state.$tagsListVisible.withLock { $0.toggle() }
+    state.tagsListVisible.toggle()
+    @Shared(.tagsListVisible) var tagsListVisible
+    $tagsListVisible.withLock { $0 = state.tagsListVisible }
     state.showMoreButtons = false
     return .send(.delegate(.tagsVisibilityChanged(state.tagsListVisible)))
   }
