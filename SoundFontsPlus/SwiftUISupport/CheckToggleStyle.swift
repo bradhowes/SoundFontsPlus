@@ -7,19 +7,23 @@ public struct CheckToggleStyle: ToggleStyle {
   public init() {}
 
   public func makeBody(configuration: Configuration) -> some View {
-    Button {
-      configuration.isOn.toggle()
-    } label: {
-      Label {
-        configuration.label
-      } icon: {
+    HStack {
+      configuration.label
+        .foregroundStyle(configuration.isOn ? .primary : .secondary)
+        .animation(.smooth, value: configuration.isOn)
+      Spacer()
+      Button {
+        configuration.isOn.toggle()
+      } label: {
         Image(systemName: configuration.isOn ? "checkmark.circle.fill" : "circle")
           .foregroundStyle(configuration.isOn ? Color.accentColor : .secondary)
           .accessibility(label: Text(configuration.isOn ? "Checked" : "Unchecked"))
           .imageScale(.large)
+          .animation(.smooth, value: configuration.isOn)
       }
+      .buttonStyle(.plain)
+      .animation(.smooth, value: configuration.isOn)
     }
-    .buttonStyle(.plain)
   }
 }
 
@@ -36,18 +40,18 @@ extension View {
   NavigationStack {
     List {
       HStack {
-        Text("Hello")
-          .foregroundStyle(helloIsOn ? .primary : .secondary)
-        Spacer()
-        Toggle(isOn: $helloIsOn) {}
-          .checkedStyle()
+        Toggle(isOn: $helloIsOn) {
+          Text("Hello")
+            .foregroundStyle(helloIsOn ? .primary : .secondary)
+        }
+        .checkedStyle()
       }
       HStack {
-        Text("World")
-          .foregroundStyle(worldIsOn ? .primary : .secondary)
-        Spacer()
-        Toggle(isOn: $worldIsOn) {}
-          .checkedStyle()
+        Toggle(isOn: $worldIsOn) {
+          Text("World")
+            .foregroundStyle(worldIsOn ? .primary : .secondary)
+        }
+        .checkedStyle()
       }
     }
     .navigationTitle("Toggle Buttons")
