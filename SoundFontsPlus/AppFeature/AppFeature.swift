@@ -27,25 +27,7 @@ struct AppFeature {
 
   @ObservableState
   struct State: Equatable {
-
-//    static func == (lhs: AppFeature.State, rhs: AppFeature.State) -> Bool {
-//      lhs.destination == rhs.destination
-//      && lhs.soundFontInfos == rhs.soundFontInfos
-//      && lhs.soundFontsList == rhs.soundFontsList
-//      && lhs.presetsList == rhs.presetsList
-//      && lhs.tagsList == rhs.tagsList
-//      && lhs.toolBar == rhs.toolBar
-//      && lhs.tagsSplit == rhs.tagsSplit
-//      && lhs.presetsSplit == rhs.presetsSplit
-//      && lhs.keyboard == rhs.keyboard
-//      && lhs.synth == rhs.synth
-//      && lhs.fileImporter == rhs.fileImporter
-//      && lhs.delay == rhs.delay
-//      && lhs.reverb == rhs.reverb
-//    }
-//
     @Presents var destination: Destination.State?
-
     @ObservationStateIgnored
     @FetchAll var soundFontInfos: [SoundFontInfo]
 
@@ -107,8 +89,17 @@ struct AppFeature {
 
     Reduce { state, action in
       switch action {
+      case .binding:
+        return .none
+
+      case .delay:
+        return .none
+
       case .destination(.dismiss):
         return destinationDismissed(&state)
+
+      case .destination:
+        return .none
 
       case .initialize:
         volumeMonitor.start()
@@ -117,12 +108,24 @@ struct AppFeature {
       case let .keyboard(.delegate(action)):
         return monitorKeyboardAction(&state, action: action)
 
+      case .keyboard:
+        return .none
+
       case let .presetsList(.delegate(.edit(sectionId, preset))):
         state.destination = .presetEditor(PresetEditor.State(sectionId: sectionId, preset: preset))
         return .none
 
+      case .presetsList:
+        return .none
+
       case let .presetsSplit(.delegate(action)):
         return monitorPresetsSplitAction(&state, action: action)
+
+      case .presetsSplit:
+        return .none
+
+      case .reverb:
+        return .none
 
       case let .scenePhaseChanged(phase):
         return scenePhaseChanged(&state, phase: phase)
@@ -131,17 +134,29 @@ struct AppFeature {
         state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
         return .none
 
+      case .soundFontsList:
+        return .none
+
+      case .synth:
+        return .none
+
       case let .tagsList(.delegate(.edit(focused))):
         state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
+        return .none
+
+      case .tagsList:
         return .none
 
       case let .tagsSplit(.delegate(action)):
         return monitorTagsSplitAction(&state, action: action)
 
+      case .tagsSplit:
+        return .none
+
       case let .toolBar(.delegate(action)):
         return monitorToolBarAction(&state, action: action)
 
-      default:
+      case .toolBar:
         return .none
       }
     }.ifLet(\.$destination, action: \.destination)

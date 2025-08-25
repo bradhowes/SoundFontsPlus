@@ -1,5 +1,5 @@
 {
-  "originHash" : "fcceb3308f13ecf581abb6315b4bc8040086c7c0a4168c8b0770ee9c18c455e9",
+  "originHash" : "56710b20a522a4fa0b96c8912bb748d59b3bad461ede6de7318bdfdc96d78f52",
   "pins" : [
     {
       "identity" : "auv3-support",
@@ -114,8 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sharing-grdb",
       "state" : {
-        "revision" : "f7f388be7a4b1f277b308c1090f90233e632e88e",
-        "version" : "0.5.1"
+        "revision" : "46f8561d442cd49d0f8f42234f0d97da33544dda",
+        "version" : "0.6.0"
       }
     },
     {
@@ -168,8 +168,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "4c47829a080789cf20d82c64d8c27291352391d4",
-        "version" : "1.21.1"
+        "revision" : "9dae1ff6f69ce8764341f5c341f1b3fe6a640e64",
+        "version" : "1.22.0"
       }
     },
     {
@@ -195,8 +195,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-dependencies",
       "state" : {
-        "revision" : "eefcdaa88d2e2fd82e3405dfb6eb45872011a0b5",
-        "version" : "1.9.3"
+        "revision" : "a501eebe552fd23691c560adf474fca2169ad8aa",
+        "version" : "1.9.4"
       }
     },
     {
@@ -240,8 +240,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-sharing",
       "state" : {
-        "revision" : "bddb52233714512f63e0dfa8cd0ee8203103f3b1",
-        "version" : "2.7.1"
+        "revision" : "530c98ac2c3e393615616bd6d8fc604600c99f6f",
+        "version" : "2.7.2"
       }
     },
     {
@@ -258,8 +258,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "2468f4e34d909d11c053d773562c03ffea40a72e",
-        "version" : "0.12.1"
+        "revision" : "b5b5a9ed9ff321f43a02f07394f2831eba5e11f2",
+        "version" : "0.13.0"
       }
     },
     {

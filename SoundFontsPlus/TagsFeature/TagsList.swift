@@ -62,17 +62,13 @@ public struct TagsList {
 private extension TagsList {
 
   func activateTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
-    $activeState.withLock {
-      $0.activeTagId = tagId
-    }
+    $activeState.withLock { $0.activeTagId = tagId }
     return .none
   }
 
   func deleteTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
     if activeState.activeTagId == tagId {
-      $activeState.withLock {
-        $0.activeTagId = FontTag.Ubiquitous.all.id
-      }
+      $activeState.withLock { $0.activeTagId = FontTag.Ubiquitous.all.id }
     }
     Operations.deleteTag(tagId)
     return .none
