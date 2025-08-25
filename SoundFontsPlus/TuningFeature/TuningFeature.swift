@@ -133,61 +133,83 @@ public struct TuningView: View {
         Toggle(isOn: $store.enabled) {
           Text("Enabled")
         }
+        .checkedStyle()
         HStack {
           Text("Shift A4 to:")
+            .foregroundStyle(store.enabled ? .primary : .secondary)
+            .animation(.smooth, value: store.enabled)
           Spacer()
           Text(store.shiftA4Value)
+            .foregroundStyle(store.enabled ? .primary : .secondary)
+            .animation(.smooth, value: store.enabled)
           Spacer()
           Stepper("", value: $store.cents, in: -2400...2400, step: 100)
             .labelsHidden()
-            .disabled(store.disabled)
+            .foregroundStyle(store.enabled ? .primary : .secondary)
+            .animation(.smooth, value: store.enabled)
         }
+        .disabled(store.disabled)
+        .animation(.smooth, value: store.enabled)
         HStack {
           Text("Standard tuning (A4 = 440 Hz)")
+            .foregroundStyle(store.enabled ? .primary : .secondary)
+            .animation(.smooth, value: store.enabled)
           Spacer()
           Button {
             store.send(.standardTuningApplyPressed)
           } label: {
             Text("Apply")
+              .foregroundStyle(store.enabled ? .primary : .secondary)
+              .animation(.smooth, value: store.enabled)
           }
-          .disabled(store.disabled)
         }
+        .disabled(store.disabled)
         HStack {
           Text("Scientific tuning (A4 = 432 Hz)")
+            .foregroundStyle(store.enabled ? .primary : .secondary)
+            .animation(.smooth, value: store.enabled)
           Spacer()
           Button {
             store.send(.scientificTuningApplyPressed)
           } label: {
             Text("Apply")
+              .foregroundStyle(store.enabled ? .primary : .secondary)
+              .animation(.smooth, value: store.enabled)
           }
-          .disabled(store.disabled)
         }
+        .disabled(store.disabled)
         HStack {
           Text("Cents (± 2400):")
+            .foregroundStyle(store.enabled ? .primary : .secondary)
+            .animation(.smooth, value: store.enabled)
           Spacer()
           TextField(value: $store.cents, formatter: formatter) {
             Text("")
+              .foregroundStyle(store.enabled ? .primary : .secondary)
+              .animation(.smooth, value: store.enabled)
           }
           .textFieldStyle(.roundedBorder)
           .disableAutocorrection(true)
           .onSubmit {
             store.send(.centsSumbmitted)
           }
-          .disabled(store.disabled)
         }
+        .disabled(store.disabled)
         HStack {
           Text("A4 Frequency (Hz):")
-            .disabled(store.disabled)
+            .foregroundStyle(store.enabled ? .primary : .secondary)
+            .animation(.smooth, value: store.enabled)
           Spacer()
           TextField(value: $store.frequency, formatter: formatter) {
             Text("")
+              .foregroundStyle(store.enabled ? .primary : .secondary)
+              .animation(.smooth, value: store.enabled)
           }
           .textFieldStyle(.roundedBorder)
           .disableAutocorrection(true)
           .onSubmit {
             store.send(.frequencySubmitted)
           }
-          .disabled(store.disabled)
         }
         .disabled(store.disabled)
       }

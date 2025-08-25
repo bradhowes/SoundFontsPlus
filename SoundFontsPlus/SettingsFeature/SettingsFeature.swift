@@ -282,9 +282,11 @@ public struct SettingsView: View {
       Toggle(isOn: $store.favoritesOnTop) {
         Text("Favorites on top")
       }
+      .checkedStyle()
       Toggle(isOn: $store.showOnlyFavorites) {
         Text("Show only favorites")
       }
+      .checkedStyle()
       Toggle(isOn: $store.starFavoriteNames) {
         HStack {
           Text("Show")
@@ -292,9 +294,11 @@ public struct SettingsView: View {
           Text("in favorites")
         }
       }
+      .checkedStyle()
       Toggle(isOn: $store.playSoundOnPresetChange) {
         Text("Play sound on preset change")
       }
+      .checkedStyle()
     }
   }
 
@@ -317,9 +321,11 @@ public struct SettingsView: View {
       Toggle(isOn: $store.showSolfegeTags) {
         Text("Solfège tags")
       }
+      .checkedStyle()
       Toggle(isOn: $store.keyboardSlides) {
         Text("Keyboard slides with touch")
       }
+      .checkedStyle()
       VStack {
         Text("Key Width")
         Slider(value: $store.keyWidth, in: 32...96, step: 1) {
@@ -401,6 +407,7 @@ public struct SettingsView: View {
         Toggle(isOn: $store.copyFileWhenInstalling) {
           Text("Copy SF2 files when adding")
         }
+        .checkedStyle()
         HStack {
           Text("Hide built-in SF2 files")
           Spacer()
