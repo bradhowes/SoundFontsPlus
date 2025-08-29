@@ -3,6 +3,7 @@
 import AVKit
 import os
 import ProgressHUD
+import Sharing
 
 private let log = Logger(category: "VolumeMonitor")
 
@@ -17,18 +18,8 @@ final class VolumeMonitor {
     case noPreset
   }
 
-  private var volume: Float = 1.0 {
-    didSet {
-      log.info("volume changed: \(volume)")
-      update()
-    }
-  }
-
   private var reason: Reason?
   private var sessionVolumeObserver: NSKeyValueObservation?
-
-  /// Set to true if there is a valid preset installed and in use by the synth.
-  public var validActivePreset = true
 }
 
 extension VolumeMonitor {
@@ -43,9 +34,9 @@ extension VolumeMonitor {
     reason = nil
     let session = AVAudioSession.sharedInstance()
     sessionVolumeObserver = session.observe(\.outputVolume) { [weak self] session, _ in
-      self?.volume = session.outputVolume
+      self?.volumeChanged(session.outputVolume)
     }
-    volume = session.outputVolume
+    self.volumeChanged(session.outputVolume)
   }
 
   /**
@@ -56,6 +47,11 @@ extension VolumeMonitor {
     reason = nil
     sessionVolumeObserver?.invalidate()
     sessionVolumeObserver = nil
+  }
+
+  func presetChanged(_ presetId: Preset.ID?) {
+    let volume = AVAudioSession.sharedInstance().outputVolume
+    checkState(volume: volume, activePresetId: presetId)
   }
 }
 
@@ -69,23 +65,31 @@ extension VolumeMonitor {
 
 extension VolumeMonitor {
 
-  private func update() {
+  private func volumeChanged(_ value: Float) {
+    @Shared(.activeState) var activeState
+    checkState(volume: value, activePresetId: activeState.activePresetId)
+  }
+
+  private func checkState(volume: Float, activePresetId: Preset.ID?) {
     if volume < 0.01 {
       reason = .volumeLevel
-    } else if !validActivePreset {
+    } else if activePresetId == nil {
       reason = .noPreset
     } else {
       reason = .none
     }
 
-    showReason()
+    self.showReason()
   }
 
   private func showReason() {
-    switch reason {
-    case .volumeLevel: ProgressHUD.banner("Volume", "Volume set to 0.")
-    case .noPreset: ProgressHUD.banner("Preset", "No active preset.")
-    case .none: ProgressHUD.bannerHide()
+    let reason = self.reason
+    DispatchQueue.main.async {
+      switch reason {
+      case .volumeLevel: ProgressHUD.banner("Volume", "Volume set to 0.")
+      case .noPreset: ProgressHUD.banner("Preset", "No active preset.")
+      case .none: ProgressHUD.bannerHide()
+      }
     }
   }
 }
