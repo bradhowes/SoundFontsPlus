@@ -52,6 +52,7 @@
 		BD7B05172E4FDD40006628F3 /* FileImporterPrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B05162E4FDD40006628F3 /* FileImporterPrompts.swift */; };
 		BD7DBC8D2DF45904005A31DE /* DimmedAppearanceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */; };
 		BD812F652DF4BF3500D2B344 /* KeyboardReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */; };
+		BDA11AFA2E617FF800941A41 /* DisableIdleTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA11AF92E617FEF00941A41 /* DisableIdleTimer.swift */; };
 		BDA917E02E08247700FD3257 /* SynthFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA917DF2E08247700FD3257 /* SynthFeature.swift */; };
 		BDAF5A932DE254E000B8FB13 /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A8F2DE254E000B8FB13 /* FileManager.swift */; };
 		BDAF5A942DE254E000B8FB13 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5A8E2DE254E000B8FB13 /* Environment.swift */; };
@@ -244,6 +245,7 @@
 		BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DimmedAppearanceModifier.swift; sourceTree = "<group>"; };
 		BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardReadable.swift; sourceTree = "<group>"; };
+		BDA11AF92E617FEF00941A41 /* DisableIdleTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisableIdleTimer.swift; sourceTree = "<group>"; };
 		BDA917DF2E08247700FD3257 /* SynthFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynthFeature.swift; sourceTree = "<group>"; };
 		BDAF5A8E2DE254E000B8FB13 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		BDAF5A8F2DE254E000B8FB13 /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
@@ -576,6 +578,7 @@
 			children = (
 				BD050EE02E23C2EB00706CC4 /* LaunchScreen.storyboard */,
 				BDAF5A982DE254F400B8FB13 /* AppFeature.swift */,
+				BDA11AF92E617FEF00941A41 /* DisableIdleTimer.swift */,
 				BD76C1582E23C57E00F5B1F5 /* VolumeMonitor.swift */,
 			);
 			path = AppFeature;
@@ -1185,6 +1188,7 @@
 				BD7B05172E4FDD40006628F3 /* FileImporterPrompts.swift in Sources */,
 				BDAF5ACC2DE2555000B8FB13 /* TagInfo.swift in Sources */,
 				BDAF5ACD2DE2555000B8FB13 /* Operations.swift in Sources */,
+				BDA11AFA2E617FF800941A41 /* DisableIdleTimer.swift in Sources */,
 				BDAF5ACE2DE2555000B8FB13 /* ActiveState.swift in Sources */,
 				BDAF5B1C2DE2559900B8FB13 /* TuningFeature.swift in Sources */,
 				BDAF5B192DE2559500B8FB13 /* ToolBarFeature.swift in Sources */,
@@ -1435,7 +1439,7 @@
 				CODE_SIGN_ENTITLEMENTS = SoundFontsPlus/SoundFontsPlus.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = UP6SS5ES7E;
@@ -1444,6 +1448,11 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SoundFontsPlus/Info.plist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "When allowed, SoundFonts can scan for and connect to Blutetooth LE MIDI devices in order to receive MIDI commands from the device.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "SoundFonts uses local networking to communicate with Audiobus and other music apps.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -1455,6 +1464,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
@@ -1483,7 +1493,7 @@
 				CODE_SIGN_ENTITLEMENTS = SoundFontsPlus/SoundFontsPlus.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = UP6SS5ES7E;
@@ -1492,6 +1502,11 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SoundFontsPlus/Info.plist;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "When allowed, SoundFonts can scan for and connect to Blutetooth LE MIDI devices in order to receive MIDI commands from the device.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "SoundFonts uses local networking to communicate with Audiobus and other music apps.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -1503,6 +1518,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
@@ -1789,7 +1805,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
 			requirement = {
-				kind = upToNextMinorVersion;
+				kind = upToNextMajorVersion;
 				minimumVersion = 1.18.4;
 			};
 		};

@@ -74,9 +74,14 @@ extension FileManager {
     guard let loc = self.url(forUbiquityContainerIdentifier: nil) else {
       return nil
     }
-    let dir = loc.appendingPathComponent("Documents")
+    let dir = loc.appendingPathComponent("Documents/SoundFontsPlus")
     if !self.fileExists(atPath: dir.path) {
-      try? self.createDirectory(at: dir, withIntermediateDirectories: true, attributes: nil)
+      do {
+        try self.createDirectory(at: dir, withIntermediateDirectories: true, attributes: nil)
+        print("Folder created at \(dir)")
+      } catch {
+        print("Error creating folder: \(error)")
+      }
     }
 
     return dir

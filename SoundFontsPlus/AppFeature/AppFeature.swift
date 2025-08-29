@@ -57,6 +57,7 @@ struct AppFeature {
   }
 
   enum Action: BindableAction {
+    case activePresetIdChanged(Preset.ID?)
     case binding(BindingAction<State>)
     case delay(DelayFeature.Action)
     case destination(PresentationAction<Destination.Action>)
@@ -89,6 +90,11 @@ struct AppFeature {
 
     Reduce { state, action in
       switch action {
+
+      case let .activePresetIdChanged(presetId):
+        volumeMonitor.presetChanged(presetId)
+        return .none
+
       case .binding:
         return .none
 
@@ -102,8 +108,7 @@ struct AppFeature {
         return .none
 
       case .initialize:
-        volumeMonitor.start()
-        return reduce(into: &state, action: .synth(.initialize))
+        return initialize(&state)
 
       case let .keyboard(.delegate(action)):
         return monitorKeyboardAction(&state, action: action)
@@ -162,6 +167,11 @@ struct AppFeature {
     }.ifLet(\.$destination, action: \.destination)
   }
 
+  private enum CancelId {
+    case monitorActivePresetId
+  }
+
+  @Shared(.activeState) var activeState
   @Shared(.firstVisibleKey) var firstVisibleKey
 }
 
@@ -184,6 +194,34 @@ private extension AppFeature {
 
     state.presetsList.sections[sectionIndex].rows[rowIndex].preset.displayName = editor.displayName
     return .none
+  }
+
+  func initialize(_ state: inout State) -> Effect<Action> {
+    .merge(
+      .concatenate(
+        .run { _ in volumeMonitor.start() },
+        .run { _ in
+          Task {
+            if let url = FileManager.default.cloudDocumentsDirectory {
+              log.info("iCloud documents directory: \(url)")
+            } else {
+              log.error("iCloud documents directory is not available")
+            }
+            Self.disableIdleTimer()
+          }
+        },
+        monitorActivePresetId()
+      ),
+      reduce(into: &state, action: .synth(.initialize)),
+    )
+  }
+
+  func monitorActivePresetId() -> Effect<Action> {
+    .publisher {
+      $activeState.activePresetId
+        .publisher
+        .map { .activePresetIdChanged($0) }
+    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
   func monitorKeyboardAction(_ state: inout State, action: KeyboardFeature.Action.Delegate) -> Effect<Action> {
