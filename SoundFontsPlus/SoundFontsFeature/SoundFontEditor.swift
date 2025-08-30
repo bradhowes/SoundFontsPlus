@@ -132,7 +132,8 @@ extension SoundFontEditor {
     // TODO: change to use shareddocuments:// scheme so that Files.app opens path
     @Environment(\.openURL) var openURL
     if let url = URL(string: state.soundFont.sourcePath) {
-      openURL(url)
+      // openURL(url)
+      print("open \(url)")
     }
     return .none
   }

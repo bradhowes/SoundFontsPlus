@@ -9,7 +9,7 @@ private let log = Logger(category: "VolumeMonitor")
 
 /// Monitor volume setting on device and the "silence" or "mute" switch. When there is no apparent audio
 /// output, update the Keyboard and NotePlayer instances so that they can show an indication to the user.
-final class VolumeMonitor {
+public actor VolumeMonitor {
 
   private enum Reason {
     /// Volume level is at zero
@@ -20,9 +20,6 @@ final class VolumeMonitor {
 
   private var reason: Reason?
   private var sessionVolumeObserver: NSKeyValueObservation?
-}
-
-extension VolumeMonitor {
 
   /**
    Begin monitoring volume of the given AVAudioSession
@@ -33,10 +30,8 @@ extension VolumeMonitor {
     log.info("start")
     reason = nil
     let session = AVAudioSession.sharedInstance()
-    sessionVolumeObserver = session.observe(\.outputVolume) { [weak self] session, _ in
-      self?.volumeChanged(session.outputVolume)
-    }
-    self.volumeChanged(session.outputVolume)
+    sessionVolumeObserver = session.observe(\.outputVolume, options: [.new], changeHandler: self.volumeChanged)
+    volumeChanged(session.outputVolume)
   }
 
   /**
@@ -64,6 +59,11 @@ extension VolumeMonitor {
 }
 
 extension VolumeMonitor {
+
+  private func volumeChanged(_ session: AVAudioSession, _ change: NSKeyValueObservedChange<Float>) {
+    guard let value = change.newValue else { return }
+    volumeChanged(value)
+  }
 
   private func volumeChanged(_ value: Float) {
     @Shared(.activeState) var activeState

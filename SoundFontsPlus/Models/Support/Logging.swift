@@ -4,7 +4,7 @@ import OSLog
 
 private class BundleTag {}
 
-public struct Logger {
+public struct Logger: Sendable {
 
   /// The top-level identifier for the app.
   public static let subsystem = Bundle(for: BundleTag.self).bundleIdentifier?.lowercased() ?? "?"

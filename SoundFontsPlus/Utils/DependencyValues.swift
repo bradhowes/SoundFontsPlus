@@ -1,9 +1,9 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AudioUnit.AUParameters
+@preconcurrency import AudioUnit.AUParameters
 import Dependencies
 
-public struct DelayDevice {
+public struct DelayDevice: Sendable {
   public var setConfig: @Sendable (DelayConfig.Draft) -> Void
 }
 

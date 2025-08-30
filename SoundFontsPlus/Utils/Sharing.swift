@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFAudio
+@preconcurrency import AVFAudio
 import Combine
 import MorkAndMIDI
 import SF2LibAU
@@ -24,6 +24,7 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var tagsListVisible: Self { Self[.appStorage("tagsListVisible"), default: false] }
   public static var playSoundOnPresetChange: Self { Self[.appStorage("playSoundOnPresetChange"), default: true] }
   public static var copyFileWhenInstalling: Self { Self[.appStorage("copyFileWhenInstalling"), default: true]}
+  public static var disableIdleTimer: Self { Self[.appStorage("disableIdleTimer"), default: false]}
 }
 
 // MARK: - AppStorage Double settings
@@ -37,6 +38,19 @@ extension SharedKey where Self == AppStorageKey<Double>.Default {
   }
   public static var globalTuning: Self { Self[.appStorage("globalTuning"), default: 440.0 ] }
   public static var keyWidth: Self { Self[.appStorage("keyWidth"), default: 64.0] }
+}
+
+// MARK: - AppStorage String settings
+
+extension SharedKey where Self == AppStorageKey<String>.Default {
+  public static var lastReviewRequestVersion: Self { Self[.appStorage("lastReviewRequestVersion"), default: ""] }
+}
+
+// MARK: - AppStorage Date settings
+
+extension SharedKey where Self == AppStorageKey<Date>.Default {
+  public static var firstLaunchDate: Self { Self[.appStorage("firstLaunchDate"), default: .now] }
+  public static var lastReviewRequestDate: Self { Self[.appStorage("lastReviewRequestDate"), default: .distantPast] }
 }
 
 // MARK: - AppStorage Int settings
@@ -60,7 +74,10 @@ extension SharedKey where Self == AppStorageKey<String>.Default {
 }
 
 extension URL {
-  static public let activeStateURL = FileManager.default.sharedDocumentsDirectory.appendingPathComponent("activeState.json")
+  static public let activeStateURL = FileManager
+    .default
+    .sharedDocumentsDirectory
+    .appendingPathComponent("activeState.json")
 }
 
 extension SharedKey where Self == FileStorageKey<ActiveState>.Default {
@@ -71,11 +88,15 @@ extension SharedKey where Self == FileStorageKey<ActiveState>.Default {
 
 // MARK: - InMemory settings
 
+extension AUParameterTree: @unchecked @retroactive Sendable {}
+
 extension SharedKey where Self == InMemoryKey<AUParameterTree>.Default {
   public static var parameterTree: Self {
     Self[.inMemory("parameterTree"), default: ParameterAddress.createParameterTree()]
   }
 }
+
+extension MIDI: @unchecked @retroactive Sendable {}
 
 extension SharedKey where Self == InMemoryKey<MIDI?>.Default {
   public static var midi: Self { Self[.inMemory("midi"), default: nil] }
