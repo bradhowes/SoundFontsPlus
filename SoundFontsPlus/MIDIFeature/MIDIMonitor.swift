@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFAudio
+@preconcurrency import AVFAudio
 import Combine
 import MorkAndMIDI
 import os
@@ -9,15 +9,15 @@ import SharingGRDB
 
 private let log = Logger(category: "MIDIMonitor")
 
-public struct MIDITraffic: Equatable {
+public struct MIDITraffic: Equatable, Sendable {
   public let id: MIDIUniqueID
   public let channel: UInt8
   public let accepted: Bool
 }
 
-public final class MIDIMonitor {
-  @Shared(.midiChannel) var midiChannel
-  @Shared(.synthAudioUnit) var synthAudioUnit
+public final class MIDIMonitor: @unchecked Sendable {
+  @Shared(.midiChannel) private var midiChannel
+  @Shared(.synthAudioUnit) private var synthAudioUnit
   var midiInstrument: AVAudioUnitMIDIInstrument? { synthAudioUnit?.midiInstrument }
 
   // We want all traffic to appear in the `traffic` tap, regardless of channel.

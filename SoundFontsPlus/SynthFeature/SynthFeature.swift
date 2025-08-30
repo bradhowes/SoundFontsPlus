@@ -3,7 +3,7 @@
 import AUv3Shared
 import AudioToolbox
 import ComposableArchitecture
-import CoreAudioKit
+@preconcurrency import CoreAudioKit
 import os
 import SF2LibAU
 import Sharing

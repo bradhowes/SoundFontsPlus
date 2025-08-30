@@ -12,11 +12,10 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 private let log = Logger(category: "AppFeature")
+@MainActor private let volumeMonitor: VolumeMonitor = .init()
 
 @Reducer
 struct AppFeature {
-  private let volumeMonitor: VolumeMonitor = .init()
-
   @Reducer(state: .equatable)
   enum Destination {
     case presetEditor(PresetEditor)
@@ -41,6 +40,7 @@ struct AppFeature {
     var synth: SynthFeature.State = .init()
     var delay: DelayFeature.State = .init()
     var reverb: ReverbFeature.State = .init()
+    var appReview: AppReviewFeature.State = .init()
 
     init() {
       _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
@@ -58,6 +58,7 @@ struct AppFeature {
 
   enum Action: BindableAction {
     case activePresetIdChanged(Preset.ID?)
+    case appReview(AppReviewFeature.Action)
     case binding(BindingAction<State>)
     case delay(DelayFeature.Action)
     case destination(PresentationAction<Destination.Action>)
@@ -77,6 +78,7 @@ struct AppFeature {
   var body: some ReducerOf<Self> {
     BindingReducer()
 
+    Scope(state: \.appReview, action: \.appReview) { AppReviewFeature() }
     Scope(state: \.delay, action: \.delay) { DelayFeature() }
     Scope(state: \.keyboard, action: \.keyboard) { KeyboardFeature() }
     Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
@@ -92,7 +94,14 @@ struct AppFeature {
       switch action {
 
       case let .activePresetIdChanged(presetId):
-        volumeMonitor.presetChanged(presetId)
+        return .merge(
+          reduce(into: &state, action: .appReview(.ask)),
+          .run { _ in
+            await volumeMonitor.presetChanged(presetId)
+          }
+        )
+
+      case .appReview:
         return .none
 
       case .binding:
@@ -102,7 +111,10 @@ struct AppFeature {
         return .none
 
       case .destination(.dismiss):
-        return destinationDismissed(&state)
+        return .merge(
+          reduce(into: &state, action: .appReview(.ask)),
+          destinationDismissed(&state)
+        )
 
       case .destination:
         return .none
@@ -199,7 +211,7 @@ private extension AppFeature {
   func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
       .concatenate(
-        .run { _ in volumeMonitor.start() },
+        .run { _ in await volumeMonitor.start() },
         .run { _ in
           Task {
             if let url = FileManager.default.cloudDocumentsDirectory {
@@ -265,6 +277,7 @@ private extension AppFeature {
 
     case .presetNameTapped:
       return .merge(
+        reduce(into: &state, action: .appReview(.ask)),
         reduce(into: &state, action: .presetsList(.showActivePreset)),
         reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
       )
@@ -275,7 +288,7 @@ private extension AppFeature {
 
     case .settingsDismissed:
       state.destination = nil
-      return .none
+      return reduce(into: &state, action: .appReview(.ask))
 
     case let .tagsVisibilityChanged(visible):
       let panes: SplitViewPanes = visible ? .both : .primary
@@ -375,6 +388,7 @@ struct AppFeatureView: View, KeyboardReadable {
       horizontalSizeClass: horizontalSizeClass,
       verticalSizeClass: verticalSizeClass
     )
+    .appReview(store: store.scope(state: \.appReview, action: \.appReview))
   }
 
   private var listViews: some View {

@@ -24,6 +24,7 @@ public struct SettingsFeature {
     @CasePathable
     public enum Alert {
       case disableCopyFileConfirmed
+      case disableIdleTImerConfirmed
     }
   }
 
@@ -47,6 +48,7 @@ public struct SettingsFeature {
     @Shared(.favoriteSymbolName) var favoriteSymbolName
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
+    @Shared(.disableIdleTimer) var disableIdleTimer
 
     var midiTrafficIndicator: MIDITrafficIndicatorFeature.State = .init(tag: "Settings")
     var tuning: TuningFeature.State
@@ -100,10 +102,18 @@ public struct SettingsFeature {
         return updateKeyWidth(&state)
 
       case .binding(\.copyFileWhenInstalling):
-        log.info("value: \(state.copyFileWhenInstalling)")
+        log.info("copyFileWhenInstalling value: \(state.copyFileWhenInstalling)")
         if !state.copyFileWhenInstalling {
           state.$copyFileWhenInstalling.withLock { $0 = true }
           state.destination = .alert(.confirmDisableCopyFile(action: .disableCopyFileConfirmed))
+        }
+        return .none
+
+      case .binding(\.disableIdleTimer):
+        log.info("disableIdleTimer value: \(state.disableIdleTimer)")
+        if state.disableIdleTimer {
+          state.$disableIdleTimer.withLock { $0 = false }
+          state.destination = .alert(.confirmDisableIdleTimer(action: .disableIdleTImerConfirmed))
         }
         return .none
 
@@ -118,6 +128,10 @@ public struct SettingsFeature {
 
       case .destination(.presented(.alert(.disableCopyFileConfirmed))):
         state.$copyFileWhenInstalling.withLock { $0 = false }
+        return .none
+
+      case .destination(.presented(.alert(.disableIdleTImerConfirmed))):
+        state.$disableIdleTimer.withLock { $0 = true }
         return .none
 
       case .destination:
@@ -237,6 +251,7 @@ public struct SettingsView: View {
   @Bindable private var store: StoreOf<SettingsFeature>
   @State private var changingKeyWidth: Bool = false
   private let showFakeKeyboard: Bool
+  private let bundle = Bundle.main
 
   public init(store: StoreOf<SettingsFeature>, showFakeKeyboard: Bool) {
     self.store = store
@@ -276,6 +291,9 @@ public struct SettingsView: View {
       await store.send(.initialize).finish()
     }
   }
+}
+
+extension SettingsView {
 
   private var presetsSection: some View {
     Section("Presets") {
@@ -402,10 +420,14 @@ public struct SettingsView: View {
   }
 
   private var fileSection: some View {
-    Section("Files") {
+    Section("Application") {
       Group {
         Toggle(isOn: $store.copyFileWhenInstalling) {
-          Text("Copy SF2 files when adding")
+          Text("Copy SF2 files to app folder when adding")
+        }
+        .checkedStyle()
+        Toggle(isOn: $store.disableIdleTimer) {
+          Text("Disable device locking while active")
         }
         .checkedStyle()
         HStack {
@@ -447,6 +469,7 @@ public struct SettingsView: View {
       }
     }
   }
+
   private var aboutSection: some View {
     Section("About") {
       Group {
@@ -469,12 +492,12 @@ public struct SettingsView: View {
           }
         }
         HStack {
-          Text("v1.0.0")
+          Text("Version \(bundle.releaseVersionNumber)")
           Spacer()
           Button {
             store.send(.reviewAppTapped)
           } label: {
-            Text("Export")
+            Text("Review App")
           }
         }
         HStack {

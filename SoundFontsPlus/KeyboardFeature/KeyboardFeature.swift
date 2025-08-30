@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFAudio
+@preconcurrency import AVFAudio
 import ComposableArchitecture
 import Dependencies
 import SF2LibAU
