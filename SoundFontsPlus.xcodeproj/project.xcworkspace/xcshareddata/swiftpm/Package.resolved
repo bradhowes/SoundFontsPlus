@@ -168,8 +168,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "d2c1bfb5859c81d1fd14437e9eb697137dd61bc9",
-        "version" : "1.22.1"
+        "revision" : "acd9bb8a7cf6e36a89d81a432c2e8eb3b1bb3771",
+        "version" : "1.22.2"
       }
     },
     {
@@ -213,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
-        "revision" : "819dea23847a7b6693801cf7e248ba766a72aee1",
-        "version" : "2.4.1"
+        "revision" : "6b7f44d218e776bb7a5246efb940440d57c8b2cf",
+        "version" : "2.4.2"
       }
     },
     {
@@ -222,8 +222,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-numerics.git",
       "state" : {
-        "revision" : "e0ec0f5f3af6f3e4d5e7a19d2af26b481acb6ba8",
-        "version" : "1.0.3"
+        "revision" : "bbadd4b853a33fd78c4ae977d17bb2af15eb3f2a",
+        "version" : "1.1.0"
       }
     },
     {
@@ -258,8 +258,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "b5b5a9ed9ff321f43a02f07394f2831eba5e11f2",
-        "version" : "0.13.0"
+        "revision" : "9f35bc01f597b9372eb3349fdbd289656232f3ba",
+        "version" : "0.14.0"
       }
     },
     {
@@ -285,8 +285,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SimplyDanny/SwiftLintPlugins",
       "state" : {
-        "revision" : "8545ddf4de043e6f2051c5cf204f39ef778ebf6b",
-        "version" : "0.59.1"
+        "revision" : "634ada2eee7eac4ca79bf1fc8943ddc91408eb06",
+        "version" : "0.60.0"
       }
     },
     {

@@ -19,6 +19,7 @@
 		BD1774E12E64A5EC0029D195 /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = BD1774E02E64A5EC0029D195 /* Dependencies */; };
 		BD1774E32E64A9820029D195 /* BaseSuite.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1774E22E64A97D0029D195 /* BaseSuite.swift */; };
 		BD1774E52E64AD400029D195 /* DependenciesMacros in Frameworks */ = {isa = PBXBuildFile; productRef = BD1774E42E64AD400029D195 /* DependenciesMacros */; };
+		BD1774E92E657FA00029D195 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD1774E82E657FA00029D195 /* SnapshotTesting */; };
 		BD1D27832B6F13DD005C3ED0 /* SoundFontsPlusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27822B6F13DD005C3ED0 /* SoundFontsPlusApp.swift */; };
 		BD1D27892B6F13DE005C3ED0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */; };
 		BD1D278D2B6F13DE005C3ED0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */; };
@@ -26,9 +27,6 @@
 		BD31A7EE2E5647300046F07C /* FileImporterViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B05142E4FDCCE006628F3 /* FileImporterViewModifier.swift */; };
 		BD31A7F32E5658CE0046F07C /* StructuredQueriesTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BD31A7F22E5658CE0046F07C /* StructuredQueriesTestSupport */; };
 		BD31A8BF2E5663500046F07C /* Internal.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD31A8BE2E56634D0046F07C /* Internal.swift */; };
-		BD3311432DE2700500A73BA8 /* InlineSnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311422DE2700500A73BA8 /* InlineSnapshotTesting */; };
-		BD3311452DE2700500A73BA8 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311442DE2700500A73BA8 /* SnapshotTesting */; };
-		BD3311472DE2700500A73BA8 /* SnapshotTestingCustomDump in Frameworks */ = {isa = PBXBuildFile; productRef = BD3311462DE2700500A73BA8 /* SnapshotTestingCustomDump */; };
 		BD33FF572E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */; };
 		BD3E3D802E520FA800523292 /* SF2LibAU in Frameworks */ = {isa = PBXBuildFile; productRef = BD3E3D7F2E520FA800523292 /* SF2LibAU */; };
 		BD3E3D832E520FEF00523292 /* BRHSplitView in Frameworks */ = {isa = PBXBuildFile; productRef = BD3E3D822E520FEF00523292 /* BRHSplitView */; };
@@ -153,7 +151,6 @@
 		BDAF5BBF2DE25A7900B8FB13 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BBE2DE25A7900B8FB13 /* Algorithms */; };
 		BDAF5BC12DE25C9200B8FB13 /* Tagged in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC02DE25C9200B8FB13 /* Tagged */; };
 		BDAF5BC42DE269C300B8FB13 /* DependenciesTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC32DE269C300B8FB13 /* DependenciesTestSupport */; };
-		BDAF5BC92DE26BFC00B8FB13 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC82DE26BFC00B8FB13 /* SnapshotTesting */; };
 		BDB9FEF42E04B795003BA0A2 /* ParameterAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB9FEF22E04B795003BA0A2 /* ParameterAddress.swift */; };
 		BDB9FEF52E04B795003BA0A2 /* ParameterDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB9FEF32E04B795003BA0A2 /* ParameterDefinition.swift */; };
 		BDB9FEF72E067A25003BA0A2 /* AVAudioUnitReverbPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB9FEF62E067A1C003BA0A2 /* AVAudioUnitReverbPreset.swift */; };
@@ -413,11 +410,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD1774E92E657FA00029D195 /* SnapshotTesting in Frameworks */,
 				BD31A7F32E5658CE0046F07C /* StructuredQueriesTestSupport in Frameworks */,
-				BDAF5BC92DE26BFC00B8FB13 /* SnapshotTesting in Frameworks */,
-				BD3311472DE2700500A73BA8 /* SnapshotTestingCustomDump in Frameworks */,
-				BD3311452DE2700500A73BA8 /* SnapshotTesting in Frameworks */,
-				BD3311432DE2700500A73BA8 /* InlineSnapshotTesting in Frameworks */,
 				BDAF5BC42DE269C300B8FB13 /* DependenciesTestSupport in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1959,25 +1953,15 @@
 			package = BDAF5BC22DE269C300B8FB13 /* XCRemoteSwiftPackageReference "swift-dependencies" */;
 			productName = DependenciesMacros;
 		};
-		BD31A7F22E5658CE0046F07C /* StructuredQueriesTestSupport */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */;
-			productName = StructuredQueriesTestSupport;
-		};
-		BD3311422DE2700500A73BA8 /* InlineSnapshotTesting */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
-			productName = InlineSnapshotTesting;
-		};
-		BD3311442DE2700500A73BA8 /* SnapshotTesting */ = {
+		BD1774E82E657FA00029D195 /* SnapshotTesting */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
 			productName = SnapshotTesting;
 		};
-		BD3311462DE2700500A73BA8 /* SnapshotTestingCustomDump */ = {
+		BD31A7F22E5658CE0046F07C /* StructuredQueriesTestSupport */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
-			productName = SnapshotTestingCustomDump;
+			package = BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */;
+			productName = StructuredQueriesTestSupport;
 		};
 		BD3E3D7F2E520FA800523292 /* SF2LibAU */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -2075,10 +2059,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BDAF5BC22DE269C300B8FB13 /* XCRemoteSwiftPackageReference "swift-dependencies" */;
 			productName = DependenciesTestSupport;
-		};
-		BDAF5BC82DE26BFC00B8FB13 /* SnapshotTesting */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SnapshotTesting;
 		};
 		BDEB8F942E17287E00BF16B5 /* SF2LibAU */ = {
 			isa = XCSwiftPackageProductDependency;
