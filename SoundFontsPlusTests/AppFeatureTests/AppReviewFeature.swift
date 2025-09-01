@@ -3,6 +3,8 @@ import Dependencies
 import DependenciesTestSupport
 import Foundation
 import Sharing
+import SnapshotTesting
+import SwiftUI
 import Testing
 
 @testable import SoundFontsPlus
@@ -37,29 +39,30 @@ extension BaseSuite {
       let store = await TestStore(initialState: AppReviewFeature.State()) { AppReviewFeature() } withDependencies: {
         $0.date.now = now
         $nextReviewRequestDate.withLock { $0 = now }
+        $lastReviewRequestVersion.withLock { $0 = AppReviewFeature.currentVersion }
       }
 
-      #expect(lastReviewRequestVersion == "")
-
-      await store.send(.ask) { $0.activityCounter = 4 }
-      await store.send(.ask) { $0.activityCounter = 3 }
-      await store.send(.ask) { $0.activityCounter = 2 }
       await store.send(.ask) { $0.activityCounter = 1 }
+      await store.send(.ask) { $0.activityCounter = 2 }
+      await store.send(.ask) { $0.activityCounter = 3 }
+      await store.send(.ask) { $0.activityCounter = 4 }
       await store.send(.ask) {
-        $0.activityCounter = 0
+        $0.activityCounter = 5
         $0.askForReview = true
       }
-
-      #expect(nextReviewRequestDate != now)
-      #expect(lastReviewRequestVersion != "")
 
       await store.send(.reviewAsked) {
         $0.askForReview = false
       }
+
+      await store.send(.ask) {
+        $0.activityCounter = 6
+        $0.askForReview = true
+      }
     }
 
     @Test
-    func noReviewAskIfVersionSame() async throws {
+    func minDaysAfterVersionChanges() async throws {
       @Shared(.nextReviewRequestDate) var nextReviewRequestDate
       @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion
 
@@ -67,15 +70,37 @@ extension BaseSuite {
       let store = await TestStore(initialState: AppReviewFeature.State()) { AppReviewFeature() } withDependencies: {
         $0.date.now = now
         $nextReviewRequestDate.withLock { $0 = now }
-        $lastReviewRequestVersion.withLock { $0 = AppReviewFeature.currentVersion() }
+        $lastReviewRequestVersion.withLock { $0 = AppReviewFeature.currentVersion }
       }
 
-      await store.send(.ask)
-      await store.send(.ask)
+      await store.send(.ask) { $0.activityCounter = 1 }
+      await store.send(.ask) { $0.activityCounter = 2 }
 
-      $lastReviewRequestVersion.withLock { $0 = "" }
+      $lastReviewRequestVersion.withLock { $0 = "99.99.99" }
 
-      await store.send(.ask) { $0.activityCounter = 4 }
+      await store.send(.ask) { $0.activityCounter = 2 }
+    }
+
+    @Test
+    @MainActor
+    func snapshotPreview() async throws {
+      prepareDependencies {
+        let now = Date(timeIntervalSince1970: 0)
+        $0.date.now = now
+        @Shared(.nextReviewRequestDate) var nextReviewRequestDate = now
+        @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion = AppReviewFeature.currentVersion
+      }
+
+      let store: StoreOf<AppReviewFeature> = .init(initialState: AppReviewFeature.State(
+        activityCounter: 4
+      )) { AppReviewFeature() }
+
+      let vc = UIHostingController(rootView: AppReviewDemoView(store: store))
+      store.send(.ask)
+
+      withSnapshotTesting(record: .failed) {
+        assertSnapshot(of: vc, as: .image(on: .iPhoneSe, drawHierarchyInKeyWindow: true))
+      }
     }
   }
 }

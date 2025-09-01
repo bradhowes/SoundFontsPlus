@@ -41,7 +41,6 @@ public struct EventNoteMap: Equatable {
     events[event.id] = note
     let count = notes[note, default: 0]
     notes[note] = count + 1
-    // swiftlint:disable:next empty_count
     return .init(previous: previousReleased, firstTime: count == 0)
   }
 
