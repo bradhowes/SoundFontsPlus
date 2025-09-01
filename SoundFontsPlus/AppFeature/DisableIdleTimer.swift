@@ -2,10 +2,10 @@ import Sharing
 import SwiftUI
 
 extension AppFeature {
+
+  @MainActor
   public static func disableIdleTimer() {
     @Shared(.disableIdleTimer) var disableIdleTimer
-    DispatchQueue.main.async {
-      UIKit.UIApplication.shared.isIdleTimerDisabled = disableIdleTimer
-    }
+    UIKit.UIApplication.shared.isIdleTimerDisabled = disableIdleTimer
   }
 }
