@@ -7,6 +7,8 @@ import Dependencies
 import Sharing
 import SwiftUI
 
+private let log = Logger(category: "ToolBar")
+
 @Reducer
 public struct ToolBarFeature {
 
@@ -22,10 +24,6 @@ public struct ToolBarFeature {
     var lowestKey: Note
     var highestKey: Note
 
-//    @Shared(.keyboardSlides) var keyboardSlides
-//    @Shared(.tagsListVisible) var tagsListVisible
-//    @Shared(.effectsVisible) var effectsVisible
-
     var keyboardSlides: Bool
     var effectsVisible: Bool
     var tagsListVisible: Bool
@@ -33,7 +31,7 @@ public struct ToolBarFeature {
     var editingPresetVisibility: Bool = false
     var showMoreButtons: Bool = false
     var preset: Preset?
-
+    var lastPlayedKey: Note?
     var midiTrafficIndicator: MIDITrafficIndicatorFeature.State = .init(tag: "ToolBar")
     var fileImporter: FileImporterFeature.State = .init()
 
@@ -66,6 +64,7 @@ public struct ToolBarFeature {
     case setVisibleKeyRange(lowest: Note, highest: Note)
     case shiftKeyboardUpButtonTapped
     case shiftKeyboardDownButtonTapped
+    case lastPlayedKeyChanged(Note?)
     case showMoreButtonTapped
     case slidingKeyboardButtonTapped
     case tagVisibilityButtonTapped
@@ -118,6 +117,9 @@ public struct ToolBarFeature {
       case .initialize:
         return initialize(&state)
 
+      case .lastPlayedKeyChanged(let key):
+        return lastPlayedKeyChanged(&state, key: key)
+
       case .midiTrafficIndicator:
         return .none
 
@@ -151,10 +153,12 @@ public struct ToolBarFeature {
   public init() {}
 
   private enum CancelId {
-    case monitorActivePresetId
+    case lastPlayedKeyChanged
   }
 
   @Shared(.activeState) var activeState
+  @Shared(.showKeyNotes) var showKeyNotes
+  @Shared(.showSolfegeTags) var showSolfegeTags
 }
 
 private extension ToolBarFeature {
@@ -180,18 +184,7 @@ private extension ToolBarFeature {
   }
 
   func initialize(_ state: inout State) -> Effect<Action> {
-    .merge(
-      reduce(into: &state, action: .midiTrafficIndicator(.initialize)),
-      monitorActivePresetId(&state)
-    )
-  }
-
-  func monitorActivePresetId(_ state: inout State) -> Effect<Action> {
-    .publisher {
-      $activeState.activePresetId
-        .publisher
-        .map { .activePresetIdChanged($0) }
-    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
+    reduce(into: &state, action: .midiTrafficIndicator(.initialize))
   }
 
   func settingsButtonTapped(_ state: inout State) -> Effect<Action> {
@@ -231,6 +224,25 @@ private extension ToolBarFeature {
 
   func showHelp(_ state: inout State) -> Effect<Action> {
     return hideMoreButtons(&state)
+  }
+
+  func lastPlayedKeyChanged(_ state: inout State, key: Note?) -> Effect<Action> {
+    guard showKeyNotes || showSolfegeTags else { return .none }
+
+    guard let key else {
+      log.info("cleared lastPlayedKey")
+      state.lastPlayedKey = nil
+      return .none
+    }
+
+    state.lastPlayedKey = key
+    log.info("lastPlayedKey - \(key.label)")
+
+    return .run { send in
+      try await Task.sleep(nanoseconds: .seconds(1.8))
+      log.info("clearing lastPlayedKey")
+      await send(.lastPlayedKeyChanged(nil))
+    }.cancellable(id: CancelId.lastPlayedKeyChanged, cancelInFlight: true)
   }
 
   func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
@@ -283,7 +295,7 @@ public struct ToolBarFeatureView: View {
       toggleEffectsButton
       if horizontalSizeClass == .compact {
         ZStack {
-          presetTitle
+          status
             .zIndex(0)
           if store.showMoreButtons {
             moreButtons
@@ -294,7 +306,7 @@ public struct ToolBarFeatureView: View {
         toggleMoreButton
           .zIndex(2)
       } else {
-        presetTitle
+        status
         moreButtons
           .padding(.trailing, 8)
       }
@@ -309,20 +321,25 @@ public struct ToolBarFeatureView: View {
     }
   }
 
-  private var presetTitle: some View {
+  private var status: some View {
     ZStack(alignment: .leading) {
       MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
       HStack {
         Spacer()
-        PresetNameView(preset: store.preset)
-          .font(.status)
-          .indicator(.activeNoIndicator)
-          .onTapGesture {
-            store.send(.delegate(.presetNameTapped))
-          }
+        statusText
         Spacer()
       }
     }
+  }
+
+  private var statusText: some View {
+    @Shared(.showSolfegeTags) var showSolfegeTags
+    return Text(store.lastPlayedKey?.fullLabel(withSolfege: showSolfegeTags) ?? store.preset?.displayName ?? "—")
+      .font(.status)
+      .indicator(.activeNoIndicator)
+      .onTapGesture {
+        store.send(.delegate(.presetNameTapped))
+      }
   }
 
   private var addSoundFontButton: some View {
@@ -426,4 +443,15 @@ extension ToolBarFeatureView {
 
 #Preview {
   ToolBarFeatureView.preview
+}
+
+extension UInt64 {
+
+  static func seconds(_ value: Float) -> UInt64 {
+    UInt64(value * 1_000_000_000)
+  }
+
+  static func milliseconds(_ value: Float) -> UInt64 {
+    UInt64(value * 1_000_000)
+  }
 }

@@ -21,7 +21,7 @@ public struct KeyboardFeature {
     @Shared(.keyLabels) var keyLabels
     @Shared(.synthAudioUnit) var synthAudioUnit
     var midiInstrument: AVAudioUnitMIDIInstrument? { synthAudioUnit?.midiInstrument }
-
+    var activeKeyColor: Color = .green
     var scrollTo: Note?
     let settingsDemo: Bool
 
@@ -39,10 +39,12 @@ public struct KeyboardFeature {
     case delegate(Delegate)
     case initialize
     case keyReleased(note: Note)
+    case noVolumeChanged(Bool)
     case scrollTo(Note?)
     case updateVisibleKeys(lowest: Note, highest: Note)
 
     public enum Delegate: Equatable {
+      case noteOn(Note)
       case visibleKeyRangeChanged(lowest: Note, highest: Note)
     }
   }
@@ -60,6 +62,9 @@ public struct KeyboardFeature {
         state.active = .init(repeating: false, count: state.active.count)
         return .none
 
+      case .delegate:
+        return .none
+
       case let .keyAssigned(previous, key):
         return keyAssigned(&state, previous: previous, key: key)
 
@@ -69,15 +74,16 @@ public struct KeyboardFeature {
       case .initialize:
         return initialize(&state)
 
+      case .noVolumeChanged(let silent):
+        state.activeKeyColor = silent ? .red : .green
+        return .none
+
       case let .scrollTo(key):
         state.scrollTo = key
         return .none
 
       case let .updateVisibleKeys(lowest, highest):
         return updateVisibleKeys(&state, lowest: lowest, highest: highest)
-
-      default:
-        return .none
       }
     }
   }
@@ -130,7 +136,7 @@ extension KeyboardFeature {
     log.info("noteOn - \(key) \(state.midiInstrument != nil)")
     state.active[key.midiNoteValue] = true
     state.midiInstrument?.startNote(UInt8(key.midiNoteValue), withVelocity: 127, onChannel: 0)
-    return .none
+    return .send(.delegate(.noteOn(key)))
   }
 
   private func updateVisibleKeys(_ state: inout State, lowest: Note, highest: Note) -> Effect<Action> {
@@ -298,7 +304,7 @@ public struct KeyboardView: View {
 
     return RoundedRectangle(cornerRadius: cornerRadius)
       .fill(color)
-      .fill(eventNoteMap.isOn(note) ? Color.green.opacity(0.3) : .clear)
+      .fill(eventNoteMap.isOn(note) ? store.activeKeyColor.opacity(0.3) : .clear)
       .frame(width: width, height: height + cornerRadius)
       .offset(y: -cornerRadius)
       .id(note)
