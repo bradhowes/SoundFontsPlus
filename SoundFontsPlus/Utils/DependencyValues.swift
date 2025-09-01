@@ -2,7 +2,9 @@
 
 @preconcurrency import AudioUnit.AUParameters
 import Dependencies
+import DependenciesMacros
 
+@DependencyClient
 public struct DelayDevice: Sendable {
   public var setConfig: @Sendable (DelayConfig.Draft) -> Void
 }

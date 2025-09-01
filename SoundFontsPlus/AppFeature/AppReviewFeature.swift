@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Combine
 import ComposableArchitecture
+import Dependencies
 import StoreKit
 import SwiftUI
 
@@ -10,13 +10,14 @@ private let log = Logger(category: "AppReviewFeature")
 @Reducer
 public struct AppReviewFeature {
 
-  let daysAfterFirstLaunchBeforeRequest = 14
-  let monthsBetweenReviewRequests = 3
+  static let daysAfterFirstLaunchBeforeRequest = 14
+  static let monthsBetweenReviewRequests = 3
+  static let initActivityCounter = 5
 
   @ObservableState
   public struct State: Equatable {
     var askForReview: Bool = false
-    var counter: Int = 3
+    var activityCounter: Int = AppReviewFeature.initActivityCounter
   }
 
   public enum Action {
@@ -36,54 +37,61 @@ public struct AppReviewFeature {
       }
     }
   }
+
+  @Dependency(\.date.now) var now
 }
 
 extension AppReviewFeature {
 
+  static func minDateAfterFirstLaunch(_ now: Date) -> Date {
+    Calendar.current.date(
+      byAdding: .day,
+      value: daysAfterFirstLaunchBeforeRequest,
+      to: now
+    )! // swiftlint:disable:this force_unwrapping
+  }
+
+  static func minDateSinceLastReviewRequest(_ now: Date) -> Date {
+    Calendar.current.date(
+      byAdding: .month,
+      value: monthsBetweenReviewRequests,
+      to: now
+    )! // swiftlint:disable:this force_unwrapping
+  }
+
+  static var currentVersion: String { return Bundle.main.releaseVersionNumber }
+
   private func askForReview(_ state: inout State) -> Effect<Action> {
-    let currentVersion: String = Bundle.main.releaseVersionNumber
     @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion
 
-    guard currentVersion != lastReviewRequestVersion else {
+    guard Self.currentVersion != lastReviewRequestVersion else {
       log.debug("same version as last review request")
       return .none
     }
 
-    @Shared(.firstLaunchDate) var firstLaunchDate
-    let minDateAfterFirstLaunch = Calendar.current.date(
-      byAdding: .day,
-      value: daysAfterFirstLaunchBeforeRequest,
-      to: firstLaunchDate
-    ) ?? Date.distantFuture
+    @Dependency(\.date.now) var now
+    @Shared(.nextReviewRequestDate) var nextReviewRequestDate
 
-    let now = Date.now
-    guard now >= minDateAfterFirstLaunch else {
-      log.debug("too soon after first launch")
+    if nextReviewRequestDate == .distantPast {
+      $nextReviewRequestDate.withLock { $0 = Self.minDateAfterFirstLaunch(now) }
+    }
+
+    guard now >= nextReviewRequestDate else {
+      log.debug("before next review request date \(nextReviewRequestDate)")
       return .none
     }
 
-    @Shared(.lastReviewRequestDate) var lastReviewRequestDate
-    let minDateSinceLastReviewRequest = Calendar.current.date(
-      byAdding: .month,
-      value: monthsBetweenReviewRequests,
-      to: lastReviewRequestDate
-    ) ?? Date.distantFuture
-
-    guard now >= minDateSinceLastReviewRequest else {
-      log.debug("too soon after last review request")
-      return .none
-    }
-
-    guard state.counter < 1 else {
-      state.counter -= 1
+    guard state.activityCounter == 1 else {
+      state.activityCounter -= 1
       log.debug("too soon after launching")
       return .none
     }
 
+    state.activityCounter = 0
     state.askForReview = true
 
-    $lastReviewRequestVersion.withLock { $0 = currentVersion }
-    $lastReviewRequestDate.withLock { $0 = now }
+    $lastReviewRequestVersion.withLock { $0 = Self.currentVersion }
+    $nextReviewRequestDate.withLock { $0 = Self.minDateSinceLastReviewRequest(now) }
 
     return .none
   }
@@ -112,4 +120,34 @@ extension View {
   public func appReview(store: StoreOf<AppReviewFeature>) -> some View {
     modifier(AppReviewModifier(store: store))
   }
+}
+
+struct AppReviewDemoView: View {
+  @State var store = StoreOf<AppReviewFeature>(initialState: AppReviewFeature.State()) { AppReviewFeature() }
+
+  init() {
+    prepareDependencies {
+      let now = Date(timeIntervalSince1970: 0)
+      $0.date.now = now
+      @Shared(.nextReviewRequestDate) var nextReviewRequestDate
+      $nextReviewRequestDate.withLock { $0 = now }
+    }
+  }
+
+  var body: some View {
+    VStack(spacing: 20) {
+      Text("Hello, World!")
+        .appReview(store: store)
+      Text("\(store.activityCounter) - \(store.askForReview)")
+      Button {
+        store.send(.ask)
+      } label: {
+        Text("Ask for review")
+      }
+    }
+  }
+}
+
+#Preview {
+  AppReviewDemoView()
 }

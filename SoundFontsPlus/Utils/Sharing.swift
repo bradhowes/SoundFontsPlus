@@ -51,6 +51,7 @@ extension SharedKey where Self == AppStorageKey<String>.Default {
 extension SharedKey where Self == AppStorageKey<Date>.Default {
   public static var firstLaunchDate: Self { Self[.appStorage("firstLaunchDate"), default: .now] }
   public static var lastReviewRequestDate: Self { Self[.appStorage("lastReviewRequestDate"), default: .distantPast] }
+  public static var nextReviewRequestDate: Self { Self[.appStorage("nextReviewRequestDate"), default: .distantPast] }
 }
 
 // MARK: - AppStorage Int settings

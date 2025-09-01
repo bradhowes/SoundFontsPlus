@@ -213,7 +213,7 @@ private extension AppFeature {
       .concatenate(
         .run { _ in await volumeMonitor.start() },
         .run { _ in
-          Task {
+          DispatchQueue.global(qos: .utility).async {
             if let url = FileManager.default.cloudDocumentsDirectory {
               log.info("iCloud documents directory: \(url)")
             } else {
