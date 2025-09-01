@@ -99,7 +99,7 @@ extension BaseSuite {
       store.send(.ask)
 
       withSnapshotTesting(record: .failed) {
-        assertSnapshot(of: vc, as: .image(on: .iPhoneSe, drawHierarchyInKeyWindow: true))
+        assertSnapshot(of: vc, as: .image(on: .iPhoneSe))
       }
     }
   }
