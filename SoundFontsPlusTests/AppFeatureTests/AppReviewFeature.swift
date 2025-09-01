@@ -98,6 +98,7 @@ extension BaseSuite {
       let vc = UIHostingController(rootView: AppReviewDemoView(store: store))
       store.send(.ask)
 
+      guard !BaseSuite.isOnGithub else { return }
       withSnapshotTesting(record: .failed) {
         assertSnapshot(of: vc, as: .image(on: .iPhoneSe))
       }
