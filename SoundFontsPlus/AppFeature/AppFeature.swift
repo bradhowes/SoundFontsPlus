@@ -12,7 +12,6 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 private let log = Logger(category: "AppFeature")
-@MainActor private let volumeMonitor: VolumeMonitor = .init()
 
 @Reducer
 struct AppFeature {
@@ -30,17 +29,18 @@ struct AppFeature {
     @ObservationStateIgnored
     @FetchAll var soundFontInfos: [SoundFontInfo]
 
-    var soundFontsList: SoundFontsList.State = .init()
-    var presetsList: PresetsList.State = .init()
-    var tagsList: TagsList.State = .init()
-    var toolBar: ToolBarFeature.State = .init()
-    var tagsSplit: SplitViewReducer.State
-    var presetsSplit: SplitViewReducer.State
-    var keyboard: KeyboardFeature.State = .init()
-    var synth: SynthFeature.State = .init()
-    var delay: DelayFeature.State = .init()
-    var reverb: ReverbFeature.State = .init()
     var appReview: AppReviewFeature.State = .init()
+    var delay: DelayFeature.State = .init()
+    var keyboard: KeyboardFeature.State = .init()
+    var presetsList: PresetsList.State = .init()
+    var presetsSplit: SplitViewReducer.State
+    var reverb: ReverbFeature.State = .init()
+    var soundFontsList: SoundFontsList.State = .init()
+    var synth: SynthFeature.State = .init()
+    var tagsList: TagsList.State = .init()
+    var tagsSplit: SplitViewReducer.State
+    var toolBar: ToolBarFeature.State = .init()
+    var volumeMonitor: VolumeMonitorFeature.State = .init()
 
     init() {
       _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
@@ -73,6 +73,7 @@ struct AppFeature {
     case tagsList(TagsList.Action)
     case tagsSplit(SplitViewReducer.Action)
     case toolBar(ToolBarFeature.Action)
+    case volumeMonitor(VolumeMonitorFeature.Action)
   }
 
   var body: some ReducerOf<Self> {
@@ -89,6 +90,7 @@ struct AppFeature {
     Scope(state: \.tagsList, action: \.tagsList) { TagsList() }
     Scope(state: \.tagsSplit, action: \.tagsSplit) { SplitViewReducer() }
     Scope(state: \.toolBar, action: \.toolBar) { ToolBarFeature() }
+    Scope(state: \.volumeMonitor, action: \.volumeMonitor) { VolumeMonitorFeature() }
 
     Reduce { state, action in
       switch action {
@@ -96,9 +98,8 @@ struct AppFeature {
       case let .activePresetIdChanged(presetId):
         return .merge(
           reduce(into: &state, action: .appReview(.ask)),
-          .run { _ in
-            await volumeMonitor.presetChanged(presetId)
-          }
+          reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId))),
+          reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId)))
         )
 
       case .appReview:
@@ -175,6 +176,12 @@ struct AppFeature {
 
       case .toolBar:
         return .none
+
+      case .volumeMonitor(.delegate(.noVolumeReasonChanged(let reason))):
+        return reduce(into: &state, action: .keyboard(.noVolumeChanged(reason != nil)))
+
+      case .volumeMonitor:
+        return .none
       }
     }.ifLet(\.$destination, action: \.destination)
   }
@@ -211,7 +218,6 @@ private extension AppFeature {
   func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
       .concatenate(
-        .run { _ in await volumeMonitor.start() },
         .run { _ in
           DispatchQueue.global(qos: .utility).async {
             if let url = FileManager.default.cloudDocumentsDirectory {
@@ -237,11 +243,14 @@ private extension AppFeature {
   }
 
   func monitorKeyboardAction(_ state: inout State, action: KeyboardFeature.Action.Delegate) -> Effect<Action> {
-    if case let .visibleKeyRangeChanged(lowest, highest) = action {
+    switch action {
+    case .noteOn(let key):
+      return reduce(into: &state, action: .toolBar(.lastPlayedKeyChanged(key)))
+
+    case let .visibleKeyRangeChanged(lowest, highest):
       $firstVisibleKey.withLock { $0 = lowest }
       return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
     }
-    return .none
   }
 
   func monitorPresetsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
@@ -389,6 +398,7 @@ struct AppFeatureView: View, KeyboardReadable {
       verticalSizeClass: verticalSizeClass
     )
     .appReview(store: store.scope(state: \.appReview, action: \.appReview))
+    .volumeMonitorHUD(store: store.scope(state: \.volumeMonitor, action: \.volumeMonitor))
   }
 
   private var listViews: some View {

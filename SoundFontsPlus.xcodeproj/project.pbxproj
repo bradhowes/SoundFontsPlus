@@ -46,7 +46,7 @@
 		BD59D4EE2E47C80A00B2250B /* MIDIAssignmentsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4ED2E47C80A00B2250B /* MIDIAssignmentsFeature.swift */; };
 		BD59D4F02E480E3600B2250B /* MIDIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4EF2E480E3600B2250B /* MIDIConfig.swift */; };
 		BD673BB72DFB44D600574F9C /* WithDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD673BB62DFB44D100574F9C /* WithDatabase.swift */; };
-		BD76C1592E23C57E00F5B1F5 /* VolumeMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1582E23C57E00F5B1F5 /* VolumeMonitor.swift */; };
+		BD76C1592E23C57E00F5B1F5 /* VolumeMonitorFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1582E23C57E00F5B1F5 /* VolumeMonitorFeature.swift */; };
 		BD76C15C2E23C5F700F5B1F5 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */; };
 		BD76C1602E23CD2C00F5B1F5 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C15F2E23CD2C00F5B1F5 /* Logging.swift */; };
 		BD76C1642E23E27600F5B1F5 /* Notification.Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1632E23E27600F5B1F5 /* Notification.Name.swift */; };
@@ -238,7 +238,7 @@
 		BD5A65612D984945008B8117 /* SoundFontsPlus.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SoundFontsPlus.xctestplan; sourceTree = "<group>"; };
 		BD61F0242E11A69800DD8903 /* SoundFontsPlusAU.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SoundFontsPlusAU.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD673BB62DFB44D100574F9C /* WithDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithDatabase.swift; sourceTree = "<group>"; };
-		BD76C1582E23C57E00F5B1F5 /* VolumeMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeMonitor.swift; sourceTree = "<group>"; };
+		BD76C1582E23C57E00F5B1F5 /* VolumeMonitorFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeMonitorFeature.swift; sourceTree = "<group>"; };
 		BD76C15F2E23CD2C00F5B1F5 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		BD76C1632E23E27600F5B1F5 /* Notification.Name.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.Name.swift; sourceTree = "<group>"; };
 		BD7B05142E4FDCCE006628F3 /* FileImporterViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImporterViewModifier.swift; sourceTree = "<group>"; };
@@ -587,7 +587,7 @@
 				BDAF5A982DE254F400B8FB13 /* AppFeature.swift */,
 				BDA11AFD2E61C3B800941A41 /* AppReviewFeature.swift */,
 				BDA11AF92E617FEF00941A41 /* DisableIdleTimer.swift */,
-				BD76C1582E23C57E00F5B1F5 /* VolumeMonitor.swift */,
+				BD76C1582E23C57E00F5B1F5 /* VolumeMonitorFeature.swift */,
 			);
 			path = AppFeature;
 			sourceTree = "<group>";
@@ -1214,7 +1214,7 @@
 				BDBDDEB12DE658E700C2CD87 /* SoundFontInfo.swift in Sources */,
 				BDAF5B222DE2559E00B8FB13 /* Note.swift in Sources */,
 				BDAF5B232DE2559E00B8FB13 /* KeyLabels.swift in Sources */,
-				BD76C1592E23C57E00F5B1F5 /* VolumeMonitor.swift in Sources */,
+				BD76C1592E23C57E00F5B1F5 /* VolumeMonitorFeature.swift in Sources */,
 				BDB9FEF92E06875D003BA0A2 /* ReverbRoomPresetPickerView.swift in Sources */,
 				BDAF5AA22DE2551A00B8FB13 /* EventNoteMap.swift in Sources */,
 				BDAF5AA32DE2551A00B8FB13 /* KeyboardFeature.swift in Sources */,

@@ -188,6 +188,10 @@ extension Note: RawRepresentable {
 
     self.init(midiNoteValue: midiNoteValue)
   }
+
+  public func fullLabel(withSolfege: Bool) -> String {
+    self.label + (withSolfege ? " (\(self.solfege))" : "")
+  }
 }
 
 extension Note: Comparable {

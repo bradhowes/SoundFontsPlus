@@ -36,6 +36,7 @@ public struct SettingsFeature {
 
     @Shared(.keyWidth) var keyWidth
     @Shared(.keyboardSlides) var keyboardSlides
+    @Shared(.showKeyNotes) var showKeyNotes
     @Shared(.showSolfegeTags) var showSolfegeTags
     @Shared(.keyLabels) var keyLabels
     @Shared(.midiAutoConnect) var midiAutoConnect
@@ -336,8 +337,12 @@ extension SettingsView {
         }
         .pickerStyle(.segmented)
       }
+      Toggle(isOn: $store.showKeyNotes) {
+        Text("Show key note in toolbar")
+      }
+      .checkedStyle()
       Toggle(isOn: $store.showSolfegeTags) {
-        Text("Solfège tags")
+        Text("Show solfège tag in toolbar")
       }
       .checkedStyle()
       Toggle(isOn: $store.keyboardSlides) {
