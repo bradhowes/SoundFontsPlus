@@ -585,9 +585,9 @@
 			children = (
 				BD050EE02E23C2EB00706CC4 /* LaunchScreen.storyboard */,
 				BDAF5A982DE254F400B8FB13 /* AppFeature.swift */,
+				BDA11AFD2E61C3B800941A41 /* AppReviewFeature.swift */,
 				BDA11AF92E617FEF00941A41 /* DisableIdleTimer.swift */,
 				BD76C1582E23C57E00F5B1F5 /* VolumeMonitor.swift */,
-				BDA11AFD2E61C3B800941A41 /* AppReviewFeature.swift */,
 			);
 			path = AppFeature;
 			sourceTree = "<group>";
