@@ -2,6 +2,7 @@
 
 @preconcurrency import AVFAudio
 import ComposableArchitecture
+import Dependencies
 import MorkAndMIDI
 import SwiftUI
 
@@ -37,7 +38,9 @@ struct SoundFontsPlusApp: App {
 
   var body: some Scene {
     WindowGroup {
-      ContentView()
+      if !isTesting {
+        ContentView()
+      }
     }
   }
 }
