@@ -219,13 +219,13 @@ private extension AppFeature {
     .merge(
       .concatenate(
         .run { _ in
-          DispatchQueue.global(qos: .utility).async {
+          Task.detached(priority: .medium) {
             if let url = FileManager.default.cloudDocumentsDirectory {
               log.info("iCloud documents directory: \(url)")
             } else {
               log.error("iCloud documents directory is not available")
             }
-            Self.disableIdleTimer()
+            await Self.disableIdleTimer()
           }
         },
         monitorActivePresetId()
