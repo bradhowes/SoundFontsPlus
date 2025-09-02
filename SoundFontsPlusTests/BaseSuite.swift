@@ -7,9 +7,7 @@ import SwiftUI
 
 @testable import SoundFontsPlus
 
-@Suite(.dependencies) struct BaseSuite {
-  static let isOnGithub = ProcessInfo.processInfo.environment["XCTestBundlePath"]?.contains("/Users/runner/work") ?? false
-}
+@Suite(.dependencies) struct BaseSuite {}
 
 public struct __SnapshotTestViewWrapper<Content: View>: View {
   let size: CGSize
@@ -53,6 +51,7 @@ func assertSnapshot<V: SwiftUI.View>(
 ) throws {
   let uniqueTestName = makeUniqueSnapshotName(testName)
   let isOnGithub = (ProcessInfo.processInfo.environment["GITHUB_STEP_SUMMARY"] ?? "").count > 0
+  print("GITHUB_STEP_SUMMARY: \(ProcessInfo.processInfo.environment["GITHUB_STEP_SUMMARY"] ?? "")")
 
 #if os(iOS)
 
