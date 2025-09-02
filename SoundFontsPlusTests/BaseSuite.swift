@@ -52,8 +52,7 @@ func assertSnapshot<V: SwiftUI.View>(
   col: Int = #column
 ) throws {
   let uniqueTestName = makeUniqueSnapshotName(testName)
-  // let isOnGithub = ProcessInfo.processInfo.environment["XCTestBundlePath"]?.contains("/Users/runner/work") ?? false
-  let isOnGithub = ProcessInfo.processInfo.processName == "xctest"
+  let isOnGithub = (ProcessInfo.processInfo.environment["GITHUB_STEP_SUMMARY"] ?? "").count > 0
 
 #if os(iOS)
 
