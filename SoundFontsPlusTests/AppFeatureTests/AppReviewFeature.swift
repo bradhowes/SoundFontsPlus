@@ -98,7 +98,6 @@ extension BaseSuite {
       let view = AppReviewDemoView(store: store)
       store.send(.ask)
 
-      guard !BaseSuite.isOnGithub else { return }
       try withSnapshotTesting(record: .failed) {
         try assertSnapshot(matching: view, colorScheme: .dark, background: .black)
       }
