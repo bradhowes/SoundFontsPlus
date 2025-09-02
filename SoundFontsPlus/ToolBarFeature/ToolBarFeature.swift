@@ -180,7 +180,7 @@ private extension ToolBarFeature {
 
   func hideMoreButtons(_ state: inout State) -> Effect<Action> {
     state.showMoreButtons = false
-    return .none
+    return .none.animation(.smooth)
   }
 
   func initialize(_ state: inout State) -> Effect<Action> {
@@ -232,7 +232,7 @@ private extension ToolBarFeature {
     guard let key else {
       log.info("cleared lastPlayedKey")
       state.lastPlayedKey = nil
-      return .none
+      return .none.animation(.smooth)
     }
 
     state.lastPlayedKey = key
@@ -242,7 +242,9 @@ private extension ToolBarFeature {
       try await Task.sleep(nanoseconds: .seconds(1.8))
       log.info("clearing lastPlayedKey")
       await send(.lastPlayedKeyChanged(nil))
-    }.cancellable(id: CancelId.lastPlayedKeyChanged, cancelInFlight: true)
+    }
+    .cancellable(id: CancelId.lastPlayedKeyChanged, cancelInFlight: true)
+    .animation(.smooth)
   }
 
   func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
@@ -266,7 +268,7 @@ private extension ToolBarFeature {
       state.editingPresetVisibility = false
       return .send(.delegate(.editingPresetVisibilityChanged(false)))
     }
-    return .none
+    return .none.animation(.smooth)
   }
 
   func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
@@ -337,6 +339,7 @@ public struct ToolBarFeatureView: View {
     return Text(store.lastPlayedKey?.fullLabel(withSolfege: showSolfegeTags) ?? store.preset?.displayName ?? "—")
       .font(.status)
       .indicator(.activeNoIndicator)
+      .contentTransition(.interpolate)
       .onTapGesture {
         store.send(.delegate(.presetNameTapped))
       }
