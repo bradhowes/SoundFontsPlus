@@ -30,18 +30,18 @@ public struct PresetButton {
     case toggleVisibility
 
     @CasePathable
+    public enum Delegate: Equatable {
+      case createFavorite(Preset)
+      case editPreset(Preset)
+      case hideOrDeletePreset(Preset)
+      case selectPreset(Preset)
+    }
+
+    @CasePathable
     public enum ConfirmationDialog {
       case cancelButtonTapped
       case hideButtonTapped
     }
-  }
-
-  @CasePathable
-  public enum Delegate: Equatable {
-    case createFavorite(Preset)
-    case editPreset(Preset)
-    case hideOrDeletePreset(Preset)
-    case selectPreset(Preset)
   }
 
   @Shared(.stopConfirmingPresetHiding) var stopConfirmingPresetHiding
