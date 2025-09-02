@@ -246,6 +246,7 @@ private extension AppFeature {
     switch action {
     case .noteOn(let key):
       return reduce(into: &state, action: .toolBar(.lastPlayedKeyChanged(key)))
+        .animation(.smooth)
 
     case let .visibleKeyRangeChanged(lowest, highest):
       $firstVisibleKey.withLock { $0 = lowest }
@@ -282,7 +283,7 @@ private extension AppFeature {
     case let .effectsVisibilityChanged(visible):
       @Shared(.effectsVisible) var effectsVisible
       $effectsVisible.withLock { $0 = visible }
-      return .none
+      return .none.animation(.smooth)
 
     case .presetNameTapped:
       return .merge(

@@ -551,8 +551,8 @@
 		BD7B05152E4FDD01006628F3 /* FileImporterFeature */ = {
 			isa = PBXGroup;
 			children = (
-				BD7B05162E4FDD40006628F3 /* FileImporterPrompts.swift */,
 				BDDC25BC2E4E67990098CA10 /* FileImporterFeature.swift */,
+				BD7B05162E4FDD40006628F3 /* FileImporterPrompts.swift */,
 				BD7B05142E4FDCCE006628F3 /* FileImporterViewModifier.swift */,
 			);
 			path = FileImporterFeature;
