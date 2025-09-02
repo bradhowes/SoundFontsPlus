@@ -95,12 +95,12 @@ extension BaseSuite {
         activityCounter: 4
       )) { AppReviewFeature() }
 
-      let vc = UIHostingController(rootView: AppReviewDemoView(store: store))
+      let view = AppReviewDemoView(store: store)
       store.send(.ask)
 
       guard !BaseSuite.isOnGithub else { return }
-      withSnapshotTesting(record: .failed) {
-        assertSnapshot(of: vc, as: .image(on: .iPhoneSe))
+      try withSnapshotTesting(record: .failed) {
+        try assertSnapshot(matching: view, colorScheme: .dark, background: .black)
       }
     }
   }
