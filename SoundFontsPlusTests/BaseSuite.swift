@@ -59,9 +59,9 @@ func assertSnapshot<V: SwiftUI.View>(
   print("*** assertSnapshot - iOS")
 
   print("*** assertSnapshot - before view")
-//  let view = __SnapshotTestViewWrapper(size: size, colorScheme: colorScheme, background: background) {
-//    matching
-//  }
+  let view = __SnapshotTestViewWrapper(size: size, colorScheme: colorScheme, background: background) {
+    matching
+  }
 
   print("*** assertSnapshot - before verifySnapshot")
 
