@@ -64,27 +64,28 @@ func assertSnapshot<V: SwiftUI.View>(
   }
 
   print("*** assertSnapshot - before verifySnapshot")
+  guard isOnGithub else { return }
 
-//  if let result = SnapshotTesting.verifySnapshot(
-//    of: view,
-//    as: .image(
-//      drawHierarchyInKeyWindow: false,
-//      layout: .fixed(width: size.width, height: size.height)
-//    ),
-//    named: uniqueTestName,
-//    file: file,
-//    testName: "\(testName)",
-//    line: UInt(line)
-//  ) {
-//    print("*** result: \(result)")
-//    print("uniqueTestName:", uniqueTestName)
-//    print("file:", file)
-//    if isOnGithub {
-//      print("***", result)
-//    } else {
-//      Issue.record(Comment(rawValue: result), sourceLocation: .init(fileID: "\(fileID)", filePath: "\(file)", line: line, column: col))
-//    }
-//  }
+  if let result = SnapshotTesting.verifySnapshot(
+    of: view,
+    as: .image(
+      drawHierarchyInKeyWindow: false,
+      layout: .fixed(width: size.width, height: size.height)
+    ),
+    named: uniqueTestName,
+    file: file,
+    testName: "\(testName)",
+    line: UInt(line)
+  ) {
+    print("*** result: \(result)")
+    print("uniqueTestName:", uniqueTestName)
+    print("file:", file)
+    if isOnGithub {
+      print("***", result)
+    } else {
+      Issue.record(Comment(rawValue: result), sourceLocation: .init(fileID: "\(fileID)", filePath: "\(file)", line: line, column: col))
+    }
+  }
 #endif
 }
 
