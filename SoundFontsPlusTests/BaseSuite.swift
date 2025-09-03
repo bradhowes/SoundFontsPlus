@@ -5,7 +5,7 @@ import SnapshotTesting
 import Testing
 import SwiftUI
 
-@testable import SoundFontsPlus
+// @testable import SoundFontsPlus
 
 @Suite(.dependencies) struct BaseSuite {}
 
@@ -49,15 +49,21 @@ func assertSnapshot<V: SwiftUI.View>(
   line: Int = #line,
   col: Int = #column
 ) throws {
+  print("*** assertSnapshot")
   let uniqueTestName = makeUniqueSnapshotName(testName)
+  print("*** assertSnapshot - \(uniqueTestName)")
   let isOnGithub = (ProcessInfo.processInfo.environment["GITHUB_STEP_SUMMARY"] ?? "").count > 0
-  print("GITHUB_STEP_SUMMARY: \(ProcessInfo.processInfo.environment["GITHUB_STEP_SUMMARY"] ?? "")")
+  print("*** GITHUB_STEP_SUMMARY: \(ProcessInfo.processInfo.environment["GITHUB_STEP_SUMMARY"] ?? "")")
 
 #if os(iOS)
+  print("*** assertSnapshot - iOS")
 
+  print("*** assertSnapshot - before view")
   let view = __SnapshotTestViewWrapper(size: size, colorScheme: colorScheme, background: background) {
     matching
   }
+
+  print("*** assertSnapshot - before verifySnapshot")
 
   if let result = SnapshotTesting.verifySnapshot(
     of: view,
@@ -70,6 +76,7 @@ func assertSnapshot<V: SwiftUI.View>(
     testName: "\(testName)",
     line: UInt(line)
   ) {
+    print("*** result: \(result)")
     print("uniqueTestName:", uniqueTestName)
     print("file:", file)
     if isOnGithub {
