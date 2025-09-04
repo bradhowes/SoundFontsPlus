@@ -26,3 +26,31 @@ extension AVAudioSession {
     return (observerToken, stream)
   }
 }
+
+final class OutputVolumeFlipFlop: @unchecked Sendable {
+  var continuation: AsyncStream<Float>.Continuation?
+  var currentValue: Float = 1.0
+
+  func getValue() -> Float { self.currentValue }
+
+  func startObserving() -> (NSKeyValueObservation?, AsyncStream<Float>) {
+    let stream = AsyncStream { continuation in
+      self.continuation = continuation
+    }
+    return (nil, stream)
+  }
+
+  @discardableResult
+  func advance() -> Float {
+    self.currentValue = 1.0 - self.currentValue
+    continuation?.yield(self.currentValue)
+    return self.currentValue
+  }
+
+  func outputVolume() -> OutputVolume {
+    .init(
+      getValue: { self.getValue() },
+      startObserving: { self.startObserving() }
+    )
+  }
+}

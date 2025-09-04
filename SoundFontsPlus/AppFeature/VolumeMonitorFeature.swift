@@ -11,10 +11,8 @@ private let log = Logger(category: "VolumeMonitor")
 public struct VolumeMonitorFeature {
 
   public enum Reason {
-    /// Volume level is at zero
-    case volumeLevel
-    /// There is no preset active in the synth
-    case noPreset
+    case volumeLevelIsZero
+    case noActivePreset
   }
 
   @ObservableState
@@ -29,6 +27,7 @@ public struct VolumeMonitorFeature {
     case activePresetIdChanged(Preset.ID?)
     case delegate(Delegate)
     case initialize
+    case deinitialize
     case volumeChanged(Float)
 
     public enum Delegate {
@@ -41,6 +40,9 @@ public struct VolumeMonitorFeature {
   public var body: some Reducer<State, Action> {
     Reduce { state, action in
       switch action {
+      case .deinitialize:
+        return .cancel(id: CancelId.monitorSessionVolume)
+
       case .initialize:
         return initialize(&state)
 
@@ -59,7 +61,6 @@ public struct VolumeMonitorFeature {
   @Dependency(\.outputVolume) var outputVolume
 
   private enum CancelId {
-    case monitorActivePresetId
     case monitorSessionVolume
   }
 }
@@ -67,10 +68,6 @@ public struct VolumeMonitorFeature {
 private extension VolumeMonitorFeature {
 
   func initialize(_ state: inout State) -> Effect<Action> {
-    monitorSessionVolume(&state)
-  }
-
-  func monitorSessionVolume(_ state: inout State) -> Effect<Action> {
     let stream: AsyncStream<Float>
     (state.observerToken, stream) = outputVolume.startObserving()
     return .run { send in
@@ -85,15 +82,19 @@ private extension VolumeMonitorFeature {
   }
 
   func updateReason(_ state: inout State, volume: Float, presetId: Preset.ID?) -> Effect<Action> {
-    if volume < 0.01 {
-      state.noVolumeReason = .volumeLevel
-    } else if presetId == nil {
-      state.noVolumeReason = .noPreset
-    } else {
-      state.noVolumeReason = .none
+    let newReason: Reason? = switch (volume > 0, presetId != nil) {
+    case (true, true): nil
+    case (false, true): .volumeLevelIsZero
+    case (true, false): .noActivePreset
+    case (false, false): state.noVolumeReason
     }
 
-    return .send(.delegate(.mutedVolume(state.noVolumeReason)))
+    if newReason != state.noVolumeReason {
+      state.noVolumeReason = newReason
+      return .send(.delegate(.mutedVolume(state.noVolumeReason)))
+    }
+
+    return .none
   }
 
   func volumeChanged(_ state: inout State, volume: Float) -> Effect<Action> {
@@ -115,11 +116,11 @@ public struct VolumeMonitorModifier: ViewModifier {
       }
       .onChange(of: store.noVolumeReason) {
         switch store.noVolumeReason {
-        case .volumeLevel:
+        case .volumeLevelIsZero:
           ProgressHUD.colorBanner = .systemRed
           ProgressHUD.banner("Volume", "Volume set to 0.", delay: 120.0)
 
-        case .noPreset:
+        case .noActivePreset:
           ProgressHUD.colorBanner = .systemRed
           ProgressHUD.banner("Preset", "No active preset.", delay: 120.0)
 
@@ -137,23 +138,57 @@ extension View {
 }
 
 struct VolumeMonitorDemoView: View {
-  @State var store: StoreOf<VolumeMonitorFeature>
+  private let volumes: OutputVolumeFlipFlop
+  @State private var volume: Float
+  @State private var store: StoreOf<VolumeMonitorFeature>
+  @Shared(.activeState) var activeState
 
-  init(store: StoreOf<VolumeMonitorFeature>) {
+  init(volumes: OutputVolumeFlipFlop, store: StoreOf<VolumeMonitorFeature>) {
+    self.volumes = volumes
     self.store = store
+    self.volume = self.volumes.getValue()
+    $activeState.activePresetId.withLock { $0 = Preset.ID(rawValue: 1) }
   }
 
   var body: some View {
     VStack(spacing: 20) {
-      Text("Hello, World!")
+      Text("Volume: \(volume)")
+      Text("Preset ID: \(String(describing: activeState.activePresetId))")
         .volumeMonitorHUD(store: store)
+      HStack {
+        Button {
+          Task {
+            volume = volumes.advance()
+          }
+        } label: {
+          Text("Toggle Volume")
+        }
+        Button {
+          Task {
+            let newValue: Preset.ID?
+            if activeState.activePresetId == nil {
+              newValue = Preset.ID(rawValue: 1)
+            } else {
+              newValue = nil
+            }
+            store.send(.activePresetIdChanged(newValue))
+            $activeState.activePresetId.withLock { $0 = newValue }
+          }
+
+        } label: {
+          Text("Toggle PresetId")
+        }
+      }
     }
   }
 }
 
 #Preview {
+  let volumes = OutputVolumeFlipFlop()
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies { $0.outputVolume = volumes.outputVolume() }
   let store: StoreOf<VolumeMonitorFeature> = .init(initialState: VolumeMonitorFeature.State()) {
     VolumeMonitorFeature()
   }
-  VolumeMonitorDemoView(store: store)
+  VolumeMonitorDemoView(volumes: volumes, store: store)
 }
