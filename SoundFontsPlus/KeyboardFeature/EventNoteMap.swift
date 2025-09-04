@@ -23,6 +23,7 @@ public struct EventNoteMap: Equatable {
 
    - parameter event: the spatial event to track
    - parameter note: the `Note` assigned to the event
+   - parameter fixedKeys: true if the key position is fixed
    - returns: 2-tuple containing a `Note` that was released by the activity of this event,
    and a bool if first assignment for the `Note`.
    */

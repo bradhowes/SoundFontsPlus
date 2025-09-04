@@ -2,6 +2,7 @@
 
 import AVKit
 import ComposableArchitecture
+import Dependencies
 import ProgressHUD
 import SwiftUI
 
@@ -132,4 +133,26 @@ extension View {
   public func volumeMonitorHUD(store: StoreOf<VolumeMonitorFeature>) -> some View {
     modifier(VolumeMonitorModifier(store: store))
   }
+}
+
+struct VolumeMonitorDemoView: View {
+  @State var store: StoreOf<VolumeMonitorFeature>
+
+  init(store: StoreOf<VolumeMonitorFeature>) {
+    self.store = store
+  }
+
+  var body: some View {
+    VStack(spacing: 20) {
+      Text("Hello, World!")
+        .volumeMonitorHUD(store: store)
+    }
+  }
+}
+
+#Preview {
+  let store: StoreOf<VolumeMonitorFeature> = .init(initialState: VolumeMonitorFeature.State()) {
+    VolumeMonitorFeature()
+  }
+  VolumeMonitorDemoView(store: store)
 }

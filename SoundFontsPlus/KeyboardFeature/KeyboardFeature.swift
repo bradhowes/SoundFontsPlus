@@ -4,6 +4,7 @@
 import ComposableArchitecture
 import Dependencies
 import SF2LibAU
+import Sharing
 import SwiftUI
 
 private let log = Logger(category: "Keyboard")
@@ -17,9 +18,9 @@ public struct KeyboardFeature {
     var active: [Bool] = .init(repeating: false, count: Note.midiRange.count)
 
     @Shared(.keyWidth) var keyWidth
-    @Shared(.keyboardSlides) var keyboardSlides
     @Shared(.keyLabels) var keyLabels
     @Shared(.synthAudioUnit) var synthAudioUnit
+
     var midiInstrument: AVAudioUnitMIDIInstrument? { synthAudioUnit?.midiInstrument }
     var activeKeyColor: Color = .green
     var scrollTo: Note?
@@ -152,6 +153,8 @@ public struct KeyboardView: View {
   @State private var eventNoteMap = EventNoteMap()
   @State private var frames: [CGRect] = Array(repeating: .zero, count: Note.midiRange.count)
 
+  @Shared(.keyboardSlides) private var keyboardSlides
+
   @Environment(\.verticalSizeClass) private var verticalSizeClass
   @Environment(\.keyboardHeight) private var keyboardHeight
 
@@ -170,12 +173,10 @@ public struct KeyboardView: View {
   public var body: some View {
     ScrollViewReader { proxy in
       ScrollView(.horizontal) {
-        if store.keyboardSlides {
-          scrollingKeys
-        } else {
-          fixedKeys
-        }
+        keys
       }
+      .scrollDisabled(!keyboardSlides)
+      .scrollIndicators(.hidden)
       .onChange(of: store.scrollTo) { old, new in
         if let key = new, old != key {
           if store.settingsDemo {
@@ -218,15 +219,7 @@ public struct KeyboardView: View {
     }
   }
 
-  public var fixedKeys: some View {
-    whiteKeys
-      .overlay(alignment: .topLeading) {
-        blackKeys
-      }
-      .highPriorityGesture(spatialEventGesture)
-  }
-
-  public var scrollingKeys: some View {
+  public var keys: some View {
     whiteKeys
       .overlay(alignment: .topLeading) {
         blackKeys
@@ -325,7 +318,7 @@ public struct KeyboardView: View {
     let pos = frames.orderedInsertionIndex(for: event.location)
     guard pos < frames.endIndex else { return }
     let note = Note(midiNoteValue: frames.distance(from: frames.startIndex, to: pos))
-    let update = eventNoteMap.assign(event: event, note: note, fixedKeys: !store.keyboardSlides)
+    let update = eventNoteMap.assign(event: event, note: note, fixedKeys: !keyboardSlides)
     if update.previous != nil || update.firstTime {
       store.send(.keyAssigned(previous: update.previous, note: note))
     }
