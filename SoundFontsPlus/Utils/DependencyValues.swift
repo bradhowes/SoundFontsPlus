@@ -8,7 +8,7 @@ import DependenciesMacros
 @DependencyClient
 public struct OutputVolume: Sendable {
   public let getValue: @Sendable () -> AUValue
-  public let startObserving: @Sendable () -> (NSKeyValueObservation, AsyncStream<Float>)
+  public let startObserving: @Sendable () -> (NSKeyValueObservation?, AsyncStream<Float>)
 }
 
 extension OutputVolume: DependencyKey {
