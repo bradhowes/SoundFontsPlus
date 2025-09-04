@@ -1,6 +1,5 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVKit
 import ComposableArchitecture
 import Dependencies
 import ProgressHUD
@@ -33,7 +32,7 @@ public struct VolumeMonitorFeature {
     case volumeChanged(Float)
 
     public enum Delegate {
-      case noVolumeReasonChanged(Reason?)
+      case mutedVolume(Reason?)
     }
   }
 
@@ -57,6 +56,8 @@ public struct VolumeMonitorFeature {
     }
   }
 
+  @Dependency(\.outputVolume) var outputVolume
+
   private enum CancelId {
     case monitorActivePresetId
     case monitorSessionVolume
@@ -71,7 +72,7 @@ private extension VolumeMonitorFeature {
 
   func monitorSessionVolume(_ state: inout State) -> Effect<Action> {
     let stream: AsyncStream<Float>
-    (state.observerToken, stream) = AVAudioSession.sharedInstance().startObservingOutputVolume()
+    (state.observerToken, stream) = outputVolume.startObserving()
     return .run { send in
       for await value in stream {
         await send(.volumeChanged(value))
@@ -80,7 +81,7 @@ private extension VolumeMonitorFeature {
   }
 
   func presetChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
-    updateReason(&state, volume: AVAudioSession.sharedInstance().outputVolume, presetId: presetId)
+    updateReason(&state, volume: outputVolume.getValue(), presetId: presetId)
   }
 
   func updateReason(_ state: inout State, volume: Float, presetId: Preset.ID?) -> Effect<Action> {
@@ -92,7 +93,7 @@ private extension VolumeMonitorFeature {
       state.noVolumeReason = .none
     }
 
-    return .send(.delegate(.noVolumeReasonChanged(state.noVolumeReason)))
+    return .send(.delegate(.mutedVolume(state.noVolumeReason)))
   }
 
   func volumeChanged(_ state: inout State, volume: Float) -> Effect<Action> {
