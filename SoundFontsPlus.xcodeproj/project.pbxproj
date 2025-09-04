@@ -17,7 +17,6 @@
 		BD171EDC2E47A9F700E2EDA7 /* MorkAndMIDI in Frameworks */ = {isa = PBXBuildFile; productRef = BD171EDB2E47A9F700E2EDA7 /* MorkAndMIDI */; };
 		BD1774DB2E6386A20029D195 /* FluidR3_GM.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BD1774DA2E6386A20029D195 /* FluidR3_GM.sf2 */; };
 		BD1774E12E64A5EC0029D195 /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = BD1774E02E64A5EC0029D195 /* Dependencies */; };
-		BD1774E32E64A9820029D195 /* BaseSuite.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1774E22E64A97D0029D195 /* BaseSuite.swift */; };
 		BD1774E52E64AD400029D195 /* DependenciesMacros in Frameworks */ = {isa = PBXBuildFile; productRef = BD1774E42E64AD400029D195 /* DependenciesMacros */; };
 		BD1774E92E657FA00029D195 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD1774E82E657FA00029D195 /* SnapshotTesting */; };
 		BD1D27832B6F13DD005C3ED0 /* SoundFontsPlusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27822B6F13DD005C3ED0 /* SoundFontsPlusApp.swift */; };
@@ -215,7 +214,6 @@
 		BD171ED42E472CDE00E2EDA7 /* PresetLoadingInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetLoadingInfo.swift; sourceTree = "<group>"; };
 		BD171ED82E47A98300E2EDA7 /* MIDIMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDIMonitor.swift; sourceTree = "<group>"; };
 		BD1774DA2E6386A20029D195 /* FluidR3_GM.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = FluidR3_GM.sf2; sourceTree = "<group>"; };
-		BD1774E22E64A97D0029D195 /* BaseSuite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseSuite.swift; sourceTree = "<group>"; };
 		BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SoundFontsPlus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD1D27822B6F13DD005C3ED0 /* SoundFontsPlusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFontsPlusApp.swift; sourceTree = "<group>"; };
 		BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -524,7 +522,6 @@
 		BD1D27962B6F13DE005C3ED0 /* SoundFontsPlusTests */ = {
 			isa = PBXGroup;
 			children = (
-				BD1774E22E64A97D0029D195 /* BaseSuite.swift */,
 				BD1774DC2E638AEE0029D195 /* AppFeatureTests */,
 				BDAF5B3F2DE256C500B8FB13 /* ModelsTests */,
 				BDAF5B4F2DE256C500B8FB13 /* PresetsFeatureTests */,
@@ -1254,7 +1251,6 @@
 				BDAF5B872DE256C500B8FB13 /* TagTests.swift in Sources */,
 				BDAF5B882DE256C500B8FB13 /* SettingsFeatureTests.swift in Sources */,
 				BDAF5B892DE256C500B8FB13 /* OperationsTests.swift in Sources */,
-				BD1774E32E64A9820029D195 /* BaseSuite.swift in Sources */,
 				BDAF5B8B2DE256C500B8FB13 /* Helpers.swift in Sources */,
 				BDAF5B8D2DE256C500B8FB13 /* FavoriteTests.swift in Sources */,
 				BDAF5B8E2DE256C500B8FB13 /* Support.swift in Sources */,

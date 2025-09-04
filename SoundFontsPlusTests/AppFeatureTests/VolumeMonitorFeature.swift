@@ -118,17 +118,16 @@ extension BaseSuite {
       }
       let view = VolumeMonitorDemoView(volumes: volumes, store: store)
 
-      guard isLocal else { return }
-
-      withSnapshotTesting(record: .failed) {
-        assertSnapshot(
-          of: view,
-          as: .image(
-            drawHierarchyInKeyWindow: true,
-            layout: .fixed(width: 400, height: 800),
-            traits: .init(userInterfaceStyle: .dark)
+      if BaseSuite.isLocal {
+        withSnapshotTesting(record: .failed) {
+          assertSnapshot(
+            of: view,
+            as: .image(
+              layout: .fixed(width: 400, height: 800),
+              traits: .init(userInterfaceStyle: .dark)
+            )
           )
-        )
+        }
       }
     }
   }
