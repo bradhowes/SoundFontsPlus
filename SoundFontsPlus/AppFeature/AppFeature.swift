@@ -177,8 +177,11 @@ struct AppFeature {
       case .toolBar:
         return .none
 
-      case .volumeMonitor(.delegate(.noVolumeReasonChanged(let reason))):
-        return reduce(into: &state, action: .keyboard(.noVolumeChanged(reason != nil)))
+      case .volumeMonitor(.delegate(.mutedVolume(let reason))):
+        return reduce(
+          into: &state,
+          action: .keyboard(.outputVolumeChanged(reason != nil ? .muted : .unmuted))
+        )
 
       case .volumeMonitor:
         return .none
