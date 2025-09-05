@@ -41,6 +41,7 @@ public struct DelayFeature {
     case enabled(ToggleFeature.Action)
     case feedback(KnobFeature.Action)
     case initialize
+    case deinitialize
     case locked(ToggleFeature.Action)
     case saveDebounced
     case time(KnobFeature.Action)
@@ -82,6 +83,14 @@ public struct DelayFeature {
 
       case .cutoff:
         return updateAndSave(&state, path: \.cutoff, value: state.cutoff.value)
+
+      case .deinitialize:
+        return .merge(
+          .cancel(id: CancelId.applyConfigForPreset),
+          .cancel(id: CancelId.monitorActivePresetId),
+          .cancel(id: CancelId.saveDebouncer),
+          .cancel(id: CancelId.updateDebouncer)
+        )
 
       case .enabled:
         return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
@@ -173,8 +182,9 @@ extension DelayFeature {
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
-  private func runDebouncers() -> Effect<Action> {
-    .merge(
+  private func runDebouncers(_ state: inout State) -> Effect<Action> {
+    state.dirty = true
+    return .merge(
       .run { send in
         await send(.updateDebounced)
       }.debounce(id: CancelId.updateDebouncer, for: .milliseconds(100), scheduler: mainQueue),
@@ -215,8 +225,7 @@ extension DelayFeature {
   ) -> Effect<Action> {
     guard abs(state.config[keyPath: path] - value) > 1e-8 else { return .none }
     state.config[keyPath: path] = value
-    state.dirty = true
-    return runDebouncers()
+    return runDebouncers(&state)
   }
 
   private func updateAndSave<T: Equatable>(
@@ -226,8 +235,7 @@ extension DelayFeature {
   ) -> Effect<Action> {
     guard state.config[keyPath: path] != value else { return .none }
     state.config[keyPath: path] = value
-    state.dirty = true
-    return runDebouncers()
+    return runDebouncers(&state)
   }
 
   private func updateDebounced(_ state: inout State) -> Effect<Action> {
