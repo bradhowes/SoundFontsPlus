@@ -1,5 +1,5 @@
 {
-  "originHash" : "56710b20a522a4fa0b96c8912bb748d59b3bad461ede6de7318bdfdc96d78f52",
+  "originHash" : "922dfa266f35d4c17fbcd4b0c56124b114fc243922c46aeb42e27a0d7817f7c7",
   "pins" : [
     {
       "identity" : "auv3-support",
@@ -56,15 +56,6 @@
       }
     },
     {
-      "identity" : "filehash",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/CrazyFanFan/FileHash",
-      "state" : {
-        "revision" : "bf08e120ffb3d9f784dcc40fcb4a606ee9a5e78e",
-        "version" : "0.0.1"
-      }
-    },
-    {
       "identity" : "grdb.swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/groue/GRDB.swift",
@@ -114,8 +105,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sharing-grdb",
       "state" : {
-        "revision" : "46f8561d442cd49d0f8f42234f0d97da33544dda",
-        "version" : "0.6.0"
+        "revision" : "09e4c8a59dd670bdaec00c8c5007420a35236b58",
+        "version" : "0.7.0"
       }
     },
     {
@@ -258,8 +249,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "9f35bc01f597b9372eb3349fdbd289656232f3ba",
-        "version" : "0.14.0"
+        "revision" : "1115d2b5d3f1e8e368a69fe4da5fa442836517a4",
+        "version" : "0.17.1"
       }
     },
     {
@@ -287,15 +278,6 @@
       "state" : {
         "revision" : "634ada2eee7eac4ca79bf1fc8943ddc91408eb06",
         "version" : "0.60.0"
-      }
-    },
-    {
-      "identity" : "swiftui-introspect",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/siteline/swiftui-introspect",
-      "state" : {
-        "revision" : "807f73ce09a9b9723f12385e592b4e0aaebd3336",
-        "version" : "1.3.0"
       }
     },
     {

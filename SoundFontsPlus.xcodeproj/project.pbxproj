@@ -44,6 +44,11 @@
 		BD59D4EC2E47C77C00B2250B /* MIDIControllersFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4EB2E47C77C00B2250B /* MIDIControllersFeature.swift */; };
 		BD59D4EE2E47C80A00B2250B /* MIDIAssignmentsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4ED2E47C80A00B2250B /* MIDIAssignmentsFeature.swift */; };
 		BD59D4F02E480E3600B2250B /* MIDIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4EF2E480E3600B2250B /* MIDIConfig.swift */; };
+		BD66C5712E6AAD1F00A0CD31 /* InlineSnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C5702E6AAD1F00A0CD31 /* InlineSnapshotTesting */; };
+		BD66C5732E6AAD1F00A0CD31 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C5722E6AAD1F00A0CD31 /* SnapshotTesting */; };
+		BD66C5752E6AAD1F00A0CD31 /* SnapshotTestingCustomDump in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C5742E6AAD1F00A0CD31 /* SnapshotTestingCustomDump */; };
+		BD66C57D2E6AAEC200A0CD31 /* SharingGRDB in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C57C2E6AAEC200A0CD31 /* SharingGRDB */; };
+		BD66C57F2E6AAEC200A0CD31 /* StructuredQueriesGRDB in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C57E2E6AAEC200A0CD31 /* StructuredQueriesGRDB */; };
 		BD673BB72DFB44D600574F9C /* WithDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD673BB62DFB44D100574F9C /* WithDatabase.swift */; };
 		BD76C1592E23C57E00F5B1F5 /* VolumeMonitorFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1582E23C57E00F5B1F5 /* VolumeMonitorFeature.swift */; };
 		BD76C15C2E23C5F700F5B1F5 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */; };
@@ -112,7 +117,6 @@
 		BDAF5B262DE255D900B8FB13 /* BRHSplitView in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5B252DE255D900B8FB13 /* BRHSplitView */; };
 		BDAF5B292DE255EE00B8FB13 /* AUv3Controls in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5B282DE255EE00B8FB13 /* AUv3Controls */; };
 		BDAF5B2C2DE2560400B8FB13 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5B2B2DE2560400B8FB13 /* ComposableArchitecture */; };
-		BDAF5B2F2DE2565000B8FB13 /* SharingGRDB in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5B2E2DE2565000B8FB13 /* SharingGRDB */; };
 		BDAF5B812DE256C500B8FB13 /* SF2LibAUTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B572DE256C500B8FB13 /* SF2LibAUTests.swift */; };
 		BDAF5B822DE256C500B8FB13 /* SoundFontButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B632DE256C500B8FB13 /* SoundFontButtonTests.swift */; };
 		BDAF5B832DE256C500B8FB13 /* TagsListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B7A2DE256C500B8FB13 /* TagsListTests.swift */; };
@@ -163,7 +167,6 @@
 		BDE572C12DF3183700646D0E /* DependencyValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE572C02DF3182400646D0E /* DependencyValues.swift */; };
 		BDEB8F6B2E15C51600BF16B5 /* NameFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDEB8F6A2E15C51200BF16B5 /* NameFieldView.swift */; };
 		BDEB8F952E17287E00BF16B5 /* SF2LibAU in Frameworks */ = {isa = PBXBuildFile; productRef = BDEB8F942E17287E00BF16B5 /* SF2LibAU */; };
-		BDEB90092E19B00A00BF16B5 /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = BDEB90082E19B00A00BF16B5 /* SwiftUIIntrospect */; };
 		BDF14C492DF0AF0100BDDB0E /* PresetNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */; };
 		BDFF8EFC2E51C02B00A893D7 /* AVAudioUnitDelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFF8EFB2E51C01F00A893D7 /* AVAudioUnitDelay.swift */; };
 		BDFF8EFE2E51C2E700A893D7 /* AVAudioUnitReverb.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFF8EFD2E51C2E700A893D7 /* AVAudioUnitReverb.swift */; };
@@ -390,18 +393,18 @@
 				BDAF5BBF2DE25A7900B8FB13 /* Algorithms in Frameworks */,
 				BD76C15C2E23C5F700F5B1F5 /* ProgressHUD in Frameworks */,
 				BDAF5BC12DE25C9200B8FB13 /* Tagged in Frameworks */,
-				BDEB90092E19B00A00BF16B5 /* SwiftUIIntrospect in Frameworks */,
 				BD010CCF2E3AA76400E0DC0D /* AUv3Shared in Frameworks */,
 				BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */,
 				BDAF5B2C2DE2560400B8FB13 /* ComposableArchitecture in Frameworks */,
 				BDAF5B292DE255EE00B8FB13 /* AUv3Controls in Frameworks */,
-				BDAF5B2F2DE2565000B8FB13 /* SharingGRDB in Frameworks */,
+				BD66C57F2E6AAEC200A0CD31 /* StructuredQueriesGRDB in Frameworks */,
 				BD171EDC2E47A9F700E2EDA7 /* MorkAndMIDI in Frameworks */,
 				BDEB8F952E17287E00BF16B5 /* SF2LibAU in Frameworks */,
 				BDAF5B262DE255D900B8FB13 /* BRHSplitView in Frameworks */,
 				BD1774E52E64AD400029D195 /* DependenciesMacros in Frameworks */,
 				BD3E3D802E520FA800523292 /* SF2LibAU in Frameworks */,
 				BD010CCD2E3AA76400E0DC0D /* AUv3Component in Frameworks */,
+				BD66C57D2E6AAEC200A0CD31 /* SharingGRDB in Frameworks */,
 				BD3E3D832E520FEF00523292 /* BRHSplitView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -410,8 +413,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD66C5752E6AAD1F00A0CD31 /* SnapshotTestingCustomDump in Frameworks */,
+				BD66C5732E6AAD1F00A0CD31 /* SnapshotTesting in Frameworks */,
 				BD1774E92E657FA00029D195 /* SnapshotTesting in Frameworks */,
 				BD31A7F32E5658CE0046F07C /* StructuredQueriesTestSupport in Frameworks */,
+				BD66C5712E6AAD1F00A0CD31 /* InlineSnapshotTesting in Frameworks */,
 				BDAF5BC42DE269C300B8FB13 /* DependenciesTestSupport in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -921,13 +927,11 @@
 				BDAF5B252DE255D900B8FB13 /* BRHSplitView */,
 				BDAF5B282DE255EE00B8FB13 /* AUv3Controls */,
 				BDAF5B2B2DE2560400B8FB13 /* ComposableArchitecture */,
-				BDAF5B2E2DE2565000B8FB13 /* SharingGRDB */,
 				BDAF5BB92DE259DF00B8FB13 /* Engine */,
 				BDAF5BBB2DE259DF00B8FB13 /* SF2Lib */,
 				BDAF5BBE2DE25A7900B8FB13 /* Algorithms */,
 				BDAF5BC02DE25C9200B8FB13 /* Tagged */,
 				BDEB8F942E17287E00BF16B5 /* SF2LibAU */,
-				BDEB90082E19B00A00BF16B5 /* SwiftUIIntrospect */,
 				BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */,
 				BD010CCC2E3AA76400E0DC0D /* AUv3Component */,
 				BD010CCE2E3AA76400E0DC0D /* AUv3Shared */,
@@ -936,6 +940,8 @@
 				BD3E3D822E520FEF00523292 /* BRHSplitView */,
 				BD1774E02E64A5EC0029D195 /* Dependencies */,
 				BD1774E42E64AD400029D195 /* DependenciesMacros */,
+				BD66C57C2E6AAEC200A0CD31 /* SharingGRDB */,
+				BD66C57E2E6AAEC200A0CD31 /* StructuredQueriesGRDB */,
 			);
 			productName = SoundFontsPlus;
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */;
@@ -1045,15 +1051,11 @@
 			);
 			mainGroup = BD1D27762B6F13DD005C3ED0;
 			packageReferences = (
-				BD89D64D2CB7AFF60016BC25 /* XCRemoteSwiftPackageReference "FileHash" */,
 				BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */,
 				BDAF5B272DE255EE00B8FB13 /* XCRemoteSwiftPackageReference "AUv3Controls" */,
 				BDAF5B2A2DE2560400B8FB13 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
-				BDAF5B2D2DE2565000B8FB13 /* XCRemoteSwiftPackageReference "sharing-grdb" */,
 				BDAF5BBD2DE25A7900B8FB13 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 				BDAF5BC22DE269C300B8FB13 /* XCRemoteSwiftPackageReference "swift-dependencies" */,
-				BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
-				BDEB90072E19B00A00BF16B5 /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 				BD33FF7F2E23B2900085D3C3 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 				BD76C15A2E23C5F700F5B1F5 /* XCRemoteSwiftPackageReference "ProgressHUD" */,
 				BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */,
@@ -1061,6 +1063,7 @@
 				BD3E3D7E2E520FA800523292 /* XCRemoteSwiftPackageReference "SF2LibAU" */,
 				BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */,
 				BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */,
+				BD66C57B2E6AAEC200A0CD31 /* XCRemoteSwiftPackageReference "sharing-grdb" */,
 			);
 			preferredProjectObjectVersion = 56;
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
@@ -1848,6 +1851,22 @@
 				minimumVersion = 1.0.5;
 			};
 		};
+		BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bradhowes/swift-snapshot-testing";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+		BD66C57B2E6AAEC200A0CD31 /* XCRemoteSwiftPackageReference "sharing-grdb" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/sharing-grdb";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.7.0;
+			};
+		};
 		BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-tagged";
@@ -1862,14 +1881,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 14.1.4;
-			};
-		};
-		BD89D64D2CB7AFF60016BC25 /* XCRemoteSwiftPackageReference "FileHash" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/CrazyFanFan/FileHash";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.0.1;
 			};
 		};
 		BDAF5B272DE255EE00B8FB13 /* XCRemoteSwiftPackageReference "AUv3Controls" */ = {
@@ -1888,14 +1899,6 @@
 				minimumVersion = 1.20.1;
 			};
 		};
-		BDAF5B2D2DE2565000B8FB13 /* XCRemoteSwiftPackageReference "sharing-grdb" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/sharing-grdb";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.3.0;
-			};
-		};
 		BDAF5BBD2DE25A7900B8FB13 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-algorithms";
@@ -1910,14 +1913,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.9.2;
-			};
-		};
-		BDEB90072E19B00A00BF16B5 /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/siteline/swiftui-introspect";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.3.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -2013,6 +2008,31 @@
 			package = BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */;
 			productName = BRHSplitView;
 		};
+		BD66C5702E6AAD1F00A0CD31 /* InlineSnapshotTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
+			productName = InlineSnapshotTesting;
+		};
+		BD66C5722E6AAD1F00A0CD31 /* SnapshotTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
+			productName = SnapshotTesting;
+		};
+		BD66C5742E6AAD1F00A0CD31 /* SnapshotTestingCustomDump */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
+			productName = SnapshotTestingCustomDump;
+		};
+		BD66C57C2E6AAEC200A0CD31 /* SharingGRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD66C57B2E6AAEC200A0CD31 /* XCRemoteSwiftPackageReference "sharing-grdb" */;
+			productName = SharingGRDB;
+		};
+		BD66C57E2E6AAEC200A0CD31 /* StructuredQueriesGRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD66C57B2E6AAEC200A0CD31 /* XCRemoteSwiftPackageReference "sharing-grdb" */;
+			productName = StructuredQueriesGRDB;
+		};
 		BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BD76C15A2E23C5F700F5B1F5 /* XCRemoteSwiftPackageReference "ProgressHUD" */;
@@ -2031,11 +2051,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BDAF5B2A2DE2560400B8FB13 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;
-		};
-		BDAF5B2E2DE2565000B8FB13 /* SharingGRDB */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BDAF5B2D2DE2565000B8FB13 /* XCRemoteSwiftPackageReference "sharing-grdb" */;
-			productName = SharingGRDB;
 		};
 		BDAF5BB92DE259DF00B8FB13 /* Engine */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -2063,11 +2078,6 @@
 		BDEB8F942E17287E00BF16B5 /* SF2LibAU */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SF2LibAU;
-		};
-		BDEB90082E19B00A00BF16B5 /* SwiftUIIntrospect */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BDEB90072E19B00A00BF16B5 /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
-			productName = SwiftUIIntrospect;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
