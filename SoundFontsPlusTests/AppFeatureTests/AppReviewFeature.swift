@@ -84,7 +84,6 @@ extension BaseSuite {
     @Test
     @MainActor
     func appReviewFeaturePreview() async throws {
-      print("** begin")
       prepareDependencies {
         let now = Date(timeIntervalSince1970: 0)
         $0.date.now = now
@@ -92,22 +91,14 @@ extension BaseSuite {
         @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion = AppReviewFeature.currentVersion
       }
 
-      print("** prepared")
-      let store: StoreOf<AppReviewFeature> = .init(initialState: AppReviewFeature.State(
-        activityCounter: 4
-      )) { AppReviewFeature() }
+      let store: StoreOf<AppReviewFeature> = .init(initialState: AppReviewFeature.State(activityCounter: 4)) {
+        AppReviewFeature()
+      }
 
-      print("** have store")
       let view = AppReviewDemoView(store: store)
-      print("** have view")
       store.send(.ask)
-      print("** sent ask")
-
-      print("SIMULATOR_HOST_HOME:", ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"] ?? "???")
-      print("isLocal: ", BaseSuite.isLocal)
 
       if BaseSuite.isLocal {
-        print("** isLocal")
         withSnapshotTesting(record: .failed) {
           assertSnapshot(
             of: view,
