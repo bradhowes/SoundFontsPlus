@@ -11,8 +11,8 @@ test-iOS:
 	set -o pipefail && xcodebuild test \
 		$(BUILD_FLAGS) \
 		-derivedDataPath "$(PWD)/.DerivedData-iOS" \
-		-destination platform="$(PLATFORM_IOS)" \
-		| xcbeautify --renderer github-actions
+		-destination platform="$(PLATFORM_IOS)" # \
+		# | xcbeautify --renderer github-actions
 
 coverage-iOS: test-iOS
 	$(XCCOV) $(PWD)/.DerivedData-iOS/Logs/Test/*.xcresult > coverage_iOS.txt
