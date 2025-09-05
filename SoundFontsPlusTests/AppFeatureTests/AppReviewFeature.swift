@@ -103,7 +103,8 @@ extension BaseSuite {
       store.send(.ask)
       print("** sent ask")
 
-      print(ProcessInfo.processInfo.environment)
+      print("SIMULATOR_HOST_HOME:", ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"] ?? "???")
+      print("isLocal: ", BaseSuite.isLocal)
 
       if BaseSuite.isLocal {
         print("** isLocal")
