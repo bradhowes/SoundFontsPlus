@@ -13,6 +13,8 @@ enum ParameterAddress: AUParameterAddress, CaseIterable {
   case reverbEnabled = 3000
   case reverbRoomIndex
   case reverbAmount
+
+  static var count: Int { Self.allCases.count }
 }
 
 extension ParameterAddress {
