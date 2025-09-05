@@ -6,7 +6,7 @@ import Testing
 import SwiftUI
 
 @Suite(.dependencies) struct BaseSuite {
-  static var isOnGithub: Bool { (ProcessInfo.processInfo.environment["GITHUB_STEP_SUMMARY"] ?? "").count > 0 }
+  static var isOnGithub: Bool { (ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"] ?? "") == "/Users/runner" }
   static var isLocal: Bool { !isOnGithub }
 }
 
