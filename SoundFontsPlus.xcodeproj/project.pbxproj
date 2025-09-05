@@ -160,6 +160,7 @@
 		BDB9FEF92E06875D003BA0A2 /* ReverbRoomPresetPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB9FEF82E068751003BA0A2 /* ReverbRoomPresetPickerView.swift */; };
 		BDBA99892E66073200A70580 /* AVAudioSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDBA99882E66072C00A70580 /* AVAudioSession.swift */; };
 		BDBDDEB12DE658E700C2CD87 /* SoundFontInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */; };
+		BDD222A82E6B3BB40018712B /* ParameterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD222A72E6B3BA40018712B /* ParameterTests.swift */; };
 		BDD531B92DEADADD00B4B104 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD531B82DEADADA00B4B104 /* String.swift */; };
 		BDD96E902E080575000FCF1E /* ReverbFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5ADA2DE2556000B8FB13 /* ReverbFeature.swift */; };
 		BDDC25BD2E4E679D0098CA10 /* FileImporterFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDDC25BC2E4E67990098CA10 /* FileImporterFeature.swift */; };
@@ -347,6 +348,7 @@
 		BDB9FEF82E068751003BA0A2 /* ReverbRoomPresetPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReverbRoomPresetPickerView.swift; sourceTree = "<group>"; };
 		BDBA99882E66072C00A70580 /* AVAudioSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAudioSession.swift; sourceTree = "<group>"; };
 		BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundFontInfo.swift; sourceTree = "<group>"; };
+		BDD222A72E6B3BA40018712B /* ParameterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterTests.swift; sourceTree = "<group>"; };
 		BDD531B82DEADADA00B4B104 /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		BDDC25BC2E4E67990098CA10 /* FileImporterFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImporterFeature.swift; sourceTree = "<group>"; };
 		BDE572BE2DF317D400646D0E /* FileManagerClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FileManagerClient.swift; path = SoundFontsPlus/Utils/FileManagerClient.swift; sourceTree = SOURCE_ROOT; };
@@ -529,6 +531,7 @@
 			isa = PBXGroup;
 			children = (
 				BD1774DC2E638AEE0029D195 /* AppFeatureTests */,
+				BDD222A62E6B3B990018712B /* AudioUnitParameters */,
 				BDAF5B3F2DE256C500B8FB13 /* ModelsTests */,
 				BDAF5B4F2DE256C500B8FB13 /* PresetsFeatureTests */,
 				BDAF5B522DE256C500B8FB13 /* SettingsFeatureTests */,
@@ -903,6 +906,14 @@
 			path = AudioUnitParameters;
 			sourceTree = "<group>";
 		};
+		BDD222A62E6B3B990018712B /* AudioUnitParameters */ = {
+			isa = PBXGroup;
+			children = (
+				BDD222A72E6B3BA40018712B /* ParameterTests.swift */,
+			);
+			path = AudioUnitParameters;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1247,6 +1258,7 @@
 			files = (
 				BDAF5B812DE256C500B8FB13 /* SF2LibAUTests.swift in Sources */,
 				BDAF5B822DE256C500B8FB13 /* SoundFontButtonTests.swift in Sources */,
+				BDD222A82E6B3BB40018712B /* ParameterTests.swift in Sources */,
 				BDAF5B832DE256C500B8FB13 /* TagsListTests.swift in Sources */,
 				BDAF5B842DE256C500B8FB13 /* PresetsListTests.swift in Sources */,
 				BDAF5B852DE256C500B8FB13 /* AudioConfigTests.swift in Sources */,
