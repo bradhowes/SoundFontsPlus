@@ -103,6 +103,8 @@ extension BaseSuite {
       store.send(.ask)
       print("** sent ask")
 
+      print(ProcessInfo.processInfo.environment)
+
       if BaseSuite.isLocal {
         print("** isLocal")
         withSnapshotTesting(record: .failed) {
