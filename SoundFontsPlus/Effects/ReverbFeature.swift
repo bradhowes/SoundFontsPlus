@@ -1,7 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AudioUnit
-import AVFoundation
+import AVFAudio.AVAudioUnitReverb
 import AUv3Controls
 import ComposableArchitecture
 import Sharing
@@ -34,6 +33,7 @@ public struct ReverbFeature {
   public enum Action {
     case activePresetIdChanged(Preset.ID?)
     case applyConfigForPreset
+    case deinitialize
     case enabled(ToggleFeature.Action)
     case initialize
     case locked(ToggleFeature.Action)
@@ -70,6 +70,14 @@ public struct ReverbFeature {
 
       case .applyConfigForPreset:
         return applyConfigForPreset(&state)
+
+      case .deinitialize:
+        return .merge(
+          .cancel(id: CancelId.applyConfigForPreset),
+          .cancel(id: CancelId.monitorActivePresetId),
+          .cancel(id: CancelId.saveDebouncer),
+          .cancel(id: CancelId.updateDebouncer)
+        )
 
       case .enabled:
         return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
