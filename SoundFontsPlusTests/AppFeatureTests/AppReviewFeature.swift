@@ -9,8 +9,6 @@ import Testing
 
 @testable import SoundFontsPlus
 
-private let log = Logger(category: "AppReviewTests")
-
 extension BaseSuite {
 
   @Suite
@@ -86,7 +84,7 @@ extension BaseSuite {
     @Test
     @MainActor
     func appReviewFeaturePreview() async throws {
-      log.info("begin")
+      print("** begin")
       prepareDependencies {
         let now = Date(timeIntervalSince1970: 0)
         $0.date.now = now
@@ -94,19 +92,19 @@ extension BaseSuite {
         @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion = AppReviewFeature.currentVersion
       }
 
-      log.info("prepared")
+      print("** prepared")
       let store: StoreOf<AppReviewFeature> = .init(initialState: AppReviewFeature.State(
         activityCounter: 4
       )) { AppReviewFeature() }
 
-      log.info("have store")
+      print("** have store")
       let view = AppReviewDemoView(store: store)
-      log.info("have view")
+      print("** have view")
       store.send(.ask)
-      log.info("sent ask")
+      print("** sent ask")
 
       if BaseSuite.isLocal {
-        log.info("isLocal")
+        print("** isLocal")
         withSnapshotTesting(record: .failed) {
           assertSnapshot(
             of: view,
