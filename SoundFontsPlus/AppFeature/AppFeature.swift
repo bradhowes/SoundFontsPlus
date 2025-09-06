@@ -430,7 +430,7 @@ struct AppFeatureView: View, KeyboardReadable {
     ).splitViewConfiguration(
       .init(
         orientation: .vertical,
-        draggableRange: 0.3...0.7,
+        draggableRange: 0.3...0.8,
         dragToHidePanes: .secondary,
         doubleClickToClose: .secondary
       )
