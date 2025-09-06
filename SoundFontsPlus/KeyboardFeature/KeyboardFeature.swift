@@ -172,7 +172,7 @@ public struct KeyboardView: View {
 
   public init(store: StoreOf<KeyboardFeature>) {
     self.store = store
-    self.whiteKeyInset = whiteKeySpacing / -2.0
+    self.whiteKeyInset = whiteKeySpacing * -2.0
   }
 
   public var body: some View {

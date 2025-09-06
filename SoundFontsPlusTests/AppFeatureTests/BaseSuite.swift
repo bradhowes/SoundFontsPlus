@@ -1,11 +1,13 @@
 import DependenciesTestSupport
 import Foundation
+import Numerics
 import Sharing
 import SnapshotTesting
 import Testing
 import SwiftUI
 
-@Suite(.dependencies) struct BaseSuite {
+@Suite(.dependencies)
+struct BaseSuite {
   static var isOnGithub: Bool { (ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"] ?? "") == "/Users/runner" }
   static var isLocal: Bool { !isOnGithub }
 }
