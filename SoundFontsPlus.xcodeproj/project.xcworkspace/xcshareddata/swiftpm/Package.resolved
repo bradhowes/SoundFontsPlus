@@ -1,5 +1,5 @@
 {
-  "originHash" : "922dfa266f35d4c17fbcd4b0c56124b114fc243922c46aeb42e27a0d7817f7c7",
+  "originHash" : "4e2c10425a2c7af83291c5efc9b653becbfa3b31bd3965a922db0e7d66f3e604",
   "pins" : [
     {
       "identity" : "auv3-support",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/AUv3Controls",
       "state" : {
-        "revision" : "aedf0715fcf80627c7f00a8de0c9d3a389209b43",
-        "version" : "0.22.5"
+        "revision" : "1f814877e642e37fd1042a424233f85437a21752",
+        "version" : "0.23.0"
       }
     },
     {
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/morkandmidi",
       "state" : {
-        "revision" : "57ff15f669b9129fda8530869608214133002f8a",
-        "version" : "4.0.0"
+        "revision" : "5aabfdf6655accc53ea4abb9a4ba9109f92d4dad",
+        "version" : "4.0.1"
       }
     },
     {
@@ -231,8 +231,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-sharing",
       "state" : {
-        "revision" : "530c98ac2c3e393615616bd6d8fc604600c99f6f",
-        "version" : "2.7.2"
+        "revision" : "aaf605733bd93126d1a3658b4021146d95c94cb6",
+        "version" : "2.7.3"
       }
     },
     {
@@ -249,8 +249,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "1115d2b5d3f1e8e368a69fe4da5fa442836517a4",
-        "version" : "0.17.1"
+        "revision" : "49f18c24145a6e061cc581662f468b7c18523b8d",
+        "version" : "0.18.0"
       }
     },
     {

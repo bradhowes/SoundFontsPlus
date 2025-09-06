@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		BD0009F12E491BA4005331AB /* MIDITrafficIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0009F02E491BA4005331AB /* MIDITrafficIndicator.swift */; };
 		BD0053E22E6B5A5E0053B13B /* ReverbEffectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0053E12E6B5A570053B13B /* ReverbEffectTests.swift */; };
+		BD0053E52E6B67B70053B13B /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = BD0053E42E6B67B70053B13B /* Numerics */; };
 		BD010CCD2E3AA76400E0DC0D /* AUv3Component in Frameworks */ = {isa = PBXBuildFile; productRef = BD010CCC2E3AA76400E0DC0D /* AUv3Component */; };
 		BD010CCF2E3AA76400E0DC0D /* AUv3Shared in Frameworks */ = {isa = PBXBuildFile; productRef = BD010CCE2E3AA76400E0DC0D /* AUv3Shared */; };
 		BD050EE12E23C2EB00706CC4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BD050EE02E23C2EB00706CC4 /* LaunchScreen.storyboard */; };
@@ -425,6 +426,7 @@
 				BD31A7F32E5658CE0046F07C /* StructuredQueriesTestSupport in Frameworks */,
 				BD66C5712E6AAD1F00A0CD31 /* InlineSnapshotTesting in Frameworks */,
 				BDAF5BC42DE269C300B8FB13 /* DependenciesTestSupport in Frameworks */,
+				BD0053E52E6B67B70053B13B /* Numerics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1089,6 +1091,7 @@
 				BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */,
 				BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */,
 				BD66C57B2E6AAEC200A0CD31 /* XCRemoteSwiftPackageReference "sharing-grdb" */,
+				BD0053E32E6B67B70053B13B /* XCRemoteSwiftPackageReference "swift-numerics" */,
 			);
 			preferredProjectObjectVersion = 56;
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
@@ -1823,6 +1826,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		BD0053E32E6B67B70053B13B /* XCRemoteSwiftPackageReference "swift-numerics" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-numerics";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
 		BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bradhowes/auv3-support";
@@ -1946,6 +1957,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		BD0053E42E6B67B70053B13B /* Numerics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD0053E32E6B67B70053B13B /* XCRemoteSwiftPackageReference "swift-numerics" */;
+			productName = Numerics;
+		};
 		BD010CCC2E3AA76400E0DC0D /* AUv3Component */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */;

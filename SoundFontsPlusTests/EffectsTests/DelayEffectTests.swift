@@ -1,6 +1,7 @@
 import AUv3Controls
 import ComposableArchitecture
 import Foundation
+import Numerics
 import Sharing
 import SnapshotTesting
 import SwiftUI
@@ -13,15 +14,16 @@ extension BaseSuite {
   @Suite
   struct DelayEffectTests {
     fileprivate let device = DelayDevice()
+    @Shared(.parameterTree) var parameterTree = ParameterAddress.createParameterTree()
+    @Shared(.delayLockEnabled) var locked = false
+    @Shared(.activeState) var activeState
 
-    @MainActor
-    @Test func initialization() async throws {
-      @Shared(.parameterTree) var parameterTree = ParameterAddress.createParameterTree()
-      @Shared(.delayLockEnabled) var locked = false
-      @Shared(.activeState) var activeState
+    init() {
       $activeState.activePresetId.withLock { $0 = 1 }
+    }
 
-      let store = TestStoreOf<DelayFeature>(initialState: .init()) {
+    fileprivate func store() -> TestStoreOf<DelayFeature> {
+      TestStoreOf<DelayFeature>(initialState: .init()) {
         DelayFeature()
       } withDependencies: {
         // swiftlint:disable:next force_try
@@ -29,22 +31,31 @@ extension BaseSuite {
         $0.delayDevice = .init(setConfig: { device.config = $0 })
         $0.mainQueue = .immediate
       }
-
-      store.exhaustivity = .off(showSkippedAssertions: false)
-      await store.send(.initialize)
-      await store.receive(\.activePresetIdChanged)
-      await store.receive(\.applyConfigForPreset) {
-        $0.config.presetId = 1
-      }
-      await store.receive(\.time)
-      await store.receive(\.feedback)
-      await store.receive(\.cutoff)
-      await store.receive(\.wetDryMix)
-
-      await store.send(.deinitialize)
-
-      #expect(device.timesChanged == 1)
     }
+  }
+}
+
+extension BaseSuite.DelayEffectTests {
+  @MainActor
+  @Test func initialization() async throws {
+    let store = store()
+
+    store.exhaustivity = .off(showSkippedAssertions: false)
+    await store.send(.initialize)
+    await store.receive(\.activePresetIdChanged)
+
+    await store.receive(\.applyConfigForPreset) {
+      $0.config.presetId = 1
+    }
+    await store.receive(\.time)
+    await store.receive(\.feedback)
+    await store.receive(\.cutoff)
+    await store.receive(\.wetDryMix)
+
+    await store.send(.deinitialize)
+
+    #expect(device.timesChanged == 1)
+    #expect(store.state.time.value.isApproximatelyEqual(to: 0.5))
   }
 }
 
