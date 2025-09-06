@@ -393,9 +393,6 @@ extension SettingsView {
           Text("Locate")
         }
       }
-      Toggle(isOn: $store.backgroundProcessing) {
-        Text("Background processing mdoe")
-      }
       Stepper(
         "Pitch bend range (semitones): \(store.pitchBendRange)",
         value: $store.pitchBendRange,
@@ -427,6 +424,10 @@ extension SettingsView {
   private var fileSection: some View {
     Section("Application") {
       Group {
+        Toggle(isOn: $store.backgroundProcessing) {
+          Text("Background processing mdoe")
+        }
+        .checkedStyle()
         Toggle(isOn: $store.copyFileWhenInstalling) {
           Text("Copy SF2 files to app folder when adding")
         }

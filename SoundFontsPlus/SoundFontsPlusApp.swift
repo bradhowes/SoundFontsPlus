@@ -17,15 +17,11 @@ struct SoundFontsPlusApp: App {
       $0.defaultFileStorage = .fileSystem
 
       let delay = AVAudioUnitDelay()
-      $0.delayDevice = .init(
-        setConfig: { delay.setConfig($0) }
-      )
+      $0.delayDevice = .init(setConfig: { delay.setConfig($0) })
       @Shared(.delayEffect) var delayEffect = delay
 
       let reverb = AVAudioUnitReverb()
-      $0.reverbDevice = .init(
-        setConfig: { reverb.setConfig($0) }
-      )
+      $0.reverbDevice = .init( setConfig: { reverb.setConfig($0) })
       @Shared(.reverbEffect) var reverbEffect = reverb
 
       @Shared(.midiInputPortId) var midiInputPortId
@@ -53,7 +49,8 @@ struct ContentView: View {
 
       AppFeatureView(store: Store(initialState: .init()) { AppFeature() })
         .environment(\.colorScheme, .dark)
-        .defersSystemGestures(on: .bottom)
+      // We don't want to mistake keyboard activity for iOS app switching or other system gestures
+        .defersSystemGestures(on: [.bottom, .leading, .trailing])
     }
   }
 }
