@@ -30,16 +30,19 @@ public struct SynthFeature {
     let engine = AVAudioEngine()
     var loadedSoundFontId: SoundFont.ID?
     var loadedPresetIndex: Int?
+
+    @ObservationStateIgnored
+    var sessionActive: Bool = false
   }
 
   public enum Action {
     case activePresetIdChanged
+    case audioSessionRouteChanged
     case audioUnitCreated
-    case becameActive
-    case becameInactive
     case initialize
     case mediaServicesWereReset
-    case routeChanged
+    case sceneBecameActive
+    case sceneBecameInactive
     public enum Delegate {
       case createdSynth
     }
@@ -52,14 +55,11 @@ public struct SynthFeature {
       case .activePresetIdChanged:
         return activePresetIdChanged(&state)
 
+      case .audioSessionRouteChanged:
+        return audioSessionRouteChanged(&state)
+
       case .audioUnitCreated:
-        return installAudioUnit(&state)
-
-      case .becameActive:
-        return startAudioSession(&state)
-
-      case .becameInactive:
-        return stopAudioSession(&state)
+        return audioUnitCreated(&state)
 
       case .initialize:
         return initialize(&state)
@@ -67,14 +67,18 @@ public struct SynthFeature {
       case .mediaServicesWereReset:
         return restartAudioSession(&state)
 
-      case .routeChanged:
-        return routeChanged(&state)
+      case .sceneBecameActive:
+        return sceneBecameActive(&state)
+
+      case .sceneBecameInactive:
+        return sceneBecameInactive(&state)
       }
     }
   }
 
   @Dependency(\.defaultDatabase) var database
   @Shared(.activeState) var activeState
+  @Shared(.backgroundProcessing) var backgroundProcessing
 
   private enum CancelId {
     case createSynth
@@ -132,6 +136,48 @@ extension SynthFeature {
     return firstTime ? .none : playNote(state, synth: synth)
   }
 
+  func audioUnitCreated(_ state: inout State) -> Effect<Action> {
+    // There is a race between making the AVAudioSession active and having an synth audio unit. If the synth is
+    // available first, then
+    if state.sessionActive {
+      if createAudioChain(&state) {
+        startEngine(&state)
+      }
+    } else {
+      startAudioSession(&state)
+    }
+    return .send(.activePresetIdChanged)
+  }
+
+  func createAudioChain(_ state: inout State) -> Bool {
+    log.info("createAudioChain BEGIN")
+    @Shared(.synthAudioUnit) var synthAudioUnit
+    @Shared(.delayEffect) var delayEffect
+    @Shared(.reverbEffect) var reverbEffect
+
+    guard let synthAudioUnit, let delayEffect, let reverbEffect else {
+      log.info("createAudioChain - no synth, delay, or reverb available")
+      return false
+    }
+
+    if state.engine.isRunning {
+      state.engine.stop()
+    }
+
+    log.info("createAudioChain - attaching to engine")
+    state.engine.attach(synthAudioUnit)
+    state.engine.attach(delayEffect)
+    state.engine.attach(reverbEffect)
+
+    log.info("createAudioChain - connecting audio units")
+    state.engine.connect(reverbEffect, to: state.engine.outputNode, format: audioFormat)
+    state.engine.connect(delayEffect, to: reverbEffect, format: audioFormat)
+    state.engine.connect(synthAudioUnit, to: delayEffect, format: audioFormat)
+
+    log.info("createAudioChain END")
+    return true
+  }
+
   func createSynth(_ state: inout State) -> Effect<Action> {
     log.info("createSynth")
     return .run { send in
@@ -155,6 +201,35 @@ extension SynthFeature {
     }.cancellable(id: CancelId.createSynth, cancelInFlight: true)
   }
 
+  func destroyAudioChain(_ state: inout State) {
+    log.info("destroyAudioChain BEGIN")
+    @Shared(.synthAudioUnit) var synthAudioUnit
+    @Shared(.delayEffect) var delayEffect
+    @Shared(.reverbEffect) var reverbEffect
+
+    log.info("destroyAudioChain - resetting synth")
+    synthAudioUnit?.reset()
+    log.info("destroyAudioChain - stopping engine")
+    state.engine.stop()
+
+    if let delay = delayEffect {
+      log.info("destroyAudioChain - detaching delay")
+      state.engine.detach(delay)
+    }
+
+    if let reverb = reverbEffect {
+      log.info("destroyAudioChain - detaching reverb")
+      state.engine.detach(reverb)
+    }
+
+    if let synth = synthAudioUnit {
+      log.info("destroyAudioChain - detaching synth")
+      state.engine.detach(synth)
+    }
+
+    log.info("destroyAudioChain END")
+  }
+
   func initialize(_ state: inout State) -> Effect<Action> {
     log.info("initialize")
     return .concatenate(
@@ -165,29 +240,6 @@ extension SynthFeature {
         monitorRouteChanged(&state)
       )
     )
-  }
-
-  func installAudioUnit(_ state: inout State) -> Effect<Action> {
-    log.info("installAudioUnit")
-    @Shared(.synthAudioUnit) var synthAudioUnit
-    @Shared(.delayEffect) var delayEffect
-    @Shared(.reverbEffect) var reverbEffect
-
-    guard let synthAudioUnit, let delayEffect, let reverbEffect else { return .none }
-
-    log.info("attaching to engine")
-    state.engine.attach(synthAudioUnit)
-    state.engine.attach(delayEffect)
-    state.engine.attach(reverbEffect)
-
-    state.engine.connect(reverbEffect, to: state.engine.outputNode, format: audioFormat)
-    state.engine.connect(delayEffect, to: reverbEffect, format: audioFormat)
-    state.engine.connect(synthAudioUnit, to: delayEffect, format: audioFormat)
-
-    log.info("starting")
-    _ = startAudioSession(&state)
-
-    return .send(.activePresetIdChanged)
   }
 
   func monitorActivePresetId(_ state: inout State) -> Effect<Action> {
@@ -210,7 +262,7 @@ extension SynthFeature {
     .publisher {
       NotificationCenter.default
         .publisher(for: AVAudioSession.routeChangeNotification)
-        .map { _ in .routeChanged }
+        .map { _ in .audioSessionRouteChanged }
     }.cancellable(id: CancelId.monitorRouteChanged, cancelInFlight: true)
   }
 
@@ -229,14 +281,33 @@ extension SynthFeature {
   }
 
   func restartAudioSession(_ state: inout State) -> Effect<Action> {
-    log.error("recreateSynth - BEGIN")
-    _ = stopAudioSession(&state)
-    _ = startAudioSession(&state)
-    log.error("recreateSynth - END")
+    log.info("restartAudioSession - BEGIN")
+    stopAudioSession(&state)
+    startAudioSession(&state)
+    log.info("recreateSynth - END")
     return .none
   }
 
-  func routeChanged(_ state: inout State) -> Effect<Action> {
+  func sceneBecameActive(_ state: inout State) -> Effect<Action> {
+    if !state.sessionActive {
+      startAudioSession(&state)
+    }
+    return .none
+  }
+
+  func sceneBecameInactive(_ state: inout State) -> Effect<Action> {
+    if !backgroundProcessing {
+      stopAudioSession(&state)
+    }
+    return .none
+  }
+
+  func audioSessionRouteChanged(_ state: inout State) -> Effect<Action> {
+    configureAudioSession()
+    return .none
+  }
+
+  func configureAudioSession() {
     let bufferSize: Int = 64
     let session = AVAudioSession.sharedInstance()
 
@@ -268,51 +339,61 @@ extension SynthFeature {
       log.error("routeChanged - failed to set the preferred buffer size to \(bufferSize) - \(err)")
     }
 
+    dump(route: session.currentRoute)
+  }
+
+  func startAudioSession(_ state: inout State) {
+    log.info("startAudioSession BEGIN")
+
+    configureAudioSession()
+
     do {
       log.info("routeChanged - setting active audio session")
-      try session.setActive(true, options: [])
+      try AVAudioSession.sharedInstance().setActive(true, options: [])
+      state.sessionActive = true
     } catch {
       let err = error.localizedDescription
       log.error("routeChanged - failed to set active - \(err)")
     }
 
-    dump(route: session.currentRoute)
-
-    return .none
+    if state.sessionActive && createAudioChain(&state) {
+      startEngine(&state)
+    }
   }
 
-  func startAudioSession(_ state: inout State) -> Effect<Action> {
-    log.info("startAudioSession BEGIN")
-
-    _ = routeChanged(&state)
+  func startEngine(_ state: inout State) {
+    guard !state.engine.isRunning else {
+      log.info("startEngine - already running")
+      return
+    }
 
     do {
-      log.info("startAudioSession - starting engine")
+      log.info("startEngine - starting")
       try state.engine.start()
+      log.info("startEngine - done")
     } catch {
       log.error("startAudioSession - failed to start - \(error.localizedDescription)")
     }
-
-    return .none
   }
 
-  func stopAudioSession(_ state: inout State) -> Effect<Action> {
+  func stopAudioSession(_ state: inout State) {
     log.info("stopAudioSession BEGIN")
 
-    state.engine.stop()
+    destroyAudioChain(&state)
 
     let session = AVAudioSession.sharedInstance()
+
     do {
-      log.info("stopAudio - setting AudioSession to inactive")
+      log.info("stopAudioSession - setting AudioSession to inactive")
       try session.setActive(false, options: [])
-      log.info("stopAudio - done")
+      log.info("stopAudioSession - done")
     } catch let error as NSError {
-      log.error("stopAudio - Failed session.setActive(false): \(error.localizedDescription)")
+      log.error("stopAudioSession - Failed session.setActive(false): \(error.localizedDescription)")
     }
 
-    log.info("stopAudio END")
+    state.sessionActive = false
 
-    return .none
+    log.info("stopAudioSession END")
   }
 }
 

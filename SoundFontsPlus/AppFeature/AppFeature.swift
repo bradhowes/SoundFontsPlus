@@ -314,15 +314,16 @@ private extension AppFeature {
   }
 
   func scenePhaseChanged(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
-    @Shared(.backgroundProcessing) var backgroundProcessing
     switch phase {
+
     case .active:
-      guard !backgroundProcessing else { return .none }
-      return reduce(into: &state, action: .synth(.becameActive))
+      return reduce(into: &state, action: .synth(.sceneBecameActive))
+
     case .background, .inactive:
-      guard !backgroundProcessing else { return .none }
-      return reduce(into: &state, action: .synth(.becameInactive))
-    @unknown default: fatalError("Unhandled ScenePhase \(phase):")
+      return reduce(into: &state, action: .synth(.sceneBecameInactive))
+
+    @unknown default:
+      fatalError("Unhandled ScenePhase \(phase):")
     }
   }
 }
@@ -382,13 +383,7 @@ struct AppFeatureView: View, KeyboardReadable {
     .environment(\.auv3ControlsTheme, theme)
     .environment(\.appPanelBackground, appPanelBackground)
     .onChange(of: scenePhase) { _, newPhase in
-      if newPhase == .active {
-        print("Active")
-      } else if newPhase == .inactive {
-        print("Inactive")
-      } else if newPhase == .background {
-        print("Background")
-      }
+      store.send(.scenePhaseChanged(newPhase))
     }
     .task {
       await store.send(.initialize).finish()
