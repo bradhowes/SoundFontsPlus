@@ -38,14 +38,12 @@ public struct SynthFeature {
   public enum Action {
     case activePresetIdChanged
     case audioSessionRouteChanged
-    case audioUnitCreated
+    case deinitialize
     case initialize
     case mediaServicesWereReset
     case sceneBecameActive
     case sceneBecameInactive
-    public enum Delegate {
-      case createdSynth
-    }
+    case synthCreated
   }
 
   public var body: some ReducerOf<Self> {
@@ -53,13 +51,15 @@ public struct SynthFeature {
     Reduce { state, action in
       switch action {
       case .activePresetIdChanged:
-        return activePresetIdChanged(&state)
+        return useActivePreset(&state)
 
       case .audioSessionRouteChanged:
         return audioSessionRouteChanged(&state)
 
-      case .audioUnitCreated:
-        return audioUnitCreated(&state)
+      case .deinitialize:
+          return .merge(
+            CancelId.allCases.map { .cancel(id: $0) }
+          )
 
       case .initialize:
         return initialize(&state)
@@ -72,6 +72,9 @@ public struct SynthFeature {
 
       case .sceneBecameInactive:
         return sceneBecameInactive(&state)
+
+      case .synthCreated:
+        return synthCreated(&state)
       }
     }
   }
@@ -80,7 +83,7 @@ public struct SynthFeature {
   @Shared(.activeState) var activeState
   @Shared(.backgroundProcessing) var backgroundProcessing
 
-  private enum CancelId {
+  private enum CancelId: CaseIterable {
     case createSynth
     case monitorActivePresetId
     case monitorMediaServices
@@ -93,60 +96,8 @@ extension SF2LibAU: @retroactive @unchecked Sendable {}
 
 extension SynthFeature {
 
-  func activePresetIdChanged(_ state: inout State) -> Effect<Action> {
-    log.info("activePresetIdChanged")
-
-    @Shared(.synthAudioUnit) var synthAudioUnit
-    guard let synth = synthAudioUnit?.synth else {
-      log.info("nil audioUnit -- ignoring")
-      return .none
-    }
-
-    guard let presetInfo = Operations.activePresetLoadingInfo else {
-      log.info("no presetInfo -- ignoring")
-      return .none
-    }
-
-    guard state.loadedPresetIndex != presetInfo.presetIndex || state.loadedSoundFontId != presetInfo.soundFontId else {
-      log.info("already loaded")
-      return .none
-    }
-
-    let result: Bool
-    if presetInfo.soundFontId == state.loadedSoundFontId {
-      log.info("loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = synth.sendUsePreset(preset: presetInfo.presetIndex)
-    } else {
-      guard let location = try? SoundFontKind(kind: presetInfo.kind, location: presetInfo.location)
-      else {
-        log.error("unexpected nil location for \(presetInfo)")
-        return .none
-      }
-      let path = location.path.path(percentEncoded: false)
-      log.info("loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = synth.sendLoadFileUsePreset(path: path, preset: presetInfo.presetIndex)
-    }
-
-    log.info("loaded \(result)")
-    guard result else { return .none }
-
-    let firstTime = state.loadedSoundFontId == nil
-    state.loadedSoundFontId = presetInfo.soundFontId
-    state.loadedPresetIndex = presetInfo.presetIndex
-    return firstTime ? .none : playNote(state, synth: synth)
-  }
-
-  func audioUnitCreated(_ state: inout State) -> Effect<Action> {
-    // There is a race between making the AVAudioSession active and having an synth audio unit. If the synth is
-    // available first, then
-    if state.sessionActive {
-      if createAudioChain(&state) {
-        startEngine(&state)
-      }
-    } else {
-      startAudioSession(&state)
-    }
-    return .send(.activePresetIdChanged)
+  func audioSessionRouteChanged(_ state: inout State) -> Effect<Action> {
+    return restartAudioSession(&state)
   }
 
   func createAudioChain(_ state: inout State) -> Bool {
@@ -197,7 +148,7 @@ extension SynthFeature {
       $synthAudioUnit.withLock { $0 = au }
 
       log.info("createSynth - created")
-      await send(.audioUnitCreated)
+      await send(.synthCreated)
     }.cancellable(id: CancelId.createSynth, cancelInFlight: true)
   }
 
@@ -288,25 +239,6 @@ extension SynthFeature {
     return .none
   }
 
-  func sceneBecameActive(_ state: inout State) -> Effect<Action> {
-    if !state.sessionActive {
-      startAudioSession(&state)
-    }
-    return .none
-  }
-
-  func sceneBecameInactive(_ state: inout State) -> Effect<Action> {
-    if !backgroundProcessing {
-      stopAudioSession(&state)
-    }
-    return .none
-  }
-
-  func audioSessionRouteChanged(_ state: inout State) -> Effect<Action> {
-    configureAudioSession()
-    return .none
-  }
-
   func configureAudioSession() {
     let bufferSize: Int = 64
     let session = AVAudioSession.sharedInstance()
@@ -361,6 +293,20 @@ extension SynthFeature {
     }
   }
 
+  func sceneBecameActive(_ state: inout State) -> Effect<Action> {
+    if !state.sessionActive {
+      startAudioSession(&state)
+    }
+    return .none
+  }
+
+  func sceneBecameInactive(_ state: inout State) -> Effect<Action> {
+    if !backgroundProcessing {
+      stopAudioSession(&state)
+    }
+    return .none
+  }
+
   func startEngine(_ state: inout State) {
     guard !state.engine.isRunning else {
       log.info("startEngine - already running")
@@ -394,6 +340,62 @@ extension SynthFeature {
     state.sessionActive = false
 
     log.info("stopAudioSession END")
+  }
+
+  func synthCreated(_ state: inout State) -> Effect<Action> {
+    // There is a race between making the AVAudioSession active and having an synth audio unit. If the synth is
+    // available first, then
+    if state.sessionActive {
+      if createAudioChain(&state) {
+        startEngine(&state)
+      }
+    } else {
+      startAudioSession(&state)
+    }
+    return useActivePreset(&state)
+  }
+
+  func useActivePreset(_ state: inout State) -> Effect<Action> {
+    log.info("activePresetIdChanged")
+
+    @Shared(.synthAudioUnit) var synthAudioUnit
+    guard let synth = synthAudioUnit?.synth else {
+      log.info("nil audioUnit -- ignoring")
+      return .none
+    }
+
+    guard let presetInfo = Operations.activePresetLoadingInfo else {
+      log.info("no presetInfo -- ignoring")
+      return .none
+    }
+
+    guard state.loadedPresetIndex != presetInfo.presetIndex || state.loadedSoundFontId != presetInfo.soundFontId else {
+      log.info("already loaded")
+      return .none
+    }
+
+    let result: Bool
+    if presetInfo.soundFontId == state.loadedSoundFontId {
+      log.info("loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
+      result = synth.sendUsePreset(preset: presetInfo.presetIndex)
+    } else {
+      guard let location = try? SoundFontKind(kind: presetInfo.kind, location: presetInfo.location)
+      else {
+        log.error("unexpected nil location for \(presetInfo)")
+        return .none
+      }
+      let path = location.path.path(percentEncoded: false)
+      log.info("loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
+      result = synth.sendLoadFileUsePreset(path: path, preset: presetInfo.presetIndex)
+    }
+
+    log.info("loaded \(result)")
+    guard result else { return .none }
+
+    let firstTime = state.loadedSoundFontId == nil
+    state.loadedSoundFontId = presetInfo.soundFontId
+    state.loadedPresetIndex = presetInfo.presetIndex
+    return firstTime ? .none : playNote(state, synth: synth)
   }
 }
 
