@@ -38,10 +38,10 @@ public struct DelayFeature {
     case activePresetIdChanged
     case applyConfigForPreset
     case cutoff(KnobFeature.Action)
+    case deinitialize
     case enabled(ToggleFeature.Action)
     case feedback(KnobFeature.Action)
     case initialize
-    case deinitialize
     case locked(ToggleFeature.Action)
     case saveDebounced
     case time(KnobFeature.Action)
@@ -49,7 +49,7 @@ public struct DelayFeature {
     case wetDryMix(KnobFeature.Action)
   }
 
-  private enum CancelId {
+  private enum CancelId: CaseIterable {
     case applyConfigForPreset
     case monitorActivePresetId
     case saveDebouncer
@@ -86,10 +86,7 @@ public struct DelayFeature {
 
       case .deinitialize:
         return .merge(
-          .cancel(id: CancelId.applyConfigForPreset),
-          .cancel(id: CancelId.monitorActivePresetId),
-          .cancel(id: CancelId.saveDebouncer),
-          .cancel(id: CancelId.updateDebouncer)
+          CancelId.allCases.map { .cancel(id: $0) }
         )
 
       case .enabled:
