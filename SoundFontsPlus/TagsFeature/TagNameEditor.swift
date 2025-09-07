@@ -117,8 +117,9 @@ public struct TagNameEditorView: View {
     HStack {
       if store.originalMembership != nil {
         Toggle("", isOn: $store.membership)
+          .toggleStyle(.circledCheckMarkNoLabel)
           .disabled(store.id.isUbiquitous)
-          .checkedStyle()
+          .buttonStyle(.plain)
       }
       NameFieldView(text: $store.draft.displayName, readOnly: readOnly)
         .swipeActions(edge: .trailing) {
