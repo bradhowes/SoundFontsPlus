@@ -18,9 +18,6 @@ public struct VolumeMonitorFeature {
   @ObservableState
   public struct State: Equatable {
     var noVolumeReason: Reason?
-
-    @ObservationStateIgnored
-    var observerToken: NSKeyValueObservation?
   }
 
   public enum Action {
@@ -58,8 +55,6 @@ public struct VolumeMonitorFeature {
     }
   }
 
-  @Dependency(\.outputVolume) var outputVolume
-
   private enum CancelId {
     case monitorSessionVolume
   }
@@ -68,17 +63,24 @@ public struct VolumeMonitorFeature {
 private extension VolumeMonitorFeature {
 
   func initialize(_ state: inout State) -> Effect<Action> {
-    let stream: AsyncStream<Float>
-    (state.observerToken, stream) = outputVolume.startObserving()
     return .run { send in
-      for await value in stream {
-        await send(.volumeChanged(value))
+      while !Task.isCancelled {
+        let observerToken: NSKeyValueObservation?
+        let stream: AsyncStream<Float>
+        @Dependency(\.outputVolume) var outputVolume
+        (observerToken, stream) = outputVolume.startObserving()
+        log.info("started observing volume")
+        for await value in stream {
+          await send(.volumeChanged(value))
+        }
+        log.info("stopped observing volume")
       }
     }.cancellable(id: CancelId.monitorSessionVolume, cancelInFlight: true)
   }
 
   func presetChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
-    updateReason(&state, volume: outputVolume.getValue(), presetId: presetId)
+    @Dependency(\.outputVolume) var outputVolume
+    return updateReason(&state, volume: outputVolume.getValue(), presetId: presetId)
   }
 
   func updateReason(_ state: inout State, volume: Float, presetId: Preset.ID?) -> Effect<Action> {
@@ -98,7 +100,8 @@ private extension VolumeMonitorFeature {
   }
 
   func volumeChanged(_ state: inout State, volume: Float) -> Effect<Action> {
-    updateReason(&state, volume: volume, presetId: activeState.activePresetId)
+    log.info("volumeChanged \(volume)")
+    return updateReason(&state, volume: volume, presetId: activeState.activePresetId)
   }
 }
 
