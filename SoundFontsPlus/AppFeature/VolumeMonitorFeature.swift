@@ -73,7 +73,7 @@ private extension VolumeMonitorFeature {
         for await value in stream {
           await send(.volumeChanged(value))
         }
-        log.info("stopped observing volume")
+        log.info("stopped observing volume - \(String(describing: observerToken))")
       }
     }.cancellable(id: CancelId.monitorSessionVolume, cancelInFlight: true)
   }
