@@ -43,7 +43,7 @@ public struct ReverbFeature {
     case wetDryMix(KnobFeature.Action)
   }
 
-  private enum CancelId {
+  private enum CancelId: CaseIterable {
     case applyConfigForPreset
     case monitorActivePresetId
     case saveDebouncer
@@ -73,10 +73,7 @@ public struct ReverbFeature {
 
       case .deinitialize:
         return .merge(
-          .cancel(id: CancelId.applyConfigForPreset),
-          .cancel(id: CancelId.monitorActivePresetId),
-          .cancel(id: CancelId.saveDebouncer),
-          .cancel(id: CancelId.updateDebouncer)
+          CancelId.allCases.map { .cancel(id: $0) }
         )
 
       case .enabled:
