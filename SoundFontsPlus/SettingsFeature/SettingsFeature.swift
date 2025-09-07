@@ -301,11 +301,9 @@ extension SettingsView {
       Toggle(isOn: $store.favoritesOnTop) {
         Text("Favorites on top")
       }
-      .checkedStyle()
       Toggle(isOn: $store.showOnlyFavorites) {
         Text("Show only favorites")
       }
-      .checkedStyle()
       Toggle(isOn: $store.starFavoriteNames) {
         HStack {
           Text("Show")
@@ -313,12 +311,11 @@ extension SettingsView {
           Text("in favorites")
         }
       }
-      .checkedStyle()
       Toggle(isOn: $store.playSoundOnPresetChange) {
         Text("Play sound on preset change")
       }
-      .checkedStyle()
     }
+    .circledCheckMarkToggleStyle()
   }
 
   private var keyboardSection: some View {
@@ -340,15 +337,15 @@ extension SettingsView {
       Toggle(isOn: $store.showKeyNotes) {
         Text("Show key note in toolbar")
       }
-      .checkedStyle()
+      .circledCheckMarkToggleStyle()
       Toggle(isOn: $store.showSolfegeTags) {
         Text("Show solfège tag in toolbar")
       }
-      .checkedStyle()
+      .circledCheckMarkToggleStyle()
       Toggle(isOn: $store.keyboardSlides) {
         Text("Keyboard slides with touch")
       }
-      .checkedStyle()
+      .circledCheckMarkToggleStyle()
       VStack {
         Text("Key Width")
         Slider(value: $store.keyWidth, in: 32...96, step: 1) {
@@ -384,6 +381,7 @@ extension SettingsView {
       Toggle(isOn: $store.midiAutoConnect) {
         Text("New device auto-connect")
       }
+      .circledCheckMarkToggleStyle()
       HStack {
         Text("Bluetooth MIDI")
         Spacer()
@@ -425,17 +423,17 @@ extension SettingsView {
     Section("Application") {
       Group {
         Toggle(isOn: $store.backgroundProcessing) {
-          Text("Background processing mdoe")
+          Text("Background processing mode")
         }
-        .checkedStyle()
+        .circledCheckMarkToggleStyle()
         Toggle(isOn: $store.copyFileWhenInstalling) {
           Text("Copy SF2 files to app folder when adding")
         }
-        .checkedStyle()
+        .circledCheckMarkToggleStyle()
         Toggle(isOn: $store.disableIdleTimer) {
           Text("Disable device locking while active")
         }
-        .checkedStyle()
+        .circledCheckMarkToggleStyle()
         HStack {
           Text("Hide built-in SF2 files")
           Spacer()

@@ -133,7 +133,7 @@ public struct TuningView: View {
         Toggle(isOn: $store.enabled) {
           Text("Enabled")
         }
-        .checkedStyle()
+        .circledCheckMarkToggleStyle()
         HStack {
           Text("Shift A4 to:")
             .foregroundStyle(store.enabled ? .primary : .secondary)

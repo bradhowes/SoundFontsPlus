@@ -106,7 +106,7 @@
 		BDAF5B052DE2558C00B8FB13 /* StyledList.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AFF2DE2558C00B8FB13 /* StyledList.swift */; };
 		BDAF5B062DE2558C00B8FB13 /* AlertsAndConfirmationDialogs.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AF92DE2558C00B8FB13 /* AlertsAndConfirmationDialogs.swift */; };
 		BDAF5B092DE2558C00B8FB13 /* LongPressModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AFD2DE2558C00B8FB13 /* LongPressModifier.swift */; };
-		BDAF5B0A2DE2558C00B8FB13 /* CheckToggleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AFA2DE2558C00B8FB13 /* CheckToggleStyle.swift */; };
+		BDAF5B0A2DE2558C00B8FB13 /* CircledCheckMarkToggleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AFA2DE2558C00B8FB13 /* CircledCheckMarkToggleStyle.swift */; };
 		BDAF5B0B2DE2558C00B8FB13 /* IndicatorModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5AFC2DE2558C00B8FB13 /* IndicatorModifier.swift */; };
 		BDAF5B122DE2559100B8FB13 /* TagsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B102DE2559100B8FB13 /* TagsList.swift */; };
 		BDAF5B132DE2559100B8FB13 /* TagsEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B0F2DE2559100B8FB13 /* TagsEditor.swift */; };
@@ -300,7 +300,7 @@
 		BDAF5AF02DE2558800B8FB13 /* SoundFontsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFontsList.swift; sourceTree = "<group>"; };
 		BDAF5AF12DE2558800B8FB13 /* SoundFontsSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFontsSupport.swift; sourceTree = "<group>"; };
 		BDAF5AF92DE2558C00B8FB13 /* AlertsAndConfirmationDialogs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsAndConfirmationDialogs.swift; sourceTree = "<group>"; };
-		BDAF5AFA2DE2558C00B8FB13 /* CheckToggleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckToggleStyle.swift; sourceTree = "<group>"; };
+		BDAF5AFA2DE2558C00B8FB13 /* CircledCheckMarkToggleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircledCheckMarkToggleStyle.swift; sourceTree = "<group>"; };
 		BDAF5AFB2DE2558C00B8FB13 /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		BDAF5AFC2DE2558C00B8FB13 /* IndicatorModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndicatorModifier.swift; sourceTree = "<group>"; };
 		BDAF5AFD2DE2558C00B8FB13 /* LongPressModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LongPressModifier.swift; sourceTree = "<group>"; };
@@ -732,7 +732,7 @@
 			isa = PBXGroup;
 			children = (
 				BDAF5AF92DE2558C00B8FB13 /* AlertsAndConfirmationDialogs.swift */,
-				BDAF5AFA2DE2558C00B8FB13 /* CheckToggleStyle.swift */,
+				BDAF5AFA2DE2558C00B8FB13 /* CircledCheckMarkToggleStyle.swift */,
 				BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */,
 				BDAF5AFB2DE2558C00B8FB13 /* Fonts.swift */,
 				BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */,
@@ -1217,7 +1217,7 @@
 				BDAF5B122DE2559100B8FB13 /* TagsList.swift in Sources */,
 				BDAF5B132DE2559100B8FB13 /* TagsEditor.swift in Sources */,
 				BDAF5B152DE2559100B8FB13 /* TagNameEditor.swift in Sources */,
-				BDAF5B0A2DE2558C00B8FB13 /* CheckToggleStyle.swift in Sources */,
+				BDAF5B0A2DE2558C00B8FB13 /* CircledCheckMarkToggleStyle.swift in Sources */,
 				BDAF5B0B2DE2558C00B8FB13 /* IndicatorModifier.swift in Sources */,
 				BD59D4EA2E47B62C00B2250B /* MIDIConnectionsFeature.swift in Sources */,
 				BD33FF572E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift in Sources */,
