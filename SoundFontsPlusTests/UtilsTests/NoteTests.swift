@@ -48,6 +48,40 @@ struct NoteTests {
     #expect(Note(midiNoteValue: 61).accented == true)
   }
 
+  @Test func labels() async throws {
+    #expect(Note(midiNoteValue: 49).labelWithSharps == "C♯3")
+    #expect(Note(midiNoteValue: 51).labelWithSharps == "D♯3")
+    #expect(Note(midiNoteValue: 54).labelWithSharps == "F♯3")
+    #expect(Note(midiNoteValue: 56).labelWithSharps == "G♯3")
+    #expect(Note(midiNoteValue: 58).labelWithSharps == "A♯3")
+
+    #expect(Note(midiNoteValue: 49).labelWithFlats == "D♭3")
+    #expect(Note(midiNoteValue: 51).labelWithFlats == "E♭3")
+    #expect(Note(midiNoteValue: 54).labelWithFlats == "G♭3")
+    #expect(Note(midiNoteValue: 56).labelWithFlats == "A♭3")
+    #expect(Note(midiNoteValue: 58).labelWithFlats == "B♭3")
+
+    #expect(Note(midiNoteValue: 58).description == "A♯3")
+
+    #expect(Note(midiNoteValue: 48).fullLabel(withSolfege: false) == "C3")
+    #expect(Note(midiNoteValue: 48).fullLabel(withSolfege: true) == "C3 (Do)")
+    #expect(Note(midiNoteValue: 49).fullLabel(withSolfege: true) == "C♯3 (Do)")
+  }
+
+  @Test func offset() async throws {
+    #expect(Note(midiNoteValue: 49).offset(-1).labelWithSharps == "C3")
+    #expect(Note(midiNoteValue: 49).offset(1).labelWithSharps == "D3")
+    #expect(Note(midiNoteValue: 49).offset(2).labelWithSharps == "D♯3")
+  }
+
+  @Test func ID() async throws {
+    #expect(Note(midiNoteValue: 49).id == 49)
+  }
+
+  @Test func queryBinding() async throws {
+    #expect(Note(midiNoteValue: 49).queryBinding.debugDescription == "'\(Note(midiNoteValue: 49).label)'")
+  }
+
   @Test func phantomNotes() async throws {
     #expect(Note(midiNoteValue: 58).isPhantomNote == false)
     #expect(Note.phantomNote.isPhantomNote == true)
