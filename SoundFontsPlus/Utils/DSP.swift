@@ -1,5 +1,4 @@
 import Foundation
-import Numerics
 
 public enum DSP {}
 
@@ -30,9 +29,9 @@ extension DSP {
 
    - Zero indicates no attenuation (1.0)
    - 20 centibels (-2 dB) gives 0.1 attenuation (10% reduction of original signal)
-   - 60 centibels (-6 dB) gives 0.5 attenuation (50% reduction of original signal)
-   - 120 centibels (-12 dB) gives 0.25 attenuation
-
+   - 60 centibels (-6 dB) gives 0.5 attenuation (50% reduction)
+   - 120 centibels (-12 dB) gives 0.25 attenuation (75% reduction)
+   - 200 centibels (-20 db) gives 0.1 attenuation
    and every 200 is a reduction by a power of 10 (200 = 0.1, 400 = 0.001, etc.)
 
    NOTE: attenuation greater than 96 dB is in the noise floor for 16-bit samples.
@@ -65,5 +64,24 @@ extension DSP {
 
   static func negativeUnipolarConcave(_ value: Double, minValue: Double, outputRange: ClosedRange<Double>) -> Double {
     value == 1.0 ? 1.0 : -20.0 / 96.0 * Double.log10((((1.0 - value)*(1.0 - value)) / outputRange.distance))
+  }
+
+  static func positiveUnipolarConvex(_ norm: Double) -> Double {
+    norm == 0.0 ? 1.0 : 1.0 - -20.0 / 96.0 * Double.log10(Double(norm * norm))
+  }
+
+  struct Attenuation {
+    var value: Double
+    var slider: Double { value == 0.0 ? 0.0 : sqrt(pow(10.0, (1.0 - value) * -960.0 / 200.0)) }
+
+    mutating func update(_ slider: Double) {
+      value = slider == 0.0 ? 0.0 : (1.0 - (-200.0 / 960.0 * log10(slider * slider)))
+    }
+  }
+
+  struct Pan {
+    var value: Double
+    var slider: Double { value }
+    mutating func update(_ slider: Double) { value = slider }
   }
 }

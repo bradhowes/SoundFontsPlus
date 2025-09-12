@@ -9,8 +9,10 @@ public struct AudioConfig: Hashable, Identifiable, Sendable {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
+  /// Initial attenuation of audio samples for this preset. [-90.0, +12.0]
   public var gain: Double = 0.0
-  public var pan: Double = 0.0
+  /// Initial pan/balance of audio samples for this preset. [-1.0, +1.0]
+  public var pan: Double = 0.5
 
   public var keyboardLowestNoteEnabled: Bool = false
   public var keyboardLowestNote: Note = .C4
@@ -52,7 +54,8 @@ extension AudioConfig.Draft: Equatable, Sendable {}
 
 extension AudioConfig {
 
-  public static func with(key presetId: Preset.ID) -> AudioConfig? {
+  public static func with(key presetId: Preset.ID?) -> AudioConfig? {
+    guard let presetId else { return nil }
     @Dependency(\.defaultDatabase) var database
     return try? database.read {
       try Self.all.where { $0.presetId.eq(presetId) }.fetchOne($0)

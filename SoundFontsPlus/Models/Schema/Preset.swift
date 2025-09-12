@@ -192,6 +192,11 @@ extension Preset {
     return candidate
   }
 
+  public static var active: Preset.ID? {
+    @Shared(.activeState) var activeState
+    return activeState.activePresetId
+  }
+
   public static var source: SoundFont.ID? {
     @Shared(.activeState) var activeState
     return activeState.presetSource

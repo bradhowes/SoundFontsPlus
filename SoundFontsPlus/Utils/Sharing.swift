@@ -3,7 +3,6 @@
 @preconcurrency import AVFAudio
 import Combine
 import MorkAndMIDI
-import SF2LibAU
 import Sharing
 import Tagged
 
@@ -97,6 +96,11 @@ extension SharedKey where Self == InMemoryKey<AUParameterTree>.Default {
 }
 
 extension MIDI: @unchecked @retroactive Sendable {}
+
+extension SharedKey where Self == InMemoryKey<Double>.Default {
+  public static var activePresetGain: Self { Self[.inMemory("activePresetGain"), default: 0.0] }
+  public static var activePresetPan: Self { Self[.inMemory("activePresetPan"), default: 0.0] }
+}
 
 extension SharedKey where Self == InMemoryKey<MIDI?>.Default {
   public static var midi: Self { Self[.inMemory("midi"), default: nil] }

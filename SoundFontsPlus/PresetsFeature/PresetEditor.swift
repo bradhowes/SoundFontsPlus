@@ -22,6 +22,8 @@ public struct PresetEditor {
     var audioConfig: AudioConfig.Draft
     var tuning: TuningFeature.State
 
+    var gainSlider: Double
+
     var isFavorite: Bool { preset.kind == .favorite }
 
     public init(sectionId: Int, preset: Preset) {
@@ -35,6 +37,7 @@ public struct PresetEditor {
       self.soundFontName = preset.soundFontName
       self.audioConfig = audioConfigDraft
       self.tuning = .init(frequency: audioConfigDraft.customTuning, enabled: audioConfigDraft.customTuningEnabled)
+      self.gainSlider = audioConfigDraft.gain
     }
 
     public mutating func save() {
@@ -272,8 +275,8 @@ public struct PresetEditorView: View {
       LabeledContent("Gain", value: formattedGainValue)
       HStack {
         Slider(
-          value: $store.audioConfig.gain,
-          in: -90...12
+          value: $store.gainSlider,
+          in: 0...100
         )
         Button {
           store.send(.resetGainTapped)

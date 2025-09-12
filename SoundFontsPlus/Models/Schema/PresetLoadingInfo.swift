@@ -15,6 +15,8 @@ public struct PresetLoadingInfo: Equatable, Sendable {
   public let location: Data
   public let presetName: String
   public let soundFontName: String
+  public let gain: Double
+  public let pan: Double
 
   public init(
     soundFontId: SoundFont.ID,
@@ -22,7 +24,9 @@ public struct PresetLoadingInfo: Equatable, Sendable {
     kind: SoundFont.Kind,
     location: Data,
     presetName: String,
-    soundFontName: String
+    soundFontName: String,
+    gain: Double?,
+    pan: Double?
   ) {
     self.soundFontId = soundFontId
     self.presetIndex = presetIndex
@@ -30,26 +34,33 @@ public struct PresetLoadingInfo: Equatable, Sendable {
     self.location = location
     self.presetName = presetName
     self.soundFontName = soundFontName
+    self.gain = gain ?? 0.0
+    self.pan = pan ?? 0.0
   }
 
-  static var query: Select<PresetLoadingInfo.Columns.QueryValue, SoundFont, Preset> {
+  static var query: Select<PresetLoadingInfo.Columns.QueryValue, Preset, (SoundFont, AudioConfig?)> {
     @Shared(.activeState) var activeState
-    return SoundFont
-      .join(Preset.all) {
-        $1.soundFontId.eq($0.id)
+    return Preset
+      .where {
+        $0.id.eq(activeState.activePresetId ?? -1)
+      }
+      .join(SoundFont.all) {
+        $0.soundFontId.eq($1.id)
+      }
+      .leftJoin(AudioConfig.all) {
+        $0.id.eq($2.presetId)
       }
       .select {
         PresetLoadingInfo.Columns(
-          soundFontId: $0.id,
-          presetIndex: $1.index,
-          kind: $0.kind,
-          location: $0.location,
-          presetName: $1.displayName,
-          soundFontName: $0.displayName
+          soundFontId: $1.id,
+          presetIndex: $0.index,
+          kind: $1.kind,
+          location: $1.location,
+          presetName: $0.displayName,
+          soundFontName: $1.displayName,
+          gain: $2.gain ?? 0.0,
+          pan: $2.pan ?? 0.0
         )
-      }
-      .where {
-        $1.id.eq(activeState.activePresetId ?? -1)
       }
   }
 }
