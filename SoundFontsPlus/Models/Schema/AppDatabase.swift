@@ -13,7 +13,7 @@ public func appDatabase() throws -> any DatabaseWriter {
   @Dependency(\.context) var context
 
   let database: any DatabaseWriter
-  var configuration = Configuration()
+  var configuration = GRDB.Configuration()
 
   configuration.foreignKeysEnabled = true
   configuration.prepareDatabase { db in

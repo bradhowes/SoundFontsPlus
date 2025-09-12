@@ -5,7 +5,6 @@ import AudioToolbox
 import ComposableArchitecture
 @preconcurrency import CoreAudioKit
 import os
-import SF2LibAU
 import Sharing
 import SwiftUI
 
@@ -92,7 +91,7 @@ public struct SynthFeature {
   }
 }
 
-extension SF2LibAU: @retroactive @unchecked Sendable {}
+extension SF2LibAU: @unchecked Sendable {}
 
 extension SynthFeature {
 
@@ -377,7 +376,7 @@ extension SynthFeature {
     let result: Bool
     if presetInfo.soundFontId == state.loadedSoundFontId {
       log.info("loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = synth.sendUsePreset(preset: presetInfo.presetIndex)
+      result = synth.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
     } else {
       guard let location = try? SoundFontKind(kind: presetInfo.kind, location: presetInfo.location)
       else {
@@ -386,7 +385,12 @@ extension SynthFeature {
       }
       let path = location.path.path(percentEncoded: false)
       log.info("loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = synth.sendLoadFileUsePreset(path: path, preset: presetInfo.presetIndex)
+      result = synth.sendLoadFileUsePreset(
+        path: path,
+        preset: presetInfo.presetIndex,
+        gain: presetInfo.gain,
+        pan: presetInfo.pan
+      )
     }
 
     log.info("loaded \(result)")
@@ -395,6 +399,7 @@ extension SynthFeature {
     let firstTime = state.loadedSoundFontId == nil
     state.loadedSoundFontId = presetInfo.soundFontId
     state.loadedPresetIndex = presetInfo.presetIndex
+
     return firstTime ? .none : playNote(state, synth: synth)
   }
 }

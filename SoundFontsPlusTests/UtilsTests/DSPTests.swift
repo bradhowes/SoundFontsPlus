@@ -1,135 +1,40 @@
 import Testing
+import Numerics
 
 @testable import SoundFontsPlus
 
-struct NoteTests {
+struct DSPTests {
 
-  @Test func initCheck() async throws {
-    #expect(Note(midiNoteValue: 60).midiNoteValue == 60)
-    #expect(Note(midiNoteValue: 60).label == "C4")
-    #expect(Note(midiNoteValue: 0).label == "C-1")
-    #expect(Note(midiNoteValue: 127).label == "G9")
+  @Test func panToCCValue() throws {
+    #expect(DSP.panToCCValue(-1.0) == UInt8(0))
+    #expect(DSP.panToCCValue(0.0) == UInt8(63))
+    #expect(DSP.panToCCValue(1.0) == UInt8(127))
   }
 
-  @Test func rawRepresentable() async throws {
-    #expect(Note(rawValue: "") == nil)
-    #expect(Note(rawValue: "C") == nil)
-    #expect(Note(rawValue: "C1234") == nil)
-    #expect(Note(rawValue: "12") == nil)
-    #expect(Note(rawValue: "CC") == nil)
-    #expect(Note(rawValue: "C-") == nil)
-    #expect(Note(rawValue: "c") == nil)
-    #expect(Note(rawValue: "Z") == nil)
-    #expect(Note(rawValue: "Ca1") == nil)
-    #expect(Note(rawValue: "Cbb1") == nil)
-    #expect(Note(rawValue: "Cb-1") == nil)
-    #expect(Note(rawValue: "G#9") == nil)
-
-    #expect(Note(rawValue: "C-1")?.midiNoteValue == 0)
-    #expect(Note(rawValue: "C#-1")?.midiNoteValue == 1)
-    #expect(Note(rawValue: "Gb9")?.midiNoteValue == 126)
-    #expect(Note(rawValue: "G9")?.midiNoteValue == 127)
+  @Test func gainToCCValue() throws {
+    #expect(DSP.gainToCCValue(1.0) == UInt8(1))
+    #expect(DSP.gainToCCValue(0.0) == UInt8(0))
   }
 
-  @Test func noteIndex() async throws {
-    #expect(Note(rawValue: "C-1")?.noteIndex == 0)
-    #expect(Note(rawValue: "C0")?.noteIndex == 0)
-    #expect(Note(rawValue: "C9")?.noteIndex == 0)
-    #expect(Note(rawValue: "C#-1")?.noteIndex == 1)
-    #expect(Note(rawValue: "Gb9")?.noteIndex == 6)
-    #expect(Note(rawValue: "G9")?.noteIndex == 7)
-    #expect(Note(rawValue: "B8")?.noteIndex == 11)
-  }
-
-  @Test func accented() async throws {
-    #expect(Note(midiNoteValue: 58).accented == true)
-    #expect(Note(midiNoteValue: 59).accented == false)
-    #expect(Note(midiNoteValue: 60).accented == false)
-    #expect(Note(midiNoteValue: 61).accented == true)
-  }
-
-  @Test func labels() async throws {
-    #expect(Note(midiNoteValue: 49).labelWithSharps == "C♯3")
-    #expect(Note(midiNoteValue: 51).labelWithSharps == "D♯3")
-    #expect(Note(midiNoteValue: 54).labelWithSharps == "F♯3")
-    #expect(Note(midiNoteValue: 56).labelWithSharps == "G♯3")
-    #expect(Note(midiNoteValue: 58).labelWithSharps == "A♯3")
-
-    #expect(Note(midiNoteValue: 49).labelWithFlats == "D♭3")
-    #expect(Note(midiNoteValue: 51).labelWithFlats == "E♭3")
-    #expect(Note(midiNoteValue: 54).labelWithFlats == "G♭3")
-    #expect(Note(midiNoteValue: 56).labelWithFlats == "A♭3")
-    #expect(Note(midiNoteValue: 58).labelWithFlats == "B♭3")
-
-    #expect(Note(midiNoteValue: 58).description == "A♯3")
-
-    #expect(Note(midiNoteValue: 48).fullLabel(withSolfege: false) == "C3")
-    #expect(Note(midiNoteValue: 48).fullLabel(withSolfege: true) == "C3 (Do)")
-    #expect(Note(midiNoteValue: 49).fullLabel(withSolfege: true) == "C♯3 (Do)")
-  }
-
-  @Test func offset() async throws {
-    #expect(Note(midiNoteValue: 49).offset(-1).labelWithSharps == "C3")
-    #expect(Note(midiNoteValue: 49).offset(1).labelWithSharps == "D3")
-    #expect(Note(midiNoteValue: 49).offset(2).labelWithSharps == "D♯3")
-  }
-
-  @Test func ID() async throws {
-    #expect(Note(midiNoteValue: 49).id == 49)
-  }
-
-  @Test func queryBinding() async throws {
-    #expect(Note(midiNoteValue: 49).queryBinding.debugDescription == "'\(Note(midiNoteValue: 49).label)'")
-  }
-
-  @Test func phantomNotes() async throws {
-    #expect(Note(midiNoteValue: 58).isPhantomNote == false)
-    #expect(Note.phantomNote.isPhantomNote == true)
-    #expect(Note.phantomNote.isValidMidiNote == false)
-  }
-
-  @Test func solfege() async throws {
-    #expect(Note(midiNoteValue: 60).solfege == "Do")
-    #expect(Note(midiNoteValue: 61).solfege == "Do")
-    #expect(Note(midiNoteValue: 62).solfege == "Re")
-    #expect(Note(midiNoteValue: 63).solfege == "Re")
-    #expect(Note(midiNoteValue: 64).solfege == "Mi")
-    #expect(Note(midiNoteValue: 65).solfege == "Fa")
-    #expect(Note(midiNoteValue: 66).solfege == "Fa")
-    #expect(Note(midiNoteValue: 67).solfege == "Sol")
-    #expect(Note(midiNoteValue: 68).solfege == "Sol")
-    #expect(Note(midiNoteValue: 69).solfege == "La")
-    #expect(Note(midiNoteValue: 70).solfege == "La")
-    #expect(Note(midiNoteValue: 71).solfege == "Ti")
-  }
-
-  @Test func comparisons() async throws {
-    #expect(Note(midiNoteValue: 60) == Note(midiNoteValue: 60))
-    #expect(Note(midiNoteValue: 60) <= Note(midiNoteValue: 60))
-    #expect(!(Note(midiNoteValue: 60) < Note(midiNoteValue: 60)))
-    #expect(Note(midiNoteValue: 60) != Note(midiNoteValue: 61))
-    #expect(Note(midiNoteValue: 60) < Note(midiNoteValue: 61))
-    #expect(!(Note(midiNoteValue: 61) < Note(midiNoteValue: 60)))
-  }
-
-  @Test func hashing() async throws {
-    var hasher1 = Hasher()
-    hasher1.combine(60)
-    hasher1.combine(61)
-    hasher1.combine(62)
-
-    var hasher2 = Hasher()
-    Note(midiNoteValue: 60).hash(into: &hasher2)
-    Note(midiNoteValue: 61).hash(into: &hasher2)
-    Note(midiNoteValue: 62).hash(into: &hasher2)
-
-    #expect(hasher1.finalize() == hasher2.finalize())
-  }
-
-  @Test func range() throws {
-    #expect((Note(midiNoteValue: 60)...Note(midiNoteValue: 60)).count == 1)
-    #expect((Note(midiNoteValue: 60)..<Note(midiNoteValue: 61)).count == 1)
-    #expect((Note(midiNoteValue: 60)...Note(midiNoteValue: 70)).count == 11)
-    #expect(Note(midiNoteValue: 60).advanced(by: 3) == Note(midiNoteValue: 63))
+  @Test func attenuationConversions() throws {
+    var gain = DSP.Attenuation(value: 0.0)
+    #expect(gain.slider.isApproximatelyEqual(to: 0.0))
+    #expect(gain.value.isApproximatelyEqual(to: 0.0))
+    gain.update(1.0)
+    #expect(gain.slider == 1.0)
+    #expect(gain.value == 1.0)
+    gain.update(0.5)
+    #expect(gain.slider.isApproximatelyEqual(to: 0.5))
+    #expect(gain.value.isApproximatelyEqual(to: 0.8745708351400079))
+    gain.update(0.25)
+    #expect(gain.slider.isApproximatelyEqual(to: 0.25))
+    #expect(gain.value.isApproximatelyEqual(to: 0.7491416702800157))
+    gain.update(0.10)
+    #expect(gain.slider.isApproximatelyEqual(to: 0.10))
+    #expect(gain.value.isApproximatelyEqual(to: 0.5833333333333333))
+    gain.update(0.0)
+    #expect(gain.slider.isApproximatelyEqual(to: 0.0))
+    #expect(gain.value.isApproximatelyEqual(to: 0.0))
   }
 }
+

@@ -1,5 +1,5 @@
 {
-  "originHash" : "4e2c10425a2c7af83291c5efc9b653becbfa3b31bd3965a922db0e7d66f3e604",
+  "originHash" : "a41f5363a73e117689f44020af4dac716ab24bb57943f44da534664ba82a68f0",
   "pins" : [
     {
       "identity" : "auv3-support",
@@ -87,17 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/SF2Lib",
       "state" : {
-        "revision" : "7cb86f923405951b9e38ffc79b222b4b16abb9d2",
-        "version" : "6.7.0"
-      }
-    },
-    {
-      "identity" : "sf2libau",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bradhowes/SF2LibAU",
-      "state" : {
-        "revision" : "b2ba1d46d23a51d2dd01233bcd68e1dd16af612c",
-        "version" : "0.0.5"
+        "revision" : "6880e209e27ab3504b0d39cb128e08b4a2f3e514",
+        "version" : "8.1.4"
       }
     },
     {
@@ -105,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sharing-grdb",
       "state" : {
-        "revision" : "09e4c8a59dd670bdaec00c8c5007420a35236b58",
-        "version" : "0.7.0"
+        "revision" : "b8bbdc5762d6ae30fb1e45a780e134ae1953d284",
+        "version" : "0.8.0"
       }
     },
     {
@@ -222,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-perception",
       "state" : {
-        "revision" : "59b00dfa5548b5b91ebbda6d94d6328d82ca00fe",
-        "version" : "2.0.6"
+        "revision" : "52bc59a5c7c3f0420c6c31d643d55d64b3f8c013",
+        "version" : "2.0.7"
       }
     },
     {
@@ -249,8 +240,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "49f18c24145a6e061cc581662f468b7c18523b8d",
-        "version" : "0.18.0"
+        "revision" : "f576582c138311e442c564bd7a893e950765e46a",
+        "version" : "0.19.1"
       }
     },
     {
@@ -276,8 +267,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SimplyDanny/SwiftLintPlugins",
       "state" : {
-        "revision" : "634ada2eee7eac4ca79bf1fc8943ddc91408eb06",
-        "version" : "0.60.0"
+        "revision" : "6166499ede0efe43c3809f101d2c3cd409e2b77a",
+        "version" : "0.61.0"
       }
     },
     {
