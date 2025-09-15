@@ -104,7 +104,6 @@ public struct TagsListView: View {
         Spacer()
         Text("\(tagInfo.soundFontsCount)")
       }
-      .contentShape(Rectangle())
       .font(Font.custom("Eurostile", size: 20))
       .indicator(activeState.activeTagId == tagInfo.id ? .active : .none )
     }
@@ -128,7 +127,7 @@ public struct TagsListView: View {
       }
     }
     .simultaneousGesture(
-      LongPressGesture()
+      LongPressGesture(minimumDuration: 1.0)
         .onEnded { _ in store.send(.longPressGestureFired) }
     )
   }
