@@ -14,7 +14,7 @@ extension BaseSuite {
   @Suite
   struct DelayEffectTests {
     fileprivate let device = DelayDevice()
-    @Shared(.parameterTree) var parameterTree = ParameterAddress.createParameterTree()
+    @Shared(.parameterTree) var parameterTree
     @Shared(.delayLockEnabled) var locked = false
     @Shared(.activeState) var activeState
 

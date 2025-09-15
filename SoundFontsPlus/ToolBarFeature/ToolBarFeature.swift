@@ -4,6 +4,8 @@ import AUv3Controls
 import Combine
 import ComposableArchitecture
 import Dependencies
+import Engine
+import SF2Lib
 import Sharing
 import SwiftUI
 
@@ -34,6 +36,7 @@ public struct ToolBarFeature {
     var lastPlayedKey: Note?
     var midiTrafficIndicator: MIDITrafficIndicatorFeature.State = .init(tag: "ToolBar")
     var fileImporter: FileImporterFeature.State = .init()
+    var activeVoiceCount: Int = 0
 
     public init() {
       @Shared(.firstVisibleKey) var firstVisibleKey: Note
@@ -51,6 +54,7 @@ public struct ToolBarFeature {
 
   public enum Action {
     case activePresetIdChanged(Preset.ID?)
+    case activeVoiceCountChanged(Int)
     case addSoundFontButtonTapped
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
@@ -59,6 +63,7 @@ public struct ToolBarFeature {
     case helpButtonTapped
     case initialize
     case midiTrafficIndicator(MIDITrafficIndicatorFeature.Action)
+    case monitorActiveVoiceCount
     case presetsVisibilityButtonTapped
     case settingsButtonTapped
     case setVisibleKeyRange(lowest: Note, highest: Note)
@@ -93,6 +98,10 @@ public struct ToolBarFeature {
       case .activePresetIdChanged(let presetId):
         return activePresetIdChanged(&state, presetId: presetId)
 
+      case .activeVoiceCountChanged(let count):
+        state.activeVoiceCount = count
+        return .none
+
       case .addSoundFontButtonTapped:
         return reduce(into: &state, action: .fileImporter(.showFileImporter))
 
@@ -116,6 +125,9 @@ public struct ToolBarFeature {
 
       case .initialize:
         return initialize(&state)
+
+      case .monitorActiveVoiceCount:
+        return monitorActiveVoiceCount(&state)
 
       case .lastPlayedKeyChanged(let key):
         return lastPlayedKeyChanged(&state, key: key)
@@ -154,6 +166,7 @@ public struct ToolBarFeature {
 
   private enum CancelId {
     case lastPlayedKeyChanged
+    case monitorActiveVoiceCount
   }
 
   @Shared(.activeState) var activeState
@@ -184,7 +197,32 @@ private extension ToolBarFeature {
   }
 
   func initialize(_ state: inout State) -> Effect<Action> {
+
+//    let publisher = synthAudioUnit?.auAudioUnit.parameterTree?.publisher(for: \AUParameterTree.activeVoiceCount)
     reduce(into: &state, action: .midiTrafficIndicator(.initialize))
+  }
+
+  func monitorActiveVoiceCount(_ state: inout State) -> Effect<Action> {
+    @Shared(.synthAudioUnit) var synthAudioUnit
+    guard let parameterTree = synthAudioUnit?.auAudioUnit.parameterTree else {
+      fatalError("unexpected nil parameterTree chain")
+    }
+
+    guard
+      let node = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.activeVoiceCount.rawValue)
+    else {
+      fatalError("did not find activeVoiceCount parameter")
+    }
+
+    return .run { send in
+      for await value in node.publisher(for: \.value)
+        .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
+        .map({ Int($0) })
+        .values {
+        print("actveVoiceCount: \(value)")
+        await send(.activeVoiceCountChanged(value))
+      }
+    }.cancellable(id: CancelId.monitorActiveVoiceCount)
   }
 
   func settingsButtonTapped(_ state: inout State) -> Effect<Action> {
@@ -318,6 +356,7 @@ public struct ToolBarFeatureView: View {
     .background(Color.black)
     .frame(maxHeight: 40)
     .animation(.smooth, value: store.showMoreButtons)
+    .animation(.smooth, value: store.activeVoiceCount)
     .task {
       await store.send(.initialize).finish()
     }
@@ -327,11 +366,19 @@ public struct ToolBarFeatureView: View {
     ZStack(alignment: .leading) {
       MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
       HStack {
+        voiceCount
         Spacer()
         statusText
         Spacer()
       }
     }
+  }
+
+  private var voiceCount: some View {
+    Text("\(store.activeVoiceCount)")
+      .font(.activeVoiceCount)
+      .indicator(.activeNoIndicator)
+      .contentTransition(.interpolate)
   }
 
   private var statusText: some View {

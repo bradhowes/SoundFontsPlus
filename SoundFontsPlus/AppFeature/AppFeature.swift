@@ -154,6 +154,9 @@ struct AppFeature {
       case .soundFontsList:
         return .none
 
+      case .synth(.synthCreated):
+        return reduce(into: &state, action: .toolBar(.monitorActiveVoiceCount))
+
       case .synth:
         return .none
 
@@ -529,7 +532,6 @@ extension AppFeatureView {
     prepareDependencies {
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
-      $0.parameters = ParameterAddress.createParameterTree()
       $0.delayDevice = .init(setConfig: { print("delayDevice.set: ", $0) })
       $0.reverbDevice = .init(setConfig: { print("reverbDevice.set: ", $0) })
       navigationBarTitleStyle()

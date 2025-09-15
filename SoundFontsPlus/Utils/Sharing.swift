@@ -110,6 +110,8 @@ extension SharedKey where Self == InMemoryKey<MIDIMonitor?>.Default {
   public static var midiMonitor: Self { Self[.inMemory("midiMonitor"), default: nil] }
 }
 
+extension AVAudioUnit: @unchecked @retroactive Sendable {}
+
 extension SharedKey where Self == InMemoryKey<AVAudioUnit?>.Default {
   public static var synthAudioUnit: Self { Self[.inMemory("synthAudioUnit"), default: nil] }
 }
