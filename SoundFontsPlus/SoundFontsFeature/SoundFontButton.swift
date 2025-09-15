@@ -146,7 +146,6 @@ struct SoundFontButtonView: View {
         .indicator(state)
     }
     .listRowSeparator(.hidden)
-    .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
         store.send(.editButtonTapped, animation: .default)
@@ -166,9 +165,10 @@ struct SoundFontButtonView: View {
       }
     }
     .simultaneousGesture(
-      LongPressGesture()
+      LongPressGesture(minimumDuration: 1.0)
         .onEnded { _ in store.send(.longPressGestureFired) }
     )
+    .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
   }
 }
 
