@@ -34,22 +34,23 @@ public struct SettingsFeature {
     @Presents var destination: Destination.State?
     var midiConnectCount: Int = 0
 
-    @Shared(.keyWidth) var keyWidth
-    @Shared(.keyboardSlides) var keyboardSlides
-    @Shared(.showKeyNotes) var showKeyNotes
-    @Shared(.showSolfegeTags) var showSolfegeTags
-    @Shared(.keyLabels) var keyLabels
-    @Shared(.midiAutoConnect) var midiAutoConnect
-    @Shared(.midiChannel) var midiChannel
     @Shared(.backgroundProcessing) var backgroundProcessing
-    @Shared(.pitchBendRange) var pitchBendRange
-    @Shared(.favoritesOnTop) var favoritesOnTop
-    @Shared(.showOnlyFavorites) var showOnlyFavorites
-    @Shared(.starFavoriteNames) var starFavoriteNames
-    @Shared(.favoriteSymbolName) var favoriteSymbolName
-    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
     @Shared(.disableIdleTimer) var disableIdleTimer
+    @Shared(.favoritesOnTop) var favoritesOnTop
+    @Shared(.favoriteSymbolName) var favoriteSymbolName
+    @Shared(.keyboardSlides) var keyboardSlides
+    @Shared(.keyLabels) var keyLabels
+    @Shared(.keyWidth) var keyWidth
+    @Shared(.midiAutoConnect) var midiAutoConnect
+    @Shared(.midiChannel) var midiChannel
+    @Shared(.pitchBendRange) var pitchBendRange
+    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
+    @Shared(.showActiveVoiceCount) var showActiveVoiceCount
+    @Shared(.showKeyNotes) var showKeyNotes
+    @Shared(.showOnlyFavorites) var showOnlyFavorites
+    @Shared(.showSolfegeTags) var showSolfegeTags
+    @Shared(.starFavoriteNames) var starFavoriteNames
 
     var midiTrafficIndicator: MIDITrafficIndicatorFeature.State = .init(tag: "Settings")
     var tuning: TuningFeature.State
@@ -268,7 +269,7 @@ public struct SettingsView: View {
           midiSection
         }
         tuningSection
-        fileSection
+        appSection
         aboutSection
       }
       .font(.settings)
@@ -419,9 +420,13 @@ extension SettingsView {
     TuningView(store: Store(initialState: store.tuning) { TuningFeature() })
   }
 
-  private var fileSection: some View {
+  private var appSection: some View {
     Section("Application") {
       Group {
+        Toggle(isOn: $store.showActiveVoiceCount) {
+          Text("Show active voice counter")
+        }
+        .circledCheckMarkToggleStyle()
         Toggle(isOn: $store.backgroundProcessing) {
           Text("Background processing mode")
         }

@@ -10,21 +10,22 @@ import Tagged
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var backgroundProcessing: Self { Self[.appStorage("backgroundProcessing"), default: true] }
+  public static var copyFileWhenInstalling: Self { Self[.appStorage("copyFileWhenInstalling"), default: true]}
   public static var delayLockEnabled: Self { Self[.appStorage("delayLockEnabled"), default: false] }
+  public static var disableIdleTimer: Self { Self[.appStorage("disableIdleTimer"), default: false]}
   public static var effectsVisible: Self { Self[.appStorage("effectsVisible"), default: false] }
   public static var favoritesOnTop: Self { Self[.appStorage("favoritesOnTop"), default: false] }
   public static var globalTuningEnabled: Self { Self[.appStorage("globalTuningEnabled"), default: false] }
   public static var keyboardSlides: Self { Self[.appStorage("keyboardSlides"), default: false] }
   public static var midiAutoConnect: Self { Self[.appStorage("midiAutoConnect"), default: true] }
+  public static var playSoundOnPresetChange: Self { Self[.appStorage("playSoundOnPresetChange"), default: true] }
   public static var reverbLockEnabled: Self { Self[.appStorage("reverbLockEnabled"), default: false] }
   public static var showKeyNotes: Self { Self[.appStorage("showKeyNotes"), default: true] }
+  public static var showActiveVoiceCount: Self { Self[.appStorage("showActiveVoiceCount"), default: true]}
   public static var showOnlyFavorites: Self { Self[.appStorage("showOnlyFavorites"), default: false] }
   public static var showSolfegeTags: Self { Self[.appStorage("showSolfegeTags"), default: false] }
   public static var starFavoriteNames: Self { Self[.appStorage("starFavoriteNames"), default: true] }
   public static var tagsListVisible: Self { Self[.appStorage("tagsListVisible"), default: false] }
-  public static var playSoundOnPresetChange: Self { Self[.appStorage("playSoundOnPresetChange"), default: true] }
-  public static var copyFileWhenInstalling: Self { Self[.appStorage("copyFileWhenInstalling"), default: true]}
-  public static var disableIdleTimer: Self { Self[.appStorage("disableIdleTimer"), default: false]}
 }
 
 // MARK: - AppStorage Double settings
@@ -56,8 +57,8 @@ extension SharedKey where Self == AppStorageKey<Date>.Default {
 
 extension SharedKey where Self == AppStorageKey<Int>.Default {
   public static var midiChannel: Self { Self[.appStorage("midiChannel"), default: 0] }
-  public static var pitchBendRange: Self { Self[.appStorage("pitchBendRange"), default: 2] }
   public static var midiInputPortId: Self { Self[.appStorage("midiInputPortId"), default: 44_658]}
+  public static var pitchBendRange: Self { Self[.appStorage("pitchBendRange"), default: 2] }
 }
 
 extension SharedKey where Self == AppStorageKey<KeyLabels>.Default {
