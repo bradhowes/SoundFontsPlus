@@ -16,7 +16,7 @@ extension BaseSuite {
 
     @MainActor
     @Test func initialization() async throws {
-      @Shared(.parameterTree) var parameterTree = ParameterAddress.createParameterTree()
+      @Shared(.parameterTree) var parameterTree
       @Shared(.reverbLockEnabled) var locked = false
       @Shared(.activeState) var activeState
       $activeState.activePresetId.withLock { $0 = 1 }

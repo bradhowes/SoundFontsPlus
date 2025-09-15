@@ -56,9 +56,7 @@ public struct SynthFeature {
         return audioSessionRouteChanged(&state)
 
       case .deinitialize:
-          return .merge(
-            CancelId.allCases.map { .cancel(id: $0) }
-          )
+        return .merge(CancelId.allCases.map { .cancel(id: $0) })
 
       case .initialize:
         return initialize(&state)
@@ -220,13 +218,20 @@ extension SynthFeature {
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
     guard playSoundOnPresetChange else { return .none }
     log.info("playNote")
+
+    guard let lastRenderTime = state.engine.outputNode.lastRenderTime else { return .none }
+
+    let sampleRate = lastRenderTime.sampleRate
+    let delay = Int64(sampleRate * 0.30) // 1/4 second in samples
+    let noteOnTime = lastRenderTime.sampleTime + delay
+    let noteOffTime = noteOnTime + delay
+
     return .run { _ in
       // Play a short note using the new preset
-      log.info("playNote - sendNoteOn")
-      synth.sendNoteOn(note: 60)
-      try? await Task.sleep(for: .milliseconds(250))
-      log.info("playNote - sendNoteOff")
-      synth.sendNoteOff(note: 60)
+      log.info("playNote - sendNoteOn - \(noteOnTime)")
+      synth.sendNoteOn(note: 60, when: noteOnTime)
+      log.info("playNote - sendNoteOff - \(noteOffTime)")
+      synth.sendNoteOff(note: 60, when: noteOffTime)
     }.cancellable(id: CancelId.playSample, cancelInFlight: true)
   }
 

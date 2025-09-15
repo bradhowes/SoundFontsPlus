@@ -12,9 +12,6 @@
 		BD0053E52E6B67B70053B13B /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = BD0053E42E6B67B70053B13B /* Numerics */; };
 		BD0054512E6E1DF40053B13B /* DSP.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0054502E6E1DF10053B13B /* DSP.swift */; };
 		BD0054532E6F75180053B13B /* DSPTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0054522E6F75180053B13B /* DSPTests.swift */; };
-		BD0054562E7313870053B13B /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD0054552E7313870053B13B /* Engine */; };
-		BD0054582E7313870053B13B /* SF2File in Frameworks */ = {isa = PBXBuildFile; productRef = BD0054572E7313870053B13B /* SF2File */; };
-		BD00545A2E7313870053B13B /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BD0054592E7313870053B13B /* SF2Lib */; };
 		BD00545D2E7315960053B13B /* SF2LibAU.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD00545C2E7315910053B13B /* SF2LibAU.swift */; };
 		BD00545F2E7371070053B13B /* MIDI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD00545E2E7371050053B13B /* MIDI.swift */; };
 		BD010CCD2E3AA76400E0DC0D /* AUv3Component in Frameworks */ = {isa = PBXBuildFile; productRef = BD010CCC2E3AA76400E0DC0D /* AUv3Component */; };
@@ -37,6 +34,9 @@
 		BD33FF572E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */; };
 		BD3E3D832E520FEF00523292 /* BRHSplitView in Frameworks */ = {isa = PBXBuildFile; productRef = BD3E3D822E520FEF00523292 /* BRHSplitView */; };
 		BD46FC832DF62C3100CB20F1 /* AUParameterTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */; };
+		BD4C249D2E77618800F8B3A9 /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249C2E77618800F8B3A9 /* Engine */; };
+		BD4C249F2E77618800F8B3A9 /* SF2File in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249E2E77618800F8B3A9 /* SF2File */; };
+		BD4C24A12E77618800F8B3A9 /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C24A02E77618800F8B3A9 /* SF2Lib */; };
 		BD561CCA2E573EC100D8FBB0 /* FreeFont.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BDAF5AE02DE2557300B8FB13 /* FreeFont.sf2 */; };
 		BD561CD22E57B52300D8FBB0 /* SettingsPrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD561CD12E57B52000D8FBB0 /* SettingsPrompts.swift */; };
 		BD59D4EA2E47B62C00B2250B /* MIDIConnectionsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4E92E47B62500B2250B /* MIDIConnectionsFeature.swift */; };
@@ -55,6 +55,7 @@
 		BD76C1642E23E27600F5B1F5 /* Notification.Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1632E23E27600F5B1F5 /* Notification.Name.swift */; };
 		BD7B05172E4FDD40006628F3 /* FileImporterPrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B05162E4FDD40006628F3 /* FileImporterPrompts.swift */; };
 		BD7DBC8D2DF45904005A31DE /* DimmedAppearanceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */; };
+		BD7E3E982E7572BD00A7617D /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = BD7E3E972E7572BD00A7617D /* Atomics */; };
 		BD812F652DF4BF3500D2B344 /* KeyboardReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */; };
 		BDA11AFA2E617FF800941A41 /* DisableIdleTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA11AF92E617FEF00941A41 /* DisableIdleTimer.swift */; };
 		BDA11AFC2E61C1AB00941A41 /* Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA11AFB2E61C1A800941A41 /* Bundle.swift */; };
@@ -364,22 +365,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BD00545A2E7313870053B13B /* SF2Lib in Frameworks */,
+				BD4C24A12E77618800F8B3A9 /* SF2Lib in Frameworks */,
 				BDAF5BBC2DE259DF00B8FB13 /* SF2Lib in Frameworks */,
 				BD1774E12E64A5EC0029D195 /* Dependencies in Frameworks */,
 				BDAF5BBF2DE25A7900B8FB13 /* Algorithms in Frameworks */,
 				BD76C15C2E23C5F700F5B1F5 /* ProgressHUD in Frameworks */,
 				BDAF5BC12DE25C9200B8FB13 /* Tagged in Frameworks */,
 				BD010CCF2E3AA76400E0DC0D /* AUv3Shared in Frameworks */,
+				BD7E3E982E7572BD00A7617D /* Atomics in Frameworks */,
 				BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */,
+				BD4C249F2E77618800F8B3A9 /* SF2File in Frameworks */,
 				BDAF5B2C2DE2560400B8FB13 /* ComposableArchitecture in Frameworks */,
-				BD0054582E7313870053B13B /* SF2File in Frameworks */,
 				BDAF5B292DE255EE00B8FB13 /* AUv3Controls in Frameworks */,
 				BD66C57F2E6AAEC200A0CD31 /* StructuredQueriesGRDB in Frameworks */,
 				BD171EDC2E47A9F700E2EDA7 /* MorkAndMIDI in Frameworks */,
 				BDAF5B262DE255D900B8FB13 /* BRHSplitView in Frameworks */,
 				BD1774E52E64AD400029D195 /* DependenciesMacros in Frameworks */,
-				BD0054562E7313870053B13B /* Engine in Frameworks */,
+				BD4C249D2E77618800F8B3A9 /* Engine in Frameworks */,
 				BD010CCD2E3AA76400E0DC0D /* AUv3Component in Frameworks */,
 				BD66C57D2E6AAEC200A0CD31 /* SharingGRDB in Frameworks */,
 				BD3E3D832E520FEF00523292 /* BRHSplitView in Frameworks */,
@@ -923,9 +925,10 @@
 				BD1774E42E64AD400029D195 /* DependenciesMacros */,
 				BD66C57C2E6AAEC200A0CD31 /* SharingGRDB */,
 				BD66C57E2E6AAEC200A0CD31 /* StructuredQueriesGRDB */,
-				BD0054552E7313870053B13B /* Engine */,
-				BD0054572E7313870053B13B /* SF2File */,
-				BD0054592E7313870053B13B /* SF2Lib */,
+				BD7E3E972E7572BD00A7617D /* Atomics */,
+				BD4C249C2E77618800F8B3A9 /* Engine */,
+				BD4C249E2E77618800F8B3A9 /* SF2File */,
+				BD4C24A02E77618800F8B3A9 /* SF2Lib */,
 			);
 			productName = SoundFontsPlus;
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */;
@@ -1016,7 +1019,8 @@
 				BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */,
 				BD66C57B2E6AAEC200A0CD31 /* XCRemoteSwiftPackageReference "sharing-grdb" */,
 				BD0053E32E6B67B70053B13B /* XCRemoteSwiftPackageReference "swift-numerics" */,
-				BD0054542E7313870053B13B /* XCRemoteSwiftPackageReference "SF2Lib" */,
+				BD7E3E962E7572BD00A7617D /* XCRemoteSwiftPackageReference "swift-atomics" */,
+				BD4C249B2E77618800F8B3A9 /* XCLocalSwiftPackageReference "../SF2Lib" */,
 			);
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
 			projectDirPath = "";
@@ -1626,6 +1630,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		BD4C249B2E77618800F8B3A9 /* XCLocalSwiftPackageReference "../SF2Lib" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../SF2Lib;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		BD0053E32E6B67B70053B13B /* XCRemoteSwiftPackageReference "swift-numerics" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -1633,14 +1644,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.1.0;
-			};
-		};
-		BD0054542E7313870053B13B /* XCRemoteSwiftPackageReference "SF2Lib" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bradhowes/SF2Lib";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.0.0;
 			};
 		};
 		BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */ = {
@@ -1723,6 +1726,14 @@
 				minimumVersion = 14.1.4;
 			};
 		};
+		BD7E3E962E7572BD00A7617D /* XCRemoteSwiftPackageReference "swift-atomics" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-atomics.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.0;
+			};
+		};
 		BDAF5B272DE255EE00B8FB13 /* XCRemoteSwiftPackageReference "AUv3Controls" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bradhowes/AUv3Controls";
@@ -1762,21 +1773,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BD0053E32E6B67B70053B13B /* XCRemoteSwiftPackageReference "swift-numerics" */;
 			productName = Numerics;
-		};
-		BD0054552E7313870053B13B /* Engine */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD0054542E7313870053B13B /* XCRemoteSwiftPackageReference "SF2Lib" */;
-			productName = Engine;
-		};
-		BD0054572E7313870053B13B /* SF2File */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD0054542E7313870053B13B /* XCRemoteSwiftPackageReference "SF2Lib" */;
-			productName = SF2File;
-		};
-		BD0054592E7313870053B13B /* SF2Lib */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD0054542E7313870053B13B /* XCRemoteSwiftPackageReference "SF2Lib" */;
-			productName = SF2Lib;
 		};
 		BD010CCC2E3AA76400E0DC0D /* AUv3Component */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1823,6 +1819,18 @@
 			package = BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */;
 			productName = BRHSplitView;
 		};
+		BD4C249C2E77618800F8B3A9 /* Engine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Engine;
+		};
+		BD4C249E2E77618800F8B3A9 /* SF2File */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SF2File;
+		};
+		BD4C24A02E77618800F8B3A9 /* SF2Lib */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SF2Lib;
+		};
 		BD66C5702E6AAD1F00A0CD31 /* InlineSnapshotTesting */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
@@ -1852,6 +1860,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BD76C15A2E23C5F700F5B1F5 /* XCRemoteSwiftPackageReference "ProgressHUD" */;
 			productName = ProgressHUD;
+		};
+		BD7E3E972E7572BD00A7617D /* Atomics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD7E3E962E7572BD00A7617D /* XCRemoteSwiftPackageReference "swift-atomics" */;
+			productName = Atomics;
 		};
 		BDAF5B252DE255D900B8FB13 /* BRHSplitView */ = {
 			isa = XCSwiftPackageProductDependency;

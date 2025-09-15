@@ -128,13 +128,13 @@ extension SF2LibAU {
   }
 
   @discardableResult
-  public func sendNoteOn(note: UInt8, velocity: UInt8 = 0x64) -> Bool {
-    sendMIDI(bytes: [0x90, note, velocity])
+  public func sendNoteOn(note: UInt8, velocity: UInt8 = 0x64, when: AUEventSampleTime = 0) -> Bool {
+    sendMIDI(bytes: [0x90, note, velocity], when: when)
   }
 
   @discardableResult
-  public func sendNoteOff(note: UInt8) -> Bool {
-    sendMIDI(bytes: [0x80, note, 0x00])
+  public func sendNoteOff(note: UInt8, when: AUEventSampleTime = 0) -> Bool {
+    sendMIDI(bytes: [0x80, note, 0x00], when: when)
   }
 
   public func createLoadFileUsePresetPayload(path: String, preset: Int) -> [UInt8] {
@@ -162,7 +162,7 @@ extension SF2LibAU {
   public var retriggerModeEnabled: Bool { engine.retriggerModeEnabled(); }
   public var portamentoModeEnabled: Bool { engine.portamentoModeEnabled() }
 
-  public func sendMIDI(bytes: [UInt8], when: AUEventSampleTime = .min, cable: UInt8 = 0) -> Bool {
+  public func sendMIDI(bytes: [UInt8], when: AUEventSampleTime = 0, cable: UInt8 = 0) -> Bool {
     guard let block = scheduleMIDIEventBlock else { return false }
     os_log(.info, log: log, "sendMIDI %d bytes", bytes.count)
     block(when, cable, bytes.count, bytes)
@@ -252,7 +252,7 @@ extension SF2LibAU {
     // Copies all share the same underlying implementation object.
     var engine = self.engine
     return { _, timestamp, frameCount, _, output, realtimeEventListHead, pullInputBlock in
-      engine.processAndRender(
+      return engine.processAndRender(
         timestamp,
         frameCount,
         bus,
