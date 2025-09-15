@@ -320,6 +320,7 @@ private extension ToolBarFeature {
 
 public struct ToolBarFeatureView: View {
   private var store: StoreOf<ToolBarFeature>
+  @Shared(.showActiveVoiceCount) var showActiveVoiceCount
   @Environment(\.appPanelBackground) private var appPanelBackground
   @Environment(\.auv3ControlsTheme) private var auv3ControlsTheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -365,8 +366,11 @@ public struct ToolBarFeatureView: View {
   private var status: some View {
     ZStack(alignment: .leading) {
       MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
+        .zIndex(-99)
       HStack {
-        voiceCount
+        if showActiveVoiceCount {
+          voiceCount
+        }
         Spacer()
         statusText
         Spacer()
@@ -375,10 +379,11 @@ public struct ToolBarFeatureView: View {
   }
 
   private var voiceCount: some View {
-    Text("\(store.activeVoiceCount)")
+    Text(store.activeVoiceCount > 0 ? "\(store.activeVoiceCount)" : "")
       .font(.activeVoiceCount)
       .indicator(.activeNoIndicator)
       .contentTransition(.interpolate)
+      .frame(width: 24, alignment: .center)
   }
 
   private var statusText: some View {
