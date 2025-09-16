@@ -22,12 +22,17 @@ private let log = Logger(category: "AppReviewFeature")
 public struct AppReviewFeature {
 
   static let daysAfterFirstLaunchBeforeRequest = 14
-  static let minActivityCounter = 50
 
   @ObservableState
   public struct State: Equatable {
     var askForReview: Bool = false
     var activityCounter: Int = 0
+    let minActivityCounter: Int
+
+    public init(activityCounter: Int = 0, minActivityCounter: Int = 50) {
+      self.activityCounter = activityCounter
+      self.minActivityCounter = minActivityCounter
+    }
   }
 
   public enum Action {
@@ -82,11 +87,7 @@ extension AppReviewFeature {
 
     // Postpone asking for a review until the user has performed N activities.
     state.activityCounter += 1
-    state.askForReview = state.activityCounter >= Self.minActivityCounter
-
-    if state.askForReview {
-      state.activityCounter = 0
-    }
+    state.askForReview = state.activityCounter >= state.minActivityCounter
 
     return .none
   }
