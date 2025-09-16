@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
+import ProgressHUD
 import SharingGRDB
 import SwiftUI
 import Tagged
@@ -149,15 +150,7 @@ public struct SoundFontEditorView: View {
         Section(header: Text("Comment")) {
           Text(store.soundFont.embeddedComment)
         }
-        Section(header: Text("Path")) {
-          Button {
-            if let url = URL(string: store.soundFont.sourcePath) {
-              openURL(url)
-            }
-          } label: {
-            Text(store.soundFont.sourcePath)
-          }
-        }
+        pathSection
       }
       .font(.soundFontEditor)
       .navigationTitle("SoundFont")
@@ -236,6 +229,21 @@ public struct SoundFontEditorView: View {
         Text("Hidden presets")
       }
       LabeledContent("Favorites/Copies", value: "\(store.favoriteCount)")
+    }
+  }
+
+  var pathSection: some View {
+    Section(header: Text("Path")) {
+      HStack {
+        Text(store.soundFont.sourcePath)
+          .font(.footnote)
+        Button {
+          UIPasteboard.general.string = store.soundFont.sourcePath
+          ProgressHUD.banner("Copied", "Path copied to clipboard")
+        } label: {
+          Image(systemName: "document.on.document")
+        }
+      }
     }
   }
 
