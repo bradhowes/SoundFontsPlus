@@ -1,31 +1,13 @@
 {
-  "originHash" : "9e530ae16a6da5b81f5c6e0edfc06b023cd6f7f6743e02f29bfef4cd2f68de77",
+  "originHash" : "caede6fb86aac0a03c0dbe6f33dbbd0f346f4537af68ab9bdc27a341faff2662",
   "pins" : [
-    {
-      "identity" : "auv3-support",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bradhowes/auv3-support",
-      "state" : {
-        "revision" : "34699779f1b2caa4775fa2cc3575cfdca605500d",
-        "version" : "1.0.9"
-      }
-    },
     {
       "identity" : "auv3controls",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/AUv3Controls",
       "state" : {
-        "revision" : "1f814877e642e37fd1042a424233f85437a21752",
-        "version" : "0.23.0"
-      }
-    },
-    {
-      "identity" : "brh-segmented-control",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bradhowes/brh-segmented-control",
-      "state" : {
-        "revision" : "68c2aeacf7cf9d21482497de111bec8bed783a40",
-        "version" : "1.0.5"
+        "revision" : "7239be3a6b21de08f55d7082bab65bf0a4fc6dbf",
+        "version" : "0.23.1"
       }
     },
     {
@@ -44,15 +26,6 @@
       "state" : {
         "revision" : "5928286acce13def418ec36d05a001a9641086f2",
         "version" : "1.0.3"
-      }
-    },
-    {
-      "identity" : "dspheaders",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bradhowes/DSPHeaders",
-      "state" : {
-        "revision" : "f83d1afbfeef92b592f2e88c3426e392084b17d7",
-        "version" : "1.0.7"
       }
     },
     {
@@ -222,8 +195,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-sharing",
       "state" : {
-        "revision" : "aaf605733bd93126d1a3658b4021146d95c94cb6",
-        "version" : "2.7.3"
+        "revision" : "3bfc408cc2d0bee2287c174da6b1c76768377818",
+        "version" : "2.7.4"
       }
     },
     {

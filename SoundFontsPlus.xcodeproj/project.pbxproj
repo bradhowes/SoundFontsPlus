@@ -14,8 +14,6 @@
 		BD0054532E6F75180053B13B /* DSPTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0054522E6F75180053B13B /* DSPTests.swift */; };
 		BD00545D2E7315960053B13B /* SF2LibAU.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD00545C2E7315910053B13B /* SF2LibAU.swift */; };
 		BD00545F2E7371070053B13B /* MIDI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD00545E2E7371050053B13B /* MIDI.swift */; };
-		BD010CCD2E3AA76400E0DC0D /* AUv3Component in Frameworks */ = {isa = PBXBuildFile; productRef = BD010CCC2E3AA76400E0DC0D /* AUv3Component */; };
-		BD010CCF2E3AA76400E0DC0D /* AUv3Shared in Frameworks */ = {isa = PBXBuildFile; productRef = BD010CCE2E3AA76400E0DC0D /* AUv3Shared */; };
 		BD050EE12E23C2EB00706CC4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BD050EE02E23C2EB00706CC4 /* LaunchScreen.storyboard */; };
 		BD171ED52E472CDE00E2EDA7 /* PresetLoadingInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD171ED42E472CDE00E2EDA7 /* PresetLoadingInfo.swift */; };
 		BD171ED92E47A98C00E2EDA7 /* MIDIMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD171ED82E47A98300E2EDA7 /* MIDIMonitor.swift */; };
@@ -57,6 +55,8 @@
 		BD7DBC8D2DF45904005A31DE /* DimmedAppearanceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */; };
 		BD7E3E982E7572BD00A7617D /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = BD7E3E972E7572BD00A7617D /* Atomics */; };
 		BD812F652DF4BF3500D2B344 /* KeyboardReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */; };
+		BD9E45E92E794F9E00D0806E /* FourCharCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45E82E794F9B00D0806E /* FourCharCode.swift */; };
+		BD9E45EB2E79519A00D0806E /* ClosedRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45EA2E79518D00D0806E /* ClosedRange.swift */; };
 		BDA11AFA2E617FF800941A41 /* DisableIdleTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA11AF92E617FEF00941A41 /* DisableIdleTimer.swift */; };
 		BDA11AFC2E61C1AB00941A41 /* Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA11AFB2E61C1A800941A41 /* Bundle.swift */; };
 		BDA11AFE2E61C3BF00941A41 /* AppReviewFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA11AFD2E61C3B800941A41 /* AppReviewFeature.swift */; };
@@ -247,6 +247,8 @@
 		BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DimmedAppearanceModifier.swift; sourceTree = "<group>"; };
 		BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardReadable.swift; sourceTree = "<group>"; };
+		BD9E45E82E794F9B00D0806E /* FourCharCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FourCharCode.swift; sourceTree = "<group>"; };
+		BD9E45EA2E79518D00D0806E /* ClosedRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosedRange.swift; sourceTree = "<group>"; };
 		BDA11AF92E617FEF00941A41 /* DisableIdleTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisableIdleTimer.swift; sourceTree = "<group>"; };
 		BDA11AFB2E61C1A800941A41 /* Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundle.swift; sourceTree = "<group>"; };
 		BDA11AFD2E61C3B800941A41 /* AppReviewFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReviewFeature.swift; sourceTree = "<group>"; };
@@ -371,7 +373,6 @@
 				BDAF5BBF2DE25A7900B8FB13 /* Algorithms in Frameworks */,
 				BD76C15C2E23C5F700F5B1F5 /* ProgressHUD in Frameworks */,
 				BDAF5BC12DE25C9200B8FB13 /* Tagged in Frameworks */,
-				BD010CCF2E3AA76400E0DC0D /* AUv3Shared in Frameworks */,
 				BD7E3E982E7572BD00A7617D /* Atomics in Frameworks */,
 				BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */,
 				BD4C249F2E77618800F8B3A9 /* SF2File in Frameworks */,
@@ -382,7 +383,6 @@
 				BDAF5B262DE255D900B8FB13 /* BRHSplitView in Frameworks */,
 				BD1774E52E64AD400029D195 /* DependenciesMacros in Frameworks */,
 				BD4C249D2E77618800F8B3A9 /* Engine in Frameworks */,
-				BD010CCD2E3AA76400E0DC0D /* AUv3Component in Frameworks */,
 				BD66C57D2E6AAEC200A0CD31 /* SharingGRDB in Frameworks */,
 				BD3E3D832E520FEF00523292 /* BRHSplitView in Frameworks */,
 			);
@@ -539,6 +539,8 @@
 		BDAF5A922DE254E000B8FB13 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				BD9E45EA2E79518D00D0806E /* ClosedRange.swift */,
+				BD9E45E82E794F9B00D0806E /* FourCharCode.swift */,
 				BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */,
 				BDBA99882E66072C00A70580 /* AVAudioSession.swift */,
 				BDFF8EFB2E51C01F00A893D7 /* AVAudioUnitDelay.swift */,
@@ -917,8 +919,6 @@
 				BDAF5BBE2DE25A7900B8FB13 /* Algorithms */,
 				BDAF5BC02DE25C9200B8FB13 /* Tagged */,
 				BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */,
-				BD010CCC2E3AA76400E0DC0D /* AUv3Component */,
-				BD010CCE2E3AA76400E0DC0D /* AUv3Shared */,
 				BD171EDB2E47A9F700E2EDA7 /* MorkAndMIDI */,
 				BD3E3D822E520FEF00523292 /* BRHSplitView */,
 				BD1774E02E64A5EC0029D195 /* Dependencies */,
@@ -981,7 +981,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 1640;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					BD1D277E2B6F13DD005C3ED0 = {
 						CreatedOnToolsVersion = 15.2;
@@ -1013,7 +1013,6 @@
 				BDAF5BC22DE269C300B8FB13 /* XCRemoteSwiftPackageReference "swift-dependencies" */,
 				BD33FF7F2E23B2900085D3C3 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 				BD76C15A2E23C5F700F5B1F5 /* XCRemoteSwiftPackageReference "ProgressHUD" */,
-				BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */,
 				BD171EDA2E47A9F700E2EDA7 /* XCRemoteSwiftPackageReference "morkandmidi" */,
 				BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */,
 				BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */,
@@ -1158,6 +1157,7 @@
 				BDAF5ACD2DE2555000B8FB13 /* Operations.swift in Sources */,
 				BDA11AFA2E617FF800941A41 /* DisableIdleTimer.swift in Sources */,
 				BDAF5ACE2DE2555000B8FB13 /* ActiveState.swift in Sources */,
+				BD9E45EB2E79519A00D0806E /* ClosedRange.swift in Sources */,
 				BDAF5B1C2DE2559900B8FB13 /* TuningFeature.swift in Sources */,
 				BDAF5B192DE2559500B8FB13 /* ToolBarFeature.swift in Sources */,
 				BDBA99892E66073200A70580 /* AVAudioSession.swift in Sources */,
@@ -1183,6 +1183,7 @@
 				BD7DBC8D2DF45904005A31DE /* DimmedAppearanceModifier.swift in Sources */,
 				BDAF5AF32DE2558800B8FB13 /* SF2LoadFailure.swift in Sources */,
 				BDAF5AF42DE2558800B8FB13 /* SoundFontsSupport.swift in Sources */,
+				BD9E45E92E794F9E00D0806E /* FourCharCode.swift in Sources */,
 				BDAF5AF52DE2558800B8FB13 /* SoundFontEditor.swift in Sources */,
 				BDDC25BD2E4E679D0098CA10 /* FileImporterFeature.swift in Sources */,
 				BD00545D2E7315960053B13B /* SF2LibAU.swift in Sources */,
@@ -1322,6 +1323,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OBJC_INTEROP_MODE = objcxx;
@@ -1385,6 +1387,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OBJC_INTEROP_MODE = objcxx;
@@ -1646,14 +1649,6 @@
 				minimumVersion = 1.1.0;
 			};
 		};
-		BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bradhowes/auv3-support";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.8;
-			};
-		};
 		BD171EDA2E47A9F700E2EDA7 /* XCRemoteSwiftPackageReference "morkandmidi" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bradhowes/morkandmidi";
@@ -1773,16 +1768,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BD0053E32E6B67B70053B13B /* XCRemoteSwiftPackageReference "swift-numerics" */;
 			productName = Numerics;
-		};
-		BD010CCC2E3AA76400E0DC0D /* AUv3Component */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */;
-			productName = AUv3Component;
-		};
-		BD010CCE2E3AA76400E0DC0D /* AUv3Shared */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD010CCB2E3AA76400E0DC0D /* XCRemoteSwiftPackageReference "auv3-support" */;
-			productName = AUv3Shared;
 		};
 		BD050EDE2E23BAA700706CC4 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
