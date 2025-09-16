@@ -22,7 +22,7 @@ private let log = Logger(category: "AppReviewFeature")
 public struct AppReviewFeature {
 
   static let daysAfterFirstLaunchBeforeRequest = 14
-  static let minActivityCounter = 5
+  static let minActivityCounter = 50
 
   @ObservableState
   public struct State: Equatable {
@@ -80,9 +80,13 @@ extension AppReviewFeature {
       return .none
     }
 
-    // Postpone asking for a review until the user has performed 5 activities.
+    // Postpone asking for a review until the user has performed N activities.
     state.activityCounter += 1
     state.askForReview = state.activityCounter >= Self.minActivityCounter
+
+    if state.askForReview {
+      state.activityCounter = 0
+    }
 
     return .none
   }
@@ -121,10 +125,11 @@ struct AppReviewDemoView: View {
   }
 
   var body: some View {
-    VStack(spacing: 20) {
+    let label = "\(store.activityCounter) - \(store.askForReview)"
+    return VStack(spacing: 20) {
       Text("Hello, World!")
         .appReview(store: store)
-      Text("\(store.activityCounter) - \(store.askForReview)")
+      Text(label)
       Button {
         store.send(.ask)
       } label: {
