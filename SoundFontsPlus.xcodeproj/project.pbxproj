@@ -57,6 +57,9 @@
 		BD812F652DF4BF3500D2B344 /* KeyboardReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */; };
 		BD9E45E92E794F9E00D0806E /* FourCharCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45E82E794F9B00D0806E /* FourCharCode.swift */; };
 		BD9E45EB2E79519A00D0806E /* ClosedRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45EA2E79518D00D0806E /* ClosedRange.swift */; };
+		BD9E46152E79801400D0806E /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD9E46142E79801400D0806E /* Engine */; };
+		BD9E46172E79801400D0806E /* SF2File in Frameworks */ = {isa = PBXBuildFile; productRef = BD9E46162E79801400D0806E /* SF2File */; };
+		BD9E46192E79801400D0806E /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BD9E46182E79801400D0806E /* SF2Lib */; };
 		BDA11AFA2E617FF800941A41 /* DisableIdleTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA11AF92E617FEF00941A41 /* DisableIdleTimer.swift */; };
 		BDA11AFC2E61C1AB00941A41 /* Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA11AFB2E61C1A800941A41 /* Bundle.swift */; };
 		BDA11AFE2E61C3BF00941A41 /* AppReviewFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA11AFD2E61C3B800941A41 /* AppReviewFeature.swift */; };
@@ -367,11 +370,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD9E46192E79801400D0806E /* SF2Lib in Frameworks */,
 				BD4C24A12E77618800F8B3A9 /* SF2Lib in Frameworks */,
 				BDAF5BBC2DE259DF00B8FB13 /* SF2Lib in Frameworks */,
 				BD1774E12E64A5EC0029D195 /* Dependencies in Frameworks */,
 				BDAF5BBF2DE25A7900B8FB13 /* Algorithms in Frameworks */,
+				BD9E46152E79801400D0806E /* Engine in Frameworks */,
 				BD76C15C2E23C5F700F5B1F5 /* ProgressHUD in Frameworks */,
+				BD9E46172E79801400D0806E /* SF2File in Frameworks */,
 				BDAF5BC12DE25C9200B8FB13 /* Tagged in Frameworks */,
 				BD7E3E982E7572BD00A7617D /* Atomics in Frameworks */,
 				BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */,
@@ -929,6 +935,9 @@
 				BD4C249C2E77618800F8B3A9 /* Engine */,
 				BD4C249E2E77618800F8B3A9 /* SF2File */,
 				BD4C24A02E77618800F8B3A9 /* SF2Lib */,
+				BD9E46142E79801400D0806E /* Engine */,
+				BD9E46162E79801400D0806E /* SF2File */,
+				BD9E46182E79801400D0806E /* SF2Lib */,
 			);
 			productName = SoundFontsPlus;
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */;
@@ -1019,7 +1028,7 @@
 				BD66C57B2E6AAEC200A0CD31 /* XCRemoteSwiftPackageReference "sharing-grdb" */,
 				BD0053E32E6B67B70053B13B /* XCRemoteSwiftPackageReference "swift-numerics" */,
 				BD7E3E962E7572BD00A7617D /* XCRemoteSwiftPackageReference "swift-atomics" */,
-				BD4C249B2E77618800F8B3A9 /* XCLocalSwiftPackageReference "../SF2Lib" */,
+				BD9E46132E79801400D0806E /* XCRemoteSwiftPackageReference "SF2Lib" */,
 			);
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
 			projectDirPath = "";
@@ -1633,13 +1642,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		BD4C249B2E77618800F8B3A9 /* XCLocalSwiftPackageReference "../SF2Lib" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../SF2Lib;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		BD0053E32E6B67B70053B13B /* XCRemoteSwiftPackageReference "swift-numerics" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -1727,6 +1729,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.3.0;
+			};
+		};
+		BD9E46132E79801400D0806E /* XCRemoteSwiftPackageReference "SF2Lib" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bradhowes/SF2Lib";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.3.0;
 			};
 		};
 		BDAF5B272DE255EE00B8FB13 /* XCRemoteSwiftPackageReference "AUv3Controls" */ = {
@@ -1850,6 +1860,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BD7E3E962E7572BD00A7617D /* XCRemoteSwiftPackageReference "swift-atomics" */;
 			productName = Atomics;
+		};
+		BD9E46142E79801400D0806E /* Engine */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD9E46132E79801400D0806E /* XCRemoteSwiftPackageReference "SF2Lib" */;
+			productName = Engine;
+		};
+		BD9E46162E79801400D0806E /* SF2File */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD9E46132E79801400D0806E /* XCRemoteSwiftPackageReference "SF2Lib" */;
+			productName = SF2File;
+		};
+		BD9E46182E79801400D0806E /* SF2Lib */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD9E46132E79801400D0806E /* XCRemoteSwiftPackageReference "SF2Lib" */;
+			productName = SF2Lib;
 		};
 		BDAF5B252DE255D900B8FB13 /* BRHSplitView */ = {
 			isa = XCSwiftPackageProductDependency;
