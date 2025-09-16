@@ -66,6 +66,7 @@ public struct SoundFontsList {
 
   @Dependency(\.defaultDatabase) var database
   @Shared(.activeState) var activeState
+  @Shared(.selectedSoundFontId) var selectedSoundFontId
 }
 
 extension SoundFontsList {
@@ -116,9 +117,7 @@ extension SoundFontsList {
   }
 
   private func select(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
-    $activeState.withLock {
-      $0.selectedSoundFontId = soundFontId
-    }
+    $selectedSoundFontId.withLock { $0 = soundFontId }
     return .none
   }
 
