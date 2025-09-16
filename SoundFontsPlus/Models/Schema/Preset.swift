@@ -198,8 +198,9 @@ extension Preset {
   }
 
   public static var source: SoundFont.ID? {
+    @Shared(.selectedSoundFontId) var selectedSoundFontId
     @Shared(.activeState) var activeState
-    return activeState.presetSource
+    return selectedSoundFontId ?? activeState.activeSoundFontId
   }
 
   public static func with(key presetId: Preset.ID) -> Preset? {

@@ -57,6 +57,7 @@ public struct PresetsList {
 
   @Dependency(\.defaultDatabase) var database
   @Shared(.activeState) var activeState
+  @Shared(.selectedSoundFontId) var selectedSoundFontId
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -172,7 +173,7 @@ extension PresetsList {
 
   private func monitorSelectedSoundFontId() -> Effect<Action> {
     .publisher {
-      $activeState.selectedSoundFontId
+      $selectedSoundFontId
         .publisher
         .map { .selectedSoundFontIdChanged($0) }
     }.cancellable(id: CancelId.monitorSelectedSoundFontId, cancelInFlight: true)
@@ -287,8 +288,8 @@ extension PresetsListView {
   static var preview: some View {
     // swiftlint:disable:next force_try
     prepareDependencies { $0.defaultDatabase = try! appDatabase() }
-    @Shared(.activeState) var activeState
-    $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 1) }
+    @Shared(.selectedSoundFontId) var selectedSoundFontId
+    $selectedSoundFontId.withLock { $0 = .init(rawValue: 1) }
     return VStack {
       let store = Store(initialState: .init()) { PresetsList() }
       PresetsListView(store: store)
@@ -303,8 +304,8 @@ extension PresetsListView {
   static var previewEditing: some View {
     // swiftlint:disable:next force_try
     prepareDependencies { $0.defaultDatabase = try! appDatabase() }
-    @Shared(.activeState) var activeState
-    $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 1) }
+    @Shared(.selectedSoundFontId) var selectedSoundFontId
+    $selectedSoundFontId.withLock { $0 = .init(rawValue: 1) }
     return PresetsListView(store: Store(initialState: .init(visibilityEditMode: true)) { PresetsList() })
   }
 }

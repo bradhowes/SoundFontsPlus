@@ -96,6 +96,10 @@ extension SharedKey where Self == InMemoryKey<AUParameterTree>.Default {
   }
 }
 
+extension SharedKey where Self == InMemoryKey<SoundFont.ID?>.Default {
+  public static var selectedSoundFontId: Self { Self[.inMemory("selectedSoundFont"), default: nil] }
+}
+
 extension MIDI: @unchecked @retroactive Sendable {}
 
 extension SharedKey where Self == InMemoryKey<Double>.Default {
