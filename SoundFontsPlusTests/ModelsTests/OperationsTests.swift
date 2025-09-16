@@ -49,12 +49,13 @@ extension BaseTestSuite {
 
     @Test("presets") func presets() async throws {
       @Shared(.activeState) var activeState
+      @Shared(.selectedSoundFontId) var selectedSoundFontId
       #expect(Operations.presets.count == 189)
-      $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 2) }
+      $selectedSoundFontId.withLock { $0 = .init(rawValue: 2) }
       #expect(Operations.presets.count == 235)
-      $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 3) }
+      $selectedSoundFontId.withLock { $0 = .init(rawValue: 3) }
       #expect(Operations.presets.count == 270)
-      $activeState.withLock { $0.selectedSoundFontId = nil }
+      $selectedSoundFontId.withLock { $0 = nil }
       #expect(Operations.presets.count == 189)
       $activeState.withLock { $0.activeSoundFontId = nil }
       #expect(Operations.presets.count == 0)
@@ -62,12 +63,13 @@ extension BaseTestSuite {
 
     @Test("allPresets") func allPresets() async throws {
       @Shared(.activeState) var activeState
+      @Shared(.selectedSoundFontId) var selectedSoundFontId
       #expect(Operations.allPresets.count == 189)
-      $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 2) }
+      $selectedSoundFontId.withLock { $0 = .init(rawValue: 2) }
       #expect(Operations.allPresets.count == 235)
-      $activeState.withLock { $0.selectedSoundFontId = .init(rawValue: 3) }
+      $selectedSoundFontId.withLock { $0 = .init(rawValue: 3) }
       #expect(Operations.allPresets.count == 270)
-      $activeState.withLock { $0.selectedSoundFontId = nil }
+      $selectedSoundFontId.withLock { $0 = nil }
       $activeState.withLock { $0.activeSoundFontId = nil }
       #expect(Operations.allPresets.count == 0)
     }

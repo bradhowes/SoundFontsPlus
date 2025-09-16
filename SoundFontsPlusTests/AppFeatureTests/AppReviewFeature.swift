@@ -36,7 +36,9 @@ extension BaseSuite {
       @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion
 
       let now = Date(timeIntervalSince1970: 0)
-      let store = await TestStore(initialState: AppReviewFeature.State()) { AppReviewFeature() } withDependencies: {
+      let store = await TestStore(initialState: AppReviewFeature.State(minActivityCounter: 5)) {
+        AppReviewFeature()
+      } withDependencies: {
         $0.date.now = now
         $nextReviewRequestDate.withLock { $0 = now }
         $lastReviewRequestVersion.withLock { $0 = AppReviewFeature.currentVersion }
