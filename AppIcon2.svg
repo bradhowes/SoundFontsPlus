@@ -1,0 +1,128 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="40.0" height="40.0">
+
+	<metadata>
+		<rdf:RDF xmlns:rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs = "http://www.w3.org/2000/01/rdf-schema#" xmlns:dc = "http://purl.org/dc/elements/1.1/">
+			<rdf:Description rdf:about="http://likethought.com/opacity/">
+				<dc:title>New App</dc:title>
+				<dc:creator>Brad Howes</dc:creator>
+				<dc:rights>Copyright 2020 Brad Howes</dc:rights>
+				<dc:description></dc:description>
+				<dc:format>image/svg+xml</dc:format>
+				<dc:language>en</dc:language>
+			</rdf:Description>
+		</rdf:RDF>
+	</metadata>
+	<g>
+		<title>Keys Background</title>
+		<rect x="-2.5" y="-1.523" width="45.0" height="45.0" fill="rgb(29.96%, 29.96%, 29.96%)" stroke="none" />
+	</g>
+
+	<g>
+		<title>Keys</title>
+		<defs>
+			<linearGradient id="Gradient6000006fc2a0" gradientUnits="userSpaceOnUse" x1="3.5" y1="39.5" x2="3.5" y2="23.5">
+				<stop offset="0%" stop-color="rgb(83.46%, 83.46%, 83.46%)" />
+				<stop offset="100%" stop-color="rgb(66.42%, 66.42%, 66.42%)" />
+			</linearGradient>
+		</defs>
+		<rect x="0.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" fill="url(#Gradient6000006fc2a0)" stroke="none" />
+		<rect x="0.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" stroke="rgb(36.76%, 36.76%, 36.76%)" stroke-width="0.5" stroke-linecap="square" stroke-linejoin="miter" fill="none" />
+		<defs>
+			<linearGradient id="Gradient6000006fc7e0" gradientUnits="userSpaceOnUse" x1="9.5" y1="39.5" x2="9.5" y2="23.5">
+				<stop offset="0%" stop-color="rgb(83.46%, 83.46%, 83.46%)" />
+				<stop offset="100%" stop-color="rgb(66.42%, 66.42%, 66.42%)" />
+			</linearGradient>
+		</defs>
+		<rect x="6.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" fill="url(#Gradient6000006fc7e0)" stroke="none" />
+		<rect x="6.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" stroke="rgb(36.76%, 36.76%, 36.76%)" stroke-width="0.5" stroke-linecap="square" stroke-linejoin="miter" fill="none" />
+		<defs>
+			<linearGradient id="Gradient6000006fea00" gradientUnits="userSpaceOnUse" x1="15.5" y1="39.5" x2="15.5" y2="23.5">
+				<stop offset="0%" stop-color="rgb(83.46%, 83.46%, 83.46%)" />
+				<stop offset="100%" stop-color="rgb(66.42%, 66.42%, 66.42%)" />
+			</linearGradient>
+		</defs>
+		<rect x="12.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" fill="url(#Gradient6000006fea00)" stroke="none" />
+		<rect x="12.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" stroke="rgb(36.76%, 36.76%, 36.76%)" stroke-width="0.5" stroke-linecap="square" stroke-linejoin="miter" fill="none" />
+		<defs>
+			<linearGradient id="Gradient6000006feae0" gradientUnits="userSpaceOnUse" x1="21.5" y1="39.5" x2="21.5" y2="23.5">
+				<stop offset="0%" stop-color="rgb(83.46%, 83.46%, 83.46%)" />
+				<stop offset="100%" stop-color="rgb(66.42%, 66.42%, 66.42%)" />
+			</linearGradient>
+		</defs>
+		<rect x="18.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" fill="url(#Gradient6000006feae0)" stroke="none" />
+		<rect x="18.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" stroke="rgb(36.76%, 36.76%, 36.76%)" stroke-width="0.5" stroke-linecap="square" stroke-linejoin="miter" fill="none" />
+		<defs>
+			<linearGradient id="Gradient6000006feca0" gradientUnits="userSpaceOnUse" x1="27.5" y1="39.5" x2="27.5" y2="23.5">
+				<stop offset="0%" stop-color="rgb(83.46%, 83.46%, 83.46%)" />
+				<stop offset="100%" stop-color="rgb(66.42%, 66.42%, 66.42%)" />
+			</linearGradient>
+		</defs>
+		<rect x="24.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" fill="url(#Gradient6000006feca0)" stroke="none" />
+		<rect x="24.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" stroke="rgb(36.76%, 36.76%, 36.76%)" stroke-width="0.5" stroke-linecap="square" stroke-linejoin="miter" fill="none" />
+		<defs>
+			<linearGradient id="Gradient6000006fed80" gradientUnits="userSpaceOnUse" x1="33.5" y1="39.5" x2="33.5" y2="23.5">
+				<stop offset="0%" stop-color="rgb(83.46%, 83.46%, 83.46%)" />
+				<stop offset="100%" stop-color="rgb(66.42%, 66.42%, 66.42%)" />
+			</linearGradient>
+		</defs>
+		<rect x="30.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" fill="url(#Gradient6000006fed80)" stroke="none" />
+		<rect x="30.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" stroke="rgb(36.76%, 36.76%, 36.76%)" stroke-width="0.5" stroke-linecap="square" stroke-linejoin="miter" fill="none" />
+		<defs>
+			<linearGradient id="Gradient6000006fee60" gradientUnits="userSpaceOnUse" x1="39.5" y1="39.5" x2="39.5" y2="23.5">
+				<stop offset="0%" stop-color="rgb(83.46%, 83.46%, 83.46%)" />
+				<stop offset="100%" stop-color="rgb(66.42%, 66.42%, 66.42%)" />
+			</linearGradient>
+		</defs>
+		<rect x="36.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" fill="url(#Gradient6000006fee60)" stroke="none" />
+		<rect x="36.5" y="23.5" width="6.0" height="16.0" rx="2.0" ry="2.0" stroke="rgb(36.76%, 36.76%, 36.76%)" stroke-width="0.5" stroke-linecap="square" stroke-linejoin="miter" fill="none" />
+		<rect x="5.5" y="22.5" width="2.0" height="11.0" fill="rgb(0%, 0%, 0%)" stroke="none" />
+		<rect x="5.5" y="22.5" width="2.0" height="11.0" stroke="rgb(0%, 0%, 0%)" stroke-width="1.0" stroke-linecap="square" stroke-linejoin="miter" fill="none" />
+		<rect x="11.5" y="22.5" width="2.0" height="11.0" fill="rgb(0%, 0%, 0%)" stroke="none" />
+		<rect x="11.5" y="22.5" width="2.0" height="11.0" stroke="rgb(0%, 0%, 0%)" stroke-width="1.0" stroke-linecap="square" stroke-linejoin="miter" fill="none" />
+		<rect x="23.5" y="22.5" width="2.0" height="11.0" fill="rgb(0%, 0%, 0%)" stroke="none" />
+		<rect x="23.5" y="22.5" width="2.0" height="11.0" stroke="rgb(0%, 0%, 0%)" stroke-width="1.0" stroke-linecap="square" stroke-linejoin="miter" fill="none" />
+		<rect x="29.5" y="22.5" width="2.0" height="11.0" fill="rgb(0%, 0%, 0%)" stroke="none" />
+		<rect x="29.5" y="22.5" width="2.0" height="11.0" stroke="rgb(0%, 0%, 0%)" stroke-width="1.0" stroke-linecap="square" stroke-linejoin="miter" fill="none" />
+		<rect x="35.5" y="22.5" width="2.0" height="11.0" fill="rgb(0%, 0%, 0%)" stroke="none" />
+		<rect x="35.5" y="22.5" width="2.0" height="11.0" stroke="rgb(0%, 0%, 0%)" stroke-width="1.0" stroke-linecap="square" stroke-linejoin="miter" fill="none" />
+	</g>
+
+	<g>
+		<title>Background</title>
+		<defs>
+			<linearGradient id="Gradient6000006ffc60" gradientUnits="userSpaceOnUse" x1="18.672" y1="28.0" x2="18.672" y2="0.0">
+				<stop offset="0%" stop-color="rgb(32.94%, 32.94%, 32.94%)" />
+				<stop offset="100%" stop-color="rgb(0.39%, 0.39%, 0.39%)" />
+			</linearGradient>
+		</defs>
+		<rect x="-2.656" y="0.0" width="42.656" height="28.0" fill="url(#Gradient6000006ffc60)" stroke="none" />
+	</g>
+
+	<g>
+		<title>Bar</title>
+		<defs>
+			<linearGradient id="Gradient6000006febc0" gradientUnits="userSpaceOnUse" x1="20.0" y1="29.0" x2="20.0" y2="26.0">
+				<stop offset="0%" stop-color="rgb(58.61%, 58.61%, 58.61%)" />
+				<stop offset="100%" stop-color="rgb(0%, 0%, 0%)" />
+			</linearGradient>
+		</defs>
+		<rect x="-2.715" y="26.0" width="45.43" height="3.0" fill="url(#Gradient6000006febc0)" stroke="none" transform="translate(20.0, 27.5) scale(1.0, -1.0) translate(-20.0, -27.5)" />
+	</g>
+
+	<g>
+		<title>Fonts+</title>
+		<text x="20.0" text-anchor="middle" y="25.735">
+			<tspan fill="rgb(100%, 79.86%, 0.59%)" font-family="EurostileRegular" font-size="12.0">Fonts+</tspan>
+		</text>
+	</g>
+
+	<g>
+		<title>Sound</title>
+		<text x="20.0" text-anchor="middle" y="16.009">
+			<tspan fill="rgb(35.12%, 78.58%, 97.99%)" font-family="EurostileRegular" font-size="12.0">Sound</tspan>
+		</text>
+	</g>
+
+</svg>
