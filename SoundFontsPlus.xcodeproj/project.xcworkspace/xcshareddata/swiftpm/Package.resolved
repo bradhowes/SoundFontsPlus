@@ -29,6 +29,15 @@
       }
     },
     {
+      "identity" : "dspheaders",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bradhowes/DSPHeaders",
+      "state" : {
+        "revision" : "ca5acb5814a831123ef5b1adbbcf23c2dacba08a",
+        "version" : "1.0.8"
+      }
+    },
+    {
       "identity" : "grdb.swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/groue/GRDB.swift",
