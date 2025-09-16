@@ -49,14 +49,13 @@ public struct SoundFontEditor {
     }
   }
 
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case cancelButtonTapped
     case changeTagsButtonTapped
     case destination(PresentationAction<Destination.Action>)
     case displayNameChanged(String)
     case notesChanged(String)
-    case pathButtonTapped
     case saveButtonTapped
     case unhideAllButtonTapped
     case useEmbeddedNameTapped
@@ -82,9 +81,6 @@ public struct SoundFontEditor {
 
       case .notesChanged(let value):
         state.notes = value
-
-      case .pathButtonTapped:
-        return visitPath(&state)
 
       case .saveButtonTapped:
         return dismiss(&state, save: true)
@@ -127,20 +123,11 @@ extension SoundFontEditor {
     ))
     return .none
   }
-
-  private func visitPath(_ state: inout State) -> Effect<Action> {
-    // TODO: change to use shareddocuments:// scheme so that Files.app opens path
-    @Environment(\.openURL) var openURL
-    if let url = URL(string: state.soundFont.sourcePath) {
-      // openURL(url)
-      print("open \(url)")
-    }
-    return .none
-  }
 }
 
 public struct SoundFontEditorView: View {
   @Bindable private var store: StoreOf<SoundFontEditor>
+  @Environment(\.openURL) var openURL
 
   public init(store: StoreOf<SoundFontEditor>) {
     self.store = store
@@ -164,6 +151,9 @@ public struct SoundFontEditorView: View {
         }
         Section(header: Text("Path")) {
           Button {
+            if let url = URL(string: store.soundFont.sourcePath) {
+              openURL(url)
+            }
           } label: {
             Text(store.soundFont.sourcePath)
           }
