@@ -17,6 +17,7 @@ extension CGFloat {
   public static var tagsEditorFontSize: Self { 18 }
   public static var titleFontSize: Self { 48 }
   public static var versionFontSize: Self { 18 }
+  public static var changeFontSize: Self { 15 }
 }
 
 extension Font {
@@ -31,4 +32,5 @@ extension Font {
   public static var status: Font { Font.custom("EurostileRegular", size: .infoBarStatusSize) }
   public static var tagsEditor: Font { Font.custom("EurostileRegular", size: .tagsEditorFontSize) }
   public static var version: Font { Font.custom("EurostileRegular", size: .versionFontSize) }
+  public static var change: Font { Font.custom("EurostileRegular", size: .changeFontSize) }
 }
