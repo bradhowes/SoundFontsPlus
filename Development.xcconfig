@@ -10,11 +10,18 @@ TEST_MEDIA_SERVICES_RESTART = -DTEST_MEDIA_SERVICES_RESTART
 
 // Play rendered samples in unit tests
 PLAY_AUDIO = -DPLAY_AUDIO
+// Always show the tutorial screen at start
+ALWAYS_SHOW_TUTORIAL = -DALWAYS_SHOW_TUTORIAL
 
 // Show contents of events in internal render block
 DEBUG_INTERNAL_RENDER_BLOCK = -DDEBUG_INTERNAL_RENDER_BLOCK
+
 // All of the flags above. To disable one, just prepend an 'x' to its name.
-DEBUG_FLAGS = $(xTEST_MEDIA_SERVICES_RESTART) $(xDELAY_NOTIFICATIONS) $(PLAY_AUDIO) $(xDEBUG_INTERNAL_RENDER_BLOCK)
+DEBUG_FLAGS = $(inherited) $(xTEST_MEDIA_SERVICES_RESTART)
+DEBUG_FLAGS = $(inherited) $(xDELAY_NOTIFICATIONS)
+DEBUG_FLAGS = $(inherited) $(xPLAY_AUDIO)
+DEBUG_FLAGS = $(inherited) $(xDEBUG_INTERNAL_RENDER_BLOCK)
+DEBUG_FLAGS = $(inherited) $(xALWAYS_SHOW_TUTORIAL)
 
 NAME_SUFFIX = Dev
 

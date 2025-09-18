@@ -30,4 +30,5 @@ extension Font {
   public static var soundFontEditor: Font { Font.custom("EurostileRegular", size: .soundFontEditorFontSize) }
   public static var status: Font { Font.custom("EurostileRegular", size: .infoBarStatusSize) }
   public static var tagsEditor: Font { Font.custom("EurostileRegular", size: .tagsEditorFontSize) }
+  public static var version: Font { Font.custom("EurostileRegular", size: .versionFontSize) }
 }
