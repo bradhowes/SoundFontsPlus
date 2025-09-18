@@ -20,6 +20,7 @@ struct AppFeature {
     case settings(SettingsFeature)
     case soundFontEditor(SoundFontEditor)
     case tagsEditor(TagsEditor)
+    case tutorial(TutorialFeature)
   }
 
   @ObservableState
@@ -51,6 +52,23 @@ struct AppFeature {
       @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsPosition
       self.presetsSplit = .init(panesVisible: .both, initialPosition: fontsAndPresetsPosition)
 
+#if ALWAYS_SHOW_TUTORIAL
+
+      destination = .tutorial(TutorialFeature.State())
+
+#else
+
+#if !(DEBUG && targetEnvironment(simulator))
+
+      @Shared(.showTutorial) var showTutorial
+      if showTutorial {
+        destination = .tutorial(TutorialFeature.State())
+        $showTutorial.withLock { $0 = false }
+      }
+
+#endif // !(DEBUG && targetEnvironment(simulator))
+
+#endif
       // destination = .settings(SettingsFeature.State(midi: midi, midiMonitor: midiMonitor))
     }
   }
@@ -110,6 +128,15 @@ struct AppFeature {
       case .delay:
         return .none
 
+//      case let .destination(.presented(.settings(.delegate(action)))):
+//        switch action {
+//        case .showChanges:
+//          return .none
+//
+//        case .showTutorial:
+//          return .none
+//        }
+//
       case .destination(.dismiss):
         return .merge(
           reduce(into: &state, action: .appReview(.ask)),
@@ -203,9 +230,15 @@ private extension AppFeature {
 
   func destinationDismissed(_ state: inout State) -> Effect<Action> {
     switch state.destination {
-    case let .presetEditor(editor): return editorDismissed(&state, editor: editor)
-    case .settings: return reduce(into: &state, action: .presetsList(.fetchPresets))
-    default: return .none
+
+    case let .presetEditor(editor):
+      return editorDismissed(&state, editor: editor)
+
+    case .settings:
+      return reduce(into: &state, action: .presetsList(.fetchPresets))
+
+    default:
+      return .none
     }
   }
 
@@ -523,6 +556,17 @@ extension View {
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }
+      .sheet(item: store.scope(state: \.destination?.tutorial, action: \.destination.tutorial)) {
+        tutorial($0)
+      }
+  }
+
+  private func tutorial(_ store: StoreOf<TutorialFeature>) -> some View {
+    NavigationStack {
+      TutorialFeatureView(store: store)
+        .preferredColorScheme(.dark)
+        .environment(\.colorScheme, .dark)
+    }
   }
 }
 

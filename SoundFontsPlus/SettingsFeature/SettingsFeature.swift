@@ -15,6 +15,7 @@ public struct SettingsFeature {
     case midiAssignments(MIDIAssignmentsFeature)
     case midiConnections(MIDIConnectionsFeature)
     case midiControllers(MIDIControllersFeature)
+    case tutorial(TutorialFeature)
   }
 
   @Reducer(state: .equatable)
@@ -85,8 +86,8 @@ public struct SettingsFeature {
     case midiTrafficIndicator(MIDITrafficIndicatorFeature.Action)
     case reviewAppTapped
     case unhideBuiltInFilesTapped
-    case viewChangeHistoryTapped
-    case viewTutorialScreensTapped
+    case viewChangesTapped
+    case viewTutorialTapped
   }
 
   public init() {}
@@ -185,11 +186,13 @@ public struct SettingsFeature {
       case .unhideBuiltInFilesTapped:
         return .none
 
-      case .viewChangeHistoryTapped:
+      case .viewChangesTapped:
         return .none
 
-      case .viewTutorialScreensTapped:
+      case .viewTutorialTapped:
+        state.path.append(.tutorial(TutorialFeature.State()))
         return .none
+
       }
     }
     .forEach(\.path, action: \.path)
@@ -286,6 +289,7 @@ public struct SettingsView: View {
       case .midiAssignments(let store): MIDIAssignmentsView(store: store)
       case .midiConnections(let store): MIDIConnectionsView(store: store)
       case .midiControllers(let store): MIDIControllersView(store: store)
+      case .tutorial(let store): TutorialFeatureView(store: store)
       }
     }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
@@ -486,18 +490,18 @@ extension SettingsView {
           Text("View change history")
           Spacer()
           Button {
-            store.send(.viewChangeHistoryTapped)
+            store.send(.viewChangesTapped)
           } label: {
-            Text("Hide")
+            Text("Changes")
           }
         }
         HStack {
           Text("View tutorial screens")
           Spacer()
           Button {
-            store.send(.viewTutorialScreensTapped)
+            store.send(.viewTutorialTapped)
           } label: {
-            Text("Show")
+            Text("Tutorial")
           }
         }
         HStack {
