@@ -147,13 +147,14 @@ extension TutorialFeatureView {
         Text("This brief tutorial will introduce you to the various parts of the app.")
           .foregroundStyle(.teal)
           .font(.title3)
-        Text("The tutorial will not appear upon future launches of the app, but you can always view it again via the Settings panel \(Image(systemName: "gear")).")
+        Text("The tutorial will not appear upon future launches of the app, but you can always view it again via the \(Image(systemName: "gear")) Settings panel.")
         // .font(.title3)
           .foregroundStyle(.teal)
           .font(.title3)
       }
       Text("Swipe left or tap along the right edge of the screen to continue.")
         .font(.body)
+        .italic(true)
         .foregroundStyle(.teal)
       Spacer()
     }
@@ -535,5 +536,7 @@ extension TutorialFeatureView {
 }
 
 #Preview {
-  TutorialFeatureView(store: Store(initialState: .init(page: .intro)) { TutorialFeature() })
+  NavigationStack {
+    TutorialFeatureView(store: Store(initialState: .init(page: .intro)) { TutorialFeature() })
+  }
 }

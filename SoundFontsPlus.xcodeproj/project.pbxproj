@@ -60,7 +60,7 @@
 		BD9E46152E79801400D0806E /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD9E46142E79801400D0806E /* Engine */; };
 		BD9E46172E79801400D0806E /* SF2File in Frameworks */ = {isa = PBXBuildFile; productRef = BD9E46162E79801400D0806E /* SF2File */; };
 		BD9E46192E79801400D0806E /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BD9E46182E79801400D0806E /* SF2Lib */; };
-		BD9E461C2E7A05F800D0806E /* ChangesCompiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E461B2E7A05F400D0806E /* ChangesCompiler.swift */; };
+		BD9E461C2E7A05F800D0806E /* ChangesFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E461B2E7A05F400D0806E /* ChangesFeature.swift */; };
 		BD9E461E2E7A079E00D0806E /* Changes.md in Resources */ = {isa = PBXBuildFile; fileRef = BD9E461D2E7A079B00D0806E /* Changes.md */; };
 		BD9E46202E7AA30200D0806E /* TutorialFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E461F2E7AA2FA00D0806E /* TutorialFeature.swift */; };
 		BDA11AFA2E617FF800941A41 /* DisableIdleTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDA11AF92E617FEF00941A41 /* DisableIdleTimer.swift */; };
@@ -255,7 +255,7 @@
 		BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardReadable.swift; sourceTree = "<group>"; };
 		BD9E45E82E794F9B00D0806E /* FourCharCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FourCharCode.swift; sourceTree = "<group>"; };
 		BD9E45EA2E79518D00D0806E /* ClosedRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosedRange.swift; sourceTree = "<group>"; };
-		BD9E461B2E7A05F400D0806E /* ChangesCompiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesCompiler.swift; sourceTree = "<group>"; };
+		BD9E461B2E7A05F400D0806E /* ChangesFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesFeature.swift; sourceTree = "<group>"; };
 		BD9E461D2E7A079B00D0806E /* Changes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Changes.md; sourceTree = "<group>"; };
 		BD9E461F2E7AA2FA00D0806E /* TutorialFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialFeature.swift; sourceTree = "<group>"; };
 		BDA11AF92E617FEF00941A41 /* DisableIdleTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisableIdleTimer.swift; sourceTree = "<group>"; };
@@ -466,9 +466,9 @@
 			isa = PBXGroup;
 			children = (
 				BD1D27822B6F13DD005C3ED0 /* SoundFontsPlusApp.swift */,
-				BD9E461A2E7A05E600D0806E /* ChangesFeature */,
 				BDAF5A992DE254F400B8FB13 /* AppFeature */,
 				BDB9FEFB2E06A67B003BA0A2 /* AudioUnitParameters */,
+				BD9E46232E7CBD2700D0806E /* ChangesFeature */,
 				BDAF5A9C2DE2550700B8FB13 /* Effects */,
 				BDAF5A922DE254E000B8FB13 /* Extensions */,
 				BD7B05152E4FDD01006628F3 /* FileImporterFeature */,
@@ -484,6 +484,7 @@
 				BDAF5B112DE2559100B8FB13 /* TagsFeature */,
 				BDAF5B182DE2559400B8FB13 /* ToolBarFeature */,
 				BDAF5B1B2DE2559900B8FB13 /* TuningFeature */,
+				BD9E461A2E7A05E600D0806E /* TutorialFeature */,
 				BDAF5B202DE2559E00B8FB13 /* Utils */,
 				BD2A26032CC849E0000CC1DF /* Eurostile.ttc */,
 				BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */,
@@ -541,11 +542,18 @@
 			path = FileImporterFeature;
 			sourceTree = "<group>";
 		};
-		BD9E461A2E7A05E600D0806E /* ChangesFeature */ = {
+		BD9E461A2E7A05E600D0806E /* TutorialFeature */ = {
 			isa = PBXGroup;
 			children = (
-				BD9E461B2E7A05F400D0806E /* ChangesCompiler.swift */,
 				BD9E461F2E7AA2FA00D0806E /* TutorialFeature.swift */,
+			);
+			path = TutorialFeature;
+			sourceTree = "<group>";
+		};
+		BD9E46232E7CBD2700D0806E /* ChangesFeature */ = {
+			isa = PBXGroup;
+			children = (
+				BD9E461B2E7A05F400D0806E /* ChangesFeature.swift */,
 			);
 			path = ChangesFeature;
 			sourceTree = "<group>";
@@ -1208,7 +1216,7 @@
 				BDB9FEF52E04B795003BA0A2 /* ParameterDefinition.swift in Sources */,
 				BD46FC832DF62C3100CB20F1 /* AUParameterTree.swift in Sources */,
 				BD59D4EE2E47C80A00B2250B /* MIDIAssignmentsFeature.swift in Sources */,
-				BD9E461C2E7A05F800D0806E /* ChangesCompiler.swift in Sources */,
+				BD9E461C2E7A05F800D0806E /* ChangesFeature.swift in Sources */,
 				BD7DBC8D2DF45904005A31DE /* DimmedAppearanceModifier.swift in Sources */,
 				BDAF5AF32DE2558800B8FB13 /* SF2LoadFailure.swift in Sources */,
 				BDAF5AF42DE2558800B8FB13 /* SoundFontsSupport.swift in Sources */,
