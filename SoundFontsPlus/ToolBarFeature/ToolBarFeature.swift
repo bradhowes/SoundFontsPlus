@@ -219,7 +219,6 @@ private extension ToolBarFeature {
         .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
         .map({ Int($0) })
         .values {
-        print("actveVoiceCount: \(value)")
         await send(.activeVoiceCountChanged(value))
       }
     }.cancellable(id: CancelId.monitorActiveVoiceCount)
@@ -277,7 +276,7 @@ private extension ToolBarFeature {
     log.info("lastPlayedKey - \(key.label)")
 
     return .run { send in
-      try await Task.sleep(nanoseconds: .seconds(1.8))
+      try await Task.sleep(for: .seconds(1.8))
       log.info("clearing lastPlayedKey")
       await send(.lastPlayedKeyChanged(nil))
     }
@@ -352,12 +351,13 @@ public struct ToolBarFeatureView: View {
           .padding(.trailing, 8)
       }
     }
-    .fileImporterFeature(store.scope(state: \.fileImporter, action: \.fileImporter))
+    .imageScale(.large)
     .padding([.top, .bottom, .leading], 4)
     .background(Color.black)
     .frame(maxHeight: 40)
     .animation(.smooth, value: store.showMoreButtons)
     .animation(.smooth, value: store.activeVoiceCount)
+    .fileImporterFeature(store.scope(state: \.fileImporter, action: \.fileImporter))
     .task {
       await store.send(.initialize).finish()
     }
@@ -401,7 +401,7 @@ public struct ToolBarFeatureView: View {
     Button {
       store.send(.addSoundFontButtonTapped)
     } label: {
-      Image(systemName: "plus.circle").imageScale(.large)
+      Image(systemName: .addSoundFontButtonImageName)
     }
   }
 
@@ -409,8 +409,8 @@ public struct ToolBarFeatureView: View {
     Button {
       store.send(.tagVisibilityButtonTapped)
     } label: {
-      Image(systemName: "tag").imageScale(.large)
-        .tint(store.tagsListVisible ? Color.orange : Color.accentColor)
+      Image(systemName: .tagsListButtonImageName)
+        .tint(if: store.tagsListVisible)
     }
   }
 
@@ -418,16 +418,16 @@ public struct ToolBarFeatureView: View {
     Button {
       store.send(.effectsVisibilityButtonTapped)
     } label: {
-      Image(systemName: "waveform").imageScale(.large)
-        .tint(store.effectsVisible ? Color.orange : Color.accentColor)
+      Image(systemName: .effectsButtonImageName)
+        .tint(if: store.effectsVisible)
     }
   }
 
   private var toggleMoreButton: some View {
     HStack(spacing: 0) {
       Button { store.send(.showMoreButtonTapped) } label: {
-        Image(systemName: "chevron.left").imageScale(.large)
-          .tint(store.showMoreButtons ? Color.orange : Color.accentColor)
+        Image(systemName: .moreButtonImageName).imageScale(.large)
+          .tint(if: store.showMoreButtons)
       }
       Color.black
         .frame(width: 4)
@@ -441,7 +441,7 @@ public struct ToolBarFeatureView: View {
       Button {
         store.send(.shiftKeyboardDownButtonTapped)
       } label: {
-        Text("❰" + store.lowestKey.label)
+        Text(.shiftKeyboardLeftIndicator + store.lowestKey.label)
       }
       .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
       Button {
@@ -449,32 +449,32 @@ public struct ToolBarFeatureView: View {
       } label: {
         Image(
           systemName: store.keyboardSlides
-          ? "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right.fill"
-          : "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right"
+          ? .slidingKeyboardButtonImageName
+          : .fixedKeyboardButtonImageName
         )
-        .tint(store.keyboardSlides ? Color.orange : Color.accentColor)
+        .tint(if: store.keyboardSlides)
       }
       Button {
         store.send(.shiftKeyboardUpButtonTapped)
       } label: {
-        Text(store.highestKey.label + "❱")
+        Text(store.highestKey.label + .shiftKeyboardRightIndicator)
       }
       .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
       Button {
-        store.send(.settingsButtonTapped)
-      } label: {
-        Image(systemName: "gear").imageScale(.large)
-      }
-      Button {
         store.send(.presetsVisibilityButtonTapped)
       } label: {
-        Image(systemName: "list.bullet").imageScale(.large)
-          .tint(store.editingPresetVisibility ? Color.orange : Color.accentColor)
+        Image(systemName: .presetsVisibilityButtonImageName)
+          .tint(if: store.editingPresetVisibility)
+      }
+      Button {
+        store.send(.settingsButtonTapped)
+      } label: {
+        Image(systemName: .settingsButtonImageName)
       }
       Button {
         store.send(.helpButtonTapped)
       } label: {
-        Image(systemName: "questionmark.circle").imageScale(.large)
+        Image(systemName: .helpButtonImageName)
       }
     }
     .background(.black)
@@ -498,15 +498,4 @@ extension ToolBarFeatureView {
 
 #Preview {
   ToolBarFeatureView.preview
-}
-
-extension UInt64 {
-
-  static func seconds(_ value: Float) -> UInt64 {
-    UInt64(value * 1_000_000_000)
-  }
-
-  static func milliseconds(_ value: Float) -> UInt64 {
-    UInt64(value * 1_000_000)
-  }
 }

@@ -24,7 +24,7 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var showActiveVoiceCount: Self { Self[.appStorage("showActiveVoiceCount"), default: true]}
   public static var showOnlyFavorites: Self { Self[.appStorage("showOnlyFavorites"), default: false] }
   public static var showSolfegeTags: Self { Self[.appStorage("showSolfegeTags"), default: false] }
-  public static var showTutorial: Self { Self[.appStorage("showedTutorial"), default: true] }
+  public static var showedTutorial: Self { Self[.appStorage("showedTutorial"), default: false] }
   public static var starFavoriteNames: Self { Self[.appStorage("starFavoriteNames"), default: true] }
   public static var tagsListVisible: Self { Self[.appStorage("tagsListVisible"), default: false] }
 }
@@ -46,6 +46,7 @@ extension SharedKey where Self == AppStorageKey<Double>.Default {
 
 extension SharedKey where Self == AppStorageKey<String>.Default {
   public static var lastReviewRequestVersion: Self { Self[.appStorage("lastReviewRequestVersion"), default: ""] }
+  public static var lastShowedChangesVersion: Self { Self[.appStorage("lastShowedChangesVersion"), default: ""] }
 }
 
 // MARK: - AppStorage Date settings

@@ -16,6 +16,7 @@ private let log = Logger(category: "AppFeature")
 struct AppFeature {
   @Reducer(state: .equatable)
   enum Destination {
+    case changes(ChangesFeature)
     case presetEditor(PresetEditor)
     case settings(SettingsFeature)
     case soundFontEditor(SoundFontEditor)
@@ -42,6 +43,23 @@ struct AppFeature {
     var toolBar: ToolBarFeature.State = .init()
     var volumeMonitor: VolumeMonitorFeature.State = .init()
 
+    var shouldShowTutorial: Bool {
+#if ALWAYS_SHOW_TUTORIAL
+      return true
+#endif
+      @Shared(.showedTutorial) var showedTutorial
+      return !showedTutorial
+    }
+
+    var shouldShowChanges: Bool {
+#if ALWAYS_SHOW_TUTORIAL
+      return true
+#endif
+      @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
+      let currentVersion: String = Bundle.main.releaseVersionNumber
+      return lastShowedChangesVersion != currentVersion
+    }
+
     init() {
       _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
 
@@ -54,22 +72,35 @@ struct AppFeature {
 
 #if ALWAYS_SHOW_TUTORIAL
 
-      destination = .tutorial(TutorialFeature.State())
+      showTutorial()
 
-#else
+#elseif ALWAYS_SHOW_CHANGES
 
-#if !(DEBUG && targetEnvironment(simulator))
+      showChanges()
 
-      @Shared(.showTutorial) var showTutorial
-      if showTutorial {
-        destination = .tutorial(TutorialFeature.State())
-        $showTutorial.withLock { $0 = false }
+#elseif !(DEBUG && targetEnvironment(simulator))
+
+      if shouldShowTutorial {
+        showTutorial()
+      } else if shouldShowChanges {
+        destination = showChanges()
       }
 
-#endif // !(DEBUG && targetEnvironment(simulator))
-
 #endif
+
       // destination = .settings(SettingsFeature.State(midi: midi, midiMonitor: midiMonitor))
+    }
+
+    mutating func showTutorial() {
+      destination = .tutorial(TutorialFeature.State())
+      @Shared(.showedTutorial) var showedTutorial
+      $showedTutorial.withLock { $0 = true }
+    }
+
+    mutating func showChanges() {
+      destination = .changes(ChangesFeature.State(Bundle.main.changeLog))
+      @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
+      $lastShowedChangesVersion.withLock { $0 = Bundle.main.releaseVersionNumber }
     }
   }
 
@@ -128,15 +159,15 @@ struct AppFeature {
       case .delay:
         return .none
 
-//      case let .destination(.presented(.settings(.delegate(action)))):
-//        switch action {
-//        case .showChanges:
-//          return .none
-//
-//        case .showTutorial:
-//          return .none
-//        }
-//
+        //      case let .destination(.presented(.settings(.delegate(action)))):
+        //        switch action {
+        //        case .showChanges:
+        //          return .none
+        //
+        //        case .showTutorial:
+        //          return .none
+        //        }
+        //
       case .destination(.dismiss):
         return .merge(
           reduce(into: &state, action: .appReview(.ask)),
@@ -426,7 +457,7 @@ struct AppFeatureView: View, KeyboardReadable {
     .onReceive(keyboardPublisher) {
       isInputKeyboardVisible = $0
     }
-    .destinations(
+    .sheets(
       store: $store,
       horizontalSizeClass: horizontalSizeClass,
       verticalSizeClass: verticalSizeClass
@@ -530,43 +561,77 @@ struct AppFeatureView: View, KeyboardReadable {
 }
 
 extension View {
-  func destinations(
+
+  func sheets(
     store: Bindable<StoreOf<AppFeature>>,
     horizontalSizeClass: UserInterfaceSizeClass?,
     verticalSizeClass: UserInterfaceSizeClass?
   ) -> some View {
+    self
+      .changesSheet(store)
+      .presetEditorSheet(store)
+      .settingsSheet(store, showFakeKeyboard: horizontalSizeClass == .compact || verticalSizeClass == .compact)
+      .soundFontEditorSheet(store)
+      .tagsEditorSheet(store)
+      .tutorialSheet(store)
+  }
+
+  func changesSheet(_ store: Bindable<StoreOf<AppFeature>>) -> some View {
+    self
+      .sheet(item: store.scope(state: \.destination?.changes, action: \.destination.changes)) { child in
+        NavigationStack {
+          ChangesFeatureView(store: child)
+            .preferredColorScheme(.dark)
+            .environment(\.colorScheme, .dark)
+        }
+      }
+  }
+
+  func presetEditorSheet(_ store: Bindable<StoreOf<AppFeature>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
         PresetEditorView(store: $0)
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }
+  }
+
+  func settingsSheet(_ store: Bindable<StoreOf<AppFeature>>, showFakeKeyboard: Bool) -> some View {
+    self
       .sheet(item: store.scope(state: \.destination?.settings, action: \.destination.settings)) {
-        SettingsView(store: $0, showFakeKeyboard: horizontalSizeClass == .compact || verticalSizeClass == .compact)
+        SettingsView(store: $0, showFakeKeyboard: showFakeKeyboard)
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }
+  }
+
+  func soundFontEditorSheet(_ store: Bindable<StoreOf<AppFeature>>) -> some View {
+    self
       .sheet(item: store.scope(state: \.destination?.soundFontEditor, action: \.destination.soundFontEditor)) {
         SoundFontEditorView(store: $0)
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }
+  }
+
+  func tagsEditorSheet(_ store: Bindable<StoreOf<AppFeature>>) -> some View {
+    self
       .sheet(item: store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor)) {
         TagsEditorView(store: $0)
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }
-      .sheet(item: store.scope(state: \.destination?.tutorial, action: \.destination.tutorial)) {
-        tutorial($0)
-      }
   }
 
-  private func tutorial(_ store: StoreOf<TutorialFeature>) -> some View {
-    NavigationStack {
-      TutorialFeatureView(store: store)
-        .preferredColorScheme(.dark)
-        .environment(\.colorScheme, .dark)
-    }
+  func tutorialSheet(_ store: Bindable<StoreOf<AppFeature>>) -> some View {
+    self
+      .sheet(item: store.scope(state: \.destination?.tutorial, action: \.destination.tutorial)) { child in
+        NavigationStack {
+          TutorialFeatureView(store: child)
+            .preferredColorScheme(.dark)
+            .environment(\.colorScheme, .dark)
+        }
+      }
   }
 }
 
