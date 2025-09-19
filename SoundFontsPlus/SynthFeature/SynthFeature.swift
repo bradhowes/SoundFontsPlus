@@ -297,7 +297,6 @@ private extension SynthFeature {
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
     guard playSoundOnPresetChange else { return .none }
     return .run { _ in
-      // Play a short note using the new preset
       synth.sendNoteOn(note: 60)
       try? await Task.sleep(for: .milliseconds(250))
       synth.sendNoteOff(note: 60)

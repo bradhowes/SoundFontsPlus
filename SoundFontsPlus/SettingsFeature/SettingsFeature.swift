@@ -12,6 +12,7 @@ public struct SettingsFeature {
 
   @Reducer(state: .equatable)
   public enum Path {
+    case changes(ChangesFeature)
     case midiAssignments(MIDIAssignmentsFeature)
     case midiConnections(MIDIConnectionsFeature)
     case midiControllers(MIDIControllersFeature)
@@ -187,6 +188,7 @@ public struct SettingsFeature {
         return .none
 
       case .viewChangesTapped:
+        state.path.append(.changes(ChangesFeature.State(Bundle.main.changeLog)))
         return .none
 
       case .viewTutorialTapped:
@@ -286,6 +288,7 @@ public struct SettingsView: View {
       .animation(.smooth, value: changingKeyWidth)
     } destination: { store in
       switch store.case {
+      case .changes(let store): ChangesFeatureView(store: store)
       case .midiAssignments(let store): MIDIAssignmentsView(store: store)
       case .midiConnections(let store): MIDIConnectionsView(store: store)
       case .midiControllers(let store): MIDIControllersView(store: store)

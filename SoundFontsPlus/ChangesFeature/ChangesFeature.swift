@@ -75,15 +75,6 @@ public struct ChangesFeature {
   }
 }
 
-extension Bundle {
-  var changesLog: URL? { Bundle.main.url(forResource: "Changes", withExtension: "md", subdirectory: nil) }
-
-//  guard let data = try? String(contentsOfFile: source.path, encoding: .utf8) else {
-//    return entries
-//  }
-
-}
-
 public struct ChangesFeatureView: View {
   @State private var store: StoreOf<ChangesFeature>
 

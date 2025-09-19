@@ -15,4 +15,14 @@ extension Bundle {
 
   /// Obtain a version string from the bundle info
   public var versionString: String { "Version \(releaseVersionNumber).\(buildVersionNumber)" }
+
+  public var changeLogFile: URL? { Bundle.main.url(forResource: "Changes", withExtension: "md", subdirectory: nil) }
+
+  public var changeLog: String {
+    guard let url = self.changeLogFile,
+          let data = try? String(contentsOfFile: url.path, encoding: .utf8) else {
+      return ""
+    }
+    return data
+  }
 }
