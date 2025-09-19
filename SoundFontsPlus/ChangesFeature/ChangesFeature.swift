@@ -45,8 +45,6 @@ public struct ChangesFeature {
     var items = [String]()
 
     for line in data.components(separatedBy: .newlines) {
-      print(line)
-
       if line.hasPrefix("# ") {
         if !version.isEmpty && !items.isEmpty {
           entries.append(.init(version: version, items: items))
@@ -68,8 +66,6 @@ public struct ChangesFeature {
     if !version.isEmpty && !items.isEmpty {
       entries.append(.init(version: version, items: items))
     }
-
-    print(entries)
 
     return entries
   }
@@ -107,8 +103,8 @@ public struct ChangesFeatureView: View {
           }
         }
       }
-      .padding([.leading, .trailing], 24)
     }
+    .padding([.leading, .trailing, .bottom], 24)
     .navigationTitle("")
     .toolbar {
       ToolbarItem(placement: .automatic) {
