@@ -12,11 +12,9 @@ public struct SettingsFeature {
 
   @Reducer(state: .equatable)
   public enum Path {
-    case changes(ChangesFeature)
     case midiAssignments(MIDIAssignmentsFeature)
     case midiConnections(MIDIConnectionsFeature)
     case midiControllers(MIDIControllersFeature)
-    case tutorial(TutorialFeature)
   }
 
   @Reducer(state: .equatable)
@@ -72,6 +70,7 @@ public struct SettingsFeature {
     case binding(BindingAction<State>)
     case bluetoothMIDILocateButtonTapped
     case contactDeveloperTapped
+    case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case dismissButtonTapped
     case exportFilesTapped
@@ -89,6 +88,11 @@ public struct SettingsFeature {
     case unhideBuiltInFilesTapped
     case viewChangesTapped
     case viewTutorialTapped
+
+    public enum Delegate {
+      case showChanges
+      case showTutorial
+    }
   }
 
   public init() {}
@@ -128,6 +132,9 @@ public struct SettingsFeature {
         return .none
 
       case .contactDeveloperTapped:
+        return .none
+
+      case .delegate:
         return .none
 
       case .destination(.presented(.alert(.disableCopyFileConfirmed))):
@@ -188,13 +195,14 @@ public struct SettingsFeature {
         return .none
 
       case .viewChangesTapped:
-        state.path.append(.changes(ChangesFeature.State(Bundle.main.changeLog)))
-        return .none
+        // state.path.append(.changes(ChangesFeature.State(Bundle.main.changeLog)))
+        // return .none
+        return .send(.delegate(.showChanges))
 
       case .viewTutorialTapped:
-        state.path.append(.tutorial(TutorialFeature.State()))
-        return .none
-
+//        state.path.append(.tutorial(TutorialFeature.State()))
+//        return .none
+        return .send(.delegate(.showTutorial))
       }
     }
     .forEach(\.path, action: \.path)
@@ -288,11 +296,9 @@ public struct SettingsView: View {
       .animation(.smooth, value: changingKeyWidth)
     } destination: { store in
       switch store.case {
-      case .changes(let store): ChangesFeatureView(store: store)
       case .midiAssignments(let store): MIDIAssignmentsView(store: store)
       case .midiConnections(let store): MIDIConnectionsView(store: store)
       case .midiControllers(let store): MIDIControllersView(store: store)
-      case .tutorial(let store): TutorialFeatureView(store: store)
       }
     }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))

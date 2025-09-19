@@ -91,16 +91,16 @@ struct AppFeature {
       // destination = .settings(SettingsFeature.State(midi: midi, midiMonitor: midiMonitor))
     }
 
-    mutating func showTutorial() {
-      destination = .tutorial(TutorialFeature.State())
-      @Shared(.showedTutorial) var showedTutorial
-      $showedTutorial.withLock { $0 = true }
-    }
-
     mutating func showChanges() {
       destination = .changes(ChangesFeature.State(Bundle.main.changeLog))
       @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
       $lastShowedChangesVersion.withLock { $0 = Bundle.main.releaseVersionNumber }
+    }
+
+    mutating func showTutorial() {
+      destination = .tutorial(TutorialFeature.State())
+      @Shared(.showedTutorial) var showedTutorial
+      $showedTutorial.withLock { $0 = true }
     }
   }
 
@@ -159,15 +159,17 @@ struct AppFeature {
       case .delay:
         return .none
 
-        //      case let .destination(.presented(.settings(.delegate(action)))):
-        //        switch action {
-        //        case .showChanges:
-        //          return .none
-        //
-        //        case .showTutorial:
-        //          return .none
-        //        }
-        //
+      case let .destination(.presented(.settings(.delegate(action)))):
+        switch action {
+        case .showChanges:
+          state.showChanges()
+          return .none
+
+        case .showTutorial:
+          state.showTutorial()
+          return .none
+        }
+
       case .destination(.dismiss):
         return .merge(
           reduce(into: &state, action: .appReview(.ask)),
