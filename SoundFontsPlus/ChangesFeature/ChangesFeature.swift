@@ -18,6 +18,7 @@ public struct ChangesFeature {
   @ObservableState
   public struct State: Equatable {
     let log: [Change]
+    var showChangesAtLaunch: Bool = ChangesFeature.shouldShowChanges
 
     public init(_ data: String) {
       self.log = ChangesFeature.compile(data)
@@ -32,11 +33,22 @@ public struct ChangesFeature {
 
     Reduce { _, action in
       switch action {
+
       case .dismissButtonTapped:
         @Dependency(\.dismiss) var dismiss
         return .run { _ in await dismiss() }
+
       }
     }
+  }
+
+  public static var shouldShowChanges: Bool {
+#if ALWAYS_SHOW_TUTORIAL
+    return true
+#endif
+    @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
+    defer { $lastShowedChangesVersion.withLock { $0 = Bundle.main.releaseVersionNumber } }
+    return lastShowedChangesVersion != Bundle.main.releaseVersionNumber
   }
 
   public static func compile(_ data: String) -> [Change] {
@@ -49,17 +61,13 @@ public struct ChangesFeature {
         if !version.isEmpty && !items.isEmpty {
           entries.append(.init(version: version, items: items))
         }
-
-        version = String(line[line.index(line.startIndex, offsetBy: 2)...])
-          .trimmingCharacters(in: .whitespaces)
+        version = String(line[line.index(line.startIndex, offsetBy: 2)...]).trimmedOfWhitespaces
         items = []
-
       } else if line.hasPrefix("* ") {
-        let item = String(line[line.index(line.startIndex, offsetBy: 2)...])
-          .trimmingCharacters(in: .whitespaces)
+        let item = String(line[line.index(line.startIndex, offsetBy: 2)...]).trimmedOfWhitespaces
         items.append(item)
       } else if line.hasPrefix(" ") && !items.isEmpty {
-        items[items.count - 1] = (items.last ?? "") + " " + line.trimmingCharacters(in: .whitespaces)
+        items[items.count - 1] = (items.last ?? "") + " " + line.trimmedOfWhitespaces
       }
     }
 

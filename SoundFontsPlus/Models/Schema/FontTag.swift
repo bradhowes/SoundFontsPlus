@@ -85,7 +85,7 @@ extension FontTag {
 extension FontTag {
 
   public static func make(displayName: String) throws -> FontTag {
-    let base = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+    let base = displayName.trimmedOfWhitespaces
     if base.isEmpty {
       throw ModelError.emptyTagName
     }
@@ -145,7 +145,7 @@ extension FontTag {
 
   func rename(new displayName: String) throws {
     guard self.isUserDefined else { throw ModelError.renameUbiquitous(name: self.displayName) }
-    let trimmed = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+    let trimmed = displayName.trimmedOfWhitespaces
     guard !trimmed.isEmpty else { throw ModelError.emptyTagName }
 
     @Dependency(\.defaultDatabase) var database
