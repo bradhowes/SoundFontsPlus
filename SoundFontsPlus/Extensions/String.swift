@@ -1,5 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import Foundation
+
 extension String {
 
   /**
@@ -10,7 +12,10 @@ extension String {
    - returns trimmed content or given value
    */
   public func trimmed(or default: String) -> String {
-    let trimmed = self.trimmingCharacters(in: .whitespaces)
+    let trimmed = self.trimmedOfWhitespaces
     return trimmed.isEmpty ? `default` : trimmed
   }
+
+  @inlinable
+  public var trimmedOfWhitespaces: String { trimmingCharacters(in: .whitespaces) }
 }

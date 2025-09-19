@@ -153,7 +153,7 @@ extension SF2LibAU {
     .init(SF2Engine.createChannelMessagePayload(message, value))
   }
 
-  public var activePresetName: String { String(engine.activePresetName()).trimmingCharacters(in: .whitespaces) }
+  public var activePresetName: String { String(engine.activePresetName()).trimmedOfWhitespaces }
   public var activeVoiceCount: Int { engine.activeVoiceCount() }
 
   public var monophonicModeEnabled: Bool { engine.monophonicModeEnabled(); }
