@@ -103,8 +103,9 @@ public struct ChangesFeatureView: View {
           }
         }
       }
+      .padding([.leading, .trailing], 24)
     }
-    .padding([.leading, .trailing, .bottom], 24)
+    .padding([.bottom], 24)
     .navigationTitle("")
     .toolbar {
       ToolbarItem(placement: .automatic) {
