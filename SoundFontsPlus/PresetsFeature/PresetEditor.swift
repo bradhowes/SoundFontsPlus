@@ -170,11 +170,13 @@ public struct PresetEditorView: View {
           Button("Cancel") {
             store.send(.cancelButtonTapped, animation: .default)
           }
+          .font(.button)
         }
         ToolbarItem(placement: .confirmationAction) {
           Button("Save") {
             store.send(.saveButtonTapped, animation: .default)
           }
+          .font(.button)
         }
       }
     }

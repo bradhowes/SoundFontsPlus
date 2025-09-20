@@ -291,6 +291,7 @@ public struct SettingsView: View {
       .toolbar {
         ToolbarItem(placement: .automatic) {
           Button("Done") { store.send(.dismissButtonTapped, animation: .default) }
+            .font(.button)
         }
       }
       .animation(.smooth, value: changingKeyWidth)

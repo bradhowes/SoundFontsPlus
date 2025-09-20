@@ -414,7 +414,7 @@ struct AppFeatureView: View, KeyboardReadable {
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
     theme.font = .effectsControl
 
-    // navigationBarTitleStyle()
+    navigationBarTitleStyle()
 
     self.theme = theme
   }
