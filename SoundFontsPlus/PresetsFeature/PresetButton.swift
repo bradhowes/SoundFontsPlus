@@ -200,6 +200,7 @@ public struct PresetButtonView: View {
           .indicator(.none)
       }
     }
+    .listRowSeparator(.hidden)
   }
 }
 

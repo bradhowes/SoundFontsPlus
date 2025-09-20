@@ -43,23 +43,6 @@ struct AppFeature {
     var toolBar: ToolBarFeature.State = .init()
     var volumeMonitor: VolumeMonitorFeature.State = .init()
 
-    var shouldShowTutorial: Bool {
-#if ALWAYS_SHOW_TUTORIAL
-      return true
-#endif
-      @Shared(.showedTutorial) var showedTutorial
-      return !showedTutorial
-    }
-
-    var shouldShowChanges: Bool {
-#if ALWAYS_SHOW_TUTORIAL
-      return true
-#endif
-      @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
-      let currentVersion: String = Bundle.main.releaseVersionNumber
-      return lastShowedChangesVersion != currentVersion
-    }
-
     init() {
       _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
 
@@ -80,9 +63,9 @@ struct AppFeature {
 
 #elseif !(DEBUG && targetEnvironment(simulator))
 
-      if shouldShowTutorial {
+      if TutorialFeature.shouldShow {
         showTutorial()
-      } else if shouldShowChanges {
+      } else if ChangesFeature.shouldShow {
         destination = showChanges()
       }
 
@@ -431,7 +414,7 @@ struct AppFeatureView: View, KeyboardReadable {
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
     theme.font = .effectsControl
 
-    navigationBarTitleStyle()
+    // navigationBarTitleStyle()
 
     self.theme = theme
   }
@@ -467,8 +450,11 @@ struct AppFeatureView: View, KeyboardReadable {
     .appReview(store: store.scope(state: \.appReview, action: \.appReview))
     .volumeMonitorHUD(store: store.scope(state: \.volumeMonitor, action: \.volumeMonitor))
   }
+}
 
-  private var listViews: some View {
+private extension AppFeatureView {
+
+  var listViews: some View {
     SplitView(
       store: store.scope(state: \.presetsSplit, action: \.presetsSplit),
       primary: {
@@ -483,7 +469,7 @@ struct AppFeatureView: View, KeyboardReadable {
     ).splitViewConfiguration(.init(orientation: .horizontal, draggableRange: 0.35...0.7))
   }
 
-  private var fontsAndTags: some View {
+  var fontsAndTags: some View {
     SplitView(
       store: store.scope(state: \.tagsSplit, action: \.tagsSplit),
       primary: {
@@ -505,7 +491,7 @@ struct AppFeatureView: View, KeyboardReadable {
     )
   }
 
-  private var handleDivider: some View {
+  var handleDivider: some View {
     HandleDivider(
       dividerColor: dividerBorderColor,
       handleColor: .black,
@@ -516,7 +502,7 @@ struct AppFeatureView: View, KeyboardReadable {
     )
   }
 
-  private var effectsView: some View {
+  var effectsView: some View {
     let effectsHeight = 110.0
     let padding = 4.0
     let viewHeight = effectsHeight + padding * 4
@@ -548,22 +534,33 @@ struct AppFeatureView: View, KeyboardReadable {
     .offset(x: 0, y: effectsVisible ? 0.0 : viewHeight / 2 - padding - 1)
   }
 
-  private var toolbarAndKeyboard: some View {
+  var toolbarAndKeyboard: some View {
     VStack {
       ToolBarFeatureView(store: store.scope(state: \.toolBar, action: \.toolBar))
       keyboardView
     }
   }
 
-  private var keyboardView: some View {
+  var keyboardView: some View {
     KeyboardView(store: store.scope(state: \.keyboard, action: \.keyboard))
       .frame(height: keyboardHeight)
       .opacity(isInputKeyboardVisible ? 0.0 : 1.0)
   }
 }
 
-extension View {
+private extension View {
 
+  /// Swift compiler struggles to deal with too many `.sheet` definitions, hence the explosion of custom `View` methods
+  /// to isolate each one in its own method.
+
+  /**
+   Custom `View` modifier that generates all of the optional sheets that can be created in the feature.
+
+   - parameter store: the `AppFeature` store which will be scoped to a child feature for displaying
+   - parameter horizontalSizeClass: indicator of the horizontal size of the view
+   - parameter verticalSizeClass: indicator of the vertical size of the view
+   - returns: modified view
+   */
   func sheets(
     store: Bindable<StoreOf<AppFeature>>,
     horizontalSizeClass: UserInterfaceSizeClass?,
@@ -645,7 +642,6 @@ extension AppFeatureView {
       $0.defaultDatabase = try! appDatabase()
       $0.delayDevice = .init(setConfig: { print("delayDevice.set: ", $0) })
       $0.reverbDevice = .init(setConfig: { print("reverbDevice.set: ", $0) })
-      navigationBarTitleStyle()
     }
 
     return ZStack {

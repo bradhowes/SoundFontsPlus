@@ -22,5 +22,6 @@ public struct PresetNameView: View {
       }
       Text(preset?.displayName ?? "—")
     }
+    .foregroundStyle(preset?.isFavorite ?? false ? .orange: .teal)
   }
 }
