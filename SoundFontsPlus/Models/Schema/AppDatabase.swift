@@ -4,7 +4,7 @@ import Dependencies
 import Engine
 import Foundation
 import OSLog
-import SharingGRDB
+import SQLiteData
 
 private let log = Logger(category: "Database")
 

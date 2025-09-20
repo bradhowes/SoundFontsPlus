@@ -2,7 +2,7 @@
 
 import ComposableArchitecture
 import Dependencies
-import SharingGRDB
+import SQLiteData
 import SwiftUI
 
 @Reducer

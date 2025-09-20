@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import Dependencies
-import SharingGRDB
+import SQLiteData
 
 public func withDatabaseWriter(_ closure: (Database) throws -> Void) {
   @Dependency(\.defaultDatabase) var database

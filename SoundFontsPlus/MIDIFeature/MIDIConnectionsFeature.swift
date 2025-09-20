@@ -4,7 +4,7 @@ import Combine
 import ComposableArchitecture
 import CoreMIDI
 @preconcurrency import MorkAndMIDI
-import SharingGRDB
+import SQLiteData
 import SwiftUI
 
 public struct MIDIConnectionRow: Equatable, Identifiable {

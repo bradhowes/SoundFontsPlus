@@ -1,7 +1,7 @@
 import DependenciesTestSupport
 import Foundation
 import InlineSnapshotTesting
-import SharingGRDB
+import SQLiteData
 import StructuredQueriesTestSupport
 import Testing
 
