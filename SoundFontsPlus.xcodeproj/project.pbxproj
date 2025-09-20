@@ -35,6 +35,7 @@
 		BD4C249D2E77618800F8B3A9 /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249C2E77618800F8B3A9 /* Engine */; };
 		BD4C249F2E77618800F8B3A9 /* SF2File in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249E2E77618800F8B3A9 /* SF2File */; };
 		BD4C24A12E77618800F8B3A9 /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C24A02E77618800F8B3A9 /* SF2Lib */; };
+		BD521B962E7E9F4B00D3136B /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = BD521B952E7E9F4B00D3136B /* SQLiteData */; };
 		BD561CCA2E573EC100D8FBB0 /* FreeFont.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BDAF5AE02DE2557300B8FB13 /* FreeFont.sf2 */; };
 		BD561CD22E57B52300D8FBB0 /* SettingsPrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD561CD12E57B52000D8FBB0 /* SettingsPrompts.swift */; };
 		BD59D4EA2E47B62C00B2250B /* MIDIConnectionsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4E92E47B62500B2250B /* MIDIConnectionsFeature.swift */; };
@@ -44,8 +45,6 @@
 		BD66C5712E6AAD1F00A0CD31 /* InlineSnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C5702E6AAD1F00A0CD31 /* InlineSnapshotTesting */; };
 		BD66C5732E6AAD1F00A0CD31 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C5722E6AAD1F00A0CD31 /* SnapshotTesting */; };
 		BD66C5752E6AAD1F00A0CD31 /* SnapshotTestingCustomDump in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C5742E6AAD1F00A0CD31 /* SnapshotTestingCustomDump */; };
-		BD66C57D2E6AAEC200A0CD31 /* SharingGRDB in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C57C2E6AAEC200A0CD31 /* SharingGRDB */; };
-		BD66C57F2E6AAEC200A0CD31 /* StructuredQueriesGRDB in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C57E2E6AAEC200A0CD31 /* StructuredQueriesGRDB */; };
 		BD673BB72DFB44D600574F9C /* WithDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD673BB62DFB44D100574F9C /* WithDatabase.swift */; };
 		BD76C1592E23C57E00F5B1F5 /* VolumeMonitorFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1582E23C57E00F5B1F5 /* VolumeMonitorFeature.swift */; };
 		BD76C15C2E23C5F700F5B1F5 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */; };
@@ -382,6 +381,7 @@
 			files = (
 				BD9E46192E79801400D0806E /* SF2Lib in Frameworks */,
 				BD4C24A12E77618800F8B3A9 /* SF2Lib in Frameworks */,
+				BD521B962E7E9F4B00D3136B /* SQLiteData in Frameworks */,
 				BDAF5BBC2DE259DF00B8FB13 /* SF2Lib in Frameworks */,
 				BD1774E12E64A5EC0029D195 /* Dependencies in Frameworks */,
 				BDAF5BBF2DE25A7900B8FB13 /* Algorithms in Frameworks */,
@@ -394,12 +394,10 @@
 				BD4C249F2E77618800F8B3A9 /* SF2File in Frameworks */,
 				BDAF5B2C2DE2560400B8FB13 /* ComposableArchitecture in Frameworks */,
 				BDAF5B292DE255EE00B8FB13 /* AUv3Controls in Frameworks */,
-				BD66C57F2E6AAEC200A0CD31 /* StructuredQueriesGRDB in Frameworks */,
 				BD171EDC2E47A9F700E2EDA7 /* MorkAndMIDI in Frameworks */,
 				BDAF5B262DE255D900B8FB13 /* BRHSplitView in Frameworks */,
 				BD1774E52E64AD400029D195 /* DependenciesMacros in Frameworks */,
 				BD4C249D2E77618800F8B3A9 /* Engine in Frameworks */,
-				BD66C57D2E6AAEC200A0CD31 /* SharingGRDB in Frameworks */,
 				BD3E3D832E520FEF00523292 /* BRHSplitView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -960,8 +958,6 @@
 				BD3E3D822E520FEF00523292 /* BRHSplitView */,
 				BD1774E02E64A5EC0029D195 /* Dependencies */,
 				BD1774E42E64AD400029D195 /* DependenciesMacros */,
-				BD66C57C2E6AAEC200A0CD31 /* SharingGRDB */,
-				BD66C57E2E6AAEC200A0CD31 /* StructuredQueriesGRDB */,
 				BD7E3E972E7572BD00A7617D /* Atomics */,
 				BD4C249C2E77618800F8B3A9 /* Engine */,
 				BD4C249E2E77618800F8B3A9 /* SF2File */,
@@ -969,6 +965,7 @@
 				BD9E46142E79801400D0806E /* Engine */,
 				BD9E46162E79801400D0806E /* SF2File */,
 				BD9E46182E79801400D0806E /* SF2Lib */,
+				BD521B952E7E9F4B00D3136B /* SQLiteData */,
 			);
 			productName = SoundFontsPlus;
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */;
@@ -1056,10 +1053,10 @@
 				BD171EDA2E47A9F700E2EDA7 /* XCRemoteSwiftPackageReference "morkandmidi" */,
 				BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */,
 				BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */,
-				BD66C57B2E6AAEC200A0CD31 /* XCRemoteSwiftPackageReference "sharing-grdb" */,
 				BD0053E32E6B67B70053B13B /* XCRemoteSwiftPackageReference "swift-numerics" */,
 				BD7E3E962E7572BD00A7617D /* XCRemoteSwiftPackageReference "swift-atomics" */,
 				BD9E46132E79801400D0806E /* XCRemoteSwiftPackageReference "SF2Lib" */,
+				BD521B942E7E9F4B00D3136B /* XCRemoteSwiftPackageReference "sqlite-data" */,
 			);
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
 			projectDirPath = "";
@@ -1727,20 +1724,20 @@
 				minimumVersion = 1.0.5;
 			};
 		};
+		BD521B942E7E9F4B00D3136B /* XCRemoteSwiftPackageReference "sqlite-data" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/sqlite-data";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bradhowes/swift-snapshot-testing";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.0;
-			};
-		};
-		BD66C57B2E6AAEC200A0CD31 /* XCRemoteSwiftPackageReference "sharing-grdb" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/sharing-grdb";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.7.0;
 			};
 		};
 		BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
@@ -1862,6 +1859,11 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = SF2Lib;
 		};
+		BD521B952E7E9F4B00D3136B /* SQLiteData */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BD521B942E7E9F4B00D3136B /* XCRemoteSwiftPackageReference "sqlite-data" */;
+			productName = SQLiteData;
+		};
 		BD66C5702E6AAD1F00A0CD31 /* InlineSnapshotTesting */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
@@ -1876,16 +1878,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
 			productName = SnapshotTestingCustomDump;
-		};
-		BD66C57C2E6AAEC200A0CD31 /* SharingGRDB */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD66C57B2E6AAEC200A0CD31 /* XCRemoteSwiftPackageReference "sharing-grdb" */;
-			productName = SharingGRDB;
-		};
-		BD66C57E2E6AAEC200A0CD31 /* StructuredQueriesGRDB */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD66C57B2E6AAEC200A0CD31 /* XCRemoteSwiftPackageReference "sharing-grdb" */;
-			productName = StructuredQueriesGRDB;
 		};
 		BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */ = {
 			isa = XCSwiftPackageProductDependency;

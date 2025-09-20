@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
-import SharingGRDB
+import SQLiteData
 import SwiftUI
 import Tagged
 

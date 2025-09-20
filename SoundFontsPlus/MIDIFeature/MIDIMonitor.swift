@@ -5,7 +5,7 @@ import Combine
 import MorkAndMIDI
 import os
 import Sharing
-import SharingGRDB
+import SQLiteData
 
 private let log = Logger(category: "MIDIMonitor")
 
