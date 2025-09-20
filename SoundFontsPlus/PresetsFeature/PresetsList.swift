@@ -39,7 +39,7 @@ public struct PresetsList {
     case clearScrollToPresetId
     case delegate(Delegate)
     case fetchPresets
-    case onAppear
+    case initialize
     case searchTextChanged(String)
     case sections(IdentifiedActionOf<PresetsListSection>)
     case selectedSoundFontIdChanged(SoundFont.ID?)
@@ -79,9 +79,10 @@ public struct PresetsList {
         return .none
 
       case .fetchPresets:
+        state.scrollToPresetId = activeState.activePresetId
         return generatePresetSections(&state)
 
-      case .onAppear:
+      case .initialize:
         return monitorSelectedSoundFontId()
 
       case .searchTextChanged(let value):
@@ -142,6 +143,7 @@ extension PresetsList {
   private func dismissSearch(_ state: inout State) -> Effect<Action> {
     state.isSearchFieldPresented = false
     state.focusedField = nil
+    state.scrollToPresetId = activeState.activePresetId
     return generatePresetSections(&state)
   }
 
@@ -204,12 +206,6 @@ extension PresetsList {
     return state.isSearchFieldPresented ? dismissSearch(&state) : .none
   }
 
-  private func setActivePresetId(_ state: inout State, _ presetId: Preset.ID?) {
-    $activeState.withLock {
-      $0.activePresetId = presetId
-    }
-  }
-
   private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
     if activeState.activeSoundFontId == soundFontId {
       state.scrollToPresetId = activeState.activePresetId
@@ -245,7 +241,10 @@ public struct PresetsListView: View {
         }
       }
       .onAppear {
-        store.send(.onAppear)
+        store.send(.fetchPresets)
+      }
+      .task {
+        await store.send(.initialize).finish()
       }
     }
     .animation(.smooth, value: store.isSearchFieldPresented)

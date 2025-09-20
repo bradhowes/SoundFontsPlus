@@ -285,6 +285,7 @@ private extension AppFeature {
         monitorActivePresetId()
       ),
       reduce(into: &state, action: .synth(.initialize)),
+      reduce(into: &state, action: .presetsList(.showActivePreset))
     )
   }
 

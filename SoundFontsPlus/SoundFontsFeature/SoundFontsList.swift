@@ -161,8 +161,8 @@ public struct SoundFontsListView: View {
         StyledHeader { Text("Files") }
       }
     }
-    .onAppear {
-      store.send(.initialize)
+    .task {
+      await store.send(.initialize).finish()
     }
   }
 }
