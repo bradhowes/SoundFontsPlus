@@ -49,7 +49,7 @@ extension BaseSuite {
       await store.send(.ask) { $0.activityCounter = 3 }
       await store.send(.ask) { $0.activityCounter = 4 }
       await store.send(.ask) {
-        $0.activityCounter = 5
+        $0.activityCounter = 0
         $0.askForReview = true
       }
 
@@ -58,8 +58,8 @@ extension BaseSuite {
       }
 
       await store.send(.ask) {
-        $0.activityCounter = 6
-        $0.askForReview = true
+        $0.activityCounter = 1
+        $0.askForReview = false
       }
     }
 
