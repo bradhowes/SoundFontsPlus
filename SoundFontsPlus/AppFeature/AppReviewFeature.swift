@@ -88,6 +88,9 @@ extension AppReviewFeature {
     // Postpone asking for a review until the user has performed N activities.
     state.activityCounter += 1
     state.askForReview = state.activityCounter >= state.minActivityCounter
+    if state.askForReview {
+      state.activityCounter = 0
+    }
 
     return .none
   }

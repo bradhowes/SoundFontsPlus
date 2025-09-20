@@ -66,7 +66,7 @@ struct AppFeature {
       if TutorialFeature.shouldShow {
         showTutorial()
       } else if ChangesFeature.shouldShow {
-        destination = showChanges()
+        showChanges()
       }
 
 #endif
