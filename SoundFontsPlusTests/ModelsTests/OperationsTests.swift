@@ -1,6 +1,7 @@
 import DependenciesTestSupport
 import Foundation
 import InlineSnapshotTesting
+import Sharing
 import SQLiteData
 import StructuredQueriesTestSupport
 import Testing
