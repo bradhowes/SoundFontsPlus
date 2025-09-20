@@ -26,7 +26,7 @@ public struct TutorialFeature {
   public struct State: Equatable {
     var page: Page
 
-    public init(page: Page = .favorites) {
+    public init(page: Page = .intro) {
       self.page = page
     }
   }
@@ -196,6 +196,11 @@ The panel on the left-hand side shows names of the installed soundfont files.
           .resizable()
           .scaledToFit()
           .frame(width: 140)
+          .shadow(
+            color: .black,
+            radius: CGFloat(6.0),
+            x: CGFloat(0), y: CGFloat(0))
+
         VStack(alignment: .leading, spacing: 24) {
           Grid(verticalSpacing: 12) {
             GridRow {
@@ -247,6 +252,10 @@ The list to the right of the fonts list shows the visible presets in the selecte
           .resizable()
           .scaledToFit()
           .frame(width: 220)
+          .shadow(
+            color: .black,
+            radius: CGFloat(6.0),
+            x: CGFloat(0), y: CGFloat(0))
         VStack(alignment: .leading, spacing: 24) {
           Grid(verticalSpacing: 12) {
             GridRow {
@@ -315,6 +324,10 @@ They provide a way to highlight a preset and to customize with your own settings
           .resizable()
           .scaledToFit()
           .frame(width: 220)
+          .shadow(
+            color: .black,
+            radius: CGFloat(6.0),
+            x: CGFloat(0), y: CGFloat(0))
         Text(
 """
 A preset can have multiple copies, each with their own name and settings. \
@@ -340,6 +353,10 @@ They allow you to quickly change which fonts are visible.
           .resizable()
           .scaledToFit()
           .frame(width: 160)
+          .shadow(
+            color: .black,
+            radius: CGFloat(6.0),
+            x: CGFloat(0), y: CGFloat(0))
         VStack(alignment: .leading, spacing: 24) {
           Grid(verticalSpacing: 12) {
             GridRow {
@@ -416,6 +433,10 @@ Shows the active preset name, MIDI activity indicator, active voice count, and v
       Image("ToolBar1")
         .resizable()
         .scaledToFit()
+        .shadow(
+          color: .black,
+          radius: CGFloat(6.0),
+          x: CGFloat(0), y: CGFloat(0))
       Grid(verticalSpacing: 12) {
         GridRow {
           Image(systemName: "plus.circle")
@@ -450,6 +471,10 @@ to toggle keyboard sliding during playing.
 """
     ) {
       Image("ToolBar2")
+        .shadow(
+          color: .black,
+          radius: CGFloat(6.0),
+          x: CGFloat(0), y: CGFloat(0))
       Grid(verticalSpacing: 12) {
         GridRow {
           Image(systemName: "gear")
@@ -490,6 +515,10 @@ Swipe up/down to change room or adjust knob value.
         .resizable()
         .scaledToFit()
         .frame(width: 340)
+        .shadow(
+          color: .black,
+          radius: CGFloat(6.0),
+          x: CGFloat(0), y: CGFloat(0))
       Text("Controls")
         .foregroundStyle(.orange)
       Grid(verticalSpacing: 12) {
@@ -538,6 +567,10 @@ tap on label to enter numeric value.
         .resizable()
         .scaledToFit()
         .frame(width: 340)
+        .shadow(
+          color: .black,
+          radius: CGFloat(6.0),
+          x: CGFloat(0), y: CGFloat(0))
       Text("Controls")
         .foregroundStyle(.orange)
       Grid(verticalSpacing: 12) {
@@ -671,7 +704,7 @@ or globally.
   }
   .sheet(isPresented: $showTutorial) {
     NavigationStack {
-      TutorialFeatureView(store: Store(initialState: .init(page: .delay)) { TutorialFeature() })
+      TutorialFeatureView(store: Store(initialState: .init(page: .intro)) { TutorialFeature() })
     }
   }
 }
