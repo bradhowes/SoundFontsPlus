@@ -88,9 +88,15 @@ public struct TagsListView: View {
   }
 
   public var body: some View {
-    StyledList(title: "Tags") {
-      ForEach(store.tagInfos, id: \.id) { tagInfo in
-        button(tagInfo)
+    StyledList {
+      Section {
+        ForEach(store.tagInfos, id: \.id) { tagInfo in
+          StyledEntry {
+            button(tagInfo)
+          }
+        }
+      } header: {
+        StyledHeader { Text("Tags") }
       }
     }
   }

@@ -41,3 +41,8 @@ extension Font {
   public static var tutorialGist: Font { CGFloat.tutorialGistFontSize.font }
   public static var tutorialBody: Font { CGFloat.tutorialBodyFontSize.font }
 }
+
+extension Color {
+  public static var listHeaderForeground: Color { Color.gray.mix(with: .black, by: 0.25) }
+  public static var presetsHeaderForeground: Color { Color.gray.mix(with: .black, by: 0.30) }
+}
