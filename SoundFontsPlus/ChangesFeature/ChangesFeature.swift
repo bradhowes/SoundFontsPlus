@@ -118,6 +118,7 @@ public struct ChangesFeatureView: View {
     .toolbar {
       ToolbarItem(placement: .automatic) {
         Button("Done") { store.send(.dismissButtonTapped, animation: .default) }
+          .font(.button)
       }
     }
   }

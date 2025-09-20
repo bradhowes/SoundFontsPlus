@@ -232,6 +232,7 @@ public struct TagsEditorView: View {
         ToolbarItem(placement: .cancellationAction) {
           Button("Cancel") { store.send(.cancelButtonTapped, animation: .default) }
             .disabled(store.editMode == .active)
+            .font(.button)
         }
         if store.mode == .tagEditing {
           ToolbarItem(placement: .automatic) {
@@ -245,6 +246,7 @@ public struct TagsEditorView: View {
                 Text("Edit")
               }
             }
+            .font(.button)
           }
         }
         ToolbarItem(placement: .automatic) {
@@ -254,10 +256,12 @@ public struct TagsEditorView: View {
             Image(systemName: "plus")
           }
           .disabled(store.editMode == .active)
+          .font(.button)
         }
         ToolbarItem(placement: .confirmationAction) {
           Button("Save") { store.send(.saveButtonTapped, animation: .default) }
             .disabled(store.editMode == .active)
+            .font(.button)
         }
       }
       .environment(\.editMode, $store.editMode)
