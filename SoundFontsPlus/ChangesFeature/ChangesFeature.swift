@@ -18,7 +18,6 @@ public struct ChangesFeature {
   @ObservableState
   public struct State: Equatable {
     let log: [Change]
-    var showChangesAtLaunch: Bool = ChangesFeature.shouldShowChanges
 
     public init(_ data: String) {
       self.log = ChangesFeature.compile(data)
@@ -42,13 +41,14 @@ public struct ChangesFeature {
     }
   }
 
-  public static var shouldShowChanges: Bool {
+  public static var shouldShow: Bool {
 #if ALWAYS_SHOW_TUTORIAL
     return true
-#endif
+#else
     @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
     defer { $lastShowedChangesVersion.withLock { $0 = Bundle.main.releaseVersionNumber } }
     return lastShowedChangesVersion != Bundle.main.releaseVersionNumber
+#endif
   }
 
   public static func compile(_ data: String) -> [Change] {
