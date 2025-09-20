@@ -204,8 +204,8 @@ public struct KeyboardView: View {
           updateVisibleKeys(visibleRect: newValue)
         }
       }
-      .onAppear {
-        store.send(.initialize)
+      .task {
+        await store.send(.initialize).finish()
       }
     }
   }
