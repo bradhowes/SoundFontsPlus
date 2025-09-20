@@ -15,9 +15,9 @@ public struct PresetsListSection {
     let section: Int
     var rows: IdentifiedArrayOf<PresetButton.State>
 
-    // Make the id change if the number of rows in the section changes to allow for searching
-    public var sectionId: Int { (section + 1) * 10_000 + rows.count }
-    public var previousSectionId: Int { section * 10_000 + rows.count }
+    // Make sure section IDs do not conflict with preset IDs.
+    public var sectionId: Int { (section + 1) * PresetsList.noGroupingSize }
+    public var previousSectionId: Int { section * PresetsList.noGroupingSize }
 
     public init(section: Int, presets: ArraySlice<Preset>) {
       self.section = section
@@ -74,11 +74,11 @@ public struct PresetsListSection {
   }
 
   private func headerTapped(_ state: inout State, count: Int) -> Effect<Action> {
-    if count == 1 {
-      return .send(.delegate(.headerTapped(Preset.ID(rawValue: Int64(state.section - 19)))))
-    } else {
-      return .send(.delegate(.headerTapped(Preset.ID(rawValue: Int64(1)))))
-    }
+    // For a 1-tap, jump to first item in previous section
+    // For a 2-tap, jump to first item in first section
+    let target = count == 1 ? state.section - (PresetsList.groupingSize - 1) : 1
+    print("headerTapped - target: \(target)")
+    return .send(.delegate(.headerTapped(Preset.ID(rawValue: Int64(target)))))
   }
 }
 
@@ -134,7 +134,8 @@ public struct PresetsListSectionView: View {
       .onGeometryChange(for: Double.self) {
         $0.frame(in: .global).origin.y
       } action: {
-        showSearchButton = $0 > 54.0 && $0 < 80.0
+        // showSearchButton = $0 > 54.0 && $0 < 80.0
+        showSearchButton = $0 < (58.0 + 36.0)
       }
     }
   }

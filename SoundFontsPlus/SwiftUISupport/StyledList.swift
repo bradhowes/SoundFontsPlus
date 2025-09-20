@@ -10,16 +10,11 @@ public struct StyledList<Content: View>: View {
   }
 
   public var body: some View {
-    ScrollView {
-      LazyVStack(alignment: .leading, spacing: 8, pinnedViews: [.sectionHeaders]) {
-        content
-//            .padding([.leading, .trailing], 8)
-//            .padding([.top, .bottom], 4)
-      }
-      // .listSectionSpacing(.compact)
-      // .listStyle(.plain)
-      // .environment(\.defaultMinListHeaderHeight, 1)
+    List {
+      content
     }
+    .listSectionSpacing(.compact)
+    .listStyle(.plain)
   }
 }
 
@@ -32,8 +27,6 @@ public struct StyledEntry<Content: View>: View {
 
   public var body: some View {
     content
-      .padding([.leading, .trailing], 8)
-      .padding([.top, .bottom], 4)
   }
 }
 
@@ -46,8 +39,7 @@ public struct StyledHeader<Content: View>: View {
 
   public var body: some View {
     content
-      .padding([.top, .bottom], 4)
-      .padding([.leading, .trailing], 8)
+      .padding([.top, .bottom], 8)
       .frame(
         minWidth: 0,
         maxWidth: .infinity,

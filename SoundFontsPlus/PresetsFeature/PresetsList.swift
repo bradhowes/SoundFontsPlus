@@ -6,6 +6,8 @@ import SwiftUI
 
 @Reducer
 public struct PresetsList {
+  public static let groupingSize = 20
+  public static let noGroupingSize = 10_000
 
   @ObservableState
   public struct State: Equatable {
@@ -144,7 +146,7 @@ extension PresetsList {
   }
 
   private func generatePresetSections(_ state: inout State) -> Effect<Action> {
-    let grouping = state.optionalSearchText != nil ? 10_000 : 20
+    let grouping = state.optionalSearchText != nil ? Self.noGroupingSize : Self.groupingSize
     var presets = state.visibilityEditMode == .active ? Operations.allPresets : Operations.presets
     if let searchText = state.optionalSearchText {
       presets = presets.filter {
