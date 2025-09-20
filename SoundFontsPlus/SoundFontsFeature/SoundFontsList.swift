@@ -150,9 +150,15 @@ public struct SoundFontsListView: View {
   }
 
   public var body: some View {
-    StyledList(title: "Files") {
-      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-        SoundFontButtonView(store: rowStore)
+    StyledList {
+      Section {
+        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+          StyledEntry {
+            SoundFontButtonView(store: rowStore)
+          }
+        }
+      } header: {
+        StyledHeader { Text("Files") }
       }
     }
     .onAppear {

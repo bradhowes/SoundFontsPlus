@@ -22,6 +22,7 @@ public struct PresetsListSection {
     public init(section: Int, presets: ArraySlice<Preset>) {
       self.section = section
       self.rows = .init(uniqueElements: presets.map { .init(preset: $0) })
+      print("PresetsListSection: \(section) - sectionId: \(sectionId)")
     }
 
     /**
@@ -97,26 +98,26 @@ public struct PresetsListSectionView: View {
     Section {
       buttonRows
     } header: {
-      sectionHeader
-        .onTapGesture(count: 2) {
-          store.send(.headerTapped(2))
-        }
-        .onTapGesture(count: 1) {
-          store.send(.headerTapped(1))
-        }
+      StyledHeader {
+        sectionHeader
+          .id(store.sectionId)
+      }
+      .onTapGesture(count: 2) {
+        store.send(.headerTapped(2))
+      }
+      .onTapGesture(count: 1) {
+        store.send(.headerTapped(1))
+      }
     }
-    .id(store.sectionId)
   }
 
   @ViewBuilder
   private var sectionHeader: some View {
     if searching {
       Text(sectionText)
-        .foregroundStyle(Color.accentColor)
     } else {
       HStack {
         Text(sectionText)
-          .foregroundStyle(Color.accentColor)
           .frame(maxWidth: .infinity, alignment: .leading)
           .contentShape(Rectangle())
         Spacer()
@@ -133,7 +134,7 @@ public struct PresetsListSectionView: View {
       .onGeometryChange(for: Double.self) {
         $0.frame(in: .global).origin.y
       } action: {
-        showSearchButton = $0 < 58.0
+        showSearchButton = $0 > 54.0 && $0 < 80.0
       }
     }
   }
@@ -150,7 +151,9 @@ public struct PresetsListSectionView: View {
 
   private var buttonRows: some View {
     ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-      PresetButtonView(store: rowStore)
+      StyledEntry {
+        PresetButtonView(store: rowStore)
+      }
     }
   }
 }
