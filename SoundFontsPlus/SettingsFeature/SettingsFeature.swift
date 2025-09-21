@@ -446,7 +446,16 @@ extension SettingsView {
         }
         .circledCheckMarkToggleStyle()
         Toggle(isOn: $store.copyFileWhenInstalling) {
-          Text("Copy SF2 files to app folder when adding")
+          VStack(alignment: .leading) {
+            Text("Copy SF2 files to app folder on device when adding.")
+            Text(
+"""
+Enabled is the safest option, but it takes up space on your device. \
+Disable to link directly to files in iCloud or on external drives.
+"""
+            )
+            .font(.settingDescription)
+          }
         }
         .circledCheckMarkToggleStyle()
         Toggle(isOn: $store.disableIdleTimer) {

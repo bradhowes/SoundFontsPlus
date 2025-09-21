@@ -7,6 +7,7 @@ extension CGFloat {
   public static var activeVoiceCountFontSize: Self { 12 }
   public static var buttonFontSize: Self { 20 }
   public static var copyrightFontSize: Self { 14 }
+  public static var settingDescriptionFontSize: Self { 14 }
   public static var effectsControlFontSize: Self { 15 }
   public static var effectsTitleFontSize: Self { 15 }
   public static var infoBarStatusSize: Self { 20 }
@@ -26,6 +27,8 @@ extension CGFloat {
 
 extension Font {
   public static var button: Font { CGFloat.buttonFontSize.font }
+  public static var copyright: Font { CGFloat.copyrightFontSize.font }
+  public static var settingDescription: Font { CGFloat.settingDescriptionFontSize.font }
   public static var activeVoiceCount: Font { CGFloat.activeVoiceCountFontSize.font }
   public static var effectsControl: Font { CGFloat.effectsControlFontSize.font }
   public static var effectsTitle: Font { CGFloat.effectsTitleFontSize.font }
