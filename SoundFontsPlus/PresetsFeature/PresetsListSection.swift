@@ -134,8 +134,7 @@ public struct PresetsListSectionView: View {
       .onGeometryChange(for: Double.self) {
         $0.frame(in: .global).origin.y
       } action: {
-        // showSearchButton = $0 > 54.0 && $0 < 80.0
-        showSearchButton = $0 < (58.0 + 36.0)
+        showSearchButton = $0 < 94.0
       }
     }
   }

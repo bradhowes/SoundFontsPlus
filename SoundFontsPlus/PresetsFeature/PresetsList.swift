@@ -53,14 +53,6 @@ public struct PresetsList {
 
   public init() {}
 
-  private enum CancelId {
-    case monitorSelectedSoundFontId
-  }
-
-  @Dependency(\.defaultDatabase) var database
-  @Shared(.activeState) var activeState
-  @Shared(.selectedSoundFontId) var selectedSoundFontId
-
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce<State, Action> { state, action in
@@ -136,6 +128,15 @@ public struct PresetsList {
       PresetsListSection()
     }
   }
+
+  @Dependency(\.defaultDatabase) var database
+  @Shared(.activeState) var activeState
+  @Shared(.selectedSoundFontId) var selectedSoundFontId
+
+  private enum CancelId {
+    case monitorSelectedSoundFontId
+    case playNote
+  }
 }
 
 extension PresetsList {
@@ -199,11 +200,30 @@ extension PresetsList {
   }
 
   private func selectPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
-    $activeState.withLock {
-      $0.activePresetId = preset.id
-      $0.activeSoundFontId = preset.soundFontId
+    let changed = activeState.activePresetId != preset.id
+    if changed {
+      $activeState.withLock {
+        $0.activePresetId = preset.id
+        $0.activeSoundFontId = preset.soundFontId
+      }
     }
-    return state.isSearchFieldPresented ? dismissSearch(&state) : .none
+    return .concatenate(
+      state.isSearchFieldPresented ? dismissSearch(&state) : .none,
+      changed ? .none : playNote()
+    )
+  }
+
+  private func playNote() -> Effect<Action> {
+    @Shared(.synthAudioUnit) var synthAudioUnit
+    guard let synth = synthAudioUnit?.synth else { return .none }
+
+    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
+    guard playSoundOnPresetChange else { return .none }
+    return .run { _ in
+      synth.sendNoteOn(note: 60)
+      try? await Task.sleep(for: .milliseconds(250))
+      synth.sendNoteOff(note: 60)
+    }.cancellable(id: CancelId.playNote, cancelInFlight: true)
   }
 
   private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {

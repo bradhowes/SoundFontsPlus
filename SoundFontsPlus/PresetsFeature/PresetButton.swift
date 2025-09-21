@@ -49,6 +49,7 @@ public struct PresetButton {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
+
       case .buttonTapped:
         return .send(.delegate(.selectPreset(state.preset)))
 
