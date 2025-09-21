@@ -26,7 +26,7 @@ public func appDatabase() throws -> any DatabaseWriter {
         print("\($0.expandedDescription)")
       }
     }
-#endif
+#endif // DEBUG
   }
 
   if context == .live {
@@ -40,7 +40,7 @@ public func appDatabase() throws -> any DatabaseWriter {
   var migrator = DatabaseMigrator()
 #if DEBUG
   migrator.eraseDatabaseOnSchemaChange = true
-#endif
+#endif // DEBUG
 
   SoundFont.migrate(&migrator)
   Preset.migrate(&migrator)
@@ -63,7 +63,7 @@ public func appDatabase() throws -> any DatabaseWriter {
   migrator.registerMigration("Add builtin fonts") { db in
     for sf2 in SF2ResourceFileTag.allCases {
       log.info("add \(sf2)")
-      SoundFont.insert(db, sf2: sf2)
+      SoundFont.addBuiltIn(db, sf2: sf2)
     }
   }
 
@@ -73,7 +73,7 @@ public func appDatabase() throws -> any DatabaseWriter {
       try db.seedSampleData()
     }
   }
-#endif
+#endif // DEBUG && targetEnvironment(simulator)
 
   try migrator.migrate(database)
 
@@ -102,4 +102,4 @@ extension Database {
   func seedSampleData() throws {
   }
 }
-#endif
+#endif // DEBUG

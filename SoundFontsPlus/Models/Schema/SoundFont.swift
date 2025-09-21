@@ -68,7 +68,7 @@ extension SoundFont {
 
 extension SoundFont {
 
-  public static func insert(_ db: Database, sf2: SF2ResourceFileTag) {
+  public static func addBuiltIn(_ db: Database, sf2: SF2ResourceFileTag) {
     let log = Logger(category: "SoundFont.insert")
     withErrorReporting {
       let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
