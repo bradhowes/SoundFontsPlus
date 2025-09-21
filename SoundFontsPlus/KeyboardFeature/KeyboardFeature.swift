@@ -179,6 +179,7 @@ public struct KeyboardView: View {
       ScrollView(.horizontal) {
         keys
       }
+      .simultaneousGesture(spatialEventGesture)
       .scrollDisabled(!keyboardSlides)
       .scrollIndicators(.hidden)
       .onChange(of: store.scrollTo) { old, new in
@@ -228,7 +229,6 @@ public struct KeyboardView: View {
       .overlay(alignment: .topLeading) {
         blackKeys
       }
-      .simultaneousGesture(spatialEventGesture)
   }
 
   private var spatialEventGesture: some Gesture {
@@ -339,7 +339,7 @@ extension RandomAccessCollection where Element == CGRect, Index == Int {
 
   /**
    Obtain the index of the key in the collection that corresponds to the given position. Performs a binary search to
-   quickly locate the best candidate.
+   quickly locate the best candidate. NOTE: pretty sure this can be done in constant time via straightforward math.
 
    - parameter point: the location to consider
    - returns: index where to insert
