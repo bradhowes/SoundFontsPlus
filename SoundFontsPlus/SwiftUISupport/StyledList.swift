@@ -39,7 +39,7 @@ public struct StyledHeader<Content: View>: View {
 
   public var body: some View {
     content
-      .padding([.top, .bottom], 8)
+      // .padding([.top, .bottom], 8)
       .frame(
         minWidth: 0,
         maxWidth: .infinity,
@@ -47,7 +47,7 @@ public struct StyledHeader<Content: View>: View {
         maxHeight: .infinity,
         alignment: .topLeading
       )
-      .background(.black.opacity(0.75))
+      // .background(.black.opacity(0.75))
       .foregroundStyle(Color.listHeaderForeground)
   }
 }

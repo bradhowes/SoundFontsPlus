@@ -5,29 +5,32 @@ import SwiftUI
 /**
  View modifier that adds a 'clear' button that removes all text from a text field and also gives it focus.
  */
-struct ClearButton: ViewModifier {
-  @Binding var text: String
+public struct ClearButton: ViewModifier {
+  private let action: () -> Void
 
-  func body(content: Content) -> some View {
+  public init(action: @escaping () -> Void) {
+    self.action = action
+  }
+
+  public func body(content: Content) -> some View {
     ZStack(alignment: .trailing) {
       content
-
-      if !text.isEmpty {
-        Button {
-          text = ""
-        } label: {
-          Image(systemName: "multiply.circle.fill")
-            .foregroundStyle(.gray)
-        }
-        .padding(.trailing, 8)
+      Button {
+        action()
+      } label: {
+        Image(systemName: "multiply.circle.fill")
+          .foregroundStyle(.gray)
+          .frame(width: 32, height: 32)
+          .contentShape(Rectangle())
       }
+      .padding(.trailing, 8)
     }
   }
 }
 
 extension View {
-  func clearButton(text: Binding<String>) -> some View {
-    modifier(ClearButton(text: text))
+  public func clearButton(action: @escaping () -> Void) -> some View {
+    modifier(ClearButton(action: action))
   }
 }
 
@@ -43,7 +46,7 @@ private struct Demo: View {
   var body: some View {
     Section(header: Text("Name")) {
       TextField("Display Name", text: $text)
-        .clearButton(text: $text)
+        .clearButton { text = "" }
         .textInputAutocapitalization(.never)
         .textFieldStyle(.roundedBorder)
         .focused($displayNameFieldIsFocused)

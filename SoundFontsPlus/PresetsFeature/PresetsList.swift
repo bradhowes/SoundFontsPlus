@@ -37,6 +37,7 @@ public struct PresetsList {
     case binding(BindingAction<State>)
     case cancelSearchButtonTapped
     case clearScrollToPresetId
+    case clearSearchTextField
     case delegate(Delegate)
     case fetchPresets
     case initialize
@@ -62,6 +63,9 @@ public struct PresetsList {
 
       case .cancelSearchButtonTapped:
         return dismissSearch(&state)
+
+      case .clearSearchTextField:
+        return searchTextChanged(&state, searchText: "")
 
       case .clearScrollToPresetId:
         state.scrollToPresetId = nil
@@ -191,7 +195,6 @@ extension PresetsList {
   }
 
   private func searchTextChanged(_ state: inout State, searchText: String) -> Effect<Action> {
-    print(searchText, state.searchText)
     if searchText != state.searchText {
       state.searchText = searchText
       return generatePresetSections(&state)
@@ -280,14 +283,19 @@ public struct PresetsListView: View {
         .autocapitalization(.none)
         .transition(.slide)
         .bind($store.focusedField, to: $focusedField)
+        .clearButton {
+          store.send(.clearSearchTextField)
+        }
       Spacer()
       Button {
         store.send(.cancelSearchButtonTapped)
       } label: {
         Image(systemName: "xmark")
+          .frame(width: 32, height: 32)
+          .contentShape(Rectangle())
       }
     }
-    .padding(EdgeInsets(top: 8, leading: 8, bottom: 0, trailing: 8))
+    .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
   }
 
   private func doScrollTo(proxy: ScrollViewProxy, oldValue: Preset.ID?, newValue: Preset.ID?) {

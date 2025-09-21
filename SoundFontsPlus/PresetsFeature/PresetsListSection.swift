@@ -127,6 +127,7 @@ public struct PresetsListSectionView: View {
           } label: {
             Image(systemName: "magnifyingglass")
               .imageScale(.small)
+              .contentShape(Rectangle())
           }
         }
       }
