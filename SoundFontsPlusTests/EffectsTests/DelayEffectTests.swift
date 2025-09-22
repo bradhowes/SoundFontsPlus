@@ -9,9 +9,9 @@ import Testing
 
 @testable import SoundFontsPlus
 
-extension BaseSuite {
+extension BaseTestSuite {
 
-  @Suite
+  @MainActor
   struct DelayEffectTests {
     fileprivate let device = DelayDevice()
     @Shared(.parameterTree) var parameterTree
@@ -26,8 +26,6 @@ extension BaseSuite {
       TestStoreOf<DelayFeature>(initialState: .init()) {
         DelayFeature()
       } withDependencies: {
-        // swiftlint:disable:next force_try
-        $0.defaultDatabase = try! appDatabase()
         $0.delayDevice = .init(setConfig: { device.config = $0 })
         $0.mainQueue = .immediate
       }
@@ -35,8 +33,8 @@ extension BaseSuite {
   }
 }
 
-extension BaseSuite.DelayEffectTests {
-  @MainActor
+extension BaseTestSuite.DelayEffectTests {
+
   @Test func initialization() async throws {
     let store = store()
 

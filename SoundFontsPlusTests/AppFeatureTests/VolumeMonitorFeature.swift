@@ -9,9 +9,9 @@ import Testing
 
 @testable import SoundFontsPlus
 
-extension BaseSuite {
+extension BaseTestSuite {
 
-  @Suite
+  @MainActor
   struct VolumeMonitorFeatureTests {
     private let volumes: OutputVolumeFlipFlop
     private let store: TestStoreOf<VolumeMonitorFeature>
@@ -118,7 +118,7 @@ extension BaseSuite {
       }
       let view = VolumeMonitorDemoView(volumes: volumes, store: store)
 
-      if BaseSuite.isLocal {
+      if BaseTestSuite.isLocal {
         withSnapshotTesting(record: .failed) {
           assertSnapshot(
             of: view,

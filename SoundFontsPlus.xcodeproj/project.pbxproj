@@ -26,7 +26,6 @@
 		BD2A26042CC849E0000CC1DF /* Eurostile.ttc in Resources */ = {isa = PBXBuildFile; fileRef = BD2A26032CC849E0000CC1DF /* Eurostile.ttc */; };
 		BD31A7EE2E5647300046F07C /* FileImporterViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B05142E4FDCCE006628F3 /* FileImporterViewModifier.swift */; };
 		BD31A7F32E5658CE0046F07C /* StructuredQueriesTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BD31A7F22E5658CE0046F07C /* StructuredQueriesTestSupport */; };
-		BD31A8BF2E5663500046F07C /* Internal.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD31A8BE2E56634D0046F07C /* Internal.swift */; };
 		BD33FF572E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */; };
 		BD3E3D832E520FEF00523292 /* BRHSplitView in Frameworks */ = {isa = PBXBuildFile; productRef = BD3E3D822E520FEF00523292 /* BRHSplitView */; };
 		BD46FC832DF62C3100CB20F1 /* AUParameterTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */; };
@@ -228,7 +227,6 @@
 		BD1D27932B6F13DE005C3ED0 /* SoundFontsPlusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoundFontsPlusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD1D279D2B6F13DE005C3ED0 /* SoundFontsPlusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoundFontsPlusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD2A26032CC849E0000CC1DF /* Eurostile.ttc */ = {isa = PBXFileReference; lastKnownFileType = file; path = Eurostile.ttc; sourceTree = "<group>"; };
-		BD31A8BE2E56634D0046F07C /* Internal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Internal.swift; sourceTree = "<group>"; };
 		BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarTitleStyle.swift; sourceTree = "<group>"; };
 		BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AUParameterTree.swift; sourceTree = "<group>"; };
 		BD561CCC2E578A2900D8FBB0 /* FluidR3_GM.sf2.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = FluidR3_GM.sf2.1; sourceTree = "<group>"; };
@@ -778,7 +776,6 @@
 		BDAF5B3F2DE256C500B8FB13 /* ModelsTests */ = {
 			isa = PBXGroup;
 			children = (
-				BD31A8BE2E56634D0046F07C /* Internal.swift */,
 				BDAF5B332DE256C500B8FB13 /* AudioConfigTests.swift */,
 				BDAF5B342DE256C500B8FB13 /* BookmarkTests.swift */,
 				BDAF5B352DE256C500B8FB13 /* DelayConfigTests.swift */,
@@ -1255,7 +1252,6 @@
 				BDAF5B992DE256C500B8FB13 /* ReverbConfigTests.swift in Sources */,
 				BDAF5B9A2DE256C500B8FB13 /* TagNameEditorTests.swift in Sources */,
 				BDAF5B9B2DE256C500B8FB13 /* TagsEditorTests.swift in Sources */,
-				BD31A8BF2E5663500046F07C /* Internal.swift in Sources */,
 				BDAF5B9C2DE256C500B8FB13 /* SoundFontsPlusLibTests.swift in Sources */,
 				BDAF5B9E2DE256C500B8FB13 /* SF2PickerTests.swift in Sources */,
 				BDAF5B9F2DE256C500B8FB13 /* PresetEditorTests.swift in Sources */,

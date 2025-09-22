@@ -5,9 +5,9 @@ import Testing
 
 @testable import SoundFontsPlus
 
-extension BaseSuite {
+extension BaseTestSuite {
 
-  @Suite
+  @MainActor
   struct ParameterTests {
 
     @Test
@@ -16,7 +16,8 @@ extension BaseSuite {
       #expect(tree.children.count == ParameterAddress.count)
     }
 
-    @Test func lookup() async throws {
+    @Test
+    func lookup() async throws {
       let tree = ParameterAddress.createParameterTree()
       #expect(tree[.delayEnabled].displayName == "Enabled")
       #expect(tree[.delayTime].displayName == "Time")

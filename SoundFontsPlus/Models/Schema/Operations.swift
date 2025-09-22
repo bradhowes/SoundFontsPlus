@@ -31,8 +31,7 @@ public enum Operations {
       .order(by: \.index)
       .order(by: \.kind)
       .order(by: \.displayName)
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try query.fetchAll($0) }) ?? []
+    return withDatabaseReader { try query.fetchAll($0) } ?? []
   }
 
   public static var activePresetLoadingInfo: PresetLoadingInfo? {
@@ -51,20 +50,17 @@ public enum Operations {
       .where { $0.soundFontId.eq(soundFontId) }
       .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.hidden) }
       .order(by: \.index)
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try query.fetchAll($0) }) ?? []
+    return withDatabaseReader { try query.fetchAll($0) } ?? []
   }
 
   public static func soundFontIds(for tagId: FontTag.ID) -> [SoundFont.ID] {
     let query = TaggedSoundFont.select { $0.soundFontId }.where { $0.tagId.eq(tagId) }
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try query.fetchAll($0) }) ?? []
+    return withDatabaseReader { try query.fetchAll($0) } ?? []
   }
 
   public static func tagIds(for soundFontId: SoundFont.ID) -> [FontTag.ID] {
     let query = TaggedSoundFont.select { $0.tagId }.where { $0.soundFontId.eq(soundFontId) }
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try query.fetchAll($0) }) ?? []
+    return withDatabaseReader { try query.fetchAll($0) } ?? []
   }
 
   public static func tagSoundFont(_ tagId: FontTag.ID, soundFontId: SoundFont.ID) {
@@ -72,22 +68,19 @@ public enum Operations {
     let query = TaggedSoundFont.insert {
       .init(soundFontId: soundFontId, tagId: tagId)
     }
-    @Dependency(\.defaultDatabase) var database
-    try? database.write { try query.execute($0) }
+    withDatabaseWriter { try query.execute($0) }
   }
 
   public static func untagSoundFont(_ tagId: FontTag.ID, soundFontId: SoundFont.ID) {
     if tagId.isUbiquitous { return }
     let query = TaggedSoundFont.all.delete().where { $0.soundFontId.eq(soundFontId) && $0.tagId.eq(tagId) }
-    @Dependency(\.defaultDatabase) var database
-    try? database.write { try query.execute($0) }
+    withDatabaseWriter { try query.execute($0) }
   }
 
   public static func deleteTag(_ tagId: FontTag.ID) {
     if tagId.isUbiquitous { return }
     let query = FontTag.find(tagId).delete()
-    @Dependency(\.defaultDatabase) var database
-    try? database.write { try query.execute($0); }
+    withDatabaseWriter { try query.execute($0); }
   }
 
   public static var soundFontInfosQuery: Select<SoundFontInfo.Columns.QueryValue, TaggedSoundFont, SoundFont> {
@@ -118,7 +111,6 @@ public enum Operations {
   }
 
   public static var tags: [FontTag] {
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try tagsQuery.fetchAll($0) }) ?? []
+    withDatabaseReader { try tagsQuery.fetchAll($0) } ?? []
   }
 }

@@ -8,13 +8,12 @@ import Testing
 
 @testable import SoundFontsPlus
 
-extension BaseSuite {
+extension BaseTestSuite {
 
-  @Suite
+  @MainActor
   struct ReverbEffectTests {
     fileprivate let device = ReverbDevice()
 
-    @MainActor
     @Test func initialization() async throws {
       @Shared(.parameterTree) var parameterTree
       @Shared(.reverbLockEnabled) var locked = false
@@ -24,8 +23,6 @@ extension BaseSuite {
       let store = TestStoreOf<ReverbFeature>(initialState: .init()) {
         ReverbFeature()
       } withDependencies: {
-        // swiftlint:disable:next force_try
-        $0.defaultDatabase = try! appDatabase()
         $0.reverbDevice = .init(setConfig: { device.config = $0 })
         $0.mainQueue = .immediate
       }

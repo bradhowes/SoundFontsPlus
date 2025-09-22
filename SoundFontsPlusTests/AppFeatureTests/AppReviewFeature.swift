@@ -9,15 +9,15 @@ import Testing
 
 @testable import SoundFontsPlus
 
-extension BaseSuite {
+extension BaseTestSuite {
 
-  @Suite
+  @MainActor
   struct AppReviewTests {
 
     @Test
     func firstTimeAsk() async throws {
       let now = Date(timeIntervalSince1970: 0)
-      let store = await TestStore(initialState: AppReviewFeature.State()) { AppReviewFeature() } withDependencies: {
+      let store = TestStore(initialState: AppReviewFeature.State()) { AppReviewFeature() } withDependencies: {
         $0.date.now = now
       }
 
@@ -36,7 +36,7 @@ extension BaseSuite {
       @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion
 
       let now = Date(timeIntervalSince1970: 0)
-      let store = await TestStore(initialState: AppReviewFeature.State(minActivityCounter: 5)) {
+      let store = TestStore(initialState: AppReviewFeature.State(minActivityCounter: 5)) {
         AppReviewFeature()
       } withDependencies: {
         $0.date.now = now
@@ -69,7 +69,7 @@ extension BaseSuite {
       @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion
 
       let now = Date(timeIntervalSince1970: 0)
-      let store = await TestStore(initialState: AppReviewFeature.State()) { AppReviewFeature() } withDependencies: {
+      let store = TestStore(initialState: AppReviewFeature.State()) { AppReviewFeature() } withDependencies: {
         $0.date.now = now
         $nextReviewRequestDate.withLock { $0 = now }
         $lastReviewRequestVersion.withLock { $0 = AppReviewFeature.currentVersion }
@@ -84,7 +84,6 @@ extension BaseSuite {
     }
 
     @Test
-    @MainActor
     func appReviewFeaturePreview() async throws {
       prepareDependencies {
         let now = Date(timeIntervalSince1970: 0)
@@ -100,7 +99,7 @@ extension BaseSuite {
       let view = AppReviewDemoView(store: store)
       store.send(.ask)
 
-      if BaseSuite.isLocal {
+      if BaseTestSuite.isLocal {
         withSnapshotTesting(record: .failed) {
           assertSnapshot(
             of: view,
