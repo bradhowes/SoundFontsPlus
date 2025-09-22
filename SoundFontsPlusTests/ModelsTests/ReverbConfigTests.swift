@@ -1,71 +1,82 @@
-//import Dependencies
-//import Foundation
-//import GRDB
-//import SF2ResourceFiles
-//import Testing
-//
-//@testable import Models
-//
-//@Suite("ReverbConfig") struct ReverbConfigTests {
-//
-//  @Test("new") func createNew() async throws {
-//    let (_, _, reverbConfig) = try await setup()
-//    #expect(reverbConfig.preset == 0)
-//    #expect(reverbConfig.wetDryMix == 0.5)
-//    #expect(reverbConfig.enabled == true)
-//  }
-//
-//  @Test("updating") func updating() async throws {
-//    let (db, _, reverbConfig) = try await setup()
-//    try await db.write {
-//      var reverbConfig = reverbConfig
-//      try reverbConfig.updateChanges($0) { rc in
-//        rc.preset = 1
-//        rc.wetDryMix = 0.2
-//        rc.enabled = false
-//      }
-//    }
-//
-//    let check = try await db.read { try ReverbConfig.fetchOne($0, key: reverbConfig.id) }
-//    #expect(check != nil)
-//    #expect(check?.preset == 1)
-//    #expect(check?.wetDryMix == 0.2)
-//    #expect(check?.enabled == false)
-//  }
-//
-//  @Test("duplicate") func duplicate() async throws {
-//    let (db, presets, reverbConfig) = try await setup()
-//
-//    let parent = try await db.read { try reverbConfig.audioConfig.fetchOne($0) }
-//    #expect(parent != nil)
-//
-//    let dupParent = try await db.write { try parent?.duplicate($0, presetId: presets[1].id) }
-//    #expect(dupParent != nil)
-//
-//    let dup = try await db.read { try dupParent?.reverbConfig.fetchOne($0) }
-//    #expect(dup != nil)
-//
-//    #expect(dup != nil)
-//    #expect(dup?.id != reverbConfig.id)
-//  }
-//
-//  @Test("cascade") func cascade() async throws {
-//    let (db, _, reverbConfig) = try await setup()
-//    let parent = try await db.read { try reverbConfig.audioConfig.fetchOne($0) }
-//    #expect(parent != nil)
-//    let result = try await db.write { try parent?.delete($0) }
-//    #expect(result == true)
-//    let dc = try await db.read { try ReverbConfig.fetchAll($0) }
-//    #expect(dc.isEmpty)
-//  }
-//
-//  private func setup() async throws -> (DatabaseQueue, [Preset], ReverbConfig) {
-//    let db = try await setupDatabase()
-//    let presets = try await db.read { try Preset.fetchAll($0) }
-//    let rc = try await db.write { db in
-//      let ac = try AudioConfig.make(db, presetId: presets[0].id)
-//      return try ReverbConfig.make(db, for: ac.id)
-//    }
-//    return (db, presets, rc)
-//  }
-//}
+import Dependencies
+import Foundation
+import SQLiteData
+import Testing
+
+@testable import SoundFontsPlus
+
+extension BaseTestSuite {
+
+  @MainActor
+  struct ReverbConfigTests {}
+}
+
+extension BaseTestSuite.ReverbConfigTests {
+
+  @MainActor
+  func setup() async throws -> ([Preset], ReverbConfig) {
+    @Dependency(\.defaultDatabase) var database
+    let presets = try await database.read { try Preset.all.fetchAll($0) }
+    var reverbConfigDraft = presets[0].reverbConfigDraft
+    reverbConfigDraft.roomPreset = .plate
+    reverbConfigDraft.enabled = true
+    let reverbConfig = ReverbConfig.save(config: reverbConfigDraft)
+    return (presets, reverbConfig!)
+  }
+
+  @Test func draft() async throws {
+    let (presets, reverbConfig) = try await setup()
+    #expect(reverbConfig.roomPreset == .plate)
+    #expect(reverbConfig.wetDryMix == 25.0)
+    #expect(reverbConfig.enabled == true)
+    #expect(reverbConfig.presetId == presets[0].id)
+
+    var draft = ReverbConfig.draft(for: 2)
+    var reverbConfigs = withDatabaseReader { try ReverbConfig.all.fetchAll($0) } ?? []
+    #expect(reverbConfigs.count == 1)
+    #expect(draft.roomPreset == .mediumHall)
+    #expect(draft.wetDryMix == reverbConfig.wetDryMix)
+    #expect(draft.enabled == false)
+    #expect(draft.presetId == 2)
+
+    draft = ReverbConfig.draft(for: 2, cloning: .init(reverbConfig))
+    reverbConfigs = withDatabaseReader { try ReverbConfig.all.fetchAll($0) } ?? []
+    #expect(reverbConfigs.count == 1)
+    #expect(draft.roomPreset == reverbConfig.roomPreset)
+    #expect(draft.wetDryMix == reverbConfig.wetDryMix)
+    #expect(draft.enabled == false)
+    #expect(draft.presetId == 2)
+
+    draft.roomPreset = .cathedral
+    ReverbConfig.save(config: draft)
+
+    reverbConfigs = withDatabaseReader { try ReverbConfig.all.fetchAll($0) } ?? []
+    #expect(reverbConfigs.count == 2)
+
+    draft = ReverbConfig.draft(for: 2, cloning: .init(reverbConfig))
+    #expect(draft.roomPreset == .cathedral)
+  }
+
+  @Test func save() async throws {
+    let (_, reverbConfig) = try await setup()
+    var draft = ReverbConfig.Draft(reverbConfig)
+    draft.wetDryMix = 100.0
+    let savedConfig = ReverbConfig.save(config: draft)
+    #expect(savedConfig != nil)
+    #expect(savedConfig!.wetDryMix == 100.0)
+  }
+
+  @Test func deleteCascades() async throws {
+    let (_, reverbConfig) = try await setup()
+
+    withDatabaseWriter { db in
+      try Preset.delete()
+        .where { $0.id.eq(reverbConfig.presetId) }
+        .execute(db)
+    }
+
+    #expect(ReverbConfig.with(presetId: reverbConfig.presetId) == nil)
+    #expect(ReverbConfig.with(presetId: nil) == nil)
+    #expect(ReverbConfig.with(presetId: -1) == nil)
+  }
+}

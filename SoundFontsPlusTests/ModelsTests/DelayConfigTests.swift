@@ -82,5 +82,7 @@ extension BaseTestSuite.DelayConfigTests {
     }
 
     #expect(DelayConfig.with(presetId: delayConfig.presetId) == nil)
+    #expect(DelayConfig.with(presetId: nil) == nil)
+    #expect(DelayConfig.with(presetId: -1) == nil)
   }
 }
