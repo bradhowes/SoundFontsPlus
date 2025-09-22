@@ -59,9 +59,11 @@ public struct DelayFeature {
   @Shared(.activeState) var activeState
   @Shared(.parameterTree) var parameterTree
 
-  @Dependency(\.defaultDatabase) var database
   @Dependency(\.delayDevice) var delayDevice
   @Dependency(\.mainQueue) var mainQueue
+
+  var updateDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(100) }
+  var saveDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(1000) }
 
   public var body: some ReducerOf<Self> {
 
@@ -133,12 +135,7 @@ extension DelayFeature {
       let toSave = state.config
       return .merge(
         .run { _ in
-          withDatabaseWriter { db in
-            try DelayConfig.upsert {
-              toSave
-            }
-            .execute(db)
-          }
+          DelayConfig.save(config: toSave)
         },
         .run { send in
           await send(.applyConfigForPreset)
@@ -156,7 +153,6 @@ extension DelayFeature {
       return .none
     }
 
-    // If this preset does not have a reverb config, assume the current settings.
     let config = DelayConfig.draft(for: presetId, cloning: state.config)
     delayDevice.setConfig(config)
     state.config = config
@@ -184,34 +180,19 @@ extension DelayFeature {
     return .merge(
       .run { send in
         await send(.updateDebounced)
-      }.debounce(id: CancelId.updateDebouncer, for: .milliseconds(100), scheduler: mainQueue),
+      }.debounce(id: CancelId.updateDebouncer, for: updateDebounceDuration, scheduler: mainQueue),
       .run { send in
         await send(.saveDebounced)
-      }.debounce(id: CancelId.saveDebouncer, for: .milliseconds(1000), scheduler: mainQueue)
+      }.debounce(id: CancelId.saveDebouncer, for: saveDebounceDuration, scheduler: mainQueue)
     )
   }
 
   private func saveDebounced(_ state: inout State) -> Effect<Action> {
-    guard let presetId = activeState.activePresetId else {
-      return .none
+    if let presetId = activeState.activePresetId,
+       state.config.presetId == presetId,
+       let found = DelayConfig.save(config: state.config) {
+      state.config = .init(found)
     }
-
-    guard state.config.presetId == presetId else {
-      return .none
-    }
-
-    let found = withDatabaseWriter { db in
-      try DelayConfig.upsert {
-        state.config
-      }
-      .returning(\.self)
-      .fetchOneForced(db)
-    }
-
-    // Update the draft with the info returned from upsert
-    guard let unwrapped = found else { return .none }
-    state.config = .init(unwrapped)
-
     return .none
   }
 

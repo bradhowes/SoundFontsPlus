@@ -50,11 +50,14 @@ public struct ReverbFeature {
     case updateDebouncer
   }
 
-  @Dependency(\.mainQueue) var mainQueue
-  @Dependency(\.defaultDatabase) private var database
-  @Dependency(\.reverbDevice) private var reverbDevice
   @Shared(.activeState) private var activeState
   @Shared(.parameterTree) var parameterTree
+
+  @Dependency(\.mainQueue) var mainQueue
+  @Dependency(\.reverbDevice) private var reverbDevice
+
+  var updateDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(100) }
+  var saveDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(1000) }
 
   public var body: some ReducerOf<Self> {
 
@@ -117,12 +120,7 @@ extension ReverbFeature {
       let toSave = state.config
       return .merge(
         .run { _ in
-          withDatabaseWriter { db in
-            try ReverbConfig.upsert {
-              toSave
-            }
-            .execute(db)
-          }
+          ReverbConfig.save(config: toSave)
         },
           .run { send in
             await send(.applyConfigForPreset)
@@ -142,6 +140,7 @@ extension ReverbFeature {
     let config = ReverbConfig.draft(for: presetId, cloning: state.config)
     reverbDevice.setConfig(config)
     state.config = config
+    state.dirty = false
 
     return .merge(
       reduce(into: &state, action: .enabled(.setValue(config.enabled))),
@@ -157,39 +156,24 @@ extension ReverbFeature {
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
-  private func runDebouncers() -> Effect<Action> {
-    .merge(
+  private func runDebouncers(_ state: inout State) -> Effect<Action> {
+    state.dirty = true
+    return .merge(
       .run { send in
         await send(.updateDebounced)
-      }.debounce(id: CancelId.updateDebouncer, for: .milliseconds(100), scheduler: mainQueue),
+      }.debounce(id: CancelId.updateDebouncer, for: updateDebounceDuration, scheduler: mainQueue),
       .run { send in
         await send(.saveDebounced)
-      }.debounce(id: CancelId.saveDebouncer, for: .milliseconds(1000), scheduler: mainQueue)
+      }.debounce(id: CancelId.saveDebouncer, for: saveDebounceDuration, scheduler: mainQueue)
     )
   }
 
   private func saveDebounced(_ state: inout State) -> Effect<Action> {
-
-    guard let presetId = activeState.activePresetId else {
-      return .none
+    if let presetId = activeState.activePresetId,
+       state.config.presetId == presetId,
+       let found = ReverbConfig.save(config: state.config) {
+      state.config = .init(found)
     }
-
-    guard state.config.presetId == presetId else {
-      return .none
-    }
-
-    let found = withDatabaseWriter { db in
-      try ReverbConfig.upsert {
-        state.config
-      }
-      .returning(\.self)
-      .fetchOneForced(db)
-    }
-
-    // Update the draft with the info returned from the upsert
-    guard let unwrapped = found else { return .none }
-    state.config = .init(unwrapped)
-
     return .none
   }
 
@@ -200,8 +184,7 @@ extension ReverbFeature {
   ) -> Effect<Action> {
     guard abs(state.config[keyPath: path] - value) > 1e-8 else { return .none }
     state.config[keyPath: path] = value
-    state.dirty = true
-    return runDebouncers()
+    return runDebouncers(&state)
   }
 
   private func updateAndSave<T: Equatable>(
@@ -211,8 +194,7 @@ extension ReverbFeature {
   ) -> Effect<Action> {
     guard state.config[keyPath: path] != value else { return .none }
     state.config[keyPath: path] = value
-    state.dirty = true
-    return runDebouncers()
+    return runDebouncers(&state)
   }
 
   private func updateDebounced(_ state: inout State) -> Effect<Action> {
@@ -223,7 +205,9 @@ extension ReverbFeature {
   private func globalToLocalConfig(_ state: inout State) -> Effect<Action> {
     guard let presetId = activeState.activePresetId else { return .none }
     var localConfig = ReverbConfig.draft(for: presetId)
-    localConfig.copy(state.config)
+    localConfig.roomPreset = state.config.roomPreset
+    localConfig.wetDryMix = state.config.wetDryMix
+    localConfig.enabled = state.config.enabled
     state.config = localConfig
     reverbDevice.setConfig(state.config)
     return saveDebounced(&state)

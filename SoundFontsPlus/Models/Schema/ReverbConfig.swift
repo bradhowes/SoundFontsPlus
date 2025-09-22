@@ -38,17 +38,43 @@ extension ReverbConfig {
   }
 }
 
-extension ReverbConfig.Draft {
-
-  public mutating func copy(_ source: Self) {
-    self.roomPreset = source.roomPreset
-    self.wetDryMix = source.wetDryMix
-    self.enabled = source.enabled
-  }
-}
-
 extension ReverbConfig {
 
+  public static func with(presetId: Preset.ID?) -> Self? {
+    guard let presetId else { return nil }
+    return withDatabaseReader { db in
+      try Self.all
+        .where {
+          $0.presetId.eq(presetId)
+        }.fetchAll(db)
+    }?.first
+  }
+
+  /**
+   Create or update delay configuration for a preset.
+
+   - parameter config: the draft to apply
+   - returns the ReverbConfig from the database
+   */
+  @discardableResult
+  public static func save(config: Draft) -> Self? {
+    withDatabaseWriter { db in
+      precondition(config.presetId != -1)
+      return try Self.upsert {
+        config
+      }
+      .returning(\.self)
+      .fetchOneForced(db)
+    }
+  }
+
+  /**
+   Create new or locate existing Draft for a given preset.
+
+   - parameter presetId: the Preset that owns the reverb config
+   - parameter cloning: an existing draft to clone for values
+   - returns new Draft instance
+   */
   public static func draft(for presetId: Preset.ID, cloning: Draft? = nil) -> Draft {
     fetchDraft(
       presetId: presetId,
@@ -57,25 +83,24 @@ extension ReverbConfig {
     )
   }
 
-  private static func fetchDraft(presetId: Preset.ID, clone: Draft, where: Where<Self>) -> Draft {
-    withDatabaseReader { db in
-      guard
-        let found = try `where`.fetchOne(db)
-      else {
-        return .init(
-          roomPreset: clone.roomPreset,
-          wetDryMix: clone.wetDryMix,
-          enabled: false,
-          presetId: presetId
-        )
-      }
-      return .init(found)
-    } ?? .init(
+  private static func cloneDisabledDraft(_ clone: Draft, presetId: Preset.ID) -> Draft {
+    .init(
       roomPreset: clone.roomPreset,
       wetDryMix: clone.wetDryMix,
       enabled: false,
       presetId: presetId
     )
+  }
+
+  private static func fetchDraft(presetId: Preset.ID, clone: Draft, where: Where<Self>) -> Draft {
+    withDatabaseReader { db in
+      guard
+        let found = try `where`.fetchOne(db)
+      else {
+        return cloneDisabledDraft(clone, presetId: presetId)
+      }
+      return .init(found)
+    } ?? cloneDisabledDraft(clone, presetId: presetId)
   }
 }
 

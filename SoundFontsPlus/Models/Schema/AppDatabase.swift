@@ -77,7 +77,7 @@ public func appDatabase() throws -> any DatabaseWriter {
 
   try migrator.migrate(database)
 
-  // Update locations of builtin SF2 files everytime we startup
+  // Update locations of builtin SF2 files everytime we startup since app container location could change.
   try database.write { db in
     for sf2 in SF2ResourceFileTag.allCases {
       withErrorReporting {
