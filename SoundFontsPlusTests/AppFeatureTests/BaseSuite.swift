@@ -12,21 +12,12 @@ import SwiftUI
 @Suite(
   .dependencies {
     $0.defaultDatabase = try SoundFontsPlus.appDatabase()
-    try $0.defaultDatabase.write { db in try db.seedTestData() }
   },
   .snapshots(record: .failed)
 )
 struct BaseTestSuite {
   static var isOnGithub: Bool { (ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"] ?? "") == "/Users/runner" }
   static var isLocal: Bool { !isOnGithub }
-}
-
-extension Database {
-
-  func seedTestData() throws {
-    //    try seed {
-    //    }
-  }
 }
 
 #if false

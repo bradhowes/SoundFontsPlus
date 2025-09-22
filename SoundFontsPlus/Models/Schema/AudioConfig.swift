@@ -54,17 +54,18 @@ extension AudioConfig.Draft: Equatable, Sendable {}
 
 extension AudioConfig {
 
-  public static func with(key presetId: Preset.ID?) -> AudioConfig? {
+  public static func with(presetId: Preset.ID?) -> AudioConfig? {
     guard let presetId else { return nil }
-    @Dependency(\.defaultDatabase) var database
-    return try? database.read {
-      try Self.all.where { $0.presetId.eq(presetId) }.fetchOne($0)
-    }
+    return withDatabaseReader { db in
+      try Self.all
+        .where {
+          $0.presetId.eq(presetId)
+        }.fetchAll(db)
+    }?.first
   }
 
   /**
-   Create a duplicate of the AudioConfig instance, cloning the associated DelayConfig and ReverbConfig rows if they
-   exist.
+   Create a duplicate of the AudioConfig instance.
 
    - parameter presetId: the Preset.ID to associate with
    - returns: cloned instance
@@ -81,17 +82,12 @@ extension AudioConfig {
       presetId: presetId
     )
 
-    @Dependency(\.defaultDatabase) var database
-    guard let clone = (
-      try? database.write {
-        try Self.insert {
-          dupe
-        }.returning(\.self).fetchOne($0)
+    return withDatabaseWriter { db in
+      try Self.insert {
+        dupe
       }
-    ) else {
-      return nil
-    }
-
-    return clone
+      .returning(\.self)
+      .fetchAll(db)
+    }?.first
   }
 }

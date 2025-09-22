@@ -29,6 +29,9 @@ struct NoteTests {
     #expect(Note(rawValue: "C#-1")?.midiNoteValue == 1)
     #expect(Note(rawValue: "Gb9")?.midiNoteValue == 126)
     #expect(Note(rawValue: "G9")?.midiNoteValue == 127)
+
+    #expect(Note(rawValue: "C4") == Note(midiNoteValue: 60))
+    #expect(Note(rawValue: "C4") == .C4)
   }
 
   @Test func noteIndex() async throws {

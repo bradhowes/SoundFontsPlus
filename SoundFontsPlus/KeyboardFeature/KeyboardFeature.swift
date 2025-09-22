@@ -105,7 +105,7 @@ extension KeyboardFeature {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     guard let presetId = presetId else { return .none }
-    guard let audioConfig = AudioConfig.with(key: presetId) else { return .none }
+    guard let audioConfig = AudioConfig.with(presetId: presetId) else { return .none }
     guard audioConfig.keyboardLowestNoteEnabled else { return .none }
     state.active = .init(repeating: false, count: state.active.count)
     log.info("activePresetidChanged - scrollTo \(audioConfig.keyboardLowestNote)")

@@ -40,86 +40,72 @@ extension BaseTestSuite.AudioConfigTests {
     #expect(audioConfig.customTuning == 440.0)
   }
 
-#if false
+  @Test func with() async throws {
+    let (_, audioConfig) = try await setup()
+    #expect(audioConfig == AudioConfig.with(presetId: audioConfig.presetId))
+    #expect(nil == AudioConfig.with(presetId: nil))
+    #expect(nil == AudioConfig.with(presetId: 123123))
+  }
 
   @Test func updating() async throws {
-    let (_, audioConfigs) = try await setup()
-    let audioConfig = audioConfigs[0]
-    try await db.write {
-      var audioConfig = audioConfig
-      try audioConfig.updateChanges($0) { rc in
-        rc.gain = 0.5
-        rc.pan = -1.0
-        rc.keyboardLowestNoteEnabled = true
+    let (_, audioConfig) = try await setup()
+    let check = withDatabaseWriter { db in
+      try AudioConfig.update {
+        $0.id = audioConfig.id
+        $0.gain = -1.0
+        $0.pan = 0.25
+        $0.keyboardLowestNoteEnabled = true
+        $0.keyboardLowestNote = .C4.advanced(by: -15)
+        $0.pitchBendRange = 1
+        $0.customTuningEnabled = true
+        $0.customTuning = 430.0
       }
+      .where { $0.id.eq(audioConfig.id) }
+      .returning(\.self)
+      .fetchOne(db)
     }
 
-    let check = try await db.read { try AudioConfig.fetchOne($0, key: audioConfig.id) }
-    #expect(check != nil)
-    #expect(check?.gain == 0.5)
-    #expect(check?.pan == -1.0)
-    #expect(check?.keyboardLowestNoteEnabled == true)
-  }
-
-  @Test("duplicate") func duplicate() async throws {
-    let (presets, _) = try await setup()
-
-    let acs = try await db.read { try AudioConfig.fetchAll($0) }
-    #expect(acs.count == 4)
-
-    for each in acs.enumerated() {
-      let dc0 = try await db.read { try each.1.delayConfig.fetchOne($0) }
-      let rc0 = try await db.read { try each.1.reverbConfig.fetchOne($0) }
-
-      let dup = try await db.write {
-        var tmp = each.1
-        tmp.gain = 0.8
-        tmp.pan = 1.0
-        tmp.keyboardLowestNoteEnabled = true
-        return try tmp.duplicate($0, presetId: presets[each.0 + 4].id)
-      }
-
-      #expect(dup.id != each.1.id)
-      #expect(dup.gain == 0.8)
-      #expect(dup.pan == 1.0)
-      #expect(dup.keyboardLowestNoteEnabled)
-
-      let dc = try await db.read { try dup.delayConfig.fetchOne($0) }
-      if each.0 == 1 || each.0 == 3 {
-        #expect(dc != nil)
-        #expect(dc0 != nil)
-        #expect(dc?.id != dc0?.id)
-      } else {
-        #expect(dc == nil)
-        #expect(dc0 == nil)
-      }
-
-      let rc = try await db.read { try dup.reverbConfig.fetchOne($0) }
-      if each.0 == 2 || each.0 == 3 {
-        #expect(rc != nil)
-        #expect(rc0 != nil)
-        #expect(rc?.id != rc0?.id)
-      } else {
-        #expect(rc == nil)
-        #expect(rc0 == nil)
-      }
+    if let check {
+      #expect(check != nil)
+      #expect(check?.gain == -1.0)
+      #expect(check?.pan == 0.25)
+      #expect(check?.keyboardLowestNoteEnabled == true)
+      #expect(check?.keyboardLowestNote == Note(rawValue: "A2"))
+      #expect(check?.pitchBendRange == 1)
+      #expect(check?.customTuningEnabled == true)
+      #expect(check?.customTuning == 430.0)
     }
   }
 
-  @Test("delete cascades") func deleteCascades() async throws {
-    let (_, audioConfigs) = try await setup()
-    #expect(audioConfigs.count == 4)
+  @Test func clone() async throws {
+    let (_, audioConfig) = try await setup()
 
-    for each in audioConfigs.enumerated() {
-      let deleted = try await db.write { try each.1.delete($0) }
-      #expect(deleted == true)
+    let cloned = audioConfig.clone(presetId: 2)
+    #expect(cloned != nil)
+    #expect(cloned?.gain == 0.0)
+    #expect(cloned?.pan == 0.5)
+    #expect(cloned?.keyboardLowestNoteEnabled == false)
+    #expect(cloned?.keyboardLowestNote == .C4)
+    #expect(cloned?.pitchBendRange == 2)
+    #expect(cloned?.customTuningEnabled == false)
+    #expect(cloned?.customTuning == 440.0)
+
+    #expect(AudioConfig.with(presetId: 2) == cloned)
+  }
+
+  @Test func deleteCascades() async throws {
+    let (_, audioConfig) = try await setup()
+
+    withDatabaseWriter { db in
+      try Preset.delete()
+        .where { $0.id.eq(audioConfig.presetId) }
+        .execute(db)
     }
 
-    let dc = try await db.read { try DelayConfig.fetchAll($0) }
-    #expect(dc.count == 0)
-    let rc = try await db.read { try ReverbConfig.fetchAll($0) }
-    #expect(rc.count == 0)
+    #expect(AudioConfig.with(presetId: audioConfig.presetId) == nil)
   }
+
+#if false
 
   func testAddGeneratorOverrides() throws {
     try withNewContext(ActiveSchema.self) { context in

@@ -40,7 +40,7 @@ public enum Operations {
   }
 
   public static var activePresetAudioConfig: AudioConfig? {
-    AudioConfig.with(key: Preset.active)
+    AudioConfig.with(presetId: Preset.active)
   }
 
   public static var allPresets: [Preset] {

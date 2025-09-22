@@ -18,7 +18,7 @@ extension BaseTestSuite {
 
     init() async throws {
       let volumes = OutputVolumeFlipFlop()
-      let store = await TestStore(initialState: VolumeMonitorFeature.State()) {
+      let store = TestStore(initialState: VolumeMonitorFeature.State()) {
         VolumeMonitorFeature()
       } withDependencies: {
         @Shared(.activeState) var activeState = .init()

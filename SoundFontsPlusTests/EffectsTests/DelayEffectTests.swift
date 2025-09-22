@@ -11,7 +11,7 @@ import Testing
 
 extension BaseTestSuite {
 
-  @MainActor
+  @Suite
   struct DelayEffectTests {
     fileprivate let device = DelayDevice()
     @Shared(.parameterTree) var parameterTree
@@ -35,6 +35,7 @@ extension BaseTestSuite {
 
 extension BaseTestSuite.DelayEffectTests {
 
+  @MainActor
   @Test func initialization() async throws {
     let store = store()
 
@@ -45,6 +46,7 @@ extension BaseTestSuite.DelayEffectTests {
     await store.receive(\.applyConfigForPreset) {
       $0.config.presetId = 1
     }
+
     await store.receive(\.time)
     await store.receive(\.feedback)
     await store.receive(\.cutoff)
