@@ -63,7 +63,7 @@ public func appDatabase() throws -> any DatabaseWriter {
   migrator.registerMigration("Add builtin fonts") { db in
     for sf2 in SF2ResourceFileTag.allCases {
       log.info("add \(sf2)")
-      SoundFont.addBuiltIn(db, sf2: sf2)
+      try SoundFont.addBuiltIn(db, sf2: sf2)
     }
   }
 

@@ -68,71 +68,61 @@ extension SoundFont {
 
 extension SoundFont {
 
-  public static func addBuiltIn(_ db: Database, sf2: SF2ResourceFileTag) {
-    let log = Logger(category: "SoundFont.insert")
+  public static func addBuiltIn(_ db: Database, sf2: SF2ResourceFileTag) throws {
+    let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
+    let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()
+    let soundFontDraft = try makeSoundFontDraft(soundFontKind: soundFontKind, name: sf2.name, fileInfo: fileInfo)
+
     withErrorReporting {
-      let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
-      let (kind, location) = try soundFontKind.data()
-      let fileInfo = try soundFontKind.fileInfo()
-      let insertSoundFontDraft = SoundFont.insert {
-        SoundFont.Draft(
-          displayName: sf2.name,
-          kind: kind,
-          location: location,
-          originalName: sf2.name,
-          embeddedName: String(fileInfo.embeddedName()),
-          embeddedComment: String(fileInfo.embeddedComment()),
-          embeddedAuthor: String(fileInfo.embeddedAuthor()),
-          embeddedCopyright: String(fileInfo.embeddedCopyright()),
-          notes: ""
-        )
-      }.returning(\.id)
-
-      if let soundFontId = try insertSoundFontDraft.fetchOne(db) {
-        log.info("soundFontId: \(soundFontId)")
-
-        let taggedSoundFonts: [TaggedSoundFont] = soundFontKind.tagIds.map { tagId in
-            .init(
-              soundFontId: soundFontId,
-              tagId: tagId
-            )
-        }
-
-        try TaggedSoundFont.insert {
-          taggedSoundFonts
-        }.execute(db)
-
-        // Insert presets in one shot
-        let presets: [Preset.Draft] = (0..<fileInfo.size()).map { presetIndex in
-          let presetInfo = fileInfo[presetIndex]
-          let displayName = String(presetInfo.name())
-          return .init(
-            index: presetIndex,
-            bank: Int(presetInfo.bank()),
-            program: Int(presetInfo.program()),
-            originalName: displayName,
-            soundFontId: soundFontId,
-            displayName: displayName,
-            notes: "",
-            kind: .preset
-          )
-        }
-        try Preset.insert {
-          presets
-        }.execute(db)
-      }
+      try install(db: db, soundFontDraft: soundFontDraft, fileInfo: fileInfo, soundFontKind: soundFontKind)
     }
   }
 
   public static func add(displayName: String, soundFontKind: SoundFontKind) throws {
+    let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()
+    let soundFontDraft = try makeSoundFontDraft(soundFontKind: soundFontKind, name: displayName, fileInfo: fileInfo)
+
+    withDatabaseWriter { db in
+      try install(db: db, soundFontDraft: soundFontDraft, fileInfo: fileInfo, soundFontKind: soundFontKind)
+    }
+  }
+
+  public static func delete(id: SoundFont.ID) {
+    withDatabaseWriter { db in
+      try Self.delete()
+        .where { $0.id.eq(id) }
+        .execute(db)
+    }
+  }
+
+  private static func install(
+    db: Database,
+    soundFontDraft: Insert<SoundFont, SoundFont.ID>,
+    fileInfo: SF2FileInfo,
+    soundFontKind: SoundFontKind
+  ) throws {
+    guard let soundFontId = try soundFontDraft.fetchOne(db) else { return }
+    try TaggedSoundFont.insert {
+      soundFontKind.tagIds.map { .init(soundFontId: soundFontId, tagId: $0) }
+    }.execute(db)
+    try Preset.insert {
+      makePresets(soundFontId: soundFontId, fileInfo: fileInfo)
+    }.execute(db)
+  }
+
+  private static func makeSoundFontDraft(
+    soundFontKind: SoundFontKind,
+    name: String,
+    fileInfo: SF2FileInfo
+  ) throws -> Insert<SoundFont, SoundFont.ID> {
     let (kind, location) = try soundFontKind.data()
-    let fileInfo = try soundFontKind.fileInfo()
-    let insertSoundFontDraft = SoundFont.insert {
+    let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()
+    return SoundFont.insert {
       SoundFont.Draft(
-        displayName: displayName,
+        displayName: name,
         kind: kind,
         location: location,
-        originalName: displayName,
+        originalName: name,
         embeddedName: String(fileInfo.embeddedName()),
         embeddedComment: String(fileInfo.embeddedComment()),
         embeddedAuthor: String(fileInfo.embeddedAuthor()),
@@ -140,62 +130,30 @@ extension SoundFont {
         notes: ""
       )
     }.returning(\.id)
+  }
 
-    @Dependency(\.defaultDatabase) var database
-    try database.write { db in
-      if let soundFontId = try insertSoundFontDraft.fetchOne(db) {
-
-        // Insert tagging in one shot
-        let taggedSoundFonts: [TaggedSoundFont] = soundFontKind.tagIds.map { tagId in
-            .init(
-              soundFontId: soundFontId,
-              tagId: tagId
-            )
-        }
-        try TaggedSoundFont.insert {
-          taggedSoundFonts
-        }.execute(db)
-
-        // Insert presets in one shot
-        let presets: [Preset.Draft] = (0..<fileInfo.size()).map { presetIndex in
-          let presetInfo = fileInfo[presetIndex]
-          let displayName = String(presetInfo.name())
-          return .init(
+  private static func makePresets(soundFontId: SoundFont.ID, fileInfo: SF2FileInfo) -> [Preset.Draft] {
+    (0..<fileInfo.size())
+      .map { ($0, fileInfo[$0]) }
+      .map { (presetIndex: $0.0, presetInfo: $0.1, name: String($0.1.name())) }
+      .map { presetIndex, presetInfo, name in
+          .init(
             index: presetIndex,
             bank: Int(presetInfo.bank()),
             program: Int(presetInfo.program()),
-            originalName: displayName,
+            originalName: name,
             soundFontId: soundFontId,
-            displayName: displayName,
+            displayName: name,
             notes: "",
-            kind: .preset,
+            kind: .preset
           )
-        }
-        try Preset.insert {
-          presets
-        }.execute(db)
       }
-    }
-  }
-
-  public static func delete(id: SoundFont.ID) {
-    @Dependency(\.defaultDatabase) var database
-    withErrorReporting {
-      try database.write { db in
-        try Self.delete().where({ $0.id == id }).execute(db)
-      }
-    }
   }
 }
 
 extension SoundFont {
-}
 
-extension SoundFont {
-
-  public func source() throws -> SoundFontKind {
-    try SoundFontKind(kind: kind, location: location)
-  }
+  public func source() throws -> SoundFontKind { try SoundFontKind(kind: kind, location: location) }
 
   public var sourceKind: String { (try? source())?.description ?? "N/A" }
 
@@ -210,8 +168,9 @@ extension SoundFont {
         $1
       }
 
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try query.fetchAll($0) }) ?? []
+    return withDatabaseReader { db in
+      try query.fetchAll(db)
+    } ?? []
   }
 
   public var presets: [Preset] {
@@ -220,8 +179,9 @@ extension SoundFont {
       .where { $0.soundFontId.eq(self.id) }
       .where { $0.kind.neq(Preset.Kind.hidden) }
 
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try query.fetchAll($0) }) ?? []
+    return withDatabaseReader { db in
+      try query.fetchAll(db)
+    } ?? []
   }
 
   public var allPresets: [Preset] {
@@ -229,15 +189,14 @@ extension SoundFont {
       .order(by: \.index)
       .where { $0.soundFontId.eq(self.id) }
       .where { $0.kind.neq(Preset.Kind.favorite) }
-
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try query.fetchAll($0) }) ?? []
+    return withDatabaseReader { db in
+      try query.fetchAll(db)
+    } ?? []
   }
 
   // swiftlint:disable:next large_tuple
   public var elementCounts: (presetCount: Int, favoriteCount: Int, hiddenCount: Int) {
-    @Dependency(\.defaultDatabase) var database
-    let found = try? database.read { db in
+    let found = withDatabaseReader { db in
       try Preset.select {
         (
           $0.id.count(filter: $0.kind.eq(Preset.Kind.preset)),
@@ -249,90 +208,5 @@ extension SoundFont {
       .fetchAll(db)
     }
     return (found ?? [(presetCount: 0, favoriteCount: 0, hiddenCount: 0)])[0]
-  }
-}
-
-extension SoundFont {
-
-  // swiftlint:disable:next function_body_length
-  public static func mock(
-    _ db: Database,
-    kind: Kind,
-    name: String,
-    presetNames: [String],
-    tags: [String]
-  ) throws {
-    let tmp = try FileManager.default.newTemporaryURL()
-    try FileManager.default.copyItem(
-      at: SF2ResourceFileTag.rolandNicePiano.url,
-      to: tmp
-    )
-
-    let soundFontKind: SoundFontKind = kind == .installed
-    ? SoundFontKind.installed(file: tmp)
-    : SoundFontKind.external(bookmark: .init(url: tmp, name: name))
-    let (kind, location) = try soundFontKind.data()
-
-    let insertSoundFontDraft = SoundFont.insert {
-      SoundFont.Draft(
-        displayName: name,
-        kind: kind,
-        location: location,
-        originalName: name,
-        embeddedName: name,
-        embeddedComment: "comment",
-        embeddedAuthor: "author",
-        embeddedCopyright: "copyright",
-        notes: ""
-      )
-    }.returning(\.id)
-
-    if let soundFontId = try insertSoundFontDraft.fetchOne(db) {
-      let taggedSoundFonts: [TaggedSoundFont] = soundFontKind.tagIds.map { tagId in
-          .init(
-            soundFontId: soundFontId,
-            tagId: tagId
-          )
-      }
-      try TaggedSoundFont.insert {
-        taggedSoundFonts
-      }.execute(db)
-
-      let presets: [Preset.Draft] = presetNames.enumerated().map { indexedPresetName in
-        let displayName = indexedPresetName.1
-        return .init(
-          index: indexedPresetName.0,
-          bank: 0,
-          program: indexedPresetName.0,
-          originalName: displayName,
-          soundFontId: soundFontId,
-          displayName: displayName,
-          notes: "",
-          kind: .preset
-        )
-      }
-
-      try Preset.insert {
-        presets
-      }.execute(db)
-
-      for tagName in tags.enumerated() {
-        let query = FontTag.insert {
-          FontTag.Draft(
-            displayName: tagName.1,
-            ordering: tagName.0 + 5
-          )
-        }.returning(\.id)
-
-        if let tagId = try query.fetchOne(db) {
-          try TaggedSoundFont.insert {
-            .init(
-              soundFontId: soundFontId,
-              tagId: tagId
-            )
-          }.execute(db)
-        }
-      }
-    }
   }
 }
