@@ -34,9 +34,8 @@ extension MIDIConfig {
 extension MIDIConfig {
 
   public static func with(key uniqueId: MIDIUniqueID) -> MIDIConfig? {
-    @Dependency(\.defaultDatabase) var database
-    return try? database.read {
-      try Self.all.where { $0.uniqueId.eq(uniqueId) }.fetchOne($0)
-    }
+    withDatabaseReader { db in
+      try Self.all.where { $0.uniqueId.eq(uniqueId) }.fetchAll(db)
+    }?.first
   }
 }

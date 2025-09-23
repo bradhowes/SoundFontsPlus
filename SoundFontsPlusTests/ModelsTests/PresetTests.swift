@@ -1,68 +1,60 @@
-//import Dependencies
-//import Foundation
-//import GRDB
-//import SF2ResourceFiles
-//import Testing
-//
-//@testable import Models
-//
-//@Suite("Preset") struct PresetTests {
-//
-//  @Test("migration") func migration() async throws {
-//    try await withDependencies {
-//      $0.defaultDatabase = try DatabaseQueue.appDatabase()
-//    } operation: {
-//      @Dependency(\.defaultDatabase) var db
-//      let presets = try await db.read { try Preset.fetchAll($0) }
-//      #expect(presets.count == 506)
-//    }
-//  }
-//
-//  @Test("adding audioConfig") func addingAudioConfig() async throws {
-//    try await withDependencies {
-//      $0.defaultDatabase = try DatabaseQueue.appDatabase()
-//    } operation: {
-//      @Dependency(\.defaultDatabase) var db
-//      let presets = try await db.read { try Preset.fetchAll($0) }
-//      let preset = presets[0]
-//      _ = try await db.write { try AudioConfig.make($0, presetId: preset.id) }
-//      let audioConfig = try await db.read { try preset.audioConfig.fetchOne($0) }
-//      #expect(audioConfig != nil)
-//    }
-//  }
-//
-//  @Test("cascade") func cascade() async throws {
-//    try await withDependencies {
-//      $0.defaultDatabase = try DatabaseQueue.appDatabase()
-//    } operation: {
-//      @Dependency(\.defaultDatabase) var db
-//      let presets = try await db.read { try Preset.fetchAll($0) }
-//      let preset = presets[0]
-//
-//      try await db.write {
-//        try AudioConfig.make($0, presetId: preset.id)
-//        let favorite = try Favorite.make($0, preset: preset)
-//        try AudioConfig.make($0, favoriteId: favorite.id)
-//      }
-//
-//      let result = try await db.write { try preset.delete($0) }
-//      #expect(result == true)
-//
-//      var found = try await db.read { try AudioConfig.fetchCount($0) }
-//      found += try await db.read { try Favorite.fetchCount($0) }
-//      #expect(found == 0)
-//    }
-//  }
-//
-//  @Test("mock") func mock() async throws {
-//    try await withDependencies {
-//      $0.defaultDatabase = try DatabaseQueue.appDatabase()
-//    } operation: {
-//      @Dependency(\.defaultDatabase) var db
-//      let mock = try await db.write {
-//        try SoundFont.mock($0, kind: .installed, name: "SoundFont 1", presetNames: ["Preset 1", "Preset 2", "Preset 3"], tags: [])
-//      }
-//      #expect(mock.displayName == "SoundFont 1")
-//    }
-//  }
-//}
+import Dependencies
+import Foundation
+import SQLiteData
+import Testing
+
+@testable import SoundFontsPlus
+
+extension BaseTestSuite {
+  @MainActor
+  struct PresetTests {}
+}
+
+extension BaseTestSuite.PresetTests {
+
+  @MainActor
+  func setup() async throws -> [Preset] {
+    withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
+  }
+
+  @Test func soundFontName() async throws {
+    let presets = try await setup()
+    #expect(presets[123].soundFontName == "Fluid R3")
+  }
+
+  @Test func uniqueName() async throws {
+    let presets = try await setup()
+    #expect(presets[12].uniqueName == "Marimba copy")
+    let clone1 = presets[12].clone()
+    _ = presets[12].clone()
+    #expect(presets[12].uniqueName == "Marimba copy 2")
+    withDatabaseWriter { db in
+      try Preset.delete()
+        .where { $0.id.eq(clone1!.id) }
+        .execute(db)
+    }
+    #expect(presets[12].uniqueName == "Marimba copy")
+    _ = presets[12].clone()
+    #expect(presets[12].uniqueName == "Marimba copy 2")
+  }
+
+  @Test func clone() async throws {
+    let presets = try await setup()
+
+    let clone1 = presets[12].clone()
+    #expect(clone1 != nil)
+    #expect(clone1?.audioConfig == nil)
+    #expect(clone1?.delayConfig == nil)
+    #expect(clone1?.reverbConfig == nil)
+
+    AudioConfig.save(config: presets[12].audioConfigDraft)
+    DelayConfig.save(config: presets[12].delayConfigDraft)
+    ReverbConfig.save(config: presets[12].reverbConfigDraft)
+
+    let clone2 = presets[12].clone()
+    #expect(clone2 != nil)
+    #expect(clone2?.audioConfig != nil)
+    #expect(clone2?.delayConfig != nil)
+    #expect(clone2?.reverbConfig != nil)
+  }
+}

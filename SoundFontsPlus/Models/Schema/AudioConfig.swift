@@ -65,6 +65,24 @@ extension AudioConfig {
   }
 
   /**
+   Save the given config.
+
+   - parameter config: the draft to apply
+   - returns the AudioConfig from the database
+   */
+  @discardableResult
+  public static func save(config: Draft) -> Self? {
+    withDatabaseWriter { db in
+      precondition(config.presetId != -1)
+      return try Self.upsert {
+        config
+      }
+      .returning(\.self)
+      .fetchOneForced(db)
+    }
+  }
+
+  /**
    Create a duplicate of the AudioConfig instance.
 
    - parameter presetId: the Preset.ID to associate with

@@ -180,7 +180,7 @@ extension SoundFontButtonView {
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       return try $0.defaultDatabase.read { db in
-        try Operations.soundFontInfosQuery.fetchAll(db)
+        try SoundFontInfo.query.fetchAll(db)
       }
     }
 

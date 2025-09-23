@@ -39,6 +39,8 @@
 		BD59D4EC2E47C77C00B2250B /* MIDIControllersFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4EB2E47C77C00B2250B /* MIDIControllersFeature.swift */; };
 		BD59D4EE2E47C80A00B2250B /* MIDIAssignmentsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4ED2E47C80A00B2250B /* MIDIAssignmentsFeature.swift */; };
 		BD59D4F02E480E3600B2250B /* MIDIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4EF2E480E3600B2250B /* MIDIConfig.swift */; };
+		BD5FF2562E820984008F94C1 /* MIDIConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5FF2552E820984008F94C1 /* MIDIConfigTests.swift */; };
+		BD5FF2582E8297DF008F94C1 /* PresetLoadingInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5FF2572E8297DF008F94C1 /* PresetLoadingInfoTests.swift */; };
 		BD66C5712E6AAD1F00A0CD31 /* InlineSnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C5702E6AAD1F00A0CD31 /* InlineSnapshotTesting */; };
 		BD66C5732E6AAD1F00A0CD31 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C5722E6AAD1F00A0CD31 /* SnapshotTesting */; };
 		BD66C5752E6AAD1F00A0CD31 /* SnapshotTestingCustomDump in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C5742E6AAD1F00A0CD31 /* SnapshotTestingCustomDump */; };
@@ -238,6 +240,8 @@
 		BD59D4ED2E47C80A00B2250B /* MIDIAssignmentsFeature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIAssignmentsFeature.swift; sourceTree = "<group>"; };
 		BD59D4EF2E480E3600B2250B /* MIDIConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIConfig.swift; sourceTree = "<group>"; };
 		BD5A65612D984945008B8117 /* SoundFontsPlus.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SoundFontsPlus.xctestplan; sourceTree = "<group>"; };
+		BD5FF2552E820984008F94C1 /* MIDIConfigTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MIDIConfigTests.swift; sourceTree = "<group>"; };
+		BD5FF2572E8297DF008F94C1 /* PresetLoadingInfoTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PresetLoadingInfoTests.swift; sourceTree = "<group>"; };
 		BD673BB62DFB44D100574F9C /* WithDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithDatabase.swift; sourceTree = "<group>"; };
 		BD76C1582E23C57E00F5B1F5 /* VolumeMonitorFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeMonitorFeature.swift; sourceTree = "<group>"; };
 		BD76C15F2E23CD2C00F5B1F5 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
@@ -780,8 +784,10 @@
 				BDAF5B342DE256C500B8FB13 /* BookmarkTests.swift */,
 				BDAF5B352DE256C500B8FB13 /* DelayConfigTests.swift */,
 				BDAF5B362DE256C500B8FB13 /* FavoriteTests.swift */,
+				BD5FF2552E820984008F94C1 /* MIDIConfigTests.swift */,
 				BDAF5B382DE256C500B8FB13 /* OperationsTests.swift */,
 				BDAF5B392DE256C500B8FB13 /* PresetTests.swift */,
+				BD5FF2572E8297DF008F94C1 /* PresetLoadingInfoTests.swift */,
 				BDAF5B3A2DE256C500B8FB13 /* ReverbConfigTests.swift */,
 				BDAF5B3B2DE256C500B8FB13 /* SharedTests.swift */,
 				BDAF5B3C2DE256C500B8FB13 /* SoundFontKindTests.swift */,
@@ -1245,7 +1251,9 @@
 				BDAF5B922DE256C500B8FB13 /* ToolBarFeatureTests.swift in Sources */,
 				BDAF5B932DE256C500B8FB13 /* PresetTests.swift in Sources */,
 				BDAF5B942DE256C500B8FB13 /* BookmarkTests.swift in Sources */,
+				BD5FF2562E820984008F94C1 /* MIDIConfigTests.swift in Sources */,
 				BDAF5B952DE256C500B8FB13 /* SF2ResourceFilesTests.swift in Sources */,
+				BD5FF2582E8297DF008F94C1 /* PresetLoadingInfoTests.swift in Sources */,
 				BDAF5B962DE256C500B8FB13 /* PresetsListSectionTests.swift in Sources */,
 				BDAF5B972DE256C500B8FB13 /* SoundFontKindTests.swift in Sources */,
 				BDAF5B982DE256C500B8FB13 /* NoteTests.swift in Sources */,

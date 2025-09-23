@@ -15,8 +15,7 @@ extension BaseTestSuite.DelayConfigTests {
 
   @MainActor
   func setup() async throws -> ([Preset], DelayConfig) {
-    @Dependency(\.defaultDatabase) var database
-    let presets = try await database.read { try Preset.all.fetchAll($0) }
+    let presets = withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
     var delayConfigDraft = presets[0].delayConfigDraft
     delayConfigDraft.time = 1.5
     delayConfigDraft.enabled = true

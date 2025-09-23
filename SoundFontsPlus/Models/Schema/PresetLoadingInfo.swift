@@ -19,26 +19,6 @@ public struct PresetLoadingInfo: Equatable, Sendable {
   public let gain: Double
   public let pan: Double
 
-  public init(
-    soundFontId: SoundFont.ID,
-    presetIndex: Int,
-    kind: SoundFont.Kind,
-    location: Data,
-    presetName: String,
-    soundFontName: String,
-    gain: Double?,
-    pan: Double?
-  ) {
-    self.soundFontId = soundFontId
-    self.presetIndex = presetIndex
-    self.kind = kind
-    self.location = location
-    self.presetName = presetName
-    self.soundFontName = soundFontName
-    self.gain = gain ?? 0.0
-    self.pan = pan ?? 0.0
-  }
-
   static var query: Select<PresetLoadingInfo.Columns.QueryValue, Preset, (SoundFont, AudioConfig?)> {
     @Shared(.activeState) var activeState
     return Preset

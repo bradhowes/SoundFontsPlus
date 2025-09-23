@@ -15,8 +15,7 @@ extension BaseTestSuite.AudioConfigTests {
 
   @MainActor
   func setup() async throws -> ([Preset], AudioConfig) {
-    @Dependency(\.defaultDatabase) var database
-    let presets = try await database.read { try Preset.all.fetchAll($0) }
+    let presets = withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
     let audioConfigDraft = presets[0].audioConfigDraft
     let audioConfigs = withDatabaseWriter { db in
       try AudioConfig.upsert {

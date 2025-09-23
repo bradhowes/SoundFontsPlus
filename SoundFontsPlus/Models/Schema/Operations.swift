@@ -35,8 +35,9 @@ public enum Operations {
   }
 
   public static var activePresetLoadingInfo: PresetLoadingInfo? {
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try PresetLoadingInfo.query.fetchOne($0) })
+    withDatabaseReader { db in
+      try PresetLoadingInfo.query.fetchAll(db)
+    }?.first
   }
 
   public static var activePresetAudioConfig: AudioConfig? {
@@ -81,17 +82,6 @@ public enum Operations {
     if tagId.isUbiquitous { return }
     let query = FontTag.find(tagId).delete()
     withDatabaseWriter { try query.execute($0); }
-  }
-
-  public static var soundFontInfosQuery: Select<SoundFontInfo.Columns.QueryValue, TaggedSoundFont, SoundFont> {
-    @Shared(.activeState) var activeState
-    return TaggedSoundFont
-      .join(SoundFont.all) {
-        $0.tagId.eq(activeState.activeTagId ?? FontTag.Ubiquitous.all.id) && $0.soundFontId.eq($1.id)
-      }
-      .select {
-        SoundFontInfo.Columns(id: $1.id, displayName: $1.displayName, kind: $1.kind, location: $1.location)
-      }
   }
 
   public static var tagInfosQuery: Select<TagInfo.Columns.QueryValue, FontTag, TaggedSoundFont?> {

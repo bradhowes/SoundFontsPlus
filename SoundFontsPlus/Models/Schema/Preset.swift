@@ -140,18 +140,28 @@ extension Preset {
     )
 
     @Dependency(\.defaultDatabase) var database
-    guard let clone = (
-      try? database.write {
-        try Self.insert {
-          dupe
-        }.returning(\.self).fetchOne($0)
+    guard let clone = withDatabaseWriter({ db in
+      try Self.insert {
+        dupe
       }
-    ) else {
+      .returning(\.self)
+      .fetchOneForced(db)
+    }) else {
       return nil
     }
 
+    // Can this be done with key paths?
+
     if let audioConfig = self.audioConfig {
       _ = audioConfig.clone(presetId: clone.id)
+    }
+
+    if let delayConfig = self.delayConfig {
+      _ = delayConfig.clone(presetId: clone.id)
+    }
+
+    if let reverbConfig = self.reverbConfig {
+      _ = reverbConfig.clone(presetId: clone.id)
     }
 
     return clone
@@ -174,10 +184,10 @@ extension Preset {
     @Dependency(\.defaultDatabase) var database
     let names = Set<String>((try? database.read { try query.fetchAll($0) }) ?? [])
     var index = 0
-    var candidate = self.displayName + " copy"
+    var candidate = self.originalName + " copy"
     while names.contains(candidate) {
       index += 1
-      candidate = self.displayName + " copy \(index)"
+      candidate = self.originalName + " copy \(index)"
     }
 
     return candidate

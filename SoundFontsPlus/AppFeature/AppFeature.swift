@@ -44,7 +44,7 @@ struct AppFeature {
     var volumeMonitor: VolumeMonitorFeature.State = .init()
 
     init() {
-      _soundFontInfos = FetchAll(SoundFontInfo.taggedQuery, animation: .default)
+      _soundFontInfos = FetchAll(SoundFontInfo.query, animation: .default)
 
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsPosition
       @Shared(.tagsListVisible) var tagsListVisible

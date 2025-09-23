@@ -79,6 +79,18 @@ extension DelayConfig {
   }
 
   /**
+   Create a clone of our settings for a new preset/favorite.
+
+   - parameter presetId: the ID of the favorite to assign to the clone
+   - returns cloned config or nil if unable to clone
+   */
+  public func clone(presetId: Preset.ID) -> Self? {
+    var draft = Self.draft(for: presetId, cloning: .init(self))
+    draft.enabled = self.enabled
+    return Self.save(config: draft)
+  }
+
+  /**
    Create new or locate existing Draft for a given preset
 
    - parameter presetId: the Preset that owns the delay config
