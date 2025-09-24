@@ -24,9 +24,10 @@ extension SoundFontInfo {
 
   public static var query: Select<SoundFontInfo.Columns.QueryValue, TaggedSoundFont, SoundFont> {
     @Shared(.activeState) var activeState
+    let tagId = activeState.activeTagId ?? FontTag.Ubiquitous.all.id
     return TaggedSoundFont
       .join(SoundFont.all) {
-        $0.tagId.eq(activeState.activeTagId ?? FontTag.Ubiquitous.all.id) && $0.soundFontId.eq($1.id)
+        $0.tagId.eq(tagId) && $0.soundFontId.eq($1.id)
       }
       .select {
         SoundFontInfo.Columns(id: $1.id, displayName: $1.displayName, kind: $1.kind, location: $1.location)
