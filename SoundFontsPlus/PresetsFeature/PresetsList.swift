@@ -45,6 +45,7 @@ public struct PresetsList {
     case sections(IdentifiedActionOf<PresetsListSection>)
     case selectedSoundFontIdChanged(SoundFont.ID?)
     case showActivePreset
+    case showActivePresetNow
     case visibilityEditModeChanged(Bool)
 
     public enum Delegate: Equatable {
@@ -120,6 +121,14 @@ public struct PresetsList {
         return setSoundFont(&state, soundFontId: soundFontId)
 
       case .showActivePreset:
+        // Delay scrolling to active preset in case the keyboard was shown. We hide the music keyboard when it is
+        // and restoring it can cause it to obscure the active preset.
+        return .run { send in
+          try await Task.sleep(for: .milliseconds(100))
+          await send(.showActivePresetNow)
+        }.cancellable(id: CancelId.showActivePresetNow, cancelInFlight: true)
+
+      case .showActivePresetNow:
         state.scrollToPresetId = activeState.activePresetId
         return .none
 
@@ -140,6 +149,7 @@ public struct PresetsList {
   private enum CancelId {
     case monitorSelectedSoundFontId
     case playNote
+    case showActivePresetNow
   }
 }
 
@@ -148,10 +158,11 @@ extension PresetsList {
   private func dismissSearch(_ state: inout State) -> Effect<Action> {
     state.isSearchFieldPresented = false
     state.focusedField = nil
-    state.scrollToPresetId = activeState.activePresetId
-    return generatePresetSections(&state)
+    generatePresetSections(&state)
+    return .send(.showActivePreset)
   }
 
+  @discardableResult
   private func generatePresetSections(_ state: inout State) -> Effect<Action> {
     let grouping = state.optionalSearchText != nil ? Self.noGroupingSize : Self.groupingSize
     var presets = state.visibilityEditMode == .active ? Operations.allPresets : Operations.presets
@@ -167,7 +178,7 @@ extension PresetsList {
         PresetsListSection.State(section: $0.lowerBound, presets: presets[$0])
       })
 
-    return .none.animation(.smooth)
+    return .none
   }
 
   private func hideOrDeletePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
@@ -301,7 +312,7 @@ public struct PresetsListView: View {
   private func doScrollTo(proxy: ScrollViewProxy, oldValue: Preset.ID?, newValue: Preset.ID?) {
     if let newValue {
       withAnimation {
-        proxy.scrollTo(newValue)
+        proxy.scrollTo(newValue, anchor: .center)
         store.send(.clearScrollToPresetId)
       }
     } else {

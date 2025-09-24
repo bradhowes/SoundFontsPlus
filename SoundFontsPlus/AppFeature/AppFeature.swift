@@ -48,10 +48,16 @@ struct AppFeature {
 
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsPosition
       @Shared(.tagsListVisible) var tagsListVisible
-      self.tagsSplit = .init(panesVisible: tagsListVisible ? .both : .primary, initialPosition: fontsAndTagsPosition)
+      self.tagsSplit = .init(
+        panesVisible: tagsListVisible ? .both : .primary,
+        initialPosition: fontsAndTagsPosition
+      )
 
       @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsPosition
-      self.presetsSplit = .init(panesVisible: .both, initialPosition: fontsAndPresetsPosition)
+      self.presetsSplit = .init(
+        panesVisible: .both,
+        initialPosition: fontsAndPresetsPosition
+      )
 
 #if ALWAYS_SHOW_TUTORIAL
 
@@ -443,8 +449,13 @@ struct AppFeatureView: View, KeyboardReadable {
     .task {
       await store.send(.initialize).finish()
     }
-    .onReceive(keyboardPublisher) {
-      isInputKeyboardVisible = $0
+    .onReceive(keyboardPublisher) { state in
+      isInputKeyboardVisible = state
+      // If restoring display of the virtual music keyboard, scroll to the active preset
+      // since it could become hidden by the keyboard.
+      if !state {
+        store.scope(state: \.presetsList, action: \.presetsList).send(.showActivePreset)
+      }
     }
     .sheets(
       store: $store,
@@ -470,7 +481,12 @@ private extension AppFeatureView {
       secondary: {
         PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
       }
-    ).splitViewConfiguration(.init(orientation: .horizontal, draggableRange: 0.35...0.7))
+    ).splitViewConfiguration(
+      .init(
+        orientation: .horizontal,
+        draggableRange: horizontalSizeClass == .compact ? 0.35...0.7 : 0.2...0.8
+      )
+    )
   }
 
   var fontsAndTags: some View {
@@ -488,7 +504,7 @@ private extension AppFeatureView {
     ).splitViewConfiguration(
       .init(
         orientation: .vertical,
-        draggableRange: 0.3...0.8,
+        draggableRange: 0.15...0.85,
         dragToHidePanes: .secondary,
         doubleClickToClose: .secondary
       )

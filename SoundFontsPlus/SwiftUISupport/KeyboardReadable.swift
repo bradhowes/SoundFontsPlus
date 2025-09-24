@@ -15,7 +15,7 @@ extension KeyboardReadable {
         .publisher(for: UIResponder.keyboardWillShowNotification)
         .map { _ in true },
       NotificationCenter.default
-        .publisher(for: UIResponder.keyboardWillHideNotification)
+        .publisher(for: UIResponder.keyboardDidHideNotification)
         .map { _ in false }
     )
     .eraseToAnyPublisher()
