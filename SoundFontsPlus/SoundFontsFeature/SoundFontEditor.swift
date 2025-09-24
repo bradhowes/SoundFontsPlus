@@ -114,7 +114,7 @@ extension SoundFontEditor {
   }
 
   func editTags(_ state: inout State) -> Effect<Action> {
-    let tags = FontTag.ordered
+    let tags = FontTag.tags
     let memberships = tags.reduce(into: [:]) { $0[$1.id] = state.soundFont.tags.contains($1) }
     state.destination = .edit(TagsEditor.State(
       mode: .fontEditing,

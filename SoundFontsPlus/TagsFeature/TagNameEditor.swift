@@ -143,7 +143,7 @@ extension TagNameEditorView {
     prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     _ = try? FontTag.make(displayName: "New Tag")
     _ = try? FontTag.make(displayName: "Another Tag")
-    let tags = Operations.tags
+    let tags = FontTag.tags
     return VStack {
       Form {
         ForEach(tags) { tag in

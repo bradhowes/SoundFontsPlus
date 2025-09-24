@@ -16,7 +16,7 @@ public struct TagsList {
 
   @ObservableState
   public struct State: Equatable {
-    @FetchAll(Operations.tagInfosQuery, animation: .smooth) var tagInfos
+    @FetchAll(TagInfo.query, animation: .smooth) var tagInfos
 
     public init() {}
   }
@@ -70,7 +70,7 @@ private extension TagsList {
     if activeState.activeTagId == tagId {
       $activeState.withLock { $0.activeTagId = FontTag.Ubiquitous.all.id }
     }
-    Operations.deleteTag(tagId)
+    try? FontTag.delete(id: tagId)
     return .none
   }
 

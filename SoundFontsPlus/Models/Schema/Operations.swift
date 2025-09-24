@@ -35,8 +35,8 @@ public enum Operations {
   }
 
   public static var activePresetLoadingInfo: PresetLoadingInfo? {
-    withDatabaseReader { db in
-      try PresetLoadingInfo.query.fetchAll(db)
+    withDatabaseReader {
+      try PresetLoadingInfo.query.fetchAll($0)
     }?.first
   }
 
@@ -60,47 +60,30 @@ public enum Operations {
   }
 
   public static func tagIds(for soundFontId: SoundFont.ID) -> [FontTag.ID] {
-    let query = TaggedSoundFont.select { $0.tagId }.where { $0.soundFontId.eq(soundFontId) }
-    return withDatabaseReader { try query.fetchAll($0) } ?? []
+    withDatabaseReader {
+      try TaggedSoundFont.select { $0.tagId }
+        .where { $0.soundFontId.eq(soundFontId) }
+        .fetchAll($0)
+    } ?? []
   }
 
   public static func tagSoundFont(_ tagId: FontTag.ID, soundFontId: SoundFont.ID) {
-    if tagId.isUbiquitous { return }
-    let query = TaggedSoundFont.insert {
-      .init(soundFontId: soundFontId, tagId: tagId)
+    guard !tagId.isUbiquitous else { return }
+    withDatabaseWriter { db in
+      try TaggedSoundFont.insert {
+        .init(soundFontId: soundFontId, tagId: tagId)
+      }
+      .execute(db)
     }
-    withDatabaseWriter { try query.execute($0) }
   }
 
   public static func untagSoundFont(_ tagId: FontTag.ID, soundFontId: SoundFont.ID) {
-    if tagId.isUbiquitous { return }
-    let query = TaggedSoundFont.all.delete().where { $0.soundFontId.eq(soundFontId) && $0.tagId.eq(tagId) }
-    withDatabaseWriter { try query.execute($0) }
-  }
-
-  public static func deleteTag(_ tagId: FontTag.ID) {
-    if tagId.isUbiquitous { return }
-    let query = FontTag.find(tagId).delete()
-    withDatabaseWriter { try query.execute($0); }
-  }
-
-  public static var tagInfosQuery: Select<TagInfo.Columns.QueryValue, FontTag, TaggedSoundFont?> {
-    FontTag
-      .group(by: \.id)
-      .order(by: \.ordering)
-      .leftJoin(TaggedSoundFont.all) {
-        $0.id.eq($1.tagId)
-      }.select {
-        TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count())
-      }
-  }
-
-  public static var tagsQuery: Select<(), FontTag, ()> {
-    FontTag
-      .order(by: \.ordering)
-  }
-
-  public static var tags: [FontTag] {
-    withDatabaseReader { try tagsQuery.fetchAll($0) } ?? []
+    guard !tagId.isUbiquitous else { return }
+    withDatabaseWriter { db in
+      try TaggedSoundFont.all
+        .delete()
+        .where { $0.soundFontId.eq(soundFontId) && $0.tagId.eq(tagId) }
+        .execute(db)
+    }
   }
 }

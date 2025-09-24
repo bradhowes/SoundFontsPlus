@@ -139,14 +139,13 @@ extension Preset {
       kind: .favorite
     )
 
-    @Dependency(\.defaultDatabase) var database
     guard let clone = withDatabaseWriter({ db in
       try Self.insert {
         dupe
       }
       .returning(\.self)
-      .fetchOneForced(db)
-    }) else {
+      .fetchAll(db)
+    })?.first else {
       return nil
     }
 
@@ -171,9 +170,11 @@ extension Preset {
     precondition(self.kind != .favorite)
     let kind: Kind = self.kind == .preset ? .hidden : .preset
     self.kind = kind
-    let query = Self.find(self.id).update { $0.kind = kind }
-    @Dependency(\.defaultDatabase) var database
-    try? database.write { try query.execute($0) }
+    withDatabaseWriter { db in
+      try Self.find(self.id)
+        .update { $0.kind = kind }
+        .execute(db)
+    }
   }
 
   public var uniqueName: String {
@@ -181,8 +182,11 @@ extension Preset {
       .where { $0.soundFontId.eq(self.soundFontId) }
       .where { $0.index.eq(self.index) }
       .select { $0.displayName }
-    @Dependency(\.defaultDatabase) var database
-    let names = Set<String>((try? database.read { try query.fetchAll($0) }) ?? [])
+    let names = Set<String>(
+      withDatabaseReader { db in
+        try query.fetchAll(db)
+      } ?? []
+    )
     var index = 0
     var candidate = self.originalName + " copy"
     while names.contains(candidate) {
@@ -204,12 +208,11 @@ extension Preset {
     return selectedSoundFontId ?? activeState.activeSoundFontId
   }
 
-  public static func with(key presetId: Preset.ID) -> Preset? {
-    @Dependency(\.defaultDatabase) var database
-    return try? database.read { try Preset.find(presetId).fetchOne($0) }
+  public static func with(id: Preset.ID) -> Preset? {
+    withDatabaseReader { db in
+      try Self.all
+        .find(id)
+        .fetchAll(db)
+    }?.first
   }
-
-  static let wherePreset = Self.where { $0.kind == Kind.preset }
-  static let whereFavorite = Self.where { $0.kind == Kind.favorite }
-  static let whereVisible = Self.where { $0.kind != Kind.hidden }
 }

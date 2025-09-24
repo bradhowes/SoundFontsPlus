@@ -1,5 +1,6 @@
 import Dependencies
 import Foundation
+import Sharing
 import SQLiteData
 import Testing
 
@@ -14,12 +15,23 @@ extension BaseTestSuite.PresetTests {
 
   @MainActor
   func setup() async throws -> [Preset] {
-    withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
+    @Shared(.activeState) var activeState
+    $activeState.withLock {
+      $0.activeSoundFontId = 1
+      $0.activePresetId = 1
+    }
+    return Operations.presets
   }
 
   @Test func soundFontName() async throws {
     let presets = try await setup()
     #expect(presets[123].soundFontName == "Fluid R3")
+  }
+
+  @Test func with() async throws {
+    let presets = try await setup()
+    let preset = Preset.with(id: 1)
+    #expect(presets[0] == preset)
   }
 
   @Test func uniqueName() async throws {
@@ -56,5 +68,25 @@ extension BaseTestSuite.PresetTests {
     #expect(clone2?.audioConfig != nil)
     #expect(clone2?.delayConfig != nil)
     #expect(clone2?.reverbConfig != nil)
+  }
+
+  @Test func toggleVisibility() async throws {
+    var presets = try await setup()
+    var preset = presets[0]
+    #expect(preset.kind == .preset)
+    #expect(preset.displayName == "Yamaha Grand Piano")
+    #expect(presets.count == 189)
+    preset.toggleVisibility()
+
+    presets = withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
+    presets = Operations.presets
+    #expect(presets[0].displayName == "Bright Yamaha Grand")
+    #expect(presets.count == 188)
+    preset.toggleVisibility()
+
+    presets = withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
+    presets = Operations.presets
+    #expect(presets[0].displayName == "Yamaha Grand Piano")
+    #expect(presets.count == 189)
   }
 }

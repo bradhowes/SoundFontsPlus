@@ -38,7 +38,7 @@ public struct TagsEditor {
     ) {
       self.mode = mode
       self.rows = .init(
-        uniqueElements: Operations.tags
+        uniqueElements: FontTag.tags
           .map {
             .init(
               id: $0.id,
@@ -280,14 +280,14 @@ extension TagsEditorView {
 
     @Dependency(\.defaultDatabase) var db
     _ = try? FontTag.make(displayName: "New Tag")
-    let tags = Operations.tags
+    let tags = FontTag.tags
     return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.id)) { TagsEditor() })
   }
 
   static var previewInEditMode: some View {
     // swiftlint:disable:next force_try
     prepareDependencies { $0.defaultDatabase = try! appDatabase() }
-    let tags = Operations.tags
+    let tags = FontTag.tags
     return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.id, editMode: .active)) {
       TagsEditor()
     })
@@ -298,7 +298,7 @@ extension TagsEditorView {
     prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     _ = try? FontTag.make(displayName: "New Tag 1")
     _ = try? FontTag.make(displayName: "New Tag 2")
-    let tags = Operations.tags
+    let tags = FontTag.tags
     var memberships = [FontTag.ID: Bool]()
     memberships[tags[0].id] = true
     memberships[tags[1].id] = true

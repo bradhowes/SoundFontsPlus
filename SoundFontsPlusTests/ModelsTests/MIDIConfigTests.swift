@@ -28,9 +28,9 @@ extension BaseTestSuite.MIDIConfigTests {
 
   @Test func with() async throws {
     let midiConfig = try await setup()
-    #expect(midiConfig == MIDIConfig.with(key: 12345))
+    #expect(midiConfig == MIDIConfig.with(id: 12345))
     #expect(midiConfig.id == 12345)
-    #expect(nil == MIDIConfig.with(key: 1))
-    #expect(nil == MIDIConfig.with(key: 123123))
+    #expect(nil == MIDIConfig.with(id: 1))
+    #expect(nil == MIDIConfig.with(id: 123123))
   }
 }

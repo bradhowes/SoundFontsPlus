@@ -56,12 +56,6 @@ public struct FontTag: Hashable, Identifiable, Sendable {
 
   public var isUbiquitous: Bool { id.isUbiquitous }
   public var isUserDefined: Bool { id.isUserDefined }
-
-  public init(id: ID, displayName: String, ordering: Int) {
-    self.id = id
-    self.displayName = displayName
-    self.ordering = ordering
-  }
 }
 
 extension FontTag {
@@ -84,13 +78,22 @@ extension FontTag {
 
 extension FontTag {
 
+  public static func with(id: FontTag.ID?) -> FontTag? {
+    guard let id else { return nil }
+    return withDatabaseReader { db in
+      try Self.all
+        .find(id)
+        .fetchAll(db)
+    }?.first
+  }
+
   public static func make(displayName: String) throws -> FontTag {
     let base = displayName.trimmedOfWhitespaces
     if base.isEmpty {
       throw ModelError.emptyTagName
     }
 
-    let existingNames = Set<String>(Self.ordered.map { $0.displayName })
+    let existingNames = Set<String>(Self.tags.map { $0.displayName })
     var newName = base
     var index = 0
     while existingNames.contains(newName) {
@@ -107,28 +110,26 @@ extension FontTag {
     return result[0]
   }
 
-  public static func with(key tagId: FontTag.ID) -> Self? {
-    @Dependency(\.defaultDatabase) var database
-    return try? database.read { try Self.find(tagId).fetchOne($0) }
+  public static var tagsQuery: Select<(), FontTag, ()> {
+    Self.all
+      .order(by: \.ordering)
+  }
+
+  public static var tags: [Self] {
+    withDatabaseReader { try tagsQuery.fetchAll($0) } ?? []
   }
 
   public func delete() throws {
-    guard self.isUserDefined else { throw ModelError.deleteUbiquitous(name: self.displayName) }
     try Self.delete(id: self.id)
   }
 
   public static func delete(id: FontTag.ID) throws {
-    guard !id.isUbiquitous else { throw ModelError.deleteUbiquitous(name: id.displayName) }
-    @Dependency(\.defaultDatabase) var database
-    try database.write { db in
-      try Self.delete().where({ $0.id == id }).execute(db)
+    guard id.isUserDefined else { throw ModelError.deleteUbiquitous(name: id.displayName) }
+    withDatabaseWriter {
+      try Self.delete()
+        .where { $0.id.eq(id) }
+        .execute($0)
     }
-  }
-
-  public static var ordered: [FontTag] {
-    let query = Operations.tagsQuery
-    @Dependency(\.defaultDatabase) var database
-    return (try? database.read { try query.fetchAll($0) }) ?? []
   }
 
   static func reorder(tagIds: [FontTag.ID]) throws {

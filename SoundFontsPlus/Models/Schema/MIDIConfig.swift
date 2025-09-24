@@ -33,9 +33,9 @@ extension MIDIConfig {
 
 extension MIDIConfig {
 
-  public static func with(key uniqueId: MIDIUniqueID) -> MIDIConfig? {
+  public static func with(id: MIDIUniqueID) -> MIDIConfig? {
     withDatabaseReader { db in
-      try Self.all.where { $0.uniqueId.eq(uniqueId) }.fetchAll(db)
+      try Self.all.find(id).fetchAll(db)
     }?.first
   }
 }

@@ -111,41 +111,6 @@ extension BaseTestSuite.OperationsTests {
     #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2])
   }
 
-  @Test func deleteTag() async throws {
-    @Dependency(\.defaultDatabase) var database
-    let newTag = try FontTag.make(displayName: "New Tag")
-    Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
-    #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2, 5])
-    Operations.deleteTag(newTag.id)
-    #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2])
-  }
-
-  @Test func tagInfos() async throws {
-    @FetchAll(Operations.tagInfosQuery) var tagInfos
-    try await $tagInfos.load()
-    #expect(tagInfos.count == 4)
-    #expect(tagInfos.map(\.displayName) == FontTag.Ubiquitous.allCases.map(\.displayName))
-    #expect(tagInfos.map(\.soundFontsCount) == [4, 4, 0, 0])
-
-    @Dependency(\.defaultDatabase) var database
-
-    let count = tagInfos.count
-    for (index, tag) in tagInfos.enumerated() {
-      try await database.write { db in
-        try FontTag.update {
-          $0.ordering = count - index
-        }
-        .where {
-          $0.id.eq(tag.id)
-        }
-        .execute(db)
-      }
-    }
-    try await $tagInfos.load()
-    #expect(tagInfos.map(\.displayName) == FontTag.Ubiquitous.allCases.reversed().map(\.displayName))
-    #expect(tagInfos.map(\.soundFontsCount) == [0, 0, 4, 4])
-  }
-
   @Test func activePresetLoadingInfo() async throws {
     let presets = Operations.presets
     @Shared(.activeState) var activeState
@@ -159,35 +124,6 @@ extension BaseTestSuite.OperationsTests {
     #expect(apli?.presetIndex == presets[0].index)
   }
 
-  @Test func tags() async throws {
-    @Dependency(\.defaultDatabase) var database
-    var found = Operations.tags
-    #expect(found.count == 4)
-    #expect(found[0].displayName == FontTag.Ubiquitous.all.displayName)
-    #expect(found[1].displayName == FontTag.Ubiquitous.builtIn.displayName)
-    #expect(found[2].displayName == FontTag.Ubiquitous.added.displayName)
-    #expect(found[3].displayName == FontTag.Ubiquitous.external.displayName)
-    let count = found.count
-    for (index, tag) in found.enumerated() {
-      try await database.write { db in
-        try FontTag.update {
-          $0.ordering = count - index
-        }
-        .where {
-          $0.id.eq(tag.id)
-        }
-        .execute(db)
-      }
-    }
-
-    found = Operations.tags
-    #expect(found.count == 4)
-    #expect(found[0].displayName == FontTag.Ubiquitous.external.displayName)
-    #expect(found[1].displayName == FontTag.Ubiquitous.added.displayName)
-    #expect(found[2].displayName == FontTag.Ubiquitous.builtIn.displayName)
-    #expect(found[3].displayName == FontTag.Ubiquitous.all.displayName)
-  }
-
   @Test func activePresetAudioConfig() async throws {
     let presets = Operations.presets
     @Dependency(\.defaultDatabase) var database
@@ -197,4 +133,3 @@ extension BaseTestSuite.OperationsTests {
     #expect(apac == nil)
   }
 }
-

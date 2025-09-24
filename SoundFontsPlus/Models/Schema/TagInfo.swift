@@ -26,3 +26,17 @@ public struct TagInfo: Equatable, Identifiable, Sendable {
     self.init(id: tag.id, displayName: tag.displayName, soundFontsCount: 0)
   }
 }
+
+extension TagInfo {
+
+  public static var query: Select<TagInfo.Columns.QueryValue, FontTag, TaggedSoundFont?> {
+    FontTag
+      .group(by: \.id)
+      .order(by: \.ordering)
+      .leftJoin(TaggedSoundFont.all) {
+        $0.id.eq($1.tagId)
+      }.select {
+        TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count())
+      }
+  }
+}

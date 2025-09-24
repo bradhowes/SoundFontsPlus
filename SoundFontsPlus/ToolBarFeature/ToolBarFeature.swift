@@ -178,7 +178,7 @@ private extension ToolBarFeature {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     if let presetId = presetId,
-       let preset = Preset.with(key: presetId) {
+       let preset = Preset.with(id: presetId) {
       state.preset = preset
     } else {
       state.preset = nil

@@ -128,11 +128,10 @@
 		BDAF5B842DE256C500B8FB13 /* PresetsListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B4D2DE256C500B8FB13 /* PresetsListTests.swift */; };
 		BDAF5B852DE256C500B8FB13 /* AudioConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B332DE256C500B8FB13 /* AudioConfigTests.swift */; };
 		BDAF5B862DE256C500B8FB13 /* PresetButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B492DE256C500B8FB13 /* PresetButtonTests.swift */; };
-		BDAF5B872DE256C500B8FB13 /* TagTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B3E2DE256C500B8FB13 /* TagTests.swift */; };
+		BDAF5B872DE256C500B8FB13 /* FontTagTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B3E2DE256C500B8FB13 /* FontTagTests.swift */; };
 		BDAF5B882DE256C500B8FB13 /* SettingsFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B512DE256C500B8FB13 /* SettingsFeatureTests.swift */; };
 		BDAF5B892DE256C500B8FB13 /* OperationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B382DE256C500B8FB13 /* OperationsTests.swift */; };
 		BDAF5B8B2DE256C500B8FB13 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B562DE256C500B8FB13 /* Helpers.swift */; };
-		BDAF5B8D2DE256C500B8FB13 /* FavoriteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B362DE256C500B8FB13 /* FavoriteTests.swift */; };
 		BDAF5B8E2DE256C500B8FB13 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B4E2DE256C500B8FB13 /* Support.swift */; };
 		BDAF5B8F2DE256C500B8FB13 /* SoundFontTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B3D2DE256C500B8FB13 /* SoundFontTests.swift */; };
 		BDAF5B902DE256C500B8FB13 /* SharedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B3B2DE256C500B8FB13 /* SharedTests.swift */; };
@@ -322,14 +321,13 @@
 		BDAF5B332DE256C500B8FB13 /* AudioConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioConfigTests.swift; sourceTree = "<group>"; };
 		BDAF5B342DE256C500B8FB13 /* BookmarkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkTests.swift; sourceTree = "<group>"; };
 		BDAF5B352DE256C500B8FB13 /* DelayConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayConfigTests.swift; sourceTree = "<group>"; };
-		BDAF5B362DE256C500B8FB13 /* FavoriteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteTests.swift; sourceTree = "<group>"; };
 		BDAF5B382DE256C500B8FB13 /* OperationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationsTests.swift; sourceTree = "<group>"; };
 		BDAF5B392DE256C500B8FB13 /* PresetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetTests.swift; sourceTree = "<group>"; };
 		BDAF5B3A2DE256C500B8FB13 /* ReverbConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReverbConfigTests.swift; sourceTree = "<group>"; };
 		BDAF5B3B2DE256C500B8FB13 /* SharedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedTests.swift; sourceTree = "<group>"; };
 		BDAF5B3C2DE256C500B8FB13 /* SoundFontKindTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFontKindTests.swift; sourceTree = "<group>"; };
 		BDAF5B3D2DE256C500B8FB13 /* SoundFontTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFontTests.swift; sourceTree = "<group>"; };
-		BDAF5B3E2DE256C500B8FB13 /* TagTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagTests.swift; sourceTree = "<group>"; };
+		BDAF5B3E2DE256C500B8FB13 /* FontTagTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontTagTests.swift; sourceTree = "<group>"; };
 		BDAF5B492DE256C500B8FB13 /* PresetButtonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetButtonTests.swift; sourceTree = "<group>"; };
 		BDAF5B4A2DE256C500B8FB13 /* PresetEditorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetEditorTests.swift; sourceTree = "<group>"; };
 		BDAF5B4C2DE256C500B8FB13 /* PresetsListSectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetsListSectionTests.swift; sourceTree = "<group>"; };
@@ -621,6 +619,7 @@
 				BDAF5AAC2DE2555000B8FB13 /* AppDatabase.swift */,
 				BDAF5AAD2DE2555000B8FB13 /* AudioConfig.swift */,
 				BDAF5AAE2DE2555000B8FB13 /* DelayConfig.swift */,
+				BDAF5AB52DE2555000B8FB13 /* FontTag.swift */,
 				BD59D4EF2E480E3600B2250B /* MIDIConfig.swift */,
 				BDAF5AB02DE2555000B8FB13 /* ModelError.swift */,
 				BDAF5AB12DE2555000B8FB13 /* Operations.swift */,
@@ -629,7 +628,6 @@
 				BDAF5AB32DE2555000B8FB13 /* ReverbConfig.swift */,
 				BDAF5AB42DE2555000B8FB13 /* SoundFont.swift */,
 				BDBDDEB02DE658E700C2CD87 /* SoundFontInfo.swift */,
-				BDAF5AB52DE2555000B8FB13 /* FontTag.swift */,
 				BDAF5AB62DE2555000B8FB13 /* TaggedSoundFont.swift */,
 				BDAF5AB72DE2555000B8FB13 /* TagInfo.swift */,
 			);
@@ -783,7 +781,7 @@
 				BDAF5B332DE256C500B8FB13 /* AudioConfigTests.swift */,
 				BDAF5B342DE256C500B8FB13 /* BookmarkTests.swift */,
 				BDAF5B352DE256C500B8FB13 /* DelayConfigTests.swift */,
-				BDAF5B362DE256C500B8FB13 /* FavoriteTests.swift */,
+				BDAF5B3E2DE256C500B8FB13 /* FontTagTests.swift */,
 				BD5FF2552E820984008F94C1 /* MIDIConfigTests.swift */,
 				BDAF5B382DE256C500B8FB13 /* OperationsTests.swift */,
 				BDAF5B392DE256C500B8FB13 /* PresetTests.swift */,
@@ -792,7 +790,6 @@
 				BDAF5B3B2DE256C500B8FB13 /* SharedTests.swift */,
 				BDAF5B3C2DE256C500B8FB13 /* SoundFontKindTests.swift */,
 				BDAF5B3D2DE256C500B8FB13 /* SoundFontTests.swift */,
-				BDAF5B3E2DE256C500B8FB13 /* TagTests.swift */,
 			);
 			path = ModelsTests;
 			sourceTree = "<group>";
@@ -1238,12 +1235,11 @@
 				BDAF5B842DE256C500B8FB13 /* PresetsListTests.swift in Sources */,
 				BDAF5B852DE256C500B8FB13 /* AudioConfigTests.swift in Sources */,
 				BDAF5B862DE256C500B8FB13 /* PresetButtonTests.swift in Sources */,
-				BDAF5B872DE256C500B8FB13 /* TagTests.swift in Sources */,
+				BDAF5B872DE256C500B8FB13 /* FontTagTests.swift in Sources */,
 				BDAF5B882DE256C500B8FB13 /* SettingsFeatureTests.swift in Sources */,
 				BDAF5B892DE256C500B8FB13 /* OperationsTests.swift in Sources */,
 				BD0054532E6F75180053B13B /* DSPTests.swift in Sources */,
 				BDAF5B8B2DE256C500B8FB13 /* Helpers.swift in Sources */,
-				BDAF5B8D2DE256C500B8FB13 /* FavoriteTests.swift in Sources */,
 				BDAF5B8E2DE256C500B8FB13 /* Support.swift in Sources */,
 				BDAF5B8F2DE256C500B8FB13 /* SoundFontTests.swift in Sources */,
 				BDAF5B902DE256C500B8FB13 /* SharedTests.swift in Sources */,

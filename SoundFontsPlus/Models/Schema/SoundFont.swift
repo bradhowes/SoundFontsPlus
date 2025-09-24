@@ -38,7 +38,7 @@ public struct SoundFont: Hashable, Identifiable, Sendable {
 
   public var isInstalled: Bool { kind == .installed }
   public var isExternal: Bool { kind == .external }
-  public var isBuiltIn: Bool { kind == .builtin }
+  public var isBuiltin: Bool { kind == .builtin }
 }
 
 extension SoundFont {
@@ -158,6 +158,14 @@ extension SoundFont {
   public var sourceKind: String { (try? source())?.description ?? "N/A" }
 
   public var sourcePath: String { (try? source())?.path.absoluteString ?? "N/A" }
+
+  public static func with(id: SoundFont.ID) -> SoundFont? {
+    withDatabaseReader { db in
+      try SoundFont.all
+        .find(id)
+        .fetchAll(db)
+    }?.first
+  }
 
   public var tags: [FontTag] {
     let query = TaggedSoundFont

@@ -64,8 +64,8 @@ extension ReverbConfig {
         config
       }
       .returning(\.self)
-      .fetchOneForced(db)
-    }
+      .fetchAll(db)
+    }?.first
   }
 
   /**
