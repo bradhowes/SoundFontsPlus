@@ -17,7 +17,7 @@ public struct SoundFontInfo: Equatable, Identifiable, Sendable {
 
   public var isInstalled: Bool { kind == .installed }
   public var isExternal: Bool { kind == .external }
-  public var isBuiltIn: Bool { kind == .builtin }
+  public var isBuiltin: Bool { kind == .builtin }
 }
 
 extension SoundFontInfo {

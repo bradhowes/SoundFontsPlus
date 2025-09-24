@@ -156,7 +156,7 @@ struct SoundFontButtonView: View {
       }
     }
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-      if !store.soundFontInfo.isBuiltIn {
+      if !store.soundFontInfo.isBuiltin {
         Button {
           store.send(.deleteButtonTapped, animation: .default)
         } label: {
