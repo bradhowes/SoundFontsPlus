@@ -24,7 +24,7 @@ public struct SettingsFeature {
     @CasePathable
     public enum Alert {
       case disableCopyFileConfirmed
-      case disableIdleTImerConfirmed
+      case disableIdleTimerConfirmed
     }
   }
 
@@ -121,7 +121,7 @@ public struct SettingsFeature {
         log.info("disableIdleTimer value: \(state.disableIdleTimer)")
         if state.disableIdleTimer {
           state.$disableIdleTimer.withLock { $0 = false }
-          state.destination = .alert(.confirmDisableIdleTimer(action: .disableIdleTImerConfirmed))
+          state.destination = .alert(.confirmDisableIdleTimer(action: .disableIdleTimerConfirmed))
         }
         return .none
 
@@ -141,7 +141,7 @@ public struct SettingsFeature {
         state.$copyFileWhenInstalling.withLock { $0 = false }
         return .none
 
-      case .destination(.presented(.alert(.disableIdleTImerConfirmed))):
+      case .destination(.presented(.alert(.disableIdleTimerConfirmed))):
         state.$disableIdleTimer.withLock { $0 = true }
         return .none
 
