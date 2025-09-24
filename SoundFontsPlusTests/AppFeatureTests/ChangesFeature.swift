@@ -116,13 +116,6 @@ extension BaseTestSuite.ChangesFeatureTests {
   }
 
   @Test func changesFeaturePreview() async throws {
-    prepareDependencies {
-      let now = Date(timeIntervalSince1970: 0)
-      $0.date.now = now
-      @Shared(.nextReviewRequestDate) var nextReviewRequestDate = now
-      @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion = AppReviewFeature.currentVersion
-    }
-
     let data = """
         # 1.2.3
         * foo
