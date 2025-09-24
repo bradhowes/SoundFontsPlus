@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -24,6 +24,10 @@
 		BD1D27892B6F13DE005C3ED0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */; };
 		BD1D278D2B6F13DE005C3ED0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */; };
 		BD2A26042CC849E0000CC1DF /* Eurostile.ttc in Resources */ = {isa = PBXBuildFile; fileRef = BD2A26032CC849E0000CC1DF /* Eurostile.ttc */; };
+		BD2F140A2E847EB900ADC9EC /* AppReviewFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD2F14052E847EB900ADC9EC /* AppReviewFeature.swift */; };
+		BD2F140B2E847EB900ADC9EC /* BaseTestSuite.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD2F14062E847EB900ADC9EC /* BaseTestSuite.swift */; };
+		BD2F140C2E847EB900ADC9EC /* VolumeMonitorFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD2F14072E847EB900ADC9EC /* VolumeMonitorFeature.swift */; };
+		BD2F14162E84803400ADC9EC /* AppFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD2F14152E84803400ADC9EC /* AppFeature.swift */; };
 		BD31A7EE2E5647300046F07C /* FileImporterViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B05142E4FDCCE006628F3 /* FileImporterViewModifier.swift */; };
 		BD31A7F32E5658CE0046F07C /* StructuredQueriesTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BD31A7F22E5658CE0046F07C /* StructuredQueriesTestSupport */; };
 		BD33FF572E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */; };
@@ -231,6 +235,10 @@
 		BD1D27932B6F13DE005C3ED0 /* SoundFontsPlusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoundFontsPlusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD1D279D2B6F13DE005C3ED0 /* SoundFontsPlusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoundFontsPlusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD2A26032CC849E0000CC1DF /* Eurostile.ttc */ = {isa = PBXFileReference; lastKnownFileType = file; path = Eurostile.ttc; sourceTree = "<group>"; };
+		BD2F14052E847EB900ADC9EC /* AppReviewFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReviewFeature.swift; sourceTree = "<group>"; };
+		BD2F14062E847EB900ADC9EC /* BaseTestSuite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTestSuite.swift; sourceTree = "<group>"; };
+		BD2F14072E847EB900ADC9EC /* VolumeMonitorFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeMonitorFeature.swift; sourceTree = "<group>"; };
+		BD2F14152E84803400ADC9EC /* AppFeature.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppFeature.swift; sourceTree = "<group>"; };
 		BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBarTitleStyle.swift; sourceTree = "<group>"; };
 		BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AUParameterTree.swift; sourceTree = "<group>"; };
 		BD561CCC2E578A2900D8FBB0 /* FluidR3_GM.sf2.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = FluidR3_GM.sf2.1; sourceTree = "<group>"; };
@@ -373,10 +381,6 @@
 		BDFF8EFD2E51C2E700A893D7 /* AVAudioUnitReverb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVAudioUnitReverb.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		BD1774DC2E638AEE0029D195 /* AppFeatureTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = AppFeatureTests; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
-
 /* Begin PBXFrameworksBuildPhase section */
 		BD1D277C2B6F13DD005C3ED0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -509,8 +513,9 @@
 		BD1D27962B6F13DE005C3ED0 /* SoundFontsPlusTests */ = {
 			isa = PBXGroup;
 			children = (
+				BD2F14062E847EB900ADC9EC /* BaseTestSuite.swift */,
+				BD2F140D2E847FA400ADC9EC /* AppFeatureTests */,
 				BDD222A92E6B4B1A0018712B /* EffectsTests */,
-				BD1774DC2E638AEE0029D195 /* AppFeatureTests */,
 				BDD222A62E6B3B990018712B /* AudioUnitParameters */,
 				BDAF5B3F2DE256C500B8FB13 /* ModelsTests */,
 				BDAF5B4F2DE256C500B8FB13 /* PresetsFeatureTests */,
@@ -525,6 +530,16 @@
 				BDAF5B802DE256C500B8FB13 /* UtilsTests */,
 			);
 			path = SoundFontsPlusTests;
+			sourceTree = "<group>";
+		};
+		BD2F140D2E847FA400ADC9EC /* AppFeatureTests */ = {
+			isa = PBXGroup;
+			children = (
+				BD2F14152E84803400ADC9EC /* AppFeature.swift */,
+				BD2F14052E847EB900ADC9EC /* AppReviewFeature.swift */,
+				BD2F14072E847EB900ADC9EC /* VolumeMonitorFeature.swift */,
+			);
+			path = AppFeatureTests;
 			sourceTree = "<group>";
 		};
 		BD6E7D9F2B6FC319004201F2 /* Frameworks */ = {
@@ -984,9 +999,6 @@
 			dependencies = (
 				BD1D27952B6F13DE005C3ED0 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				BD1774DC2E638AEE0029D195 /* AppFeatureTests */,
-			);
 			name = SoundFontsPlusTests;
 			productName = SoundFontsPlusTests;
 			productReference = BD1D27932B6F13DE005C3ED0 /* SoundFontsPlusTests.xctest */;
@@ -1246,8 +1258,12 @@
 				BDAF5B832DE256C500B8FB13 /* TagsListTests.swift in Sources */,
 				BDAF5B842DE256C500B8FB13 /* PresetsListTests.swift in Sources */,
 				BDAF5B852DE256C500B8FB13 /* AudioConfigTests.swift in Sources */,
+				BD2F14162E84803400ADC9EC /* AppFeature.swift in Sources */,
 				BDAF5B862DE256C500B8FB13 /* PresetButtonTests.swift in Sources */,
 				BDAF5B872DE256C500B8FB13 /* FontTagTests.swift in Sources */,
+				BD2F140A2E847EB900ADC9EC /* AppReviewFeature.swift in Sources */,
+				BD2F140B2E847EB900ADC9EC /* BaseTestSuite.swift in Sources */,
+				BD2F140C2E847EB900ADC9EC /* VolumeMonitorFeature.swift in Sources */,
 				BDAF5B882DE256C500B8FB13 /* SettingsFeatureTests.swift in Sources */,
 				BDAF5B892DE256C500B8FB13 /* OperationsTests.swift in Sources */,
 				BD0054532E6F75180053B13B /* DSPTests.swift in Sources */,

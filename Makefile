@@ -7,7 +7,6 @@ BUILD_FLAGS = -skipMacroValidation -skipPackagePluginValidation -enableCodeCover
 default: report
 
 test-iOS:
-	rm -rf "$(PWD)/.DerivedData-iOS"
 	set -o pipefail && xcodebuild test \
 		$(BUILD_FLAGS) \
 		-derivedDataPath "$(PWD)/.DerivedData-iOS" \
@@ -25,7 +24,6 @@ percentage-iOS: coverage-iOS
 	cat percentage_iOS.txt
 
 test-macOS:
-	rm -rf "$(PWD)/.DerivedData-macOS"
 	set -o pipefail && xcodebuild test \
 		$(BUILD_FLAGS) \
 		-derivedDataPath "$(PWD)/.DerivedData-macOS" \
@@ -47,7 +45,7 @@ report: percentage-iOS # percentage-macOS
 		echo "PERCENTAGE=$$(< percentage_iOS.txt)" >> $$GITHUB_ENV; \
 	fi
 
-.PHONY: report test-iOS test-macOS coverage-iOS coverage-macOS coverage-iOS percentage-macOS percentage-iOS
-
 clean:
 	-rm -rf $(PWD)/.DerivedData-iOS $(PWD)/.DerivedData-macOS coverage*.txt percentage*.txt
+
+.PHONY: report test-iOS test-macOS coverage-iOS coverage-macOS coverage-iOS percentage-macOS percentage-iOS
