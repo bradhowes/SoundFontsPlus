@@ -174,7 +174,8 @@
 		BDEB8F6B2E15C51600BF16B5 /* NameFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDEB8F6A2E15C51200BF16B5 /* NameFieldView.swift */; };
 		BDF14C492DF0AF0100BDDB0E /* PresetNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */; };
 		BDFED6BA2E8421C30029C99A /* SoundFontEditorPrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFED6B92E8421C30029C99A /* SoundFontEditorPrompts.swift */; };
-		BDFED6BC2E844A3D0029C99A /* SoundFontInfosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFED6BB2E844A3D0029C99A /* SoundFontInfosTests.swift */; };
+		BDFED6BC2E844A3D0029C99A /* SoundFontInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFED6BB2E844A3D0029C99A /* SoundFontInfoTests.swift */; };
+		BDFED6BE2E844FD40029C99A /* TagInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFED6BD2E844FD30029C99A /* TagInfoTests.swift */; };
 		BDFF8EFC2E51C02B00A893D7 /* AVAudioUnitDelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFF8EFB2E51C01F00A893D7 /* AVAudioUnitDelay.swift */; };
 		BDFF8EFE2E51C2E700A893D7 /* AVAudioUnitReverb.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFF8EFD2E51C2E700A893D7 /* AVAudioUnitReverb.swift */; };
 /* End PBXBuildFile section */
@@ -366,7 +367,8 @@
 		BDEB8F6A2E15C51200BF16B5 /* NameFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameFieldView.swift; sourceTree = "<group>"; };
 		BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetNameView.swift; sourceTree = "<group>"; };
 		BDFED6B92E8421C30029C99A /* SoundFontEditorPrompts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundFontEditorPrompts.swift; sourceTree = "<group>"; };
-		BDFED6BB2E844A3D0029C99A /* SoundFontInfosTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundFontInfosTests.swift; sourceTree = "<group>"; };
+		BDFED6BB2E844A3D0029C99A /* SoundFontInfoTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundFontInfoTests.swift; sourceTree = "<group>"; };
+		BDFED6BD2E844FD30029C99A /* TagInfoTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TagInfoTests.swift; sourceTree = "<group>"; };
 		BDFF8EFB2E51C01F00A893D7 /* AVAudioUnitDelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAudioUnitDelay.swift; sourceTree = "<group>"; };
 		BDFF8EFD2E51C2E700A893D7 /* AVAudioUnitReverb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVAudioUnitReverb.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -794,7 +796,8 @@
 				BDAF5B3A2DE256C500B8FB13 /* ReverbConfigTests.swift */,
 				BDAF5B3B2DE256C500B8FB13 /* SharedTests.swift */,
 				BDAF5B3C2DE256C500B8FB13 /* SoundFontKindTests.swift */,
-				BDFED6BB2E844A3D0029C99A /* SoundFontInfosTests.swift */,
+				BDFED6BB2E844A3D0029C99A /* SoundFontInfoTests.swift */,
+				BDFED6BD2E844FD30029C99A /* TagInfoTests.swift */,
 				BDAF5B3D2DE256C500B8FB13 /* SoundFontTests.swift */,
 			);
 			path = ModelsTests;
@@ -1233,12 +1236,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BDFED6BE2E844FD40029C99A /* TagInfoTests.swift in Sources */,
 				BD0053E22E6B5A5E0053B13B /* ReverbEffectTests.swift in Sources */,
 				BDAF5B812DE256C500B8FB13 /* SF2LibAUTests.swift in Sources */,
 				BDAF5B822DE256C500B8FB13 /* SoundFontButtonTests.swift in Sources */,
 				BDD222AB2E6B4B2B0018712B /* DelayEffectTests.swift in Sources */,
 				BDD222A82E6B3BB40018712B /* ParameterTests.swift in Sources */,
-				BDFED6BC2E844A3D0029C99A /* SoundFontInfosTests.swift in Sources */,
+				BDFED6BC2E844A3D0029C99A /* SoundFontInfoTests.swift in Sources */,
 				BDAF5B832DE256C500B8FB13 /* TagsListTests.swift in Sources */,
 				BDAF5B842DE256C500B8FB13 /* PresetsListTests.swift in Sources */,
 				BDAF5B852DE256C500B8FB13 /* AudioConfigTests.swift in Sources */,

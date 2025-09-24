@@ -15,16 +15,6 @@ public struct TagInfo: Equatable, Identifiable, Sendable {
 
   public var isUbiquitous: Bool { id.isUbiquitous }
   public var isUserDefined: Bool { id.isUserDefined }
-
-  public init(id: FontTag.ID, displayName: String, soundFontsCount: Int) {
-    self.id = id
-    self.displayName = displayName
-    self.soundFontsCount = soundFontsCount
-  }
-
-  public init(tag: FontTag) {
-    self.init(id: tag.id, displayName: tag.displayName, soundFontsCount: 0)
-  }
 }
 
 extension TagInfo {
