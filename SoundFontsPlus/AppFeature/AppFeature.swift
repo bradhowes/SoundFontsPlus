@@ -77,6 +77,8 @@ struct AppFeature {
 
 #endif
 
+      // Deep-linking to a destination at start up for dev/testing
+      //
       // destination = .settings(SettingsFeature.State(midi: midi, midiMonitor: midiMonitor))
     }
 
