@@ -167,7 +167,7 @@ extension PresetsList {
         PresetsListSection.State(section: $0.lowerBound, presets: presets[$0])
       })
 
-    return .none
+    return .none.animation(.smooth)
   }
 
   private func hideOrDeletePreset(_ state: inout State, preset: Preset) -> Effect<Action> {

@@ -142,6 +142,9 @@ struct AppFeature {
       case .delay:
         return .none
 
+      case .destination(.presented(.soundFontEditor(.delegate(.refreshPresets)))):
+        return reduce(into: &state, action: .presetsList(.fetchPresets))
+
       case let .destination(.presented(.settings(.delegate(action)))):
         switch action {
         case .showChanges:
@@ -616,10 +619,12 @@ private extension View {
 
   func tagsEditorSheet(_ store: Bindable<StoreOf<AppFeature>>) -> some View {
     self
-      .sheet(item: store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor)) {
-        TagsEditorView(store: $0)
-          .preferredColorScheme(.dark)
-          .environment(\.colorScheme, .dark)
+      .sheet(item: store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor)) { child in
+        NavigationStack {
+          TagsEditorView(store: child)
+            .preferredColorScheme(.dark)
+            .environment(\.colorScheme, .dark)
+        }
       }
   }
 

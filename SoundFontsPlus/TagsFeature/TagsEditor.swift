@@ -210,62 +210,61 @@ public struct TagsEditorView: View {
   }
 
   public var body: some View {
-    NavigationStack {
-      List {
-        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-          TagNameEditorView(store: rowStore)
-            .deleteDisabled(rowStore.id.isUbiquitous)
-            .focused($focused, equals: rowStore.id)
-        }
-        .onMove { indices, destination in
-          store.send(.tagMoved(at: indices, to: destination), animation: .default)
-        }
-        .onDelete {
-          print("onDelete: at: \($0)")
-          store.send(.deleteButtonTapped(at: $0), animation: .default)
-        }
-        .bind($store.focused, to: self.$focused)
+    List {
+      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+        TagNameEditorView(store: rowStore)
+          .deleteDisabled(rowStore.id.isUbiquitous)
+          .focused($focused, equals: rowStore.id)
       }
-      .font(.tagsEditor)
-      .navigationTitle(store.mode.title)
-      .toolbar {
+      .onMove { indices, destination in
+        store.send(.tagMoved(at: indices, to: destination), animation: .default)
+      }
+      .onDelete {
+        print("onDelete: at: \($0)")
+        store.send(.deleteButtonTapped(at: $0), animation: .default)
+      }
+      .bind($store.focused, to: self.$focused)
+    }
+    .font(.tagsEditor)
+    .navigationTitle(store.mode.title)
+    .toolbar {
+      if store.mode == .tagEditing {
         ToolbarItem(placement: .cancellationAction) {
           Button("Cancel") { store.send(.cancelButtonTapped, animation: .default) }
             .disabled(store.editMode == .active)
             .font(.button)
         }
-        if store.mode == .tagEditing {
-          ToolbarItem(placement: .automatic) {
-            Button {
-              store.send(.toggleEditMode, animation: .default)
-            } label: {
-              if store.editMode.isEditing {
-                Text("Done")
-                  .foregroundStyle(.red)
-              } else {
-                Text("Edit")
-              }
-            }
-            .font(.button)
-          }
-        }
+
         ToolbarItem(placement: .automatic) {
           Button {
-            store.send(.addButtonTapped, animation: .default)
+            store.send(.toggleEditMode, animation: .default)
           } label: {
-            Image(systemName: "plus")
+            if store.editMode.isEditing {
+              Text("Done")
+                .foregroundStyle(.red)
+            } else {
+              Text("Edit")
+            }
           }
-          .disabled(store.editMode == .active)
           .font(.button)
         }
-        ToolbarItem(placement: .confirmationAction) {
-          Button("Save") { store.send(.saveButtonTapped, animation: .default) }
-            .disabled(store.editMode == .active)
-            .font(.button)
-        }
       }
-      .environment(\.editMode, $store.editMode)
+      ToolbarItem(placement: .automatic) {
+        Button {
+          store.send(.addButtonTapped, animation: .default)
+        } label: {
+          Image(systemName: "plus")
+        }
+        .disabled(store.editMode == .active)
+        .font(.button)
+      }
+      ToolbarItem(placement: .confirmationAction) {
+        Button("Save") { store.send(.saveButtonTapped, animation: .default) }
+          .disabled(store.editMode == .active)
+          .font(.button)
+      }
     }
+    .environment(\.editMode, $store.editMode)
   }
 }
 

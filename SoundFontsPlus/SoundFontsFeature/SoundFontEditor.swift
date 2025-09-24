@@ -9,23 +9,34 @@ import Tagged
 @Reducer
 public struct SoundFontEditor {
 
-  @Reducer(state: .equatable, action: .equatable)
-  public enum Destination {
-    case edit(TagsEditor)
+  @Reducer(state: .equatable)
+  public enum Path {
+    case editTags(TagsEditor)
+  }
+
+  @Reducer(state: .equatable)
+  public enum Destination: Equatable {
+    case alert(AlertState<Alert>)
+
+    @CasePathable
+    public enum Alert {
+      case showHiddenPresetsConfirmed
+    }
   }
 
   @ObservableState
   public struct State: Equatable {
+    var path = StackState<Path.State>()
+    @Presents var destination: Destination.State?
+
     let soundFont: SoundFont
     let presetCount: Int
     let favoriteCount: Int
-    let hiddenCount: Int
 
+    var hiddenCount: Int
     var tagsList: String
     var displayName: String
     var notes: String
-
-    @Presents var destination: Destination.State?
 
     public init(soundFont: SoundFont) {
       self.soundFont = soundFont
@@ -54,49 +65,78 @@ public struct SoundFontEditor {
     case binding(BindingAction<State>)
     case cancelButtonTapped
     case changeTagsButtonTapped
+    case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case displayNameChanged(String)
     case notesChanged(String)
+    case path(StackActionOf<Path>)
     case saveButtonTapped
     case unhideAllButtonTapped
     case useEmbeddedNameTapped
     case useOriginalNameTapped
+
+    public enum Delegate {
+      case refreshPresets
+    }
   }
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
+
     Reduce { state, action in
       switch action {
 
-      case .changeTagsButtonTapped:
-        return editTags(&state)
+      case .binding:
+        return .none
 
       case .cancelButtonTapped:
         return dismiss(&state, save: false)
 
+      case .changeTagsButtonTapped:
+        return editTags(&state)
+
+      case .delegate:
+        return .none
+
+      case .destination(.presented(.alert(.showHiddenPresetsConfirmed))):
+        return unhidePresets(&state)
+
       case .destination(.dismiss):
         state.tagsList = SoundFontsSupport.generateTagsList(from: state.soundFont.tags)
+        return .none
+
+      case .destination:
+        return .none
 
       case .displayNameChanged(let value):
         state.displayName = value
+        return .none
 
       case .notesChanged(let value):
         state.notes = value
+        return .none
+
+      case .path:
+        return .none
 
       case .saveButtonTapped:
         return dismiss(&state, save: true)
 
+      case .unhideAllButtonTapped:
+        state.destination = .alert(.confirmShowHiddenPresets(action: .showHiddenPresetsConfirmed))
+        return .none
+
       case .useEmbeddedNameTapped:
         state.displayName = state.soundFont.embeddedName
+        return .none
 
       case .useOriginalNameTapped:
         state.displayName = state.soundFont.originalName
+        return .none
 
-      default:
-        break
       }
-      return .none
     }
+    .forEach(\.path, action: \.path)
     .ifLet(\.$destination, action: \.destination)
   }
 
@@ -116,13 +156,26 @@ extension SoundFontEditor {
   func editTags(_ state: inout State) -> Effect<Action> {
     let tags = FontTag.tags
     let memberships = tags.reduce(into: [:]) { $0[$1.id] = state.soundFont.tags.contains($1) }
-    state.destination = .edit(TagsEditor.State(
+    state.path.append(.editTags(TagsEditor.State(
       mode: .fontEditing,
       focused: nil,
       soundFontId: state.soundFont.id,
       memberships: memberships
-    ))
+    )))
     return .none
+  }
+
+  func unhidePresets(_ state: inout State) -> Effect<Action> {
+    withDatabaseWriter { db in
+      try Preset.update {
+        $0.kind = .preset
+      }
+      .where { $0.kind.eq(Preset.Kind.hidden) && $0.soundFontId.eq(state.soundFont.id) }
+      .execute(db)
+    }
+
+    state.hiddenCount = 0
+    return .send(.delegate(.refreshPresets))
   }
 }
 
@@ -135,7 +188,7 @@ public struct SoundFontEditorView: View {
   }
 
   public var body: some View {
-    NavigationStack {
+    NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
       Form {
         nameSection
         tagsSection
@@ -168,10 +221,12 @@ public struct SoundFontEditorView: View {
           .font(.button)
         }
       }
+    } destination: { store in
+      switch store.case {
+      case .editTags(let store): TagsEditorView(store: store)
+      }
     }
-    .sheet(item: $store.scope(state: \.destination?.edit, action: \.destination.edit)) { editorStore in
-      TagsEditorView(store: editorStore)
-    }
+    .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
 
   var nameSection: some View {

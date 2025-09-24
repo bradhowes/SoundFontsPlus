@@ -173,6 +173,7 @@
 		BDE572C12DF3183700646D0E /* DependencyValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDE572C02DF3182400646D0E /* DependencyValues.swift */; };
 		BDEB8F6B2E15C51600BF16B5 /* NameFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDEB8F6A2E15C51200BF16B5 /* NameFieldView.swift */; };
 		BDF14C492DF0AF0100BDDB0E /* PresetNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */; };
+		BDFED6BA2E8421C30029C99A /* SoundFontEditorPrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFED6B92E8421C30029C99A /* SoundFontEditorPrompts.swift */; };
 		BDFF8EFC2E51C02B00A893D7 /* AVAudioUnitDelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFF8EFB2E51C01F00A893D7 /* AVAudioUnitDelay.swift */; };
 		BDFF8EFE2E51C2E700A893D7 /* AVAudioUnitReverb.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFF8EFD2E51C2E700A893D7 /* AVAudioUnitReverb.swift */; };
 /* End PBXBuildFile section */
@@ -363,6 +364,7 @@
 		BDE572C02DF3182400646D0E /* DependencyValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyValues.swift; sourceTree = "<group>"; };
 		BDEB8F6A2E15C51200BF16B5 /* NameFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameFieldView.swift; sourceTree = "<group>"; };
 		BDF14C482DF0AEFB00BDDB0E /* PresetNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetNameView.swift; sourceTree = "<group>"; };
+		BDFED6B92E8421C30029C99A /* SoundFontEditorPrompts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundFontEditorPrompts.swift; sourceTree = "<group>"; };
 		BDFF8EFB2E51C01F00A893D7 /* AVAudioUnitDelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAudioUnitDelay.swift; sourceTree = "<group>"; };
 		BDFF8EFD2E51C2E700A893D7 /* AVAudioUnitReverb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVAudioUnitReverb.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -708,6 +710,7 @@
 				BDAF5AED2DE2558800B8FB13 /* SoundFontButton.swift */,
 				BDAF5AEE2DE2558800B8FB13 /* SoundFontEditor.swift */,
 				BDAF5AEF2DE2558800B8FB13 /* SoundFontError.swift */,
+				BDFED6B92E8421C30029C99A /* SoundFontEditorPrompts.swift */,
 				BDAF5AF02DE2558800B8FB13 /* SoundFontsList.swift */,
 				BDAF5AF12DE2558800B8FB13 /* SoundFontsSupport.swift */,
 			);
@@ -1191,6 +1194,7 @@
 				BD76C1602E23CD2C00F5B1F5 /* Logging.swift in Sources */,
 				BDAF5B212DE2559E00B8FB13 /* Sharing.swift in Sources */,
 				BD561CD22E57B52300D8FBB0 /* SettingsPrompts.swift in Sources */,
+				BDFED6BA2E8421C30029C99A /* SoundFontEditorPrompts.swift in Sources */,
 				BDBDDEB12DE658E700C2CD87 /* SoundFontInfo.swift in Sources */,
 				BDAF5B222DE2559E00B8FB13 /* Note.swift in Sources */,
 				BDAF5B232DE2559E00B8FB13 /* KeyLabels.swift in Sources */,
