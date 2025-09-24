@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import Sharing
+import SnapshotTesting
 import SwiftUI
 import Testing
 
@@ -112,5 +113,39 @@ extension BaseTestSuite.ChangesFeatureTests {
     ])
 
     await store.send(.dismissButtonTapped)
+  }
+
+  @Test func changesFeaturePreview() async throws {
+    prepareDependencies {
+      let now = Date(timeIntervalSince1970: 0)
+      $0.date.now = now
+      @Shared(.nextReviewRequestDate) var nextReviewRequestDate = now
+      @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion = AppReviewFeature.currentVersion
+    }
+
+    let data = """
+        # 1.2.3
+        * foo
+        * bar
+        # 1.2.4
+        * one
+         two
+        """
+    let store = StoreOf<ChangesFeature>(initialState: .init(data)) {
+      ChangesFeature()
+    }
+    let view = ChangesFeatureView(store: store)
+
+    if BaseTestSuite.isLocal {
+      withSnapshotTesting(record: .failed) {
+        assertSnapshot(
+          of: view,
+          as: .image(
+            layout: .fixed(width: 400, height: 800),
+            traits: .init(userInterfaceStyle: .dark)
+          )
+        )
+      }
+    }
   }
 }
