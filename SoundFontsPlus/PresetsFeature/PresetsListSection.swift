@@ -38,7 +38,7 @@ public struct PresetsListSection {
     }
   }
 
-  public enum Action: Equatable {
+  public enum Action {
     case delegate(Delegate)
     case headerTapped(Int)
     case rows(IdentifiedActionOf<PresetButton>)

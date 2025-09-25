@@ -33,7 +33,7 @@ public struct PresetsList {
     }
   }
 
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case cancelSearchButtonTapped
     case clearScrollToPresetId
@@ -48,7 +48,7 @@ public struct PresetsList {
     case showActivePresetNow
     case visibilityEditModeChanged(Bool)
 
-    public enum Delegate: Equatable {
+    public enum Delegate {
       case edit(sectionId: Int, preset: Preset)
     }
   }
@@ -104,11 +104,14 @@ public struct PresetsList {
           _ = preset.clone()
           return generatePresetSections(&state)
 
+        case let .deleteFavorite(preset):
+          return deleteFavorite(&state, preset: preset)
+
         case let .editPreset(preset):
           return .send(.delegate(.edit(sectionId: sectionId, preset: preset)))
 
-        case let .hideOrDeletePreset(preset):
-          return hideOrDeletePreset(&state, preset: preset)
+        case let .hidePreset(preset):
+          return hidePreset(&state, preset: preset)
 
         case let .selectPreset(preset):
           return selectPreset(&state, preset: preset)
@@ -155,6 +158,15 @@ public struct PresetsList {
 
 extension PresetsList {
 
+  private func deleteFavorite(_ state: inout State, preset: Preset) -> Effect<Action> {
+    precondition(preset.isFavorite)
+    withDatabaseWriter { db in
+      try Preset.delete(preset)
+        .execute(db)
+    }
+    return generatePresetSections(&state)
+  }
+
   private func dismissSearch(_ state: inout State) -> Effect<Action> {
     state.isSearchFieldPresented = false
     state.focusedField = nil
@@ -181,13 +193,10 @@ extension PresetsList {
     return .none
   }
 
-  private func hideOrDeletePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
-    if preset.isFavorite {
-      try? database.write { try Preset.delete(preset).execute($0) }
-    } else {
-      var preset = preset
-      preset.toggleVisibility()
-    }
+  private func hidePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
+    precondition(!preset.isFavorite)
+    var preset = preset
+    preset.toggleVisibility()
     return generatePresetSections(&state)
   }
 
@@ -274,6 +283,7 @@ public struct PresetsListView: View {
           doScrollTo(proxy: proxy, oldValue: $0, newValue: $1)
         }
       }
+      .animation(.smooth, value: store.sections)
       .onAppear {
         store.send(.fetchPresets)
       }

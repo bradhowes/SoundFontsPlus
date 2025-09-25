@@ -8,43 +8,50 @@ import Tagged
 @Reducer
 public struct PresetButton {
 
+  @Reducer(state: .equatable)
+  public enum Destination: Equatable {
+    case alert(AlertState<Alert>)
+
+    @CasePathable
+    public enum Alert {
+      case deleteFavoriteConfirmed
+      case hidePresetConfirmed
+    }
+  }
+
   @ObservableState
   public struct State: Equatable, Identifiable {
+    @Presents var destination: Destination.State?
     public var id: Preset.ID { preset.id }
-    public var preset: Preset
-    @Presents public var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
+    var preset: Preset
 
     public init(preset: Preset) {
       self.preset = preset
     }
   }
 
-  public enum Action: Equatable {
+  public enum Action {
     case buttonTapped
-    case confirmationDialog(PresentationAction<ConfirmationDialog>)
     case delegate(Delegate)
+    case deleteFavoriteButtonTapped
+    case destination(PresentationAction<Destination.Action>)
     case editButtonTapped
     case favoriteButtonTapped
-    case hideOrDeleteButtonTapped
+    case hidePresetButtonTapped
     case longPressGestureFired
     case toggleVisibility
 
     @CasePathable
-    public enum Delegate: Equatable {
+    public enum Delegate {
       case createFavorite(Preset)
+      case deleteFavorite(Preset)
       case editPreset(Preset)
-      case hideOrDeletePreset(Preset)
+      case hidePreset(Preset)
       case selectPreset(Preset)
-    }
-
-    @CasePathable
-    public enum ConfirmationDialog {
-      case cancelButtonTapped
-      case hideButtonTapped
     }
   }
 
-  @Shared(.stopConfirmingPresetHiding) var stopConfirmingPresetHiding
+  @Shared(.confirmPresetHiding) var confirmPresetHiding
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
@@ -53,13 +60,19 @@ public struct PresetButton {
       case .buttonTapped:
         return .send(.delegate(.selectPreset(state.preset)))
 
-      case .confirmationDialog(.presented(.hideButtonTapped)):
-        return .send(.delegate(.hideOrDeletePreset(state.preset))).animation(.default)
-
-      case .confirmationDialog:
+      case .delegate:
         return .none
 
-      case .delegate:
+      case .deleteFavoriteButtonTapped:
+        return deleteFavoriteButtonTapped(&state)
+
+      case .destination(.presented(.alert(.deleteFavoriteConfirmed))):
+        return deleteFavoriteConfirmed(&state)
+
+      case .destination(.presented(.alert(.hidePresetConfirmed))):
+        return hidePresetConfirmed(&state)
+
+      case .destination:
         return .none
 
       case .editButtonTapped:
@@ -68,8 +81,8 @@ public struct PresetButton {
       case .favoriteButtonTapped:
         return .send(.delegate(.createFavorite(state.preset)))
 
-      case .hideOrDeleteButtonTapped:
-        return .send(.delegate(.hideOrDeletePreset(state.preset)))
+      case .hidePresetButtonTapped:
+        return hidePresetButtonTapped(&state)
 
       case .longPressGestureFired:
         return .send(.delegate(.editPreset(state.preset)))
@@ -79,33 +92,75 @@ public struct PresetButton {
         return .none
       }
     }
-    .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
+    .ifLet(\.destination, action: \.destination)
   }
 
   public init() {}
 }
 
+extension PresetButton.Destination.State: _EphemeralState {
+  public typealias Action = Alert
+}
+
 extension PresetButton {
 
-  static func hideConfirmationDialogState(displayName: String) -> ConfirmationDialogState<Action.ConfirmationDialog> {
-    ConfirmationDialogState {
-      TextState("Hide \(displayName)?")
-    } actions: {
-      ButtonState(role: .cancel) { TextState("Cancel") }
-      ButtonState(action: .hideButtonTapped) { TextState("Hide") }
-    } message: {
-      TextState(
-        "Hide \(displayName)?\n\n" +
-        "Hiding a preset will keep it from appearing in the list of presets. " +
-        "You can restore them via the visibility button in the toolbar."
+  private func deleteFavoriteConfirmed(_ state: inout State) -> Effect<Action> {
+    .send(.delegate(.deleteFavorite(state.preset)))
+  }
+
+  private func hidePresetConfirmed(_ state: inout State) -> Effect<Action> {
+    // $confirmPresetHiding.withLock { $0 = false }
+    return .send(.delegate(.hidePreset(state.preset)))
+  }
+
+  private func deleteFavoriteButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.destination = .alert(
+      .confirmDeleteFavorite(action: .deleteFavoriteConfirmed, displayName: state.preset.displayName)
+    )
+    return .none
+  }
+
+  private func hidePresetButtonTapped(_ state: inout State) -> Effect<Action> {
+    if confirmPresetHiding {
+      state.destination = .alert(
+        .confirmHidePreset(action: .hidePresetConfirmed, displayName: state.preset.displayName)
       )
+      return .none
     }
+    return .send(.delegate(.hidePreset(state.preset)))
   }
 }
 
-extension SharedKey where Self == AppStorageKey<Bool>.Default {
-  public static var stopConfirmingPresetHiding: Self {
-    Self[.appStorage("stopConfirmingPresetHiding"), default: .init()]
+extension AlertState {
+  static func confirmHidePreset(action: Action, displayName: String) -> Self {
+    Self {
+      TextState("Hide '\(displayName)'?")
+    } actions: {
+      ButtonState(action: action) { TextState("Hide") }
+      ButtonState(role: .cancel) { TextState("Cancel") }
+    } message: {
+      TextState(
+"""
+Hiding a preset will keep it from appearing in the list of presets. \
+You can restore visibility via the preset visibility button in the toolbar.
+"""
+      )
+    }
+  }
+
+  static func confirmDeleteFavorite(action: Action, displayName: String) -> Self {
+    Self {
+      TextState("Delete '\(displayName)'?")
+    } actions: {
+      ButtonState(role: .destructive, action: action) { TextState("Delete") }
+      ButtonState(role: .cancel) { TextState("Cancel") }
+    } message: {
+      TextState(
+"""
+Deleting a favorite cannot be undone.
+"""
+      )
+    }
   }
 }
 
@@ -158,7 +213,7 @@ public struct PresetButtonView: View {
       normalButtonText
     }
     .listRowSeparator(.hidden)
-    .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
+    .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
         store.send(.editButtonTapped, animation: .default)
@@ -174,13 +229,17 @@ public struct PresetButtonView: View {
       }
     }
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-      Button {
-        store.send(.hideOrDeleteButtonTapped, animation: .default)
-      } label: {
-        if store.preset.isFavorite {
+      if store.preset.isFavorite {
+        Button {
+          store.send(.deleteFavoriteButtonTapped, animation: .default)
+        } label: {
           Image(systemName: "trash")
             .tint(.red)
-        } else {
+        }
+      } else {
+        Button {
+          store.send(.hidePresetButtonTapped, animation: .default)
+        } label: {
           Image(systemName: "eye.slash")
             .tint(.gray)
         }

@@ -29,6 +29,9 @@ struct SoundFontsPlusApp: App {
       midi?.start()
       @Shared(.midiMonitor) var midiMonitor = .init()
       midi?.receiver = midiMonitor
+
+      @Shared(.confirmPresetHiding) var confirmPresetHiding
+      $confirmPresetHiding.withLock { $0 = true }
     }
   }
 

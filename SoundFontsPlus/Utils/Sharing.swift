@@ -27,6 +27,7 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var showedTutorial: Self { Self[.appStorage("showedTutorial"), default: false] }
   public static var starFavoriteNames: Self { Self[.appStorage("starFavoriteNames"), default: true] }
   public static var tagsListVisible: Self { Self[.appStorage("tagsListVisible"), default: false] }
+  public static var confirmPresetHiding: Self { Self[.appStorage("stopConfirmingPresetHiding"), default: true] }
 }
 
 // MARK: - AppStorage Double settings

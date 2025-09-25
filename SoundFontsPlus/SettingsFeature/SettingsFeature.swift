@@ -54,8 +54,8 @@ public struct SettingsFeature {
 
     var midiTrafficIndicator: MIDITrafficIndicatorFeature.State = .init(tag: "Settings")
     var tuning: TuningFeature.State
-
     let hasMIDI: Bool
+
     public init() {
       @Shared(.midi) var midi
       hasMIDI = midi != nil
@@ -195,13 +195,9 @@ public struct SettingsFeature {
         return .none
 
       case .viewChangesTapped:
-        // state.path.append(.changes(ChangesFeature.State(Bundle.main.changeLog)))
-        // return .none
         return .send(.delegate(.showChanges))
 
       case .viewTutorialTapped:
-//        state.path.append(.tutorial(TutorialFeature.State()))
-//        return .none
         return .send(.delegate(.showTutorial))
       }
     }
