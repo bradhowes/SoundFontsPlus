@@ -1,59 +1,57 @@
-//import ComposableArchitecture
-//import Dependencies
-//import SnapshotTesting
-//import SwiftUI
-//import Tagged
-//import Testing
-//
-//@MainActor
-//struct PresetButtonTests {
-//  func initialize(_ body: (TestStoreOf<PresetButton>) async throws -> Void) async throws {
-//    try await TestSupport.initialize { soundFonts, presets in
-//      try await body(TestStore(initialState: PresetButton.State(preset: soundFonts[0].presets[0])) {
-//        PresetButton()
-//      })
-//    }
-//  }
-//
-//  @Test func testButtonTapped() async throws {
-//    try await initialize { store in
-//      await store.send(\.buttonTapped)
-//      await store.receive(.delegate(.selectPreset(store.state.preset)))
-//    }
-//  }
-//
-//  @Test func editButtonTapped() async throws {
-//    try await initialize { store in
-//      await store.send(\.editButtonTapped)
-//      await store.receive(.delegate(.editPreset(store.state.preset)))
-//    }
-//  }
-//
-//  @Test func favoriteButtonTapped() async throws {
-//    try await initialize { store in
-//      await store.send(\.favoriteButtonTapped)
-//      await store.receive(.delegate(.createFavorite(store.state.preset)))
-//    }
-//  }
-//
-//  @Test func testHideButtonTapped() async throws {
-//    try await initialize { store in
-//      await store.send(\.hideButtonTapped) {
-//        $0.confirmationDialog = PresetButton.hideConfirmationDialogState(displayName: store.state.preset.displayName)
-//      }
-//      await store.send(\.confirmationDialog.hideButtonTapped) {
-//        $0.confirmationDialog = nil
-//      }
-//      await store.receive(.delegate(.hidePreset(store.state.preset)))
-//
-//      await store.send(\.hideButtonTapped) {
-//        $0.confirmationDialog = PresetButton.hideConfirmationDialogState(displayName: store.state.preset.displayName)
-//      }
-//      await store.send(\.confirmationDialog.cancelButtonTapped) {
-//        $0.confirmationDialog = nil
-//      }
-//    }
-//  }
+import ComposableArchitecture
+import Sharing
+import SnapshotTesting
+import SwiftUI
+import Testing
+
+@testable import SoundFontsPlus
+
+extension BaseTestSuite {
+
+  @MainActor
+  struct PresetButtonTests {}
+}
+
+extension BaseTestSuite.PresetButtonTests {
+
+  @MainActor
+  func setup() throws -> ([Preset], TestStoreOf<PresetButton>) {
+    @Shared(.activeState) var activeState
+    $activeState.withLock {
+      $0.activeSoundFontId = 1
+      $0.activePresetId = 1
+    }
+    let presets = Operations.presets
+    let store = TestStore(initialState: PresetButton.State(preset: presets[0])) {
+      PresetButton()
+    }
+    return (presets, store)
+  }
+
+  @Test func testButtonTapped() async throws {
+    let (_, store) = try setup()
+    await store.send(\.buttonTapped)
+    await store.receive(.delegate(.selectPreset(store.state.preset)))
+  }
+
+  @Test func editButtonTapped() async throws {
+    let (_, store) = try setup()
+    await store.send(\.editButtonTapped)
+    await store.receive(.delegate(.editPreset(store.state.preset)))
+  }
+
+  @Test func favoriteButtonTapped() async throws {
+    let (_, store) = try setup()
+    await store.send(\.favoriteButtonTapped)
+    await store.receive(.delegate(.createFavorite(store.state.preset)))
+  }
+
+  @Test func testHideButtonTapped() async throws {
+    let (_, store) = try setup()
+    await store.send(\.hideOrDeleteButtonTapped)
+    await store.receive(.delegate(.hideOrDeletePreset(store.state.preset)))
+  }
+
 //
 //  @Test func testHideButtonTappedNoPrompt() async throws {
 //    try await initialize { store in
@@ -90,16 +88,20 @@
 //    }
 //  }
 //
-//  @Test func presetButtonPreview() async throws {
-//    withSnapshotTesting(record: .failed) {
-//      struct HostView: SwiftUI.View {
-//        var body: some SwiftUI.View {
-//          PresetButtonView.preview
-//            .environment(\.editMode, .constant(.inactive))
-//        }
-//      }
-//      let view = HostView()
-//      assertSnapshot(of: view, as: .image(layout: .device(config: .iPhoneSe), traits: .init(userInterfaceStyle: .dark)))
-//    }
-//  }
-//}
+  @Test func presetButtonPreview() async throws {
+    struct HostView: SwiftUI.View {
+      var body: some SwiftUI.View {
+        PresetButtonView.preview
+          .environment(\.editMode, .constant(.inactive))
+      }
+    }
+    let view = HostView()
+    try withSnapshotTesting(record: .failed) {
+      try BaseTestSuite.assertSnap(
+        matching: view,
+        size: .init(width: 400, height: 800),
+        colorScheme: .dark
+      )
+    }
+  }
+}

@@ -1,16 +1,13 @@
-////
-////  Test.swift
-////  Features
-////
-////  Created by Brad Howes on 4/4/25.
-////
-//
-//import Testing
-//
-//struct Test {
-//
-//  @Test func init() async throws {
-//    // Write your test here and use APIs like `#expect(...)` to check expected conditions.
-//  }
-//
-//}
+import ComposableArchitecture
+import Sharing
+import SwiftUI
+import Testing
+
+@testable import SoundFontsPlus
+
+extension BaseTestSuite {
+
+  @MainActor
+  struct ToolbarFeatureTests {}
+}
+
