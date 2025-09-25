@@ -56,6 +56,7 @@
 		BD76C1642E23E27600F5B1F5 /* Notification.Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1632E23E27600F5B1F5 /* Notification.Name.swift */; };
 		BD7B05172E4FDD40006628F3 /* FileImporterPrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B05162E4FDD40006628F3 /* FileImporterPrompts.swift */; };
 		BD7DBC8D2DF45904005A31DE /* DimmedAppearanceModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */; };
+		BD8063F22E8583D8006B3799 /* ProcessInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD8063F12E8583D8006B3799 /* ProcessInfo.swift */; };
 		BD812F652DF4BF3500D2B344 /* KeyboardReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */; };
 		BD9E45E92E794F9E00D0806E /* FourCharCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45E82E794F9B00D0806E /* FourCharCode.swift */; };
 		BD9E45EB2E79519A00D0806E /* ClosedRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45EA2E79518D00D0806E /* ClosedRange.swift */; };
@@ -264,6 +265,7 @@
 		BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		BD7DBC8C2DF45904005A31DE /* DimmedAppearanceModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DimmedAppearanceModifier.swift; sourceTree = "<group>"; };
+		BD8063F12E8583D8006B3799 /* ProcessInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProcessInfo.swift; sourceTree = "<group>"; };
 		BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardReadable.swift; sourceTree = "<group>"; };
 		BD9E45E82E794F9B00D0806E /* FourCharCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FourCharCode.swift; sourceTree = "<group>"; };
 		BD9E45EA2E79518D00D0806E /* ClosedRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosedRange.swift; sourceTree = "<group>"; };
@@ -598,6 +600,7 @@
 				BDA11AFB2E61C1A800941A41 /* Bundle.swift */,
 				BD9E45EA2E79518D00D0806E /* ClosedRange.swift */,
 				BDAF5A8E2DE254E000B8FB13 /* Environment.swift */,
+				BD8063F12E8583D8006B3799 /* ProcessInfo.swift */,
 				BDAF5A8F2DE254E000B8FB13 /* FileManager.swift */,
 				BD9E45E82E794F9B00D0806E /* FourCharCode.swift */,
 				BD76C1632E23E27600F5B1F5 /* Notification.Name.swift */,
@@ -1196,6 +1199,7 @@
 				BDA917E02E08247700FD3257 /* SynthFeature.swift in Sources */,
 				BDAF5AC62DE2555000B8FB13 /* DelayConfig.swift in Sources */,
 				BD31A7EE2E5647300046F07C /* FileImporterViewModifier.swift in Sources */,
+				BD8063F22E8583D8006B3799 /* ProcessInfo.swift in Sources */,
 				BDAF5AC72DE2555000B8FB13 /* TaggedSoundFont.swift in Sources */,
 				BDAF5ADF2DE2556600B8FB13 /* SettingsFeature.swift in Sources */,
 				BDAF5AC82DE2555000B8FB13 /* SoundFont.swift in Sources */,

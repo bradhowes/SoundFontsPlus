@@ -11,7 +11,6 @@ private let log = Logger(category: "Database")
 // swiftlint:disable:next function_body_length
 public func appDatabase() throws -> any DatabaseWriter {
   @Dependency(\.context) var context
-
   let database: any DatabaseWriter
   var configuration = GRDB.Configuration()
 
@@ -19,11 +18,13 @@ public func appDatabase() throws -> any DatabaseWriter {
   configuration.prepareDatabase { db in
 
 #if DEBUG
-    db.trace(options: .profile) {
-      if context == .live {
-        log.debug("\($0.expandedDescription)")
-      } else {
-        print("\($0.expandedDescription)")
+    if !ProcessInfo.isOnGithub {
+      db.trace(options: .profile) {
+        if context == .live {
+          log.debug("\($0.expandedDescription)")
+        } else {
+          print("\($0.expandedDescription)")
+        }
       }
     }
 #endif // DEBUG

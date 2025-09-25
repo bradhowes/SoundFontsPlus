@@ -16,7 +16,7 @@ import SwiftUI
   .snapshots(record: .failed)
 )
 struct BaseTestSuite {
-  static var isOnGithub: Bool { ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"] == "/Users/runner" }
+  static var isOnGithub: Bool { ProcessInfo.isOnGithub }
   static var isLocal: Bool { !isOnGithub }
 }
 
@@ -54,9 +54,14 @@ extension BaseTestSuite {
         layout: .fixed(width: size.width, height: size.height)
       ),
       named: uniqueTestName,
+      record: nil,
+      snapshotDirectory: nil,
+      timeout: 5,
+      fileID: fileID,
       file: file,
       testName: "\(testName)",
-      line: UInt(line)
+      line: UInt(line),
+      column: UInt(col)
     ) {
       print("uniqueTestName:", uniqueTestName)
       print("file:", file)
