@@ -6,6 +6,10 @@ BUILD_FLAGS = -skipMacroValidation -skipPackagePluginValidation -enableCodeCover
 WORKSPACE = $(PWD)/.workspace
 XCCOV = xcrun xccov view --report --only-targets
 
+ifeq ($(GITHUB_ENV),)
+XCB = | xcbeautify --renderer github-actions
+endif
+
 default: report
 
 report: percentage-iOS # percentage-macOS
@@ -34,16 +38,19 @@ coverage-macOS: test-macOS
 	cat coverage_macOS.txt
 
 test-iOS:
+	echo "$(XCB)"
+	make -v
 	xcodebuild test \
 		$(BUILD_FLAGS) \
 		-derivedDataPath "$(PWD)/.DerivedData-iOS" \
-		-destination platform="$(PLATFORM_IOS)"
+		-destination platform="$(PLATFORM_IOS)" $(XCB)
 
 test-macOS:
+	echo "$(XCB)"
 	xcodebuild test \
 		$(BUILD_FLAGS) \
 		-derivedDataPath "$(PWD)/.DerivedData-macOS" \
-		-destination platform="$(PLATFORM_MACOS)"
+		-destination platform="$(PLATFORM_MACOS)" $(XCB)
 
 clean:
 	-rm -rf "$(PWD)/.DerivedData-iOS" "$(PWD)/.DerivedData-macOS" "$(WORKSPACE)" coverage*.txt percentage*.txt
