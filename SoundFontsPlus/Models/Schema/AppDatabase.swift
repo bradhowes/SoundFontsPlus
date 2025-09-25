@@ -19,7 +19,11 @@ public func appDatabase() throws -> any DatabaseWriter {
 #if DEBUG
 
   print("\(ProcessInfo.processInfo.environment.keys)")
-  print(String(describing: ProcessInfo.processInfo.environment["GITHUB_ACTIONS"]))
+  print(String(describing: ProcessInfo.processInfo.environment["HOME"]))
+  print(String(describing: ProcessInfo.processInfo.environment["XCTestBundlePath"]))
+  print(String(describing: ProcessInfo.processInfo.environment["DYLD_LIBRARY_PATH"]))
+  print(String(describing: ProcessInfo.processInfo.environment["XCTestCOnfigurationFilePath"]))
+  print(String(describing: ProcessInfo.processInfo.environment["XCInjectBundleInto"]))
 
   if !ProcessInfo.isOnGithub {
     print("isOnGithub is false")
