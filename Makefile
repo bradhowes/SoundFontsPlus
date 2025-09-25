@@ -34,18 +34,16 @@ coverage-macOS: test-macOS
 	cat coverage_macOS.txt
 
 test-iOS:
-	set -o pipefail && xcodebuild test \
+	xcodebuild test \
 		$(BUILD_FLAGS) \
 		-derivedDataPath "$(PWD)/.DerivedData-iOS" \
-		-destination platform="$(PLATFORM_IOS)" \
-		| xcbeautify --renderer github-actions
+		-destination platform="$(PLATFORM_IOS)"
 
 test-macOS:
-	set -o pipefail && xcodebuild test \
+	xcodebuild test \
 		$(BUILD_FLAGS) \
 		-derivedDataPath "$(PWD)/.DerivedData-macOS" \
-		-destination platform="$(PLATFORM_MACOS)" \
-		| xcbeautify --renderer github-actions
+		-destination platform="$(PLATFORM_MACOS)"
 
 clean:
 	-rm -rf "$(PWD)/.DerivedData-iOS" "$(PWD)/.DerivedData-macOS" "$(WORKSPACE)" coverage*.txt percentage*.txt
