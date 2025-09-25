@@ -99,16 +99,12 @@ extension BaseTestSuite {
       let view = AppReviewDemoView(store: store)
       store.send(.ask)
 
-      if BaseTestSuite.isLocal {
-        withSnapshotTesting(record: .failed) {
-          assertSnapshot(
-            of: view,
-            as: .image(
-              layout: .fixed(width: 400, height: 800),
-              traits: .init(userInterfaceStyle: .dark)
-            )
-          )
-        }
+      try withSnapshotTesting(record: .failed) {
+        try BaseTestSuite.assertSnap(
+          matching: view,
+          size: .init(width: 400, height: 800),
+          colorScheme: .dark
+        )
       }
     }
   }

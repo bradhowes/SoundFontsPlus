@@ -16,13 +16,64 @@ import SwiftUI
   .snapshots(record: .failed)
 )
 struct BaseTestSuite {
-  static var isOnGithub: Bool { (ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"] ?? "") == "/Users/runner" }
+  static var isOnGithub: Bool { ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"] == "/Users/runner" }
   static var isLocal: Bool { !isOnGithub }
 }
 
-#if false
+extension BaseTestSuite {
 
-public struct __SnapshotTestViewWrapper<Content: View>: View {
+  @inlinable
+  static func makeUniqueSnapshotName(_ funcName: StaticString) -> String {
+    "\(funcName)-iOS"
+  }
+
+  @MainActor
+  static func assertSnap<V: SwiftUI.View>(
+    matching: V,
+    size: CGSize = CGSize(width: 400, height: 400),
+    colorScheme: ColorScheme = .dark,
+    background: Color = .black,
+    fileID: StaticString = #fileID,
+    file: StaticString = #filePath,
+    testName: StaticString = #function,
+    line: Int = #line,
+    col: Int = #column
+  ) throws {
+    let uniqueTestName = makeUniqueSnapshotName(testName)
+
+#if os(iOS)
+
+    let view = __SnapshotTestViewWrapper(size: size, colorScheme: colorScheme, background: background) {
+      matching
+    }
+
+    if let result = SnapshotTesting.verifySnapshot(
+      of: view,
+      as: .image(
+        drawHierarchyInKeyWindow: false,
+        layout: .fixed(width: size.width, height: size.height)
+      ),
+      named: uniqueTestName,
+      file: file,
+      testName: "\(testName)",
+      line: UInt(line)
+    ) {
+      print("uniqueTestName:", uniqueTestName)
+      print("file:", file)
+      if BaseTestSuite.isOnGithub {
+        print("***", result)
+      } else {
+        Issue.record(
+          Comment(rawValue: result),
+          sourceLocation: .init(fileID: "\(fileID)", filePath: "\(file)", line: line, column: col)
+        )
+      }
+    }
+#endif // os(iOS)
+  }
+}
+
+struct __SnapshotTestViewWrapper<Content: View>: View {
   let size: CGSize
   let content: Content
   let colorScheme: ColorScheme
@@ -44,53 +95,3 @@ public struct __SnapshotTestViewWrapper<Content: View>: View {
     .environment(\.colorScheme, colorScheme)
   }
 }
-
-@inlinable
-func makeUniqueSnapshotName(_ funcName: StaticString) -> String {
-  "\(funcName)-iOS"
-}
-
-@MainActor @inlinable
-func assertSnapshot<V: SwiftUI.View>(
-  matching: V,
-  size: CGSize = CGSize(width: 400, height: 400),
-  colorScheme: ColorScheme = .light,
-  background: Color? = nil,
-  fileID: StaticString = #fileID,
-  file: StaticString = #filePath,
-  testName: StaticString = #function,
-  line: Int = #line,
-  col: Int = #column
-) throws {
-#if os(iOS)
-  let isOnGithub = (ProcessInfo.processInfo.environment["GITHUB_STEP_SUMMARY"] ?? "").count > 0
-
-  let view = __SnapshotTestViewWrapper(size: size, colorScheme: colorScheme, background: background) {
-    matching
-  }
-
-  guard BaseSuite.isLocal else { return }
-
-  let uniqueTestName = makeUniqueSnapshotName(testName)
-
-  if let result = SnapshotTesting.verifySnapshot(
-    of: view,
-    as: .image(
-      drawHierarchyInKeyWindow: false,
-      layout: .fixed(width: size.width, height: size.height)
-    ),
-    named: uniqueTestName,
-    file: file,
-    testName: "\(testName)",
-    line: UInt(line)
-  ) {
-    if isOnGithub {
-      print("***", result)
-    } else {
-      Issue.record(Comment(rawValue: result), sourceLocation: .init(fileID: "\(fileID)", filePath: "\(file)", line: line, column: col))
-    }
-  }
-#endif
-}
-
-#endif

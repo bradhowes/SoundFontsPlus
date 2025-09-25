@@ -13,5 +13,6 @@ percentage.txt
 percentage_iOS.txt
 percentage_macOS.txt
 .dependencies/
+.workspace/
 WD/
 SoundFontsPlus/SF2ResourceFiles/Resources/FluidR3_GM.sf2
