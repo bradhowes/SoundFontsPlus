@@ -15,10 +15,15 @@ public func appDatabase() throws -> any DatabaseWriter {
   var configuration = GRDB.Configuration()
 
   configuration.foreignKeysEnabled = true
-  configuration.prepareDatabase { db in
 
 #if DEBUG
-    if !ProcessInfo.isOnGithub {
+
+  print("\(ProcessInfo.processInfo.environment.keys)")
+  print(String(describing: ProcessInfo.processInfo.environment["GITHUB_ACTIONS"]))
+
+  if !ProcessInfo.isOnGithub {
+    print("isOnGithub is false")
+    configuration.prepareDatabase { db in
       db.trace(options: .profile) {
         if context == .live {
           log.debug("\($0.expandedDescription)")
@@ -27,8 +32,9 @@ public func appDatabase() throws -> any DatabaseWriter {
         }
       }
     }
-#endif // DEBUG
   }
+
+#endif // DEBUG
 
   if context == .live {
     let path = URL.documentsDirectory.appending(component: "db.sqlite").path()
