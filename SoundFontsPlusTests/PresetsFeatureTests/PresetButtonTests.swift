@@ -89,16 +89,9 @@ extension BaseTestSuite.PresetButtonTests {
 //  }
 //
   @Test func presetButtonPreview() async throws {
-    struct HostView: SwiftUI.View {
-      var body: some SwiftUI.View {
-        PresetButtonView.preview
-          .environment(\.editMode, .constant(.inactive))
-      }
-    }
-    let view = HostView()
     try withSnapshotTesting(record: .failed) {
       try BaseTestSuite.assertSnap(
-        matching: view,
+        matching: PresetButtonView.preview,
         size: .init(width: 400, height: 800),
         colorScheme: .dark
       )

@@ -219,6 +219,7 @@ extension PresetButtonView {
     }
 
     return VStack {
+      Text("Normal")
       List {
         PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
         PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
@@ -228,6 +229,7 @@ extension PresetButtonView {
       .listStyle(.plain)
       .environment(\.editMode, .constant(.inactive))
 
+      Text("Edit Mode")
       List {
         PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
         PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
