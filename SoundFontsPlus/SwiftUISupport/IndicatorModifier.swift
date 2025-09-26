@@ -56,12 +56,11 @@ public struct IndicatorModifier: ViewModifier {
         .frame(width: indicatorWidth)
         .cornerRadius(cornerRadius)
         .offset(x: offset)
-        .animation(.linear(duration: isEditing ? 0.0 : 0.5), value: indicator)
       content
         .font(.button)
         .foregroundStyle(labelColor)
-        .animation(.linear(duration: isEditing ? 0.0 : 0.5), value: labelColor)
     }
+    .animation(.linear(duration: isEditing ? 0.0 : 0.5), value: indicator)
   }
 }
 
