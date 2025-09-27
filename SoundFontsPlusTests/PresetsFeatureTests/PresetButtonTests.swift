@@ -28,7 +28,7 @@ extension BaseTestSuite.PresetButtonTests {
     return (presets, store)
   }
 
-  @Test func testButtonTapped() async throws {
+  @Test func buttonTapped() async throws {
     let (_, store) = try setup()
     await store.send(\.buttonTapped)
     await store.receive(.delegate(.selectPreset(store.state.preset)))
@@ -46,54 +46,31 @@ extension BaseTestSuite.PresetButtonTests {
     await store.receive(.delegate(.createFavorite(store.state.preset)))
   }
 
-  @Test func testHideButtonTapped() async throws {
+  @Test func hidePresetButtonTapped() async throws {
     let (_, store) = try setup()
     await store.send(\.hidePresetButtonTapped)
     await store.receive(.delegate(.hidePreset(store.state.preset)))
   }
 
-  @Test func testDeleteFavoriteTapped() async throws {
+  @Test func deleteFavoriteButtonTapped() async throws {
     let (_, store) = try setup()
     await store.send(\.deleteFavoriteButtonTapped)
     await store.receive(.delegate(.deleteFavorite(store.state.preset)))
   }
 
-//
-//  @Test func testHideButtonTappedNoPrompt() async throws {
-//    try await initialize { store in
-//      @Shared(.stopConfirmingPresetHiding) var stopConfirmingPresetHiding
-//      $stopConfirmingPresetHiding.withLock { $0 = true }
-//
-//      await store.send(\.hideButtonTapped)
-//      await store.receive(.delegate(.hidePreset(store.state.preset)))
-//    }
-//  }
-//
-//  func fetchPreset(presetId: Preset.ID) async throws -> Preset {
-//    @Dependency(\.defaultDatabase) var database
-//    let preset = try await database.read { try Preset.fetchOne($0, id: presetId) }
-//    guard let preset else {
-//      Issue.record("Failed to fetch existing preset")
-//      fatalError()
-//    }
-//    return preset
-//  }
-//
-//  @Test func testToggleVisibility() async throws {
-//    try await initialize { store in
-//
-//      #expect(store.state.preset.visible == true)
-//      await store.send(\.toggleVisibility) { $0.preset.visible = false }
-//
-//      var preset = try await fetchPreset(presetId: store.state.id)
-//      #expect(preset.visible == false)
-//
-//      await store.send(\.toggleVisibility) { $0.preset.visible = true }
-//      preset = try await fetchPreset(presetId: store.state.id)
-//      #expect(preset.visible == true)
-//    }
-//  }
-//
+  @Test func longPressGestureFired() async throws {
+    let (_, store) = try setup()
+    await store.send(\.longPressGestureFired)
+    await store.receive(.delegate(.editPreset(store.state.preset)))
+  }
+
+  @Test func toggleVisibility() async throws {
+    let (_, store) = try setup()
+    await store.send(\.toggleVisibility) {
+      $0.preset.kind = .hidden
+    }
+  }
+
   @Test func presetButtonPreview() async throws {
     try withSnapshotTesting(record: .failed) {
       try BaseTestSuite.assertSnap(
