@@ -19,7 +19,7 @@ public struct PresetButton {
     }
   }
 
-  public enum Action {
+  public enum Action: Equatable {
     case buttonTapped
     case delegate(Delegate)
     case deleteFavoriteButtonTapped
@@ -30,7 +30,7 @@ public struct PresetButton {
     case toggleVisibility
 
     @CasePathable
-    public enum Delegate {
+    public enum Delegate: Equatable {
       case createFavorite(Preset)
       case deleteFavorite(Preset)
       case editPreset(Preset)

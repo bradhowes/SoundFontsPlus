@@ -48,8 +48,14 @@ extension BaseTestSuite.PresetButtonTests {
 
   @Test func testHideButtonTapped() async throws {
     let (_, store) = try setup()
-    await store.send(\.hideOrDeleteButtonTapped)
-    await store.receive(.delegate(.hideOrDeletePreset(store.state.preset)))
+    await store.send(\.hidePresetButtonTapped)
+    await store.receive(.delegate(.hidePreset(store.state.preset)))
+  }
+
+  @Test func testDeleteFavoriteTapped() async throws {
+    let (_, store) = try setup()
+    await store.send(\.deleteFavoriteButtonTapped)
+    await store.receive(.delegate(.deleteFavorite(store.state.preset)))
   }
 
 //
