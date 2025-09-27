@@ -79,6 +79,7 @@ public struct PresetButtonView: View {
   @Shared(.activeState) var activeState
   @Environment(\.editMode) private var editMode
   private var isFavorite: Bool { store.preset.kind == .favorite }
+  private var isHidden: Bool { store.preset.kind == .hidden }
   private var isEditing: Bool { editMode?.wrappedValue == .active }
 
   public init(store: StoreOf<PresetButton>) {
@@ -87,85 +88,68 @@ public struct PresetButtonView: View {
 
   var state: IndicatorModifier.State {
     if activeState.activeSoundFontId == store.preset.soundFontId && activeState.activePresetId == store.preset.id {
-      return .active
+      return isFavorite ? .activeFavorite : .active
     }
     return .none
   }
 
   public var body: some View {
-    Group {
-      if isEditing {
-        editVisibilityButton
-      } else {
-        normalButton
-          .id(store.preset.id) // !!! For proper scrollTo behavior
-          .simultaneousGesture(
-            LongPressGesture(minimumDuration: 1.0)
-              .onEnded { _ in store.send(.longPressGestureFired) }
-          )
+    Button {
+      store.send(isEditing ? .toggleVisibility : .buttonTapped, animation: .default)
+    } label: {
+      HStack {
+        Image(systemName: isHidden ? "circle" : "inset.filled.circle")
+          .foregroundStyle(Color.orange)
+          .frame(width: isEditing ? 24 : 0)
+          .opacity(isEditing ? 1.0 : 0.0)
+          .disabled(!isEditing)
+          .animation(.smooth, value: store.preset.kind) // animate the visibiliity toggle image
+          .animation(.smooth, value: isEditing) // animate the transition to/from visibility editing
+        PresetNameView(preset: store.preset)
+          .indicator(isEditing ? .none : state)
       }
     }
-  }
-
-  public var normalButtonText: some View {
-    PresetNameView(preset: store.preset)
-      .indicator(state)
-  }
-
-  public var normalButton: some View {
-    Button {
-      store.send(.buttonTapped, animation: .default)
-    } label: {
-      normalButtonText
-    }
+    .id(store.preset.id) // !!! For proper scrollTo behavior
+    .simultaneousGesture(
+      LongPressGesture(minimumDuration: 1.0)
+        .onEnded { _ in store.send(.longPressGestureFired) }
+    )
     .listRowSeparator(.hidden)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
-      Button {
-        store.send(.editButtonTapped, animation: .default)
-      } label: {
-        Image(systemName: "pencil")
-          .tint(.cyan)
-      }
-      Button {
-        store.send(.favoriteButtonTapped, animation: .default)
-      } label: {
-        Image(systemName: store.preset.isFavorite ? "document.on.document.fill" : "star")
-          .tint(.yellow)
+      if !isEditing {
+        Button {
+          store.send(.editButtonTapped, animation: .default)
+        } label: {
+          Image(systemName: "pencil")
+            .tint(.cyan)
+        }
+        Button {
+          store.send(.favoriteButtonTapped, animation: .default)
+        } label: {
+          Image(systemName: store.preset.isFavorite ? "document.on.document.fill" : "star")
+            .tint(.orange)
+        }
       }
     }
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-      if store.preset.isFavorite {
-        Button {
-          store.send(.deleteFavoriteButtonTapped, animation: .default)
-        } label: {
-          Image(systemName: "trash")
-            .tint(.red)
-        }
-      } else {
-        Button {
-          store.send(.hidePresetButtonTapped, animation: .default)
-        } label: {
-          Image(systemName: "eye.slash")
-            .tint(.gray)
+      if !isEditing {
+        if store.preset.isFavorite {
+          Button {
+            store.send(.deleteFavoriteButtonTapped, animation: .default)
+          } label: {
+            Image(systemName: "trash")
+              .tint(.red)
+          }
+        } else {
+          Button {
+            store.send(.hidePresetButtonTapped, animation: .default)
+          } label: {
+            Image(systemName: "eye.slash")
+              .tint(.purple)
+          }
         }
       }
     }
-  }
-
-  private var editVisibilityButton: some View {
-    Button {
-      store.send(.toggleVisibility, animation: .smooth)
-    } label: {
-      HStack {
-        Image(systemName: store.preset.kind == .hidden ? "circle" : "inset.filled.circle")
-          .foregroundStyle(Color.gold)
-          .animation(.smooth, value: store.preset.kind)
-          .frame(maxWidth: 24)
-        Text(store.preset.displayName)
-          .indicator(.none)
-      }
-    }
-    .listRowSeparator(.hidden)
   }
 }
 

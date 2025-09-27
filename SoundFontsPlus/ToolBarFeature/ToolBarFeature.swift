@@ -319,7 +319,8 @@ private extension ToolBarFeature {
 
 public struct ToolBarFeatureView: View {
   private var store: StoreOf<ToolBarFeature>
-  @Shared(.showActiveVoiceCount) var showActiveVoiceCount
+  @Shared(.showActiveVoiceCount) private var showActiveVoiceCount
+  @Shared(.showSolfegeTags) private var showSolfegeTags
   @Environment(\.appPanelBackground) private var appPanelBackground
   @Environment(\.auv3ControlsTheme) private var auv3ControlsTheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -387,9 +388,9 @@ public struct ToolBarFeatureView: View {
   }
 
   private var statusText: some View {
-    @Shared(.showSolfegeTags) var showSolfegeTags
-    return Text(store.lastPlayedKey?.fullLabel(withSolfege: showSolfegeTags) ?? store.preset?.displayName ?? "—")
+    Text(store.lastPlayedKey?.fullLabel(withSolfege: showSolfegeTags) ?? store.preset?.displayName ?? "—")
       .font(.status)
+      .foregroundStyle(store.preset?.kind == .favorite ? Color.orange : Color.accentColor)
       .indicator(.activeNoIndicator)
       .contentTransition(.interpolate)
       .onTapGesture {

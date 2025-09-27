@@ -12,12 +12,15 @@ public struct IndicatorModifier: ViewModifier {
     // Active item -- shows the active SoundFont, Tag, or Preset
     case active
 
+    case activeFavorite
+
     case activeNoIndicator
 
     var labelColor: Color {
       switch self {
       case .none: return .whiteText
       case .active, .activeNoIndicator: return .accentColor
+      case .activeFavorite: return .orange
       case .selected: return .white
       }
     }
@@ -26,13 +29,14 @@ public struct IndicatorModifier: ViewModifier {
       switch self {
       case .none, .activeNoIndicator: return .clear
       case .active: return .accentColor
+      case .activeFavorite: return .orange
       case .selected: return .clear
       }
     }
 
     var indicatorGradient: Gradient {
       switch self {
-      case .active: return .init(colors: [.black, indicatorColor, .black])
+      case .active, .activeFavorite: return .init(colors: [.black, indicatorColor, .black])
       default: return .init(colors: [.clear, .clear])
       }
     }
