@@ -9,14 +9,37 @@ public struct PresetsList {
   public static let groupingSize = 20
   public static let noGroupingSize = 10_000
 
+  @Reducer(state: .equatable)
+  public enum Destination {
+    case alert(AlertState<Alert>)
+
+    @CasePathable
+    public enum Alert: Equatable {
+      case deleteFavoriteConfirmed(Preset)
+      case hidePresetConfirmed(Preset)
+    }
+  }
+
+  public struct ScrollToTarget: Equatable {
+    public let presetId: Preset.ID
+    public let anchor: UnitPoint
+
+    public init?(presetId: Preset.ID?, anchor: UnitPoint = .center) {
+      guard let presetId = presetId else { return nil }
+      self.presetId = presetId
+      self.anchor = anchor
+    }
+  }
+
   @ObservableState
   public struct State: Equatable {
+    @Presents var destination: Destination.State?
     var sections: IdentifiedArrayOf<PresetsListSection.State>
     var searchText: String
     var isSearchFieldPresented: Bool
     var focusedField: Field?
     var optionalSearchText: String? { isSearchFieldPresented ? searchText : nil }
-    var scrollToPresetId: Preset.ID?
+    var scrollToPresetId: ScrollToTarget?
     var soundFontId: SoundFont.ID?
 
     enum Field: String, Hashable {
@@ -39,6 +62,7 @@ public struct PresetsList {
     case clearScrollToPresetId
     case clearSearchTextField
     case delegate(Delegate)
+    case destination(PresentationAction<Destination.Action>)
     case fetchPresets
     case initialize
     case searchTextChanged(String)
@@ -75,8 +99,17 @@ public struct PresetsList {
       case .delegate:
         return .none
 
+      case .destination(.presented(.alert(.deleteFavoriteConfirmed(let preset)))):
+        return deleteFavoriteConfirmed(&state, preset: preset)
+
+      case .destination(.presented(.alert(.hidePresetConfirmed(let preset)))):
+        return hidePresetConfirmed(&state, preset: preset)
+
+      case .destination(.dismiss):
+        return .none
+
       case .fetchPresets:
-        state.scrollToPresetId = activeState.activePresetId
+        state.scrollToPresetId = .init(presetId: activeState.activePresetId)
         return generatePresetSections(&state)
 
       case .initialize:
@@ -85,12 +118,11 @@ public struct PresetsList {
       case .searchTextChanged(let value):
         return searchTextChanged(&state, searchText: value)
 
-        // Preset sections delegated actions
       case let .sections(.element(id: _, action: .delegate(action))):
         switch action {
 
         case let .headerTapped(presetId):
-          state.scrollToPresetId = presetId
+          state.scrollToPresetId = .init(presetId: presetId, anchor: .top)
           return .none
 
         case .searchButtonTapped:
@@ -100,6 +132,7 @@ public struct PresetsList {
         // Preset delegated actions
       case let .sections(.element(id: sectionId, action: .rows(.element(id: _, action: .delegate(action))))):
         switch action {
+
         case let .createFavorite(preset):
           _ = preset.clone()
           return generatePresetSections(&state)
@@ -132,7 +165,7 @@ public struct PresetsList {
         }.cancellable(id: CancelId.showActivePresetNow, cancelInFlight: true)
 
       case .showActivePresetNow:
-        state.scrollToPresetId = activeState.activePresetId
+        state.scrollToPresetId = .init(presetId: activeState.activePresetId)
         return .none
 
       case let .visibilityEditModeChanged(editing):
@@ -143,11 +176,13 @@ public struct PresetsList {
     .forEach(\.sections, action: \.sections) {
       PresetsListSection()
     }
+    .ifLet(\.destination, action: \.destination)
   }
 
   @Dependency(\.defaultDatabase) var database
   @Shared(.activeState) var activeState
   @Shared(.selectedSoundFontId) var selectedSoundFontId
+  @Shared(.confirmPresetHiding) var confirmPresetHiding
 
   private enum CancelId {
     case monitorSelectedSoundFontId
@@ -156,15 +191,26 @@ public struct PresetsList {
   }
 }
 
+extension PresetsList.Destination.State: _EphemeralState {
+  public typealias Action = Alert
+}
+
 extension PresetsList {
 
   private func deleteFavorite(_ state: inout State, preset: Preset) -> Effect<Action> {
+    state.destination = .alert(
+      .confirmDeleteFavorite(action: .deleteFavoriteConfirmed(preset), displayName: preset.displayName)
+    )
+    return .none
+  }
+
+  private func deleteFavoriteConfirmed(_ state: inout State, preset: Preset) -> Effect<Action> {
     precondition(preset.isFavorite)
     withDatabaseWriter { db in
       try Preset.delete(preset)
         .execute(db)
     }
-    return generatePresetSections(&state)
+    return generatePresetSections(&state).animation(.smooth)
   }
 
   private func dismissSearch(_ state: inout State) -> Effect<Action> {
@@ -194,10 +240,21 @@ extension PresetsList {
   }
 
   private func hidePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
+    if confirmPresetHiding {
+      state.destination = .alert(
+        .confirmHidePreset(action: .hidePresetConfirmed(preset), displayName: preset.displayName)
+      )
+      return .none
+    }
+    return hidePresetConfirmed(&state, preset: preset)
+  }
+
+  private func hidePresetConfirmed(_ state: inout State, preset: Preset) -> Effect<Action> {
     precondition(!preset.isFavorite)
+    $confirmPresetHiding.withLock { $0 = false }
     var preset = preset
     preset.toggleVisibility()
-    return generatePresetSections(&state)
+    return generatePresetSections(&state).animation(.smooth)
   }
 
   private func monitorSelectedSoundFontId() -> Effect<Action> {
@@ -206,6 +263,19 @@ extension PresetsList {
         .publisher
         .map { .selectedSoundFontIdChanged($0) }
     }.cancellable(id: CancelId.monitorSelectedSoundFontId, cancelInFlight: true)
+  }
+
+  private func playNote() -> Effect<Action> {
+    @Shared(.synthAudioUnit) var synthAudioUnit
+    guard let synth = synthAudioUnit?.synth else { return .none }
+
+    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
+    guard playSoundOnPresetChange else { return .none }
+    return .run { _ in
+      synth.sendNoteOn(note: 60)
+      try? await Task.sleep(for: .milliseconds(250))
+      synth.sendNoteOff(note: 60)
+    }.cancellable(id: CancelId.playNote, cancelInFlight: true)
   }
 
   private func searchButtonTapped(_ state: inout State) -> Effect<Action> {
@@ -236,26 +306,46 @@ extension PresetsList {
     )
   }
 
-  private func playNote() -> Effect<Action> {
-    @Shared(.synthAudioUnit) var synthAudioUnit
-    guard let synth = synthAudioUnit?.synth else { return .none }
-
-    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
-    guard playSoundOnPresetChange else { return .none }
-    return .run { _ in
-      synth.sendNoteOn(note: 60)
-      try? await Task.sleep(for: .milliseconds(250))
-      synth.sendNoteOff(note: 60)
-    }.cancellable(id: CancelId.playNote, cancelInFlight: true)
-  }
-
   private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
     if activeState.activeSoundFontId == soundFontId {
-      state.scrollToPresetId = activeState.activePresetId
+      state.scrollToPresetId = .init(presetId: activeState.activePresetId)
     } else {
       state.scrollToPresetId = nil
     }
     return generatePresetSections(&state)
+  }
+}
+
+extension AlertState {
+  static func confirmHidePreset(action: Action, displayName: String) -> Self {
+    Self {
+      TextState("Hide '\(displayName)'?")
+    } actions: {
+      ButtonState(action: action) { TextState("Hide") }
+      ButtonState(role: .cancel) { TextState("Cancel") }
+    } message: {
+      TextState(
+"""
+Hiding a preset will keep it from appearing in the list of presets. \
+You can restore visibility via the preset visibility button in the toolbar.
+"""
+      )
+    }
+  }
+
+  static func confirmDeleteFavorite(action: Action, displayName: String) -> Self {
+    Self {
+      TextState("Delete '\(displayName)'?")
+    } actions: {
+      ButtonState(role: .destructive, action: action) { TextState("Delete") }
+      ButtonState(role: .cancel) { TextState("Cancel") }
+    } message: {
+      TextState(
+"""
+Deleting a favorite cannot be undone.
+"""
+      )
+    }
   }
 }
 
@@ -283,7 +373,6 @@ public struct PresetsListView: View {
           doScrollTo(proxy: proxy, oldValue: $0, newValue: $1)
         }
       }
-      .animation(.smooth, value: store.sections)
       .onAppear {
         store.send(.fetchPresets)
       }
@@ -293,6 +382,8 @@ public struct PresetsListView: View {
     }
     .animation(.smooth, value: store.isSearchFieldPresented)
     .animation(.smooth, value: store.visibilityEditMode)
+    .animation(.smooth, value: store.sections)
+    .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
 
   private var searchField: some View {
@@ -319,10 +410,14 @@ public struct PresetsListView: View {
     .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
   }
 
-  private func doScrollTo(proxy: ScrollViewProxy, oldValue: Preset.ID?, newValue: Preset.ID?) {
+  private func doScrollTo(
+    proxy: ScrollViewProxy,
+    oldValue: PresetsList.ScrollToTarget?,
+    newValue: PresetsList.ScrollToTarget?
+  ) {
     if let newValue {
       withAnimation {
-        proxy.scrollTo(newValue, anchor: .center)
+        proxy.scrollTo(newValue.presetId, anchor: newValue.anchor)
         store.send(.clearScrollToPresetId)
       }
     } else {

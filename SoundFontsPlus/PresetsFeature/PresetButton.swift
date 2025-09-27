@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
+import Dependencies
 import SwiftNavigation
 import SwiftUI
 import Tagged
@@ -8,20 +9,8 @@ import Tagged
 @Reducer
 public struct PresetButton {
 
-  @Reducer(state: .equatable)
-  public enum Destination: Equatable {
-    case alert(AlertState<Alert>)
-
-    @CasePathable
-    public enum Alert {
-      case deleteFavoriteConfirmed
-      case hidePresetConfirmed
-    }
-  }
-
   @ObservableState
   public struct State: Equatable, Identifiable {
-    @Presents var destination: Destination.State?
     public var id: Preset.ID { preset.id }
     var preset: Preset
 
@@ -34,7 +23,6 @@ public struct PresetButton {
     case buttonTapped
     case delegate(Delegate)
     case deleteFavoriteButtonTapped
-    case destination(PresentationAction<Destination.Action>)
     case editButtonTapped
     case favoriteButtonTapped
     case hidePresetButtonTapped
@@ -51,8 +39,6 @@ public struct PresetButton {
     }
   }
 
-  @Shared(.confirmPresetHiding) var confirmPresetHiding
-
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
@@ -64,16 +50,7 @@ public struct PresetButton {
         return .none
 
       case .deleteFavoriteButtonTapped:
-        return deleteFavoriteButtonTapped(&state)
-
-      case .destination(.presented(.alert(.deleteFavoriteConfirmed))):
-        return deleteFavoriteConfirmed(&state)
-
-      case .destination(.presented(.alert(.hidePresetConfirmed))):
-        return hidePresetConfirmed(&state)
-
-      case .destination:
-        return .none
+        return .send(.delegate(.deleteFavorite(state.preset)))
 
       case .editButtonTapped:
         return .send(.delegate(.editPreset(state.preset)))
@@ -82,7 +59,7 @@ public struct PresetButton {
         return .send(.delegate(.createFavorite(state.preset)))
 
       case .hidePresetButtonTapped:
-        return hidePresetButtonTapped(&state)
+        return .send(.delegate(.hidePreset(state.preset)))
 
       case .longPressGestureFired:
         return .send(.delegate(.editPreset(state.preset)))
@@ -92,76 +69,9 @@ public struct PresetButton {
         return .none
       }
     }
-    .ifLet(\.destination, action: \.destination)
   }
 
   public init() {}
-}
-
-extension PresetButton.Destination.State: _EphemeralState {
-  public typealias Action = Alert
-}
-
-extension PresetButton {
-
-  private func deleteFavoriteConfirmed(_ state: inout State) -> Effect<Action> {
-    .send(.delegate(.deleteFavorite(state.preset)))
-  }
-
-  private func hidePresetConfirmed(_ state: inout State) -> Effect<Action> {
-    // $confirmPresetHiding.withLock { $0 = false }
-    return .send(.delegate(.hidePreset(state.preset)))
-  }
-
-  private func deleteFavoriteButtonTapped(_ state: inout State) -> Effect<Action> {
-    state.destination = .alert(
-      .confirmDeleteFavorite(action: .deleteFavoriteConfirmed, displayName: state.preset.displayName)
-    )
-    return .none
-  }
-
-  private func hidePresetButtonTapped(_ state: inout State) -> Effect<Action> {
-    if confirmPresetHiding {
-      state.destination = .alert(
-        .confirmHidePreset(action: .hidePresetConfirmed, displayName: state.preset.displayName)
-      )
-      return .none
-    }
-    return .send(.delegate(.hidePreset(state.preset)))
-  }
-}
-
-extension AlertState {
-  static func confirmHidePreset(action: Action, displayName: String) -> Self {
-    Self {
-      TextState("Hide '\(displayName)'?")
-    } actions: {
-      ButtonState(action: action) { TextState("Hide") }
-      ButtonState(role: .cancel) { TextState("Cancel") }
-    } message: {
-      TextState(
-"""
-Hiding a preset will keep it from appearing in the list of presets. \
-You can restore visibility via the preset visibility button in the toolbar.
-"""
-      )
-    }
-  }
-
-  static func confirmDeleteFavorite(action: Action, displayName: String) -> Self {
-    Self {
-      TextState("Delete '\(displayName)'?")
-    } actions: {
-      ButtonState(role: .destructive, action: action) { TextState("Delete") }
-      ButtonState(role: .cancel) { TextState("Cancel") }
-    } message: {
-      TextState(
-"""
-Deleting a favorite cannot be undone.
-"""
-      )
-    }
-  }
 }
 
 public struct PresetButtonView: View {
@@ -186,19 +96,15 @@ public struct PresetButtonView: View {
     Group {
       if isEditing {
         editVisibilityButton
-          .transition(.opacity)
       } else {
         normalButton
-          .transition(.opacity)
-          .animation(.default, value: isEditing)
-          .id(store.preset.id)
+          .id(store.preset.id) // !!! For proper scrollTo behavior
           .simultaneousGesture(
             LongPressGesture(minimumDuration: 1.0)
               .onEnded { _ in store.send(.longPressGestureFired) }
           )
       }
     }
-    .animation(.default, value: isEditing)
   }
 
   public var normalButtonText: some View {
@@ -213,7 +119,6 @@ public struct PresetButtonView: View {
       normalButtonText
     }
     .listRowSeparator(.hidden)
-    .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
         store.send(.editButtonTapped, animation: .default)
@@ -249,7 +154,7 @@ public struct PresetButtonView: View {
 
   private var editVisibilityButton: some View {
     Button {
-      store.send(.toggleVisibility, animation: .default)
+      store.send(.toggleVisibility, animation: .smooth)
     } label: {
       HStack {
         Image(systemName: store.preset.kind == .hidden ? "circle" : "inset.filled.circle")
