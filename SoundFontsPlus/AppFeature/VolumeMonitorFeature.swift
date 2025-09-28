@@ -118,19 +118,23 @@ public struct VolumeMonitorModifier: ViewModifier {
         await store.send(.initialize).finish()
       }
       .onChange(of: store.noVolumeReason) {
-        switch store.noVolumeReason {
-        case .volumeLevelIsZero:
-          ProgressHUD.colorBanner = .systemRed
-          ProgressHUD.banner("Volume", "Volume set to 0.", delay: 120.0)
-
-        case .noActivePreset:
-          ProgressHUD.colorBanner = .systemRed
-          ProgressHUD.banner("Preset", "No active preset.", delay: 120.0)
-
-        case .none:
-          ProgressHUD.bannerHide()
-        }
+        Self.processReason(store.noVolumeReason)
       }
+  }
+
+  public static func processReason(_ reason: VolumeMonitorFeature.Reason?) {
+    switch reason {
+    case .volumeLevelIsZero:
+      ProgressHUD.colorBanner = .systemRed
+      ProgressHUD.banner("Volume", "Volume set to 0.", delay: 120.0)
+
+    case .noActivePreset:
+      ProgressHUD.colorBanner = .systemRed
+      ProgressHUD.banner("Preset", "No active preset.", delay: 120.0)
+
+    case .none:
+      ProgressHUD.bannerHide()
+    }
   }
 }
 
@@ -168,16 +172,10 @@ struct VolumeMonitorDemoView: View {
         }
         Button {
           Task {
-            let newValue: Preset.ID?
-            if activeState.activePresetId == nil {
-              newValue = Preset.ID(rawValue: 1)
-            } else {
-              newValue = nil
-            }
+            let newValue: Preset.ID? = activeState.activePresetId == nil ? Preset.ID(rawValue: 1) : nil
             store.send(.activePresetIdChanged(newValue))
             $activeState.activePresetId.withLock { $0 = newValue }
           }
-
         } label: {
           Text("Toggle PresetId")
         }
