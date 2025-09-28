@@ -146,30 +146,40 @@ extension View {
 
 struct VolumeMonitorDemoView: View {
 
+  /// A mock of AVAudioSession.outputVolume that toggles between 1.0 and 0.0
   final class OutputVolumeFlipFlop: @unchecked Sendable {
     var continuation: AsyncStream<Float>.Continuation?
     var currentValue: Float = 1.0
 
     func getValue() -> Float { self.currentValue }
 
-    func startObserving() -> (NSKeyValueObservation?, AsyncStream<Float>) {
+    func startStreaming() -> (NSKeyValueObservation?, AsyncStream<Float>) {
       let stream = AsyncStream { continuation in
         self.continuation = continuation
       }
       return (nil, stream)
     }
 
-    @discardableResult
-    func advance() -> Float {
+    /**
+     Toggle current value and emit onto the stream.
+
+     - returns: new value
+     */
+    @discardableResult func advance() -> Float {
       self.currentValue = 1.0 - self.currentValue
       continuation?.yield(self.currentValue)
       return self.currentValue
     }
 
-    func outputVolume() -> OutputVolume {
+    /**
+     Obtain an `OutputVolume` instance that relies on this instance for operation.
+
+     - returns: current value
+     */
+    func makeOutputVolume() -> OutputVolume {
       .init(
         getValue: { self.getValue() },
-        startStreaming: { self.startObserving() }
+        startStreaming: { self.startStreaming() }
       )
     }
   }
@@ -214,11 +224,11 @@ struct VolumeMonitorDemoView: View {
 }
 
 #Preview {
-  let volumes = VolumeMonitorDemoView.OutputVolumeFlipFlop()
+  let mockVolume = VolumeMonitorDemoView.OutputVolumeFlipFlop()
   // swiftlint:disable:next redundant_discardable_let
-  let _ = prepareDependencies { $0.outputVolume = volumes.outputVolume() }
+  let _ = prepareDependencies { $0.outputVolume = mockVolume.makeOutputVolume() }
   let store: StoreOf<VolumeMonitorFeature> = .init(initialState: VolumeMonitorFeature.State()) {
     VolumeMonitorFeature()
   }
-  VolumeMonitorDemoView(volumes: volumes, store: store)
+  VolumeMonitorDemoView(volumes: mockVolume, store: store)
 }

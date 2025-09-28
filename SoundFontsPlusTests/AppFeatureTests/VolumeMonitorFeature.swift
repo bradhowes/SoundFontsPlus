@@ -13,19 +13,19 @@ extension BaseTestSuite {
 
   @MainActor
   struct VolumeMonitorFeatureTests {
-    private let volumes: VolumeMonitorDemoView.OutputVolumeFlipFlop
+    private let mockVolume: VolumeMonitorDemoView.OutputVolumeFlipFlop
     private let store: TestStoreOf<VolumeMonitorFeature>
 
     init() async throws {
-      let volumes = VolumeMonitorDemoView.OutputVolumeFlipFlop()
+      let mockVolume = VolumeMonitorDemoView.OutputVolumeFlipFlop()
       let store = TestStore(initialState: VolumeMonitorFeature.State()) {
         VolumeMonitorFeature()
       } withDependencies: {
         @Shared(.activeState) var activeState = .init()
-        $0.outputVolume = volumes.outputVolume()
+        $0.outputVolume = mockVolume.makeOutputVolume()
       }
 
-      self.volumes = volumes
+      self.mockVolume = mockVolume
       self.store = store
     }
   }
@@ -45,10 +45,10 @@ extension BaseTestSuite.VolumeMonitorFeatureTests {
   @Test
   func volumeGoesToZero() async throws {
     await store.send(.initialize)
-    volumes.advance()
+    mockVolume.advance()
     await store.receive(\.volumeChanged) { $0.noVolumeReason = .volumeLevelIsZero }
     await store.receive(\.delegate)
-    volumes.advance()
+    mockVolume.advance()
     await store.receive(\.volumeChanged) { $0.noVolumeReason = nil }
     await store.receive(\.delegate)
     await store.send(.deinitialize)
@@ -67,12 +67,12 @@ extension BaseTestSuite.VolumeMonitorFeatureTests {
   @Test
   func ignorePresetChangesWhenVolumeIsZero() async throws {
     await store.send(.initialize)
-    volumes.advance()
+    mockVolume.advance()
     await store.receive(\.volumeChanged) { $0.noVolumeReason = .volumeLevelIsZero }
     await store.receive(\.delegate)
     await togglePresetId()
     await togglePresetId()
-    volumes.advance()
+    mockVolume.advance()
     await store.receive(\.volumeChanged) { $0.noVolumeReason = nil }
     await store.receive(\.delegate)
     await store.send(.deinitialize)
@@ -84,9 +84,9 @@ extension BaseTestSuite.VolumeMonitorFeatureTests {
     @Shared(.activeState) var activeState
     await togglePresetId { $0.noVolumeReason = .noActivePreset }
     await store.receive(\.delegate)
-    volumes.advance()
+    mockVolume.advance()
     await store.receive(\.volumeChanged)
-    volumes.advance()
+    mockVolume.advance()
     await store.receive(\.volumeChanged)
     await togglePresetId { $0.noVolumeReason = nil }
     await store.receive(\.delegate)
@@ -98,12 +98,12 @@ extension BaseTestSuite.VolumeMonitorFeatureTests {
     await store.send(.initialize)
     await togglePresetId { $0.noVolumeReason = .noActivePreset }
     await store.receive(\.delegate)
-    volumes.advance()
+    mockVolume.advance()
     await store.receive(\.volumeChanged)
     await togglePresetId { $0.noVolumeReason = .volumeLevelIsZero }
     await store.receive(\.delegate)
     await togglePresetId()
-    volumes.advance()
+    mockVolume.advance()
     await store.receive(\.volumeChanged) { $0.noVolumeReason = .noActivePreset }
     await store.receive(\.delegate)
     await store.send(.deinitialize)
@@ -121,13 +121,13 @@ extension BaseTestSuite.VolumeMonitorFeatureTests {
   @MainActor
   func volumeMonitorPreview() async throws {
     // swiftlint:disable:next redundant_discardable_let
-    let _ = prepareDependencies { $0.outputVolume = volumes.outputVolume() }
+    let _ = prepareDependencies { $0.outputVolume = mockVolume.makeOutputVolume() }
     let store: StoreOf<VolumeMonitorFeature> = .init(
       initialState: VolumeMonitorFeature.State(
         noVolumeReason: .volumeLevelIsZero)) {
           VolumeMonitorFeature()
         }
-    let view = VolumeMonitorDemoView(volumes: volumes, store: store)
+    let view = VolumeMonitorDemoView(volumes: mockVolume, store: store)
 
     try withSnapshotTesting(record: .failed) {
       try BaseTestSuite.assertSnap(
