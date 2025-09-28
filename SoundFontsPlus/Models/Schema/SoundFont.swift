@@ -2,6 +2,7 @@
 
 import Dependencies
 import Engine
+import Foundation
 import SQLiteData
 import Tagged
 
@@ -67,14 +68,21 @@ extension SoundFont {
 }
 
 extension SoundFont {
+  public static var soundFontPresetLoadLimit: Int { 10 }
 
-  public static func addBuiltIn(_ db: Database, sf2: SF2ResourceFileTag) throws {
+  public static func addBuiltIn(_ db: Database, sf2: SF2ResourceFileTag, limitedLoading: Bool) throws {
     let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
     let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()
     let soundFontDraft = try makeSoundFontDraft(soundFontKind: soundFontKind, name: sf2.name, fileInfo: fileInfo)
-
+    let limit = limitedLoading ? Swift.min(soundFontPresetLoadLimit, fileInfo.size()) : fileInfo.size()
     withErrorReporting {
-      try install(db: db, soundFontDraft: soundFontDraft, fileInfo: fileInfo, soundFontKind: soundFontKind)
+      try install(
+        db: db,
+        soundFontDraft: soundFontDraft,
+        fileInfo: fileInfo,
+        soundFontKind: soundFontKind,
+        limit: limit
+      )
     }
   }
 
@@ -83,7 +91,13 @@ extension SoundFont {
     let soundFontDraft = try makeSoundFontDraft(soundFontKind: soundFontKind, name: displayName, fileInfo: fileInfo)
 
     withDatabaseWriter { db in
-      try install(db: db, soundFontDraft: soundFontDraft, fileInfo: fileInfo, soundFontKind: soundFontKind)
+      try install(
+        db: db,
+        soundFontDraft: soundFontDraft,
+        fileInfo: fileInfo,
+        soundFontKind: soundFontKind,
+        limit: fileInfo.size()
+      )
     }
   }
 
@@ -99,14 +113,15 @@ extension SoundFont {
     db: Database,
     soundFontDraft: Insert<SoundFont, SoundFont.ID>,
     fileInfo: SF2FileInfo,
-    soundFontKind: SoundFontKind
+    soundFontKind: SoundFontKind,
+    limit: Int
   ) throws {
     guard let soundFontId = try soundFontDraft.fetchOne(db) else { return }
     try TaggedSoundFont.insert {
       soundFontKind.tagIds.map { .init(soundFontId: soundFontId, tagId: $0) }
     }.execute(db)
     try Preset.insert {
-      makePresets(soundFontId: soundFontId, fileInfo: fileInfo)
+      makePresets(soundFontId: soundFontId, fileInfo: fileInfo, limit: limit)
     }.execute(db)
   }
 
@@ -132,8 +147,12 @@ extension SoundFont {
     }.returning(\.id)
   }
 
-  private static func makePresets(soundFontId: SoundFont.ID, fileInfo: SF2FileInfo) -> [Preset.Draft] {
-    (0..<fileInfo.size())
+  private static func makePresets(
+    soundFontId: SoundFont.ID,
+    fileInfo: SF2FileInfo,
+    limit: Int
+  ) -> [Preset.Draft] {
+    (0..<limit)
       .map { ($0, fileInfo[$0]) }
       .map { (presetIndex: $0.0, presetInfo: $0.1, name: String($0.1.name())) }
       .map { presetIndex, presetInfo, name in

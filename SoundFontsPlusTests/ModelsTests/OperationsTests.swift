@@ -18,32 +18,32 @@ extension BaseTestSuite.OperationsTests {
 
   @Test func presetsOrdering() async throws {
     var presets = Operations.presets
-    #expect(presets.count == 189)
+    #expect(presets.count == 10)
 
-    let preset10Name = presets[10].displayName
-    let clone10 = presets[10].clone()
-    #expect(clone10?.displayName == preset10Name + " copy")
+    let preset3Name = presets[3].displayName
+    let clone3 = presets[3].clone()
+    #expect(clone3?.displayName == preset3Name + " copy")
 
-    let preset20Name = presets[20].displayName
-    let clone20 = presets[20].clone()
-    #expect(clone20?.displayName == preset20Name + " copy")
+    let preset5Name = presets[5].displayName
+    let clone5 = presets[5].clone()
+    #expect(clone5?.displayName == preset5Name + " copy")
 
     @Shared(.favoritesOnTop) var favoritesOnTop
     $favoritesOnTop.withLock { $0 = false }
     presets = Operations.presets
-    #expect(presets.count == 191)
-    #expect(presets[10].displayName == preset10Name)
-    #expect(presets[11].displayName == clone10?.displayName)
-    #expect(presets[21].displayName == preset20Name)
-    #expect(presets[22].displayName == clone20?.displayName)
+    #expect(presets.count == 12)
+    #expect(presets[3].displayName == preset3Name)
+    #expect(presets[4].displayName == clone3?.displayName)
+    #expect(presets[6].displayName == preset5Name)
+    #expect(presets[7].displayName == clone5?.displayName)
 
     $favoritesOnTop.withLock { $0 = true }
     presets = Operations.presets
-    #expect(presets.count == 191)
-    #expect(presets[0].displayName == clone10?.displayName)
-    #expect(presets[1].displayName == clone20?.displayName)
-    #expect(presets[12].displayName == preset10Name)
-    #expect(presets[22].displayName == preset20Name)
+    #expect(presets.count == BaseTestSuite.soundFontPresetLoadLimit + 2)
+    #expect(presets[0].displayName == clone3?.displayName)
+    #expect(presets[1].displayName == clone5?.displayName)
+    #expect(presets[5].displayName == preset3Name)
+    #expect(presets[7].displayName == preset5Name)
 
     @Shared(.showOnlyFavorites) var showOnlyFavorites
     $showOnlyFavorites.withLock { $0 = true }
@@ -55,13 +55,13 @@ extension BaseTestSuite.OperationsTests {
   @Test func presets() async throws {
     @Shared(.activeState) var activeState
     @Shared(.selectedSoundFontId) var selectedSoundFontId
-    #expect(Operations.presets.count == 189)
+    #expect(Operations.presets.count == BaseTestSuite.soundFontPresetLoadLimit)
     $selectedSoundFontId.withLock { $0 = .init(rawValue: 2) }
-    #expect(Operations.presets.count == 235)
+    #expect(Operations.presets.count == BaseTestSuite.soundFontPresetLoadLimit)
     $selectedSoundFontId.withLock { $0 = .init(rawValue: 3) }
-    #expect(Operations.presets.count == 270)
+    #expect(Operations.presets.count == BaseTestSuite.soundFontPresetLoadLimit)
     $selectedSoundFontId.withLock { $0 = nil }
-    #expect(Operations.presets.count == 189)
+    #expect(Operations.presets.count == BaseTestSuite.soundFontPresetLoadLimit)
     $activeState.withLock { $0.activeSoundFontId = nil }
     #expect(Operations.presets.count == 0)
   }
@@ -69,11 +69,11 @@ extension BaseTestSuite.OperationsTests {
   @Test func allPresets() async throws {
     @Shared(.activeState) var activeState
     @Shared(.selectedSoundFontId) var selectedSoundFontId
-    #expect(Operations.allPresets.count == 189)
+    #expect(Operations.allPresets.count == BaseTestSuite.soundFontPresetLoadLimit)
     $selectedSoundFontId.withLock { $0 = .init(rawValue: 2) }
-    #expect(Operations.allPresets.count == 235)
+    #expect(Operations.allPresets.count == BaseTestSuite.soundFontPresetLoadLimit)
     $selectedSoundFontId.withLock { $0 = .init(rawValue: 3) }
-    #expect(Operations.allPresets.count == 270)
+    #expect(Operations.allPresets.count == BaseTestSuite.soundFontPresetLoadLimit)
     $selectedSoundFontId.withLock { $0 = nil }
     $activeState.withLock { $0.activeSoundFontId = nil }
     #expect(Operations.allPresets.count == 0)
@@ -96,10 +96,8 @@ extension BaseTestSuite.OperationsTests {
     let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
     #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2, 5])
-    withExpectedIssue {
-      Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
-      #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2, 5])
-    }
+    Operations.tagSoundFont(newTag.id, soundFontId: .init(rawValue: 1))
+    #expect(Operations.tagIds(for: .init(rawValue: 1)) == [1, 2, 5])
   }
 
   @Test func untagSoundFont() async throws {
@@ -114,10 +112,10 @@ extension BaseTestSuite.OperationsTests {
   @Test func activePresetLoadingInfo() async throws {
     let presets = Operations.presets
     @Shared(.activeState) var activeState
-    $activeState.withLock { $0.activePresetId = presets[100].id }
+    $activeState.withLock { $0.activePresetId = presets[presets.count - 1].id }
     var apli = Operations.activePresetLoadingInfo
-    #expect(apli?.soundFontId == presets[100].soundFontId)
-    #expect(apli?.presetIndex == presets[100].index)
+    #expect(apli?.soundFontId == presets[presets.count - 1].soundFontId)
+    #expect(apli?.presetIndex == presets[presets.count - 1].index)
     $activeState.withLock { $0.activePresetId = presets[0].id }
     apli = Operations.activePresetLoadingInfo
     #expect(apli?.soundFontId == presets[0].soundFontId)
@@ -128,7 +126,7 @@ extension BaseTestSuite.OperationsTests {
     let presets = Operations.presets
     @Dependency(\.defaultDatabase) var database
     @Shared(.activeState) var activeState
-    $activeState.withLock { $0.activePresetId = presets[100].id }
+    $activeState.withLock { $0.activePresetId = presets[presets.count - 1].id }
     let apac = Operations.activePresetAudioConfig
     #expect(apac == nil)
   }

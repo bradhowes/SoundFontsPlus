@@ -16,6 +16,7 @@ import SwiftUI
   .snapshots(record: .failed)
 )
 struct BaseTestSuite {
+  static var soundFontPresetLoadLimit: Int { SoundFont.soundFontPresetLoadLimit }
   static var isOnGithub: Bool { ProcessInfo.processInfo.isOnGithub }
   static var isLocal: Bool { !isOnGithub }
 }

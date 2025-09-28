@@ -9,7 +9,7 @@ import SQLiteData
 private let log = Logger(category: "Database")
 
 // swiftlint:disable:next function_body_length
-public func appDatabase() throws -> any DatabaseWriter {
+public func appDatabase(fullTestLoading: Bool = false) throws -> any DatabaseWriter {
   @Dependency(\.context) var context
   let database: any DatabaseWriter
   var configuration = GRDB.Configuration()
@@ -67,7 +67,8 @@ public func appDatabase() throws -> any DatabaseWriter {
   migrator.registerMigration("Add builtin fonts") { db in
     for sf2 in SF2ResourceFileTag.allCases {
       log.info("add \(sf2)")
-      try SoundFont.addBuiltIn(db, sf2: sf2)
+      let limitedLoading: Bool = context == .test && !fullTestLoading
+      try SoundFont.addBuiltIn(db, sf2: sf2, limitedLoading: limitedLoading)
     }
   }
 

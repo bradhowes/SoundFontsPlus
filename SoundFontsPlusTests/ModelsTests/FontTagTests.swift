@@ -29,7 +29,7 @@ extension BaseTestSuite.FontTagTests {
 
     @FetchAll(Preset.all) var presets
     try await $presets.load()
-    #expect(presets.count == 695)
+    #expect(presets.count == 3 * BaseTestSuite.soundFontPresetLoadLimit + 1)
   }
 
   @Test func tagged() async throws {

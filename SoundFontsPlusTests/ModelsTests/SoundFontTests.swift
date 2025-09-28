@@ -13,7 +13,12 @@ extension BaseTestSuite {
 
 extension BaseTestSuite.SoundFontTests {
 
-  @Test func migration() async throws {
+  @Test(
+    .dependencies {
+      $0.defaultDatabase = try SoundFontsPlus.appDatabase(fullTestLoading: true)
+    }
+  )
+  func migration() async throws {
     @FetchAll(FontTag.all.order(by: \.id)) var tags
     try await $tags.load()
 
@@ -132,7 +137,7 @@ extension BaseTestSuite.SoundFontTests {
     #expect(soundFonts.count == 4)
 
     let sf = soundFonts[1]
-    #expect(sf.allPresets.count == 235)
+    #expect(sf.allPresets.count == BaseTestSuite.soundFontPresetLoadLimit)
 
     SoundFont.delete(id: sf.id)
 

@@ -69,6 +69,8 @@ public enum Operations {
 
   public static func tagSoundFont(_ tagId: FontTag.ID, soundFontId: SoundFont.ID) {
     guard !tagId.isUbiquitous else { return }
+    let existing = tagIds(for: soundFontId)
+    guard existing.first(where: {$0 == tagId}) == nil else { return }
     withDatabaseWriter { db in
       try TaggedSoundFont.insert {
         .init(soundFontId: soundFontId, tagId: tagId)
