@@ -18,7 +18,7 @@ public func appDatabase() throws -> any DatabaseWriter {
 
 #if DEBUG
 
-  if !ProcessInfo.isOnGithub {
+  if !ProcessInfo.processInfo.isOnGithub {
     print("isOnGithub is false")
     configuration.prepareDatabase { db in
       db.trace(options: .profile) {

@@ -3,7 +3,5 @@
 import Foundation
 
 extension ProcessInfo {
-  public static var isOnGithub: Bool {
-    Self.processInfo.environment["HOME"]?.starts(with: "/Users/runner/") ?? false
-  }
+  public var isOnGithub: Bool { environment["HOME"]?.starts(with: "/Users/runner/") ?? false }
 }
