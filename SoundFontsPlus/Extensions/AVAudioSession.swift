@@ -1,19 +1,36 @@
 import AVKit
 import Foundation
 
-extension AVAudioSession {
+/**
+ Protocol for Swift/Obj-C entities that provide an `outputVolume` attribute that can be monitored with an
+ `AsyncStream`.
+ */
+@objc public protocol OutputVolumeStream: AnyObject {
+  typealias Observation = (NSKeyValueObservation, AsyncStream<AUValue>)
 
-  public typealias Observation = (NSKeyValueObservation, AsyncStream<Float>)
+  @objc dynamic var outputVolume: AUValue { get }
+}
+
+extension OutputVolumeStream {
 
   /**
-   Obtain a stream of volume changes for an AVAudioSession.
+   Obtain a stream of volume changes for an object. Values will be emitted via an AsyncStream.
 
+   ```
+   (observerToken, stream) = outputVolumeProvider.startStreaming()
+   for await value in stream {
+     await send(.volumeChanged(value))
+   }
+   ```
+
+   - parameter onTermination: closure to call when the stream terminates
    - returns: 2-tuple containing a token for cancelling the observation and an AsyncStream of observed values
    */
-  public func startObservingOutputVolume(onTermination: (@Sendable (Any) -> Void)? = nil) -> Observation {
+
+  public func start(onTermination: (@Sendable (Any) -> Void)? = nil) -> Observation where Self: NSObject & Sendable {
     let (stream, continuation) = AsyncStream<Float>.makeStream()
     let observerToken = self.observe(\.outputVolume, options: [.new]) { session, change  in
-      var lastSeen: Float?
+      var lastSeen: AUValue?
       if self == session,
          let newValue = change.newValue,
          newValue != lastSeen {
@@ -27,30 +44,15 @@ extension AVAudioSession {
   }
 }
 
-final class OutputVolumeFlipFlop: @unchecked Sendable {
-  var continuation: AsyncStream<Float>.Continuation?
-  var currentValue: Float = 1.0
+extension AVAudioSession: OutputVolumeStream {
 
-  func getValue() -> Float { self.currentValue }
+  /**
+   Obtain a stream of output volume changes for an AVAudioSession.
 
-  func startObserving() -> (NSKeyValueObservation?, AsyncStream<Float>) {
-    let stream = AsyncStream { continuation in
-      self.continuation = continuation
-    }
-    return (nil, stream)
-  }
-
-  @discardableResult
-  func advance() -> Float {
-    self.currentValue = 1.0 - self.currentValue
-    continuation?.yield(self.currentValue)
-    return self.currentValue
-  }
-
-  func outputVolume() -> OutputVolume {
-    .init(
-      getValue: { self.getValue() },
-      startObserving: { self.startObserving() }
-    )
+   - parameter onTermination: closure to call when the stream terminates
+   - returns: 2-tuple containing a token for cancelling the observation and an AsyncStream of observed values
+   */
+  public func startStreamingOutputVolume(onTermination: (@Sendable (Any) -> Void)? = nil) -> OutputVolumeStream.Observation {
+    start(onTermination: onTermination)
   }
 }

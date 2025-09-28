@@ -17,7 +17,7 @@ extension BaseTestSuite.AVAudioSessionTests {
   @Test func monitorVolume() async throws {
     // TODO: create AVAudioSession mock to properly test behavior
     try? AVAudioSession.sharedInstance().setActive(true)
-    let value = AVAudioSession.sharedInstance().startObservingOutputVolume { _ in
+    let value = AVAudioSession.sharedInstance().startStreamingOutputVolume { _ in
       print("terminated")
     }
   }

@@ -68,7 +68,7 @@ private extension VolumeMonitorFeature {
         let observerToken: NSKeyValueObservation?
         let stream: AsyncStream<Float>
         @Dependency(\.outputVolume) var outputVolume
-        (observerToken, stream) = outputVolume.startObserving()
+        (observerToken, stream) = outputVolume.startStreaming()
         log.info("started observing volume")
         for await value in stream {
           await send(.volumeChanged(value))
@@ -145,6 +145,35 @@ extension View {
 }
 
 struct VolumeMonitorDemoView: View {
+
+  final class OutputVolumeFlipFlop: @unchecked Sendable {
+    var continuation: AsyncStream<Float>.Continuation?
+    var currentValue: Float = 1.0
+
+    func getValue() -> Float { self.currentValue }
+
+    func startObserving() -> (NSKeyValueObservation?, AsyncStream<Float>) {
+      let stream = AsyncStream { continuation in
+        self.continuation = continuation
+      }
+      return (nil, stream)
+    }
+
+    @discardableResult
+    func advance() -> Float {
+      self.currentValue = 1.0 - self.currentValue
+      continuation?.yield(self.currentValue)
+      return self.currentValue
+    }
+
+    func outputVolume() -> OutputVolume {
+      .init(
+        getValue: { self.getValue() },
+        startStreaming: { self.startObserving() }
+      )
+    }
+  }
+
   private let volumes: OutputVolumeFlipFlop
   @State private var volume: Float
   @State private var store: StoreOf<VolumeMonitorFeature>
@@ -185,7 +214,7 @@ struct VolumeMonitorDemoView: View {
 }
 
 #Preview {
-  let volumes = OutputVolumeFlipFlop()
+  let volumes = VolumeMonitorDemoView.OutputVolumeFlipFlop()
   // swiftlint:disable:next redundant_discardable_let
   let _ = prepareDependencies { $0.outputVolume = volumes.outputVolume() }
   let store: StoreOf<VolumeMonitorFeature> = .init(initialState: VolumeMonitorFeature.State()) {

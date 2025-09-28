@@ -13,11 +13,11 @@ extension BaseTestSuite {
 
   @MainActor
   struct VolumeMonitorFeatureTests {
-    private let volumes: OutputVolumeFlipFlop
+    private let volumes: VolumeMonitorDemoView.OutputVolumeFlipFlop
     private let store: TestStoreOf<VolumeMonitorFeature>
 
     init() async throws {
-      let volumes = OutputVolumeFlipFlop()
+      let volumes = VolumeMonitorDemoView.OutputVolumeFlipFlop()
       let store = TestStore(initialState: VolumeMonitorFeature.State()) {
         VolumeMonitorFeature()
       } withDependencies: {
@@ -120,7 +120,6 @@ extension BaseTestSuite.VolumeMonitorFeatureTests {
   @Test
   @MainActor
   func volumeMonitorPreview() async throws {
-    let volumes = OutputVolumeFlipFlop()
     // swiftlint:disable:next redundant_discardable_let
     let _ = prepareDependencies { $0.outputVolume = volumes.outputVolume() }
     let store: StoreOf<VolumeMonitorFeature> = .init(

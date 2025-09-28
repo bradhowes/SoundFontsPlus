@@ -32,7 +32,7 @@ public struct KeyboardFeature {
     }
   }
 
-  public enum OutputVolume {
+  public enum OutputVolumeState {
     case muted
     case unmuted
   }
@@ -44,7 +44,7 @@ public struct KeyboardFeature {
     case delegate(Delegate)
     case initialize
     case keyReleased(note: Note)
-    case outputVolumeChanged(OutputVolume)
+    case outputVolumeStateChanged(OutputVolumeState)
     case scrollTo(Note?)
     case updateVisibleKeys(lowest: Note, highest: Note)
 
@@ -79,7 +79,7 @@ public struct KeyboardFeature {
       case .initialize:
         return initialize(&state)
 
-      case .outputVolumeChanged(let value):
+      case .outputVolumeStateChanged(let value):
         state.activeKeyColor = value == .muted ? .red : .green
         return .none
 

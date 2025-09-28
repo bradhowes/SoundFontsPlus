@@ -8,14 +8,14 @@ import DependenciesMacros
 @DependencyClient
 public struct OutputVolume: Sendable {
   public let getValue: @Sendable () -> AUValue
-  public let startObserving: @Sendable () -> (NSKeyValueObservation?, AsyncStream<Float>)
+  public let startStreaming: @Sendable () -> (NSKeyValueObservation?, AsyncStream<Float>)
 }
 
 extension OutputVolume: DependencyKey {
   public static var liveValue: OutputVolume {
     .init(
       getValue: { AVAudioSession.sharedInstance().outputVolume },
-      startObserving: { AVAudioSession.sharedInstance().startObservingOutputVolume() }
+      startStreaming: { AVAudioSession.sharedInstance().startStreamingOutputVolume() }
     )
   }
 }

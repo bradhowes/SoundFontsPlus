@@ -236,7 +236,7 @@ struct AppFeature {
       case .volumeMonitor(.delegate(.mutedVolume(let reason))):
         return reduce(
           into: &state,
-          action: .keyboard(.outputVolumeChanged(reason != nil ? .muted : .unmuted))
+          action: .keyboard(.outputVolumeStateChanged(reason != nil ? .muted : .unmuted))
         )
 
       case .volumeMonitor:
