@@ -83,6 +83,7 @@ public struct SynthFeature {
   }
 
   @Dependency(\.defaultDatabase) var database
+  @Dependency(\.audioSession) var session
   @Shared(.activeState) var activeState
   @Shared(.backgroundProcessing) var backgroundProcessing
 
@@ -106,18 +107,16 @@ private extension SynthFeature {
 
   func configureAudioSession() {
     let bufferSize: Int = 64
-    let session = AVAudioSession.sharedInstance()
 
     do {
       log.info("routeChanged - setting AudioSession category")
-      try session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+      try session.setCategory(.playback, .default, [.mixWithOthers])
     } catch let error as NSError {
       let err = error.localizedDescription
       log.error("routeChanged - failed to set the audio session category and mode: \(err)")
     }
 
-    log.info("routeChanged - sampleRate: \(AVAudioSession.sharedInstance().sampleRate)")
-    log.info("routeChanged - preferredSampleRate: \(AVAudioSession.sharedInstance().sampleRate)")
+    log.info("routeChanged - sampleRate: \(session.sampleRate())")
 
     do {
       log.info("routeChanged - setting preferred sample rate")
@@ -136,7 +135,7 @@ private extension SynthFeature {
       log.error("routeChanged - failed to set the preferred buffer size to \(bufferSize) - \(err)")
     }
 
-    dump(route: session.currentRoute)
+    dump(route: session.currentRoute())
   }
 
   func createAudioChain(_ state: inout State) -> Bool {
@@ -332,7 +331,7 @@ private extension SynthFeature {
 
     do {
       log.info("routeChanged - setting active audio session")
-      try AVAudioSession.sharedInstance().setActive(true, options: [])
+      try session.setActive(true, [])
       state.sessionActive = true
     } catch {
       let err = error.localizedDescription
@@ -364,11 +363,9 @@ private extension SynthFeature {
 
     destroyAudioChain(&state)
 
-    let session = AVAudioSession.sharedInstance()
-
     do {
       log.info("stopAudioSession - setting AudioSession to inactive")
-      try session.setActive(false, options: [])
+      try session.setActive(false, [.notifyOthersOnDeactivation])
       log.info("stopAudioSession - done")
     } catch let error as NSError {
       log.error("stopAudioSession - Failed session.setActive(false): \(error.localizedDescription)")

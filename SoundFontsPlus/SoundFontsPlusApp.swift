@@ -15,6 +15,7 @@ struct SoundFontsPlusApp: App {
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       $0.defaultFileStorage = .fileSystem
+      $0.audioSession = .liveValue
 
       let delay = AVAudioUnitDelay()
       $0.delayDevice = .init(setConfig: { delay.setConfig($0) })
