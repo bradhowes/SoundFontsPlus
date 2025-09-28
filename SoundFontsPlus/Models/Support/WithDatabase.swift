@@ -29,14 +29,3 @@ public func withDatabaseReader<T>(_ closure: (Database) throws -> T) -> T? {
     }
   }
 }
-
-extension StructuredQueriesCore.Statement {
-
-  @inlinable
-  public func fetchOneOrThrow(_ db: Database) throws -> QueryValue.QueryOutput where QueryValue: QueryRepresentable {
-    guard let found = try fetchCursor(db).next() else {
-      throw DatabaseError(resultCode: .SQLITE_ERROR, message: "unexpectedly failed fetchOne")
-    }
-    return found
-  }
-}
