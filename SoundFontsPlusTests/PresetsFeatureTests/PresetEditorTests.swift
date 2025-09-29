@@ -144,7 +144,7 @@ extension BaseTestSuite.PresetEditorTests {
     try withSnapshotTesting(record: .failed) {
       try BaseTestSuite.assertSnap(
         matching: PresetEditorView.preview,
-        size: .init(width: 400, height: 800),
+        size: .init(width: 400, height: 1200),
         colorScheme: .dark
       )
     }

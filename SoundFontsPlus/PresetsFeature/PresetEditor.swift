@@ -284,34 +284,24 @@ public struct PresetEditorView: View {
 
   var audioSection: some View {
     Section(header: Text("Audio")) {
-      LabeledContent("Gain", value: formattedGainValue)
       HStack {
-        Slider(
-          value: $store.gainSlider,
-          in: 0...100
-        )
+        LabeledContent("Gain", value: formattedGainValue)
         Button {
           store.send(.resetGainTapped)
         } label: {
           Text("Reset")
         }
       }
-      ZStack {
-        Text("Pan")
-        HStack {
-          Text(formattedLeftPanValue)
-          Spacer()
-          Text(formattedRightPanValue)
-        }
-      }
+      Slider(value: $store.gainSlider, in: 0...100)
       HStack {
-        Slider(value: $store.panSlider, in: -100...100)
+        LabeledContent("Pan", value: "\(formattedLeftPanValue)/\(formattedRightPanValue)")
         Button {
           store.send(.resetPanTapped)
         } label: {
           Text("Reset")
         }
       }
+      Slider(value: $store.panSlider, in: -100...100)
     }
   }
 
