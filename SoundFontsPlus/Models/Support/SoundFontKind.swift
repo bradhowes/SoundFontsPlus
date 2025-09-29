@@ -95,7 +95,7 @@ public extension SoundFontKind {
   var addedByUser: Bool { !isBuiltin }
 
   /// True if the SF2 file should be deleted when removed from the application
-  var deletaWhenRemoved: Bool { isInstalled }
+  var deleteWhenRemoved: Bool { isInstalled }
 
   func fileInfo() throws -> SF2FileInfo {
     switch self {
