@@ -40,13 +40,41 @@ extension BaseTestSuite.PresetEditorTests {
     await store.send(\.binding.visible, false) {
       $0.visible = false
     }
+    await store.send(\.binding.gainSlider, 0.5) {
+      $0.gainSlider = 0.5
+    }
+    await store.send(\.tuning.scientificTuningApplyPressed) {
+      $0.tuning.frequency = 432.0
+      $0.tuning.cents = -32
+      $0.tuning.shiftA4Value = "-"
+    }
+    await store.receive(.tuning(.delegate(.tuningChanged(enabled: false, frequency: 432.0))))
+    await store.send(\.tuning.binding.enabled, true) {
+      $0.tuning.enabled = true
+    }
+    await store.receive(.tuning(.delegate(.tuningChanged(enabled: true, frequency: 432.0))))
 
-    await store.send(\.saveButtonTapped)
+    @Shared(.firstVisibleKey) var lowestKey
+    $lowestKey.withLock { $0 = .A4 }
+    await store.send(\.useLowestKeyTapped) {
+      $0.pendingAudioConfig.keyboardLowestNote = lowestKey
+    }
+
+    await store.send(\.saveButtonTapped) {
+      $0.pendingAudioConfig.gain = 0.5
+      $0.pendingAudioConfig.customTuning = 432.0
+      $0.pendingAudioConfig.customTuningEnabled = true
+    }
 
     let changed = Preset.with(id: preset.id)!
     #expect(changed.displayName == "New Name")
     #expect(changed.notes == "Important notes")
     #expect(changed.kind == .hidden)
+
+    let audioConfig = changed.audioConfig!
+    #expect(audioConfig.gain == 0.5)
+    #expect(audioConfig.customTuning == 432.0)
+    #expect(audioConfig.customTuningEnabled)
   }
 
   @Test func cancelButtonTappedIgnoresChanges() async throws {

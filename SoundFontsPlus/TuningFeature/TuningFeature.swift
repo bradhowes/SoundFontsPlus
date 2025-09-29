@@ -92,13 +92,15 @@ public struct TuningFeature {
     Reduce { state, action in
       switch action {
       case .binding(\.cents): return setCents(&state, cents: state.cents)
+      case .binding(\.enabled):
+        return .send(.delegate(.tuningChanged(enabled: state.enabled, frequency: state.frequency)))
       case .binding(\.frequency): return setFrequency(&state, frequency: state.frequency)
       case .binding: return .none
-      case .delegate: return .none
-      case .standardTuningApplyPressed: return setFrequency(&state, frequency: 440.0)
-      case .scientificTuningApplyPressed: return setFrequency(&state, frequency: 432.0)
       case .centsSumbmitted: return setCents(&state, cents: state.cents)
+      case .delegate: return .none
       case .frequencySubmitted: return setFrequency(&state, frequency: state.frequency)
+      case .scientificTuningApplyPressed: return setFrequency(&state, frequency: 432.0)
+      case .standardTuningApplyPressed: return setFrequency(&state, frequency: 440.0)
       }
     }
   }

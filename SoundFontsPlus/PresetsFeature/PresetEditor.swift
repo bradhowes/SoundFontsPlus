@@ -54,6 +54,9 @@ public struct PresetEditor {
       pendingAudioConfig.gain = gainSlider
       pendingAudioConfig.pan = panSlider
 
+      pendingAudioConfig.customTuning = tuning.frequency
+      pendingAudioConfig.customTuningEnabled = tuning.enabled
+
       withDatabaseWriter { db in
         try Preset.update {
           $0.displayName = displayName
