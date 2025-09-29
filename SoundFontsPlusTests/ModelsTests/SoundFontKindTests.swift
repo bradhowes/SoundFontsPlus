@@ -33,7 +33,7 @@ import Testing
     #expect(!sfk.isExternal)
     #expect(sfk.description == "installed")
     #expect(try sfk.data() == (.installed, SF2ResourceFileTag.freeFont.url.absoluteString.data(using: .utf8)))
-    #expect(try sfk.path == SF2ResourceFileTag.freeFont.url)
+    #expect(sfk.path == SF2ResourceFileTag.freeFont.url)
 
     let fileInfo = try sfk.fileInfo()
     #expect(fileInfo.size() == 235)
@@ -53,7 +53,7 @@ import Testing
     #expect(sfk.isExternal)
     #expect(sfk.description == "external link")
     #expect(try sfk.data() == (.external, data))
-    #expect(try sfk.path == SF2ResourceFileTag.freeFont.url)
+    #expect(sfk.path == SF2ResourceFileTag.freeFont.url)
 
     let fileInfo = try sfk.fileInfo()
     #expect(fileInfo.size() == 235)

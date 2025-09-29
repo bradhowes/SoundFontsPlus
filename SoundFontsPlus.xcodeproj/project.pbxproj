@@ -59,6 +59,7 @@
 		BD8063F22E8583D8006B3799 /* ProcessInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD8063F12E8583D8006B3799 /* ProcessInfo.swift */; };
 		BD812F652DF4BF3500D2B344 /* KeyboardReadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */; };
 		BD9BECE62E885F8A0091D094 /* AVAudioSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9BECE52E885F800091D094 /* AVAudioSessionTests.swift */; };
+		BD9BECE92E8AA1E40091D094 /* TutorialFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9BECE82E8AA1D90091D094 /* TutorialFeatureTests.swift */; };
 		BD9E45E92E794F9E00D0806E /* FourCharCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45E82E794F9B00D0806E /* FourCharCode.swift */; };
 		BD9E45EB2E79519A00D0806E /* ClosedRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45EA2E79518D00D0806E /* ClosedRange.swift */; };
 		BD9E46152E79801400D0806E /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD9E46142E79801400D0806E /* Engine */; };
@@ -269,6 +270,7 @@
 		BD8063F12E8583D8006B3799 /* ProcessInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProcessInfo.swift; sourceTree = "<group>"; };
 		BD812F642DF4BF2A00D2B344 /* KeyboardReadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardReadable.swift; sourceTree = "<group>"; };
 		BD9BECE52E885F800091D094 /* AVAudioSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAudioSessionTests.swift; sourceTree = "<group>"; };
+		BD9BECE82E8AA1D90091D094 /* TutorialFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialFeatureTests.swift; sourceTree = "<group>"; };
 		BD9E45E82E794F9B00D0806E /* FourCharCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FourCharCode.swift; sourceTree = "<group>"; };
 		BD9E45EA2E79518D00D0806E /* ClosedRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosedRange.swift; sourceTree = "<group>"; };
 		BD9E461B2E7A05F400D0806E /* ChangesFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesFeature.swift; sourceTree = "<group>"; };
@@ -533,6 +535,7 @@
 				BDAF5B5F2DE256C500B8FB13 /* SoundFontsPlusLibTests */,
 				BDAF5B672DE256C500B8FB13 /* SoundFontsFeatureTests */,
 				BDAF5B7B2DE256C500B8FB13 /* TagsFeatureTests */,
+				BD9BECE72E8AA1AB0091D094 /* TutorialFeatureTests */,
 				BDAF5B7D2DE256C500B8FB13 /* ToolBarFeatureTests */,
 				BDAF5B802DE256C500B8FB13 /* UtilsTests */,
 			);
@@ -573,6 +576,14 @@
 				BD9BECE52E885F800091D094 /* AVAudioSessionTests.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		BD9BECE72E8AA1AB0091D094 /* TutorialFeatureTests */ = {
+			isa = PBXGroup;
+			children = (
+				BD9BECE82E8AA1D90091D094 /* TutorialFeatureTests.swift */,
+			);
+			path = TutorialFeatureTests;
 			sourceTree = "<group>";
 		};
 		BD9E461A2E7A05E600D0806E /* TutorialFeature */ = {
@@ -1291,6 +1302,7 @@
 				BDAF5B8F2DE256C500B8FB13 /* SoundFontTests.swift in Sources */,
 				BDAF5B902DE256C500B8FB13 /* SharedTests.swift in Sources */,
 				BDAF5B912DE256C500B8FB13 /* SupportTests.swift in Sources */,
+				BD9BECE92E8AA1E40091D094 /* TutorialFeatureTests.swift in Sources */,
 				BD2F141B2E84867D00ADC9EC /* ChangesFeature.swift in Sources */,
 				BDAF5B922DE256C500B8FB13 /* ToolBarFeatureTests.swift in Sources */,
 				BDAF5B932DE256C500B8FB13 /* PresetTests.swift in Sources */,
