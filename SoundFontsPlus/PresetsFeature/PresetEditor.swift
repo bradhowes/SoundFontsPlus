@@ -19,10 +19,12 @@ public struct PresetEditor {
     var visible: Bool
     var notes: String
 
-    var audioConfig: AudioConfig.Draft
-    var tuning: TuningFeature.State
+    let originalAudioConfig: AudioConfig.Draft
+    var pendingAudioConfig: AudioConfig.Draft
 
     var gainSlider: Double
+    var panSlider: Double
+    var tuning: TuningFeature.State
 
     var isFavorite: Bool { preset.kind == .favorite }
 
@@ -33,19 +35,26 @@ public struct PresetEditor {
       self.originalName = preset.originalName
       self.visible = preset.kind == .preset
       self.notes = preset.notes
-      let audioConfigDraft = preset.audioConfigDraft
       self.soundFontName = preset.soundFontName
-      self.audioConfig = audioConfigDraft
-      self.tuning = .init(frequency: audioConfigDraft.customTuning, enabled: audioConfigDraft.customTuningEnabled)
-      self.gainSlider = audioConfigDraft.gain
+
+      let audioConfig = preset.audioConfigDraft
+      self.originalAudioConfig = audioConfig
+      self.pendingAudioConfig = audioConfig
+
+      self.tuning = .init(frequency: audioConfig.customTuning, enabled: audioConfig.customTuningEnabled)
+
+      self.gainSlider = audioConfig.gain
+      self.panSlider = audioConfig.pan
     }
 
     public mutating func save() {
       displayName = displayName.trimmed(or: preset.displayName)
       notes = notes.trimmed(or: preset.notes)
 
-      @Dependency(\.defaultDatabase) var database
-      try? database.write { db in
+      pendingAudioConfig.gain = gainSlider
+      pendingAudioConfig.pan = panSlider
+
+      withDatabaseWriter { db in
         try Preset.update {
           $0.displayName = displayName
           $0.notes = notes
@@ -56,13 +65,11 @@ public struct PresetEditor {
         .where { $0.id == preset.id }
         .execute(db)
 
-        // If no changes from default config values then we are done.
-        guard audioConfig.id != nil else { return }
-
-        withErrorReporting {
+        if pendingAudioConfig != originalAudioConfig {
           try AudioConfig.upsert {
-            audioConfig
-          }.execute(db)
+            pendingAudioConfig
+          }
+          .execute(db)
         }
       }
     }
@@ -101,11 +108,11 @@ public struct PresetEditor {
         return .none
 
       case .resetGainTapped:
-        state.audioConfig.gain = 0.0
+        state.gainSlider = 0.0
         return.none
 
       case .resetPanTapped:
-        state.audioConfig.pan = 0.0
+        state.panSlider = 0.0
         return.none
 
       case .saveButtonTapped:
@@ -139,7 +146,7 @@ extension PresetEditor {
 
   private func useLowestKey(_ state: inout State) -> Effect<Action> {
     @Shared(.firstVisibleKey) var lowestKey
-    state.audioConfig.keyboardLowestNote = lowestKey
+    state.pendingAudioConfig.keyboardLowestNote = lowestKey
     return .none
   }
 }
@@ -203,20 +210,20 @@ public struct PresetEditorView: View {
 
   var keyboardSection: some View {
     Section(header: Text("Shift Keyboard")) {
-      Toggle("Enabled", isOn: $store.audioConfig.keyboardLowestNoteEnabled)
+      Toggle("Enabled", isOn: $store.pendingAudioConfig.keyboardLowestNoteEnabled)
       HStack {
         Text("First key:")
         // Spacer()
-        Text(store.audioConfig.keyboardLowestNote.label)
+        Text(store.pendingAudioConfig.keyboardLowestNote.label)
           .frame(maxWidth: .infinity, alignment: Alignment.center)
         Stepper(
           "",
-          value: $store.audioConfig.keyboardLowestNote,
+          value: $store.pendingAudioConfig.keyboardLowestNote,
           in: Note(midiNoteValue: 0)...Note(midiNoteValue: 127),
           step: 1
         )
         .labelsHidden()
-        .disabled(!store.audioConfig.keyboardLowestNoteEnabled)
+        .disabled(!store.pendingAudioConfig.keyboardLowestNoteEnabled)
       }
       HStack {
         Text("Current:")
@@ -227,7 +234,7 @@ public struct PresetEditorView: View {
         } label: {
           Text("Use")
         }
-        .disabled(!store.audioConfig.keyboardLowestNoteEnabled)
+        .disabled(!store.pendingAudioConfig.keyboardLowestNoteEnabled)
       }
     }
   }
@@ -246,16 +253,16 @@ public struct PresetEditorView: View {
   }
 
   var formattedGainValue: String {
-    String(format: "%+.1f dB", locale: Locale.current, arguments: [store.audioConfig.gain])
+    String(format: "%+.1f dB", locale: Locale.current, arguments: [store.gainSlider])
   }
 
   var formattedLeftPanValue: String {
-    let value = 100 - Int(round((store.audioConfig.pan + 100.0) / 200.0 * 100.0))
+    let value = 100 - Int(round((store.panSlider + 100.0) / 200.0 * 100.0))
     return String(format: "%d", locale: Locale.current, arguments: [value])
   }
 
   var formattedRightPanValue: String {
-    let value = Int(round((store.audioConfig.pan + 100.0) / 200.0 * 100.0))
+    let value = Int(round((store.panSlider + 100.0) / 200.0 * 100.0))
     return String(format: "%d", locale: Locale.current, arguments: [value])
   }
 
@@ -264,9 +271,9 @@ public struct PresetEditorView: View {
       HStack(spacing: 10) {
         Text("Pitch bend range (semitones):")
         Spacer()
-        Text("\(store.audioConfig.pitchBendRange)")
+        Text("\(store.pendingAudioConfig.pitchBendRange)")
         Spacer()
-        Stepper("", value: $store.audioConfig.pitchBendRange, in: 1...24, step: 1)
+        Stepper("", value: $store.pendingAudioConfig.pitchBendRange, in: 1...24, step: 1)
           .labelsHidden()
       }
     }
@@ -295,7 +302,7 @@ public struct PresetEditorView: View {
         }
       }
       HStack {
-        Slider(value: $store.audioConfig.pan, in: -100...100)
+        Slider(value: $store.panSlider, in: -100...100)
         Button {
           store.send(.resetPanTapped)
         } label: {

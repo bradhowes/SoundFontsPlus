@@ -61,6 +61,7 @@
 		BD9BECE62E885F8A0091D094 /* AVAudioSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9BECE52E885F800091D094 /* AVAudioSessionTests.swift */; };
 		BD9BECE92E8AA1E40091D094 /* TutorialFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9BECE82E8AA1D90091D094 /* TutorialFeatureTests.swift */; };
 		BD9BECEB2E8AF4860091D094 /* SharingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9BECEA2E8AF4860091D094 /* SharingTests.swift */; };
+		BD9BECED2E8AFE660091D094 /* KeyLabelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9BECEC2E8AFE660091D094 /* KeyLabelsTests.swift */; };
 		BD9E45E92E794F9E00D0806E /* FourCharCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45E82E794F9B00D0806E /* FourCharCode.swift */; };
 		BD9E45EB2E79519A00D0806E /* ClosedRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45EA2E79518D00D0806E /* ClosedRange.swift */; };
 		BD9E46152E79801400D0806E /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD9E46142E79801400D0806E /* Engine */; };
@@ -273,6 +274,7 @@
 		BD9BECE52E885F800091D094 /* AVAudioSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAudioSessionTests.swift; sourceTree = "<group>"; };
 		BD9BECE82E8AA1D90091D094 /* TutorialFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialFeatureTests.swift; sourceTree = "<group>"; };
 		BD9BECEA2E8AF4860091D094 /* SharingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SharingTests.swift; sourceTree = "<group>"; };
+		BD9BECEC2E8AFE660091D094 /* KeyLabelsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyLabelsTests.swift; sourceTree = "<group>"; };
 		BD9E45E82E794F9B00D0806E /* FourCharCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FourCharCode.swift; sourceTree = "<group>"; };
 		BD9E45EA2E79518D00D0806E /* ClosedRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosedRange.swift; sourceTree = "<group>"; };
 		BD9E461B2E7A05F400D0806E /* ChangesFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesFeature.swift; sourceTree = "<group>"; };
@@ -944,6 +946,7 @@
 			children = (
 				BD0054522E6F75180053B13B /* DSPTests.swift */,
 				BDAF5B7E2DE256C500B8FB13 /* NoteTests.swift */,
+				BD9BECEC2E8AFE660091D094 /* KeyLabelsTests.swift */,
 				BD9BECEA2E8AF4860091D094 /* SharingTests.swift */,
 			);
 			path = UtilsTests;
@@ -1316,6 +1319,7 @@
 				BDAF5B952DE256C500B8FB13 /* SF2ResourceFilesTests.swift in Sources */,
 				BD5FF2582E8297DF008F94C1 /* PresetLoadingInfoTests.swift in Sources */,
 				BDAF5B962DE256C500B8FB13 /* PresetsListSectionTests.swift in Sources */,
+				BD9BECED2E8AFE660091D094 /* KeyLabelsTests.swift in Sources */,
 				BDAF5B972DE256C500B8FB13 /* SoundFontKindTests.swift in Sources */,
 				BDAF5B982DE256C500B8FB13 /* NoteTests.swift in Sources */,
 				BDAF5B992DE256C500B8FB13 /* ReverbConfigTests.swift in Sources */,
