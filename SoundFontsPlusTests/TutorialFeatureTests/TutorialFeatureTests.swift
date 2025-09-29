@@ -31,6 +31,11 @@ extension BaseTestSuite.TutorialFeatureTests {
     #expect(!TutorialFeature.shouldShow)
   }
 
+  @Test func dismissButtonTappeed() async throws {
+    let store = makeStore(page: .intro)
+    await store.send(.dismissButtonTapped)
+  }
+
   @Test func intoChangePage() async throws {
     let store = makeStore(page: .intro)
     await store.send(.prev)
