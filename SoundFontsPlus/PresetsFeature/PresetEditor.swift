@@ -8,8 +8,19 @@ import SwiftUI
 @Reducer
 public struct PresetEditor {
 
+  @Reducer(state: .equatable, action: .equatable)
+  public enum Destination {
+    case alert(AlertState<Alert>)
+
+    @CasePathable
+    public enum Alert: Equatable {
+      case hidePresetConfirmed
+    }
+  }
+
   @ObservableState
-  public struct State: Equatable, Sendable {
+  public struct State: Equatable {
+    @Presents var destination: Destination.State?
     let sectionId: Int
     let preset: Preset
     let soundFontName: String
@@ -78,9 +89,10 @@ public struct PresetEditor {
     }
   }
 
-  public enum Action: Equatable, BindableAction {
+  public enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
     case cancelButtonTapped
+    case destination(PresentationAction<Destination.Action>)
     case displayNameChanged(String)
     case notesChanged(String)
     case resetGainTapped
@@ -96,11 +108,24 @@ public struct PresetEditor {
     Scope(state: \.tuning, action: \.tuning) { TuningFeature() }
     Reduce { state, action in
       switch action {
+
+      case .binding(\.visible):
+        if !state.visible {
+          return confirmHidePreset(&state)
+        }
+        return .none
+
       case .binding:
         return .none
 
       case .cancelButtonTapped:
         return dismiss(&state, save: false)
+
+      case .destination(.presented(.alert(.hidePresetConfirmed))):
+        return hidePresetConfirmed(&state)
+
+      case .destination(.dismiss):
+        return .none
 
       case .displayNameChanged(let value):
         state.displayName = value
@@ -132,12 +157,30 @@ public struct PresetEditor {
         return .none
       }
     }
+    .ifLet(\.destination, action: \.destination)
   }
 
   public init() {}
+
+  @Shared(.confirmPresetHiding) var confirmPresetHiding
+}
+
+extension PresetEditor.Destination.State: _EphemeralState {
+  public typealias Action = Alert
 }
 
 extension PresetEditor {
+
+  private func confirmHidePreset(_ state: inout State) -> Effect<Action> {
+    if confirmPresetHiding {
+      state.visible = true
+      state.destination = .alert(
+        .confirmHidePreset(action: .hidePresetConfirmed, displayName: state.displayName)
+      )
+      return .none
+    }
+    return hidePresetConfirmed(&state)
+  }
 
   private func dismiss(_ state: inout State, save: Bool) -> Effect<Action> {
     if save {
@@ -145,6 +188,12 @@ extension PresetEditor {
     }
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
+  }
+
+  private func hidePresetConfirmed(_ state: inout State) -> Effect<Action> {
+    $confirmPresetHiding.withLock { $0 = false }
+    state.visible = false
+    return .none
   }
 
   private func useLowestKey(_ state: inout State) -> Effect<Action> {
@@ -190,6 +239,7 @@ public struct PresetEditorView: View {
         }
       }
     }
+    .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
 
   var nameSection: some View {

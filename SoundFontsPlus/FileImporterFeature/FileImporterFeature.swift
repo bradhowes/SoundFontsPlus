@@ -10,7 +10,7 @@ private let log = Logger(category: "FileImporterFeature")
 @Reducer
 public struct FileImporterFeature {
 
-  @Reducer(state: .equatable)
+  @Reducer(state: .equatable, action: .equatable)
   public enum Destination: Equatable {
     case alert(AlertState<Alert>)
 
@@ -62,6 +62,8 @@ public struct FileImporterFeature {
     .ifLet(\.destination, action: \.destination)
   }
 }
+
+// extension Result<URL, Error>: Equatable {}
 
 extension FileImporterFeature.Destination.State: _EphemeralState {
   public typealias Action = Alert

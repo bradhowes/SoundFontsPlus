@@ -30,6 +30,8 @@ extension BaseTestSuite.PresetEditorTests {
 
   @Test func acceptButtonTappedSavesChanges() async throws {
     let (preset, store) = try setup()
+    @Shared(.confirmPresetHiding) var confirmPresetHiding
+    $confirmPresetHiding.withLock { $0 = false }
 
     await store.send(\.binding.displayName, "New Name") {
       $0.displayName = "New Name"
@@ -48,11 +50,11 @@ extension BaseTestSuite.PresetEditorTests {
       $0.tuning.cents = -32
       $0.tuning.shiftA4Value = "-"
     }
-    await store.receive(.tuning(.delegate(.tuningChanged(enabled: false, frequency: 432.0))))
+    await store.receive(\.tuning, .delegate(.tuningChanged(enabled: false, frequency: 432.0)))
     await store.send(\.tuning.binding.enabled, true) {
       $0.tuning.enabled = true
     }
-    await store.receive(.tuning(.delegate(.tuningChanged(enabled: true, frequency: 432.0))))
+    await store.receive(\.tuning, .delegate(.tuningChanged(enabled: true, frequency: 432.0)))
 
     @Shared(.firstVisibleKey) var lowestKey
     $lowestKey.withLock { $0 = .A4 }
@@ -79,6 +81,8 @@ extension BaseTestSuite.PresetEditorTests {
 
   @Test func cancelButtonTappedIgnoresChanges() async throws {
     let (preset, store) = try setup()
+    @Shared(.confirmPresetHiding) var confirmPresetHiding
+    $confirmPresetHiding.withLock { $0 = false }
 
     await store.send(\.binding.displayName, "New Name") {
       $0.displayName = "New Name"

@@ -9,7 +9,7 @@ public struct PresetsList {
   public static let groupingSize = 20
   public static let noGroupingSize = 10_000
 
-  @Reducer(state: .equatable)
+  @Reducer(state: .equatable, action: .equatable)
   public enum Destination {
     case alert(AlertState<Alert>)
 
@@ -313,39 +313,6 @@ extension PresetsList {
       state.scrollToPresetId = nil
     }
     return generatePresetSections(&state)
-  }
-}
-
-extension AlertState {
-  static func confirmHidePreset(action: Action, displayName: String) -> Self {
-    Self {
-      TextState("Hide '\(displayName)'?")
-    } actions: {
-      ButtonState(action: action) { TextState("Hide") }
-      ButtonState(role: .cancel) { TextState("Cancel") }
-    } message: {
-      TextState(
-"""
-Hiding a preset will keep it from appearing in the list of presets. \
-You can restore visibility via the preset visibility button in the toolbar.
-"""
-      )
-    }
-  }
-
-  static func confirmDeleteFavorite(action: Action, displayName: String) -> Self {
-    Self {
-      TextState("Delete '\(displayName)'?")
-    } actions: {
-      ButtonState(role: .destructive, action: action) { TextState("Delete") }
-      ButtonState(role: .cancel) { TextState("Cancel") }
-    } message: {
-      TextState(
-"""
-Deleting a favorite cannot be undone.
-"""
-      )
-    }
   }
 }
 

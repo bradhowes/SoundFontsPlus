@@ -270,14 +270,16 @@ private extension AppFeature {
   }
 
   func editorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
-    guard let sectionIndex = state.presetsList.sections.index(id: editor.sectionId),
-          let rowIndex = state.presetsList.sections[sectionIndex].rows.index(id: editor.preset.id)
+    guard let sectionIndex = state.presetsList.sections.index(id: editor.sectionId)
     else {
       fatalError("unexpected indexing failure")
     }
 
-    state.presetsList.sections[sectionIndex].rows[rowIndex].preset.displayName = editor.displayName
-    return .none
+    if editor.visible {
+      state.presetsList.sections[sectionIndex].update(presetId: editor.preset.id, displayName: editor.displayName)
+      return .none
+    }
+    return reduce(into: &state, action: .presetsList(.fetchPresets))
   }
 
   func initialize(_ state: inout State) -> Effect<Action> {
