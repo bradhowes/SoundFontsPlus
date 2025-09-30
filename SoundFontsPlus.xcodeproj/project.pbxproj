@@ -142,7 +142,6 @@
 		BDAF5B882DE256C500B8FB13 /* SettingsFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B512DE256C500B8FB13 /* SettingsFeatureTests.swift */; };
 		BDAF5B892DE256C500B8FB13 /* OperationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B382DE256C500B8FB13 /* OperationsTests.swift */; };
 		BDAF5B8B2DE256C500B8FB13 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B562DE256C500B8FB13 /* Helpers.swift */; };
-		BDAF5B8E2DE256C500B8FB13 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B4E2DE256C500B8FB13 /* Support.swift */; };
 		BDAF5B8F2DE256C500B8FB13 /* SoundFontTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B3D2DE256C500B8FB13 /* SoundFontTests.swift */; };
 		BDAF5B902DE256C500B8FB13 /* SharedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B3B2DE256C500B8FB13 /* SharedTests.swift */; };
 		BDAF5B912DE256C500B8FB13 /* SupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B662DE256C500B8FB13 /* SupportTests.swift */; };
@@ -354,7 +353,6 @@
 		BDAF5B4A2DE256C500B8FB13 /* PresetEditorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetEditorTests.swift; sourceTree = "<group>"; };
 		BDAF5B4C2DE256C500B8FB13 /* PresetsListSectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetsListSectionTests.swift; sourceTree = "<group>"; };
 		BDAF5B4D2DE256C500B8FB13 /* PresetsListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetsListTests.swift; sourceTree = "<group>"; };
-		BDAF5B4E2DE256C500B8FB13 /* Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
 		BDAF5B512DE256C500B8FB13 /* SettingsFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFeatureTests.swift; sourceTree = "<group>"; };
 		BDAF5B532DE256C500B8FB13 /* FreeFont.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = FreeFont.sf2; sourceTree = "<group>"; };
 		BDAF5B542DE256C500B8FB13 /* RolandNicePiano.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = RolandNicePiano.sf2; sourceTree = "<group>"; };
@@ -854,7 +852,6 @@
 				BDAF5B4A2DE256C500B8FB13 /* PresetEditorTests.swift */,
 				BDAF5B4C2DE256C500B8FB13 /* PresetsListSectionTests.swift */,
 				BDAF5B4D2DE256C500B8FB13 /* PresetsListTests.swift */,
-				BDAF5B4E2DE256C500B8FB13 /* Support.swift */,
 			);
 			path = PresetsFeatureTests;
 			sourceTree = "<group>";
@@ -1301,7 +1298,6 @@
 				BDAF5B892DE256C500B8FB13 /* OperationsTests.swift in Sources */,
 				BD0054532E6F75180053B13B /* DSPTests.swift in Sources */,
 				BDAF5B8B2DE256C500B8FB13 /* Helpers.swift in Sources */,
-				BDAF5B8E2DE256C500B8FB13 /* Support.swift in Sources */,
 				BDAF5B8F2DE256C500B8FB13 /* SoundFontTests.swift in Sources */,
 				BDAF5B902DE256C500B8FB13 /* SharedTests.swift in Sources */,
 				BDAF5B912DE256C500B8FB13 /* SupportTests.swift in Sources */,

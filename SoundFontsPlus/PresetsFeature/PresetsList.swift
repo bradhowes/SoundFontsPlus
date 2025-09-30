@@ -70,6 +70,7 @@ public struct PresetsList {
     case selectedSoundFontIdChanged(SoundFont.ID?)
     case showActivePreset
     case showActivePresetNow
+    case stop // only used for testing
     case visibilityEditModeChanged(Bool)
 
     public enum Delegate {
@@ -157,8 +158,8 @@ public struct PresetsList {
         return setSoundFont(&state, soundFontId: soundFontId)
 
       case .showActivePreset:
-        // Delay scrolling to active preset in case the keyboard was shown. We hide the music keyboard when it is
-        // and restoring it can cause it to obscure the active preset.
+        // Delay scrolling to active preset in case the keyboard was shown. We hide the music keyboard when the text
+        // keyboard appears, and restoring it can cause it to obscure the active preset.
         return .run { send in
           try await Task.sleep(for: .milliseconds(100))
           await send(.showActivePresetNow)
@@ -167,6 +168,9 @@ public struct PresetsList {
       case .showActivePresetNow:
         state.scrollToPresetId = .init(presetId: activeState.activePresetId)
         return .none
+
+      case .stop:
+        return .cancel(id: CancelId.monitorSelectedSoundFontId)
 
       case let .visibilityEditModeChanged(editing):
         state.visibilityEditMode = editing ? .active : .inactive
@@ -216,6 +220,7 @@ extension PresetsList {
   private func dismissSearch(_ state: inout State) -> Effect<Action> {
     state.isSearchFieldPresented = false
     state.focusedField = nil
+    state.scrollToPresetId = nil
     generatePresetSections(&state)
     return .send(.showActivePreset)
   }
@@ -281,6 +286,7 @@ extension PresetsList {
   private func searchButtonTapped(_ state: inout State) -> Effect<Action> {
     state.isSearchFieldPresented = true
     state.focusedField = .searchText
+    state.scrollToPresetId = nil
     return generatePresetSections(&state)
   }
 

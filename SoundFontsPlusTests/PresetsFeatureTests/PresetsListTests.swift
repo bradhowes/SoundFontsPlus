@@ -1,47 +1,217 @@
-//import Testing
-//
-//import ComposableArchitecture
-//import Dependencies
-//import SnapshotTesting
-//import Tagged
-//
-//@MainActor
-//struct PresetsListTests {
-//
-//  func initialize(_ body: (Array<SoundFont>, TestStoreOf<PresetsList>) async throws -> Void) async throws {
-//    try await TestSupport.initialize { soundFonts, presets in
-//      @Shared(.activeState) var activeState
-//      $activeState.withLock {
-//        $0.selectedSoundFontId = soundFonts[0].id
-//      }
-//      try await body(soundFonts, TestStore(initialState: PresetsList.State()) {
-//        PresetsList()
-//      })
-//    }
-//  }
-//
-//  @Test func creationWithNilSoundFont() async throws {
-//    try await TestSupport.initialize { soundFonts, presets in
-//      let store = TestStore(initialState: PresetsList.State()) { PresetsList() }
-//      #expect(store.state.sections.count == 0)
-//      await store.send(.onAppear)
-//      await store.receive(\.selectedSoundFontIdChanged)
-//      #expect(store.state.sections.count == 0)
-//      await store.send(.stop)
-//      await store.finish()
-//    }
-//  }
-//
-//  @Test func creation() async throws {
-//    try await initialize { soundFonts, store in
-//      #expect(store.state.sections.count == 24)
-//      await store.send(.onAppear)
-//      await store.receive(\.selectedSoundFontIdChanged)
-//      #expect(store.state.sections.count == 24)
-//      await store.send(.stop)
-//      await store.finish()
-//    }
-//  }
+import Testing
+
+import ComposableArchitecture
+import Dependencies
+import SnapshotTesting
+import Tagged
+
+@testable import SoundFontsPlus
+
+extension BaseTestSuite {
+
+  static func makePresets(_ pairs: [(Int, String)]) -> [Preset] {
+    pairs.map { index, name in
+      Preset(
+        id: .init(rawValue: Int64(index + 1)),
+        index: index,
+        bank: 0,
+        program: index,
+        originalName: name,
+        soundFontId: 1,
+        displayName: name,
+        notes: "",
+        kind: .preset
+      )
+    }
+  }
+
+  @MainActor
+  struct PresetsListTests {
+    let presets: [Preset] = makePresets(
+      [
+        (0, "Yamaha Grand Piano"),
+        (1, "Bright Yamaha Grand"),
+        (2, "Electric Piano"),
+        (3, "Honky Tonk"),
+        (4, "Rhodes EP"),
+        (5, "Legend EP 2"),
+        (6, "Harpsichord"),
+        (7, "Clavinet"),
+        (8, "Celesta"),
+        (9, "Glockenspiel")
+      ]
+    )
+  }
+}
+
+extension BaseTestSuite.PresetsListTests {
+
+  func setup(
+    activeSoundFontId: SoundFont.ID? = .init(rawValue: 1),
+    selectedSoundFontId: SoundFont.ID? = nil,
+    searchText: String? = nil,
+    visibilityEditMode: Bool = false
+  ) throws -> TestStoreOf<PresetsList> {
+    @Shared(.activeState) var activeState
+    $activeState.withLock {
+      $0.activeSoundFontId = activeSoundFontId
+      $0.activePresetId = .init(rawValue: 1)
+    }
+    @Shared(.selectedSoundFontId) var selectedSoundFontId
+    $selectedSoundFontId.withLock { $0 = selectedSoundFontId }
+
+    let store = TestStore(
+      initialState: PresetsList.State(
+        searchText: searchText,
+        visibilityEditMode: visibilityEditMode
+      )
+    ) {
+      PresetsList()
+    }
+
+    return store
+  }
+
+  @Test func initializeWithNoSoundFontId() async throws {
+    let store = try setup(activeSoundFontId: nil, selectedSoundFontId: nil)
+    #expect(store.state.sections.count == 0)
+
+    await store.send(.initialize)
+    await store.receive(\.selectedSoundFontIdChanged) {
+      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+      $0.sections = [.init(section: 0, presets: [])]
+    }
+    #expect(store.state.sections.count == 1)
+
+    await store.send(.stop)
+    await store.finish()
+  }
+
+  @Test func initializeWithSoundFontId() async throws {
+    let store = try setup()
+    #expect(store.state.sections.count == 0)
+
+    await store.send(.initialize)
+    await store.receive(\.selectedSoundFontIdChanged) {
+      // $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+      $0.sections = [.init(section: 0, presets: presets[...])]
+    }
+    #expect(store.state.sections.count == 1)
+
+    await store.send(.stop)
+    await store.finish()
+  }
+
+  @Test func fetchPresets() async throws {
+    let store = try setup()
+
+    await store.send(.fetchPresets) {
+      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+    }
+    #expect(store.state.sections.count == 1)
+
+    await store.send(.stop)
+    await store.finish()
+  }
+
+  @Test func searchPresets() async throws {
+    let store = try setup()
+
+    await store.send(.fetchPresets) {
+      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+    }
+    #expect(store.state.sections.count == 1)
+
+    await store.send(\.sections, .element(id: 10_000, action: .searchButtonTapped))
+    await store.receive(\.sections, .element(id: 10_000, action: .delegate(.searchButtonTapped))) {
+      $0.scrollToPresetId = nil
+      $0.sections = [.init(section: 0, presets: [])]
+      $0.isSearchFieldPresented = true
+      $0.focusedField = .searchText
+    }
+
+    await store.send(.searchTextChanged("arp")) {
+      $0.searchText = "arp"
+      $0.sections = [.init(section: 0, presets: presets.filter({$0.displayName.contains("arp")})[...])]
+    }
+
+    await store.send(.clearSearchTextField) {
+      $0.searchText = ""
+      $0.sections = [.init(section: 0, presets: [])]
+    }
+
+    await store.send(.cancelSearchButtonTapped) {
+      $0.isSearchFieldPresented = false
+      $0.focusedField = nil
+      $0.sections = [.init(section: 0, presets: presets[...])]
+    }
+
+    await store.receive(\.showActivePreset)
+    await store.receive(\.showActivePresetNow) {
+      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+    }
+
+    await store.send(.stop)
+    await store.finish()
+  }
+
+  @Test func clearScrollTo() async throws {
+    let store = try setup()
+
+    await store.send(.fetchPresets) {
+      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+    }
+    #expect(store.state.sections.count == 1)
+
+    await store.send(\.clearScrollToPresetId) {
+      $0.scrollToPresetId = nil
+    }
+
+    await store.send(.stop)
+    await store.finish()
+  }
+
+  @Test func selectFromSearch() async throws {
+    let store = try setup()
+
+    await store.send(.fetchPresets) {
+      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+    }
+    #expect(store.state.sections.count == 1)
+
+    await store.send(\.sections, .element(id: 10_000, action: .searchButtonTapped))
+    await store.receive(\.sections, .element(id: 10_000, action: .delegate(.searchButtonTapped))) {
+      $0.sections = [.init(section: 0, presets: [])]
+      $0.isSearchFieldPresented = true
+      $0.focusedField = .searchText
+      $0.scrollToPresetId = nil
+    }
+
+    await store.send(.searchTextChanged("arp")) {
+      $0.searchText = "arp"
+      $0.sections = [.init(section: 0, presets: presets.filter({$0.displayName.contains("arp")})[...])]
+    }
+
+    await store.send(\.sections, .element(id: 10_000, action: .rows(.element(id: 7, action: .delegate(.selectPreset(presets[6])))))) {
+      $0.isSearchFieldPresented = false
+      $0.focusedField = nil
+      $0.sections = [.init(section: 0, presets: presets[...])]
+    }
+
+    await store.receive(\.showActivePreset)
+    await store.receive(\.showActivePresetNow) {
+      $0.scrollToPresetId = .init(presetId: 7, anchor: .center)
+    }
+
+    await store.send(.stop)
+    await store.finish()
+
+  }
+
 //
 //  @Test func detectSoundFontIdChange() async throws {
 //    try await initialize { soundFonts, store in
@@ -140,10 +310,43 @@
 //    }
 //  }
 //
-//  @Test func presetListViewPreviewEditing() async throws {
-//    withSnapshotTesting(record: .failed) {
-//      let view = PresetsListView.previewEditing
-//      assertSnapshot(of: view, as: .image(layout: .device(config: .iPhoneSe), traits: .init(userInterfaceStyle: .dark)))
-//    }
-//  }
-//}
+  @Test func presetsListViewSearchingPreview() async throws {
+    let store = StoreOf<PresetsList>(initialState: .init(searchText: "ian")) {
+      PresetsList()
+    }
+    let view = PresetsListView(store: store)
+
+    try withSnapshotTesting(record: .failed) {
+      try BaseTestSuite.assertSnap(
+        matching: view,
+        size: .init(width: 400, height: 800),
+        colorScheme: .dark
+      )
+    }
+  }
+
+  @Test func presetsListViewVisibilityEditing() async throws {
+    let store = StoreOf<PresetsList>(initialState: .init(visibilityEditMode: true)) {
+      PresetsList()
+    }
+    let view = PresetsListView(store: store)
+
+    try withSnapshotTesting(record: .failed) {
+      try BaseTestSuite.assertSnap(
+        matching: view,
+        size: .init(width: 400, height: 800),
+        colorScheme: .dark
+      )
+    }
+  }
+
+  @Test func presetsListViewPreview() async throws {
+    try withSnapshotTesting(record: .failed) {
+      try BaseTestSuite.assertSnap(
+        matching: PresetsListView.preview,
+        size: .init(width: 400, height: 800),
+        colorScheme: .dark
+      )
+    }
+  }
+}

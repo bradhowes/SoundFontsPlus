@@ -23,6 +23,14 @@ struct BaseTestSuite {
 
 extension BaseTestSuite {
 
+  static func fetchPreset(presetId: Preset.ID) async throws -> Preset {
+    guard let preset = Preset.with(id: presetId) else {
+      Issue.record("Failed to fetch existing preset")
+      fatalError()
+    }
+    return preset
+  }
+
   @inlinable
   static func makeUniqueSnapshotName(_ funcName: StaticString) -> String {
     "\(funcName)-iOS"
