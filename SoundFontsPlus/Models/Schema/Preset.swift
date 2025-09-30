@@ -202,12 +202,6 @@ extension Preset {
     return activeState.activePresetId
   }
 
-  public static var source: SoundFont.ID? {
-    @Shared(.selectedSoundFontId) var selectedSoundFontId
-    @Shared(.activeState) var activeState
-    return selectedSoundFontId ?? activeState.activeSoundFontId
-  }
-
   public static func with(id: Preset.ID) -> Preset? {
     withDatabaseReader { db in
       try Self.all

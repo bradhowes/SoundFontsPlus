@@ -152,6 +152,7 @@ extension ReverbFeature {
     .publisher {
       $activeState.activePresetId
         .publisher
+        .removeDuplicates()
         .map { .activePresetIdChanged($0) }
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }

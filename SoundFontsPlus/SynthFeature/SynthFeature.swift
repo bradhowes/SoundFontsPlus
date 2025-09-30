@@ -249,6 +249,7 @@ private extension SynthFeature {
     .publisher {
       $activeState.activePresetId
         .publisher
+        .removeDuplicates()
         .map { _ in .activePresetIdChanged }
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }

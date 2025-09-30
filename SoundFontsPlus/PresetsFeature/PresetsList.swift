@@ -201,6 +201,26 @@ extension PresetsList.Destination.State: _EphemeralState {
 
 extension PresetsList {
 
+  static func generatePresetSections(
+    for soundFontId: SoundFont.ID? = nil,
+    searchText: String = "",
+    editing: Bool = false
+  ) -> IdentifiedArrayOf<PresetsListSection.State> {
+    let grouping = searchText.isEmpty ? groupingSize : noGroupingSize
+    var presets = editing ? Operations.allPresets(for: soundFontId) : Operations.presets(for: soundFontId)
+    if !searchText.isEmpty {
+      presets = presets.filter {
+        $0.displayName.localizedLowercase.contains(searchText.lowercased())
+      }
+    }
+
+    return presets.isEmpty ?
+      .init(uniqueElements: [PresetsListSection.State(section: 0, presets: [])]) :
+      .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map {
+        PresetsListSection.State(section: $0.lowerBound, presets: presets[$0])
+      })
+  }
+
   private func deleteFavorite(_ state: inout State, preset: Preset) -> Effect<Action> {
     state.destination = .alert(
       .confirmDeleteFavorite(action: .deleteFavoriteConfirmed(preset), displayName: preset.displayName)
@@ -226,9 +246,9 @@ extension PresetsList {
   }
 
   @discardableResult
-  private func generatePresetSections(_ state: inout State) -> Effect<Action> {
+  private func generatePresetSections(_ state: inout State, soundFontId: SoundFont.ID? = nil) -> Effect<Action> {
     let grouping = state.optionalSearchText != nil ? Self.noGroupingSize : Self.groupingSize
-    var presets = state.visibilityEditMode == .active ? Operations.allPresets : Operations.presets
+    var presets = state.visibilityEditMode == .active ? Operations.allPresets(for: soundFontId) : Operations.presets(for: soundFontId)
     if let searchText = state.optionalSearchText {
       presets = presets.filter {
         $0.displayName.localizedLowercase.contains(searchText.lowercased())
@@ -266,6 +286,7 @@ extension PresetsList {
     .publisher {
       $selectedSoundFontId
         .publisher
+        .removeDuplicates()
         .map { .selectedSoundFontIdChanged($0) }
     }.cancellable(id: CancelId.monitorSelectedSoundFontId, cancelInFlight: true)
   }
@@ -318,7 +339,7 @@ extension PresetsList {
     } else {
       state.scrollToPresetId = nil
     }
-    return generatePresetSections(&state)
+    return generatePresetSections(&state, soundFontId: soundFontId)
   }
 }
 

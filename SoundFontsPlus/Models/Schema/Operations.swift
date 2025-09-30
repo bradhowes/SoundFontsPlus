@@ -6,12 +6,17 @@ import SQLiteData
 
 public enum Operations {
 
-  public static var presetsQuery: Where<Preset> {
+  public static func currentPresetsSource() -> SoundFont.ID? {
+    @Shared(.selectedSoundFontId) var selectedSoundFontId
+    @Shared(.activeState) var activeState
+    return selectedSoundFontId ?? activeState.activeSoundFontId
+  }
+
+  public static func presetsQuery(for soundFontId: SoundFont.ID?) -> Where<Preset> {
     @Shared(.showOnlyFavorites) var showOnlyFavorites
-    let soundFontId = Preset.source ?? -1
     let query = Preset
       .all
-      .where { $0.soundFontId.eq(soundFontId) }
+      .where { $0.soundFontId.eq(soundFontId ?? currentPresetsSource() ?? -1) }
     if showOnlyFavorites {
       return query
         .where { $0.kind.eq(Preset.Kind.favorite) }
@@ -21,13 +26,13 @@ public enum Operations {
     }
   }
 
-  public static var presets: [Preset] {
+  public static func presets(for soundFontId: SoundFont.ID?) -> [Preset] {
     @Shared(.favoritesOnTop) var favoritesOnTop
     let query = favoritesOnTop
-    ? presetsQuery
+    ? presetsQuery(for: soundFontId)
       .order { $0.kind.desc() }
       .order(by: \.index)
-    : presetsQuery
+    : presetsQuery(for: soundFontId)
       .order(by: \.index)
       .order(by: \.kind)
       .order(by: \.displayName)
@@ -44,8 +49,8 @@ public enum Operations {
     AudioConfig.with(presetId: Preset.active)
   }
 
-  public static var allPresets: [Preset] {
-    guard let soundFontId = Preset.source else { return [] }
+  public static func allPresets(for soundFontId: SoundFont.ID?) -> [Preset] {
+    guard let soundFontId = (soundFontId ?? currentPresetsSource()) else { return [] }
     let query = Preset
       .all
       .where { $0.soundFontId.eq(soundFontId) }

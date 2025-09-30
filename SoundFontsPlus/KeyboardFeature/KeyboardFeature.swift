@@ -126,6 +126,7 @@ extension KeyboardFeature {
     .publisher {
       $activeState.activePresetId
         .publisher
+        .removeDuplicates()
         .map { .activePresetIdChanged($0) }
     }.cancellable(id: CancelId.activePresetId, cancelInFlight: true)
   }

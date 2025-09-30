@@ -158,7 +158,7 @@ extension PresetButtonView {
     var presets = prepareDependencies {
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
-      return Operations.presets
+      return Operations.presets(for: nil)
     }
 
     // swiftlint:disable:next force_unwrapping

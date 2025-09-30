@@ -20,7 +20,7 @@ extension BaseTestSuite.PresetTests {
       $0.activeSoundFontId = 1
       $0.activePresetId = 1
     }
-    return Operations.presets
+    return Operations.presets(for: 1)
   }
 
   @Test func soundFontName() async throws {
@@ -81,13 +81,13 @@ extension BaseTestSuite.PresetTests {
     preset.toggleVisibility()
 
     presets = withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
-    presets = Operations.presets
+    presets = Operations.presets(for: nil)
     #expect(presets[0].displayName == "Bright Yamaha Grand")
     #expect(presets.count == BaseTestSuite.soundFontPresetLoadLimit - 1)
     preset.toggleVisibility()
 
     presets = withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
-    presets = Operations.presets
+    presets = Operations.presets(for: nil)
     #expect(presets[0].displayName == "Yamaha Grand Piano")
     #expect(presets.count == BaseTestSuite.soundFontPresetLoadLimit)
   }

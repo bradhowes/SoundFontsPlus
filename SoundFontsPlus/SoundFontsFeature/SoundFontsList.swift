@@ -99,6 +99,7 @@ extension SoundFontsList {
     .publisher {
       $activeState.activeTagId
         .publisher
+        .removeDuplicates()
         .map { .activeTagIdChanged($0) }
     }.cancellable(id: CancelId.monitorActiveTagId, cancelInFlight: true)
   }
@@ -117,7 +118,9 @@ extension SoundFontsList {
   }
 
   private func select(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
-    $selectedSoundFontId.withLock { $0 = soundFontId }
+    if selectedSoundFontId != soundFontId {
+      $selectedSoundFontId.withLock { $0 = soundFontId }
+    }
     return .none
   }
 

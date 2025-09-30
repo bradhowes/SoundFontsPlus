@@ -21,7 +21,7 @@ extension BaseTestSuite.PresetButtonTests {
       $0.activeSoundFontId = 1
       $0.activePresetId = 1
     }
-    let presets = Operations.presets
+    let presets = Operations.presets(for: 1)
     let store = TestStore(initialState: PresetButton.State(preset: presets[0])) {
       PresetButton()
     }

@@ -22,7 +22,7 @@ extension BaseTestSuite.PresetsListSectionTests {
       $0.activePresetId = 1
     }
 
-    let presets = Operations.presets
+    let presets = Operations.presets(for: 1)
     let store = TestStore(initialState: PresetsListSection.State(section: 40, presets: presets[...])) {
       PresetsListSection()
     }

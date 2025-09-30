@@ -48,7 +48,7 @@ extension BaseTestSuite.PresetsListTests {
 
   func setup(
     activeSoundFontId: SoundFont.ID? = .init(rawValue: 1),
-    selectedSoundFontId: SoundFont.ID? = nil,
+    selectedSoundFontId: SoundFont.ID? = .init(rawValue: 1),
     searchText: String? = nil,
     visibilityEditMode: Bool = false
   ) throws -> TestStoreOf<PresetsList> {
@@ -57,6 +57,7 @@ extension BaseTestSuite.PresetsListTests {
       $0.activeSoundFontId = activeSoundFontId
       $0.activePresetId = .init(rawValue: 1)
     }
+
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     $selectedSoundFontId.withLock { $0 = selectedSoundFontId }
 
@@ -115,6 +116,23 @@ extension BaseTestSuite.PresetsListTests {
     await store.finish()
   }
 
+  @Test func clearScrollTo() async throws {
+    let store = try setup()
+
+    await store.send(.fetchPresets) {
+      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+    }
+    #expect(store.state.sections.count == 1)
+
+    await store.send(\.clearScrollToPresetId) {
+      $0.scrollToPresetId = nil
+    }
+
+    await store.send(.stop)
+    await store.finish()
+  }
+
   @Test func searchPresets() async throws {
     let store = try setup()
 
@@ -157,23 +175,6 @@ extension BaseTestSuite.PresetsListTests {
     await store.finish()
   }
 
-  @Test func clearScrollTo() async throws {
-    let store = try setup()
-
-    await store.send(.fetchPresets) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
-      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
-    }
-    #expect(store.state.sections.count == 1)
-
-    await store.send(\.clearScrollToPresetId) {
-      $0.scrollToPresetId = nil
-    }
-
-    await store.send(.stop)
-    await store.finish()
-  }
-
   @Test func selectFromSearch() async throws {
     let store = try setup()
 
@@ -203,7 +204,7 @@ extension BaseTestSuite.PresetsListTests {
     }
 
     await store.receive(\.showActivePreset)
-    await store.receive(\.showActivePresetNow) {
+    await store.receive(\.showActivePresetNow, timeout: .seconds(2)) {
       $0.scrollToPresetId = .init(presetId: 7, anchor: .center)
     }
 
@@ -212,25 +213,39 @@ extension BaseTestSuite.PresetsListTests {
 
   }
 
-//
-//  @Test func detectSoundFontIdChange() async throws {
-//    try await initialize { soundFonts, store in
-//      await store.send(.onAppear)
-//      await store.receive(\.selectedSoundFontIdChanged)
-//
-//      @Shared(.activeState) var activeState
-//      $activeState.withLock {
-//        $0.selectedSoundFontId = soundFonts[1].id
-//      }
-//
-//      await store.receive(\.selectedSoundFontIdChanged) {
-//        $0.sections = PresetsFeature.generatePresetSections(searchText: nil, editing: false)
-//      }
-//
-//      await store.send(.stop)
-//      await store.finish()
-//    }
-//  }
+  @Test func detectSoundFontIdChange() async throws {
+    let store = try setup()
+    await store.send(.initialize)
+
+    await store.receive(\.selectedSoundFontIdChanged, nil) {
+      $0.sections = [.init(section: 0, presets: presets[...])]
+    }
+
+    @Shared(.selectedSoundFontId) var selectedSoundFontId
+    $selectedSoundFontId.withLock { $0 = .init(rawValue: 4) }
+    try await $selectedSoundFontId.load()
+
+    await store.receive(\.selectedSoundFontIdChanged, .init(rawValue: 4)) {
+      $0.scrollToPresetId = nil
+      $0.sections = [.init(
+        section: 0,
+        presets: [
+          .init(
+            id: 31,
+            index: 0,
+            bank: 0,
+            program: 1,
+            originalName: "Nice Piano",
+            soundFontId: 4,
+            displayName: "Nice Piano"
+          )]
+      )]
+    }
+
+    await store.send(.stop)
+    await store.finish()
+  }
+
 //
 //  @Test func seesButtonTap() async throws {
 //    try await initialize { soundFonts, store in
@@ -300,13 +315,6 @@ extension BaseTestSuite.PresetsListTests {
 //
 //      await store.receive(.fetchPresets)
 //      #expect(store.state.sections[0].rows[0].preset.displayName == "Piano 2")
-//    }
-//  }
-//
-//  @Test func presetListViewPreview() async throws {
-//    withSnapshotTesting(record: .failed) {
-//      let view = PresetsListView.preview
-//      assertSnapshot(of: view, as: .image(layout: .device(config: .iPhoneSe), traits: .init(userInterfaceStyle: .dark)))
 //    }
 //  }
 //

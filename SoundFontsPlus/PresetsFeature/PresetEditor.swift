@@ -381,7 +381,7 @@ extension PresetEditorView {
       navigationBarTitleStyle()
     }
 
-    let presets = Operations.presets
+    let presets = Operations.presets(for: nil)
     return PresetEditorView(store: Store(initialState: .init(sectionId: 0, preset: presets[0])) { PresetEditor() })
   }
 }

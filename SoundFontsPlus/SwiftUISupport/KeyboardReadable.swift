@@ -13,9 +13,11 @@ extension KeyboardReadable {
     Publishers.Merge(
       NotificationCenter.default
         .publisher(for: UIResponder.keyboardWillShowNotification)
+        .removeDuplicates()
         .map { _ in true },
       NotificationCenter.default
         .publisher(for: UIResponder.keyboardDidHideNotification)
+        .removeDuplicates()
         .map { _ in false }
     )
     .eraseToAnyPublisher()
