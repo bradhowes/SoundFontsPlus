@@ -14,7 +14,7 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var copyFileWhenInstalling: Self { Self[.appStorage("copyFileWhenInstalling"), default: true]}
   public static var delayLockEnabled: Self { Self[.appStorage("delayLockEnabled"), default: false] }
   public static var disableIdleTimer: Self { Self[.appStorage("disableIdleTimer"), default: false]}
-  public static var effectsVisible: Self { Self[.appStorage("effectsVisible"), default: false] }
+  public static var effectsPanelVisible: Self { Self[.appStorage("effectsPanelVisible"), default: false] }
   public static var favoritesOnTop: Self { Self[.appStorage("favoritesOnTop"), default: false] }
   public static var globalTuningEnabled: Self { Self[.appStorage("globalTuningEnabled"), default: false] }
   public static var keyboardSlides: Self { Self[.appStorage("keyboardSlides"), default: false] }
@@ -26,7 +26,7 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var showOnlyFavorites: Self { Self[.appStorage("showOnlyFavorites"), default: false] }
   public static var showSolfegeTags: Self { Self[.appStorage("showSolfegeTags"), default: false] }
   public static var showedTutorial: Self { Self[.appStorage("showedTutorial"), default: false] }
-  public static var sortPresetsByName: Self { Self[.appStorage("sortPresetsByName"), default: true] }
+  public static var sortPresetsByName: Self { Self[.appStorage("sortPresetsByName"), default: false] }
   public static var starFavoriteNames: Self { Self[.appStorage("starFavoriteNames"), default: true] }
   public static var tagsListVisible: Self { Self[.appStorage("tagsListVisible"), default: false] }
 }

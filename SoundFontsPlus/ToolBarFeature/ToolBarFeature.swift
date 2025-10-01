@@ -27,7 +27,7 @@ public struct ToolBarFeature {
     var highestKey: Note
 
     var keyboardSlides: Bool
-    var effectsVisible: Bool
+    var effectsPanelVisible: Bool
     var tagsListVisible: Bool
 
     var editingPresetVisibility: Bool = false
@@ -41,13 +41,13 @@ public struct ToolBarFeature {
     public init() {
       @Shared(.firstVisibleKey) var firstVisibleKey: Note
       @Shared(.keyboardSlides) var keyboardSlides: Bool
-      @Shared(.effectsVisible) var effectsVisible: Bool
+      @Shared(.effectsPanelVisible) var effectsPanelVisible: Bool
       @Shared(.tagsListVisible) var tagsListVisible: Bool
 
       self.lowestKey = firstVisibleKey
       self.highestKey = .C4
       self.keyboardSlides = keyboardSlides
-      self.effectsVisible = effectsVisible
+      self.effectsPanelVisible = effectsPanelVisible
       self.tagsListVisible = tagsListVisible
     }
   }
@@ -292,11 +292,11 @@ private extension ToolBarFeature {
   }
 
   func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
-    state.effectsVisible.toggle()
-    @Shared(.effectsVisible) var effectsVisible
-    $effectsVisible.withLock { $0 = state.effectsVisible }
+    state.effectsPanelVisible.toggle()
+    @Shared(.effectsPanelVisible) var effectsPanelVisible
+    $effectsPanelVisible.withLock { $0 = state.effectsPanelVisible }
     state.showMoreButtons = false
-    return .send(.delegate(.effectsVisibilityChanged(state.effectsVisible)))
+    return .send(.delegate(.effectsVisibilityChanged(state.effectsPanelVisible)))
   }
 
   func toggleShowMoreButtons(_ state: inout State) -> Effect<Action> {
@@ -420,7 +420,7 @@ public struct ToolBarFeatureView: View {
       store.send(.effectsVisibilityButtonTapped)
     } label: {
       Image(systemName: .effectsButtonImageName)
-        .tint(if: store.effectsVisible)
+        .tint(if: store.effectsPanelVisible)
     }
   }
 

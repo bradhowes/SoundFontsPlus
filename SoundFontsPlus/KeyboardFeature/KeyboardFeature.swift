@@ -161,7 +161,7 @@ public struct KeyboardView: View {
   @Shared(.keyboardSlides) private var keyboardSlides
 
   @Environment(\.verticalSizeClass) private var verticalSizeClass
-  @Environment(\.keyboardHeight) private var keyboardHeight
+  @Environment(\.maxKeyboardPanelHeight) private var maxKeyboardPanelHeight
 
   private let whiteNotes: [Note] = .init(WhiteKeySequenceGenerator().makeIterator())
   private let blackNotes: [Note] = .init(BlackKeySequenceGenerator().makeIterator())
@@ -297,7 +297,7 @@ public struct KeyboardView: View {
   private func key(note: Note) -> some View {
     let color: Color = note.accented ? .black : .white
     let width: Double = note.accented ? store.keyWidth * 0.75 : store.keyWidth
-    let height: Double = (note.accented ? keyboardHeight * 0.6 : keyboardHeight) * keyboardHeightScaling
+    let height: Double = maxKeyboardPanelHeight * (note.accented ? 0.6 : 1.0) * keyboardHeightScaling
     let cornerRadius: Double = 8
 
     return RoundedRectangle(cornerRadius: cornerRadius)

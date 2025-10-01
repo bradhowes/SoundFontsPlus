@@ -350,8 +350,8 @@ private extension AppFeature {
       return reduce(into: &state, action: .presetsList(.visibilityEditModeChanged(active)))
 
     case let .effectsVisibilityChanged(visible):
-      @Shared(.effectsVisible) var effectsVisible
-      $effectsVisible.withLock { $0 = visible }
+      @Shared(.effectsPanelVisible) var effectsPanelVisible
+      $effectsPanelVisible.withLock { $0 = visible }
       return .none.animation(.smooth)
 
     case .presetNameTapped:
@@ -403,8 +403,8 @@ struct AppFeatureView: View, KeyboardReadable {
   @State private var isInputKeyboardVisible = false
   @State private var effectsOffset: CGFloat = 0.0
 
-  @Shared(.effectsVisible) private var effectsVisible
-  @Environment(\.keyboardHeight) private var maxKeyboardHeight
+  @Shared(.effectsPanelVisible) private var effectsPanelVisible
+  @Environment(\.maxKeyboardPanelHeight) private var maxKeyboardPanelHeight
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @Environment(\.verticalSizeClass) private var verticalSizeClass
 
@@ -415,7 +415,7 @@ struct AppFeatureView: View, KeyboardReadable {
   private var keyboardHeight: CGFloat {
     isInputKeyboardVisible
     ? 1.0
-    : maxKeyboardHeight * (verticalSizeClass == .compact ? 0.5 : 1.0)
+    : maxKeyboardPanelHeight * (verticalSizeClass == .compact ? 0.5 : 1.0)
   }
 
   init(store: StoreOf<AppFeature>) {
@@ -444,7 +444,7 @@ struct AppFeatureView: View, KeyboardReadable {
       toolbarAndKeyboard
     }
     .padding(0)
-    .animation(.smooth, value: effectsVisible)
+    .animation(.smooth, value: effectsPanelVisible)
     .animation(.smooth, value: isInputKeyboardVisible)
     .environment(\.auv3ControlsTheme, theme)
     .environment(\.appPanelBackground, appPanelBackground)
@@ -553,10 +553,10 @@ private extension AppFeatureView {
       }
       .scrollDisabled(effectsOffset > 0)
       .offset(x: effectsOffset)
-      .opacity(effectsVisible ? 1.0 : 0.0)
+      .opacity(effectsPanelVisible ? 1.0 : 0.0)
     }
-    .frame(height: effectsVisible ? viewHeight : padding)
-    .offset(x: 0, y: effectsVisible ? 0.0 : viewHeight / 2 - padding - 1)
+    .frame(height: effectsPanelVisible ? viewHeight : padding)
+    .offset(x: 0, y: effectsPanelVisible ? 0.0 : viewHeight / 2 - padding - 1)
   }
 
   var toolbarAndKeyboard: some View {

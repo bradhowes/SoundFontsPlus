@@ -16,11 +16,11 @@ extension BaseTestSuite.SharingTests {
 
   @Test func boolValues() {
     boolChecker(.backgroundProcessing)
+    boolChecker(.confirmPresetHiding)
     boolChecker(.copyFileWhenInstalling)
     boolChecker(.delayLockEnabled)
-    boolChecker(.delayLockEnabled)
     boolChecker(.disableIdleTimer)
-    boolChecker(.effectsVisible)
+    boolChecker(.effectsPanelVisible)
     boolChecker(.favoritesOnTop)
     boolChecker(.globalTuningEnabled)
     boolChecker(.keyboardSlides)
@@ -34,7 +34,6 @@ extension BaseTestSuite.SharingTests {
     boolChecker(.showedTutorial)
     boolChecker(.starFavoriteNames)
     boolChecker(.tagsListVisible)
-    boolChecker(.confirmPresetHiding)
   }
 
   @Test func doubleValues() {
