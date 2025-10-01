@@ -12,8 +12,8 @@ import Testing
 extension BaseTestSuite {
 
   @Suite
-  struct ReverbEffectTests {
-    fileprivate let device = ReverbDevice()
+  struct DelayFeatureTests {
+    fileprivate let device = DelayDevice()
     @Shared(.parameterTree) var parameterTree
     @Shared(.delayLockEnabled) var locked = false
     @Shared(.activeState) var activeState
@@ -22,18 +22,18 @@ extension BaseTestSuite {
       $activeState.activePresetId.withLock { $0 = 1 }
     }
 
-    fileprivate func store() -> TestStoreOf<ReverbFeature> {
-      TestStoreOf<ReverbFeature>(initialState: .init()) {
-        ReverbFeature()
+    fileprivate func store() -> TestStoreOf<DelayFeature> {
+      TestStoreOf<DelayFeature>(initialState: .init()) {
+        DelayFeature()
       } withDependencies: {
-        $0.reverbDevice = .init(setConfig: { device.config = $0 })
+        $0.delayDevice = .init(setConfig: { device.config = $0 })
         $0.mainQueue = .immediate
       }
     }
   }
 }
 
-extension BaseTestSuite.ReverbEffectTests {
+extension BaseTestSuite.DelayFeatureTests {
 
   @MainActor
   @Test func initialization() async throws {
@@ -47,16 +47,20 @@ extension BaseTestSuite.ReverbEffectTests {
       $0.config.presetId = 1
     }
 
+    await store.receive(\.time)
+    await store.receive(\.feedback)
+    await store.receive(\.cutoff)
     await store.receive(\.wetDryMix)
 
     await store.send(.deinitialize)
 
     #expect(device.timesChanged == 1)
+    #expect(store.state.time.value.isApproximatelyEqual(to: 0.5))
   }
 }
 
-private class ReverbDevice {
-  var config: ReverbConfig.Draft = .init(presetId: -1) {
+private class DelayDevice {
+  var config: DelayConfig.Draft = .init(presetId: -1) {
     didSet { timesChanged += 1 }
   }
   var timesChanged: Int = 0
