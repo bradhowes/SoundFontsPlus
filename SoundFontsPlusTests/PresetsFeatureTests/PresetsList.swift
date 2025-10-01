@@ -94,7 +94,6 @@ extension BaseTestSuite.PresetsListTests {
 
     await store.send(.initialize)
     await store.receive(\.selectedSoundFontIdChanged) {
-      // $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
       $0.sections = [.init(section: 0, presets: presets[...])]
     }
     #expect(store.state.sections.count == 1)
@@ -230,7 +229,6 @@ extension BaseTestSuite.PresetsListTests {
 
     await store.send(.stop)
     await store.finish()
-
   }
 
   @Test func detectSoundFontIdChange() async throws {
@@ -266,78 +264,298 @@ extension BaseTestSuite.PresetsListTests {
     await store.finish()
   }
 
-//
-//  @Test func seesButtonTap() async throws {
-//    try await initialize { soundFonts, store in
-//      let preset = soundFonts[0].presets[3]
-//      await store.send(.sections(.element(id: 0, action: .rows(.element(id: 4, action: .buttonTapped)))))
-//      await store.receive(.sections(.element(id: 0, action: .rows(.element(id: 4, action: .delegate(.selectPreset(preset)))))))
-//    }
-//  }
-//
-//  @Test func editButtonTapped() async throws {
-//    try await initialize { soundFonts, store in
-//      let preset = soundFonts[0].presets[3]
-//      await store.send(.sections(.element(id: 0, action: .rows(.element(id: 4, action: .editButtonTapped)))))
-//      await store.receive(.sections(.element(id: 0, action: .rows(.element(id: 4, action: .delegate(.editPreset(preset))))))) {
-//        $0.destination = .edit(PresetEditor.State(preset: preset))
-//      }
-//      await store.send(.destination(.presented(.edit(.acceptButtonTapped))))
-//      await store.receive(.destination(.dismiss)) {
-//        $0.destination = nil
-//      }
-//    }
-//  }
-//
-//  @Test func fetchPresets() async throws {
-//    try await initialize { soundFonts, store in
-//      let sections = store.state.sections.count
-//
-//      @Dependency(\.defaultDatabase) var database
-//      let presets = soundFonts[0].presets
-//      for preset in presets[0..<15] {
-//        try await database.write {
-//          var preset = preset
-//          preset.visible = false
-//          try preset.save($0)
-//        }
-//      }
-//
-//      store.exhaustivity = .off
-//      await store.send(.fetchPresets)
-//      #expect(store.state.sections.count < sections)
-//      await store.send(.visibilityEditMode(true)) {
-//        $0.editingVisibility = true
-//      }
-//      #expect(store.state.sections.count == sections)
-//      await store.send(.visibilityEditMode(false)) {
-//        $0.editingVisibility = false
-//      }
-//      #expect(store.state.sections.count < sections)
-//    }
-//  }
-//
-//  @Test func hidePreset() async throws {
-//    try await initialize { soundFonts, store in
-//      var preset = soundFonts[0].presets[0]
-//      #expect(preset.visible == true)
-//
-//      @Shared(.stopConfirmingPresetHiding) var stopConfirmingPresetHiding
-//      $stopConfirmingPresetHiding.withLock { $0 = true }
-//      #expect(store.state.sections[0].rows[0].preset.displayName == "Piano 1")
-//
-//      await store.send(.sections(.element(id: 0, action: .rows(.element(id: 1, action: .hideButtonTapped)))))
-//      store.exhaustivity = .off
-//      await store.receive(.sections(.element(id: 0, action: .rows(.element(id: 1, action: .delegate(.hidePreset(preset)))))))
-//
-//      preset = try await TestSupport.fetchPreset(presetId: preset.id)
-//      #expect(preset.visible == false)
-//
-//      await store.receive(.fetchPresets)
-//      #expect(store.state.sections[0].rows[0].preset.displayName == "Piano 2")
-//    }
-//  }
-//
+  @Test func buttonTapped() async throws {
+    @Shared(.activeState) var activeState
+    let store = try setup()
+
+    await store.send(.fetchPresets) {
+      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+    }
+    #expect(activeState.activePresetId == 1)
+
+    await store.send(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: presets[7].id, action: .buttonTapped))
+       )
+    )
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: presets[7].id, action: .delegate(.selectPreset(presets[7]))))
+       )
+    )
+
+    #expect(activeState.activePresetId == presets[7].id)
+
+    await store.send(.stop)
+    await store.finish()
+  }
+
+  @Test func deleteFavoriteCancel() async throws {
+    let store = try setup()
+
+    await store.send(.fetchPresets) {
+      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+    }
+
+    await store.send(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: presets[0].id, action: .favoriteButtonTapped))
+       )
+    )
+
+    var presetsWithFavorite = presets
+    presetsWithFavorite.insert(.init(id: 32, index: 0, bank: 0, program: 0, originalName: "Yamaha Grand Piano", soundFontId: 1, displayName: "Yamaha Grand Piano copy"), at: 1)
+    presetsWithFavorite[1].kind = .favorite
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: presets[0].id, action: .delegate(.createFavorite(presets[0]))))
+       )
+    ) {
+      $0.sections[0] = .init(section: 0, presets: presetsWithFavorite[...])
+      // $0.sections[0].rows = .init(uniqueElements: presetsWithFavorite.map { .init(preset: $0) })
+    }
+
+    var updated = Operations.presets(for: nil)
+    #expect(updated[1].kind == .favorite)
+
+    await store.send(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: updated[1].id, action: .deleteFavoriteButtonTapped))
+       )
+    )
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: updated[1].id, action: .delegate(.deleteFavorite(updated[1]))))
+       )
+    ) {
+      $0.destination = .alert(
+        AlertState.confirmDeleteFavorite(
+          action: .deleteFavoriteConfirmed(updated[1]),
+          displayName: updated[1].displayName
+        )
+      )
+    }
+
+    await store.send(.destination(.dismiss)) {
+      $0.destination = nil
+    }
+
+    updated = Operations.presets(for: nil)
+    #expect(updated[1].kind == .favorite)
+
+    await store.send(.stop)
+    await store.finish()
+  }
+
+  @Test func deleteFavoriteConfirm() async throws {
+    let store = try setup()
+
+    await store.send(.fetchPresets) {
+      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+    }
+
+    await store.send(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: presets[0].id, action: .favoriteButtonTapped))
+       )
+    )
+
+    var presetsWithFavorite = presets
+    presetsWithFavorite.insert(.init(id: 32, index: 0, bank: 0, program: 0, originalName: "Yamaha Grand Piano", soundFontId: 1, displayName: "Yamaha Grand Piano copy"), at: 1)
+    presetsWithFavorite[1].kind = .favorite
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: presets[0].id, action: .delegate(.createFavorite(presets[0]))))
+       )
+    ) {
+      $0.sections[0] = .init(section: 0, presets: presetsWithFavorite[...])
+    }
+
+    var updated = Operations.presets(for: nil)
+    #expect(updated[1].kind == .favorite)
+
+    await store.send(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: updated[1].id, action: .deleteFavoriteButtonTapped))
+       )
+    )
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: updated[1].id, action: .delegate(.deleteFavorite(updated[1]))))
+       )
+    ) {
+      $0.destination = .alert(
+        AlertState.confirmDeleteFavorite(
+          action: .deleteFavoriteConfirmed(updated[1]),
+          displayName: updated[1].displayName
+        )
+      )
+    }
+
+    await store.send(.destination(.presented(.alert(.deleteFavoriteConfirmed(updated[1]))))) {
+      $0.destination = nil
+      $0.sections = [.init(section: 0, presets: presets[...])]
+    }
+
+    updated = Operations.presets(for: nil)
+    #expect(updated[1].kind == .preset)
+
+    await store.send(.stop)
+    await store.finish()
+  }
+
+  @Test func editButtonTapped() async throws {
+    let store = try setup()
+
+    await store.send(.fetchPresets) {
+      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+    }
+
+    await store.send(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: presets[0].id, action: .editButtonTapped))
+       )
+    )
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: presets[0].id, action: .delegate(.editPreset(presets[0]))))
+       )
+    )
+
+    await store.receive(\.delegate, .edit(sectionId: store.state.sections[0].id, preset: presets[0]))
+
+    await store.send(.stop)
+    await store.finish()
+  }
+
+  @Test func hidePresetFirstTimeCancel() async throws {
+    let store = try setup()
+    @Shared(.confirmPresetHiding) var confirmPresetHiding
+    #expect(confirmPresetHiding == true)
+
+    await store.send(.fetchPresets) {
+      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+    }
+
+    await store.send(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: presets[1].id, action: .hidePresetButtonTapped))
+       )
+    )
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: presets[1].id, action: .delegate(.hidePreset(presets[1]))))
+       )
+    ) {
+      $0.destination = .alert(
+        AlertState.confirmHidePreset(
+          action: .hidePresetConfirmed(presets[1]),
+          displayName: presets[1].displayName
+        )
+      )
+    }
+
+    await store.send(.destination(.dismiss)) {
+      $0.destination = nil
+    }
+
+    let updated = Operations.presets(for: nil)
+    #expect(updated[1] == presets[1])
+    #expect(confirmPresetHiding == true)
+
+    await store.send(.stop)
+    await store.finish()
+  }
+
+  @Test func hidePresetFirstTimeConfirm() async throws {
+    let store = try setup()
+    @Shared(.confirmPresetHiding) var confirmPresetHiding
+    #expect(confirmPresetHiding == true)
+
+    await store.send(.fetchPresets) {
+      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
+    }
+
+    await store.send(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: presets[1].id, action: .hidePresetButtonTapped))
+       )
+    )
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .rows(.element(id: presets[1].id, action: .delegate(.hidePreset(presets[1]))))
+       )
+    ) {
+      $0.destination = .alert(
+        AlertState.confirmHidePreset(
+          action: .hidePresetConfirmed(presets[1]),
+          displayName: presets[1].displayName
+        )
+      )
+    }
+
+    var updated = presets
+    updated.remove(atOffsets: [1])
+
+    await store.send(.destination(.presented(.alert(.hidePresetConfirmed(presets[1]))))) {
+      $0.destination = nil
+      $0.sections = [.init(section: 0, presets: updated[...])]
+    }
+
+    updated = Operations.presets(for: nil)
+    #expect(updated[1] != presets[1])
+    #expect(confirmPresetHiding == false)
+
+    await store.send(.stop)
+    await store.finish()
+  }
+
   @Test func presetsListViewSearchingPreview() async throws {
     let store = StoreOf<PresetsList>(initialState: .init(searchText: "ian")) {
       PresetsList()
@@ -354,14 +572,9 @@ extension BaseTestSuite.PresetsListTests {
   }
 
   @Test func presetsListViewVisibilityEditing() async throws {
-    let store = StoreOf<PresetsList>(initialState: .init(visibilityEditMode: true)) {
-      PresetsList()
-    }
-    let view = PresetsListView(store: store)
-
     try withSnapshotTesting(record: .failed) {
       try BaseTestSuite.assertSnap(
-        matching: view,
+        matching: PresetsListView.previewEditing,
         size: .init(width: 400, height: 800),
         colorScheme: .dark
       )

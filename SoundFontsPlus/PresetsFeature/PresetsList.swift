@@ -76,7 +76,7 @@ public struct PresetsList {
     case stop // only used for testing
     case visibilityEditModeChanged(Bool)
 
-    public enum Delegate {
+    public enum Delegate: Equatable {
       case edit(sectionId: Int, preset: Preset)
     }
   }
@@ -198,26 +198,6 @@ extension PresetsList.Destination.State: _EphemeralState {
 }
 
 extension PresetsList {
-
-  static func generatePresetSections(
-    for soundFontId: SoundFont.ID? = nil,
-    searchText: String = "",
-    editing: Bool = false
-  ) -> IdentifiedArrayOf<PresetsListSection.State> {
-    let grouping = searchText.isEmpty ? groupingSize : noGroupingSize
-    var presets = editing ? Operations.allPresets(for: soundFontId) : Operations.presets(for: soundFontId)
-    if !searchText.isEmpty {
-      presets = presets.filter {
-        $0.displayName.localizedLowercase.contains(searchText.lowercased())
-      }
-    }
-
-    return presets.isEmpty ?
-      .init(uniqueElements: [PresetsListSection.State(section: 0, presets: [])]) :
-      .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map {
-        PresetsListSection.State(section: $0.lowerBound, presets: presets[$0])
-      })
-  }
 
   private func deleteFavorite(_ state: inout State, preset: Preset) -> Effect<Action> {
     state.destination = .alert(
