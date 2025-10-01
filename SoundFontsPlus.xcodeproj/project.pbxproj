@@ -548,8 +548,8 @@
 			isa = PBXGroup;
 			children = (
 				BD2F14152E84803400ADC9EC /* AppFeature.swift */,
-				BD2F141A2E84867D00ADC9EC /* ChangesFeature.swift */,
 				BD2F14052E847EB900ADC9EC /* AppReviewFeature.swift */,
+				BD2F141A2E84867D00ADC9EC /* ChangesFeature.swift */,
 				BD2F14072E847EB900ADC9EC /* VolumeMonitorFeature.swift */,
 			);
 			path = AppFeatureTests;
@@ -625,10 +625,10 @@
 				BDA11AFB2E61C1A800941A41 /* Bundle.swift */,
 				BD9E45EA2E79518D00D0806E /* ClosedRange.swift */,
 				BDAF5A8E2DE254E000B8FB13 /* Environment.swift */,
-				BD8063F12E8583D8006B3799 /* ProcessInfo.swift */,
 				BDAF5A8F2DE254E000B8FB13 /* FileManager.swift */,
 				BD9E45E82E794F9B00D0806E /* FourCharCode.swift */,
 				BD76C1632E23E27600F5B1F5 /* Notification.Name.swift */,
+				BD8063F12E8583D8006B3799 /* ProcessInfo.swift */,
 				BDD531B82DEADADA00B4B104 /* String.swift */,
 			);
 			path = Extensions;
