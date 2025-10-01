@@ -64,6 +64,7 @@
 		BD9BECF12E8BDDDE0091D094 /* Prompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9BECF02E8BDDDE0091D094 /* Prompts.swift */; };
 		BD9BECF32E8CFCEF0091D094 /* ClosedRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9BECF22E8CFCEF0091D094 /* ClosedRange.swift */; };
 		BD9BECF62E8D6C300091D094 /* SoundFontEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9BECF52E8D6C300091D094 /* SoundFontEditor.swift */; };
+		BD9BECF82E8D71540091D094 /* SoundFontsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9BECF72E8D71540091D094 /* SoundFontsList.swift */; };
 		BD9E45E92E794F9E00D0806E /* FourCharCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45E82E794F9B00D0806E /* FourCharCode.swift */; };
 		BD9E45EB2E79519A00D0806E /* ClosedRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45EA2E79518D00D0806E /* ClosedRange.swift */; };
 		BD9E46152E79801400D0806E /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD9E46142E79801400D0806E /* Engine */; };
@@ -276,6 +277,7 @@
 		BD9BECF02E8BDDDE0091D094 /* Prompts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Prompts.swift; sourceTree = "<group>"; };
 		BD9BECF22E8CFCEF0091D094 /* ClosedRange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClosedRange.swift; sourceTree = "<group>"; };
 		BD9BECF52E8D6C300091D094 /* SoundFontEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundFontEditor.swift; sourceTree = "<group>"; };
+		BD9BECF72E8D71540091D094 /* SoundFontsList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundFontsList.swift; sourceTree = "<group>"; };
 		BD9E45E82E794F9B00D0806E /* FourCharCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FourCharCode.swift; sourceTree = "<group>"; };
 		BD9E45EA2E79518D00D0806E /* ClosedRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosedRange.swift; sourceTree = "<group>"; };
 		BD9E461B2E7A05F400D0806E /* ChangesFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangesFeature.swift; sourceTree = "<group>"; };
@@ -914,6 +916,7 @@
 			children = (
 				BDAF5B632DE256C500B8FB13 /* SoundFontButton.swift */,
 				BD9BECF52E8D6C300091D094 /* SoundFontEditor.swift */,
+				BD9BECF72E8D71540091D094 /* SoundFontsList.swift */,
 				BDAF5B652DE256C500B8FB13 /* SoundFontSupport.swift */,
 				BDAF5B662DE256C500B8FB13 /* Support.swift */,
 			);
@@ -1325,6 +1328,7 @@
 				BDAF5B9F2DE256C500B8FB13 /* PresetEditor.swift in Sources */,
 				BDAF5BA02DE256C500B8FB13 /* SoundFontSupport.swift in Sources */,
 				BDAF5BA12DE256C500B8FB13 /* DelayConfig.swift in Sources */,
+				BD9BECF82E8D71540091D094 /* SoundFontsList.swift in Sources */,
 				BD9BECF32E8CFCEF0091D094 /* ClosedRange.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
