@@ -42,7 +42,7 @@ extension Preset {
         "program" INTEGER NOT NULL,
         "originalName" TEXT NOT NULL,
         "soundFontId" INTEGER NOT NULL,
-        "displayName" TEXT NOT NULL,
+        "displayName" TEXT NOT NULL COLLATE NOCASE,
         "kind" INTEGER NOT NULL CHECK ("kind" in (0, 1, 2)),
         "notes" TEXT NOT NULL,
         FOREIGN KEY("soundFontId") REFERENCES "soundFonts"("id") ON DELETE CASCADE

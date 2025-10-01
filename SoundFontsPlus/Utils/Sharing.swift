@@ -10,6 +10,7 @@ import Tagged
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var backgroundProcessing: Self { Self[.appStorage("backgroundProcessing"), default: true] }
+  public static var confirmPresetHiding: Self { Self[.appStorage("stopConfirmingPresetHiding"), default: true] }
   public static var copyFileWhenInstalling: Self { Self[.appStorage("copyFileWhenInstalling"), default: true]}
   public static var delayLockEnabled: Self { Self[.appStorage("delayLockEnabled"), default: false] }
   public static var disableIdleTimer: Self { Self[.appStorage("disableIdleTimer"), default: false]}
@@ -25,9 +26,9 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var showOnlyFavorites: Self { Self[.appStorage("showOnlyFavorites"), default: false] }
   public static var showSolfegeTags: Self { Self[.appStorage("showSolfegeTags"), default: false] }
   public static var showedTutorial: Self { Self[.appStorage("showedTutorial"), default: false] }
+  public static var sortPresetsByName: Self { Self[.appStorage("sortPresetsByName"), default: true] }
   public static var starFavoriteNames: Self { Self[.appStorage("starFavoriteNames"), default: true] }
   public static var tagsListVisible: Self { Self[.appStorage("tagsListVisible"), default: false] }
-  public static var confirmPresetHiding: Self { Self[.appStorage("stopConfirmingPresetHiding"), default: true] }
 }
 
 // MARK: - AppStorage Double settings

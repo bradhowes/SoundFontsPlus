@@ -28,14 +28,26 @@ public enum Operations {
 
   public static func presets(for soundFontId: SoundFont.ID?) -> [Preset] {
     @Shared(.favoritesOnTop) var favoritesOnTop
-    let query = favoritesOnTop
-    ? presetsQuery(for: soundFontId)
-      .order { $0.kind.desc() }
-      .order(by: \.index)
-    : presetsQuery(for: soundFontId)
-      .order(by: \.index)
-      .order(by: \.kind)
-      .order(by: \.displayName)
+    @Shared(.sortPresetsByName) var sortPresetsByName
+    let query: Select<(), Preset, ()>
+    if sortPresetsByName {
+      query = favoritesOnTop
+      ? presetsQuery(for: soundFontId)
+        .order { $0.kind.desc() }
+        .order(by: \.displayName)
+      : presetsQuery(for: soundFontId)
+        .order(by: \.kind)
+        .order(by: \.displayName)
+    } else {
+      query = favoritesOnTop
+      ? presetsQuery(for: soundFontId)
+        .order { $0.kind.desc() }
+        .order(by: \.index)
+      : presetsQuery(for: soundFontId)
+        .order(by: \.index)
+        .order(by: \.kind)
+        .order(by: \.displayName)
+    }
     return withDatabaseReader { try query.fetchAll($0) } ?? []
   }
 

@@ -50,6 +50,7 @@ public struct SettingsFeature {
     @Shared(.showKeyNotes) var showKeyNotes
     @Shared(.showOnlyFavorites) var showOnlyFavorites
     @Shared(.showSolfegeTags) var showSolfegeTags
+    @Shared(.sortPresetsByName) var sortPresetsByName
     @Shared(.starFavoriteNames) var starFavoriteNames
 
     var midiTrafficIndicator: MIDITrafficIndicatorFeature.State = .init(tag: "Settings")
@@ -321,6 +322,9 @@ extension SettingsView {
           Image(systemName: store.favoriteSymbolName)
           Text("in favorites")
         }
+      }
+      Toggle(isOn: $store.sortPresetsByName) {
+        Text("Presets sorted by name")
       }
       Toggle(isOn: $store.playSoundOnPresetChange) {
         Text("Play sound on preset change")
