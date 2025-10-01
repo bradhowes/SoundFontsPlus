@@ -133,7 +133,14 @@ extension BaseTestSuite.PresetsListTests {
     await store.finish()
   }
 
-  @Test func searchPresets() async throws {
+  @Test(
+    .dependencies {
+      $0.continuousClock = TestClock()
+    }
+  )
+  func searchPresets() async throws {
+    @Dependency(\.continuousClock) var clock
+    let testClock = clock as! TestClock<Duration>
     let store = try setup()
 
     await store.send(.fetchPresets) {
@@ -167,6 +174,9 @@ extension BaseTestSuite.PresetsListTests {
     }
 
     await store.receive(\.showActivePreset)
+
+    await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
+
     await store.receive(\.showActivePresetNow) {
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
@@ -175,7 +185,14 @@ extension BaseTestSuite.PresetsListTests {
     await store.finish()
   }
 
-  @Test func selectFromSearch() async throws {
+  @Test(
+    .dependencies {
+      $0.continuousClock = TestClock()
+    }
+  )
+  func selectFromSearch() async throws {
+    @Dependency(\.continuousClock) var clock
+    let testClock = clock as! TestClock<Duration>
     let store = try setup()
 
     await store.send(.fetchPresets) {
@@ -184,8 +201,8 @@ extension BaseTestSuite.PresetsListTests {
     }
     #expect(store.state.sections.count == 1)
 
-    await store.send(\.sections, .element(id: 10_000, action: .searchButtonTapped))
-    await store.receive(\.sections, .element(id: 10_000, action: .delegate(.searchButtonTapped))) {
+    await store.send(\.sections, .element(id: PresetsList.noGroupingSize, action: .searchButtonTapped))
+    await store.receive(\.sections, .element(id: PresetsList.noGroupingSize, action: .delegate(.searchButtonTapped))) {
       $0.sections = [.init(section: 0, presets: [])]
       $0.isSearchFieldPresented = true
       $0.focusedField = .searchText
@@ -197,14 +214,17 @@ extension BaseTestSuite.PresetsListTests {
       $0.sections = [.init(section: 0, presets: presets.filter({$0.displayName.contains("arp")})[...])]
     }
 
-    await store.send(\.sections, .element(id: 10_000, action: .rows(.element(id: 7, action: .delegate(.selectPreset(presets[6])))))) {
+    await store.send(\.sections, .element(id: PresetsList.noGroupingSize, action: .rows(.element(id: 7, action: .delegate(.selectPreset(presets[6])))))) {
       $0.isSearchFieldPresented = false
       $0.focusedField = nil
       $0.sections = [.init(section: 0, presets: presets[...])]
     }
 
+    await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
+
     await store.receive(\.showActivePreset)
-    await store.receive(\.showActivePresetNow, timeout: .seconds(2)) {
+
+    await store.receive(\.showActivePresetNow) {
       $0.scrollToPresetId = .init(presetId: 7, anchor: .center)
     }
 

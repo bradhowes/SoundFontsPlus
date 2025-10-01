@@ -40,7 +40,7 @@ public struct SoundFontEditor {
 
     public init(soundFont: SoundFont) {
       self.soundFont = soundFont
-      self.tagsList = SoundFontsSupport.generateTagsList(from: soundFont.tags)
+      self.tagsList = Self.generateTagsList(from: soundFont.tags)
       self.displayName = soundFont.displayName
       self.notes = soundFont.notes
       (self.presetCount, self.favoriteCount, self.hiddenCount) = soundFont.elementCounts
@@ -58,6 +58,10 @@ public struct SoundFontEditor {
         .where { $0.id == soundFont.id }
         .execute(db)
       }
+    }
+
+    static public func generateTagsList(from tags: [FontTag]) -> String {
+      tags.map(\.displayName).sorted().joined(separator: ", ")
     }
   }
 
@@ -102,7 +106,7 @@ public struct SoundFontEditor {
         return unhidePresets(&state)
 
       case .destination(.dismiss):
-        state.tagsList = SoundFontsSupport.generateTagsList(from: state.soundFont.tags)
+        state.tagsList = State.generateTagsList(from: state.soundFont.tags)
         return .none
 
       case .destination:

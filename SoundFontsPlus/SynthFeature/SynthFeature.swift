@@ -3,6 +3,7 @@
 import AudioToolbox
 import ComposableArchitecture
 @preconcurrency import CoreAudioKit
+import Dependencies
 import Engine
 import os
 import Sharing
@@ -297,8 +298,9 @@ private extension SynthFeature {
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
     guard playSoundOnPresetChange else { return .none }
     return .run { _ in
+      @Dependency(\.continuousClock) var clock
       synth.sendNoteOn(note: 60)
-      try? await Task.sleep(for: .milliseconds(250))
+      try? await clock.sleep(for: .milliseconds(250))
       synth.sendNoteOff(note: 60)
     }.cancellable(id: CancelId.playNote, cancelInFlight: true)
   }

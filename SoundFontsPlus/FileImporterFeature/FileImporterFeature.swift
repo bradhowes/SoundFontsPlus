@@ -34,6 +34,7 @@ public struct FileImporterFeature {
     case showFileImporter
   }
 
+  @Dependency(\.fileManager) var fileManager
   @Dependency(\.dismiss) var dismiss
 
   public var body: some ReducerOf<Self> {
@@ -146,8 +147,8 @@ extension FileImporterFeature {
     let accessing = source.startAccessingSecurityScopedResource()
     defer { if accessing { source.stopAccessingSecurityScopedResource() } }
 
-    let destination = FileManager.default.sharedPath(for: source.lastPathComponent)
-    try FileManager.default.copyItem(at: source, to: destination)
+    let destination = fileManager.sharedDocumentsDirectory().appendingPathComponent(source.lastPathComponent)
+    try fileManager.copyItem(source, destination)
 
     return destination
   }

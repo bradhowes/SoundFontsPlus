@@ -77,10 +77,7 @@ extension SharedKey where Self == AppStorageKey<String>.Default {
 }
 
 extension URL {
-  static public let activeStateURL = FileManager
-    .default
-    .sharedDocumentsDirectory
-    .appendingPathComponent("activeState.json")
+  static public let activeStateURL = URL.applicationSupportDirectory.appendingPathComponent("activeState.json")
 }
 
 extension SharedKey where Self == FileStorageKey<ActiveState>.Default {

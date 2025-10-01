@@ -2,12 +2,15 @@
 
 import Algorithms
 import ComposableArchitecture
+import Dependencies
 import SwiftUI
 
 @Reducer
 public struct PresetsList {
   public static let groupingSize = 20
   public static let noGroupingSize = 10_000
+  public static let delayBeforeShowingActivePreset: Duration = .milliseconds(100)
+  public static let playNoteDuration: Duration = .milliseconds(250)
 
   @Reducer(state: .equatable, action: .equatable)
   public enum Destination {
@@ -158,12 +161,7 @@ public struct PresetsList {
         return setSoundFont(&state, soundFontId: soundFontId)
 
       case .showActivePreset:
-        // Delay scrolling to active preset in case the keyboard was shown. We hide the music keyboard when the text
-        // keyboard appears, and restoring it can cause it to obscure the active preset.
-        return .run { send in
-          try await Task.sleep(for: .milliseconds(100))
-          await send(.showActivePresetNow)
-        }.cancellable(id: CancelId.showActivePresetNow, cancelInFlight: true)
+        return showActivePreset(&state)
 
       case .showActivePresetNow:
         state.scrollToPresetId = .init(presetId: activeState.activePresetId)
@@ -298,8 +296,9 @@ extension PresetsList {
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
     guard playSoundOnPresetChange else { return .none }
     return .run { _ in
+      @Dependency(\.continuousClock) var clock
       synth.sendNoteOn(note: 60)
-      try? await Task.sleep(for: .milliseconds(250))
+      try? await clock.sleep(for: Self.playNoteDuration)
       synth.sendNoteOff(note: 60)
     }.cancellable(id: CancelId.playNote, cancelInFlight: true)
   }
@@ -340,6 +339,16 @@ extension PresetsList {
       state.scrollToPresetId = nil
     }
     return generatePresetSections(&state, soundFontId: soundFontId)
+  }
+
+  private func showActivePreset(_ state: inout State) -> Effect<Action> {
+    // Delay scrolling to active preset in case the keyboard was shown. We hide the music keyboard when the text
+    // keyboard appears, and restoring it can cause it to obscure the active preset.
+    return .run { send in
+      @Dependency(\.continuousClock) var clock
+      try await clock.sleep(for: Self.delayBeforeShowingActivePreset)
+      await send(.showActivePresetNow)
+    }.cancellable(id: CancelId.showActivePresetNow, cancelInFlight: true)
   }
 }
 

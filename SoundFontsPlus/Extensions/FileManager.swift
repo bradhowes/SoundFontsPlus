@@ -8,36 +8,6 @@ extension FileManager {
 
   public var groupIdentifier: String { "group.com.braysoftware.SoundFontsShare" }
 
-  /**
-   Obtain the URL for a new, temporary file. The file will exist on the system but will be empty.
-
-   - returns: the location of the temporary file.
-   - throws: exceptions encountered by FileManager while locating location for temporary file
-   */
-  public func newTemporaryFile() throws -> URL {
-    let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-    let temporaryFileURL = temporaryDirectoryURL.appendingPathComponent(
-      ProcessInfo().globallyUniqueString)
-    precondition(self.createFile(atPath: temporaryFileURL.path, contents: nil))
-    return temporaryFileURL
-  }
-
-  public func newTemporaryURL() throws -> URL {
-    let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-    let temporaryFileURL = temporaryDirectoryURL.appendingPathComponent(UUID().uuidString)
-    return temporaryFileURL
-  }
-  /// Location of app documents that we want to keep private but backed-up. We need to create it if it does not
-  /// exist, so this could be a high latency call.
-  public var privateDocumentsDirectory: URL {
-    // swiftlint:disable:next force_unwrapping
-    let url = urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-    if !self.fileExists(atPath: url.path) {
-      try? self.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
-    }
-    return url
-  }
-
   /// Location of shared documents between app and extension
   public var sharedDocumentsDirectory: URL {
     guard let url = self.containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier) else {
@@ -47,15 +17,8 @@ extension FileManager {
     if !self.fileExists(atPath: url.path) {
       try? self.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
     }
+
     return url
-  }
-
-  public func sharedPath(for component: String) -> URL {
-    sharedDocumentsDirectory.appendingPathComponent(component)
-  }
-
-  public var sharedContents: [String] {
-    (try? contentsOfDirectory(atPath: sharedDocumentsDirectory.path)) ?? [String]()
   }
 
   /// True if the user has an iCloud container available to use
@@ -67,24 +30,9 @@ extension FileManager {
     self.urls(for: .documentDirectory, in: .userDomainMask).last!
   }
 
-  /// Location of app documents in iCloud (if enabled). NOTE: this should not be accessed from the main thread as
-  /// it can take some time before it will return a value.
+  /// Location of app documents in iCloud (if enabled).
   public var cloudDocumentsDirectory: URL? {
-    precondition(Thread.current.isMainThread == false)
-    guard let loc = self.url(forUbiquityContainerIdentifier: nil) else {
-      return nil
-    }
-    let dir = loc.appendingPathComponent("Documents")
-    if !self.fileExists(atPath: dir.path) {
-      do {
-        try self.createDirectory(at: dir, withIntermediateDirectories: true, attributes: nil)
-        print("Folder created at \(dir)")
-      } catch {
-        print("Error creating folder: \(error)")
-      }
-    }
-
-    return dir
+    self.url(forUbiquityContainerIdentifier: nil)
   }
 
   /**
@@ -95,5 +43,37 @@ extension FileManager {
    */
   public func fileSizeOf(url: URL) -> UInt64 {
     (try? (self.attributesOfItem(atPath: url.path) as NSDictionary).fileSize()) ?? 0
+  }
+}
+
+// From https://fatbobman.com/en/posts/in-depth-guide-to-icloud-documents/
+
+actor CloudDocumentsHandler {
+  let coordinator = NSFileCoordinator()
+
+  func write(targetURL: URL, data: Data) throws {
+    var coordinationError: NSError?
+    var writeError: Error?
+
+    // Use the coordinationError variable to capture the error information of the coordinate method.
+    // If an NSError pointer is not provided, errors occurring during the coordination process will not be caught
+    // and handled.
+    coordinator.coordinate(writingItemAt: targetURL, options: [.forDeleting], error: &coordinationError) { url in
+      do {
+        try data.write(to: url, options: .atomic)
+      } catch {
+        writeError = error
+      }
+    }
+
+    // Check outside the closure to see if an error occurred
+    if let error = writeError {
+      throw error
+    }
+
+    // Check if an error occurred during reconciliation
+    if let coordinationError = coordinationError {
+      throw coordinationError
+    }
   }
 }

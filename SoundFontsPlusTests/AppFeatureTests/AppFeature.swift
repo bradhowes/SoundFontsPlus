@@ -1,7 +1,9 @@
-import ComposableArchitecture
-import Sharing
-import SwiftUI
 import Testing
+
+import ComposableArchitecture
+import Dependencies
+import SnapshotTesting
+import SwiftUI
 
 @testable import SoundFontsPlus
 
@@ -36,5 +38,15 @@ extension BaseTestSuite.AppFeatureTests {
 
   @Test func initialize() async throws {
     
+  }
+
+  @Test func appViewPreview() async throws {
+    try withSnapshotTesting(record: .failed) {
+      try BaseTestSuite.assertSnap(
+        matching: AppFeatureView.preview,
+        size: .init(width: 400, height: 800),
+        colorScheme: .dark
+      )
+    }
   }
 }

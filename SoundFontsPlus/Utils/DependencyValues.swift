@@ -5,6 +5,13 @@
 import Dependencies
 import DependenciesMacros
 
+extension DependencyValues {
+  public var fileManager: FileManagerClient {
+    get { self[FileManagerClient.self] }
+    set { self[FileManagerClient.self] = newValue }
+  }
+}
+
 @DependencyClient
 public struct OutputVolume: Sendable {
   public let getValue: @Sendable () -> AUValue
