@@ -394,7 +394,7 @@ private extension AppFeature {
   }
 }
 
-struct AppFeatureView: View, KeyboardReadable {
+struct AppFeatureView: View, KeyboardVisibilityPublisher {
   @Environment(\.scenePhase) var scenePhase
   @Bindable private var store: StoreOf<AppFeature>
   private let theme: Theme
@@ -454,7 +454,7 @@ struct AppFeatureView: View, KeyboardReadable {
     .task {
       await store.send(.initialize).finish()
     }
-    .onReceive(keyboardPublisher) { state in
+    .onReceive(keyboardVisibilityPublisher) { state in
       isInputKeyboardVisible = state
       // If restoring display of the virtual music keyboard, scroll to the active preset
       // since it could become hidden by the keyboard.

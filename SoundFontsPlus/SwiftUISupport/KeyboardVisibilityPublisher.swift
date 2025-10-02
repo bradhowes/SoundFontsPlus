@@ -4,22 +4,24 @@ import Combine
 import UIKit
 import SwiftUI
 
-protocol KeyboardReadable {
-  var keyboardPublisher: AnyPublisher<Bool, Never> { get }
+protocol KeyboardVisibilityPublisher {
+
+  var keyboardVisibilityPublisher: AnyPublisher<Bool, Never> { get }
 }
 
-extension KeyboardReadable {
-  var keyboardPublisher: AnyPublisher<Bool, Never> {
+extension KeyboardVisibilityPublisher {
+
+  var keyboardVisibilityPublisher: AnyPublisher<Bool, Never> {
     Publishers.Merge(
       NotificationCenter.default
         .publisher(for: UIResponder.keyboardWillShowNotification)
-        .removeDuplicates()
         .map { _ in true },
       NotificationCenter.default
         .publisher(for: UIResponder.keyboardDidHideNotification)
         .removeDuplicates()
         .map { _ in false }
     )
+    .removeDuplicates()
     .eraseToAnyPublisher()
   }
 }
