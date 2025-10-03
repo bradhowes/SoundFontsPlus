@@ -1,0 +1,28 @@
+import AVFoundation
+import Dependencies
+import DependenciesMacros
+import Foundation
+
+@DependencyClient
+public struct OutputVolume: Sendable {
+  public let getValue: @Sendable () -> AUValue
+  public let startStreaming: @Sendable () -> (NSKeyValueObservation?, AsyncStream<Float>)
+}
+
+extension OutputVolume: DependencyKey {
+  public static var liveValue: OutputVolume {
+    .init(
+      getValue: { AVAudioSession.sharedInstance().outputVolume },
+      startStreaming: { AVAudioSession.sharedInstance().startStreamingOutputVolume() }
+    )
+  }
+}
+
+extension DependencyValues {
+
+  public var outputVolume: OutputVolume {
+    get { self[OutputVolume.self] }
+    set { self[OutputVolume.self] = newValue }
+  }
+
+}

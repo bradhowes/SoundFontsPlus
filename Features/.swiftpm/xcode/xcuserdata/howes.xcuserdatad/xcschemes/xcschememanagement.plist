@@ -4,75 +4,45 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>AppFeature.xcscheme_^#shared#^_</key>
+		<key>ChangesFeature.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>18</integer>
+			<integer>4</integer>
 		</dict>
-		<key>Extensions.xcscheme_^#shared#^_</key>
+		<key>FeatureSupport.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>21</integer>
+			<integer>26</integer>
 		</dict>
-		<key>MainViews.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>12</integer>
-		</dict>
-		<key>ModelIdentifierStorageKey.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>13</integer>
-		</dict>
-		<key>Models.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>14</integer>
-		</dict>
-		<key>PresetListFeature.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>15</integer>
-		</dict>
-		<key>PresetsFeature.xcscheme_^#shared#^_</key>
+		<key>Features.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>20</integer>
 		</dict>
-		<key>SF2Files.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>16</integer>
-		</dict>
-		<key>SF2ResourceFiles.xcscheme_^#shared#^_</key>
+		<key>Keyboard.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>25</integer>
 		</dict>
-		<key>SoundFontListFeature.xcscheme_^#shared#^_</key>
+		<key>Models.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>17</integer>
+			<integer>8</integer>
 		</dict>
-		<key>SoundFonts2LibTests.xcscheme_^#shared#^_</key>
+		<key>SF2Resources.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>22</integer>
+			<integer>7</integer>
 		</dict>
-		<key>SoundFontsFeature.xcscheme_^#shared#^_</key>
+		<key>Support.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>10</integer>
+		</dict>
+		<key>VolumeMonitor.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>24</integer>
-		</dict>
-		<key>SwiftUISupport.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>23</integer>
-		</dict>
-		<key>TagsFeature.xcscheme_^#shared#^_</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>19</integer>
 		</dict>
 	</dict>
 </dict>

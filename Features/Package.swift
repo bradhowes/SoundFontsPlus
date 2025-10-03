@@ -1,0 +1,146 @@
+// swift-tools-version: 6.2
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let alwaysShowTutorial = false
+let alwaysShowChanges = false
+let useLocalSF2Lib = true
+
+let globalSwiftSettings: [SwiftSetting] = [
+  .enableExperimentalFeature("StrictConcurrency"),
+  .interoperabilityMode(.Cxx),
+  .strictMemorySafety(),
+  .swiftLanguageMode(.v6)
+]
+
+let sf2Lib: Package.Dependency = useLocalSF2Lib ? .package(
+  name: "SF2Lib",
+  path: "/Users/howes/src/Mine/SF2Lib"
+) : .package(
+  url: "https://github.com/bradhowes/SF2Lib",
+  from: "8.3.1"
+)
+
+let package = Package(
+  name: "Features",
+  platforms: [.iOS(.v18)],
+  products: [
+    .library(name: "ChangesFeature", targets: ["ChangesFeature"]),
+    .library(name: "FeatureSupport", targets: ["FeatureSupport"]),
+    .library(name: "Keyboard", targets: ["Keyboard"]),
+    .library(name: "Models", targets: ["Models"]),
+    .library(name: "SF2Resources", targets: ["SF2Resources"]),
+    .library(name: "VolumeMonitor", targets: ["VolumeMonitor"]),
+  ],
+  dependencies: [
+    .package(
+      url: "https://github.com/apple/swift-algorithms",
+      from: "1.2.1"
+    ),
+    .package(
+      url: "https://github.com/bradhowes/AUv3Controls",
+      from: "0.23.1"
+    ),
+    .package(
+      url: "https://github.com/bradhowes/brh-splitview",
+      from: "1.0.5"
+    ),
+    .package(
+      url: "https://github.com/bradhowes/morkandmidi",
+      from: "4.0.1"
+    ),
+    .package(
+      url: "https://github.com/relatedcode/ProgressHUD",
+      from: "14.1.4"
+    ),
+    sf2Lib,
+    .package(
+      url: "https://github.com/pointfreeco/sqlite-data",
+      from: "1.0.0"
+    ),
+    .package(
+      url: "https://github.com/pointfreeco/swift-case-paths",
+      from: "1.7.2"
+    ),
+    .package(
+      url: "https://github.com/pointfreeco/swift-composable-architecture",
+      from: "1.22.3"
+    ),
+    .package(
+      url: "https://github.com/pointfreeco/swift-sharing",
+      from: "2.7.4"
+    ),
+    .package(
+      url: "https://github.com/pointfreeco/swift-tagged",
+      from: "0.10.0"
+    ),
+  ],
+  targets: [
+    .target(
+      name: "ChangesFeature",
+      dependencies: [
+        "FeatureSupport",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+      ]
+    ),
+    .target(
+      name: "FeatureSupport",
+      dependencies: [
+        "Models",
+        .product(name: "AUv3Controls", package: "AUv3Controls"),
+        .product(name: "CasePaths", package: "swift-case-paths"),
+        .product(name: "MorkAndMIDI", package: "morkandmidi"),
+        .product(name: "Sharing", package: "swift-sharing")
+      ]
+    ),
+    .target(
+      name: "Keyboard",
+      dependencies: [
+        "FeatureSupport",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Algorithms", package: "swift-algorithms")
+      ]
+    ),
+    .target(
+      name: "Models",
+      dependencies: [
+        "SF2Resources",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "SQLiteData", package: "sqlite-data"),
+        .product(name: "Tagged", package: "swift-tagged")
+      ]
+    ),
+    .target(
+      name: "SF2Resources",
+      dependencies: [
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Engine", package: "SF2Lib"),
+        // .product(name: "SQLiteData", package: "sqlite-data")
+        // .product(name: "Sharing", package: "swift-sharing")
+      ]
+    ),
+    .target(
+      name: "VolumeMonitor",
+      dependencies: [
+        "FeatureSupport",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "ProgressHUD", package: "ProgressHUD")
+      ]
+    ),
+    .testTarget(name: "ChangesFeatureTests", dependencies: ["ChangesFeature"]),
+  ],
+  cxxLanguageStandard: .cxx2b
+)
+
+// The SF2Lib Engine product requires this for everything it touches, so just do every target.
+for target in package.targets {
+  var settings = globalSwiftSettings + (target.swiftSettings ?? [])
+  if alwaysShowChanges {
+    settings.append(.define("ALWAYS_SHOW_CHANGES"))
+  }
+  if alwaysShowTutorial {
+    settings.append(.define("ALWAYS_SHOW_TUTORIAL"))
+  }
+  target.swiftSettings = settings
+}

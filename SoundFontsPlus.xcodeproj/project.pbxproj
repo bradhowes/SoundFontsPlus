@@ -17,7 +17,6 @@
 		BD050EE12E23C2EB00706CC4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BD050EE02E23C2EB00706CC4 /* LaunchScreen.storyboard */; };
 		BD171ED52E472CDE00E2EDA7 /* PresetLoadingInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD171ED42E472CDE00E2EDA7 /* PresetLoadingInfo.swift */; };
 		BD171ED92E47A98C00E2EDA7 /* MIDIMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD171ED82E47A98300E2EDA7 /* MIDIMonitor.swift */; };
-		BD171EDC2E47A9F700E2EDA7 /* MorkAndMIDI in Frameworks */ = {isa = PBXBuildFile; productRef = BD171EDB2E47A9F700E2EDA7 /* MorkAndMIDI */; };
 		BD1774DB2E6386A20029D195 /* FluidR3_GM.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BD1774DA2E6386A20029D195 /* FluidR3_GM.sf2 */; };
 		BD1774E92E657FA00029D195 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD1774E82E657FA00029D195 /* SnapshotTesting */; };
 		BD1D27832B6F13DD005C3ED0 /* SoundFontsPlusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27822B6F13DD005C3ED0 /* SoundFontsPlusApp.swift */; };
@@ -32,12 +31,10 @@
 		BD31A7EE2E5647300046F07C /* FileImporterViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B05142E4FDCCE006628F3 /* FileImporterViewModifier.swift */; };
 		BD31A7F32E5658CE0046F07C /* StructuredQueriesTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BD31A7F22E5658CE0046F07C /* StructuredQueriesTestSupport */; };
 		BD33FF572E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD33FF562E22E9BA0085D3C3 /* NavigationBarTitleStyle.swift */; };
-		BD3E3D832E520FEF00523292 /* BRHSplitView in Frameworks */ = {isa = PBXBuildFile; productRef = BD3E3D822E520FEF00523292 /* BRHSplitView */; };
 		BD46FC832DF62C3100CB20F1 /* AUParameterTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD46FC822DF62C2B00CB20F1 /* AUParameterTree.swift */; };
 		BD4C249D2E77618800F8B3A9 /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249C2E77618800F8B3A9 /* Engine */; };
 		BD4C249F2E77618800F8B3A9 /* SF2File in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249E2E77618800F8B3A9 /* SF2File */; };
 		BD4C24A12E77618800F8B3A9 /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C24A02E77618800F8B3A9 /* SF2Lib */; };
-		BD521B962E7E9F4B00D3136B /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = BD521B952E7E9F4B00D3136B /* SQLiteData */; };
 		BD561CCA2E573EC100D8FBB0 /* FreeFont.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BDAF5AE02DE2557300B8FB13 /* FreeFont.sf2 */; };
 		BD59D4EA2E47B62C00B2250B /* MIDIConnectionsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4E92E47B62500B2250B /* MIDIConnectionsFeature.swift */; };
 		BD59D4EC2E47C77C00B2250B /* MIDIControllersFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD59D4EB2E47C77C00B2250B /* MIDIControllersFeature.swift */; };
@@ -50,7 +47,6 @@
 		BD66C5752E6AAD1F00A0CD31 /* SnapshotTestingCustomDump in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C5742E6AAD1F00A0CD31 /* SnapshotTestingCustomDump */; };
 		BD673BB72DFB44D600574F9C /* WithDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD673BB62DFB44D100574F9C /* WithDatabase.swift */; };
 		BD76C1592E23C57E00F5B1F5 /* VolumeMonitorFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1582E23C57E00F5B1F5 /* VolumeMonitorFeature.swift */; };
-		BD76C15C2E23C5F700F5B1F5 /* ProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */; };
 		BD76C1602E23CD2C00F5B1F5 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C15F2E23CD2C00F5B1F5 /* Logging.swift */; };
 		BD76C1642E23E27600F5B1F5 /* Notification.Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD76C1632E23E27600F5B1F5 /* Notification.Name.swift */; };
 		BD7B05172E4FDD40006628F3 /* FileImporterPrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7B05162E4FDD40006628F3 /* FileImporterPrompts.swift */; };
@@ -67,9 +63,6 @@
 		BD9BECF82E8D71540091D094 /* SoundFontsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9BECF72E8D71540091D094 /* SoundFontsList.swift */; };
 		BD9E45E92E794F9E00D0806E /* FourCharCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45E82E794F9B00D0806E /* FourCharCode.swift */; };
 		BD9E45EB2E79519A00D0806E /* ClosedRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E45EA2E79518D00D0806E /* ClosedRange.swift */; };
-		BD9E46152E79801400D0806E /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD9E46142E79801400D0806E /* Engine */; };
-		BD9E46172E79801400D0806E /* SF2File in Frameworks */ = {isa = PBXBuildFile; productRef = BD9E46162E79801400D0806E /* SF2File */; };
-		BD9E46192E79801400D0806E /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BD9E46182E79801400D0806E /* SF2Lib */; };
 		BD9E461C2E7A05F800D0806E /* ChangesFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E461B2E7A05F400D0806E /* ChangesFeature.swift */; };
 		BD9E461E2E7A079E00D0806E /* Changes.md in Resources */ = {isa = PBXBuildFile; fileRef = BD9E461D2E7A079B00D0806E /* Changes.md */; };
 		BD9E46202E7AA30200D0806E /* TutorialFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9E461F2E7AA2FA00D0806E /* TutorialFeature.swift */; };
@@ -132,8 +125,6 @@
 		BDAF5B222DE2559E00B8FB13 /* Note.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B1E2DE2559E00B8FB13 /* Note.swift */; };
 		BDAF5B232DE2559E00B8FB13 /* KeyLabels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B1D2DE2559E00B8FB13 /* KeyLabels.swift */; };
 		BDAF5B262DE255D900B8FB13 /* BRHSplitView in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5B252DE255D900B8FB13 /* BRHSplitView */; };
-		BDAF5B292DE255EE00B8FB13 /* AUv3Controls in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5B282DE255EE00B8FB13 /* AUv3Controls */; };
-		BDAF5B2C2DE2560400B8FB13 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5B2B2DE2560400B8FB13 /* ComposableArchitecture */; };
 		BDAF5B812DE256C500B8FB13 /* SF2LibAU.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B572DE256C500B8FB13 /* SF2LibAU.swift */; };
 		BDAF5B822DE256C500B8FB13 /* SoundFontButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B632DE256C500B8FB13 /* SoundFontButton.swift */; };
 		BDAF5B832DE256C500B8FB13 /* TagsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDAF5B7A2DE256C500B8FB13 /* TagsList.swift */; };
@@ -167,7 +158,6 @@
 		BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BB92DE259DF00B8FB13 /* Engine */; };
 		BDAF5BBC2DE259DF00B8FB13 /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BBB2DE259DF00B8FB13 /* SF2Lib */; };
 		BDAF5BBF2DE25A7900B8FB13 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BBE2DE25A7900B8FB13 /* Algorithms */; };
-		BDAF5BC12DE25C9200B8FB13 /* Tagged in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC02DE25C9200B8FB13 /* Tagged */; };
 		BDAF5BC42DE269C300B8FB13 /* DependenciesTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC32DE269C300B8FB13 /* DependenciesTestSupport */; };
 		BDB9FEF42E04B795003BA0A2 /* ParameterAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB9FEF22E04B795003BA0A2 /* ParameterAddress.swift */; };
 		BDB9FEF52E04B795003BA0A2 /* ParameterDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB9FEF32E04B795003BA0A2 /* ParameterDefinition.swift */; };
@@ -373,6 +363,7 @@
 		BDAF5B7A2DE256C500B8FB13 /* TagsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsList.swift; sourceTree = "<group>"; };
 		BDAF5B7C2DE256C500B8FB13 /* ToolBarFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolBarFeature.swift; sourceTree = "<group>"; };
 		BDAF5B7E2DE256C500B8FB13 /* Note.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Note.swift; sourceTree = "<group>"; };
+		BDB6A3972E8EC8F400126442 /* Features */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Features; sourceTree = "<group>"; };
 		BDB9FEF22E04B795003BA0A2 /* ParameterAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterAddress.swift; sourceTree = "<group>"; };
 		BDB9FEF32E04B795003BA0A2 /* ParameterDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterDefinition.swift; sourceTree = "<group>"; };
 		BDB9FEF62E067A1C003BA0A2 /* AVAudioUnitReverbPreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAudioUnitReverbPreset.swift; sourceTree = "<group>"; };
@@ -398,23 +389,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BD9E46192E79801400D0806E /* SF2Lib in Frameworks */,
 				BD4C24A12E77618800F8B3A9 /* SF2Lib in Frameworks */,
-				BD521B962E7E9F4B00D3136B /* SQLiteData in Frameworks */,
 				BDAF5BBC2DE259DF00B8FB13 /* SF2Lib in Frameworks */,
 				BDAF5BBF2DE25A7900B8FB13 /* Algorithms in Frameworks */,
-				BD9E46152E79801400D0806E /* Engine in Frameworks */,
-				BD76C15C2E23C5F700F5B1F5 /* ProgressHUD in Frameworks */,
-				BD9E46172E79801400D0806E /* SF2File in Frameworks */,
-				BDAF5BC12DE25C9200B8FB13 /* Tagged in Frameworks */,
 				BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */,
 				BD4C249F2E77618800F8B3A9 /* SF2File in Frameworks */,
-				BDAF5B2C2DE2560400B8FB13 /* ComposableArchitecture in Frameworks */,
-				BDAF5B292DE255EE00B8FB13 /* AUv3Controls in Frameworks */,
-				BD171EDC2E47A9F700E2EDA7 /* MorkAndMIDI in Frameworks */,
 				BDAF5B262DE255D900B8FB13 /* BRHSplitView in Frameworks */,
 				BD4C249D2E77618800F8B3A9 /* Engine in Frameworks */,
-				BD3E3D832E520FEF00523292 /* BRHSplitView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -458,6 +439,7 @@
 		BD1D27762B6F13DD005C3ED0 = {
 			isa = PBXGroup;
 			children = (
+				BDB6A3972E8EC8F400126442 /* Features */,
 				BD5A65612D984945008B8117 /* SoundFontsPlus.xctestplan */,
 				BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */,
 				BD0BD9172E11E7E400772FE5 /* Common.xcconfig */,
@@ -999,22 +981,12 @@
 			name = SoundFontsPlus;
 			packageProductDependencies = (
 				BDAF5B252DE255D900B8FB13 /* BRHSplitView */,
-				BDAF5B282DE255EE00B8FB13 /* AUv3Controls */,
-				BDAF5B2B2DE2560400B8FB13 /* ComposableArchitecture */,
 				BDAF5BB92DE259DF00B8FB13 /* Engine */,
 				BDAF5BBB2DE259DF00B8FB13 /* SF2Lib */,
 				BDAF5BBE2DE25A7900B8FB13 /* Algorithms */,
-				BDAF5BC02DE25C9200B8FB13 /* Tagged */,
-				BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */,
-				BD171EDB2E47A9F700E2EDA7 /* MorkAndMIDI */,
-				BD3E3D822E520FEF00523292 /* BRHSplitView */,
 				BD4C249C2E77618800F8B3A9 /* Engine */,
 				BD4C249E2E77618800F8B3A9 /* SF2File */,
 				BD4C24A02E77618800F8B3A9 /* SF2Lib */,
-				BD9E46142E79801400D0806E /* Engine */,
-				BD9E46162E79801400D0806E /* SF2File */,
-				BD9E46182E79801400D0806E /* SF2Lib */,
-				BD521B952E7E9F4B00D3136B /* SQLiteData */,
 			);
 			productName = SoundFontsPlus;
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */;
@@ -1089,16 +1061,8 @@
 			);
 			mainGroup = BD1D27762B6F13DD005C3ED0;
 			packageReferences = (
-				BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */,
-				BDAF5B272DE255EE00B8FB13 /* XCRemoteSwiftPackageReference "AUv3Controls" */,
-				BDAF5B2A2DE2560400B8FB13 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				BDAF5BBD2DE25A7900B8FB13 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 				BD33FF7F2E23B2900085D3C3 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
-				BD76C15A2E23C5F700F5B1F5 /* XCRemoteSwiftPackageReference "ProgressHUD" */,
-				BD171EDA2E47A9F700E2EDA7 /* XCRemoteSwiftPackageReference "morkandmidi" */,
-				BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */,
-				BD9E46132E79801400D0806E /* XCRemoteSwiftPackageReference "SF2Lib" */,
-				BD521B942E7E9F4B00D3136B /* XCRemoteSwiftPackageReference "sqlite-data" */,
 			);
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
 			projectDirPath = "";
@@ -1744,14 +1708,6 @@
 				minimumVersion = 1.1.0;
 			};
 		};
-		BD171EDA2E47A9F700E2EDA7 /* XCRemoteSwiftPackageReference "morkandmidi" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bradhowes/morkandmidi";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
-			};
-		};
 		BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-structured-queries";
@@ -1776,68 +1732,12 @@
 				minimumVersion = 0.59.1;
 			};
 		};
-		BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bradhowes/brh-splitview";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.5;
-			};
-		};
-		BD521B942E7E9F4B00D3136B /* XCRemoteSwiftPackageReference "sqlite-data" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/sqlite-data";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 		BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bradhowes/swift-snapshot-testing";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.0;
-			};
-		};
-		BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swift-tagged";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.10.0;
-			};
-		};
-		BD76C15A2E23C5F700F5B1F5 /* XCRemoteSwiftPackageReference "ProgressHUD" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/relatedcode/ProgressHUD";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 14.1.4;
-			};
-		};
-		BD9E46132E79801400D0806E /* XCRemoteSwiftPackageReference "SF2Lib" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bradhowes/SF2Lib";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.3.0;
-			};
-		};
-		BDAF5B272DE255EE00B8FB13 /* XCRemoteSwiftPackageReference "AUv3Controls" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bradhowes/AUv3Controls";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.17.2;
-			};
-		};
-		BDAF5B2A2DE2560400B8FB13 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.20.1;
 			};
 		};
 		BDAF5BBD2DE25A7900B8FB13 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
@@ -1869,11 +1769,6 @@
 			package = BD33FF7F2E23B2900085D3C3 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
 		};
-		BD171EDB2E47A9F700E2EDA7 /* MorkAndMIDI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD171EDA2E47A9F700E2EDA7 /* XCRemoteSwiftPackageReference "morkandmidi" */;
-			productName = MorkAndMIDI;
-		};
 		BD1774E82E657FA00029D195 /* SnapshotTesting */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
@@ -1883,11 +1778,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */;
 			productName = StructuredQueriesTestSupport;
-		};
-		BD3E3D822E520FEF00523292 /* BRHSplitView */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD3E3D812E520FEF00523292 /* XCRemoteSwiftPackageReference "brh-splitview" */;
-			productName = BRHSplitView;
 		};
 		BD4C249C2E77618800F8B3A9 /* Engine */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1900,11 +1790,6 @@
 		BD4C24A02E77618800F8B3A9 /* SF2Lib */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SF2Lib;
-		};
-		BD521B952E7E9F4B00D3136B /* SQLiteData */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD521B942E7E9F4B00D3136B /* XCRemoteSwiftPackageReference "sqlite-data" */;
-			productName = SQLiteData;
 		};
 		BD66C5702E6AAD1F00A0CD31 /* InlineSnapshotTesting */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1921,39 +1806,9 @@
 			package = BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
 			productName = SnapshotTestingCustomDump;
 		};
-		BD76C15B2E23C5F700F5B1F5 /* ProgressHUD */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD76C15A2E23C5F700F5B1F5 /* XCRemoteSwiftPackageReference "ProgressHUD" */;
-			productName = ProgressHUD;
-		};
-		BD9E46142E79801400D0806E /* Engine */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD9E46132E79801400D0806E /* XCRemoteSwiftPackageReference "SF2Lib" */;
-			productName = Engine;
-		};
-		BD9E46162E79801400D0806E /* SF2File */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD9E46132E79801400D0806E /* XCRemoteSwiftPackageReference "SF2Lib" */;
-			productName = SF2File;
-		};
-		BD9E46182E79801400D0806E /* SF2Lib */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD9E46132E79801400D0806E /* XCRemoteSwiftPackageReference "SF2Lib" */;
-			productName = SF2Lib;
-		};
 		BDAF5B252DE255D900B8FB13 /* BRHSplitView */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BRHSplitView;
-		};
-		BDAF5B282DE255EE00B8FB13 /* AUv3Controls */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BDAF5B272DE255EE00B8FB13 /* XCRemoteSwiftPackageReference "AUv3Controls" */;
-			productName = AUv3Controls;
-		};
-		BDAF5B2B2DE2560400B8FB13 /* ComposableArchitecture */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BDAF5B2A2DE2560400B8FB13 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
-			productName = ComposableArchitecture;
 		};
 		BDAF5BB92DE259DF00B8FB13 /* Engine */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1967,11 +1822,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BDAF5BBD2DE25A7900B8FB13 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
 			productName = Algorithms;
-		};
-		BDAF5BC02DE25C9200B8FB13 /* Tagged */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD700E512CBE5FC800E43E51 /* XCRemoteSwiftPackageReference "swift-tagged" */;
-			productName = Tagged;
 		};
 		BDAF5BC32DE269C300B8FB13 /* DependenciesTestSupport */ = {
 			isa = XCSwiftPackageProductDependency;
