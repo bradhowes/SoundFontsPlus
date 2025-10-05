@@ -8,12 +8,14 @@ import Testing
 
 @testable import Models
 
-extension BaseTestSuite {
-  @MainActor
-  struct PresetLoadingInfoTests {}
-}
-
-extension BaseTestSuite.PresetLoadingInfoTests {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct PresetLoadingInfoTests {
 
   @MainActor
   func setup() async throws -> [Preset] {

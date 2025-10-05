@@ -8,13 +8,14 @@ import Testing
 
 @testable import Models
 
-extension BaseTestSuite {
-
-  @MainActor
-  struct SoundFontInfoTests {}
-}
-
-extension BaseTestSuite.SoundFontInfoTests {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct SoundFontInfoTests {
 
   @Test func query() async throws {
     @Shared(.activeState) var activeState

@@ -6,7 +6,6 @@ import Testing
 
 @testable import Models
 
-
 struct BookmarkTests {
 
   @Test func testRestore() throws {

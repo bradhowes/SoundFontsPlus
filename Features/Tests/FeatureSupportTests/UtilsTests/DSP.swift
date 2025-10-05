@@ -3,6 +3,12 @@ import Numerics
 
 @testable import FeatureSupport
 
+@Suite(
+  //  .dependencies {
+  //    $0.defaultDatabase = try appDatabase()
+  //  },
+  //  .snapshots(record: .failed)
+)
 struct DSPTests {
 
   @Test func panToCCValue() throws {

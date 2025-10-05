@@ -5,7 +5,7 @@ import AudioUnit.AUParameters
 /**
  Attributes that will be used for an AUParameter in an AUParameterTree.
  */
-struct ParameterDefinition {
+public struct ParameterDefinition {
   /// The unique identifier for the parameter. According to Apple, this should never change in value across releases.
   public let identifier: String
   /// The localized display name for the parameter.
@@ -24,7 +24,7 @@ struct ParameterDefinition {
   /// If true, show values on a log scale.
   public let logScale: Bool
 
-  init(
+  public init(
     _ identifier: String,
     localized: String,
     address: ParameterAddress,

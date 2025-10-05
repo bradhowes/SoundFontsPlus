@@ -8,13 +8,14 @@ import Testing
 
 @testable import Models
 
-extension BaseTestSuite {
-
-  @MainActor
-  struct OperationsTests {}
-}
-
-extension BaseTestSuite.OperationsTests {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct OperationsTests {
 
   @Test func presetsOrdering() async throws {
     var presets = Operations.presets(for: nil)

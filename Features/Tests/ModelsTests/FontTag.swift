@@ -7,13 +7,14 @@ import Testing
 
 @testable import Models
 
-extension BaseTestSuite {
-
-  @MainActor
-  struct FontTagTests {}
-}
-
-extension BaseTestSuite.FontTagTests {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct FontTagTests {
 
   @Test func migration() async throws {
     @FetchAll(FontTag.tagsQuery) var tags

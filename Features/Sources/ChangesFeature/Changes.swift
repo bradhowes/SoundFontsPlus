@@ -125,10 +125,17 @@ public struct ChangesView: View {
   }
 }
 
-#Preview {
-  NavigationStack {
-    ChangesView(store: Store(initialState: .init(
-      """
+extension ChangesView {
+
+  static var preview: some View {
+    prepareDependencies { _ in
+      // swiftlint:disable:next force_try
+      // $0.defaultDatabase = try! appDatabase()
+      // $0.delayDevice = .init(setConfig: { print("delayDevice.set: ", $0) })
+      // $0.reverbDevice = .init(setConfig: { print("reverbDevice.set: ", $0) })
+    }
+
+    let data = """
       # 1.0.0
       * First item
       * Second
@@ -141,6 +148,23 @@ public struct ChangesView: View {
       * Fixed first item
       * Removed second item
       """
-    )) { Changes() })
+
+    return  VStack(spacing: 0) {
+      Text("Hello")
+        .sheet(
+          isPresented: Binding(get: { true }, set: { _ in }),
+          onDismiss: nil
+        ) {
+          NavigationStack {
+            ChangesView(store: .init(initialState: .init(data)) { Changes() })
+          }
+        }
+    }
+    .preferredColorScheme(.dark)
+    .environment(\.colorScheme, .dark)
   }
+}
+
+#Preview {
+  ChangesView.preview
 }

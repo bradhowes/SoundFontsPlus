@@ -10,29 +10,29 @@ import Testing
 
 @testable import VolumeMonitor
 
-extension BaseTestSuite {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct VolumeMonitorTests {
+  private let mockVolume: VolumeMonitorDemoView.OutputVolumeFlipFlop
+  private let store: TestStoreOf<VolumeMonitor>
 
-  @MainActor
-  struct VolumeMonitorTests {
-    private let mockVolume: VolumeMonitorDemoView.OutputVolumeFlipFlop
-    private let store: TestStoreOf<VolumeMonitor>
-
-    init() async throws {
-      let mockVolume = VolumeMonitorDemoView.OutputVolumeFlipFlop()
-      let store = TestStore(initialState: VolumeMonitor.State()) {
-        VolumeMonitor()
-      } withDependencies: {
-        @Shared(.activeState) var activeState = .init()
-        $0.outputVolume = mockVolume.makeOutputVolume()
-      }
-
-      self.mockVolume = mockVolume
-      self.store = store
+  init() async throws {
+    let mockVolume = VolumeMonitorDemoView.OutputVolumeFlipFlop()
+    let store = TestStore(initialState: VolumeMonitor.State()) {
+      VolumeMonitor()
+    } withDependencies: {
+      @Shared(.activeState) var activeState = .init()
+      $0.outputVolume = mockVolume.makeOutputVolume()
     }
-  }
-}
 
-extension BaseTestSuite.VolumeMonitorTests {
+    self.mockVolume = mockVolume
+    self.store = store
+  }
 
   func togglePresetId(
     assert updateStateToExpectedResult: ((_ state: inout VolumeMonitor.State) throws -> Void)? = nil,

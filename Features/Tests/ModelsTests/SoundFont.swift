@@ -8,13 +8,14 @@ import Testing
 
 @testable import Models
 
-extension BaseTestSuite {
-
-  @MainActor
-  struct SoundFontTests {}
-}
-
-extension BaseTestSuite.SoundFontTests {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct SoundFontTests {
 
   @Test(
     .dependencies {

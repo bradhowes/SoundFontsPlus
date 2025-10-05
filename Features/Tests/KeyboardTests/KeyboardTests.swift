@@ -1,7 +1,5 @@
 import ComposableArchitecture
-import Dependencies
-import DependenciesTestSupport
-import Foundation
+import Models
 import Sharing
 import SnapshotTesting
 import SwiftUI
@@ -9,19 +7,20 @@ import Testing
 
 @testable import Keyboard
 
-extension BaseTestSuite {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct KeyboardTests {
 
-  @MainActor
-  struct KeyboardTests {
-    private let store: TestStoreOf<Keyboard>
+  private let store: TestStoreOf<Keyboard>
 
-    init() async throws {
-      self.store = TestStore(initialState: Keyboard.State()) { Keyboard() }
-    }
+  init() async throws {
+    self.store = TestStore(initialState: Keyboard.State()) { Keyboard() }
   }
-}
-
-extension BaseTestSuite.KeyboardTests {
 
   @Test
   func keyboardTest() async throws {

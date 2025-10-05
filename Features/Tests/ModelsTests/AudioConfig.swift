@@ -7,13 +7,14 @@ import Testing
 
 @testable import Models
 
-extension BaseTestSuite {
-
-  @MainActor
-  struct AudioConfigTests {}
-}
-
-extension BaseTestSuite.AudioConfigTests {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct AudioConfigTests {
 
   @MainActor
   func setup() async throws -> ([Preset], AudioConfig) {

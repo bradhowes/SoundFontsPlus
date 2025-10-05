@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Models
 import Sharing
 import SnapshotTesting
 import SwiftUI
@@ -6,13 +7,17 @@ import Testing
 
 @testable import ChangesFeature
 
-extension BaseTestSuite {
-
-  @MainActor
-  struct ChangesFeatureTests {}
-}
-
-extension BaseTestSuite.ChangesFeatureTests {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  .snapshots(record: .failed)
+)
+@MainActor
+struct ChangesFeatureTests {
+  // static var soundFontPresetLoadLimit: Int { SoundFont.soundFontPresetLoadLimit }
+  static var isOnGithub: Bool { ProcessInfo.processInfo.isOnGithub }
+  static var isLocal: Bool { !isOnGithub }
 
   func makeStore(data: String) -> TestStoreOf<Changes> {
     TestStoreOf<Changes>(initialState: .init(data)) {
@@ -117,23 +122,31 @@ extension BaseTestSuite.ChangesFeatureTests {
 
   @Test func changesPreview() async throws {
     let data = """
-        # 1.2.3
-        * foo
-        * bar
-        # 1.2.4
-        * one
-         two
-        """
-    let store = StoreOf<Changes>(initialState: .init(data)) {
-      Changes()
+      # 1.0.0
+      * First item
+      * Second
+        item
+      * Third
+        long
+        item
+      * Fourth item that just goes on, and on
+      # 1.1.0
+      * Fixed first item
+      * Removed second item
+      """
+    let view = NavigationStack {
+      ChangesView(store: .init(initialState: .init(data)) { Changes() })
     }
-    let view = ChangesView(store: store)
+      .preferredColorScheme(.dark)
+      .environment(\.colorScheme, .dark)
 
     try withSnapshotTesting(record: .failed) {
-      try BaseTestSuite.assertSnap(
-        matching: view,
-        size: .init(width: 400, height: 800),
-        colorScheme: .dark
+      try assertSnapshot(
+        of: view,
+        as: .wait(for: 1, on: .image(
+          drawHierarchyInKeyWindow: false,
+          layout: .fixed(width: 400, height: 800)
+        ))
       )
     }
   }

@@ -7,13 +7,14 @@ import Testing
 
 @testable import Models
 
-extension BaseTestSuite {
-
-  @MainActor
-  struct DelayConfigTests {}
-}
-
-extension BaseTestSuite.DelayConfigTests {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct DelayConfigTests {
 
   @MainActor
   func setup() async throws -> ([Preset], DelayConfig) {

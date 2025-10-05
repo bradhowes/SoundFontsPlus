@@ -7,13 +7,14 @@ import Testing
 
 @testable import Models
 
-extension BaseTestSuite {
-
-  @MainActor
-  struct MIDIConfigTests {}
-}
-
-extension BaseTestSuite.MIDIConfigTests {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct MIDIConfigTests {
 
   @MainActor
   func setup() async throws -> MIDIConfig {

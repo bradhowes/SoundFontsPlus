@@ -3,13 +3,13 @@ import Testing
 
 @testable import FeatureSupport
 
-extension BaseTestSuite {
-
-  @MainActor
-  struct ClosedRangeTests {}
-}
-
-extension BaseTestSuite.ClosedRangeTests {
+@Suite(
+  //  .dependencies {
+  //    $0.defaultDatabase = try appDatabase()
+  //  },
+  //  .snapshots(record: .failed)
+)
+struct ClosedRangeTests {
 
   @Test func distance() async throws {
     #expect((0.0...1.0).distance == 1.0)

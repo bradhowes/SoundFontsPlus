@@ -8,13 +8,14 @@ import Testing
 
 @testable import Models
 
-extension BaseTestSuite {
-
-  @MainActor
-  struct TagInfoTests {}
-}
-
-extension BaseTestSuite.TagInfoTests {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct TagInfoTests {
 
   @Test func query() async throws {
     let found = withDatabaseReader { try TagInfo.query.fetchAll($0) } ?? []

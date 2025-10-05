@@ -2,7 +2,7 @@
 
 import AudioUnit.AUParameters
 
-enum ParameterAddress: AUParameterAddress, CaseIterable {
+public enum ParameterAddress: AUParameterAddress, CaseIterable {
 
   case delayEnabled = 2000
   case delayTime
@@ -19,7 +19,7 @@ enum ParameterAddress: AUParameterAddress, CaseIterable {
 
 extension ParameterAddress {
 
-  var parameterDefinition: ParameterDefinition {
+  public var parameterDefinition: ParameterDefinition {
     switch self {
 
     case .delayEnabled:
@@ -83,9 +83,9 @@ extension ParameterAddress {
     }
   }
 
-  var parameter: AUParameter { parameterDefinition.parameter }
+  public var parameter: AUParameter { parameterDefinition.parameter }
 
-  static func createParameterTree() -> AUParameterTree {
+  public static func createParameterTree() -> AUParameterTree {
     AUParameterTree.createTree(withChildren: ParameterAddress.allCases.map(\.parameter))
   }
 }

@@ -7,12 +7,6 @@ import Testing
 
 @testable import VolumeMonitor
 
-extension BaseTestSuite {
-
-  @MainActor
-  struct AVAudioSessionTests {}
-}
-
 @objc final class VolumeProvider: NSObject, OutputVolumeStream, @unchecked Sendable {
   @objc dynamic private(set) var outputVolume: Float = 0.0
 
@@ -21,7 +15,14 @@ extension BaseTestSuite {
   }
 }
 
-extension BaseTestSuite.AVAudioSessionTests {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct AVAudioSessionTests {
 
   @Test func monitorVolume() async throws {
     let bits = AVAudioSession.sharedInstance().startStreamingOutputVolume()

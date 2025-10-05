@@ -6,7 +6,14 @@ import Testing
 
 @testable import Models
 
-@Suite("SoundFontKind") struct SoundFontKindTests {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct SoundFontKindTests {
   
   @Test func builtin() async throws {
     let sfk = SoundFontKind.builtin(resource: SF2ResourceTag.freeFont.url)
