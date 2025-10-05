@@ -6,7 +6,7 @@ import Foundation
 @DependencyClient
 public struct OutputVolume: Sendable {
   public let getValue: @Sendable () -> AUValue
-  public let startStreaming: @Sendable () -> (NSKeyValueObservation?, AsyncStream<Float>)
+  public let startStreaming: @Sendable () -> AsyncStream<Float>
 }
 
 extension OutputVolume: DependencyKey {
@@ -24,5 +24,4 @@ extension DependencyValues {
     get { self[OutputVolume.self] }
     set { self[OutputVolume.self] = newValue }
   }
-
 }

@@ -1,5 +1,5 @@
 {
-  "originHash" : "8f645ea10f2824a00a6275d070ba188508dfac2a8381be5ece219bc5c0109219",
+  "originHash" : "351a2d6a2dc8376472f4d0748d35d6daa072aa146836e9cebc62e254e71ec98b",
   "pins" : [
     {
       "identity" : "auv3controls",
@@ -56,12 +56,12 @@
       }
     },
     {
-      "identity" : "progresshud",
+      "identity" : "sf2lib",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/relatedcode/ProgressHUD",
+      "location" : "https://github.com/bradhowes/SF2Lib",
       "state" : {
-        "revision" : "4aa638a88450d6d48a6620070722e875e7a179ef",
-        "version" : "14.1.4"
+        "revision" : "30be96a65efc1916f378dd876ed6a73b8062ee07",
+        "version" : "8.3.2"
       }
     },
     {
@@ -236,12 +236,12 @@
       }
     },
     {
-      "identity" : "swiftlintplugins",
+      "identity" : "swift-toasts",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SimplyDanny/SwiftLintPlugins",
+      "location" : "https://github.com/athankefalas/swift-toasts",
       "state" : {
-        "revision" : "6166499ede0efe43c3809f101d2c3cd409e2b77a",
-        "version" : "0.61.0"
+        "revision" : "fa3840a4daa9811ba95dcaf19ea07e23193103c7",
+        "version" : "0.9.2"
       }
     },
     {

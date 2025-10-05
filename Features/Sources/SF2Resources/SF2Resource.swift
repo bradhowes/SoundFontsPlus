@@ -2,7 +2,7 @@
 
 import Foundation
 
-public enum SF2ResourceError: Error {
+public enum SF2ResourceError: Error, Equatable {
   case notFound(name: String)
   case missingResources
 }
@@ -16,7 +16,7 @@ public struct SF2Resource {
   /// Collection of all URLs for SF2 files in this bundle
   public static let resources: [URL] = SF2ResourceTag.allCases.map {
     // swiftlint:disable:next force_unwrapping
-    Bundle.main.url(forResource: $0.fileName, withExtension: sf2Extension)!
+    Bundle.module.url(forResource: $0.fileName, withExtension: sf2Extension)!
   }
 
   /**
@@ -26,7 +26,7 @@ public struct SF2Resource {
    - returns: the URL of the resource in the bundle
    */
   public static func resource(fileName: String) throws -> URL {
-    guard let url = Bundle.main.url(forResource: fileName, withExtension: sf2Extension) else {
+    guard let url = Bundle.module.url(forResource: fileName, withExtension: sf2Extension) else {
       throw SF2ResourceError.notFound(name: fileName)
     }
     return url

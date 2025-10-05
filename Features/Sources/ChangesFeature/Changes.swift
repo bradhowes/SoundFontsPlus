@@ -1,6 +1,6 @@
 import ComposableArchitecture
+import FeatureSupport
 import Sharing
-import Support
 import SwiftUI
 
 @Reducer

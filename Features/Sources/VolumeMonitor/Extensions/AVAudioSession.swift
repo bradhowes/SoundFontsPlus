@@ -6,8 +6,6 @@ import Foundation
  `AsyncStream`.
  */
 @objc public protocol OutputVolumeStream: AnyObject {
-  typealias Observation = (NSKeyValueObservation, AsyncStream<AUValue>)
-
   @objc dynamic var outputVolume: AUValue { get }
 }
 
@@ -17,30 +15,29 @@ extension OutputVolumeStream {
    Obtain a stream of volume changes for an object. Values will be emitted via an AsyncStream.
 
    ```
-   (observerToken, stream) = outputVolumeProvider.startStreaming()
+   stream = outputVolumeProvider.startStreaming()
    for await value in stream {
      await send(.volumeChanged(value))
    }
    ```
 
-   - parameter onTermination: closure to call when the stream terminates
-   - returns: 2-tuple containing a token for cancelling the observation and an AsyncStream of observed values
+   - returns: an AsyncStream of observed values
    */
-
-  public func start(onTermination: (@Sendable (Any) -> Void)? = nil) -> Observation where Self: NSObject & Sendable {
-    let (stream, continuation) = AsyncStream<Float>.makeStream()
-    let observerToken = self.observe(\.outputVolume, options: [.new]) { session, change  in
-      var lastSeen: AUValue?
-      if self == session,
-         let newValue = change.newValue,
-         newValue != lastSeen {
-        lastSeen = newValue
-        continuation.yield(newValue)
+  public func startStreaming() -> AsyncStream<AUValue> where Self: NSObject & Sendable {
+    .init { continuation in
+      let observerToken = self.observe(\.outputVolume, options: [.new]) { session, change  in
+        var lastSeen: AUValue?
+        if self == session,
+           let newValue = change.newValue,
+           newValue != lastSeen {
+          lastSeen = newValue
+          continuation.yield(newValue)
+        }
+      }
+      continuation.onTermination = { _ in
+        observerToken.invalidate()
       }
     }
-
-    continuation.onTermination = onTermination
-    return (observerToken, stream)
   }
 }
 
@@ -52,7 +49,7 @@ extension AVAudioSession: OutputVolumeStream {
    - parameter onTermination: closure to call when the stream terminates
    - returns: 2-tuple containing a token for cancelling the observation and an AsyncStream of observed values
    */
-  public func startStreamingOutputVolume(onTermination: (@Sendable (Any) -> Void)? = nil) -> OutputVolumeStream.Observation {
-    start(onTermination: onTermination)
+  public func startStreamingOutputVolume() -> AsyncStream<AUValue> {
+    startStreaming()
   }
 }

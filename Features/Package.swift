@@ -5,7 +5,7 @@ import PackageDescription
 
 let alwaysShowTutorial = false
 let alwaysShowChanges = false
-let useLocalSF2Lib = true
+let useLocalSF2Lib = false
 
 let globalSwiftSettings: [SwiftSetting] = [
   .enableExperimentalFeature("StrictConcurrency"),
@@ -19,7 +19,7 @@ let sf2Lib: Package.Dependency = useLocalSF2Lib ? .package(
   path: "/Users/howes/src/Mine/SF2Lib"
 ) : .package(
   url: "https://github.com/bradhowes/SF2Lib",
-  from: "8.3.1"
+  from: "8.3.2"
 )
 
 let package = Package(
@@ -35,10 +35,6 @@ let package = Package(
   ],
   dependencies: [
     .package(
-      url: "https://github.com/apple/swift-algorithms",
-      from: "1.2.1"
-    ),
-    .package(
       url: "https://github.com/bradhowes/AUv3Controls",
       from: "0.23.1"
     ),
@@ -50,14 +46,14 @@ let package = Package(
       url: "https://github.com/bradhowes/morkandmidi",
       from: "4.0.1"
     ),
-    .package(
-      url: "https://github.com/relatedcode/ProgressHUD",
-      from: "14.1.4"
-    ),
     sf2Lib,
     .package(
       url: "https://github.com/pointfreeco/sqlite-data",
       from: "1.0.0"
+    ),
+    .package(
+      url: "https://github.com/apple/swift-algorithms",
+      from: "1.2.1"
     ),
     .package(
       url: "https://github.com/pointfreeco/swift-case-paths",
@@ -68,12 +64,28 @@ let package = Package(
       from: "1.22.3"
     ),
     .package(
+      url: "https://github.com/pointfreeco/swift-dependencies",
+      from: "1.10.0"
+    ),
+    .package(
+      url: "https://github.com/apple/swift-numerics",
+      from: "1.1.0"
+    ),
+    .package(
       url: "https://github.com/pointfreeco/swift-sharing",
       from: "2.7.4"
     ),
     .package(
+      url: "https://github.com/pointfreeco/swift-snapshot-testing",
+      from: "1.18.7"
+    ),
+    .package(
       url: "https://github.com/pointfreeco/swift-tagged",
       from: "0.10.0"
+    ),
+    .package(
+      url: "https://github.com/athankefalas/swift-toasts",
+      from: "0.9.2"
     ),
   ],
   targets: [
@@ -116,19 +128,67 @@ let package = Package(
       dependencies: [
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Engine", package: "SF2Lib"),
-        // .product(name: "SQLiteData", package: "sqlite-data")
-        // .product(name: "Sharing", package: "swift-sharing")
-      ]
+      ],
+      resources: [.process("Resources")]
     ),
     .target(
       name: "VolumeMonitor",
       dependencies: [
         "FeatureSupport",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "ProgressHUD", package: "ProgressHUD")
+        .product(name: "SwiftToasts", package: "swift-toasts")
       ]
     ),
-    .testTarget(name: "ChangesFeatureTests", dependencies: ["ChangesFeature"]),
+    // MARK: - Test Targets
+    .testTarget(
+      name: "ChangesFeatureTests",
+      dependencies: [
+        "ChangesFeature",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "FeatureSupportTests",
+      dependencies: [
+        "FeatureSupport",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "Numerics", package: "swift-numerics"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "KeyboardTests",
+      dependencies: [
+        "Keyboard",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "ModelsTests",
+      dependencies: [
+        "Models",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "SF2ResourcesTests",
+      dependencies: [
+        "SF2Resources",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "VolumeMonitorTests",
+      dependencies: [
+        "VolumeMonitor",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
   ],
   cxxLanguageStandard: .cxx2b
 )

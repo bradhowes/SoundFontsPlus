@@ -157,7 +157,6 @@
 		BDAF5BB22DE256C500B8FB13 /* FreeFont.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = BDAF5B532DE256C500B8FB13 /* FreeFont.sf2 */; };
 		BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BB92DE259DF00B8FB13 /* Engine */; };
 		BDAF5BBC2DE259DF00B8FB13 /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BBB2DE259DF00B8FB13 /* SF2Lib */; };
-		BDAF5BBF2DE25A7900B8FB13 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BBE2DE25A7900B8FB13 /* Algorithms */; };
 		BDAF5BC42DE269C300B8FB13 /* DependenciesTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC32DE269C300B8FB13 /* DependenciesTestSupport */; };
 		BDB9FEF42E04B795003BA0A2 /* ParameterAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB9FEF22E04B795003BA0A2 /* ParameterAddress.swift */; };
 		BDB9FEF52E04B795003BA0A2 /* ParameterDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB9FEF32E04B795003BA0A2 /* ParameterDefinition.swift */; };
@@ -391,7 +390,6 @@
 			files = (
 				BD4C24A12E77618800F8B3A9 /* SF2Lib in Frameworks */,
 				BDAF5BBC2DE259DF00B8FB13 /* SF2Lib in Frameworks */,
-				BDAF5BBF2DE25A7900B8FB13 /* Algorithms in Frameworks */,
 				BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */,
 				BD4C249F2E77618800F8B3A9 /* SF2File in Frameworks */,
 				BDAF5B262DE255D900B8FB13 /* BRHSplitView in Frameworks */,
@@ -976,14 +974,12 @@
 			buildRules = (
 			);
 			dependencies = (
-				BD050EDF2E23BAA700706CC4 /* PBXTargetDependency */,
 			);
 			name = SoundFontsPlus;
 			packageProductDependencies = (
 				BDAF5B252DE255D900B8FB13 /* BRHSplitView */,
 				BDAF5BB92DE259DF00B8FB13 /* Engine */,
 				BDAF5BBB2DE259DF00B8FB13 /* SF2Lib */,
-				BDAF5BBE2DE25A7900B8FB13 /* Algorithms */,
 				BD4C249C2E77618800F8B3A9 /* Engine */,
 				BD4C249E2E77618800F8B3A9 /* SF2File */,
 				BD4C24A02E77618800F8B3A9 /* SF2Lib */,
@@ -1061,8 +1057,6 @@
 			);
 			mainGroup = BD1D27762B6F13DD005C3ED0;
 			packageReferences = (
-				BDAF5BBD2DE25A7900B8FB13 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
-				BD33FF7F2E23B2900085D3C3 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 			);
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
 			projectDirPath = "";
@@ -1307,10 +1301,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		BD050EDF2E23BAA700706CC4 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = BD050EDE2E23BAA700706CC4 /* SwiftLintBuildToolPlugin */;
-		};
 		BD1D27952B6F13DE005C3ED0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = BD1D277E2B6F13DD005C3ED0 /* SoundFontsPlus */;
@@ -1724,28 +1714,12 @@
 				minimumVersion = 1.18.4;
 			};
 		};
-		BD33FF7F2E23B2900085D3C3 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.59.1;
-			};
-		};
 		BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bradhowes/swift-snapshot-testing";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.0;
-			};
-		};
-		BDAF5BBD2DE25A7900B8FB13 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apple/swift-algorithms";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.2.1;
 			};
 		};
 		BDAF5BC22DE269C300B8FB13 /* XCRemoteSwiftPackageReference "swift-dependencies" */ = {
@@ -1763,11 +1737,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BD0053E32E6B67B70053B13B /* XCRemoteSwiftPackageReference "swift-numerics" */;
 			productName = Numerics;
-		};
-		BD050EDE2E23BAA700706CC4 /* SwiftLintBuildToolPlugin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD33FF7F2E23B2900085D3C3 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
-			productName = "plugin:SwiftLintBuildToolPlugin";
 		};
 		BD1774E82E657FA00029D195 /* SnapshotTesting */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1817,11 +1786,6 @@
 		BDAF5BBB2DE259DF00B8FB13 /* SF2Lib */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SF2Lib;
-		};
-		BDAF5BBE2DE25A7900B8FB13 /* Algorithms */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BDAF5BBD2DE25A7900B8FB13 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
-			productName = Algorithms;
 		};
 		BDAF5BC32DE269C300B8FB13 /* DependenciesTestSupport */ = {
 			isa = XCSwiftPackageProductDependency;

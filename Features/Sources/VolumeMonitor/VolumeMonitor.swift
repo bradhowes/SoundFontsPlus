@@ -2,9 +2,9 @@
 
 import ComposableArchitecture
 import Dependencies
+import FeatureSupport
 import Models
-import ProgressHUD
-import Support
+import SwiftToasts
 import SwiftUI
 
 private let log = Logger(category: "VolumeMonitor")
@@ -12,18 +12,19 @@ private let log = Logger(category: "VolumeMonitor")
 @Reducer
 public struct VolumeMonitor {
 
-  public enum Reason {
+  public enum Reason : Sendable{
     case volumeLevelIsZero
     case noActivePreset
   }
 
   @ObservableState
   public struct State: Equatable {
-    var noVolumeReason: Reason?
+    var reason: Reason?
   }
 
-  public enum Action {
+  public enum Action: BindableAction {
     case activePresetIdChanged(Preset.ID?)
+    case binding(BindingAction<State>)
     case delegate(Delegate)
     case initialize
     case deinitialize
@@ -37,8 +38,14 @@ public struct VolumeMonitor {
   @Shared(.activeState) var activeState
 
   public var body: some Reducer<State, Action> {
+    BindingReducer()
+
     Reduce { state, action in
       switch action {
+
+      case .binding:
+        return .none
+
       case .deinitialize:
         return .cancel(id: CancelId.monitorSessionVolume)
 
@@ -65,17 +72,21 @@ public struct VolumeMonitor {
 private extension VolumeMonitor {
 
   func initialize(_ state: inout State) -> Effect<Action> {
-    return .run { send in
+    @Dependency(\.outputVolume) var outputVolume
+    return .merge(
+      volumeChanged(&state, volume: outputVolume.getValue()),
+      monitorOutputVolume(&state)
+    )
+  }
+
+  func monitorOutputVolume(_ state: inout State) -> Effect<Action> {
+    .run { send in
       while !Task.isCancelled {
-        let observerToken: NSKeyValueObservation?
-        let stream: AsyncStream<Float>
         @Dependency(\.outputVolume) var outputVolume
-        (observerToken, stream) = outputVolume.startStreaming()
-        log.info("started observing volume")
-        for await value in stream {
+        for await value in outputVolume.startStreaming() {
           await send(.volumeChanged(value))
         }
-        log.info("stopped observing volume - \(String(describing: observerToken))")
+        log.info("stopped observing volume")
       }
     }.cancellable(id: CancelId.monitorSessionVolume, cancelInFlight: true)
   }
@@ -90,12 +101,12 @@ private extension VolumeMonitor {
     case (true, true): nil
     case (false, true): .volumeLevelIsZero
     case (true, false): .noActivePreset
-    case (false, false): state.noVolumeReason
+    case (false, false): state.reason
     }
 
-    if newReason != state.noVolumeReason {
-      state.noVolumeReason = newReason
-      return .send(.delegate(.mutedVolume(state.noVolumeReason)))
+    if newReason != state.reason {
+      state.reason = newReason
+      return .send(.delegate(.mutedVolume(state.reason)))
     }
 
     return .none
@@ -108,7 +119,7 @@ private extension VolumeMonitor {
 }
 
 public struct VolumeMonitorModifier: ViewModifier {
-  private var store: StoreOf<VolumeMonitor>
+  @Bindable private var store: StoreOf<VolumeMonitor>
 
   public init(store: StoreOf<VolumeMonitor>) {
     self.store = store
@@ -116,27 +127,35 @@ public struct VolumeMonitorModifier: ViewModifier {
 
   public func body(content: Content) -> some View {
     content
+      .toast(
+        item: $store.reason,
+        alignment: .top
+      ) { reason in
+        if reason == .volumeLevelIsZero {
+          Toast(role: .failure, duration: .indefinite) {
+            Label {
+              Text("Volume is muted.")
+            } icon: {
+              Image(systemName: "speaker.slash")
+            }
+          }
+        } else if reason == .noActivePreset {
+          Toast(role: .failure, duration: .indefinite) {
+            Label {
+              Text("No preset selected.")
+            } icon: {
+              Image(systemName: "speaker.slash")
+            }
+          }
+        }
+      }
+      .toastStyle(.plain)
+      // .toastTransition(.scale)
+      .toastPresentationInvalidation(.all)
+      .toastInteractiveDismissDisabled(false)
       .task {
         await store.send(.initialize).finish()
       }
-      .onChange(of: store.noVolumeReason) {
-        Self.processReason(store.noVolumeReason)
-      }
-  }
-
-  public static func processReason(_ reason: VolumeMonitor.Reason?) {
-    switch reason {
-    case .volumeLevelIsZero:
-      ProgressHUD.colorBanner = .systemRed
-      ProgressHUD.banner("Volume", "Volume set to 0.", delay: 120.0)
-
-    case .noActivePreset:
-      ProgressHUD.colorBanner = .systemRed
-      ProgressHUD.banner("Preset", "No active preset.", delay: 120.0)
-
-    case .none:
-      ProgressHUD.bannerHide()
-    }
   }
 }
 
@@ -155,13 +174,6 @@ struct VolumeMonitorDemoView: View {
 
     func getValue() -> Float { self.currentValue }
 
-    func startStreaming() -> (NSKeyValueObservation?, AsyncStream<Float>) {
-      let stream = AsyncStream { continuation in
-        self.continuation = continuation
-      }
-      return (nil, stream)
-    }
-
     /**
      Toggle current value and emit onto the stream.
 
@@ -171,6 +183,10 @@ struct VolumeMonitorDemoView: View {
       self.currentValue = 1.0 - self.currentValue
       continuation?.yield(self.currentValue)
       return self.currentValue
+    }
+
+    func startStreaming() -> AsyncStream<Float> {
+      AsyncStream<Float> { self.continuation = $0 }
     }
 
     /**
@@ -195,7 +211,6 @@ struct VolumeMonitorDemoView: View {
     self.volumes = volumes
     self.store = store
     self.volume = self.volumes.getValue()
-    $activeState.activePresetId.withLock { $0 = Preset.ID(rawValue: 1) }
   }
 
   var body: some View {
@@ -228,7 +243,12 @@ struct VolumeMonitorDemoView: View {
 #Preview {
   let mockVolume = VolumeMonitorDemoView.OutputVolumeFlipFlop()
   // swiftlint:disable:next redundant_discardable_let
-  let _ = prepareDependencies { $0.outputVolume = mockVolume.makeOutputVolume() }
+  let _ = prepareDependencies {
+    @Shared(.activeState) var activeState
+    $activeState.activePresetId.withLock { $0 = Preset.ID(rawValue: 1) }
+    $0.outputVolume = mockVolume.makeOutputVolume()
+    mockVolume.advance()
+  }
   let store: StoreOf<VolumeMonitor> = .init(initialState: VolumeMonitor.State()) { VolumeMonitor() }
   VolumeMonitorDemoView(volumes: mockVolume, store: store)
 }
