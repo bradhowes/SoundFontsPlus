@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Models
 import Sharing
 import SnapshotTesting
 import SwiftUI
@@ -6,6 +7,12 @@ import Testing
 
 @testable import Presets
 
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
 @MainActor
 struct PresetButtonTests {
 
@@ -68,10 +75,12 @@ struct PresetButtonTests {
 
   @Test func presetButtonPreview() async throws {
     try withSnapshotTesting(record: .failed) {
-      try BaseTestSuite.assertSnap(
-        matching: PresetButtonView.preview,
-        size: .init(width: 400, height: 800),
-        colorScheme: .dark
+      try assertSnapshot(
+        of: PresetButtonView.preview,
+        as: .wait(for: 1, on: .image(
+          drawHierarchyInKeyWindow: false,
+          layout: .fixed(width: 400, height: 800)
+        ))
       )
     }
   }

@@ -26,6 +26,28 @@ public struct Preset: Hashable, Identifiable, Sendable {
   }
 
   public var kind: Kind = .preset
+
+  public init(
+    id: ID,
+    index: Int,
+    bank: Int,
+    program: Int,
+    originalName: String,
+    soundFontId: SoundFont.ID,
+    displayName: String,
+    notes: String = "",
+    kind: Kind = .preset
+  ) {
+    self.id = id
+    self.index = index
+    self.bank = bank
+    self.program = program
+    self.originalName = originalName
+    self.soundFontId = soundFontId
+    self.displayName = displayName
+    self.notes = notes
+    self.kind = kind
+  }
 }
 
 extension Preset {

@@ -1,20 +1,21 @@
 import ComposableArchitecture
+import Models
 import Sharing
 import SnapshotTesting
 import SwiftUI
 import Testing
 
-@testable import SoundFontsPlus
+@testable import Presets
 
-extension BaseTestSuite {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct PresetEditorTests {
 
-  @MainActor
-  struct PresetEditorTests {}
-}
-
-extension BaseTestSuite.PresetEditorTests {
-
-  @MainActor
   func setup() throws -> (Preset, TestStoreOf<PresetEditor>) {
     @Shared(.activeState) var activeState
     $activeState.withLock {
@@ -146,10 +147,12 @@ extension BaseTestSuite.PresetEditorTests {
 
   @Test func presetEditorPreview() async throws {
     try withSnapshotTesting(record: .failed) {
-      try BaseTestSuite.assertSnap(
-        matching: PresetEditorView.preview,
-        size: .init(width: 400, height: 1200),
-        colorScheme: .dark
+      try assertSnapshot(
+        of: PresetEditorView.preview,
+        as: .wait(for: 1, on: .image(
+          drawHierarchyInKeyWindow: false,
+          layout: .fixed(width: 400, height: 800)
+        ))
       )
     }
   }

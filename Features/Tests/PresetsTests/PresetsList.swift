@@ -2,13 +2,21 @@ import Testing
 
 import ComposableArchitecture
 import Dependencies
+import DependenciesTestSupport
+import Models
 import SnapshotTesting
 import Tagged
 
-@testable import SoundFontsPlus
+@testable import Presets
 
-extension BaseTestSuite {
-
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct PresetsListTests {
   static func makePresets(_ pairs: [(Int, String)]) -> [Preset] {
     pairs.map { index, name in
       Preset(
@@ -25,26 +33,20 @@ extension BaseTestSuite {
     }
   }
 
-  @MainActor
-  struct PresetsListTests {
-    let presets: [Preset] = makePresets(
-      [
-        (0, "Yamaha Grand Piano"),
-        (1, "Bright Yamaha Grand"),
-        (2, "Electric Piano"),
-        (3, "Honky Tonk"),
-        (4, "Rhodes EP"),
-        (5, "Legend EP 2"),
-        (6, "Harpsichord"),
-        (7, "Clavinet"),
-        (8, "Celesta"),
-        (9, "Glockenspiel")
-      ]
-    )
-  }
-}
-
-extension BaseTestSuite.PresetsListTests {
+  let presets: [Preset] = makePresets(
+    [
+      (0, "Yamaha Grand Piano"),
+      (1, "Bright Yamaha Grand"),
+      (2, "Electric Piano"),
+      (3, "Honky Tonk"),
+      (4, "Rhodes EP"),
+      (5, "Legend EP 2"),
+      (6, "Harpsichord"),
+      (7, "Clavinet"),
+      (8, "Celesta"),
+      (9, "Glockenspiel")
+    ]
+  )
 
   func setup(
     activeSoundFontId: SoundFont.ID? = .init(rawValue: 1),
@@ -563,30 +565,36 @@ extension BaseTestSuite.PresetsListTests {
     let view = PresetsListView(store: store)
 
     try withSnapshotTesting(record: .failed) {
-      try BaseTestSuite.assertSnap(
-        matching: view,
-        size: .init(width: 400, height: 800),
-        colorScheme: .dark
+      try assertSnapshot(
+        of: view,
+        as: .wait(for: 1, on: .image(
+          drawHierarchyInKeyWindow: false,
+          layout: .fixed(width: 400, height: 800)
+        ))
       )
     }
   }
 
   @Test func presetsListViewVisibilityEditing() async throws {
     try withSnapshotTesting(record: .failed) {
-      try BaseTestSuite.assertSnap(
-        matching: PresetsListView.previewEditing,
-        size: .init(width: 400, height: 800),
-        colorScheme: .dark
+      try assertSnapshot(
+        of: PresetsListView.previewEditing,
+        as: .wait(for: 1, on: .image(
+          drawHierarchyInKeyWindow: false,
+          layout: .fixed(width: 400, height: 800)
+        ))
       )
     }
   }
 
   @Test func presetsListViewPreview() async throws {
     try withSnapshotTesting(record: .failed) {
-      try BaseTestSuite.assertSnap(
-        matching: PresetsListView.preview,
-        size: .init(width: 400, height: 800),
-        colorScheme: .dark
+      try assertSnapshot(
+        of: PresetsListView.preview,
+        as: .wait(for: 1, on: .image(
+          drawHierarchyInKeyWindow: false,
+          layout: .fixed(width: 400, height: 800)
+        ))
       )
     }
   }

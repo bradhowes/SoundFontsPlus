@@ -1,20 +1,21 @@
 import ComposableArchitecture
+import Models
 import Sharing
 import SnapshotTesting
 import SwiftUI
 import Testing
 
-@testable import SoundFontsPlus
+@testable import Presets
 
-extension BaseTestSuite {
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = try appDatabase()
+  },
+  //  .snapshots(record: .failed)
+)
+@MainActor
+struct PresetsListSectionTests {
 
-  @MainActor
-  struct PresetsListSectionTests {}
-}
-
-extension BaseTestSuite.PresetsListSectionTests {
-
-  @MainActor
   func setup() throws -> TestStoreOf<PresetsListSection> {
     @Shared(.activeState) var activeState
     $activeState.withLock {
