@@ -228,6 +228,9 @@ let package = Package(
       dependencies: [
         "FeatureSupport",
         "FileImporter",
+        "Keyboard", // only for preview
+        "MIDITrafficIndicator",
+        "Settings",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ],
     ),

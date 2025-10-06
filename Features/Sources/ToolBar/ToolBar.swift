@@ -6,7 +6,11 @@ import ComposableArchitecture
 import Dependencies
 import Engine
 import FeatureSupport
+import Keyboard
+import FileImporter
+import MIDITrafficIndicator
 import Models
+import Settings
 import SF2Lib
 import Sharing
 import SwiftUI
@@ -18,7 +22,7 @@ public struct ToolBar {
 
   @Reducer(state: .equatable)
   public enum Destination {
-    case settings(SettingsFeature)
+    case settings(Settings)
   }
 
   @ObservableState
@@ -36,7 +40,7 @@ public struct ToolBar {
     var showMoreButtons: Bool = false
     var preset: Preset?
     var lastPlayedKey: Note?
-    var midiTrafficIndicator: MIDITrafficIndicatorFeature.State = .init(tag: "ToolBar")
+    var midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "ToolBar")
     var fileImporter: FileImporter.State = .init()
     var activeVoiceCount: Int = 0
 
@@ -64,7 +68,7 @@ public struct ToolBar {
     case fileImporter(FileImporter.Action)
     case helpButtonTapped
     case initialize
-    case midiTrafficIndicator(MIDITrafficIndicatorFeature.Action)
+    case midiTrafficIndicator(MIDITrafficIndicator.Action)
     case monitorActiveVoiceCount
     case presetsVisibilityButtonTapped
     case settingsButtonTapped
@@ -93,8 +97,8 @@ public struct ToolBar {
 
   public var body: some ReducerOf<Self> {
 
-    Scope(state: \.fileImporter, action: \.fileImporter) { FileImporterFeature() }
-    Scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator) { MIDITrafficIndicatorFeature() }
+    Scope(state: \.fileImporter, action: \.fileImporter) { FileImporter() }
+    Scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator) { MIDITrafficIndicator() }
 
     Reduce<State, Action> { state, action in
       switch action {
@@ -494,7 +498,7 @@ extension ToolBarView {
       ToolBarView(store: Store(initialState: .init()) {
         ToolBar()
       })
-      KeyboardView(store: Store(initialState: .init()) { KeyboardFeature() })
+      KeyboardView(store: Store(initialState: .init()) { Keyboard() })
     }
   }
 }

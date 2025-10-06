@@ -27,6 +27,8 @@ public struct FileImporter {
     let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
     var showChooser: Bool = false
     @Presents var destination: Destination.State?
+
+    public init() {}
   }
 
   public enum Action {
@@ -35,6 +37,8 @@ public struct FileImporter {
     case filePicked(Result<URL, Error>)
     case showFileImporter
   }
+
+  public init() {}
 
   @Dependency(\.fileManager) var fileManager
   @Dependency(\.dismiss) var dismiss
