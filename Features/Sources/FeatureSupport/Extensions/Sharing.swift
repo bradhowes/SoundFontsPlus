@@ -5,12 +5,12 @@ import Combine
 import Models
 import MorkAndMIDI
 import Sharing
+import Synth
 import Tagged
 
 // MARK: - AppStorage Bool settings
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
-  public static var backgroundProcessing: Self { Self[.appStorage("backgroundProcessing"), default: true] }
   public static var confirmPresetHiding: Self { Self[.appStorage("stopConfirmingPresetHiding"), default: true] }
   public static var copyFileWhenInstalling: Self { Self[.appStorage("copyFileWhenInstalling"), default: true]}
   public static var delayLockEnabled: Self { Self[.appStorage("delayLockEnabled"), default: false] }
@@ -20,7 +20,6 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var globalTuningEnabled: Self { Self[.appStorage("globalTuningEnabled"), default: false] }
   public static var keyboardSlides: Self { Self[.appStorage("keyboardSlides"), default: false] }
   public static var midiAutoConnect: Self { Self[.appStorage("midiAutoConnect"), default: true] }
-  public static var playSoundOnPresetChange: Self { Self[.appStorage("playSoundOnPresetChange"), default: true] }
   public static var reverbLockEnabled: Self { Self[.appStorage("reverbLockEnabled"), default: false] }
   public static var showKeyNotes: Self { Self[.appStorage("showKeyNotes"), default: true] }
   public static var showActiveVoiceCount: Self { Self[.appStorage("showActiveVoiceCount"), default: true]}
@@ -102,23 +101,4 @@ extension SharedKey where Self == InMemoryKey<MIDI?>.Default {
 
 extension SharedKey where Self == InMemoryKey<MIDIMonitor?>.Default {
   public static var midiMonitor: Self { Self[.inMemory("midiMonitor"), default: nil] }
-}
-
-extension AVAudioUnit: @unchecked @retroactive Sendable {}
-
-extension SharedKey where Self == InMemoryKey<AVAudioUnit?>.Default {
-  public static var synthAudioUnit: Self { Self[.inMemory("synthAudioUnit"), default: nil] }
-}
-
-extension AVAudioUnit {
-  public var midiInstrument: AVAudioUnitMIDIInstrument? { self as? AVAudioUnitMIDIInstrument }
-  // var synth: SF2LibAU? { self.auAudioUnit as? SF2LibAU }
-}
-
-extension SharedKey where Self == InMemoryKey<AVAudioUnitDelay?>.Default {
-  public static var delayEffect: Self { Self[.inMemory("delayEffect"), default: nil] }
-}
-
-extension SharedKey where Self == InMemoryKey<AVAudioUnitReverb?>.Default {
-  public static var reverbEffect: Self { Self[.inMemory("reverbEffect"), default: nil] }
 }

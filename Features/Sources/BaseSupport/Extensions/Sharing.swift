@@ -1,6 +1,12 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AVFAudio
 import Sharing
+
+extension SharedKey where Self == AppStorageKey<Bool>.Default {
+  public static var backgroundProcessing: Self { Self[.appStorage("backgroundProcessing"), default: true] }
+  public static var playSoundOnPresetChange: Self { Self[.appStorage("playSoundOnPresetChange"), default: true] }
+}
 
 extension SharedKey where Self == AppStorageKey<KeyLabels>.Default {
   public static var keyLabels: Self { Self[.appStorage("keyLabels"), default: .cOnly] }
@@ -8,4 +14,23 @@ extension SharedKey where Self == AppStorageKey<KeyLabels>.Default {
 
 extension SharedKey where Self == AppStorageKey<Note>.Default {
   public static var firstVisibleKey: Self { Self[.appStorage("firstVisibleKey"), default: .C4] }
+}
+
+extension AVAudioUnit: @unchecked @retroactive Sendable {}
+
+extension SharedKey where Self == InMemoryKey<AVAudioUnit?>.Default {
+  public static var synthAudioUnit: Self { Self[.inMemory("synthAudioUnit"), default: nil] }
+}
+
+extension AVAudioUnit {
+  public var midiInstrument: AVAudioUnitMIDIInstrument? { self as? AVAudioUnitMIDIInstrument }
+  // var synth: SF2LibAU? { self.auAudioUnit as? SF2LibAU }
+}
+
+extension SharedKey where Self == InMemoryKey<AVAudioUnitDelay?>.Default {
+  public static var delayEffect: Self { Self[.inMemory("delayEffect"), default: nil] }
+}
+
+extension SharedKey where Self == InMemoryKey<AVAudioUnitReverb?>.Default {
+  public static var reverbEffect: Self { Self[.inMemory("reverbEffect"), default: nil] }
 }

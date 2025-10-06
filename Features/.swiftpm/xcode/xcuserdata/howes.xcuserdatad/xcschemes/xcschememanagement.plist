@@ -119,6 +119,16 @@
 			<key>orderHint</key>
 			<integer>27</integer>
 		</dict>
+		<key>Presets.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>40</integer>
+		</dict>
+		<key>PresetsTests.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>41</integer>
+		</dict>
 		<key>ReverbEffect.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -153,6 +163,16 @@
 		<dict>
 			<key>orderHint</key>
 			<integer>10</integer>
+		</dict>
+		<key>Synth.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>42</integer>
+		</dict>
+		<key>SynthTests.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>43</integer>
 		</dict>
 		<key>TestResources.xcscheme_^#shared#^_</key>
 		<dict>

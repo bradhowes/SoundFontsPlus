@@ -38,9 +38,11 @@ let package = Package(
     .library(name: "MIDIControllers", targets: ["MIDIControllers"]),
     .library(name: "MIDITrafficIndicator", targets: ["MIDITrafficIndicator"]),
     .library(name: "Models", targets: ["Models"]),
+    .library(name: "Presets", targets: ["Presets"]),
     .library(name: "ReverbEffect", targets: ["ReverbEffect"]),
     .library(name: "Settings", targets: ["Settings"]),
     .library(name: "SF2Resources", targets: ["SF2Resources"]),
+    .library(name: "Synth", targets: ["Synth"]),
     .library(name: "ToolBar", targets: ["ToolBar"]),
     .library(name: "Tuning", targets: ["Tuning"]),
     .library(name: "Tutorial", targets: ["Tutorial"]),
@@ -81,6 +83,7 @@ let package = Package(
       from: "1.10.0"
     ),
     .package(
+      // NOTE: only used to gain access to `isApproximatelyEqual` in unit tests
       url: "https://github.com/apple/swift-numerics",
       from: "1.1.0"
     ),
@@ -112,7 +115,9 @@ let package = Package(
     .target(
       name: "BaseSupport",
       dependencies: [
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Engine", package: "SF2Lib"),
+        .product(name: "SQLiteData", package: "sqlite-data"),
       ]
     ),
     .target(
@@ -134,6 +139,7 @@ let package = Package(
       dependencies: [
         "BaseSupport",
         "Models",
+        "Synth",
         .product(name: "AUv3Controls", package: "AUv3Controls"),
         .product(name: "CasePaths", package: "swift-case-paths"),
         .product(name: "MorkAndMIDI", package: "morkandmidi"),
@@ -190,8 +196,15 @@ let package = Package(
         "SF2Resources",
         "BaseSupport",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "SQLiteData", package: "sqlite-data"),
         .product(name: "Tagged", package: "swift-tagged")
+      ]
+    ),
+    .target(
+      name: "Presets",
+      dependencies: [
+        "FeatureSupport",
+        .product(name: "Algorithms", package: "swift-algorithms"),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
     .target(
@@ -212,7 +225,6 @@ let package = Package(
         "MIDITrafficIndicator",
         "Tuning",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Numerics", package: "swift-numerics"),
       ]
     ),
     .target(
@@ -222,6 +234,13 @@ let package = Package(
         .product(name: "Engine", package: "SF2Lib"),
       ],
       resources: [.process("Resources")]
+    ),
+    .target(
+      name: "Synth",
+      dependencies: [
+        "Models",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ],
     ),
     .target(
       name: "ToolBar",
@@ -294,7 +313,6 @@ let package = Package(
       dependencies: [
         "FeatureSupport",
         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "Numerics", package: "swift-numerics"),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ]
     ),
@@ -347,6 +365,14 @@ let package = Package(
       ]
     ),
     .testTarget(
+      name: "PresetsTests",
+      dependencies: [
+        "Presets",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
       name: "ReverbEffectTests",
       dependencies: [
         "ReverbEffect",
@@ -367,6 +393,14 @@ let package = Package(
       name: "SF2ResourcesTests",
       dependencies: [
         "SF2Resources",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "SynthTests",
+      dependencies: [
+        "Synth",
         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ]

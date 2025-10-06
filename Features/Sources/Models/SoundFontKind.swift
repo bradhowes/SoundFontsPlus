@@ -28,7 +28,7 @@ public enum SoundFontKind: Equatable {
   /// is not currently available.
   case external(bookmark: Bookmark)
 
-  init(kind: SoundFont.Kind, location: Data) throws {
+  public init(kind: SoundFont.Kind, location: Data) throws {
     switch kind {
     case .builtin: self = try .builtin(resource: dataToUrl(location))
     case .installed: self = try .installed(file: dataToUrl(location))
@@ -37,9 +37,9 @@ public enum SoundFontKind: Equatable {
   }
 }
 
-public extension SoundFontKind {
+extension SoundFontKind {
 
-  func data() throws -> (SoundFont.Kind, Data) {
+  public func data() throws -> (SoundFont.Kind, Data) {
     switch self {
     case .builtin(let url): return (.builtin, try urlToData(url))
     case .installed(let url): return (.installed, try urlToData(url))
@@ -47,7 +47,7 @@ public extension SoundFontKind {
     }
   }
 
-  var description: String {
+  public var description: String {
     switch self {
     case .builtin: return "built-in"
     case .installed: return "installed"
@@ -55,7 +55,7 @@ public extension SoundFontKind {
     }
   }
 
-  var path: URL {
+  public var path: URL {
     switch self {
     case .builtin(let url): return url
     case .installed(let url): return url
@@ -64,24 +64,24 @@ public extension SoundFontKind {
   }
 
   /// True if built-in resource
-  var isBuiltin: Bool {
+  public var isBuiltin: Bool {
     if case .builtin = self { return true }
     return false
   }
 
   /// True if added file is a reference
-  var isInstalled: Bool {
+  public var isInstalled: Bool {
     if case .installed = self { return true }
     return false
   }
 
   /// True if added file is a reference to an external file
-  var isExternal: Bool {
+  public var isExternal: Bool {
     if case .external = self { return true }
     return false
   }
 
-  var tagIds: [FontTag.ID] {
+  public var tagIds: [FontTag.ID] {
     var ubiTags: [FontTag.Ubiquitous] = [.all]
     switch self {
     case .builtin: ubiTags.append(.builtIn)
@@ -93,12 +93,12 @@ public extension SoundFontKind {
   }
 
   /// True if the file was added by the user
-  var addedByUser: Bool { !isBuiltin }
+  public var addedByUser: Bool { !isBuiltin }
 
   /// True if the SF2 file should be deleted when removed from the application
-  var deleteWhenRemoved: Bool { isInstalled }
+  public var deleteWhenRemoved: Bool { isInstalled }
 
-  func fileInfo() throws -> SF2FileInfo {
+  public func fileInfo() throws -> SF2FileInfo {
     switch self {
     case .builtin(let url): return try fileInfo(from: url)
     case .installed(let url): return try fileInfo(from: url)
