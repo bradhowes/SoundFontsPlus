@@ -82,6 +82,7 @@ public struct TutorialView: View {
   @State private var store: StoreOf<Tutorial>
   let bottomSpacerMinLength: CGFloat = 24.0
   let sideTapRegionWidth: CGFloat = 24.0
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   public init(store: StoreOf<Tutorial>) {
     self.store = store
@@ -348,11 +349,10 @@ They normally appear below the original preset, but you can change this in the \
       title: "Tags",
       gist:
 """
-Tags help organize your font collection as it grows. \
-They allow you to quickly change which fonts are visible.
+Tags help organize your font collection as it grows, allowing you to quickly change which fonts are visible.
 """
     ) {
-      HStack(alignment: .top, spacing: 16) {
+      HStack(alignment: .top) {
         Image("TagsList", bundle: Bundle.module)
           .resizable()
           .scaledToFit()
@@ -375,45 +375,66 @@ They allow you to quickly change which fonts are visible.
             }
           }
           Grid(verticalSpacing: 12) {
-            GridRow {
-              Color.clear
-                .gridCellUnsizedAxes([.vertical, .horizontal])
-              Text("Default Tags")
-                .foregroundStyle(.orange)
-            }
+            Text("Default Tags")
+              .foregroundStyle(.orange)
             GridRow {
               Text("All")
                 .gridColumnAlignment(.trailing)
                 .foregroundStyle(.gray)
-              Text("all fonts")
+              Text("Everything")
                 .gridColumnAlignment(.leading)
             }
             GridRow {
               Text("Built-in")
                 .foregroundStyle(.gray)
-              Text("embedded in app")
+              Text("Embedded in app")
             }
             GridRow {
               Text("Added")
                 .foregroundStyle(.gray)
-              Text("added by you")
+              Text("Added by you")
             }
             GridRow {
               Text("External")
                 .foregroundStyle(.gray)
-              Text("residing on iCloud or external disk")
+              Text("On iCloud or external disk")
             }
-            GridRow {
-              Color.clear
-                .gridCellUnsizedAxes([.vertical, .horizontal])
-              Text("Swipe Actions")
-                .foregroundStyle(.orange)
+          }
+          if horizontalSizeClass != .compact {
+            Text("Swipe Actions")
+              .foregroundStyle(.orange)
+            Grid {
+              GridRow {
+                Image(systemName: "pencil")
+                Text("Edit tags")
+                  .gridColumnAlignment(.leading)
+              }
+              GridRow {
+                Image(systemName: "trash")
+                  .foregroundStyle(.red)
+                Text("Remove user tag")
+              }
             }
+          }
+        }
+      }
+      Text(
+"""
+Tap the \(Image(systemName: .tagsListButtonImageName)) button to see the tag panel.
+"""
+      )
+      if horizontalSizeClass == .compact {
+        Text("Swipe Actions")
+          .foregroundStyle(.orange)
+        HStack(spacing: 18) {
+          Grid {
             GridRow {
               Image(systemName: "pencil")
               Text("Edit tags")
                 .gridColumnAlignment(.leading)
             }
+          }
+          Grid {
             GridRow {
               Image(systemName: "trash")
                 .foregroundStyle(.red)
@@ -422,11 +443,6 @@ They allow you to quickly change which fonts are visible.
           }
         }
       }
-      Text(
-"""
-Tap the \(Image(systemName: .tagsListButtonImageName)) toolbar button to see the tag panel.
-"""
-      )
     }
   }
 
