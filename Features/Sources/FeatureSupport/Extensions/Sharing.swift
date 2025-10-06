@@ -26,7 +26,6 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var showActiveVoiceCount: Self { Self[.appStorage("showActiveVoiceCount"), default: true]}
   public static var showOnlyFavorites: Self { Self[.appStorage("showOnlyFavorites"), default: false] }
   public static var showSolfegeTags: Self { Self[.appStorage("showSolfegeTags"), default: false] }
-  public static var showedTutorial: Self { Self[.appStorage("showedTutorial"), default: false] }
   public static var sortPresetsByName: Self { Self[.appStorage("sortPresetsByName"), default: false] }
   public static var starFavoriteNames: Self { Self[.appStorage("starFavoriteNames"), default: true] }
   public static var tagsListVisible: Self { Self[.appStorage("tagsListVisible"), default: false] }

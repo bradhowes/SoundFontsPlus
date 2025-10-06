@@ -128,10 +128,12 @@ struct VolumeMonitorTests {
     #expect(mockVolume.getValue() == 0.0)
 
     try withSnapshotTesting(record: .failed) {
-      try BaseTestSuite.assertSnap(
-        matching: view,
-        size: .init(width: 400, height: 800),
-        colorScheme: .dark
+      try assertSnapshot(
+        of: view,
+        as: .wait(for: 1, on: .image(
+          drawHierarchyInKeyWindow: false,
+          layout: .fixed(width: 400, height: 800)
+        ))
       )
     }
   }
@@ -155,10 +157,12 @@ struct VolumeMonitorTests {
     let view = VolumeMonitorDemoView(volumes: mockVolume, store: store)
 
     try withSnapshotTesting(record: .failed) {
-      try BaseTestSuite.assertSnap(
-        matching: view,
-        size: .init(width: 400, height: 800),
-        colorScheme: .dark
+      try assertSnapshot(
+        of: view,
+        as: .wait(for: 1, on: .image(
+          drawHierarchyInKeyWindow: false,
+          layout: .fixed(width: 400, height: 800)
+        ))
       )
     }
   }

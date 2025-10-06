@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
-import ProgressHUD
+// import ProgressHUD
 import SQLiteData
 import SwiftUI
 import Tagged
@@ -300,7 +300,7 @@ public struct SoundFontEditorView: View {
           .font(.footnote)
         Button {
           UIPasteboard.general.string = store.soundFont.sourcePath
-          ProgressHUD.banner("Copied", "Path copied to clipboard")
+          // ProgressHUD.banner("Copied", "Path copied to clipboard")
         } label: {
           Image(systemName: "document.on.document")
         }

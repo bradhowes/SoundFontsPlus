@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-@preconcurrency @unsafe import AVFAudio
+import AVFAudio
+import BaseSupport
 import ComposableArchitecture
 import Dependencies
 import FeatureSupport

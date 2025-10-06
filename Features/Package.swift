@@ -35,6 +35,7 @@ let package = Package(
     .library(name: "Models", targets: ["Models"]),
     .library(name: "ReverbEffect", targets: ["ReverbEffect"]),
     .library(name: "SF2Resources", targets: ["SF2Resources"]),
+    .library(name: "Tutorial", targets: ["Tutorial"]),
     .library(name: "VolumeMonitor", targets: ["VolumeMonitor"]),
   ],
   dependencies: [
@@ -165,6 +166,15 @@ let package = Package(
       resources: [.process("Resources")]
     ),
     .target(
+      name: "Tutorial",
+      dependencies: [
+        "BaseSupport",
+        "FeatureSupport",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ],
+      resources: [.process("Resources")]
+    ),
+    .target(
       name: "VolumeMonitor",
       dependencies: [
         "FeatureSupport",
@@ -243,6 +253,14 @@ let package = Package(
       name: "SF2ResourcesTests",
       dependencies: [
         "SF2Resources",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "TutorialTests",
+      dependencies: [
+        "Tutorial",
         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ]
