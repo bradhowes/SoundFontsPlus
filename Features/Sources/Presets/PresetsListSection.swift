@@ -15,10 +15,10 @@ public struct PresetsListSection {
   @ObservableState
   public struct State: Equatable, Identifiable {
     public var id: Int { sectionId }
-    fileprivate let section: Int
-    fileprivate var rows: IdentifiedArrayOf<PresetButton.State>
+    public let section: Int
+    public var rows: IdentifiedArrayOf<PresetButton.State>
     // Make sure section IDs do not conflict with preset IDs.
-    fileprivate var sectionId: Int { (section + 1) * PresetsList.noGroupingSize }
+    public var sectionId: Int { (section + 1) * PresetsList.noGroupingSize }
 
     public init(section: Int, presets: ArraySlice<Preset>) {
       self.section = section
@@ -33,7 +33,7 @@ public struct PresetsListSection {
      - parameter displayName: the new display name to show
      - returns: true if updated
      */
-    mutating func update(presetId: Preset.ID, displayName: String) {
+    public mutating func update(presetId: Preset.ID, displayName: String) {
       guard let index = rows.firstIndex(where: { $0.id == presetId }) else { return }
       rows[index].preset.displayName = displayName
     }

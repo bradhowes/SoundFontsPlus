@@ -20,7 +20,8 @@ public struct VolumeMonitor {
 
   @ObservableState
   public struct State: Equatable {
-    var reason: Reason?
+    public var reason: Reason?
+    public init() {}
   }
 
   public enum Action: BindableAction {
@@ -36,7 +37,7 @@ public struct VolumeMonitor {
     }
   }
 
-  @Shared(.activeState) var activeState
+  public init() {}
 
   public var body: some Reducer<State, Action> {
     BindingReducer()
@@ -68,6 +69,8 @@ public struct VolumeMonitor {
   private enum CancelId {
     case monitorSessionVolume
   }
+
+  @Shared(.activeState) var activeState
 }
 
 private extension VolumeMonitor {

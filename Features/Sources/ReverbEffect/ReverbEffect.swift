@@ -61,6 +61,8 @@ public struct ReverbEffect {
   var updateDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(100) }
   var saveDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(1000) }
 
+  public init() {}
+
   public var body: some ReducerOf<Self> {
 
     Scope(state: \.enabled, action: \.enabled) { ToggleFeature() }

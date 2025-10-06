@@ -29,13 +29,15 @@ public struct Synth {
       lhs.loadedSoundFontId == rhs.loadedSoundFontId && lhs.loadedPresetIndex == rhs.loadedPresetIndex
     }
 
-    let engine = AVAudioEngine()
-    var loadedSoundFontId: SoundFont.ID?
-    var loadedPresetIndex: Int?
-    var firstTimePresetLoaded: Bool = true
+    public let engine = AVAudioEngine()
+    public var loadedSoundFontId: SoundFont.ID?
+    public var loadedPresetIndex: Int?
+    public var firstTimePresetLoaded: Bool = true
 
     @ObservationStateIgnored
-    var sessionActive: Bool = false
+    public var sessionActive: Bool = false
+
+    public init() {}
   }
 
   public enum Action {
@@ -49,6 +51,8 @@ public struct Synth {
     case sceneBecameInactive
     case synthCreated
   }
+
+  public init() {}
 
   public var body: some ReducerOf<Self> {
 

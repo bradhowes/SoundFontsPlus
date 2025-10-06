@@ -39,20 +39,20 @@ public struct PresetsList {
 
   @ObservableState
   public struct State: Equatable {
-    @Presents var destination: Destination.State?
-    var sections: IdentifiedArrayOf<PresetsListSection.State>
-    var searchText: String
-    var isSearchFieldPresented: Bool
-    var focusedField: Field?
-    var optionalSearchText: String? { isSearchFieldPresented ? searchText : nil }
-    var scrollToPresetId: ScrollToTarget?
-    var soundFontId: SoundFont.ID?
+    @Presents public var destination: Destination.State?
+    public var sections: IdentifiedArrayOf<PresetsListSection.State>
+    public var searchText: String
+    public var isSearchFieldPresented: Bool
+    public var focusedField: Field?
+    public var optionalSearchText: String? { isSearchFieldPresented ? searchText : nil }
+    public var scrollToPresetId: ScrollToTarget?
+    public var soundFontId: SoundFont.ID?
 
-    enum Field: String, Hashable {
+    public enum Field: String, Hashable {
       case searchText
     }
 
-    var visibilityEditMode: EditMode
+    public var visibilityEditMode: EditMode
 
     public init(searchText: String? = nil, visibilityEditMode: Bool = false) {
       self.isSearchFieldPresented = searchText != nil

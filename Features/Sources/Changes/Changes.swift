@@ -7,8 +7,8 @@ import SwiftUI
 public struct Changes {
 
   public struct Change: Hashable {
-    let version: String
-    let items: [String]
+    public let version: String
+    public let items: [String]
 
     public init(version: String, items: [String]) {
       self.version = version
@@ -28,6 +28,8 @@ public struct Changes {
   public enum Action {
     case dismissButtonTapped
   }
+
+  public init() {}
 
   public var body: some ReducerOf<Self> {
 

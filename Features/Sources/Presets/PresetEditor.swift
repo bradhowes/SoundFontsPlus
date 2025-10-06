@@ -25,24 +25,24 @@ public struct PresetEditor {
 
   @ObservableState
   public struct State: Equatable {
-    @Presents var destination: Destination.State?
-    let sectionId: Int
-    let preset: Preset
-    let soundFontName: String
+    @Presents public var destination: Destination.State?
+    public let sectionId: Int
+    public let preset: Preset
+    public let soundFontName: String
 
-    var displayName: String
-    var originalName: String
-    var visible: Bool
-    var notes: String
+    public var displayName: String
+    public var originalName: String
+    public var visible: Bool
+    public var notes: String
 
-    let originalAudioConfig: AudioConfig.Draft
-    var pendingAudioConfig: AudioConfig.Draft
+    public let originalAudioConfig: AudioConfig.Draft
+    public var pendingAudioConfig: AudioConfig.Draft
 
-    var gainSlider: Double
-    var panSlider: Double
-    var tuning: Tuning.State
+    public var gainSlider: Double
+    public var panSlider: Double
+    public var tuning: Tuning.State
 
-    var isFavorite: Bool { preset.kind == .favorite }
+    public var isFavorite: Bool { preset.kind == .favorite }
 
     public init(sectionId: Int, preset: Preset) {
       self.sectionId = sectionId

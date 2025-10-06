@@ -30,9 +30,9 @@ public struct AppReview {
 
   @ObservableState
   public struct State: Equatable {
-    var askForReview: Bool = false
-    var activityCounter: Int = 0
-    let minActivityCounter: Int
+    public var askForReview: Bool = false
+    public var activityCounter: Int = 0
+    public let minActivityCounter: Int
 
     public init(activityCounter: Int = 0, minActivityCounter: Int = 50) {
       self.activityCounter = activityCounter
@@ -44,6 +44,8 @@ public struct AppReview {
     case ask
     case reviewAsked
   }
+
+  public init() {}
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in

@@ -4,14 +4,14 @@ import Combine
 import UIKit
 import SwiftUI
 
-protocol KeyboardVisibilityPublisher {
+public protocol KeyboardVisibilityPublisher {
 
   var keyboardVisibilityPublisher: AnyPublisher<Bool, Never> { get }
 }
 
 extension KeyboardVisibilityPublisher {
 
-  var keyboardVisibilityPublisher: AnyPublisher<Bool, Never> {
+  public var keyboardVisibilityPublisher: AnyPublisher<Bool, Never> {
     Publishers.Merge(
       NotificationCenter.default
         .publisher(for: UIResponder.keyboardWillShowNotification)
