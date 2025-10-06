@@ -24,7 +24,6 @@ extension SharedKey where Self == InMemoryKey<AVAudioUnit?>.Default {
 
 extension AVAudioUnit {
   public var midiInstrument: AVAudioUnitMIDIInstrument? { self as? AVAudioUnitMIDIInstrument }
-  // var synth: SF2LibAU? { self.auAudioUnit as? SF2LibAU }
 }
 
 extension SharedKey where Self == InMemoryKey<AVAudioUnitDelay?>.Default {

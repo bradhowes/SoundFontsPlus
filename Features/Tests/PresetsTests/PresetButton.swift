@@ -4,15 +4,10 @@ import SnapshotTesting
 import SwiftUI
 import Testing
 
-@testable import SoundFontsPlus
+@testable import Presets
 
-extension BaseTestSuite {
-
-  @MainActor
-  struct PresetButtonTests {}
-}
-
-extension BaseTestSuite.PresetButtonTests {
+@MainActor
+struct PresetButtonTests {
 
   @MainActor
   func setup() throws -> ([Preset], TestStoreOf<PresetButton>) {

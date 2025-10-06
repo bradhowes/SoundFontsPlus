@@ -203,6 +203,7 @@ let package = Package(
       name: "Presets",
       dependencies: [
         "FeatureSupport",
+        "Tuning",
         .product(name: "Algorithms", package: "swift-algorithms"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]

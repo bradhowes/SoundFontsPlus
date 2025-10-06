@@ -11,11 +11,11 @@ public struct Tuning {
 
   @ObservableState
   public struct State: Equatable, Sendable {
-    var enabled: Bool = false
-    var frequency: Double = 440.0
-    var cents: Int = 0
-    var shiftA4Value: String = ""
-    var disabled: Bool { !enabled }
+    public var enabled: Bool = false
+    public var frequency: Double = 440.0
+    public var cents: Int = 0
+    public var shiftA4Value: String = ""
+    public var disabled: Bool { !enabled }
 
     public init(config: AudioConfig.Draft) {
       self.enabled = config.customTuningEnabled

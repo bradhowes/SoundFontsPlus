@@ -1,10 +1,14 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFoundation
+import BaseSupport
 import ComposableArchitecture
 import Dependencies
 import FeatureSupport
+import Models
 import SwiftUI
+import Tagged
+import Tuning
 
 @Reducer
 public struct PresetEditor {
@@ -36,7 +40,7 @@ public struct PresetEditor {
 
     var gainSlider: Double
     var panSlider: Double
-    var tuning: TuningFeature.State
+    var tuning: Tuning.State
 
     var isFavorite: Bool { preset.kind == .favorite }
 
@@ -77,7 +81,7 @@ public struct PresetEditor {
             $0.kind = visible ? .preset : .hidden
           }
         }
-        .where { $0.id == preset.id }
+        .where { $0.id.eq(preset.id) }
         .execute(db)
 
         if pendingAudioConfig != originalAudioConfig {
@@ -99,7 +103,7 @@ public struct PresetEditor {
     case resetGainTapped
     case resetPanTapped
     case saveButtonTapped
-    case tuning(TuningFeature.Action)
+    case tuning(Tuning.Action)
     case useLowestKeyTapped
     case useOriginalNameTapped
   }
@@ -108,7 +112,7 @@ public struct PresetEditor {
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
-    Scope(state: \.tuning, action: \.tuning) { TuningFeature() }
+    Scope(state: \.tuning, action: \.tuning) { Tuning() }
     Reduce { state, action in
       switch action {
 
@@ -307,17 +311,15 @@ public struct PresetEditorView: View {
   }
 
   var formattedGainValue: String {
-    String(format: "%+.1f dB", locale: Locale.current, arguments: [store.gainSlider])
+    .localizedStringWithFormat("%+.1f dB", store.gainSlider)
   }
 
   var formattedLeftPanValue: String {
-    let value = 100 - Int(round((store.panSlider + 100.0) / 200.0 * 100.0))
-    return String(format: "%d", locale: Locale.current, arguments: [value])
+    .localizedStringWithFormat("%d", 100 - Int(round((store.panSlider + 100.0) / 200.0 * 100.0)))
   }
 
   var formattedRightPanValue: String {
-    let value = Int(round((store.panSlider + 100.0) / 200.0 * 100.0))
-    return String(format: "%d", locale: Locale.current, arguments: [value])
+    .localizedStringWithFormat("%d", Int(round((store.panSlider + 100.0) / 200.0 * 100.0)))
   }
 
   var midiSection: some View {
@@ -357,7 +359,7 @@ public struct PresetEditorView: View {
   }
 
   var tuningSection: some View {
-    TuningView(store: Store(initialState: store.tuning) { TuningFeature() })
+    TuningView(store: Store(initialState: store.tuning) { Tuning() })
   }
 }
 
