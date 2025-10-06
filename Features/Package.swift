@@ -26,10 +26,13 @@ let package = Package(
   name: "Features",
   platforms: [.iOS(.v18)],
   products: [
+    .library(name: "AppReview", targets: ["AppReview"]),
     .library(name: "ChangesFeature", targets: ["ChangesFeature"]),
+    .library(name: "DelayEffect", targets: ["DelayEffect"]),
     .library(name: "FeatureSupport", targets: ["FeatureSupport"]),
     .library(name: "Keyboard", targets: ["Keyboard"]),
     .library(name: "Models", targets: ["Models"]),
+    .library(name: "ReverbEffect", targets: ["ReverbEffect"]),
     .library(name: "SF2Resources", targets: ["SF2Resources"]),
     .library(name: "VolumeMonitor", targets: ["VolumeMonitor"]),
   ],
@@ -90,7 +93,21 @@ let package = Package(
   ],
   targets: [
     .target(
+      name: "AppReview",
+      dependencies: [
+        "FeatureSupport",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+      ]
+    ),
+    .target(
       name: "ChangesFeature",
+      dependencies: [
+        "FeatureSupport",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+      ]
+    ),
+    .target(
+      name: "DelayEffect",
       dependencies: [
         "FeatureSupport",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
@@ -124,6 +141,13 @@ let package = Package(
       ]
     ),
     .target(
+      name: "ReverbEffect",
+      dependencies: [
+        "FeatureSupport",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+      ]
+    ),
+    .target(
       name: "SF2Resources",
       dependencies: [
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
@@ -141,10 +165,27 @@ let package = Package(
     ),
     // MARK: - Test Targets
     .testTarget(
+      name: "AppReviewTests",
+      dependencies: [
+        "AppReview",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
       name: "ChangesFeatureTests",
       dependencies: [
         "ChangesFeature",
         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "DelayEffectTests",
+      dependencies: [
+        "DelayEffect",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "Numerics", package: "swift-numerics"),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ]
     ),
@@ -170,6 +211,15 @@ let package = Package(
       dependencies: [
         "Models",
         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "ReverbEffectTests",
+      dependencies: [
+        "ReverbEffect",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "Numerics", package: "swift-numerics"),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ]
     ),
