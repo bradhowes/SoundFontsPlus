@@ -11,6 +11,14 @@ import Tagged
 public struct TaggedSoundFont: Hashable, Sendable {
   public let soundFontId: SoundFont.ID
   public let tagId: FontTag.ID
+
+  public init(
+    soundFontId: SoundFont.ID,
+    tagId: FontTag.ID
+  ) {
+    self.soundFontId = soundFontId
+    self.tagId = tagId
+  }
 }
 
 extension TaggedSoundFont {

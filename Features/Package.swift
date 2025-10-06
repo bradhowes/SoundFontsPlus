@@ -42,7 +42,9 @@ let package = Package(
     .library(name: "ReverbEffect", targets: ["ReverbEffect"]),
     .library(name: "Settings", targets: ["Settings"]),
     .library(name: "SF2Resources", targets: ["SF2Resources"]),
+    .library(name: "SoundFonts", targets: ["SoundFonts"]),
     .library(name: "Synth", targets: ["Synth"]),
+    .library(name: "Tags", targets: ["Tags"]),
     .library(name: "ToolBar", targets: ["ToolBar"]),
     .library(name: "Tuning", targets: ["Tuning"]),
     .library(name: "Tutorial", targets: ["Tutorial"]),
@@ -237,11 +239,25 @@ let package = Package(
       resources: [.process("Resources")]
     ),
     .target(
+      name: "SoundFonts",
+      dependencies: [
+        "Tags",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ]
+    ),
+    .target(
       name: "Synth",
       dependencies: [
         "Models",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ],
+    ),
+    .target(
+      name: "Tags",
+      dependencies: [
+        "FeatureSupport",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ]
     ),
     .target(
       name: "ToolBar",
@@ -399,9 +415,25 @@ let package = Package(
       ]
     ),
     .testTarget(
+      name: "SoundFontsTests",
+      dependencies: [
+        "SoundFonts",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
       name: "SynthTests",
       dependencies: [
         "Synth",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "TagsTests",
+      dependencies: [
+        "Tags",
         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ]
