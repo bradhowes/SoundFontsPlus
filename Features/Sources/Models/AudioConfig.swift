@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFoundation
+import BaseSupport
 import SQLiteData
 import Tagged
 

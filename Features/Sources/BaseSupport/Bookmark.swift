@@ -7,7 +7,7 @@ import Foundation
 /// without making a copy of them. However there are risks involved, namely that the bookmark may not resolve to a real
 /// file.
 public final class Bookmark: Codable {
-  enum CodingKeys: CodingKey {
+  public enum CodingKeys: CodingKey {
     case name
     case bookmark
     case original
@@ -55,12 +55,12 @@ public final class Bookmark: Codable {
 
 extension Bookmark {
 
-  static func from(data: Data) throws -> Bookmark {
+  public static func from(data: Data) throws -> Bookmark {
     let decoder = PropertyListDecoder()
     return try decoder.decode(Bookmark.self, from: data)
   }
 
-  func toData() throws -> Data {
+  public func toData() throws -> Data {
     let encoder = PropertyListEncoder()
     return try encoder.encode(self)
   }

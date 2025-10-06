@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-@preconcurrency @unsafe import AVFAudio
+import AVFAudio
 import Combine
 import Models
 import MorkAndMIDI
@@ -66,14 +66,6 @@ extension SharedKey where Self == AppStorageKey<Int>.Default {
   public static var pitchBendRange: Self { Self[.appStorage("pitchBendRange"), default: 2] }
 }
 
-extension SharedKey where Self == AppStorageKey<KeyLabels>.Default {
-  public static var keyLabels: Self { Self[.appStorage("keyLabels"), default: .cOnly] }
-}
-
-extension SharedKey where Self == AppStorageKey<Note>.Default {
-  public static var firstVisibleKey: Self { Self[.appStorage("firstVisibleKey"), default: .C4] }
-}
-
 extension SharedKey where Self == AppStorageKey<String>.Default {
   public static var favoriteSymbolName: Self { Self[.appStorage("favoriteSymbolName"), default: "star.circle.fill"] }
 }
@@ -98,10 +90,6 @@ extension SharedKey where Self == InMemoryKey<AUParameterTree>.Default {
   }
 }
 
-//extension SharedKey where Self == InMemoryKey<SoundFont.ID?>.Default {
-//  public static var selectedSoundFontId: Self { Self[.inMemory("selectedSoundFont"), default: nil] }
-//}
-//
 extension MIDI: @unchecked @retroactive Sendable {}
 
 extension SharedKey where Self == InMemoryKey<Double>.Default {
@@ -113,9 +101,9 @@ extension SharedKey where Self == InMemoryKey<MIDI?>.Default {
   public static var midi: Self { Self[.inMemory("midi"), default: nil] }
 }
 
-//extension SharedKey where Self == InMemoryKey<MIDIMonitor?>.Default {
-//  public static var midiMonitor: Self { Self[.inMemory("midiMonitor"), default: nil] }
-//}
+extension SharedKey where Self == InMemoryKey<MIDIMonitor?>.Default {
+  public static var midiMonitor: Self { Self[.inMemory("midiMonitor"), default: nil] }
+}
 
 extension AVAudioUnit: @unchecked @retroactive Sendable {}
 

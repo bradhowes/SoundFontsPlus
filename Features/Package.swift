@@ -27,6 +27,7 @@ let package = Package(
   platforms: [.iOS(.v18)],
   products: [
     .library(name: "AppReview", targets: ["AppReview"]),
+    .library(name: "BaseSupport", targets: ["BaseSupport"]),
     .library(name: "ChangesFeature", targets: ["ChangesFeature"]),
     .library(name: "DelayEffect", targets: ["DelayEffect"]),
     .library(name: "FeatureSupport", targets: ["FeatureSupport"]),
@@ -100,6 +101,12 @@ let package = Package(
       ]
     ),
     .target(
+      name: "BaseSupport",
+      dependencies: [
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+      ]
+    ),
+    .target(
       name: "ChangesFeature",
       dependencies: [
         "FeatureSupport",
@@ -116,6 +123,7 @@ let package = Package(
     .target(
       name: "FeatureSupport",
       dependencies: [
+        "BaseSupport",
         "Models",
         .product(name: "AUv3Controls", package: "AUv3Controls"),
         .product(name: "CasePaths", package: "swift-case-paths"),
@@ -135,6 +143,7 @@ let package = Package(
       name: "Models",
       dependencies: [
         "SF2Resources",
+        "BaseSupport",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "SQLiteData", package: "sqlite-data"),
         .product(name: "Tagged", package: "swift-tagged")
@@ -170,6 +179,13 @@ let package = Package(
         "AppReview",
         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "BaseSupportTests",
+      dependencies: [
+        "BaseSupport",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies")
       ]
     ),
     .testTarget(

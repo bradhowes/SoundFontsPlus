@@ -2,6 +2,7 @@ import AVKit
 import Combine
 import Dependencies
 import Foundation
+import Models
 import SQLiteData
 import Testing
 
