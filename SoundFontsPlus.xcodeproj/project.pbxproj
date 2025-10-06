@@ -22,6 +22,8 @@
 		BD1D27832B6F13DD005C3ED0 /* SoundFontsPlusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27822B6F13DD005C3ED0 /* SoundFontsPlusApp.swift */; };
 		BD1D27892B6F13DE005C3ED0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */; };
 		BD1D278D2B6F13DE005C3ED0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */; };
+		BD275B262E93EF2A004F0C7A /* Tuning in Frameworks */ = {isa = PBXBuildFile; productRef = BD275B252E93EF2A004F0C7A /* Tuning */; };
+		BD275B282E93F1CE004F0C7A /* FileImporter in Frameworks */ = {isa = PBXBuildFile; productRef = BD275B272E93F1CE004F0C7A /* FileImporter */; };
 		BD2A26042CC849E0000CC1DF /* Eurostile.ttc in Resources */ = {isa = PBXBuildFile; fileRef = BD2A26032CC849E0000CC1DF /* Eurostile.ttc */; };
 		BD2F140A2E847EB900ADC9EC /* AppReviewFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD2F14052E847EB900ADC9EC /* AppReviewFeature.swift */; };
 		BD2F140B2E847EB900ADC9EC /* BaseTestSuite.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD2F14062E847EB900ADC9EC /* BaseTestSuite.swift */; };
@@ -404,11 +406,13 @@
 				BD7217262E93BE270017DB8C /* BaseSupport in Frameworks */,
 				BD72172A2E93BE270017DB8C /* DelayEffect in Frameworks */,
 				BD7217282E93BE270017DB8C /* ChangesFeature in Frameworks */,
+				BD275B262E93EF2A004F0C7A /* Tuning in Frameworks */,
 				BDAF5BBC2DE259DF00B8FB13 /* SF2Lib in Frameworks */,
 				BD7217302E93BE270017DB8C /* Models in Frameworks */,
 				BD7217342E93BE270017DB8C /* SF2Resources in Frameworks */,
 				BD72172E2E93BE270017DB8C /* Keyboard in Frameworks */,
 				BD7217362E93BE270017DB8C /* VolumeMonitor in Frameworks */,
+				BD275B282E93F1CE004F0C7A /* FileImporter in Frameworks */,
 				BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */,
 				BD7217382E93C08E0017DB8C /* Tutorial in Frameworks */,
 				BD4C249F2E77618800F8B3A9 /* SF2File in Frameworks */,
@@ -1013,6 +1017,8 @@
 				BD7217332E93BE270017DB8C /* SF2Resources */,
 				BD7217352E93BE270017DB8C /* VolumeMonitor */,
 				BD7217372E93C08E0017DB8C /* Tutorial */,
+				BD275B252E93EF2A004F0C7A /* Tuning */,
+				BD275B272E93F1CE004F0C7A /* FileImporter */,
 			);
 			productName = SoundFontsPlus;
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */;
@@ -1772,6 +1778,14 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
 			productName = SnapshotTesting;
+		};
+		BD275B252E93EF2A004F0C7A /* Tuning */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Tuning;
+		};
+		BD275B272E93F1CE004F0C7A /* FileImporter */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FileImporter;
 		};
 		BD31A7F22E5658CE0046F07C /* StructuredQueriesTestSupport */ = {
 			isa = XCSwiftPackageProductDependency;

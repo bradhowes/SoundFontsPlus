@@ -18,4 +18,6 @@ extension String {
 
   @inlinable
   public var trimmedOfWhitespaces: String { trimmingCharacters(in: .whitespaces) }
+
+  public var withoutExtension: Substring { self[self.startIndex..<(self.lastIndex(of: ".") ?? self.endIndex)] }
 }

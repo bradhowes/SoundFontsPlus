@@ -31,6 +31,7 @@ let package = Package(
     .library(name: "ChangesFeature", targets: ["ChangesFeature"]),
     .library(name: "DelayEffect", targets: ["DelayEffect"]),
     .library(name: "FeatureSupport", targets: ["FeatureSupport"]),
+    .library(name: "FileImporter", targets: ["FileImporter"]),
     .library(name: "Keyboard", targets: ["Keyboard"]),
     .library(name: "Models", targets: ["Models"]),
     .library(name: "ReverbEffect", targets: ["ReverbEffect"]),
@@ -131,6 +132,13 @@ let package = Package(
         .product(name: "CasePaths", package: "swift-case-paths"),
         .product(name: "MorkAndMIDI", package: "morkandmidi"),
         .product(name: "Sharing", package: "swift-sharing")
+      ]
+    ),
+    .target(
+      name: "FileImporter",
+      dependencies: [
+        "FeatureSupport",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
     .target(
