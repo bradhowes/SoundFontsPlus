@@ -2,19 +2,20 @@
 
 import Combine
 import ComposableArchitecture
+import FeatureSupport
 import SwiftUI
 
 @Reducer
-public struct MIDITrafficIndicatorFeature {
+public struct MIDITrafficIndicator {
 
   @ObservableState
   public struct State: Equatable {
-    public static func == (lhs: MIDITrafficIndicatorFeature.State, rhs: MIDITrafficIndicatorFeature.State) -> Bool {
+    public static func == (lhs: MIDITrafficIndicator.State, rhs: MIDITrafficIndicator.State) -> Bool {
       lhs.tag == rhs.tag && lhs.midiTrafficPublisher === rhs.midiTrafficPublisher
     }
 
-    let tag: String
-    let midiTrafficPublisher: PassthroughSubject<MIDITraffic, Never> = .init()
+    public let tag: String
+    public let midiTrafficPublisher: PassthroughSubject<MIDITraffic, Never> = .init()
 
     public init(tag: String) {
       self.tag = tag
@@ -25,6 +26,8 @@ public struct MIDITrafficIndicatorFeature {
     case initialize
     case showMIDITraffic(MIDITraffic)
   }
+
+  public init() {}
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
@@ -40,7 +43,7 @@ public struct MIDITrafficIndicatorFeature {
   }
 }
 
-private extension MIDITrafficIndicatorFeature {
+private extension MIDITrafficIndicator {
   func initialize(_ state: inout State) -> Effect<Action> {
     monitorMIDITraffic(&state)
   }
@@ -65,9 +68,9 @@ private extension MIDITrafficIndicatorFeature {
 }
 
 public struct MIDITrafficIndicatorView: View {
-  private var store: StoreOf<MIDITrafficIndicatorFeature>
+  private var store: StoreOf<MIDITrafficIndicator>
 
-  public init(store: StoreOf<MIDITrafficIndicatorFeature>) {
+  public init(store: StoreOf<MIDITrafficIndicator>) {
     self.store = store
   }
 

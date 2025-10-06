@@ -33,9 +33,15 @@ let package = Package(
     .library(name: "FeatureSupport", targets: ["FeatureSupport"]),
     .library(name: "FileImporter", targets: ["FileImporter"]),
     .library(name: "Keyboard", targets: ["Keyboard"]),
+    .library(name: "MIDIAssignments", targets: ["MIDIAssignments"]),
+    .library(name: "MIDIConnections", targets: ["MIDIConnections"]),
+    .library(name: "MIDIControllers", targets: ["MIDIControllers"]),
+    .library(name: "MIDITrafficIndicator", targets: ["MIDITrafficIndicator"]),
     .library(name: "Models", targets: ["Models"]),
     .library(name: "ReverbEffect", targets: ["ReverbEffect"]),
+    .library(name: "Settings", targets: ["Settings"]),
     .library(name: "SF2Resources", targets: ["SF2Resources"]),
+    .library(name: "ToolBar", targets: ["ToolBar"]),
     .library(name: "Tuning", targets: ["Tuning"]),
     .library(name: "Tutorial", targets: ["Tutorial"]),
     .library(name: "VolumeMonitor", targets: ["VolumeMonitor"]),
@@ -150,6 +156,35 @@ let package = Package(
       ]
     ),
     .target(
+      name: "MIDIAssignments",
+      dependencies: [
+        "FeatureSupport",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ]
+    ),
+    .target(
+      name: "MIDIConnections",
+      dependencies: [
+        "FeatureSupport",
+        "MIDITrafficIndicator",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ]
+    ),
+    .target(
+      name: "MIDIControllers",
+      dependencies: [
+        "FeatureSupport",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ]
+    ),
+    .target(
+      name: "MIDITrafficIndicator",
+      dependencies: [
+        "FeatureSupport",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ]
+    ),
+    .target(
       name: "Models",
       dependencies: [
         "SF2Resources",
@@ -167,12 +202,34 @@ let package = Package(
       ]
     ),
     .target(
+      name: "Settings",
+      dependencies: [
+        "Keyboard",
+        "FeatureSupport",
+        "MIDIAssignments",
+        "MIDIConnections",
+        "MIDIControllers",
+        "MIDITrafficIndicator",
+        "Tuning",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Numerics", package: "swift-numerics"),
+      ]
+    ),
+    .target(
       name: "SF2Resources",
       dependencies: [
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Engine", package: "SF2Lib"),
       ],
       resources: [.process("Resources")]
+    ),
+    .target(
+      name: "ToolBar",
+      dependencies: [
+        "FeatureSupport",
+        "FileImporter",
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+      ],
     ),
     .target(
       name: "Tuning",
@@ -226,7 +283,6 @@ let package = Package(
       dependencies: [
         "DelayEffect",
         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "Numerics", package: "swift-numerics"),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ]
     ),
@@ -243,6 +299,38 @@ let package = Package(
       name: "KeyboardTests",
       dependencies: [
         "Keyboard",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "MIDIAssignmentsTests",
+      dependencies: [
+        "MIDIAssignments",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "MIDIConnectionsTests",
+      dependencies: [
+        "MIDIConnections",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "MIDIControllersTests",
+      dependencies: [
+        "MIDIControllers",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "MIDITrafficIndicatorTests",
+      dependencies: [
+        "MIDITrafficIndicator",
         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ]
@@ -265,9 +353,25 @@ let package = Package(
       ]
     ),
     .testTarget(
+      name: "SettingsTests",
+      dependencies: [
+        "Settings",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
       name: "SF2ResourcesTests",
       dependencies: [
         "SF2Resources",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
+    .testTarget(
+      name: "ToolBarTests",
+      dependencies: [
+        "ToolBar",
         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ]

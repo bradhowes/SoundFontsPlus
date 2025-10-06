@@ -2,7 +2,7 @@ import ComposableArchitecture
 
 extension AlertState {
 
-  static func confirmHidePreset(action: Action, displayName: String) -> Self {
+  static public func confirmHidePreset(action: Action, displayName: String) -> Self {
     Self {
       TextState("Hide '\(displayName)'?")
     } actions: {
@@ -18,7 +18,7 @@ You can restore visibility via the preset visibility button in the toolbar.
     }
   }
 
-  static func confirmDeleteFavorite(action: Action, displayName: String) -> Self {
+  static public func confirmDeleteFavorite(action: Action, displayName: String) -> Self {
     Self {
       TextState("Delete '\(displayName)'?")
     } actions: {
@@ -36,7 +36,7 @@ Deleting a favorite cannot be undone.
 
 extension AlertState {
 
-  static func confirmDisableCopyFile(action: Action) -> Self {
+  static public func confirmDisableCopyFile(action: Action) -> Self {
     Self {
       TextState("Disable Copying?")
     } actions: {
@@ -56,7 +56,7 @@ extension AlertState {
     }
   }
 
-  static func confirmDisableIdleTimer(action: Action) -> Self {
+  static public func confirmDisableIdleTimer(action: Action) -> Self {
     Self {
       TextState("Disable Device Locking?")
     } actions: {
@@ -79,7 +79,7 @@ extension AlertState {
 
 extension AlertState {
 
-  static func confirmShowHiddenPresets(action: Action) -> Self {
+  static public func confirmShowHiddenPresets(action: Action) -> Self {
     Self {
       TextState("Unhide Presets?")
     } actions: {
