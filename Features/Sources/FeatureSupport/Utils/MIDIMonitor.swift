@@ -26,6 +26,8 @@ public final class MIDIMonitor: @unchecked Sendable {
   public var group: Int { -1 }
 
   @Published public var traffic: MIDITraffic?
+
+  public init() {}
 }
 
 extension MIDIMonitor: Receiver {

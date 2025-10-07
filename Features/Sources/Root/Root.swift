@@ -413,7 +413,7 @@ private extension Root {
   }
 }
 
-struct RootView: View, KeyboardVisibilityPublisher {
+public struct RootView: View, KeyboardVisibilityPublisher {
   @Environment(\.scenePhase) var scenePhase
   @Bindable private var store: StoreOf<Root>
   private let theme: Theme
@@ -437,7 +437,7 @@ struct RootView: View, KeyboardVisibilityPublisher {
     : maxKeyboardPanelHeight * (verticalSizeClass == .compact ? 0.5 : 1.0)
   }
 
-  init(store: StoreOf<Root>) {
+  public init(store: StoreOf<Root>) {
     self.store = store
     var theme = Theme()
     theme.controlForegroundColor = .teal
@@ -453,7 +453,7 @@ struct RootView: View, KeyboardVisibilityPublisher {
     self.theme = theme
   }
 
-  var body: some View {
+  public var body: some View {
 
     // let _ = Self._printChanges()
     VStack(spacing: 0) {

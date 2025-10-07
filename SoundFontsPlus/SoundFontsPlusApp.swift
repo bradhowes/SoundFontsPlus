@@ -4,6 +4,7 @@ import AVFAudio
 import ComposableArchitecture
 import DelayEffect
 import Dependencies
+import FeatureSupport
 import Models
 import MorkAndMIDI
 import ReverbEffect

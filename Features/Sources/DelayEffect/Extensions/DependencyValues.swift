@@ -1,6 +1,5 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFAudio.AVAudioUnitDelay
 import Dependencies
 import DependenciesMacros
 import Models
@@ -35,13 +34,5 @@ extension DependencyValues {
   public var delayDevice: DelayDevice {
     get { self[DelayDevice.self] }
     set { self[DelayDevice.self] = newValue }
-  }
-}
-
-
-extension AVAudioUnitDelay {
-
-  public func setConfig(_ config: DelayConfig.Draft) {
-
   }
 }
