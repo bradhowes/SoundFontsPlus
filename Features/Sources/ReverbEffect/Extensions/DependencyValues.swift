@@ -1,7 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AudioUnit.AUParameters
-import AVFAudio.AVAudioSession
+import AVFAudio.AVAudioUnitReverb
 import Dependencies
 import DependenciesMacros
 import Models
@@ -36,5 +35,12 @@ extension DependencyValues {
   public var reverbDevice: ReverbDevice {
     get { self[ReverbDevice.self] }
     set { self[ReverbDevice.self] = newValue }
+  }
+}
+
+extension AVAudioUnitReverb {
+
+  public func setConfig(_ config: ReverbConfig.Draft) {
+
   }
 }
