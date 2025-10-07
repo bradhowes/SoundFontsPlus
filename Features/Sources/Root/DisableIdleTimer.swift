@@ -6,6 +6,9 @@ extension Root {
   @MainActor
   public static func disableIdleTimer() {
     @Shared(.disableIdleTimer) var disableIdleTimer
-    UIKit.UIApplication.shared.isIdleTimerDisabled = disableIdleTimer
+    let value = disableIdleTimer
+    print("disableIdleTimer: ", disableIdleTimer, value)
+    UIKit.UIApplication.shared.isIdleTimerDisabled = value
+    print("UIKit.UIApplication.shared.isIdleTimerDisabled: ", UIKit.UIApplication.shared.isIdleTimerDisabled)
   }
 }

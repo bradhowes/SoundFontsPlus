@@ -1,20 +1,22 @@
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import Dependencies
-import Tagged
+import SF2Resources
 import Testing
 
-@testable import SoundFontsPlus
+@testable import BaseSupport
 
 struct BookmarkTests {
 
   @Test func testRestore() throws {
-    let url = SF2ResourceFileTag.freeFont.url
-    let bookmark = Bookmark(url: url, name: SF2ResourceFileTag.freeFont.name)
+    let url = SF2ResourceTag.freeFont.url
+    let bookmark = Bookmark(url: url, name: SF2ResourceTag.freeFont.name)
     #expect(bookmark.url == url)
   }
 
   @Test func testIsAvailable() throws {
-    let url = SF2ResourceFileTag.freeFont.url
-    let bookmark = Bookmark(url: url, name: SF2ResourceFileTag.freeFont.name)
+    let url = SF2ResourceTag.freeFont.url
+    let bookmark = Bookmark(url: url, name: SF2ResourceTag.freeFont.name)
     #expect(bookmark.isAvailable)
   }
 
@@ -23,8 +25,8 @@ struct BookmarkTests {
       $0.fileManager = .liveValue
     }
 
-    let url = SF2ResourceFileTag.freeFont.url
-    let bookmark = Bookmark(url: url, name: SF2ResourceFileTag.freeFont.name)
+    let url = SF2ResourceTag.freeFont.url
+    let bookmark = Bookmark(url: url, name: SF2ResourceTag.freeFont.name)
     #expect(bookmark.cloudState == .local)
   }
 
@@ -33,14 +35,14 @@ struct BookmarkTests {
       $0.fileManager = .liveValue
     }
 
-    let url = SF2ResourceFileTag.freeFont.url
-    let bookmark = Bookmark(url: url, name: SF2ResourceFileTag.freeFont.name)
+    let url = SF2ResourceTag.freeFont.url
+    let bookmark = Bookmark(url: url, name: SF2ResourceTag.freeFont.name)
     #expect(bookmark.isUbiquitous == false)
   }
 
   @Test func testEncodingDecoding() throws {
-    let url = SF2ResourceFileTag.freeFont.url
-    let bookmark = Bookmark(url: url, name: SF2ResourceFileTag.freeFont.name)
+    let url = SF2ResourceTag.freeFont.url
+    let bookmark = Bookmark(url: url, name: SF2ResourceTag.freeFont.name)
 
     let data = try bookmark.toData()
     let bookmark2 = try Bookmark.from(data: data)

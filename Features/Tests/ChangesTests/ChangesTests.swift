@@ -1,11 +1,13 @@
 import ComposableArchitecture
+import DependenciesTestSupport
+import FeatureSupport
 import Models
 import Sharing
 import SnapshotTesting
 import SwiftUI
 import Testing
 
-@testable import ChangesFeature
+@testable import Changes
 
 @Suite(
   .dependencies {

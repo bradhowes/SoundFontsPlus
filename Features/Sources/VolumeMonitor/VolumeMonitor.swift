@@ -21,7 +21,9 @@ public struct VolumeMonitor {
   @ObservableState
   public struct State: Equatable {
     public var reason: Reason?
-    public init() {}
+    public init(reason: Reason? = nil) {
+      self.reason = reason
+    }
   }
 
   public enum Action: BindableAction {

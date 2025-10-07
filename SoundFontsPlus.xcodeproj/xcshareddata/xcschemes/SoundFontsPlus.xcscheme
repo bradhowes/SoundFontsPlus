@@ -29,7 +29,10 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:SoundFontsPlus.xctestplan"
+            reference = "container:SoundFontsPlus.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:Features/TestPlan.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>

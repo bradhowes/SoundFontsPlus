@@ -1,6 +1,6 @@
 import Testing
 
-@testable import SoundFontsPlus
+@testable import BaseSupport
 
 struct KeyLabelsTests {
 

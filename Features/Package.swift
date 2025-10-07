@@ -131,8 +131,10 @@ let package = Package(
     .target(
       name: "BaseSupport",
       dependencies: [
+        "SF2Resources",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
         .product(name: "Engine", package: "SF2Lib"),
+        .product(name: "Numerics", package: "swift-numerics"),
         .product(name: "SQLiteData", package: "sqlite-data"),
       ]
     ),

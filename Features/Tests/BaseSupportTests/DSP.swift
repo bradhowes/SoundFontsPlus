@@ -1,7 +1,7 @@
 import Testing
 import Numerics
 
-@testable import FeatureSupport
+@testable import BaseSupport
 
 @Suite(
   //  .dependencies {
