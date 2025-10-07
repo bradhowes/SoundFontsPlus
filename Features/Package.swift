@@ -25,7 +25,7 @@ let sf2Lib: Package.Dependency = useLocalSF2Lib ? .package(
 
 let package = Package(
   name: "Features",
-  platforms: [.iOS(.v18)],
+  platforms: [.iOS(.v18), .macOS(.v15)],
   products: [
     .library(name: "AppReview", targets: ["AppReview"]),
     .library(name: "BaseSupport", targets: ["BaseSupport"]),
@@ -108,7 +108,19 @@ let package = Package(
       from: "0.9.2"
     ),
   ],
+
   targets: [
+    .executableTarget(name: "BuildFluidFontCmd"),
+    .plugin(name: "BuildFluidFont", capability: .buildTool, dependencies: ["BuildFluidFontCmd"]),
+    .target(
+      name: "SF2Resources",
+      dependencies: [
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        .product(name: "Engine", package: "SF2Lib"),
+      ],
+      resources: [.process("Resources")],
+      plugins: ["BuildFluidFont"]
+    ),
     .target(
       name: "AppReview",
       dependencies: [
@@ -251,14 +263,6 @@ let package = Package(
         "Tuning",
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
-    ),
-    .target(
-      name: "SF2Resources",
-      dependencies: [
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Engine", package: "SF2Lib"),
-      ],
-      resources: [.process("Resources")]
     ),
     .target(
       name: "SoundFonts",
@@ -504,44 +508,22 @@ let package = Package(
   cxxLanguageStandard: .cxx2b
 )
 
+setSwiftSettings()
+
 // The SF2Lib Engine product requires this for everything it touches, so just do every target.
-for target in package.targets {
-  var settings = globalSwiftSettings + (target.swiftSettings ?? [])
-  if alwaysShowChanges {
-    settings.append(.define("ALWAYS_SHOW_CHANGES"))
-  }
-  if alwaysShowTutorial {
-    settings.append(.define("ALWAYS_SHOW_TUTORIAL"))
-  }
-  target.swiftSettings = settings
-}
-
-extension Data {
-
-  func appendTo(_ fileURL: URL) throws {
-    if let fileHandle = FileHandle(forWritingAtPath: fileURL.path) {
-      defer {
-        fileHandle.closeFile()
-      }
-      fileHandle.seekToEndOfFile()
-      fileHandle.write(self)
+@MainActor
+func setSwiftSettings() {
+  for target in package.targets {
+    if target.type == .plugin {
+      continue
     }
-    else {
-      try write(to: fileURL, options: .atomic)
+    var settings = globalSwiftSettings + (target.swiftSettings ?? [])
+    if alwaysShowChanges {
+      settings.append(.define("ALWAYS_SHOW_CHANGES"))
     }
-  }
-}
-
-func makeFluidR3_GM() {
-  let destination = URL(fileURLWithPath: "Sources/SF2Resources/Resources/FluidR3_GM.sf2")
-  let part = "Sources/SF2Resources/FluidR3_GM_Parts/FluidR3_GM.sf2."
-  if FileManager.default.fileExists(atPath: destination.path) {
-    print("\(destination) already exists")
-    return
-  }
-
-  for index in [1...3] {
-    let source = URL(fileURLWithPath: part + "\(index)")
-    try! Data(contentsOf: source).appendTo(destination)
+    if alwaysShowTutorial {
+      settings.append(.define("ALWAYS_SHOW_TUTORIAL"))
+    }
+    target.swiftSettings = settings
   }
 }
