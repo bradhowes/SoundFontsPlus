@@ -1,6 +1,7 @@
 // swift-tools-version: 6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
+import Foundation
 import PackageDescription
 
 let alwaysShowTutorial = false
@@ -513,4 +514,34 @@ for target in package.targets {
     settings.append(.define("ALWAYS_SHOW_TUTORIAL"))
   }
   target.swiftSettings = settings
+}
+
+extension Data {
+
+  func appendTo(_ fileURL: URL) throws {
+    if let fileHandle = FileHandle(forWritingAtPath: fileURL.path) {
+      defer {
+        fileHandle.closeFile()
+      }
+      fileHandle.seekToEndOfFile()
+      fileHandle.write(self)
+    }
+    else {
+      try write(to: fileURL, options: .atomic)
+    }
+  }
+}
+
+func makeFluidR3_GM() {
+  let destination = URL(fileURLWithPath: "Sources/SF2Resources/Resources/FluidR3_GM.sf2")
+  let part = "Sources/SF2Resources/FluidR3_GM_Parts/FluidR3_GM.sf2."
+  if FileManager.default.fileExists(atPath: destination.path) {
+    print("\(destination) already exists")
+    return
+  }
+
+  for index in [1...3] {
+    let source = URL(fileURLWithPath: part + "\(index)")
+    try! Data(contentsOf: source).appendTo(destination)
+  }
 }

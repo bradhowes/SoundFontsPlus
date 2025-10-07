@@ -520,7 +520,6 @@
 			buildPhases = (
 				BD1D277B2B6F13DD005C3ED0 /* Sources */,
 				BD1D277C2B6F13DD005C3ED0 /* Frameworks */,
-				BD561CCB2E5789BF00D8FBB0 /* Generate FluidR3_GM */,
 				BD1D277D2B6F13DD005C3ED0 /* Resources */,
 				BD0BD8CF2E11E23000772FE5 /* Embed Foundation Extensions */,
 			);
@@ -675,32 +674,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		BD561CCB2E5789BF00D8FBB0 /* Generate FluidR3_GM */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/SoundFontsPlus/SF2ResourceFiles/Resources/FluidR3_GM.sf2.1",
-				"$(SRCROOT)/SoundFontsPlus/SF2ResourceFiles/Resources/FluidR3_GM.sf2.2",
-				"$(SRCROOT)/SoundFontsPlus/SF2ResourceFiles/Resources/FluidR3_GM.sf2.3",
-			);
-			name = "Generate FluidR3_GM";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(SRCROOT)/SoundFontsPlus/SF2ResourceFiles/Resources/FluidR3_GM.sf2",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "IN0=\"${SCRIPT_INPUT_FILE_0}\"\nIN1=\"${SCRIPT_INPUT_FILE_1}\"\nIN2=\"${SCRIPT_INPUT_FILE_2}\"\nOUT=\"${SCRIPT_OUTPUT_FILE_0}\"\ncat \"${IN0}\" \"${IN1}\" \"${IN2}\" > \"${OUT}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		BD1D277B2B6F13DD005C3ED0 /* Sources */ = {
