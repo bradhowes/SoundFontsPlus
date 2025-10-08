@@ -9,8 +9,8 @@ import SwiftUI
 public struct Changes {
 
   public struct Change: Hashable {
-    public let version: String
-    public let items: [String]
+    let version: String
+    let items: [String]
 
     public init(version: String, items: [String]) {
       self.version = version
@@ -41,7 +41,6 @@ public struct Changes {
       case .dismissButtonTapped:
         @Dependency(\.dismiss) var dismiss
         return .run { _ in await dismiss() }
-
       }
     }
   }

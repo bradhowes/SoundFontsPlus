@@ -16,48 +16,54 @@ import StructuredQueries
  */
 public struct Note: CustomStringConvertible, Sendable {
 
-  public static let sharpTag = "♯"
-  public static let flatTag = "♭"
+  public static var sharpTag: String { "♯" }
+  public static var flatTag: String { "♭" }
 
-  public static let sharpTags: [Character] = [Character(sharpTag), "#"]
-  public static let flatTags: [Character] = [Character(flatTag), "b"]
+  public static var sharpTags: [Character] { [Character(sharpTag), "#"] }
+  public static var flatTags: [Character] { [Character(flatTag), "b"] }
 
   /// Collection of an octave of note labels that uses sharps for accidentals.
-  public static let labelsWithSharps: [String] = [
-    "C",
-    "C" + sharpTag,
-    "D",
-    "D" + sharpTag,
-    "E",
-    "F",
-    "F" + sharpTag,
-    "G",
-    "G" + sharpTag,
-    "A",
-    "A" + sharpTag,
-    "B"
-  ]
+  public static var labelsWithSharps: [String] {
+    [
+      "C",
+      "C" + sharpTag,
+      "D",
+      "D" + sharpTag,
+      "E",
+      "F",
+      "F" + sharpTag,
+      "G",
+      "G" + sharpTag,
+      "A",
+      "A" + sharpTag,
+      "B"
+    ]
+  }
 
   /// Collection of an octave of note labels that uses flats for accidentals.
-  public static let labelsWithFlats: [String] = [
-    "C",
-    "D" + flatTag,
-    "D",
-    "E" + flatTag,
-    "E",
-    "F",
-    "G" + flatTag,
-    "G",
-    "A" + flatTag,
-    "A",
-    "B" + flatTag,
-    "B"
-  ]
+  public static var labelsWithFlats: [String] {
+    [
+      "C",
+      "D" + flatTag,
+      "D",
+      "E" + flatTag,
+      "E",
+      "F",
+      "G" + flatTag,
+      "G",
+      "A" + flatTag,
+      "A",
+      "B" + flatTag,
+      "B"
+    ]
+  }
 
   /// Collection of solfege labels. There are many variations. This one is what is found in "The Sound of Music".
-  public static let solfegeLabels: [String] = [
-    "Do", "Do", "Re", "Re", "Mi", "Fa", "Fa", "Sol", "Sol", "La", "La", "Ti"
-  ]
+  public static var solfegeLabels: [String] {
+    [
+      "Do", "Do", "Re", "Re", "Mi", "Fa", "Fa", "Sol", "Sol", "La", "La", "Ti"
+    ]
+  }
 
   /// Collection of note indices that are accented notes
   public static let accentedIndices: Set<Int> = [1, 3, 6, 8, 10]

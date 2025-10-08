@@ -37,32 +37,32 @@ public struct Settings {
 
   @ObservableState
   public struct State: Equatable {
-    public var path = StackState<Path.State>()
-    @Presents public var destination: Destination.State?
-    public var midiConnectCount: Int = 0
+    var path = StackState<Path.State>()
+    @Presents var destination: Destination.State?
+    var midiConnectCount: Int = 0
 
-    @Shared(.backgroundProcessing) public var backgroundProcessing
-    @Shared(.copyFileWhenInstalling) public var copyFileWhenInstalling
-    @Shared(.disableIdleTimer) public var disableIdleTimer
-    @Shared(.favoritesOnTop) public var favoritesOnTop
-    @Shared(.favoriteSymbolName) public var favoriteSymbolName
-    @Shared(.keyboardSlides) public var keyboardSlides
-    @Shared(.keyLabels) public var keyLabels
-    @Shared(.keyWidth) public var keyWidth
-    @Shared(.midiAutoConnect) public var midiAutoConnect
-    @Shared(.midiChannel) public var midiChannel
-    @Shared(.pitchBendRange) public var pitchBendRange
-    @Shared(.playSoundOnPresetChange) public var playSoundOnPresetChange
-    @Shared(.showActiveVoiceCount) public var showActiveVoiceCount
-    @Shared(.showKeyNotes) public var showKeyNotes
-    @Shared(.showOnlyFavorites) public var showOnlyFavorites
-    @Shared(.showSolfegeTags) public var showSolfegeTags
-    @Shared(.sortPresetsByName) public var sortPresetsByName
-    @Shared(.starFavoriteNames) public var starFavoriteNames
+    @Shared(.backgroundProcessing) var backgroundProcessing
+    @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
+    @Shared(.disableIdleTimer) var disableIdleTimer
+    @Shared(.favoritesOnTop) var favoritesOnTop
+    @Shared(.favoriteSymbolName) var favoriteSymbolName
+    @Shared(.keyboardSlides) var keyboardSlides
+    @Shared(.keyLabels) var keyLabels
+    @Shared(.keyWidth) var keyWidth
+    @Shared(.midiAutoConnect) var midiAutoConnect
+    @Shared(.midiChannel) var midiChannel
+    @Shared(.pitchBendRange) var pitchBendRange
+    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
+    @Shared(.showActiveVoiceCount) var showActiveVoiceCount
+    @Shared(.showKeyNotes) var showKeyNotes
+    @Shared(.showOnlyFavorites) var showOnlyFavorites
+    @Shared(.showSolfegeTags) var showSolfegeTags
+    @Shared(.sortPresetsByName) var sortPresetsByName
+    @Shared(.starFavoriteNames) var starFavoriteNames
 
-    public var midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "Settings")
-    public var tuning: Tuning.State
-    public let hasMIDI: Bool
+    var midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "Settings")
+    var tuning: Tuning.State
+    let hasMIDI: Bool
 
     public init() {
       @Shared(.midi) var midi
@@ -73,8 +73,6 @@ public struct Settings {
       self.tuning = .init(frequency: frequency, enabled: tuningEnabled)
     }
   }
-
-  public init() {}
 
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
@@ -104,6 +102,8 @@ public struct Settings {
       case showTutorial
     }
   }
+
+  public init() {}
 
   public var body: some ReducerOf<Self> {
     BindingReducer()

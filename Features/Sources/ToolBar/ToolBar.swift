@@ -29,20 +29,20 @@ public struct ToolBar {
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
 
-    public var lowestKey: Note
-    public var highestKey: Note
+    var lowestKey: Note
+    var highestKey: Note
 
-    public var keyboardSlides: Bool
-    public var effectsPanelVisible: Bool
-    public var tagsListVisible: Bool
+    var keyboardSlides: Bool
+    var effectsPanelVisible: Bool
+    var tagsListVisible: Bool
 
-    public var editingPresetVisibility: Bool = false
-    public var showMoreButtons: Bool = false
-    public var preset: Preset?
-    public var lastPlayedKey: Note?
-    public var midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "ToolBar")
-    public var fileImporter: FileImporter.State = .init()
-    public var activeVoiceCount: Int = 0
+    var editingPresetVisibility: Bool = false
+    var showMoreButtons: Bool = false
+    var preset: Preset?
+    var lastPlayedKey: Note?
+    var midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "ToolBar")
+    var fileImporter: FileImporter.State = .init()
+    var activeVoiceCount: Int = 0
 
     public init() {
       @Shared(.firstVisibleKey) var firstVisibleKey: Note
@@ -55,6 +55,10 @@ public struct ToolBar {
       self.keyboardSlides = keyboardSlides
       self.effectsPanelVisible = effectsPanelVisible
       self.tagsListVisible = tagsListVisible
+    }
+
+    public mutating func setTagsListVisible(_ state: Bool) {
+      self.tagsListVisible = state
     }
   }
 
@@ -92,8 +96,6 @@ public struct ToolBar {
   }
 
   public init() {}
-
-  @Shared(.firstVisibleKey) var firstVisibleKey: Note
 
   public var body: some ReducerOf<Self> {
 
@@ -170,14 +172,15 @@ public struct ToolBar {
     }.ifLet(\.$destination, action: \.destination)
   }
 
+  @Shared(.firstVisibleKey) private var firstVisibleKey: Note
+  @Shared(.activeState) private var activeState
+  @Shared(.showKeyNotes) private var showKeyNotes
+  @Shared(.showSolfegeTags) private var showSolfegeTags
+
   private enum CancelId {
     case lastPlayedKeyChanged
     case monitorActiveVoiceCount
   }
-
-  @Shared(.activeState) var activeState
-  @Shared(.showKeyNotes) var showKeyNotes
-  @Shared(.showSolfegeTags) var showSolfegeTags
 }
 
 private extension ToolBar {

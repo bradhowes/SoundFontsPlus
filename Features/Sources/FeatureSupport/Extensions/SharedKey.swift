@@ -68,16 +68,6 @@ extension SharedKey where Self == AppStorageKey<String>.Default {
   public static var favoriteSymbolName: Self { Self[.appStorage("favoriteSymbolName"), default: "star.circle.fill"] }
 }
 
-extension URL {
-  static public let activeStateURL = URL.applicationSupportDirectory.appendingPathComponent("activeState.json")
-}
-
-//extension SharedKey where Self == FileStorageKey<ActiveState>.Default {
-//  public static var activeState: Self {
-//    Self[.fileStorage(.activeStateURL), default: .init()]
-//  }
-//}
-
 // MARK: - InMemory settings
 
 extension AUParameterTree: @unchecked @retroactive Sendable {}
@@ -87,8 +77,6 @@ extension SharedKey where Self == InMemoryKey<AUParameterTree>.Default {
     Self[.inMemory("parameterTree"), default: ParameterAddress.createParameterTree()]
   }
 }
-
-extension MIDI: @unchecked @retroactive Sendable {}
 
 extension SharedKey where Self == InMemoryKey<Double>.Default {
   public static var activePresetGain: Self { Self[.inMemory("activePresetGain"), default: 0.0] }

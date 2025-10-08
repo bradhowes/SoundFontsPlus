@@ -84,8 +84,8 @@ public struct TagsEditor {
     case toggleEditMode
   }
 
-  @Dependency(\.defaultDatabase) var database
-  @Shared(.activeState) var activeState
+  @Dependency(\.defaultDatabase) private var database
+  @Shared(.activeState) private var activeState
 
   public var body: some ReducerOf<Self> {
     BindingReducer()

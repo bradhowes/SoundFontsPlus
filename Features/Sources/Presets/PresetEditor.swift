@@ -25,24 +25,25 @@ public struct PresetEditor {
 
   @ObservableState
   public struct State: Equatable {
-    @Presents public var destination: Destination.State?
     public let sectionId: Int
     public let preset: Preset
-    public let soundFontName: String
+    public fileprivate(set) var displayName: String
+    public fileprivate(set) var visible: Bool
 
-    public var displayName: String
-    public var originalName: String
-    public var visible: Bool
-    public var notes: String
+    @Presents var destination: Destination.State?
 
-    public let originalAudioConfig: AudioConfig.Draft
-    public var pendingAudioConfig: AudioConfig.Draft
+    let soundFontName: String
+    let originalAudioConfig: AudioConfig.Draft
+    var pendingAudioConfig: AudioConfig.Draft
 
-    public var gainSlider: Double
-    public var panSlider: Double
-    public var tuning: Tuning.State
+    var originalName: String
+    var notes: String
 
-    public var isFavorite: Bool { preset.kind == .favorite }
+    var gainSlider: Double
+    var panSlider: Double
+    var tuning: Tuning.State
+
+    var isFavorite: Bool { preset.kind == .favorite }
 
     public init(sectionId: Int, preset: Preset) {
       self.sectionId = sectionId
@@ -70,8 +71,7 @@ public struct PresetEditor {
       pendingAudioConfig.gain = gainSlider
       pendingAudioConfig.pan = panSlider
 
-      pendingAudioConfig.customTuning = tuning.frequency
-      pendingAudioConfig.customTuningEnabled = tuning.enabled
+      tuning.updateConfig(&pendingAudioConfig)
 
       withDatabaseWriter { db in
         try Preset.update {
@@ -167,7 +167,7 @@ public struct PresetEditor {
     .ifLet(\.destination, action: \.destination)
   }
 
-  @Shared(.confirmPresetHiding) var confirmPresetHiding
+  @Shared(.confirmPresetHiding) private var confirmPresetHiding
 }
 
 extension PresetEditor.Destination.State: _EphemeralState {

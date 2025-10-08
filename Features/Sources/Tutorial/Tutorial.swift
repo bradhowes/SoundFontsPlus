@@ -25,7 +25,7 @@ public struct Tutorial {
 
   @ObservableState
   public struct State: Equatable {
-    public var page: Page
+    var page: Page
 
     public init(page: Page = .intro) {
       self.page = page

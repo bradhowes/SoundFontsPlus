@@ -43,22 +43,22 @@ public struct Root {
 
   @ObservableState
   public struct State: Equatable {
-    @Presents public var destination: Destination.State?
+    @Presents var destination: Destination.State?
     @ObservationStateIgnored
-    @FetchAll public var soundFontInfos: [SoundFontInfo]
+    @FetchAll var soundFontInfos: [SoundFontInfo]
 
-    public var appReview: AppReview.State = .init()
-    public var delay: DelayEffect.State = .init()
-    public var keyboard: Keyboard.State = .init()
-    public var presetsList: PresetsList.State = .init()
-    public var presetsSplit: SplitViewReducer.State
-    public var reverb: ReverbEffect.State = .init()
-    public var soundFontsList: SoundFontsList.State = .init()
-    public var synth: Synth.State = .init()
-    public var tagsList: TagsList.State = .init()
-    public var tagsSplit: SplitViewReducer.State
-    public var toolBar: ToolBar.State = .init()
-    public var volumeMonitor: VolumeMonitor.State = .init()
+    var appReview: AppReview.State = .init()
+    var delay: DelayEffect.State = .init()
+    var keyboard: Keyboard.State = .init()
+    var presetsList: PresetsList.State = .init()
+    var presetsSplit: SplitViewReducer.State
+    var reverb: ReverbEffect.State = .init()
+    var soundFontsList: SoundFontsList.State = .init()
+    var synth: Synth.State = .init()
+    var tagsList: TagsList.State = .init()
+    var tagsSplit: SplitViewReducer.State
+    var toolBar: ToolBar.State = .init()
+    var volumeMonitor: VolumeMonitor.State = .init()
 
     public init() {
       _soundFontInfos = FetchAll(SoundFontInfo.query(), animation: .default)
@@ -264,12 +264,12 @@ public struct Root {
     }.ifLet(\.$destination, action: \.destination)
   }
 
+  @Shared(.activeState) private var activeState
+  @Shared(.firstVisibleKey) private var firstVisibleKey
+
   private enum CancelId {
     case monitorActivePresetId
   }
-
-  @Shared(.activeState) var activeState
-  @Shared(.firstVisibleKey) var firstVisibleKey
 }
 
 private extension Root {
@@ -289,13 +289,8 @@ private extension Root {
   }
 
   func editorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
-    guard let sectionIndex = state.presetsList.sections.index(id: editor.sectionId)
-    else {
-      fatalError("unexpected indexing failure")
-    }
-
     if editor.visible {
-      state.presetsList.sections[sectionIndex].update(presetId: editor.preset.id, displayName: editor.displayName)
+      state.presetsList.updateSection(editor.sectionId, presetId: editor.preset.id, displayName: editor.displayName)
       return .none
     }
     return reduce(into: &state, action: .presetsList(.fetchPresets))
@@ -353,7 +348,7 @@ private extension Root {
   func monitorTagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
     if case let .stateChanged(panesVisible, position) = action {
       let visible = panesVisible.contains(.bottom)
-      state.toolBar.tagsListVisible = visible
+      state.toolBar.setTagsListVisible(visible)
       @Shared(.tagsListVisible) var tagsListVisible
       $tagsListVisible.withLock { $0 = visible }
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition

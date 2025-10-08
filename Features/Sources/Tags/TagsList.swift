@@ -38,7 +38,7 @@ public struct TagsList {
 
   public init() {}
 
-  @Shared(.activeState) var activeState
+  @Shared(.activeState) private var activeState
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
@@ -63,14 +63,14 @@ public struct TagsList {
   }
 }
 
-private extension TagsList {
+extension TagsList {
 
-  func activateTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
+  private func activateTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
     $activeState.withLock { $0.activeTagId = tagId }
     return .none
   }
 
-  func deleteTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
+  private func deleteTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
     if activeState.activeTagId == tagId {
       $activeState.withLock { $0.activeTagId = FontTag.Ubiquitous.all.id }
     }
@@ -78,7 +78,7 @@ private extension TagsList {
     return .none
   }
 
-  func editTags(_ state: inout State, focused: TagInfo? = nil) -> Effect<Action> {
+  private func editTags(_ state: inout State, focused: TagInfo? = nil) -> Effect<Action> {
     return .send(.delegate(.edit(focused?.id)))
   }
 }

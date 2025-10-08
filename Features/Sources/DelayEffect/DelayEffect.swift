@@ -15,15 +15,14 @@ public struct DelayEffect {
   public struct State: Equatable {
 
     @ObservationStateIgnored
-    public var config: DelayConfig.Draft = .init(presetId: -1)
-
-    public var enabled: ToggleFeature.State
-    public var locked: ToggleFeature.State
-    public var time: KnobFeature.State
-    public var feedback: KnobFeature.State
-    public var cutoff: KnobFeature.State
-    public var wetDryMix: KnobFeature.State
-    public var dirty: Bool = false
+    var config: DelayConfig.Draft = .init(presetId: -1)
+    var enabled: ToggleFeature.State
+    var locked: ToggleFeature.State
+    var time: KnobFeature.State
+    var feedback: KnobFeature.State
+    var cutoff: KnobFeature.State
+    var wetDryMix: KnobFeature.State
+    var dirty: Bool = false
 
     public init() {
       @Shared(.parameterTree) var parameterTree
@@ -51,22 +50,6 @@ public struct DelayEffect {
     case updateDebounced
     case wetDryMix(KnobFeature.Action)
   }
-
-  private enum CancelId: CaseIterable {
-    case applyConfigForPreset
-    case monitorActivePresetId
-    case saveDebouncer
-    case updateDebouncer
-  }
-
-  @Shared(.activeState) var activeState
-  @Shared(.parameterTree) var parameterTree
-
-  @Dependency(\.delayDevice) var delayDevice
-  @Dependency(\.mainQueue) var mainQueue
-
-  var updateDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(100) }
-  var saveDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(1000) }
 
   public init() {}
 
@@ -122,6 +105,21 @@ public struct DelayEffect {
       }
     }
   }
+
+  @Shared(.activeState) private var activeState
+  @Shared(.parameterTree) private var parameterTree
+  @Dependency(\.mainQueue) private var mainQueue
+  @Dependency(\.delayDevice) private var delayDevice
+
+  private enum CancelId: CaseIterable {
+    case applyConfigForPreset
+    case monitorActivePresetId
+    case saveDebouncer
+    case updateDebouncer
+  }
+
+  private var updateDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(100) }
+  private var saveDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(1000) }
 }
 
 extension DelayEffect {

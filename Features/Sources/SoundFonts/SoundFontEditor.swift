@@ -88,6 +88,8 @@ public struct SoundFontEditor {
     }
   }
 
+  public init() {}
+
   public var body: some ReducerOf<Self> {
     BindingReducer()
 
@@ -147,8 +149,6 @@ public struct SoundFontEditor {
     .forEach(\.path, action: \.path)
     .ifLet(\.$destination, action: \.destination)
   }
-
-  public init() {}
 }
 
 extension SoundFontEditor {

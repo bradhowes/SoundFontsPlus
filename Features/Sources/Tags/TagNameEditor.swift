@@ -16,12 +16,13 @@ public struct TagNameEditor {
 
   @ObservableState
   public struct State: Equatable, Identifiable, Sendable {
-    public var draft: FontTag.Draft
     public var id: FontTag.ID { tagId }
-    public let tagId: FontTag.ID
-    public let originalMembership: Bool?
-    public let originalDisplayName: String
-    public var membership: Bool
+
+    var draft: FontTag.Draft
+    let tagId: FontTag.ID
+    let originalMembership: Bool?
+    let originalDisplayName: String
+    var membership: Bool
 
     public init(id: FontTag.ID, draft: FontTag.Draft, membership: Bool? = nil) {
       self.tagId = id
@@ -76,7 +77,7 @@ public struct TagNameEditor {
     }
   }
 
-  @Dependency(\.defaultDatabase) var database
+  @Dependency(\.defaultDatabase) private var database
 
   public var body: some ReducerOf<Self> {
     BindingReducer()

@@ -26,13 +26,13 @@ private let log = Logger(category: "AppReview")
 @Reducer
 public struct AppReview {
 
-  static let daysAfterFirstLaunchBeforeRequest = 14
+  static var daysAfterFirstLaunchBeforeRequest: Int { 14 }
 
   @ObservableState
   public struct State: Equatable {
-    public var askForReview: Bool = false
-    public var activityCounter: Int = 0
-    public let minActivityCounter: Int
+    var askForReview: Bool = false
+    var activityCounter: Int = 0
+    let minActivityCounter: Int
 
     public init(activityCounter: Int = 0, minActivityCounter: Int = 50) {
       self.activityCounter = activityCounter
@@ -60,7 +60,7 @@ public struct AppReview {
     }
   }
 
-  @Dependency(\.date.now) var now
+  @Dependency(\.date.now) private var now
 }
 
 extension AppReview {

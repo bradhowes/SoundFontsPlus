@@ -40,9 +40,6 @@ public struct FileImporter {
 
   public init() {}
 
-  @Dependency(\.fileManager) var fileManager
-  @Dependency(\.dismiss) var dismiss
-
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
@@ -68,6 +65,9 @@ public struct FileImporter {
     }
     .ifLet(\.destination, action: \.destination)
   }
+
+  @Dependency(\.fileManager) private var fileManager
+  @Dependency(\.dismiss) private var dismiss
 }
 
 // extension Result<URL, Error>: Equatable {}

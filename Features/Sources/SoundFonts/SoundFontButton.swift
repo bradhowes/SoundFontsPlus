@@ -13,9 +13,10 @@ public struct SoundFontButton {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    public let soundFontInfo: SoundFontInfo
     public var id: SoundFont.ID { soundFontInfo.id }
-    @Presents public var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
+
+    let soundFontInfo: SoundFontInfo
+    @Presents var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
 
     public init(soundFontInfo: SoundFontInfo) {
       self.soundFontInfo = soundFontInfo

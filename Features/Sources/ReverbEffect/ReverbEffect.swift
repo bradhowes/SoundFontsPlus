@@ -16,13 +16,11 @@ public struct ReverbEffect {
   public struct State: Equatable {
 
     @ObservationStateIgnored
-    public var config: ReverbConfig.Draft = .init(presetId: -1)
-
-    public var enabled: ToggleFeature.State
-    public var locked: ToggleFeature.State
-    public var wetDryMix: KnobFeature.State
-
-    public var dirty: Bool = false
+    var config: ReverbConfig.Draft = .init(presetId: -1)
+    var enabled: ToggleFeature.State
+    var locked: ToggleFeature.State
+    var wetDryMix: KnobFeature.State
+    var dirty: Bool = false
 
     public init() {
       @Shared(.parameterTree) var parameterTree
@@ -45,22 +43,6 @@ public struct ReverbEffect {
     case updateDebounced
     case wetDryMix(KnobFeature.Action)
   }
-
-  private enum CancelId: CaseIterable {
-    case applyConfigForPreset
-    case monitorActivePresetId
-    case saveDebouncer
-    case updateDebouncer
-  }
-
-  @Shared(.activeState) private var activeState
-  @Shared(.parameterTree) var parameterTree
-
-  @Dependency(\.mainQueue) var mainQueue
-  @Dependency(\.reverbDevice) private var reverbDevice
-
-  var updateDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(100) }
-  var saveDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(1000) }
 
   public init() {}
 
@@ -107,6 +89,21 @@ public struct ReverbEffect {
       }
     }
   }
+
+  @Shared(.activeState) private var activeState
+  @Shared(.parameterTree) private var parameterTree
+  @Dependency(\.mainQueue) private var mainQueue
+  @Dependency(\.reverbDevice) private var reverbDevice
+
+  private enum CancelId: CaseIterable {
+    case applyConfigForPreset
+    case monitorActivePresetId
+    case saveDebouncer
+    case updateDebouncer
+  }
+
+  private var updateDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(100) }
+  private var saveDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(1000) }
 }
 
 extension ReverbEffect {

@@ -18,12 +18,12 @@ public struct Synth {
 
   @ObservableState
   public struct State: Equatable {
-    public var loadedSoundFontId: SoundFont.ID?
-    public var loadedPresetIndex: Int?
-    public var firstTimePresetLoaded: Bool = true
+    var loadedSoundFontId: SoundFont.ID?
+    var loadedPresetIndex: Int?
+    var firstTimePresetLoaded: Bool = true
 
     @ObservationStateIgnored
-    public var sessionActive: Bool = false
+    var sessionActive: Bool = false
 
     public init() {}
   }
@@ -41,6 +41,22 @@ public struct Synth {
   }
 
   public init() {}
+
+  // TODO: make into a dependency for testing
+  private let engine = AVAudioEngine()
+
+  private let audioFormat: AVAudioFormat! = AVAudioFormat(
+    commonFormat: .pcmFormatFloat32,
+    sampleRate: 48_000.0,
+    channels: 2,
+    interleaved: false
+  )
+
+  @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.audioSession) private var audioSession
+  @Shared(.activeState) private var activeState
+  @Shared(.backgroundProcessing) private var backgroundProcessing
+  @Shared(.synthAudioUnit) private var synthAudioUnit
 
   public var body: some ReducerOf<Self> {
 
@@ -79,22 +95,6 @@ public struct Synth {
     }
   }
 
-  // TODO: make into a dependency for testing
-  private let engine = AVAudioEngine()
-
-  private let audioFormat: AVAudioFormat! = AVAudioFormat(
-    commonFormat: .pcmFormatFloat32,
-    sampleRate: 48_000.0,
-    channels: 2,
-    interleaved: false
-  )
-
-  @Dependency(\.defaultDatabase) private var database
-  @Dependency(\.audioSession) private var session
-  @Shared(.activeState) private var activeState
-  @Shared(.backgroundProcessing) private var backgroundProcessing
-  @Shared(.synthAudioUnit) private var synthAudioUnit
-
   private enum CancelId: CaseIterable {
     case createSynth
     case monitorActivePresetId
@@ -116,17 +116,17 @@ extension Synth {
 
     do {
       log.info("routeChanged - setting AudioSession category")
-      try session.setCategory(.playback, .default, [.mixWithOthers])
+      try audioSession.setCategory(.playback, .default, [.mixWithOthers])
     } catch let error as NSError {
       let err = error.localizedDescription
       log.error("routeChanged - failed to set the audio session category and mode: \(err)")
     }
 
-    log.info("routeChanged - sampleRate: \(session.sampleRate())")
+    log.info("routeChanged - sampleRate: \(audioSession.sampleRate())")
 
     do {
       log.info("routeChanged - setting preferred sample rate")
-      try session.setPreferredSampleRate(audioFormat.sampleRate)
+      try audioSession.setPreferredSampleRate(audioFormat.sampleRate)
     } catch let error as NSError {
       let err = error.localizedDescription
       log.error("routeChanged - failed to set the preferred sample rate to \(audioFormat.sampleRate) - \(err)")
@@ -135,13 +135,13 @@ extension Synth {
     let bufferDuration = Double(bufferSize) / audioFormat.sampleRate
     do {
       log.info("routeChanged - setting IO buffer duration \(bufferDuration)")
-      try session.setPreferredIOBufferDuration(bufferDuration)
+      try audioSession.setPreferredIOBufferDuration(bufferDuration)
     } catch let error as NSError {
       let err = error.localizedDescription
       log.error("routeChanged - failed to set the preferred buffer size to \(bufferSize) - \(err)")
     }
 
-    session.currentRoute().dump()
+    audioSession.currentRoute().dump()
   }
 
   private func createAudioChain(_ state: inout State) -> Bool {
@@ -336,7 +336,7 @@ extension Synth {
 
     do {
       log.info("routeChanged - setting active audio session")
-      try session.setActive(true, [])
+      try audioSession.setActive(true, [])
       state.sessionActive = true
     } catch {
       let err = error.localizedDescription
@@ -370,7 +370,7 @@ extension Synth {
 
     do {
       log.info("stopAudioSession - setting AudioSession to inactive")
-      try session.setActive(false, [.notifyOthersOnDeactivation])
+      try audioSession.setActive(false, [.notifyOthersOnDeactivation])
       log.info("stopAudioSession - done")
     } catch let error as NSError {
       log.error("stopAudioSession - Failed session.setActive(false): \(error.localizedDescription)")

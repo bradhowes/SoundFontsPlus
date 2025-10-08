@@ -96,12 +96,12 @@ public struct Keyboard {
     }
   }
 
+  @Shared(.activeState) private var activeState
+
   private enum CancelId {
     case activePresetId
     case scrollTo
   }
-
-  @Shared(.activeState) var activeState
 }
 
 extension Keyboard {

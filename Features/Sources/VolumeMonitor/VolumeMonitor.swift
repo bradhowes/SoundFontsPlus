@@ -20,7 +20,8 @@ public struct VolumeMonitor {
 
   @ObservableState
   public struct State: Equatable {
-    public var reason: Reason?
+    var reason: Reason?
+
     public init(reason: Reason? = nil) {
       self.reason = reason
     }
@@ -68,11 +69,11 @@ public struct VolumeMonitor {
     }
   }
 
+  @Shared(.activeState) private var activeState
+
   private enum CancelId {
     case monitorSessionVolume
   }
-
-  @Shared(.activeState) var activeState
 }
 
 private extension VolumeMonitor {

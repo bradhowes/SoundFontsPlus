@@ -29,6 +29,11 @@ public struct Tuning {
       self.setFrequency(frequency)
     }
 
+    public func updateConfig(_ audioConfig: inout AudioConfig.Draft) {
+      audioConfig.customTuning = frequency
+      audioConfig.customTuningEnabled = enabled
+    }
+
     mutating func setFrequency(_ frequency: Double) {
       self.frequency = frequency
       let cents = frequencyToCents(frequency)

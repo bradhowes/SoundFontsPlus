@@ -34,6 +34,10 @@ public struct SoundFontsList {
 
   public init() {}
 
+  @Dependency(\.defaultDatabase) private var database
+  @Shared(.activeState) private var activeState
+  @Shared(.selectedSoundFontId) private var selectedSoundFontId
+
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
@@ -67,10 +71,6 @@ public struct SoundFontsList {
     case monitorActiveTagId
     case monitorFetchAll
   }
-
-  @Dependency(\.defaultDatabase) var database
-  @Shared(.activeState) var activeState
-  @Shared(.selectedSoundFontId) var selectedSoundFontId
 }
 
 extension SoundFontsList {

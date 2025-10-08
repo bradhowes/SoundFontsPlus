@@ -10,10 +10,10 @@ import Tagged
 
 @Reducer
 public struct PresetsList {
-  public static let groupingSize = 20
-  public static let noGroupingSize = 10_000
-  public static let delayBeforeShowingActivePreset: Duration = .milliseconds(100)
-  public static let playNoteDuration: Duration = .milliseconds(250)
+  public static var groupingSize: Int { 20 }
+  public static var noGroupingSize: Int { 10_000 }
+  public static var delayBeforeShowingActivePreset: Duration { .milliseconds(100) }
+  public static var playNoteDuration: Duration { .milliseconds(250) }
 
   @Reducer(state: .equatable, action: .equatable)
   public enum Destination {
@@ -39,26 +39,35 @@ public struct PresetsList {
 
   @ObservableState
   public struct State: Equatable {
-    @Presents public var destination: Destination.State?
-    public var sections: IdentifiedArrayOf<PresetsListSection.State>
-    public var searchText: String
-    public var isSearchFieldPresented: Bool
-    public var focusedField: Field?
-    public var optionalSearchText: String? { isSearchFieldPresented ? searchText : nil }
-    public var scrollToPresetId: ScrollToTarget?
-    public var soundFontId: SoundFont.ID?
+    @Presents var destination: Destination.State?
+    var sections: IdentifiedArrayOf<PresetsListSection.State>
+    var searchText: String
+    var isSearchFieldPresented: Bool
+    var focusedField: Field?
+    var optionalSearchText: String? { isSearchFieldPresented ? searchText : nil }
+    var scrollToPresetId: ScrollToTarget?
+    var soundFontId: SoundFont.ID?
 
-    public enum Field: String, Hashable {
+    enum Field: String, Hashable {
       case searchText
     }
 
-    public var visibilityEditMode: EditMode
+    var visibilityEditMode: EditMode
 
     public init(searchText: String? = nil, visibilityEditMode: Bool = false) {
       self.isSearchFieldPresented = searchText != nil
       self.searchText = searchText ?? ""
       self.visibilityEditMode = visibilityEditMode ? .active : .inactive
       self.sections = []
+    }
+
+    public func sectionIndex(for id: Int) -> Int? { sections.index(id: id) }
+
+    public mutating func updateSection(_ id: Int, presetId: Preset.ID, displayName: String) {
+      guard let sectionIndex = sections.index(id: id) else {
+        fatalError("unexpected section indexing failure")
+      }
+      sections[sectionIndex].update(presetId: presetId, displayName: displayName)
     }
   }
 
@@ -184,10 +193,10 @@ public struct PresetsList {
     .ifLet(\.destination, action: \.destination)
   }
 
-  @Dependency(\.defaultDatabase) var database
-  @Shared(.activeState) var activeState
-  @Shared(.selectedSoundFontId) var selectedSoundFontId
-  @Shared(.confirmPresetHiding) var confirmPresetHiding
+  @Dependency(\.defaultDatabase) private var database
+  @Shared(.activeState) private var activeState
+  @Shared(.selectedSoundFontId) private var selectedSoundFontId
+  @Shared(.confirmPresetHiding) private var confirmPresetHiding
 
   private enum CancelId {
     case monitorSelectedSoundFontId

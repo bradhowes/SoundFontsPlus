@@ -7,6 +7,7 @@ import DependenciesMacros
 
 /**
  Collection of AVAudioSession dependencies to allow for mocking and controlling in tests.
+ Currently only the `Synth` feature interacts with an `AudioSession` instance.
  */
 @DependencyClient
 public struct AudioSession: Sendable {
@@ -46,15 +47,52 @@ public struct AudioSession: Sendable {
 }
 
 extension AudioSession: DependencyKey {
+
   public static var liveValue: AudioSession {
     let session: @Sendable () -> AVAudioSession = { AVAudioSession.sharedInstance() }
     return .init(
-      setCategory: { try session().setCategory($0, mode: $1, options: $2) },
-      sampleRate: { session().sampleRate },
-      setPreferredSampleRate: { try session().setPreferredSampleRate($0) },
-      setPreferredIOBufferDuration: { try session().setPreferredIOBufferDuration($0) },
-      currentRoute: { session().currentRoute },
-      setActive: { try session().setActive($0, options: $1) }
+      setCategory: {
+        try session().setCategory($0, mode: $1, options: $2)
+      },
+      sampleRate: {
+        session().sampleRate
+      },
+      setPreferredSampleRate: {
+        try session().setPreferredSampleRate($0)
+      },
+      setPreferredIOBufferDuration: {
+        try session().setPreferredIOBufferDuration($0)
+      },
+      currentRoute: {
+        session().currentRoute
+      },
+      setActive: {
+        try session().setActive($0, options: $1)
+      }
+    )
+  }
+
+  public static var testingValue: AudioSession {
+    let session: @Sendable () -> AVAudioSession = { AVAudioSession.sharedInstance() }
+    return .init(
+      setCategory: {
+        try session().setCategory($0, mode: $1, options: $2)
+      },
+      sampleRate: {
+        session().sampleRate
+      },
+      setPreferredSampleRate: {
+        try session().setPreferredSampleRate($0)
+      },
+      setPreferredIOBufferDuration: {
+        try session().setPreferredIOBufferDuration($0)
+      },
+      currentRoute: {
+        session().currentRoute
+      },
+      setActive: {
+        try session().setActive($0, options: $1)
+      }
     )
   }
 }
