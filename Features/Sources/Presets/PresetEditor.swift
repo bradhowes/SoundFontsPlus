@@ -27,8 +27,9 @@ public struct PresetEditor {
   public struct State: Equatable {
     public let sectionId: Int
     public let preset: Preset
-    public fileprivate(set) var displayName: String
-    public fileprivate(set) var visible: Bool
+
+    public var displayName: String
+    public var visible: Bool
 
     @Presents var destination: Destination.State?
 
