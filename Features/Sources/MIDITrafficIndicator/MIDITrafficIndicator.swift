@@ -43,25 +43,25 @@ public struct MIDITrafficIndicator {
   }
 }
 
-private extension MIDITrafficIndicator {
-  func initialize(_ state: inout State) -> Effect<Action> {
+extension MIDITrafficIndicator {
+
+  private func initialize(_ state: inout State) -> Effect<Action> {
     monitorMIDITraffic(&state)
   }
 
-  func monitorMIDITraffic(_ state: inout State) -> Effect<Action> {
+  private func monitorMIDITraffic(_ state: inout State) -> Effect<Action> {
     @Shared(.midiMonitor) var midiMonitor
     guard let midiMonitor else { return .none }
     return .publisher {
-      midiMonitor.$traffic.compactMap {
-        if let event = $0 {
+      midiMonitor.$traffic
+        .compactMap {
+          guard let event = $0 else { return nil }
           return .showMIDITraffic(event)
         }
-        return nil
-      }
     }.cancellable(id: CancelId.monitorMIDITraffic)
   }
 
-  func showMIDITraffic(_ state: inout State, value: MIDITraffic) -> Effect<Action> {
+  private func showMIDITraffic(_ state: inout State, value: MIDITraffic) -> Effect<Action> {
     state.midiTrafficPublisher.send(value)
     return .none
   }

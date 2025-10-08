@@ -49,13 +49,6 @@
     },
     {
       "target" : {
-        "containerPath" : "container:SoundFontsPlus.xcodeproj",
-        "identifier" : "BD1D27922B6F13DE005C3ED0",
-        "name" : "SoundFontsPlusTests"
-      }
-    },
-    {
-      "target" : {
         "containerPath" : "container:Features",
         "identifier" : "TutorialTests",
         "name" : "TutorialTests"

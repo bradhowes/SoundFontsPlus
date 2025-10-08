@@ -7,22 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BD0053E52E6B67B70053B13B /* Numerics in Frameworks */ = {isa = PBXBuildFile; productRef = BD0053E42E6B67B70053B13B /* Numerics */; };
 		BD050EE12E23C2EB00706CC4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BD050EE02E23C2EB00706CC4 /* LaunchScreen.storyboard */; };
-		BD1774E92E657FA00029D195 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD1774E82E657FA00029D195 /* SnapshotTesting */; };
 		BD1D27832B6F13DD005C3ED0 /* SoundFontsPlusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1D27822B6F13DD005C3ED0 /* SoundFontsPlusApp.swift */; };
 		BD1D27892B6F13DE005C3ED0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D27882B6F13DE005C3ED0 /* Assets.xcassets */; };
 		BD1D278D2B6F13DE005C3ED0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */; };
 		BD275B262E93EF2A004F0C7A /* Tuning in Frameworks */ = {isa = PBXBuildFile; productRef = BD275B252E93EF2A004F0C7A /* Tuning */; };
 		BD275B282E93F1CE004F0C7A /* FileImporter in Frameworks */ = {isa = PBXBuildFile; productRef = BD275B272E93F1CE004F0C7A /* FileImporter */; };
 		BD2A26042CC849E0000CC1DF /* Eurostile.ttc in Resources */ = {isa = PBXBuildFile; fileRef = BD2A26032CC849E0000CC1DF /* Eurostile.ttc */; };
-		BD31A7F32E5658CE0046F07C /* StructuredQueriesTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BD31A7F22E5658CE0046F07C /* StructuredQueriesTestSupport */; };
 		BD4C249D2E77618800F8B3A9 /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249C2E77618800F8B3A9 /* Engine */; };
 		BD4C249F2E77618800F8B3A9 /* SF2File in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249E2E77618800F8B3A9 /* SF2File */; };
 		BD4C24A12E77618800F8B3A9 /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C24A02E77618800F8B3A9 /* SF2Lib */; };
-		BD66C5712E6AAD1F00A0CD31 /* InlineSnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C5702E6AAD1F00A0CD31 /* InlineSnapshotTesting */; };
-		BD66C5732E6AAD1F00A0CD31 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C5722E6AAD1F00A0CD31 /* SnapshotTesting */; };
-		BD66C5752E6AAD1F00A0CD31 /* SnapshotTestingCustomDump in Frameworks */ = {isa = PBXBuildFile; productRef = BD66C5742E6AAD1F00A0CD31 /* SnapshotTestingCustomDump */; };
 		BD7217242E93BE270017DB8C /* AppReview in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217232E93BE270017DB8C /* AppReview */; };
 		BD7217262E93BE270017DB8C /* BaseSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217252E93BE270017DB8C /* BaseSupport */; };
 		BD72172A2E93BE270017DB8C /* DelayEffect in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217292E93BE270017DB8C /* DelayEffect */; };
@@ -36,7 +30,6 @@
 		BD9E461E2E7A079E00D0806E /* Changes.md in Resources */ = {isa = PBXBuildFile; fileRef = BD9E461D2E7A079B00D0806E /* Changes.md */; };
 		BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BB92DE259DF00B8FB13 /* Engine */; };
 		BDAF5BBC2DE259DF00B8FB13 /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BBB2DE259DF00B8FB13 /* SF2Lib */; };
-		BDAF5BC42DE269C300B8FB13 /* DependenciesTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BC32DE269C300B8FB13 /* DependenciesTestSupport */; };
 		BDB8CC192E9508580035EBEA /* Changes in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC182E9508580035EBEA /* Changes */; };
 		BDB8CC1B2E9508580035EBEA /* MIDIAssignments in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC1A2E9508580035EBEA /* MIDIAssignments */; };
 		BDB8CC1D2E9508580035EBEA /* MIDIConnections in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC1C2E9508580035EBEA /* MIDIConnections */; };
@@ -50,23 +43,6 @@
 		BDB8CC2D2E9508580035EBEA /* Tags in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC2C2E9508580035EBEA /* Tags */; };
 		BDB8CC2F2E9508580035EBEA /* ToolBar in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC2E2E9508580035EBEA /* ToolBar */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		BD1D27942B6F13DE005C3ED0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = BD1D27772B6F13DD005C3ED0 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = BD1D277E2B6F13DD005C3ED0;
-			remoteInfo = SoundFontsPlus;
-		};
-		BD1D279E2B6F13DE005C3ED0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = BD1D27772B6F13DD005C3ED0 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = BD1D277E2B6F13DD005C3ED0;
-			remoteInfo = SoundFontsPlus;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		BD0BD8CF2E11E23000772FE5 /* Embed Foundation Extensions */ = {
@@ -90,8 +66,6 @@
 		BD1D278A2B6F13DE005C3ED0 /* SoundFontsPlus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SoundFontsPlus.entitlements; sourceTree = "<group>"; };
 		BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		BD1D278E2B6F13DE005C3ED0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		BD1D27932B6F13DE005C3ED0 /* SoundFontsPlusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoundFontsPlusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		BD1D279D2B6F13DE005C3ED0 /* SoundFontsPlusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoundFontsPlusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD2A26032CC849E0000CC1DF /* Eurostile.ttc */ = {isa = PBXFileReference; lastKnownFileType = file; path = Eurostile.ttc; sourceTree = "<group>"; };
 		BD7DBC892DF36955005A31DE /* Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Development.xcconfig; sourceTree = "<group>"; };
 		BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
@@ -137,27 +111,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BD1D27902B6F13DE005C3ED0 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				BD66C5752E6AAD1F00A0CD31 /* SnapshotTestingCustomDump in Frameworks */,
-				BD66C5732E6AAD1F00A0CD31 /* SnapshotTesting in Frameworks */,
-				BD1774E92E657FA00029D195 /* SnapshotTesting in Frameworks */,
-				BD31A7F32E5658CE0046F07C /* StructuredQueriesTestSupport in Frameworks */,
-				BD66C5712E6AAD1F00A0CD31 /* InlineSnapshotTesting in Frameworks */,
-				BDAF5BC42DE269C300B8FB13 /* DependenciesTestSupport in Frameworks */,
-				BD0053E52E6B67B70053B13B /* Numerics in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BD1D279A2B6F13DE005C3ED0 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -170,7 +123,6 @@
 				BD7DBC892DF36955005A31DE /* Development.xcconfig */,
 				BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */,
 				BD1D27812B6F13DD005C3ED0 /* SoundFontsPlus */,
-				BD1D27962B6F13DE005C3ED0 /* SoundFontsPlusTests */,
 				BD1D27802B6F13DD005C3ED0 /* Products */,
 				BD6E7D9F2B6FC319004201F2 /* Frameworks */,
 			);
@@ -180,8 +132,6 @@
 			isa = PBXGroup;
 			children = (
 				BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */,
-				BD1D27932B6F13DE005C3ED0 /* SoundFontsPlusTests.xctest */,
-				BD1D279D2B6F13DE005C3ED0 /* SoundFontsPlusUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -207,13 +157,6 @@
 				BD1D278C2B6F13DE005C3ED0 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		BD1D27962B6F13DE005C3ED0 /* SoundFontsPlusTests */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = SoundFontsPlusTests;
 			sourceTree = "<group>";
 		};
 		BD6E7D9F2B6FC319004201F2 /* Frameworks */ = {
@@ -275,42 +218,6 @@
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */;
 			productType = "com.apple.product-type.application";
 		};
-		BD1D27922B6F13DE005C3ED0 /* SoundFontsPlusTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = BD1D27AA2B6F13DE005C3ED0 /* Build configuration list for PBXNativeTarget "SoundFontsPlusTests" */;
-			buildPhases = (
-				BD1D278F2B6F13DE005C3ED0 /* Sources */,
-				BD1D27902B6F13DE005C3ED0 /* Frameworks */,
-				BD1D27912B6F13DE005C3ED0 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				BD1D27952B6F13DE005C3ED0 /* PBXTargetDependency */,
-			);
-			name = SoundFontsPlusTests;
-			productName = SoundFontsPlusTests;
-			productReference = BD1D27932B6F13DE005C3ED0 /* SoundFontsPlusTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		BD1D279C2B6F13DE005C3ED0 /* SoundFontsPlusUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = BD1D27AD2B6F13DE005C3ED0 /* Build configuration list for PBXNativeTarget "SoundFontsPlusUITests" */;
-			buildPhases = (
-				BD1D27992B6F13DE005C3ED0 /* Sources */,
-				BD1D279A2B6F13DE005C3ED0 /* Frameworks */,
-				BD1D279B2B6F13DE005C3ED0 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				BD1D279F2B6F13DE005C3ED0 /* PBXTargetDependency */,
-			);
-			name = SoundFontsPlusUITests;
-			productName = SoundFontsPlusUITests;
-			productReference = BD1D279D2B6F13DE005C3ED0 /* SoundFontsPlusUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -323,14 +230,6 @@
 				TargetAttributes = {
 					BD1D277E2B6F13DD005C3ED0 = {
 						CreatedOnToolsVersion = 15.2;
-					};
-					BD1D27922B6F13DE005C3ED0 = {
-						CreatedOnToolsVersion = 15.2;
-						TestTargetID = BD1D277E2B6F13DD005C3ED0;
-					};
-					BD1D279C2B6F13DE005C3ED0 = {
-						CreatedOnToolsVersion = 15.2;
-						TestTargetID = BD1D277E2B6F13DD005C3ED0;
 					};
 				};
 			};
@@ -350,8 +249,6 @@
 			projectRoot = "";
 			targets = (
 				BD1D277E2B6F13DD005C3ED0 /* SoundFontsPlus */,
-				BD1D27922B6F13DE005C3ED0 /* SoundFontsPlusTests */,
-				BD1D279C2B6F13DE005C3ED0 /* SoundFontsPlusUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -369,20 +266,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BD1D27912B6F13DE005C3ED0 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BD1D279B2B6F13DE005C3ED0 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -394,34 +277,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BD1D278F2B6F13DE005C3ED0 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BD1D27992B6F13DE005C3ED0 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		BD1D27952B6F13DE005C3ED0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = BD1D277E2B6F13DD005C3ED0 /* SoundFontsPlus */;
-			targetProxy = BD1D27942B6F13DE005C3ED0 /* PBXContainerItemProxy */;
-		};
-		BD1D279F2B6F13DE005C3ED0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = BD1D277E2B6F13DD005C3ED0 /* SoundFontsPlus */;
-			targetProxy = BD1D279E2B6F13DE005C3ED0 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		BD1D27A52B6F13DE005C3ED0 /* Debug */ = {
@@ -668,96 +524,6 @@
 			};
 			name = Release;
 		};
-		BD1D27AB2B6F13DE005C3ED0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = BD7DBC892DF36955005A31DE /* Development.xcconfig */;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.braysoftware.SoundFontsPlusTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SoundFontsPlus.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SoundFontsPlus";
-			};
-			name = Debug;
-		};
-		BD1D27AC2B6F13DE005C3ED0 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.braysoftware.SoundFontsPlusTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SoundFontsPlus.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SoundFontsPlus";
-			};
-			name = Release;
-		};
-		BD1D27AE2B6F13DE005C3ED0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = BD7DBC892DF36955005A31DE /* Development.xcconfig */;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.braysoftware.SoundFontsPlusUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = SoundFontsPlus;
-			};
-			name = Debug;
-		};
-		BD1D27AF2B6F13DE005C3ED0 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.braysoftware.SoundFontsPlusUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = SoundFontsPlus;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -779,80 +545,9 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		BD1D27AA2B6F13DE005C3ED0 /* Build configuration list for PBXNativeTarget "SoundFontsPlusTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				BD1D27AB2B6F13DE005C3ED0 /* Debug */,
-				BD1D27AC2B6F13DE005C3ED0 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		BD1D27AD2B6F13DE005C3ED0 /* Build configuration list for PBXNativeTarget "SoundFontsPlusUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				BD1D27AE2B6F13DE005C3ED0 /* Debug */,
-				BD1D27AF2B6F13DE005C3ED0 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		BD0053E32E6B67B70053B13B /* XCRemoteSwiftPackageReference "swift-numerics" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apple/swift-numerics";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.1.0;
-			};
-		};
-		BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swift-structured-queries";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.12.1;
-			};
-		};
-		BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.18.4;
-			};
-		};
-		BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bradhowes/swift-snapshot-testing";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
-		BDAF5BC22DE269C300B8FB13 /* XCRemoteSwiftPackageReference "swift-dependencies" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swift-dependencies";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.9.2;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
-		BD0053E42E6B67B70053B13B /* Numerics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD0053E32E6B67B70053B13B /* XCRemoteSwiftPackageReference "swift-numerics" */;
-			productName = Numerics;
-		};
-		BD1774E82E657FA00029D195 /* SnapshotTesting */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD3311412DE2700500A73BA8 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
-			productName = SnapshotTesting;
-		};
 		BD275B252E93EF2A004F0C7A /* Tuning */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Tuning;
@@ -860,11 +555,6 @@
 		BD275B272E93F1CE004F0C7A /* FileImporter */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FileImporter;
-		};
-		BD31A7F22E5658CE0046F07C /* StructuredQueriesTestSupport */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD31A7F12E5658CE0046F07C /* XCRemoteSwiftPackageReference "swift-structured-queries" */;
-			productName = StructuredQueriesTestSupport;
 		};
 		BD4C249C2E77618800F8B3A9 /* Engine */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -877,21 +567,6 @@
 		BD4C24A02E77618800F8B3A9 /* SF2Lib */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SF2Lib;
-		};
-		BD66C5702E6AAD1F00A0CD31 /* InlineSnapshotTesting */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
-			productName = InlineSnapshotTesting;
-		};
-		BD66C5722E6AAD1F00A0CD31 /* SnapshotTesting */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
-			productName = SnapshotTesting;
-		};
-		BD66C5742E6AAD1F00A0CD31 /* SnapshotTestingCustomDump */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BD66C56F2E6AAD1F00A0CD31 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
-			productName = SnapshotTestingCustomDump;
 		};
 		BD7217232E93BE270017DB8C /* AppReview */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -940,11 +615,6 @@
 		BDAF5BBB2DE259DF00B8FB13 /* SF2Lib */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SF2Lib;
-		};
-		BDAF5BC32DE269C300B8FB13 /* DependenciesTestSupport */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BDAF5BC22DE269C300B8FB13 /* XCRemoteSwiftPackageReference "swift-dependencies" */;
-			productName = DependenciesTestSupport;
 		};
 		BDB8CC182E9508580035EBEA /* Changes */ = {
 			isa = XCSwiftPackageProductDependency;

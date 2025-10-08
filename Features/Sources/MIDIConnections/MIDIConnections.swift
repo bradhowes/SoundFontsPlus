@@ -179,13 +179,10 @@ extension MIDIConnections {
 
   private func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
     guard let midi else { return .none }
-    return .run { send in
-      for await _ in midi.publisher(for: \.activeConnections)
-        .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
-        .map({ $0.count })
-        .values {
-        await send(.midiConnectionsChanged)
-      }
+    return .publisher {
+      midi.publisher(for: \.activeConnections)
+        .removeDuplicates()
+        .map { _ in .midiConnectionsChanged }
     }.cancellable(id: CancelId.monitorMIDIConnections)
   }
 

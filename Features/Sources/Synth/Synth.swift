@@ -267,13 +267,13 @@ private extension Synth {
     }
 
     guard
-      let node = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.lastLoadFinished.rawValue)
+      let parameter = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.lastLoadFinished.rawValue)
     else {
       fatalError("did not find lastLoadFinished parameter")
     }
 
     return .publisher {
-      node.publisher(for: \.value)
+      parameter.publisher(for: \.value)
         .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
         .filter { $0 > 0.0 }
         .map { _ in
