@@ -7,7 +7,7 @@
 		<key>AppReview.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>8</integer>
 		</dict>
 		<key>AppReviewTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -17,7 +17,7 @@
 		<key>BaseSupport.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>5</integer>
+			<integer>2</integer>
 		</dict>
 		<key>BaseSupportTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -37,12 +37,12 @@
 		<key>BuildFluidFontCmd.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>26</integer>
+			<integer>11</integer>
 		</dict>
 		<key>Changes.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>7</integer>
+			<integer>10</integer>
 		</dict>
 		<key>ChangesFeature.xcscheme_^#shared#^_</key>
 		<dict>
@@ -52,7 +52,7 @@
 		<key>DelayEffect.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>22</integer>
+			<integer>3</integer>
 		</dict>
 		<key>DelayEffectTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -62,7 +62,7 @@
 		<key>FeatureSupport.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>11</integer>
+			<integer>23</integer>
 		</dict>
 		<key>FeatureSupportTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -77,12 +77,12 @@
 		<key>FileImporter.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>20</integer>
+			<integer>18</integer>
 		</dict>
 		<key>Keyboard.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>14</integer>
+			<integer>4</integer>
 		</dict>
 		<key>KeyboardTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -92,7 +92,7 @@
 		<key>MIDIAssignments.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>23</integer>
+			<integer>16</integer>
 		</dict>
 		<key>MIDIAssignmentsTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -102,7 +102,7 @@
 		<key>MIDIConnections.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>10</integer>
+			<integer>7</integer>
 		</dict>
 		<key>MIDIConnectionsTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -112,7 +112,7 @@
 		<key>MIDIControllers.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>9</integer>
+			<integer>20</integer>
 		</dict>
 		<key>MIDIControllersTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -122,7 +122,7 @@
 		<key>MIDITrafficIndicator.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>15</integer>
+			<integer>6</integer>
 		</dict>
 		<key>MIDITrafficIndicatorTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -132,7 +132,7 @@
 		<key>Models.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>3</integer>
+			<integer>14</integer>
 		</dict>
 		<key>ModelsTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -142,7 +142,7 @@
 		<key>Presets.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>17</integer>
+			<integer>22</integer>
 		</dict>
 		<key>PresetsTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -152,7 +152,7 @@
 		<key>ReverbEffect.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>19</integer>
+			<integer>9</integer>
 		</dict>
 		<key>ReverbEffectTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -162,7 +162,7 @@
 		<key>Root.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>6</integer>
+			<integer>12</integer>
 		</dict>
 		<key>RootTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -172,7 +172,7 @@
 		<key>SF2Resources.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>21</integer>
+			<integer>24</integer>
 		</dict>
 		<key>SF2ResourcesTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -182,7 +182,7 @@
 		<key>Settings.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>18</integer>
+			<integer>19</integer>
 		</dict>
 		<key>SettingsTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -207,7 +207,7 @@
 		<key>Synth.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>8</integer>
+			<integer>21</integer>
 		</dict>
 		<key>SynthTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -217,7 +217,7 @@
 		<key>Tags.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>12</integer>
+			<integer>26</integer>
 		</dict>
 		<key>TagsTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -237,7 +237,7 @@
 		<key>ToolBar.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>4</integer>
+			<integer>13</integer>
 		</dict>
 		<key>ToolBarTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -247,7 +247,7 @@
 		<key>Tuning.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>13</integer>
+			<integer>17</integer>
 		</dict>
 		<key>TuningTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -257,7 +257,7 @@
 		<key>Tutorial.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>24</integer>
+			<integer>15</integer>
 		</dict>
 		<key>TutorialTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -267,7 +267,7 @@
 		<key>VolumeMonitor.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>16</integer>
+			<integer>5</integer>
 		</dict>
 		<key>VolumeMonitorTests.xcscheme_^#shared#^_</key>
 		<dict>

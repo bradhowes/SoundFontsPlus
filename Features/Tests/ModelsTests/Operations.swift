@@ -114,11 +114,11 @@ struct OperationsTests {
     let presets = Operations.presets(for: nil)
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.activePresetId = presets[presets.count - 1].id }
-    var apli = Operations.activePresetLoadingInfo
+    var apli = Operations.presetLoadingInfo()
     #expect(apli?.soundFontId == presets[presets.count - 1].soundFontId)
     #expect(apli?.presetIndex == presets[presets.count - 1].index)
     $activeState.withLock { $0.activePresetId = presets[0].id }
-    apli = Operations.activePresetLoadingInfo
+    apli = Operations.presetLoadingInfo()
     #expect(apli?.soundFontId == presets[0].soundFontId)
     #expect(apli?.presetIndex == presets[0].index)
   }
@@ -128,7 +128,7 @@ struct OperationsTests {
     @Dependency(\.defaultDatabase) var database
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.activePresetId = presets[presets.count - 1].id }
-    let apac = Operations.activePresetAudioConfig
+    let apac = Operations.presetAudioConfig()
     #expect(apac == nil)
   }
 }

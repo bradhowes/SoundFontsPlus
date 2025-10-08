@@ -20,15 +20,15 @@ struct SoundFontInfoTests {
   @Test func query() async throws {
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.activeTagId = 99 }
-    var found = withDatabaseReader { try SoundFontInfo.query.fetchAll($0) } ?? []
+    var found = withDatabaseReader { try SoundFontInfo.query().fetchAll($0) } ?? []
     #expect(found.count == 0)
 
     $activeState.withLock { $0.activeTagId = nil }
-    found = withDatabaseReader { try SoundFontInfo.query.fetchAll($0) } ?? []
+    found = withDatabaseReader { try SoundFontInfo.query().fetchAll($0) } ?? []
     #expect(found.count == 4)
 
     $activeState.withLock { $0.activeTagId = FontTag.Ubiquitous.all.id }
-    found = withDatabaseReader { try SoundFontInfo.query.fetchAll($0) } ?? []
+    found = withDatabaseReader { try SoundFontInfo.query().fetchAll($0) } ?? []
     #expect(found.count == 4)
     #expect(found[0].id == 1)
     #expect(found[1].id == 2)

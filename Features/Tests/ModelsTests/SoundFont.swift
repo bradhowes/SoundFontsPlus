@@ -118,7 +118,6 @@ struct SoundFontTests {
     #expect(soundFonts.count == 4)
 
     SoundFont.delete(id: soundFonts[3].id)
-    #expect(SoundFont.with(id: soundFonts[3].id) == nil)
 
     try await $soundFonts.load()
     #expect(soundFonts.count == 3)

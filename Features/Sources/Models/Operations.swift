@@ -12,7 +12,7 @@ public enum Operations {
     return selectedSoundFontId ?? activeState.activeSoundFontId
   }
 
-  public static func presetsQuery(for soundFontId: SoundFont.ID?) -> Where<Preset> {
+  public static func presetsQuery(for soundFontId: SoundFont.ID? = nil) -> Where<Preset> {
     @Shared(.showOnlyFavorites) var showOnlyFavorites
     let query = Preset
       .all
@@ -26,7 +26,7 @@ public enum Operations {
     }
   }
 
-  public static func presets(for soundFontId: SoundFont.ID?) -> [Preset] {
+  public static func presets(for soundFontId: SoundFont.ID? = nil) -> [Preset] {
     @Shared(.favoritesOnTop) var favoritesOnTop
     @Shared(.sortPresetsByName) var sortPresetsByName
     let query: Select<(), Preset, ()>
@@ -51,14 +51,15 @@ public enum Operations {
     return withDatabaseReader { try query.fetchAll($0) } ?? []
   }
 
-  public static var activePresetLoadingInfo: PresetLoadingInfo? {
+  public static func presetLoadingInfo(id: Preset.ID? = nil) -> PresetLoadingInfo? {
     withDatabaseReader {
-      try PresetLoadingInfo.query.fetchAll($0)
+      try PresetLoadingInfo.query(for: id).fetchAll($0)
     }?.first
   }
 
-  public static var activePresetAudioConfig: AudioConfig? {
-    AudioConfig.with(presetId: Preset.active)
+  public static func presetAudioConfig(id: Preset.ID? = nil) -> AudioConfig? {
+    @Shared(.activeState) var activeState
+    return AudioConfig.with(presetId: id ?? activeState.activePresetId)
   }
 
   public static func allPresets(for soundFontId: SoundFont.ID?) -> [Preset] {

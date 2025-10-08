@@ -461,6 +461,9 @@ let package = Package(
     .testTarget(
       name: "SynthTests",
       dependencies: [
+        "BaseSupport",
+        "DelayEffect",
+        "ReverbEffect",
         "Synth",
         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")

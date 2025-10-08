@@ -210,7 +210,6 @@ extension SoundFont {
       .order(by: \.index)
       .where { $0.soundFontId.eq(self.id) }
       .where { $0.kind.neq(Preset.Kind.hidden) }
-
     return withDatabaseReader { db in
       try query.fetchAll(db)
     } ?? []

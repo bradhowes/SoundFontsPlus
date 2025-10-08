@@ -218,10 +218,10 @@ extension Preset {
     return candidate
   }
 
-  public static var active: Preset.ID? {
-    @Shared(.activeState) var activeState
-    return activeState.activePresetId
-  }
+//  public static var active: Preset.ID? {
+//    @Shared(.activeState) var activeState
+//    return activeState.activePresetId
+//  }
 
   public static func with(id: Preset.ID) -> Preset? {
     withDatabaseReader { db in

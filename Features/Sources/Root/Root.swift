@@ -61,7 +61,7 @@ public struct Root {
     public var volumeMonitor: VolumeMonitor.State = .init()
 
     public init() {
-      _soundFontInfos = FetchAll(SoundFontInfo.query, animation: .default)
+      _soundFontInfos = FetchAll(SoundFontInfo.query(), animation: .default)
 
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsPosition
       @Shared(.tagsListVisible) var tagsListVisible

@@ -113,8 +113,8 @@ extension SoundFontsList {
       // Update a query for the SoundFont list view. When the DB changes, this will emit a `soundFontInfoChanged` action
       // causing the rows to change. The query depends on the value of `activeState.activeTagId` so when that changes,
       // `monitorFetchAll` reruns which cancels the old query and installs a new one.
-      @FetchAll(SoundFontInfo.query) var soundFontInfos
-      try await $soundFontInfos.load(SoundFontInfo.query)
+      @FetchAll(SoundFontInfo.query()) var soundFontInfos
+      try await $soundFontInfos.load(SoundFontInfo.query())
       for try await update in $soundFontInfos.publisher.values {
         await send(.soundFontInfosChanged(update))
       }

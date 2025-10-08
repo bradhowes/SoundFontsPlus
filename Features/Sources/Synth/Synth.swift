@@ -41,7 +41,7 @@ public struct Synth {
   }
 
   public enum Action {
-    case activePresetIdChanged
+    case activePresetIdChanged(Preset.ID?)
     case audioSessionRouteChanged
     case deinitialize
     case initialize
@@ -57,10 +57,12 @@ public struct Synth {
   public var body: some ReducerOf<Self> {
 
     Reduce { state, action in
+      print("synth action: ", action)
       switch action {
 
-      case .activePresetIdChanged:
-        return useActivePreset(&state)
+      case .activePresetIdChanged(let presetId):
+        guard state.sessionActive else { return .none }
+        return useActivePreset(&state, presetId: presetId)
 
       case .audioSessionRouteChanged:
         return audioSessionRouteChanged(&state)
@@ -93,6 +95,7 @@ public struct Synth {
   @Dependency(\.audioSession) var session
   @Shared(.activeState) var activeState
   @Shared(.backgroundProcessing) var backgroundProcessing
+  @Shared(.synthAudioUnit) var synthAudioUnit
 
   private enum CancelId: CaseIterable {
     case createSynth
@@ -145,7 +148,6 @@ private extension Synth {
 
   func createAudioChain(_ state: inout State) -> Bool {
     log.info("createAudioChain BEGIN")
-    @Shared(.synthAudioUnit) var synthAudioUnit
     @Shared(.delayEffect) var delayEffect
     @Shared(.reverbEffect) var reverbEffect
 
@@ -186,9 +188,10 @@ private extension Synth {
       AUAudioUnit.registerSubclass(SF2LibAU.self, as: acd, name: "SF2LibAU", version: 1)
 
       log.info("createSynth - instantiating audio unit")
-      let au = try await AVAudioUnit.instantiate(with: acd, options: [])
+      let sau = try await AVAudioUnit.instantiate(with: acd, options: [])
+
       @Shared(.synthAudioUnit) var synthAudioUnit
-      $synthAudioUnit.withLock { $0 = au }
+      $synthAudioUnit.withLock { $0 = sau }
 
       log.info("createSynth - created")
       await send(.synthCreated)
@@ -197,7 +200,6 @@ private extension Synth {
 
   func destroyAudioChain(_ state: inout State) {
     log.info("destroyAudioChain BEGIN")
-    @Shared(.synthAudioUnit) var synthAudioUnit
     @Shared(.delayEffect) var delayEffect
     @Shared(.reverbEffect) var reverbEffect
 
@@ -219,6 +221,7 @@ private extension Synth {
     if let synth = synthAudioUnit {
       log.info("destroyAudioChain - detaching synth")
       state.engine.detach(synth)
+      $synthAudioUnit.withLock { $0 = nil }
     }
 
     log.info("destroyAudioChain END")
@@ -239,15 +242,14 @@ private extension Synth {
   func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
     log.info("lastPresetLoadFinished - \(state.firstTimePresetLoaded)")
 
-    @Shared(.synthAudioUnit) var synthAudioUnit
-    guard let synth = synthAudioUnit?.synth else {
+    guard let synthAudioUnit = synthAudioUnit?.synth else {
       return .none
     }
 
     let firstTimePresetLoaded = state.firstTimePresetLoaded
     state.firstTimePresetLoaded = false
 
-    return firstTimePresetLoaded ? .none : playNote(state, synth: synth)
+    return firstTimePresetLoaded ? .none : playNote(state, synth: synthAudioUnit)
   }
 
   func monitorActivePresetId(_ state: inout State) -> Effect<Action> {
@@ -255,12 +257,11 @@ private extension Synth {
       $activeState.activePresetId
         .publisher
         .removeDuplicates()
-        .map { _ in .activePresetIdChanged }
+        .map { value in .activePresetIdChanged(value) }
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
   func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
-    @Shared(.synthAudioUnit) var synthAudioUnit
     guard let parameterTree = synthAudioUnit?.auAudioUnit.parameterTree else {
       fatalError("unexpected nil parameterTree chain")
     }
@@ -276,8 +277,7 @@ private extension Synth {
         .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
         .filter { $0 > 0.0 }
         .map { _ in
-          print("lastLoadFinished - firing")
-          return .lastPresetLoadFinished
+          .lastPresetLoadFinished
         }
     }.cancellable(id: CancelId.monitorLastLoadFinished)
   }
@@ -385,6 +385,7 @@ private extension Synth {
 
   func synthCreated(_ state: inout State) -> Effect<Action> {
     log.info("synthCreated BEGIN")
+
     // There is a race between making the AVAudioSession active and having an synth audio unit. If the synth is
     // available first, then
     if state.sessionActive {
@@ -396,22 +397,20 @@ private extension Synth {
     }
 
     log.info("synthCreated END")
-    return .merge(
+    return .concatenate(
       monitorLastLoadFinished(&state),
-      useActivePreset(&state)
+      useActivePreset(&state, presetId: activeState.activePresetId)
     )
   }
 
-  func useActivePreset(_ state: inout State) -> Effect<Action> {
+  func useActivePreset(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     log.info("useActivePreset BEGIN")
-
-    @Shared(.synthAudioUnit) var synthAudioUnit
     guard let synth = synthAudioUnit?.synth else {
       log.info("nil audioUnit -- ignoring")
       return .none
     }
 
-    guard let presetInfo = Operations.activePresetLoadingInfo else {
+    guard let presetInfo = Operations.presetLoadingInfo(id: presetId) else {
       log.info("no presetInfo -- ignoring")
       return .none
     }

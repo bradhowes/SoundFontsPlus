@@ -19,11 +19,11 @@ public struct PresetLoadingInfo: Equatable, Sendable {
   public let gain: Double
   public let pan: Double
 
-  static var query: Select<PresetLoadingInfo.Columns.QueryValue, Preset, (SoundFont, AudioConfig?)> {
+  static func query(for id: Preset.ID? = nil) -> Select<Self.Columns.QueryValue, Preset, (SoundFont, AudioConfig?)> {
     @Shared(.activeState) var activeState
     return Preset
       .where {
-        $0.id.eq(activeState.activePresetId ?? -1)
+        $0.id.eq(id ?? activeState.activePresetId ?? -1)
       }
       .join(SoundFont.all) {
         $0.soundFontId.eq($1.id)
