@@ -121,12 +121,12 @@ extension SF2LibAU {
 
   @discardableResult
   public func sendAllNotesOff() -> Bool {
-    sendMIDI(bytes: Array(SF2Engine.createAllNotesOffPayload()))
+    sendMIDI(bytes: createAllNotesOffPayload())
   }
 
   @discardableResult
   public func sendAllSoundOff() -> Bool {
-    sendMIDI(bytes: Array(SF2Engine.createAllSoundOffPayload()))
+    sendMIDI(bytes: createAllSoundOffPayload())
   }
 
   @discardableResult
@@ -140,7 +140,7 @@ extension SF2LibAU {
   }
 
   public func createLoadFileUsePresetPayload(path: String, preset: Int) -> [UInt8] {
-    .init(SF2Engine.createLoadFileUsePresetPayload(std.string(path), preset, []))
+    .init(SF2Engine.createLoadFileUsePresetPayload(std.string(path), preset))
   }
 
   public func createResetCommandPayload() -> [UInt8] {
@@ -155,6 +155,14 @@ extension SF2LibAU {
     .init(SF2Engine.createChannelMessagePayload(message, value))
   }
 
+  public func createAllNotesOffPayload() -> [UInt8] {
+    .init(SF2Engine.createAllNotesOffPayload())
+  }
+
+  public func createAllSoundOffPayload() -> [UInt8] {
+    .init(SF2Engine.createAllSoundOffPayload())
+  }
+
   public var activePresetName: String { String(engine.activePresetName()).trimmedOfWhitespaces }
   public var activeVoiceCount: Int { engine.activeVoiceCount() }
 
@@ -165,9 +173,9 @@ extension SF2LibAU {
   public var portamentoModeEnabled: Bool { engine.portamentoModeEnabled() }
 
   public func sendMIDI(bytes: [UInt8], when: AUEventSampleTime = 0, cable: UInt8 = 0) -> Bool {
-    guard let block = scheduleMIDIEventBlock else { return false }
+    guard let block = unsafe scheduleMIDIEventBlock else { return false }
     log.info("sendMIDI \(bytes.count) bytes")
-    block(when, cable, bytes.count, bytes)
+    unsafe block(when, cable, bytes.count, bytes)
     return true
   }
 }
@@ -252,9 +260,9 @@ extension SF2LibAU {
     let bus: NSInteger = 0
     // Make private 'copy' of the engine for capturing by the block. This mirrors what we would do with Objective-C.
     // Copies all share the same underlying implementation object.
-    var engine = self.engine
+    let engine = self.engine
     return { _, timestamp, frameCount, _, output, realtimeEventListHead, pullInputBlock in
-      return engine.processAndRender(
+      return unsafe engine.processAndRender(
         timestamp,
         frameCount,
         bus,

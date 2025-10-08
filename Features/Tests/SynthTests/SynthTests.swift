@@ -27,6 +27,8 @@ struct SynthTests {
 
   @Test
   func initialize() async throws {
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
+
     @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
     let store = TestStore(initialState: Synth.State()) { Synth() }
@@ -49,6 +51,8 @@ struct SynthTests {
 
   @Test
   func activePresetIdChanged() async throws {
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
+
     @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
     let store = TestStore(initialState: Synth.State()) { Synth() }
@@ -82,6 +86,8 @@ struct SynthTests {
 
   @Test
   func audioSessionRouteChanged() async throws {
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
+
     @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
     let store = TestStore(initialState: Synth.State()) { Synth() }
