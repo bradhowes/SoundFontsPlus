@@ -65,7 +65,6 @@ public struct Synth {
       switch action {
 
       case .activePresetIdChanged(let presetId):
-        guard state.sessionActive else { return .none }
         return useActivePreset(&state, presetId: presetId)
 
       case .audioSessionRouteChanged:
@@ -403,8 +402,11 @@ extension Synth {
 
   private func useActivePreset(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     log.info("useActivePreset BEGIN")
-    guard let synth = synthAudioUnit?.synth else {
-      log.info("nil audioUnit -- ignoring")
+    guard
+      let synth = synthAudioUnit?.synth,
+      state.sessionActive else
+    {
+      log.info("nil audioUnit or no audio session -- ignoring")
       return .none
     }
 

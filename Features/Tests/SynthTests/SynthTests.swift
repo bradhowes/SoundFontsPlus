@@ -80,12 +80,7 @@ struct SynthTests {
     await store.finish(timeout: .seconds(1))
   }
 
-  @Test(
-    .dependencies {
-      $0.defaultDatabase = try appDatabase()
-      $0.audioSession = AudioSession()
-    }
-  )
+  @Test
   func audioSessionRouteChanged() async throws {
     @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()

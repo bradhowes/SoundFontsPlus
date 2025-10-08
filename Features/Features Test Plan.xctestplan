@@ -167,6 +167,7 @@
       }
     },
     {
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:Features",
         "identifier" : "SynthTests",
