@@ -22,12 +22,19 @@ public struct AudioSession: Sendable {
   public let setActive: @Sendable (Bool, _ options: AVAudioSession.SetActiveOptions) throws -> Void
 
   public init(
-    setCategory: @escaping @Sendable (AVAudioSession.Category, AVAudioSession.Mode, AVAudioSession.CategoryOptions) throws -> Void = { _, _, _ in unimplemented() },
+    setCategory: @escaping @Sendable (
+      AVAudioSession.Category,
+      AVAudioSession.Mode,
+      AVAudioSession.CategoryOptions
+    ) throws -> Void = { _, _, _ in unimplemented() },
     sampleRate: @escaping @Sendable () -> Double = { unimplemented(); return 0.0 },
     setPreferredSampleRate: @escaping @Sendable (Double) throws -> Void = { _ in unimplemented() },
     setPreferredIOBufferDuration: @escaping @Sendable (Double) throws -> Void = { _ in unimplemented() },
     currentRoute: @escaping @Sendable () -> AVAudioSessionRouteDescription = { unimplemented(); return .init() },
-    setActive: @escaping @Sendable (Bool, _ options: AVAudioSession.SetActiveOptions) throws -> Void = { _, _ in unimplemented() }
+    setActive: @escaping @Sendable (
+      Bool,
+      _ options: AVAudioSession.SetActiveOptions
+    ) throws -> Void = { _, _ in unimplemented() }
   ) {
     self.setCategory = setCategory
     self.sampleRate = sampleRate

@@ -15,21 +15,9 @@ private let log = Logger(category: "Synth")
 
 @Reducer
 public struct Synth {
-  let audioFormat: AVAudioFormat! = AVAudioFormat(
-    commonFormat: .pcmFormatFloat32,
-    sampleRate: 48_000.0,
-    channels: 2,
-    interleaved: false
-  )
 
   @ObservableState
   public struct State: Equatable {
-
-    public static func == (lhs: Synth.State, rhs: Synth.State) -> Bool {
-      lhs.loadedSoundFontId == rhs.loadedSoundFontId && lhs.loadedPresetIndex == rhs.loadedPresetIndex
-    }
-
-    public let engine = AVAudioEngine()
     public var loadedSoundFontId: SoundFont.ID?
     public var loadedPresetIndex: Int?
     public var firstTimePresetLoaded: Bool = true
@@ -91,11 +79,21 @@ public struct Synth {
     }
   }
 
-  @Dependency(\.defaultDatabase) var database
-  @Dependency(\.audioSession) var session
-  @Shared(.activeState) var activeState
-  @Shared(.backgroundProcessing) var backgroundProcessing
-  @Shared(.synthAudioUnit) var synthAudioUnit
+  // TODO: make into a dependency for testing
+  private let engine = AVAudioEngine()
+
+  private let audioFormat: AVAudioFormat! = AVAudioFormat(
+    commonFormat: .pcmFormatFloat32,
+    sampleRate: 48_000.0,
+    channels: 2,
+    interleaved: false
+  )
+
+  @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.audioSession) private var session
+  @Shared(.activeState) private var activeState
+  @Shared(.backgroundProcessing) private var backgroundProcessing
+  @Shared(.synthAudioUnit) private var synthAudioUnit
 
   private enum CancelId: CaseIterable {
     case createSynth
@@ -107,13 +105,13 @@ public struct Synth {
   }
 }
 
-private extension Synth {
+extension Synth {
 
-  func audioSessionRouteChanged(_ state: inout State) -> Effect<Action> {
+  private func audioSessionRouteChanged(_ state: inout State) -> Effect<Action> {
     return restartAudioSession(&state)
   }
 
-  func configureAudioSession() {
+  private func configureAudioSession() {
     let bufferSize: Int = 64
 
     do {
@@ -143,10 +141,10 @@ private extension Synth {
       log.error("routeChanged - failed to set the preferred buffer size to \(bufferSize) - \(err)")
     }
 
-    dump(route: session.currentRoute())
+    session.currentRoute().dump()
   }
 
-  func createAudioChain(_ state: inout State) -> Bool {
+  private func createAudioChain(_ state: inout State) -> Bool {
     log.info("createAudioChain BEGIN")
     @Shared(.delayEffect) var delayEffect
     @Shared(.reverbEffect) var reverbEffect
@@ -156,25 +154,25 @@ private extension Synth {
       return false
     }
 
-    if state.engine.isRunning {
-      state.engine.stop()
+    if engine.isRunning {
+      engine.stop()
     }
 
     log.info("createAudioChain - attaching to engine")
-    state.engine.attach(synthAudioUnit)
-    state.engine.attach(delayEffect)
-    state.engine.attach(reverbEffect)
+    engine.attach(synthAudioUnit)
+    engine.attach(delayEffect)
+    engine.attach(reverbEffect)
 
     log.info("createAudioChain - connecting audio units")
-    state.engine.connect(reverbEffect, to: state.engine.outputNode, format: audioFormat)
-    state.engine.connect(delayEffect, to: reverbEffect, format: audioFormat)
-    state.engine.connect(synthAudioUnit, to: delayEffect, format: audioFormat)
+    engine.connect(reverbEffect, to: engine.outputNode, format: audioFormat)
+    engine.connect(delayEffect, to: reverbEffect, format: audioFormat)
+    engine.connect(synthAudioUnit, to: delayEffect, format: audioFormat)
 
     log.info("createAudioChain END")
     return true
   }
 
-  func createSynth(_ state: inout State) -> Effect<Action> {
+  private func createSynth(_ state: inout State) -> Effect<Action> {
     log.info("createSynth")
     return .run { send in
       let acd: AudioComponentDescription = .init(
@@ -198,7 +196,7 @@ private extension Synth {
     }.cancellable(id: CancelId.createSynth, cancelInFlight: true)
   }
 
-  func destroyAudioChain(_ state: inout State) {
+  private func destroyAudioChain(_ state: inout State) {
     log.info("destroyAudioChain BEGIN")
     @Shared(.delayEffect) var delayEffect
     @Shared(.reverbEffect) var reverbEffect
@@ -206,28 +204,28 @@ private extension Synth {
     log.info("destroyAudioChain - resetting synth")
     synthAudioUnit?.reset()
     log.info("destroyAudioChain - stopping engine")
-    state.engine.stop()
+    engine.stop()
 
     if let delay = delayEffect {
       log.info("destroyAudioChain - detaching delay")
-      state.engine.detach(delay)
+      engine.detach(delay)
     }
 
     if let reverb = reverbEffect {
       log.info("destroyAudioChain - detaching reverb")
-      state.engine.detach(reverb)
+      engine.detach(reverb)
     }
 
     if let synth = synthAudioUnit {
       log.info("destroyAudioChain - detaching synth")
-      state.engine.detach(synth)
+      engine.detach(synth)
       $synthAudioUnit.withLock { $0 = nil }
     }
 
     log.info("destroyAudioChain END")
   }
 
-  func initialize(_ state: inout State) -> Effect<Action> {
+  private func initialize(_ state: inout State) -> Effect<Action> {
     log.info("initialize")
     return .concatenate(
       createSynth(&state),
@@ -239,7 +237,7 @@ private extension Synth {
     )
   }
 
-  func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
+  private func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
     log.info("lastPresetLoadFinished - \(state.firstTimePresetLoaded)")
 
     guard let synthAudioUnit = synthAudioUnit?.synth else {
@@ -252,7 +250,7 @@ private extension Synth {
     return firstTimePresetLoaded ? .none : playNote(state, synth: synthAudioUnit)
   }
 
-  func monitorActivePresetId(_ state: inout State) -> Effect<Action> {
+  private func monitorActivePresetId(_ state: inout State) -> Effect<Action> {
     .publisher {
       $activeState.activePresetId
         .publisher
@@ -261,7 +259,7 @@ private extension Synth {
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
-  func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
+  private func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
     guard let parameterTree = synthAudioUnit?.auAudioUnit.parameterTree else {
       fatalError("unexpected nil parameterTree chain")
     }
@@ -282,7 +280,7 @@ private extension Synth {
     }.cancellable(id: CancelId.monitorLastLoadFinished)
   }
 
-  func monitorMediaServices(_ state: inout State) -> Effect<Action> {
+  private func monitorMediaServices(_ state: inout State) -> Effect<Action> {
     .publisher {
       NotificationCenter.default
         .publisher(for: AVAudioSession.mediaServicesWereResetNotification)
@@ -290,7 +288,7 @@ private extension Synth {
     }.cancellable(id: CancelId.monitorMediaServices, cancelInFlight: true)
   }
 
-  func monitorRouteChanged(_ state: inout State) -> Effect<Action> {
+  private func monitorRouteChanged(_ state: inout State) -> Effect<Action> {
     .publisher {
       NotificationCenter.default
         .publisher(for: AVAudioSession.routeChangeNotification)
@@ -298,7 +296,7 @@ private extension Synth {
     }.cancellable(id: CancelId.monitorRouteChanged, cancelInFlight: true)
   }
 
-  func playNote(_ state: State, synth: SF2LibAU) -> Effect<Action> {
+  private func playNote(_ state: State, synth: SF2LibAU) -> Effect<Action> {
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
     guard playSoundOnPresetChange else { return .none }
     return .run { _ in
@@ -309,7 +307,7 @@ private extension Synth {
     }.cancellable(id: CancelId.playNote, cancelInFlight: true)
   }
 
-  func restartAudioSession(_ state: inout State) -> Effect<Action> {
+  private func restartAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("restartAudioSession - BEGIN")
     stopAudioSession(&state)
     startAudioSession(&state)
@@ -317,21 +315,21 @@ private extension Synth {
     return .none
   }
 
-  func sceneBecameActive(_ state: inout State) -> Effect<Action> {
+  private func sceneBecameActive(_ state: inout State) -> Effect<Action> {
     if !state.sessionActive {
       startAudioSession(&state)
     }
     return .none
   }
 
-  func sceneBecameInactive(_ state: inout State) -> Effect<Action> {
+  private func sceneBecameInactive(_ state: inout State) -> Effect<Action> {
     if !backgroundProcessing {
       stopAudioSession(&state)
     }
     return .none
   }
 
-  func startAudioSession(_ state: inout State) {
+  private func startAudioSession(_ state: inout State) {
     log.info("startAudioSession BEGIN")
 
     configureAudioSession()
@@ -350,22 +348,22 @@ private extension Synth {
     }
   }
 
-  func startEngine(_ state: inout State) {
-    guard !state.engine.isRunning else {
+  private func startEngine(_ state: inout State) {
+    guard !engine.isRunning else {
       log.info("startEngine - already running")
       return
     }
 
     do {
       log.info("startEngine - starting")
-      try state.engine.start()
+      try engine.start()
       log.info("startEngine - done")
     } catch {
       log.error("startAudioSession - failed to start - \(error.localizedDescription)")
     }
   }
 
-  func stopAudioSession(_ state: inout State) {
+  private func stopAudioSession(_ state: inout State) {
     log.info("stopAudioSession BEGIN")
 
     destroyAudioChain(&state)
@@ -383,7 +381,7 @@ private extension Synth {
     log.info("stopAudioSession END")
   }
 
-  func synthCreated(_ state: inout State) -> Effect<Action> {
+  private func synthCreated(_ state: inout State) -> Effect<Action> {
     log.info("synthCreated BEGIN")
 
     // There is a race between making the AVAudioSession active and having an synth audio unit. If the synth is
@@ -403,7 +401,7 @@ private extension Synth {
     )
   }
 
-  func useActivePreset(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+  private func useActivePreset(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     log.info("useActivePreset BEGIN")
     guard let synth = synthAudioUnit?.synth else {
       log.info("nil audioUnit -- ignoring")
@@ -448,11 +446,13 @@ private extension Synth {
   }
 }
 
-private func dump(route: AVAudioSessionRouteDescription) {
-  for input in route.inputs {
-    log.debug("AVAudioSession input - \(input.portName)")
-  }
-  for output in route.outputs {
-    log.debug("AVAudioSession output - \(output.portName)")
+extension AVAudioSessionRouteDescription {
+  fileprivate func dump() {
+    for input in self.inputs {
+      log.debug("AVAudioSession input - \(input.portName)")
+    }
+    for output in self.outputs {
+      log.debug("AVAudioSession output - \(output.portName)")
+    }
   }
 }

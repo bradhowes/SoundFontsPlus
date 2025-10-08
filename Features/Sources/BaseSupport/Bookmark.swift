@@ -3,9 +3,13 @@
 import Dependencies
 import Foundation
 
-/// A bookmark represents a file located outside of the app's own storage space. It is used to reference sound font files
-/// without making a copy of them. However there are risks involved, namely that the bookmark may not resolve to a real
-/// file.
+/**
+ A bookmark represents a file located outside of the app's own storage space. It is used to reference sound font files
+ without making a copy of them. However there are risks involved, namely that the bookmark may not resolve to a real
+ file.
+
+ TODO: reevaluate approach. Not convinced this is the best way to handle bookmarks.
+ */
 public final class Bookmark: Codable {
   public enum CodingKeys: CodingKey {
     case name
@@ -24,7 +28,7 @@ public final class Bookmark: Codable {
   private var lastRestoredWhen: CFTimeInterval
 
   /**
-   Construct a new bookmark
+   Construct a new bookmark.
 
    - parameter url: the file to bookmark
    - parameter name: the name to associate with the bookmark

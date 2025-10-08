@@ -16,14 +16,8 @@ extension SharedKey where Self == AppStorageKey<Note>.Default {
   public static var firstVisibleKey: Self { Self[.appStorage("firstVisibleKey"), default: .C4] }
 }
 
-extension AVAudioUnit: @unchecked @retroactive Sendable {}
-
 extension SharedKey where Self == InMemoryKey<AVAudioUnit?>.Default {
   public static var synthAudioUnit: Self { Self[.inMemory("synthAudioUnit"), default: nil] }
-}
-
-extension AVAudioUnit {
-  public var midiInstrument: AVAudioUnitMIDIInstrument? { self as? AVAudioUnitMIDIInstrument }
 }
 
 extension SharedKey where Self == InMemoryKey<AVAudioUnitDelay?>.Default {

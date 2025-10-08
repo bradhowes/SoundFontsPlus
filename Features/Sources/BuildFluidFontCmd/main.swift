@@ -1,7 +1,11 @@
-/// Custom script to create the `FluidR3_GM.sf2` soundfont file from the given N slices
-///
-/// First argument is the path to this script. Last argument is the output file to generate.
-/// The remaining arguments are the pieces to concatenate to make the output file.
+// Copyright © 2025 Brad Howes. All rights reserved.
+
+/**
+ Custom script to create the `FluidR3_GM.sf2` soundfont file from the given N slices
+
+ First argument is the path to this script. Last argument is the output file to generate.
+ The remaining arguments are the pieces to concatenate to make the output file.
+ */
 
 import Foundation
 
