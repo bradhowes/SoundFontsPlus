@@ -6,7 +6,7 @@ import PackageDescription
 
 let alwaysShowTutorial = false
 let alwaysShowChanges = false
-let useLocalSF2Lib = true
+let useLocalSF2Lib = false
 
 let globalSwiftSettings: [SwiftSetting] = [
   .enableExperimentalFeature("StrictConcurrency"),
@@ -20,7 +20,7 @@ let sf2Lib: Package.Dependency = useLocalSF2Lib ? .package(
   path: "/Users/howes/src/Mine/SF2Lib"
 ) : .package(
   url: "https://github.com/bradhowes/SF2Lib",
-  from: "8.3.2"
+  from: "8.3.3"
 )
 
 let package = Package(
