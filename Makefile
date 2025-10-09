@@ -28,14 +28,20 @@ percentage-macOS: coverage-macOS
 	cat percentage_macOS.txt
 
 coverage-iOS: test-iOS
-	$(XCCOV) $(PWD)/.DerivedData-iOS/Logs/Test/*.xcresult > coverage_iOS.txt
+	rm -rf coverage_iOS
+	mkdir coverage_iOS
+	cp -r $(PWD)/.DerivedData-iOS/Logs/Test/*.xcresult coverage_iOS/
+	$(XCCOV) $(PWD)/coverage_iOS/*.xcresult > coverage_iOS/coverage_iOS.txt
 	echo "iOS Coverage:"
-	cat coverage_iOS.txt
+	cat coverage_iOS/coverage_iOS.txt
 
 coverage-macOS: test-macOS
-	$(XCCOV) $(PWD)/.DerivedData-macOS/Logs/Test/*.xcresult > coverage_macOS.txt
+	rm -rf coverage_macOS
+	mkdir coverage_macOS
+	cp -r $(PWD)/.DerivedData-macOS/Logs/Test/*.xcresult coverage_macOS/
+	$(XCCOV) $(PWD)/.DerivedData-macOS/Logs/Test/*.xcresult > coverage_macOS/coverage_macOS.txt
 	echo "macOS Coverage:"
-	cat coverage_macOS.txt
+	cat coverage_macOS/coverage_macOS.txt
 
 test-iOS:
 	echo "$(XCB)"
