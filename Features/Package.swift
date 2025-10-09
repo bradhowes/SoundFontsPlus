@@ -76,7 +76,7 @@ let package = Package(
     .executableTarget(name: "BuildFluidFontCmd"),
     .plugin(name: "BuildFluidFont", capability: .buildTool, dependencies: ["BuildFluidFontCmd"]),
 
-    // MARK: Feature Targets
+    // MARK: Feature Targets - features have "FeatureSupport" as a dependency
 
     .feature("AppReview"),
     .feature("Changes"),
@@ -176,7 +176,7 @@ let package = Package(
     ),
     .target(name: "Synth", dependencies: ["Models"]), // Special-case -- not a `.feature`
 
-    // MARK: - Feature Test Targets
+    // MARK: - Feature Test Targets - name is the feature name from above, and the test name will be that + "Tests"
 
     .testFeature("AppReview"),
     .testFeature("Changes"),
@@ -253,20 +253,18 @@ extension PackageDescription.Target {
 func setSwiftSettings() {
   for target in package.targets {
     switch target.type {
+      // normal targets
     case .regular:
       var settings = globalSwiftSettings + (target.swiftSettings ?? [])
-      if alwaysShowChanges {
-        settings.append(.define("ALWAYS_SHOW_CHANGES"))
-      }
-      if alwaysShowTutorial {
-        settings.append(.define("ALWAYS_SHOW_TUTORIAL"))
-      }
+      if alwaysShowChanges { settings.append(.define("ALWAYS_SHOW_CHANGES")) }
+      if alwaysShowTutorial { settings.append(.define("ALWAYS_SHOW_TUTORIAL")) }
       target.swiftSettings = settings
       target.dependencies += [
         .product(name: "Algorithms", package: "swift-algorithms"),
         .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
       ]
 
+      // test targets
     case .test:
       target.swiftSettings = globalSwiftSettings + (target.swiftSettings ?? [])
       target.dependencies += [
