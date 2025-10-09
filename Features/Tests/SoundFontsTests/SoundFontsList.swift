@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import CustomSnapshot
 import Dependencies
 import DependenciesTestSupport
 import Models
@@ -27,13 +28,7 @@ struct SoundFontsListTests {
 
   @Test func soundFontsListViewPreview() async throws {
     try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: SoundFontsListView.preview,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
+      try CustomSnapshot.assertSnapshot(matching: SoundFontsListView.preview)
     }
   }
 }

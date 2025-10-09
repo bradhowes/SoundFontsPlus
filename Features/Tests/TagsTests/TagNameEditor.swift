@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import CustomSnapshot
 import Dependencies
 import DependenciesTestSupport
 import Models
@@ -37,15 +38,9 @@ struct TagNameEditorTests {
     }
   }
 
-//  @Test func tagNameEditorPreview() async throws {
-//    withSnapshotTesting(record: .missing) {
-//      struct HostView: SwiftUI.View {
-//        var body: some SwiftUI.View {
-//          TagNameEditorView.preview
-//        }
-//      }
-//      let view = HostView()
-//      assertSnapshot(of: view, as: .image(layout: .device(config: .iPhoneSe), traits: .init(userInterfaceStyle: .dark)))
-//    }
-//  }
+  @Test func tagNameEditorPreview() async throws {
+    try withSnapshotTesting(record: .failed) {
+      try CustomSnapshot.assertSnapshot(matching: TagNameEditorView.preview)
+    }
+  }
 }

@@ -1,11 +1,11 @@
-import Testing
-
 import ComposableArchitecture
+import CustomSnapshot
 import Dependencies
 import DependenciesTestSupport
 import Models
 import SnapshotTesting
 import Tagged
+import Testing
 
 @testable import Presets
 
@@ -565,37 +565,19 @@ struct PresetsListTests {
     let view = PresetsListView(store: store)
 
     try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
+      try CustomSnapshot.assertSnapshot(matching: view)
     }
   }
 
   @Test func presetsListViewVisibilityEditing() async throws {
     try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: PresetsListView.previewEditing,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
+      try CustomSnapshot.assertSnapshot(matching: PresetsListView.previewEditing)
     }
   }
 
   @Test func presetsListViewPreview() async throws {
     try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: PresetsListView.preview,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
+      try CustomSnapshot.assertSnapshot(matching: PresetsListView.preview)
     }
   }
 }

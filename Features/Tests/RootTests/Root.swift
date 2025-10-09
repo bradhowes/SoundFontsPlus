@@ -1,11 +1,11 @@
-import Testing
-
 import ComposableArchitecture
+import CustomSnapshot
 import Dependencies
 import DependenciesTestSupport
 import Models
 import SnapshotTesting
 import SwiftUI
+import Testing
 
 @testable import Root
 
@@ -44,13 +44,7 @@ struct RootTests {
 
   @Test func rootViewPreview() async throws {
     try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: RootView.preview,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
+      try CustomSnapshot.assertSnapshot(matching: RootView.preview)
     }
   }
 }

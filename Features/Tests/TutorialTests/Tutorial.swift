@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import CustomSnapshot
 import FeatureSupport
 import Sharing
 import SnapshotTesting
@@ -108,201 +109,36 @@ struct TutorialTests {
     await store.send(.next)
   }
 
-  @Test func introPage() async throws {
-    let store = StoreOf<Tutorial>(initialState: .init(page: .intro)) {
-      Tutorial()
-    }
-
-    let view = TutorialView(store: store)
-
+  func snapshotPage(
+    _ page: Tutorial.Page,
+    fileID: StaticString = #fileID,
+    file: StaticString = #filePath,
+    testName: StaticString = #function,
+    line: Int = #line,
+    col: Int = #column
+  ) throws {
+    let store = StoreOf<Tutorial>(initialState: .init(page: page)) { Tutorial() }
     try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
+      try CustomSnapshot.assertSnapshot(
+        matching: TutorialView(store: store),
+        fileID: fileID,
+        file: file,
+        testName: testName,
+        line: line,
+        col: col
       )
     }
   }
 
-  @Test func fontsPage() async throws {
-    let store = StoreOf<Tutorial>(initialState: .init(page: .fonts)) {
-      Tutorial()
-    }
-
-    let view = TutorialView(store: store)
-
-    try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
-    }
-  }
-
-  @Test func presetsPage() async throws {
-    let store = StoreOf<Tutorial>(initialState: .init(page: .presets)) {
-      Tutorial()
-    }
-
-    let view = TutorialView(store: store)
-
-    try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
-    }
-  }
-
-  @Test func favoritesPage() async throws {
-    let store = StoreOf<Tutorial>(initialState: .init(page: .favorites)) {
-      Tutorial()
-    }
-
-    let view = TutorialView(store: store)
-
-    try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
-    }
-  }
-
-  @Test func tagsPage() async throws {
-    let store = StoreOf<Tutorial>(initialState: .init(page: .tags)) {
-      Tutorial()
-    }
-
-    let view = TutorialView(store: store)
-
-    try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
-    }
-  }
-
-  @Test func toolBar1Page() async throws {
-    let store = StoreOf<Tutorial>(initialState: .init(page: .toolBar1)) {
-      Tutorial()
-    }
-
-    let view = TutorialView(store: store)
-
-    try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
-    }
-  }
-
-  @Test func toolBar2Page() async throws {
-    let store = StoreOf<Tutorial>(initialState: .init(page: .toolBar2)) {
-      Tutorial()
-    }
-
-    let view = TutorialView(store: store)
-
-    try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
-    }
-  }
-
-  @Test func reverbPage() async throws {
-    let store = StoreOf<Tutorial>(initialState: .init(page: .reverb)) {
-      Tutorial()
-    }
-
-    let view = TutorialView(store: store)
-
-    try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
-    }
-  }
-
-  @Test func delayPage() async throws {
-    let store = StoreOf<Tutorial>(initialState: .init(page: .delay)) {
-      Tutorial()
-    }
-
-    let view = TutorialView(store: store)
-
-    try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
-    }
-  }
-
-  @Test func settingsPage() async throws {
-    let store = StoreOf<Tutorial>(initialState: .init(page: .settings)) {
-      Tutorial()
-    }
-
-    let view = TutorialView(store: store)
-
-    try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
-    }
-  }
-
-  @Test func lastPage() async throws {
-    let store = StoreOf<Tutorial>(initialState: .init(page: .last)) {
-      Tutorial()
-    }
-
-    let view = TutorialView(store: store)
-
-    try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
-    }
-  }
+  @Test func introPage() throws { try snapshotPage(.intro) }
+  @Test func fontsPage() throws { try snapshotPage(.fonts) }
+  @Test func presetsPage() throws { try snapshotPage(.presets) }
+  @Test func favoritesPage() throws { try snapshotPage(.favorites) }
+  @Test func tagsPage() throws { try snapshotPage(.tags) }
+  @Test func toolBar1Page() throws { try snapshotPage(.toolBar1) }
+  @Test func toolBar2Page() throws { try snapshotPage(.toolBar2) }
+  @Test func reverbPage() throws { try snapshotPage(.reverb) }
+  @Test func delayPage() throws { try snapshotPage(.delay) }
+  @Test func settingsPage() throws { try snapshotPage(.settings) }
+  @Test func lastPage() throws { try snapshotPage(.last) }
 }

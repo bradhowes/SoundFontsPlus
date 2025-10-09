@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import CustomSnapshot
 import Dependencies
 import DependenciesTestSupport
 import Foundation
@@ -111,7 +112,6 @@ struct VolumeMonitorTests {
   }
 
   @Test
-  @MainActor
   func noVolumePreview() async throws {
     // swiftlint:disable:next redundant_discardable_let
     let _ = prepareDependencies {
@@ -128,18 +128,11 @@ struct VolumeMonitorTests {
     #expect(mockVolume.getValue() == 0.0)
 
     try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
+      try CustomSnapshot.assertSnapshot(matching: view)
     }
   }
 
   @Test
-  @MainActor
   func noPresetPreview() async throws {
     // swiftlint:disable:next redundant_discardable_let
     let _ = prepareDependencies {
@@ -157,13 +150,7 @@ struct VolumeMonitorTests {
     let view = VolumeMonitorDemoView(volumes: mockVolume, store: store)
 
     try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: view,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
+      try CustomSnapshot.assertSnapshot(matching: view)
     }
   }
 }

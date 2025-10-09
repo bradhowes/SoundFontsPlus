@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import CustomSnapshot
 import Models
 import Sharing
 import SnapshotTesting
@@ -147,13 +148,7 @@ struct PresetEditorTests {
 
   @Test func presetEditorPreview() async throws {
     try withSnapshotTesting(record: .failed) {
-      try assertSnapshot(
-        of: PresetEditorView.preview,
-        as: .wait(for: 1, on: .image(
-          drawHierarchyInKeyWindow: false,
-          layout: .fixed(width: 400, height: 800)
-        ))
-      )
+      try CustomSnapshot.assertSnapshot(matching: PresetEditorView.preview)
     }
   }
 }

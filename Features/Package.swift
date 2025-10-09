@@ -27,214 +27,70 @@ let package = Package(
   name: "Features",
   platforms: [.iOS(.v18), .macOS(.v15)],
   products: [
-    .library(name: "AppReview", targets: ["AppReview"]),
-    .library(name: "BaseSupport", targets: ["BaseSupport"]),
-    .library(name: "Changes", targets: ["Changes"]),
-    .library(name: "DelayEffect", targets: ["DelayEffect"]),
-    .library(name: "FeatureSupport", targets: ["FeatureSupport"]),
-    .library(name: "FileImporter", targets: ["FileImporter"]),
-    .library(name: "Keyboard", targets: ["Keyboard"]),
-    .library(name: "MIDIAssignments", targets: ["MIDIAssignments"]),
-    .library(name: "MIDIConnections", targets: ["MIDIConnections"]),
-    .library(name: "MIDIControllers", targets: ["MIDIControllers"]),
-    .library(name: "MIDITrafficIndicator", targets: ["MIDITrafficIndicator"]),
-    .library(name: "Models", targets: ["Models"]),
-    .library(name: "Presets", targets: ["Presets"]),
-    .library(name: "ReverbEffect", targets: ["ReverbEffect"]),
-    .library(name: "Root", targets: ["Root"]),
-    .library(name: "Settings", targets: ["Settings"]),
-    .library(name: "SF2Resources", targets: ["SF2Resources"]),
-    .library(name: "SoundFonts", targets: ["SoundFonts"]),
-    .library(name: "Synth", targets: ["Synth"]),
-    .library(name: "Tags", targets: ["Tags"]),
-    .library(name: "ToolBar", targets: ["ToolBar"]),
-    .library(name: "Tuning", targets: ["Tuning"]),
-    .library(name: "Tutorial", targets: ["Tutorial"]),
-    .library(name: "VolumeMonitor", targets: ["VolumeMonitor"]),
+    .lib("AppReview"),
+    .lib("BaseSupport"),
+    .lib("Changes"),
+    .lib("CustomSnapshot"),
+    .lib("DelayEffect"),
+    .lib("FeatureSupport"),
+    .lib("FileImporter"),
+    .lib("Keyboard"),
+    .lib("MIDIAssignments"),
+    .lib("MIDIConnections"),
+    .lib("MIDIControllers"),
+    .lib("MIDITrafficIndicator"),
+    .lib("Models"),
+    .lib("Presets"),
+    .lib("ReverbEffect"),
+    .lib("Root"),
+    .lib("Settings"),
+    .lib("SF2Resources"),
+    .lib("SoundFonts"),
+    .lib("Synth"),
+    .lib("Tags"),
+    .lib("ToolBar"),
+    .lib("Tuning"),
+    .lib("Tutorial"),
+    .lib("VolumeMonitor"),
   ],
+
   dependencies: [
-    .package(
-      url: "https://github.com/bradhowes/AUv3Controls",
-      from: "0.23.1"
-    ),
-    .package(
-      url: "https://github.com/bradhowes/brh-splitview",
-      from: "1.0.5"
-    ),
-    .package(
-      url: "https://github.com/bradhowes/morkandmidi",
-      from: "4.0.1"
-    ),
+    .package(url: "https://github.com/bradhowes/AUv3Controls", from: "0.23.1"),
+    .package(url: "https://github.com/bradhowes/brh-splitview", from: "1.0.5"),
+    .package(url: "https://github.com/bradhowes/morkandmidi", from: "4.0.1"),
     sf2Lib,
-    .package(
-      url: "https://github.com/pointfreeco/sqlite-data",
-      from: "1.0.0"
-    ),
-    .package(
-      url: "https://github.com/apple/swift-algorithms",
-      from: "1.2.1"
-    ),
-    .package(
-      url: "https://github.com/pointfreeco/swift-case-paths",
-      from: "1.7.2"
-    ),
-    .package(
-      url: "https://github.com/pointfreeco/swift-composable-architecture",
-      from: "1.22.3"
-    ),
-    .package(
-      url: "https://github.com/pointfreeco/swift-dependencies",
-      from: "1.10.0"
-    ),
-    .package(
-      // NOTE: only used to gain access to `isApproximatelyEqual` in unit tests
-      url: "https://github.com/apple/swift-numerics",
-      from: "1.1.0"
-    ),
-    .package(
-      url: "https://github.com/pointfreeco/swift-sharing",
-      from: "2.7.4"
-    ),
-    .package(
-      url: "https://github.com/pointfreeco/swift-snapshot-testing",
-      from: "1.18.7"
-    ),
-    .package(
-      url: "https://github.com/pointfreeco/swift-tagged",
-      from: "0.10.0"
-    ),
-    .package(
-      url: "https://github.com/athankefalas/swift-toasts",
-      from: "0.9.2"
-    ),
+    .package(url: "https://github.com/pointfreeco/sqlite-data", from: "1.0.0"),
+    .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.1"),
+    .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.2"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.22.3"),
+    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.10.0"),
+    // NOTE: only used to gain access to `isApproximatelyEqual` in unit tests
+    .package(url: "https://github.com/apple/swift-numerics", from: "1.1.0"),
+    .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.7.4"),
+    .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.7"),
+    .package(url: "https://github.com/pointfreeco/swift-tagged", from: "0.10.0"),
+    .package(url: "https://github.com/athankefalas/swift-toasts", from: "0.9.2")
   ],
 
   targets: [
     .executableTarget(name: "BuildFluidFontCmd"),
     .plugin(name: "BuildFluidFont", capability: .buildTool, dependencies: ["BuildFluidFontCmd"]),
-    .target(
-      name: "SF2Resources",
-      dependencies: [
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Engine", package: "SF2Lib"),
-      ],
-      resources: [.process("Resources")],
-      plugins: ["BuildFluidFont"]
-    ),
-    .target(
-      name: "AppReview",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
-      ]
-    ),
-    .target(
-      name: "BaseSupport",
-      dependencies: [
-        "SF2Resources",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Engine", package: "SF2Lib"),
-        .product(name: "Numerics", package: "swift-numerics"),
-        .product(name: "SQLiteData", package: "sqlite-data"),
-      ]
-    ),
-    .target(
-      name: "Changes",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
-      ]
-    ),
-    .target(
-      name: "DelayEffect",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
-      ]
-    ),
-    .target(
-      name: "FeatureSupport",
-      dependencies: [
-        "BaseSupport",
-        "Models",
-        "Synth",
-        .product(name: "AUv3Controls", package: "AUv3Controls"),
-        .product(name: "CasePaths", package: "swift-case-paths"),
-        .product(name: "MorkAndMIDI", package: "morkandmidi"),
-        .product(name: "Sharing", package: "swift-sharing")
-      ]
-    ),
-    .target(
-      name: "FileImporter",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ]
-    ),
-    .target(
-      name: "Keyboard",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Algorithms", package: "swift-algorithms")
-      ]
-    ),
-    .target(
-      name: "MIDIAssignments",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ]
-    ),
-    .target(
-      name: "MIDIConnections",
-      dependencies: [
-        "FeatureSupport",
-        "MIDITrafficIndicator",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ]
-    ),
-    .target(
-      name: "MIDIControllers",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ]
-    ),
-    .target(
-      name: "MIDITrafficIndicator",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ]
-    ),
-    .target(
-      name: "Models",
-      dependencies: [
-        "SF2Resources",
-        "BaseSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "Tagged", package: "swift-tagged")
-      ]
-    ),
-    .target(
-      name: "Presets",
-      dependencies: [
-        "FeatureSupport",
-        "Tuning",
-        .product(name: "Algorithms", package: "swift-algorithms"),
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ]
-    ),
-    .target(
-      name: "ReverbEffect",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
-      ]
-    ),
-    .target(
-      name: "Root",
+
+    // MARK: Feature Targets
+
+    .feature("AppReview"),
+    .feature("Changes"),
+    .feature("DelayEffect"),
+    .feature("FileImporter"),
+    .feature("Keyboard"),
+    .feature("MIDIAssignments"),
+    .feature("MIDIConnections", dependencies: ["MIDITrafficIndicator"]),
+    .feature("MIDIControllers"),
+    .feature("MIDITrafficIndicator"),
+    .feature("Presets", dependencies: ["Tuning"]),
+    .feature("ReverbEffect"),
+    .feature(
+      "Root",
       dependencies: [
         "AppReview",
         "Changes",
@@ -250,214 +106,108 @@ let package = Package(
         "Tutorial",
         "VolumeMonitor",
         .product(name: "BRHSplitView", package: "brh-splitview"),
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
-    .target(
-      name: "Settings",
+    .feature(
+      "Settings",
       dependencies: [
         "Keyboard",
-        "FeatureSupport",
         "MIDIAssignments",
         "MIDIConnections",
         "MIDIControllers",
         "MIDITrafficIndicator",
         "Tuning",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
       ]
     ),
-    .target(
-      name: "SoundFonts",
+    .feature("SoundFonts", dependencies: ["Tags"]),
+    .feature("Tags"),
+    .feature(
+      "ToolBar",
       dependencies: [
-        "Tags",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ]
-    ),
-    .target(
-      name: "Synth",
-      dependencies: [
-        "Models",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ],
-    ),
-    .target(
-      name: "Tags",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ]
-    ),
-    .target(
-      name: "ToolBar",
-      dependencies: [
-        "FeatureSupport",
         "FileImporter",
-        "Keyboard", // only for preview
+        "Keyboard", // Only for preview
         "MIDITrafficIndicator",
-        "Settings",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+        "Settings"
       ],
     ),
+    .feature("Tuning"),
+    .feature("Tutorial", resources: [.process("Resources")]),
+    .feature("VolumeMonitor", dependencies: [.product(name: "SwiftToasts", package: "swift-toasts")]),
+
+    // MARK: Library Targets
+
     .target(
-      name: "Tuning",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ],
-    ),
-    .target(
-      name: "Tutorial",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-      ],
-      resources: [.process("Resources")]
-    ),
-    .target(
-      name: "VolumeMonitor",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-        .product(name: "SwiftToasts", package: "swift-toasts")
-      ]
-    ),
-    // MARK: - Test Targets
-    .testTarget(
-      name: "AppReviewTests",
-      dependencies: [
-        "AppReview",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "BaseSupportTests",
-      dependencies: [
-        "BaseSupport",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies")
-      ]
-    ),
-    .testTarget(
-      name: "ChangesTests",
-      dependencies: [
-        "Changes",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "DelayEffectTests",
-      dependencies: [
-        "DelayEffect",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "FeatureSupportTests",
-      dependencies: [
-        "FeatureSupport",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "KeyboardTests",
-      dependencies: [
-        "Keyboard",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "MIDIAssignmentsTests",
-      dependencies: [
-        "MIDIAssignments",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "MIDIConnectionsTests",
-      dependencies: [
-        "MIDIConnections",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "MIDIControllersTests",
-      dependencies: [
-        "MIDIControllers",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "MIDITrafficIndicatorTests",
-      dependencies: [
-        "MIDITrafficIndicator",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "ModelsTests",
-      dependencies: [
-        "Models",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "PresetsTests",
-      dependencies: [
-        "Presets",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "ReverbEffectTests",
-      dependencies: [
-        "ReverbEffect",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "Numerics", package: "swift-numerics"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "RootTests",
-      dependencies: [
-        "Root",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "SettingsTests",
-      dependencies: [
-        "Settings",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "SF2ResourcesTests",
+      name: "BaseSupport",
       dependencies: [
         "SF2Resources",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+        .product(name: "Engine", package: "SF2Lib"),
+        .product(name: "Numerics", package: "swift-numerics"),
+        .product(name: "SQLiteData", package: "sqlite-data"),
       ]
     ),
-    .testTarget(
-      name: "SoundFontsTests",
+    .target(name: "CustomSnapshot", dependencies: ["BaseSupport"]),
+    .target(
+      name: "FeatureSupport",
       dependencies: [
-        "SoundFonts",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+        "BaseSupport",
+        "Models",
+        "Synth",
+        .product(name: "AUv3Controls", package: "AUv3Controls"),
+        .product(name: "CasePaths", package: "swift-case-paths"),
+        .product(name: "MorkAndMIDI", package: "morkandmidi"),
+        .product(name: "Sharing", package: "swift-sharing")
       ]
     ),
+    .target(
+      name: "Models",
+      dependencies: [
+        "BaseSupport",
+        "SF2Resources",
+        .product(name: "Tagged", package: "swift-tagged")
+      ]
+    ),
+    .target(
+      name: "SF2Resources",
+      dependencies: [
+        .product(name: "Engine", package: "SF2Lib"),
+      ],
+      resources: [.process("Resources")],
+      plugins: ["BuildFluidFont"]
+    ),
+    .target(name: "Synth", dependencies: ["Models"]), // Special-case -- not a `.feature`
+
+    // MARK: - Feature Test Targets
+
+    .testFeature("AppReview"),
+    .testFeature("Changes"),
+    .testFeature("DelayEffect"),
+    .testFeature("Keyboard"),
+    .testFeature("MIDIAssignments"),
+    .testFeature("MIDIConnections"),
+    .testFeature("MIDIControllers"),
+    .testFeature("Models"),
+    .testFeature("Presets"),
+    .testFeature("Root"),
+    .testFeature("Settings"),
+    .testFeature("SoundFonts"),
+    .testFeature("Tags"),
+    .testFeature("ToolBar"),
+    .testFeature("Tuning"),
+    .testFeature("Tutorial"),
+    .testFeature("VolumeMonitor"),
+
+    // MARK: Library Test Targets
+
+    .testTarget(name: "BaseSupportTests", dependencies: ["BaseSupport"]),
+    .testTarget(name: "FeatureSupportTests", dependencies: ["FeatureSupport"]),
+    .testTarget(name: "MIDITrafficIndicatorTests", dependencies: ["MIDITrafficIndicator"]),
+    .testTarget(name: "ReverbEffectTests",
+                dependencies: [
+                  "ReverbEffect",
+                  .product(name: "Numerics", package: "swift-numerics"),
+                ]
+               ),
+    .testTarget(name: "SF2ResourcesTests", dependencies: ["BaseSupport"]),
     .testTarget(
       name: "SynthTests",
       dependencies: [
@@ -465,48 +215,6 @@ let package = Package(
         "DelayEffect",
         "ReverbEffect",
         "Synth",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "TagsTests",
-      dependencies: [
-        "Tags",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "ToolBarTests",
-      dependencies: [
-        "ToolBar",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "TuningTests",
-      dependencies: [
-        "Tuning",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "TutorialTests",
-      dependencies: [
-        "Tutorial",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
-      ]
-    ),
-    .testTarget(
-      name: "VolumeMonitorTests",
-      dependencies: [
-        "VolumeMonitor",
-        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
-        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ]
     ),
   ],
@@ -515,20 +223,60 @@ let package = Package(
 
 setSwiftSettings()
 
-// The SF2Lib Engine product requires this for everything it touches, so just do every target.
+extension PackageDescription.Product {
+
+  public static func lib(_ name: String) -> PackageDescription.Product {
+    .library(name: name, targets: [name])
+  }
+}
+
+extension PackageDescription.Target {
+
+  public static func feature(
+    _ name: String,
+    dependencies: [PackageDescription.Target.Dependency] = [],
+    resources: [PackageDescription.Resource] = []
+  ) -> PackageDescription.Target {
+    .target(name: name, dependencies: dependencies + ["FeatureSupport"])
+  }
+
+  public static func testFeature(
+    _ name: String,
+    dependencies: [PackageDescription.Target.Dependency] = [],
+    resources: [PackageDescription.Resource] = []
+  ) -> PackageDescription.Target {
+    .testTarget(name: name + "Tests", dependencies: dependencies + [.init(stringLiteral: name)])
+  }
+}
+
 @MainActor
 func setSwiftSettings() {
   for target in package.targets {
-    if target.type == .plugin {
+    switch target.type {
+    case .regular:
+      var settings = globalSwiftSettings + (target.swiftSettings ?? [])
+      if alwaysShowChanges {
+        settings.append(.define("ALWAYS_SHOW_CHANGES"))
+      }
+      if alwaysShowTutorial {
+        settings.append(.define("ALWAYS_SHOW_TUTORIAL"))
+      }
+      target.swiftSettings = settings
+      target.dependencies += [
+        .product(name: "Algorithms", package: "swift-algorithms"),
+        .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+      ]
+
+    case .test:
+      target.swiftSettings = globalSwiftSettings + (target.swiftSettings ?? [])
+      target.dependencies += [
+        "CustomSnapshot",
+        .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+
+    default:
       continue
     }
-    var settings = globalSwiftSettings + (target.swiftSettings ?? [])
-    if alwaysShowChanges {
-      settings.append(.define("ALWAYS_SHOW_CHANGES"))
-    }
-    if alwaysShowTutorial {
-      settings.append(.define("ALWAYS_SHOW_TUTORIAL"))
-    }
-    target.swiftSettings = settings
   }
 }
