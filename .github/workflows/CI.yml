@@ -9,6 +9,7 @@ on:
 env:
   SNAPSHOT_ARTIFACTS: ${{ github.workspace }}/snapshots
   TEST_RUNNER_SNAPSHOT_ARTIFACTS: ${{ github.workspace }}/snapshots
+  XCOV_ARTIFACTS: ${{ github.workspace }}/.DerivedData-iOS/Logs/Test/*.xcresult
 
 jobs:
   build:
@@ -26,7 +27,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: snapshots
-        path: ${{ env.SNAPSHOT_ARTIFACTS }}
+        path: |
+          ${{ env.SNAPSHOT_ARTIFACTS }}
+          ${{ env.XCOV_ARTIFACTS }}
     - name: Create Coverage Badge
       uses: schneegans/dynamic-badges-action@v1.7.0
       with:
