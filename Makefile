@@ -14,34 +14,34 @@ default: report
 
 report: percentage-iOS # percentage-macOS
 	@if [[ -n "$$GITHUB_ENV" ]]; then \
-		echo "PERCENTAGE=$$(< percentage_iOS.txt)" >> $$GITHUB_ENV; \
+		echo "PERCENTAGE=$$(< coverage_iOS/percentage.txt)" >> $$GITHUB_ENV; \
 	fi
 
 percentage-iOS: coverage-iOS
-	awk '/ SoundFontsPlus.app / { print $$4 }' coverage_iOS.txt > percentage_iOS.txt
+	awk '/ SoundFontsPlus.app / { print $$4 }' coverage_iOS/coverage.txt > coverage_iOS/percentage.txt
 	echo "iOS Coverage Pct:"
-	cat percentage_iOS.txt
+	cat coverage_iOS/percentage.txt
 
 percentage-macOS: coverage-macOS
-	awk '/ SoundFontsPlus.app / { print $$4 }' coverage_macOS.txt > percentage_macOS.txt
+	awk '/ SoundFontsPlus.app / { print $$4 }' coverage_macOS/coverage.txt > coverage_macOS/percentage.txt
 	echo "macOS Coverage Pct:"
-	cat percentage_macOS.txt
+	cat coverage_macOS/percentage.txt
 
 coverage-iOS: test-iOS
 	rm -rf coverage_iOS
 	mkdir coverage_iOS
 	cp -r $(PWD)/.DerivedData-iOS/Logs/Test/*.xcresult coverage_iOS/
-	$(XCCOV) $(PWD)/coverage_iOS/*.xcresult > coverage_iOS/coverage_iOS.txt
+	$(XCCOV) $(PWD)/coverage_iOS/*.xcresult > coverage_iOS/coverage.txt
 	echo "iOS Coverage:"
-	cat coverage_iOS/coverage_iOS.txt
+	cat coverage_iOS/coverage.txt
 
 coverage-macOS: test-macOS
 	rm -rf coverage_macOS
 	mkdir coverage_macOS
 	cp -r $(PWD)/.DerivedData-macOS/Logs/Test/*.xcresult coverage_macOS/
-	$(XCCOV) $(PWD)/.DerivedData-macOS/Logs/Test/*.xcresult > coverage_macOS/coverage_macOS.txt
+	$(XCCOV) $(PWD)/.DerivedData-macOS/Logs/Test/*.xcresult > coverage_macOS/coverage.txt
 	echo "macOS Coverage:"
-	cat coverage_macOS/coverage_macOS.txt
+	cat coverage_macOS/coverage.txt
 
 test-iOS:
 	echo "$(XCB)"
@@ -59,6 +59,6 @@ test-macOS:
 		-destination platform="$(PLATFORM_MACOS)" $(XCB)
 
 clean:
-	-rm -rf "$(PWD)/.DerivedData-iOS" "$(PWD)/.DerivedData-macOS" "$(WORKSPACE)" coverage*.txt percentage*.txt
+	-rm -rf "$(PWD)/.DerivedData-iOS" "$(PWD)/.DerivedData-macOS" "$(WORKSPACE)" coverage_iOS coverage_macOS
 
 .PHONY: report test-iOS test-macOS coverage-iOS coverage-macOS coverage-iOS percentage-macOS percentage-iOS
