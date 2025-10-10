@@ -17,13 +17,13 @@ report: coverage-iOS # percentage-macOS
 		echo "PERCENTAGE=$$(< coverage_iOS/percentage.txt)" >> $$GITHUB_ENV; \
 	fi
 
-coverage-iOS: coverage-iOS
+coverage-iOS: test-iOS
 	cp -r $(PWD)/.DerivedData-iOS/Logs/Test/*.xcresult coverage_iOS/
 	bash coverage_reporter.sh > coverage_iOS/percentage.txt
 	echo "iOS Coverage Pct:"
 	cat coverage_iOS/percentage.txt
 
-coverage-macOS: coverage-macOS
+coverage-macOS: test-macOS
 	cp -r $(PWD)/.DerivedData-macOS/Logs/Test/*.xcresult coverage_macOS/
 	bash coverage_reporter.sh > coverage_macOS/percentage.txt
 	echo "macOS Coverage Pct:"
