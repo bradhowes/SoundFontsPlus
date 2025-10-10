@@ -4,7 +4,6 @@ SCHEME = SoundFontsPlus
 BUILD_FLAGS = -skipMacroValidation -skipPackagePluginValidation -enableCodeCoverage YES -scheme $(SCHEME) \
 			  -clonedSourcePackagesDirPath "$(WORKSPACE)"
 WORKSPACE = $(PWD)/.workspace
-XCCOV = xcrun xccov view --report --only-targets
 
 ifeq ($(GITHUB_ENV),)
 XCB = | xcbeautify --renderer github-actions
@@ -18,12 +17,16 @@ report: coverage-iOS # percentage-macOS
 	fi
 
 coverage-iOS: test-iOS
+	rm -rf coverage_iOS
+	mkdir coverage_iOS
 	cp -r $(PWD)/.DerivedData-iOS/Logs/Test/*.xcresult coverage_iOS/
 	bash coverage_reporter.sh > coverage_iOS/percentage.txt
 	echo "iOS Coverage Pct:"
 	cat coverage_iOS/percentage.txt
 
 coverage-macOS: test-macOS
+	rm -rf coverage_macOS
+	mkdir coverage_macOS
 	cp -r $(PWD)/.DerivedData-macOS/Logs/Test/*.xcresult coverage_macOS/
 	bash coverage_reporter.sh > coverage_macOS/percentage.txt
 	echo "macOS Coverage Pct:"
