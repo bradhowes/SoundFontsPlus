@@ -12,7 +12,7 @@ endif
 
 default: report
 
-report: percentage-iOS # percentage-macOS
+report: coverage-iOS # percentage-macOS
 	@if [[ -n "$$GITHUB_ENV" ]]; then \
 		echo "PERCENTAGE=$$(< coverage_iOS/percentage.txt)" >> $$GITHUB_ENV; \
 	fi
