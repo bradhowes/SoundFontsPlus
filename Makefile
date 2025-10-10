@@ -17,31 +17,17 @@ report: percentage-iOS # percentage-macOS
 		echo "PERCENTAGE=$$(< coverage_iOS/percentage.txt)" >> $$GITHUB_ENV; \
 	fi
 
-percentage-iOS: coverage-iOS
-	awk '/ SoundFontsPlus.app / { print $$4 }' coverage_iOS/coverage.txt > coverage_iOS/percentage.txt
+coverage-iOS: coverage-iOS
+	cp -r $(PWD)/.DerivedData-iOS/Logs/Test/*.xcresult coverage_iOS/
+	bash coverage_reporter.sh > coverage_iOS/percentage.txt
 	echo "iOS Coverage Pct:"
 	cat coverage_iOS/percentage.txt
 
-percentage-macOS: coverage-macOS
-	awk '/ SoundFontsPlus.app / { print $$4 }' coverage_macOS/coverage.txt > coverage_macOS/percentage.txt
+coverage-macOS: coverage-macOS
+	cp -r $(PWD)/.DerivedData-macOS/Logs/Test/*.xcresult coverage_macOS/
+	bash coverage_reporter.sh > coverage_macOS/percentage.txt
 	echo "macOS Coverage Pct:"
 	cat coverage_macOS/percentage.txt
-
-coverage-iOS: test-iOS
-	rm -rf coverage_iOS
-	mkdir coverage_iOS
-	cp -r $(PWD)/.DerivedData-iOS/Logs/Test/*.xcresult coverage_iOS/
-	$(XCCOV) $(PWD)/coverage_iOS/*.xcresult > coverage_iOS/coverage.txt
-	echo "iOS Coverage:"
-	cat coverage_iOS/coverage.txt
-
-coverage-macOS: test-macOS
-	rm -rf coverage_macOS
-	mkdir coverage_macOS
-	cp -r $(PWD)/.DerivedData-macOS/Logs/Test/*.xcresult coverage_macOS/
-	$(XCCOV) $(PWD)/.DerivedData-macOS/Logs/Test/*.xcresult > coverage_macOS/coverage.txt
-	echo "macOS Coverage:"
-	cat coverage_macOS/coverage.txt
 
 test-iOS:
 	echo "$(XCB)"
