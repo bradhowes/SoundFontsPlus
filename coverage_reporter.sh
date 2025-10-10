@@ -29,4 +29,5 @@ fi
 # - get sums of all of the file coverage sums as an array of two values
 # - calculate the coverage percentage by operating on the two values
 #
-jq -s 'map(first|.functions|[map(.coveredLines),map(.executableLines)|add])|[map(.[0]),map(.[1])|add]|.[0]/.[1]*100.0' < "${stats}"
+pct=$(jq -s 'map(first|.functions|[map(.coveredLines),map(.executableLines)|add])|[map(.[0]),map(.[1])|add]|.[0]/.[1]*100.0' < "${stats}")
+printf "%.1f%%\n" ${pct}
