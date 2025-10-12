@@ -1,5 +1,5 @@
 import ComposableArchitecture
-import CustomSnapshot
+import TestSupport
 import Dependencies
 import SnapshotTesting
 import Tagged
@@ -21,7 +21,7 @@ struct SettingsTests {
   @Test func settingsViewPreview() async throws {
     let view = SettingsView.preview
     try withSnapshotTesting(record: .failed) {
-      try CustomSnapshot.assertSnapshot(matching: view)
+      try TestSupport.assertSnapshot(matching: view)
     }
   }
 }

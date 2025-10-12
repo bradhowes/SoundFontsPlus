@@ -1,5 +1,5 @@
 import ComposableArchitecture
-import CustomSnapshot
+import TestSupport
 import Dependencies
 import DependenciesTestSupport
 import Models
@@ -40,7 +40,7 @@ struct TagNameEditorTests {
 
   @Test func tagNameEditorPreview() async throws {
     try withSnapshotTesting(record: .failed) {
-      try CustomSnapshot.assertSnapshot(matching: TagNameEditorView.preview)
+      try TestSupport.assertSnapshot(matching: TagNameEditorView.preview)
     }
   }
 }

@@ -1,5 +1,5 @@
+import BaseSupport
 import ComposableArchitecture
-import CustomSnapshot
 import Dependencies
 import DependenciesTestSupport
 import Foundation
@@ -8,24 +8,23 @@ import Sharing
 import SnapshotTesting
 import SwiftUI
 import Testing
+import TestSupport
 
 @testable import VolumeMonitor
 
 @Suite(
   .dependencies {
-    let mockVolume = VolumeMonitorDemoView.OutputVolumeFlipFlop()
-    $0.outputVolume = mockVolume.makeOutputVolume()
     $0.defaultDatabase = try appDatabase()
   },
   //  .snapshots(record: .failed)
 )
 @MainActor
 struct VolumeMonitorTests {
-  private let mockVolume: VolumeMonitorDemoView.OutputVolumeFlipFlop
+  private let mockVolume: TestSupport.OutputVolumeFlipFlop
   private let store: TestStoreOf<VolumeMonitor>
 
   init() async throws {
-    let mockVolume = VolumeMonitorDemoView.OutputVolumeFlipFlop()
+    let mockVolume = TestSupport.OutputVolumeFlipFlop()
     let store = TestStore(initialState: VolumeMonitor.State()) {
       VolumeMonitor()
     } withDependencies: {
@@ -121,16 +120,16 @@ struct VolumeMonitorTests {
       mockVolume.advance()
     }
     let store: StoreOf<VolumeMonitor> = .init(
-      initialState: VolumeMonitor.State(
-        reason: .volumeLevelIsZero)) {
-          VolumeMonitor()
-        }
+      initialState: VolumeMonitor.State(reason: .volumeLevelIsZero)
+    ) {
+      VolumeMonitor()
+    }
 
     let view = VolumeMonitorDemoView(volumes: mockVolume, store: store)
     #expect(mockVolume.getValue() == 0.0)
 
     try withSnapshotTesting(record: .failed) {
-      try CustomSnapshot.assertSnapshot(matching: view)
+      try TestSupport.assertSnapshot(matching: view)
     }
   }
 
@@ -143,8 +142,7 @@ struct VolumeMonitorTests {
       $activeState.activePresetId.withLock { $0 = nil }
     }
     let store: StoreOf<VolumeMonitor> = .init(
-      initialState: VolumeMonitor.State(
-        reason: .noActivePreset )
+      initialState: VolumeMonitor.State(reason: .noActivePreset)
     ) {
       VolumeMonitor()
     }
@@ -152,7 +150,47 @@ struct VolumeMonitorTests {
     let view = VolumeMonitorDemoView(volumes: mockVolume, store: store)
 
     try withSnapshotTesting(record: .failed) {
-      try CustomSnapshot.assertSnapshot(matching: view)
+      try TestSupport.assertSnapshot(matching: view)
+    }
+  }
+}
+
+struct VolumeMonitorDemoView: View {
+
+  private let volumes: TestSupport.OutputVolumeFlipFlop
+  @State private var volume: Float
+  @State private var store: StoreOf<VolumeMonitor>
+  @Shared(.activeState) var activeState
+
+  init(volumes: TestSupport.OutputVolumeFlipFlop, store: StoreOf<VolumeMonitor>) {
+    self.volumes = volumes
+    self.store = store
+    self.volume = self.volumes.getValue()
+  }
+
+  var body: some View {
+    VStack(spacing: 20) {
+      Text("Volume: \(volume)")
+      Text("Preset ID: \(String(describing: activeState.activePresetId))")
+        .volumeMonitorHUD(store: store)
+      HStack {
+        Button {
+          Task {
+            volume = volumes.advance()
+          }
+        } label: {
+          Text("Toggle Volume")
+        }
+        Button {
+          Task {
+            let newValue: Preset.ID? = activeState.activePresetId == nil ? Preset.ID(rawValue: 1) : nil
+            store.send(.activePresetIdChanged(newValue))
+            $activeState.activePresetId.withLock { $0 = newValue }
+          }
+        } label: {
+          Text("Toggle PresetId")
+        }
+      }
     }
   }
 }

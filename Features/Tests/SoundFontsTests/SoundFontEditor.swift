@@ -1,5 +1,5 @@
 import ComposableArchitecture
-import CustomSnapshot
+import TestSupport
 import Dependencies
 import DependenciesTestSupport
 import Models
@@ -29,7 +29,7 @@ struct SoundFontEditorTests {
 
   @Test func soundFontEditorViewPreview() async throws {
     try withSnapshotTesting(record: .failed) {
-      try CustomSnapshot.assertSnapshot(matching: SoundFontEditorView.preview)
+      try TestSupport.assertSnapshot(matching: SoundFontEditorView.preview)
     }
   }
 }

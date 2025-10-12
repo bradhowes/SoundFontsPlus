@@ -1,5 +1,5 @@
 import ComposableArchitecture
-import CustomSnapshot
+import TestSupport
 import Dependencies
 import DependenciesTestSupport
 import Models
@@ -11,6 +11,8 @@ import Testing
 
 @Suite(
   .dependencies {
+    let mockVolume = TestSupport.OutputVolumeFlipFlop()
+    $0.outputVolume = mockVolume.makeOutputVolume()
     $0.defaultDatabase = try appDatabase()
     $0.mainQueue = .immediate
   },
@@ -44,7 +46,7 @@ struct RootTests {
 
   @Test func rootViewPreview() async throws {
     try withSnapshotTesting(record: .failed) {
-      try CustomSnapshot.assertSnapshot(matching: RootView.preview)
+      try TestSupport.assertSnapshot(matching: RootView.preview)
     }
   }
 }

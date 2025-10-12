@@ -30,7 +30,6 @@ let package = Package(
     .lib("AppReview"),
     .lib("BaseSupport"),
     .lib("Changes"),
-    .lib("CustomSnapshot"),
     .lib("DelayEffect"),
     .lib("FeatureSupport"),
     .lib("FileImporter"),
@@ -48,6 +47,7 @@ let package = Package(
     .lib("SoundFonts"),
     .lib("Synth"),
     .lib("Tags"),
+    // .lib("TestSupport"),
     .lib("ToolBar"),
     .lib("Tuning"),
     .lib("Tutorial"),
@@ -132,20 +132,24 @@ let package = Package(
     ),
     .feature("Tuning"),
     .feature("Tutorial", resources: [.process("Resources")]),
-    .feature("VolumeMonitor", dependencies: [.product(name: "SwiftToasts", package: "swift-toasts")]),
+    .feature(
+      "VolumeMonitor",
+      dependencies: [
+        .product(name: "SwiftToasts", package: "swift-toasts")
+      ]
+    ),
 
     // MARK: Library Targets
 
     .target(
-      name: "BaseSupport",
-      dependencies: [
-        "SF2Resources",
-        .product(name: "Engine", package: "SF2Lib"),
-        .product(name: "Numerics", package: "swift-numerics"),
-        .product(name: "SQLiteData", package: "sqlite-data"),
-      ]
-    ),
-    .target(name: "CustomSnapshot", dependencies: ["BaseSupport"]),
+        name: "BaseSupport",
+        dependencies: [
+          "SF2Resources",
+          .product(name: "Engine", package: "SF2Lib"),
+          .product(name: "Numerics", package: "swift-numerics"),
+          .product(name: "SQLiteData", package: "sqlite-data"),
+        ]
+      ),
     .target(
       name: "FeatureSupport",
       dependencies: [
@@ -174,7 +178,9 @@ let package = Package(
       resources: [.process("Resources")],
       plugins: ["BuildFluidFont"]
     ),
-    .target(name: "Synth", dependencies: ["Models"]), // Special-case -- not a `.feature`
+    .target(name: "Synth", dependencies: ["Models"]),
+    // Special-case -- not a `.feature`
+    .target(name: "TestSupport", dependencies: ["BaseSupport"]),
 
     // MARK: - Feature Test Targets - name is the feature name from above, and the test name will be that + "Tests"
 
@@ -268,7 +274,7 @@ func setSwiftSettings() {
     case .test:
       target.swiftSettings = globalSwiftSettings + (target.swiftSettings ?? [])
       target.dependencies += [
-        "CustomSnapshot",
+        "TestSupport",
         .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ]

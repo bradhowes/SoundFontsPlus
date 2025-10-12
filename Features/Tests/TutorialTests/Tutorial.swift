@@ -1,5 +1,5 @@
 import ComposableArchitecture
-import CustomSnapshot
+import TestSupport
 import FeatureSupport
 import Sharing
 import SnapshotTesting
@@ -119,7 +119,7 @@ struct TutorialTests {
   ) throws {
     let store = StoreOf<Tutorial>(initialState: .init(page: page)) { Tutorial() }
     try withSnapshotTesting(record: .failed) {
-      try CustomSnapshot.assertSnapshot(
+      try TestSupport.assertSnapshot(
         matching: TutorialView(store: store),
         fileID: fileID,
         file: file,

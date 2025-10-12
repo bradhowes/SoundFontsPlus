@@ -1,5 +1,5 @@
 import ComposableArchitecture
-import CustomSnapshot
+import TestSupport
 import DependenciesTestSupport
 import FeatureSupport
 import Models
@@ -144,7 +144,7 @@ struct ChangesFeatureTests {
       .environment(\.colorScheme, .dark)
 
     try withSnapshotTesting(record: .failed) {
-      try CustomSnapshot.assertSnapshot(matching: view)
+      try TestSupport.assertSnapshot(matching: view)
     }
   }
 }

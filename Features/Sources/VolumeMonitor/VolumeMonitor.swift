@@ -99,7 +99,6 @@ private extension VolumeMonitor {
   }
 
   func presetChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
-    @Dependency(\.outputVolume) var outputVolume
     return updateReason(&state, volume: outputVolume.getValue(), presetId: presetId)
   }
 
@@ -134,6 +133,9 @@ public struct VolumeMonitorModifier: ViewModifier {
 
   public func body(content: Content) -> some View {
     content
+      .onAppear {
+        store.send(.initialize)
+      }
       .toast(
         item: $store.reason,
         alignment: .top
@@ -157,12 +159,9 @@ public struct VolumeMonitorModifier: ViewModifier {
         }
       }
       .toastStyle(.plain)
-      // .toastTransition(.scale)
+    // .toastTransition(.scale)
       .toastPresentationInvalidation(.all)
       .toastInteractiveDismissDisabled(false)
-      .task {
-        await store.send(.initialize).finish()
-      }
   }
 }
 
@@ -171,91 +170,16 @@ extension View {
     modifier(VolumeMonitorModifier(store: store))
   }
 }
-
-struct VolumeMonitorDemoView: View {
-
-  /// A mock of AVAudioSession.outputVolume that toggles between 1.0 and 0.0
-  final class OutputVolumeFlipFlop: @unchecked Sendable {
-    var continuation: AsyncStream<Float>.Continuation?
-    var currentValue: Float = 1.0
-
-    func getValue() -> Float { self.currentValue }
-
-    /**
-     Toggle current value and emit onto the stream.
-
-     - returns: new value
-     */
-    @discardableResult func advance() -> Float {
-      self.currentValue = 1.0 - self.currentValue
-      continuation?.yield(self.currentValue)
-      return self.currentValue
-    }
-
-    func startStreaming() -> AsyncStream<Float> {
-      AsyncStream<Float> { self.continuation = $0 }
-    }
-
-    /**
-     Obtain an `OutputVolume` instance that relies on this instance for operation.
-
-     - returns: current value
-     */
-    func makeOutputVolume() -> OutputVolume {
-      .init(
-        getValue: { self.getValue() },
-        startStreaming: { self.startStreaming() }
-      )
-    }
-  }
-
-  private let volumes: OutputVolumeFlipFlop
-  @State private var volume: Float
-  @State private var store: StoreOf<VolumeMonitor>
-  @Shared(.activeState) var activeState
-
-  init(volumes: OutputVolumeFlipFlop, store: StoreOf<VolumeMonitor>) {
-    self.volumes = volumes
-    self.store = store
-    self.volume = self.volumes.getValue()
-  }
-
-  var body: some View {
-    VStack(spacing: 20) {
-      Text("Volume: \(volume)")
-      Text("Preset ID: \(String(describing: activeState.activePresetId))")
-        .volumeMonitorHUD(store: store)
-      HStack {
-        Button {
-          Task {
-            volume = volumes.advance()
-          }
-        } label: {
-          Text("Toggle Volume")
-        }
-        Button {
-          Task {
-            let newValue: Preset.ID? = activeState.activePresetId == nil ? Preset.ID(rawValue: 1) : nil
-            store.send(.activePresetIdChanged(newValue))
-            $activeState.activePresetId.withLock { $0 = newValue }
-          }
-        } label: {
-          Text("Toggle PresetId")
-        }
-      }
-    }
-  }
-}
-
-#Preview {
-  let mockVolume = VolumeMonitorDemoView.OutputVolumeFlipFlop()
-  // swiftlint:disable:next redundant_discardable_let
-  let _ = prepareDependencies {
-    @Shared(.activeState) var activeState
-    $activeState.activePresetId.withLock { $0 = Preset.ID(rawValue: 1) }
-    $0.outputVolume = mockVolume.makeOutputVolume()
-    mockVolume.advance()
-  }
-  let store: StoreOf<VolumeMonitor> = .init(initialState: VolumeMonitor.State()) { VolumeMonitor() }
-  VolumeMonitorDemoView(volumes: mockVolume, store: store)
-}
+//
+//#Preview {
+//  let mockVolume = TestSupport.OutputVolumeFlipFlop()
+//  // swiftlint:disable:next redundant_discardable_let
+//  let _ = prepareDependencies {
+//    @Shared(.activeState) var activeState
+//    $activeState.activePresetId.withLock { $0 = Preset.ID(rawValue: 1) }
+//    $0.outputVolume = mockVolume.makeOutputVolume()
+//    mockVolume.advance()
+//  }
+//  let store: StoreOf<VolumeMonitor> = .init(initialState: VolumeMonitor.State()) { VolumeMonitor() }
+//  VolumeMonitorDemoView(volumes: mockVolume, store: store)
+//}

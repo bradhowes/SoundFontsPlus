@@ -13,4 +13,9 @@ extension DependencyValues {
     get { self[FileManagerClient.self] }
     set { self[FileManagerClient.self] = newValue }
   }
+
+  public var outputVolume: OutputVolume {
+    get { self[OutputVolume.self] }
+    set { self[OutputVolume.self] = newValue }
+  }
 }

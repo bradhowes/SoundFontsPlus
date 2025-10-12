@@ -7,6 +7,14 @@ import Foundation
 public struct OutputVolume: Sendable {
   public let getValue: @Sendable () -> AUValue
   public let startStreaming: @Sendable () -> AsyncStream<Float>
+
+  public init(
+    getValue: @escaping @Sendable () -> AUValue,
+    startStreaming: @escaping @Sendable () -> AsyncStream<Float>
+  ) {
+    self.getValue = getValue
+    self.startStreaming = startStreaming
+  }
 }
 
 extension OutputVolume: DependencyKey {

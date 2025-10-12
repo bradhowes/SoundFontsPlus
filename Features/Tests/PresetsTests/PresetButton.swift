@@ -1,5 +1,5 @@
 import ComposableArchitecture
-import CustomSnapshot
+import TestSupport
 import Models
 import Sharing
 import SnapshotTesting
@@ -76,7 +76,7 @@ struct PresetButtonTests {
 
   @Test func presetButtonPreview() async throws {
     try withSnapshotTesting(record: .failed) {
-      try CustomSnapshot.assertSnapshot(matching: PresetButtonView.preview)
+      try TestSupport.assertSnapshot(matching: PresetButtonView.preview)
     }
   }
 }

@@ -1,5 +1,5 @@
 import ComposableArchitecture
-import CustomSnapshot
+import TestSupport
 import Foundation
 import Dependencies
 import DependenciesTestSupport
@@ -106,7 +106,7 @@ struct AppReviewTests {
     store.send(.ask)
 
     try withSnapshotTesting(record: .failed) {
-      try CustomSnapshot.assertSnapshot(matching: view)
+      try TestSupport.assertSnapshot(matching: view)
     }
   }
 }
