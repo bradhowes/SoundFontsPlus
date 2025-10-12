@@ -69,6 +69,7 @@ public struct VolumeMonitor {
     }
   }
 
+  @Dependency(\.outputVolume) var outputVolume
   @Shared(.activeState) private var activeState
 
   private enum CancelId {
@@ -79,8 +80,7 @@ public struct VolumeMonitor {
 private extension VolumeMonitor {
 
   func initialize(_ state: inout State) -> Effect<Action> {
-    @Dependency(\.outputVolume) var outputVolume
-    return .merge(
+    .merge(
       volumeChanged(&state, volume: outputVolume.getValue()),
       monitorOutputVolume(&state)
     )

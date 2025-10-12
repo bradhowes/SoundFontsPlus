@@ -113,8 +113,8 @@ public struct AppReviewModifier: ViewModifier {
 
   public func body(content: Content) -> some View {
     content
-      .onChange(of: store.askForReview) {
-        if store.askForReview {
+      .onChange(of: store.askForReview) { old, new in
+        if new {
           requestReview()
           store.send(.reviewAsked)
         }

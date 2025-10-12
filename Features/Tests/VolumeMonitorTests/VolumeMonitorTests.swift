@@ -13,6 +13,8 @@ import Testing
 
 @Suite(
   .dependencies {
+    let mockVolume = VolumeMonitorDemoView.OutputVolumeFlipFlop()
+    $0.outputVolume = mockVolume.makeOutputVolume()
     $0.defaultDatabase = try appDatabase()
   },
   //  .snapshots(record: .failed)

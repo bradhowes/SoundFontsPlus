@@ -14,7 +14,7 @@ extension FileManager {
       return localDocumentsDirectory
     }
 
-    if !self.fileExists(atPath: url.path) {
+    if !self.fileExists(atPath: url.path()) {
       try? self.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
     }
 
@@ -31,9 +31,7 @@ extension FileManager {
   }
 
   /// Location of app documents in iCloud (if enabled).
-  public var cloudDocumentsDirectory: URL? {
-    self.url(forUbiquityContainerIdentifier: nil)
-  }
+  public var cloudDocumentsDirectory: URL? { self.url(forUbiquityContainerIdentifier: nil) }
 
   /**
    Try to obtain the size of a given file.

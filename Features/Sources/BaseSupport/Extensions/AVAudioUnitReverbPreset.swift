@@ -6,7 +6,7 @@ extension AVAudioUnitReverbPreset: @retroactive Identifiable {
   public var id: Int { rawValue }
 
   // NOTE: order here is *not* the same as the numeric ordering of the enum integer values.
-  // This ordering is personal and seems sane if arbitrary
+  // This ordering is how they appear in SwiftUI -- it seems sane if somewhat arbitrary.
   public static let allCases: [AVAudioUnitReverbPreset] = [
     .smallRoom, // 0
     .mediumRoom, // 1
@@ -30,18 +30,17 @@ extension AVAudioUnitReverbPreset: @retroactive Identifiable {
     case .smallRoom: return "Room 1"
     case .mediumRoom: return "Room 2"
     case .largeRoom: return "Room 3"
-    case .largeRoom2: return "Room 4"
     case .mediumHall: return "Hall 1"
-    case .mediumHall2: return "Hall 2"
-    case .mediumHall3: return "Hall 3"
     case .largeHall: return "Hall 4"
-    case .largeHall2: return "Hall 5"
+    case .plate: return "Plate"
     case .mediumChamber: return "Chamber 1"
     case .largeChamber: return "Chamber 2"
     case .cathedral: return "Cathedral"
-    case .plate: return "Plate"
-    @unknown default:
-      fatalError()
+    case .largeRoom2: return "Room 4"
+    case .mediumHall2: return "Hall 2"
+    case .mediumHall3: return "Hall 3"
+    case .largeHall2: return "Hall 5"
+    @unknown default: fatalError()
     }
   }
 }

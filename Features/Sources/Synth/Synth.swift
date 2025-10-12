@@ -89,7 +89,7 @@ public struct Synth {
         return sceneBecameInactive(&state)
 
       case .synthCreated:
-        return synthCreated(&state)
+        return createSynthDone(&state)
       }
     }
   }
@@ -108,6 +108,16 @@ extension Synth {
 
   private func audioSessionRouteChanged(_ state: inout State) -> Effect<Action> {
     return restartAudioSession(&state)
+  }
+
+  private func beginMonitoring(_ state: inout State) -> Effect<Action> {
+    // Start up the monitors now that we have a synth
+    .merge(
+      monitorActivePresetId(&state),
+      monitorMediaServices(&state),
+      monitorRouteChanged(&state),
+      monitorLastLoadFinished(&state)
+    )
   }
 
   private func configureAudioSession() {
@@ -195,6 +205,26 @@ extension Synth {
     }.cancellable(id: CancelId.createSynth, cancelInFlight: true)
   }
 
+  private func createSynthDone(_ state: inout State) -> Effect<Action> {
+    log.info("synthCreated BEGIN")
+
+    // There is a race between making the AVAudioSession active and having an synth audio unit. If the synth is
+    // available first, then
+    if state.sessionActive {
+      if createAudioChain(&state) {
+        startEngine(&state)
+      }
+    } else {
+      startAudioSession(&state)
+    }
+
+    log.info("synthCreated END")
+    return .concatenate(
+      beginMonitoring(&state)
+      // useActivePreset(&state, presetId: activeState.activePresetId),
+    )
+  }
+
   private func destroyAudioChain(_ state: inout State) {
     log.info("destroyAudioChain BEGIN")
     @Shared(.delayEffect) var delayEffect
@@ -226,14 +256,7 @@ extension Synth {
 
   private func initialize(_ state: inout State) -> Effect<Action> {
     log.info("initialize")
-    return .concatenate(
-      createSynth(&state),
-      .merge(
-        monitorActivePresetId(&state),
-        monitorMediaServices(&state),
-        monitorRouteChanged(&state),
-      )
-    )
+    return createSynth(&state)
   }
 
   private func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
@@ -274,7 +297,7 @@ extension Synth {
         .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
         .filter { $0 > 0.0 }
         .map { _ in
-          .lastPresetLoadFinished
+            .lastPresetLoadFinished
         }
     }.cancellable(id: CancelId.monitorLastLoadFinished)
   }
@@ -380,28 +403,8 @@ extension Synth {
     log.info("stopAudioSession END")
   }
 
-  private func synthCreated(_ state: inout State) -> Effect<Action> {
-    log.info("synthCreated BEGIN")
-
-    // There is a race between making the AVAudioSession active and having an synth audio unit. If the synth is
-    // available first, then
-    if state.sessionActive {
-      if createAudioChain(&state) {
-        startEngine(&state)
-      }
-    } else {
-      startAudioSession(&state)
-    }
-
-    log.info("synthCreated END")
-    return .concatenate(
-      monitorLastLoadFinished(&state),
-      useActivePreset(&state, presetId: activeState.activePresetId)
-    )
-  }
-
   private func useActivePreset(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
-    log.info("useActivePreset BEGIN")
+    log.info("useActivePreset BEGIN - presetId: \(presetId ?? -1)")
     guard
       let synth = synthAudioUnit?.synth,
       state.sessionActive else

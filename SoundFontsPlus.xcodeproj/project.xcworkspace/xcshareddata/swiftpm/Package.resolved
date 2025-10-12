@@ -1,5 +1,5 @@
 {
-  "originHash" : "ee5084bae2aa034eda8837bfc40da2877409736c88918ade1750cde6076e0832",
+  "originHash" : "1bb685125213bf33a390e8bc3de88b83e1b684144854793571e09bde26d44566",
   "pins" : [
     {
       "identity" : "auv3controls",
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/groue/GRDB.swift",
       "state" : {
-        "revision" : "8ba1bc9a96afc731a000fd4136dd13a5a46297bd",
-        "version" : "7.6.1"
+        "revision" : "18497b68fdbb3a09528d260a0a0e1e7e61c8c53d",
+        "version" : "7.8.0"
       }
     },
     {
@@ -60,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/SF2Lib",
       "state" : {
-        "revision" : "0aff65a57937399fa7931c39e4651f9bf1476939",
-        "version" : "8.3.3"
+        "revision" : "f3cf2f063a6ad34611d5c2bfd53ab715e801e5b3",
+        "version" : "8.3.5"
       }
     },
     {
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sqlite-data",
       "state" : {
-        "revision" : "7d1ffa5e20e34eb5f857a0765081a6ef6408d268",
-        "version" : "1.0.0"
+        "revision" : "2235c9e2df56812ed17c1943463123093d88531e",
+        "version" : "1.1.1"
       }
     },
     {
@@ -114,8 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections",
       "state" : {
-        "revision" : "8c0c0a8b49e080e54e5e328cc552821ff07cd341",
-        "version" : "1.2.1"
+        "revision" : "7b847a3b7008b2dc2f47ca3110d8c782fb2e5c7e",
+        "version" : "1.3.0"
       }
     },
     {
@@ -168,17 +168,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
-        "revision" : "6b7f44d218e776bb7a5246efb940440d57c8b2cf",
-        "version" : "2.4.2"
+        "revision" : "91415670c91d41e8e1872ef6fe1bf118e20dee37",
+        "version" : "2.5.1"
       }
     },
     {
       "identity" : "swift-numerics",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-numerics.git",
+      "location" : "https://github.com/apple/swift-numerics",
       "state" : {
-        "revision" : "bbadd4b853a33fd78c4ae977d17bb2af15eb3f2a",
-        "version" : "1.1.0"
+        "revision" : "0c0290ff6b24942dadb83a929ffaaa1481df04a2",
+        "version" : "1.1.1"
       }
     },
     {
@@ -213,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "4c125c204ef4ff9664f0020ad3a203ed1b5893cc",
-        "version" : "0.20.0"
+        "revision" : "740c49c10ba653086fa85a5476a767cc78612ee4",
+        "version" : "0.23.1"
       }
     },
     {
@@ -249,8 +249,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "b2ed9eabefe56202ee4939dd9fc46b6241c88317",
-        "version" : "1.6.1"
+        "revision" : "4c27acf5394b645b70d8ba19dc249c0472d5f618",
+        "version" : "1.7.0"
       }
     }
   ],

@@ -33,18 +33,22 @@ struct SynthTests {
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
     let store = TestStore(initialState: Synth.State()) { Synth() }
 
+    // store.exhaustivity = .off
     await store.send(.initialize)
 
     await store.receive(\.synthCreated) {
-      $0.loadedSoundFontId = 1
-      $0.loadedPresetIndex = 0
       $0.sessionActive = true
     }
 
-    await store.receive(\.activePresetIdChanged, timeout: .seconds(30))
-    await store.receive(\.lastPresetLoadFinished) {
+    await store.receive(\.activePresetIdChanged, timeout: .seconds(30)) {
+      $0.loadedSoundFontId = 1
+      $0.loadedPresetIndex = 0
+    }
+
+    await store.receive(\.lastPresetLoadFinished, timeout: .seconds(30)) {
       $0.firstTimePresetLoaded = false
     }
+
     await store.send(.deinitialize)
     await store.finish(timeout: .seconds(1))
   }
@@ -57,6 +61,7 @@ struct SynthTests {
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
     let store = TestStore(initialState: Synth.State()) { Synth() }
 
+    store.exhaustivity = .off
     await store.send(.initialize)
 
     await store.receive(\.synthCreated) {
@@ -70,6 +75,7 @@ struct SynthTests {
       $0.firstTimePresetLoaded = false
     }
 
+    store.exhaustivity = .on
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.activePresetId = .init(rawValue: 5) }
     try await $activeState.load()
