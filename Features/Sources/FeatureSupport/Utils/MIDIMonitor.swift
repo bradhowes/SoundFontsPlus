@@ -21,7 +21,9 @@ public final class MIDIMonitor: @unchecked Sendable {
   @Shared(.synthAudioUnit) private var synthAudioUnit
   var midiInstrument: AVAudioUnitMIDIInstrument? { synthAudioUnit?.midiInstrument }
 
-  // We want all traffic to appear in the `traffic` tap, regardless of channel.
+  // We want all traffic to appear in the `traffic` tap, regardless of channel. However, we *will* filter
+  // traffic ourselvee in the `accepts` method where we use the `midiChannel` shared value to determine if
+  // we forward the traffic to the synth.
   public var channel: Int { -1 }
   public var group: Int { -1 }
 
