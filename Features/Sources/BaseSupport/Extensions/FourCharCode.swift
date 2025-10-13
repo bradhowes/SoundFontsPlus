@@ -11,6 +11,8 @@ extension Character {
 
 extension FourCharCode {
 
+  static var invalidFourCharCode: Self { 0x3F3F3F3F } // "????"
+
   public init(stringLiteral value: StringLiteralType) {
     self = FourCharCode.validate(value: value)
   }
@@ -24,7 +26,7 @@ extension FourCharCode {
           value.utf8.count == 4,
           value.allSatisfy(\.isPrintableASCII)
     else {
-      return 0x3F3F3F3F // = '????'
+      return invalidFourCharCode
     }
     return value.utf8.reduce(into: 0) { $0 = $0 << 8 + FourCharCode($1) }
   }

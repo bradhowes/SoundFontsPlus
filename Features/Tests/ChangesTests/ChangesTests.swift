@@ -124,27 +124,6 @@ struct ChangesFeatureTests {
   }
 
   @Test func changesPreview() async throws {
-    let data = """
-      # 1.0.0
-      * First item
-      * Second
-        item
-      * Third
-        long
-        item
-      * Fourth item that just goes on, and on
-      # 1.1.0
-      * Fixed first item
-      * Removed second item
-      """
-    let view = NavigationStack {
-      ChangesView(store: .init(initialState: .init(data)) { Changes() })
-    }
-      .preferredColorScheme(.dark)
-      .environment(\.colorScheme, .dark)
-
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: view)
-    }
+    try TestSupport.assertSnapshot(matching: ChangesView.preview)
   }
 }

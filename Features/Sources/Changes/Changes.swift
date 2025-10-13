@@ -152,16 +152,8 @@ extension ChangesView {
       * Removed second item
       """
 
-    return  VStack(spacing: 0) {
-      Text("Hello")
-        .sheet(
-          isPresented: Binding(get: { true }, set: { _ in }),
-          onDismiss: nil
-        ) {
-          NavigationStack {
-            ChangesView(store: .init(initialState: .init(data)) { Changes() })
-          }
-        }
+    return  NavigationStack {
+      ChangesView(store: .init(initialState: .init(data)) { Changes() })
     }
     .preferredColorScheme(.dark)
     .environment(\.colorScheme, .dark)
