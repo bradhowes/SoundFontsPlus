@@ -18,7 +18,7 @@ public struct PresetNameView: View {
 
   public var body: some View {
     HStack {
-      if (preset?.isFavorite ?? false) && starFavoriteNames {
+      if (preset?.isFavorite ?? false) && starFavoriteNames && symbolName.count > 0 {
         Image(systemName: symbolName)
       }
       Text(preset?.displayName ?? "—")
