@@ -18,7 +18,7 @@ extension View {
   }
 }
 
-struct PreviewButtonList: View {
+struct LongPressGestureModifierPreview: View {
   @State var msg: String = ""
 
   var body: some View {
@@ -40,5 +40,5 @@ struct PreviewButtonList: View {
 }
 
 #Preview {
-  PreviewButtonList()
+  LongPressGestureModifierPreview()
 }
