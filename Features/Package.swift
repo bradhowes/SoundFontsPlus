@@ -27,6 +27,7 @@ let package = Package(
   name: "Features",
   platforms: [.iOS(.v18), .macOS(.v15)],
   products: [
+    // TODO: consolidate into fewer libraries
     .lib("AppReview"),
     .lib("BaseSupport"),
     .lib("Changes"),

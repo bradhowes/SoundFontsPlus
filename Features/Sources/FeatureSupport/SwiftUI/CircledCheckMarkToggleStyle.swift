@@ -47,8 +47,6 @@ extension ToggleStyle where Self == ButtonToggleStyle {
 extension View {
 
   public func circledCheckMarkToggleStyle() -> some View { toggleStyle(.circledCheckMark) }
-
-  public func circledCheckMarkNoLabelToggleStyle() -> some View { toggleStyle(.circledCheckMarkNoLabel) }
 }
 
 #Preview {
