@@ -1,4 +1,5 @@
 import AUv3Controls
+import AVFAudio.AVAudioUnitDelay
 import ComposableArchitecture
 import DependenciesTestSupport
 import Foundation
@@ -11,12 +12,7 @@ import Testing
 
 @testable import DelayEffect
 
-@Suite(
-  .dependencies {
-    $0.defaultDatabase = try appDatabase()
-  },
-  //  .snapshots(record: .failed)
-)
+@Suite(.dependencies { $0.defaultDatabase = try appDatabase() })
 @MainActor
 struct DelayEffectTests {
   fileprivate let device = DelayDevice()
@@ -69,5 +65,26 @@ private actor DelayDevice {
   func setConfig(_ config: DelayConfig.Draft) {
     self.config = config
     self.timesChanged += 1
+  }
+}
+
+extension DelayEffectTests {
+
+  @Test func setConfig() throws {
+    let delay = AVAudioUnitDelay()
+    let delayConfig: DelayConfig.Draft = .init(
+      time: 0.1,
+      feedback: 0.2,
+      cutoff: 345.6,
+      wetDryMix: 0.7,
+      enabled: true,
+      presetId: 1
+    )
+    delay.setConfig(delayConfig)
+    #expect(delay.delayTime.isApproximatelyEqual(to: 0.1))
+    #expect(delay.feedback.isApproximatelyEqual(to: 0.2))
+    #expect(delay.lowPassCutoff.isApproximatelyEqual(to: 345.6))
+    #expect(delay.wetDryMix.isApproximatelyEqual(to: 0.7))
+    #expect(!delay.bypass)
   }
 }
