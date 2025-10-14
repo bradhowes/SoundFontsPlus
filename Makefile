@@ -1,4 +1,5 @@
 PLATFORM_IOS = iOS Simulator,name=iPad mini (A17 Pro)
+IOS_SIM = 8C8C409E-EDE8-4AC3-969D-449731DC9DA1
 PLATFORM_MACOS = macOS
 SCHEME = SoundFontsPlus
 BUILD_FLAGS = -skipMacroValidation -skipPackagePluginValidation -enableCodeCoverage YES -scheme $(SCHEME) \
@@ -46,6 +47,15 @@ test-macOS:
 		$(BUILD_FLAGS) \
 		-derivedDataPath "$(PWD)/.DerivedData-macOS" \
 		-destination platform="$(PLATFORM_MACOS)" $(XCB)
+
+run:
+	set -o pipefail && xcodebuild build \
+		-skipMacroValidation -skipPackagePluginValidation -scheme $(SCHEME) \
+		-derivedDataPath "$(PWD)/.DerivedData-iOS" \
+		-destination platform="$(PLATFORM_IOS)" \
+		| xcbeautify --renderer github-actions
+	xcrun simctl install $(IOS_SIM) ./.DerivedData-iOS/Build/Products/Debug-iphonesimulator/SoundFontsPlus.app
+	xcrun simctl launch $(IOS_SIM) com.braysoftware.SoundFontsPlus
 
 clean:
 	-rm -rf "$(PWD)/.DerivedData-iOS" "$(PWD)/.DerivedData-macOS" "$(WORKSPACE)" coverage_iOS coverage_macOS

@@ -86,9 +86,9 @@ public struct Root {
 
 #elseif !(DEBUG && targetEnvironment(simulator))
 
-      if TutorialFeature.shouldShow {
+      if Tutorial.shouldShow {
         showTutorial()
-      } else if ChangesFeature.shouldShow {
+      } else if Changes.shouldShow {
         showChanges()
       }
 
