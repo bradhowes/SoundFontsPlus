@@ -8,6 +8,7 @@ import MIDIAssignments
 import MIDIConnections
 import MIDIControllers
 import MIDITrafficIndicator
+import MorkAndMIDI
 import Sharing
 import SwiftUI
 import Tuning
@@ -133,17 +134,17 @@ public struct Settings {
         }
         return .none
 
-      case .binding:
-        return .none
-
-      case .bluetoothMIDILocateButtonTapped:
-        return .none
-
-      case .contactDeveloperTapped:
-        return .none
-
-      case .delegate:
-        return .none
+//      case .binding:
+//        return .none
+//
+//      case .bluetoothMIDILocateButtonTapped:
+//        return .none
+//
+//      case .contactDeveloperTapped:
+//        return .none
+//
+//      case .delegate:
+//        return .none
 
       case .destination(.presented(.alert(.disableCopyFileConfirmed))):
         state.$copyFileWhenInstalling.withLock { $0 = false }
@@ -153,20 +154,20 @@ public struct Settings {
         state.$disableIdleTimer.withLock { $0 = true }
         return .none
 
-      case .destination:
-        return .none
+//      case .destination:
+//        return .none
 
       case .dismissButtonTapped:
         return dismissButtonTapped(&state)
 
-      case .exportFilesTapped:
-        return .none
-
-      case .hideBuiltInFilesTapped:
-        return .none
-
-      case .importFilesTapped:
-        return .none
+//      case .exportFilesTapped:
+//        return .none
+//
+//      case .hideBuiltInFilesTapped:
+//        return .none
+//
+//      case .importFilesTapped:
+//        return .none
 
       case .initialize:
         return initialize(&state)
@@ -187,26 +188,28 @@ public struct Settings {
         state.path.append(.midiControllers(MIDIControllers.State()))
         return .none
 
-      case .midiTrafficIndicator:
-        return .none
+//      case .midiTrafficIndicator:
+//        return .none
 
-      case .path:
-        return .none
-
-      case .reviewAppTapped:
-        return .none
-
-      case .tuning:
-        return .none
-
-      case .unhideBuiltInFilesTapped:
-        return .none
+//      case .path:
+//        return .none
+//
+//      case .reviewAppTapped:
+//        return .none
+//
+//      case .tuning:
+//        return .none
+//
+//      case .unhideBuiltInFilesTapped:
+//        return .none
 
       case .viewChangesTapped:
         return .send(.delegate(.showChanges))
 
       case .viewTutorialTapped:
         return .send(.delegate(.showTutorial))
+
+      default: return .none
       }
     }
     .forEach(\.path, action: \.path)
@@ -243,6 +246,7 @@ extension Settings {
       for await count in midi.publisher(for: \.activeConnections)
         .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
         .map({ $0.count })
+        .removeDuplicates()
         .values {
         await send(.midiConnectionCountChanged(count))
       }
@@ -555,6 +559,8 @@ Disable to link directly to files in iCloud or on external drives.
 
 extension SettingsView {
   static var preview: some View {
+    @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
+    midi?.start()
     navigationBarTitleStyle()
     return VStack {
       SettingsView(

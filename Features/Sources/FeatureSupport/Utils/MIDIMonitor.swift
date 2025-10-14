@@ -14,6 +14,12 @@ public struct MIDITraffic: Equatable, Sendable {
   public let id: MIDIUniqueID
   public let channel: UInt8
   public let accepted: Bool
+
+  public init(id: MIDIUniqueID, channel: UInt8, accepted: Bool) {
+    self.id = id
+    self.channel = channel
+    self.accepted = accepted
+  }
 }
 
 public final class MIDIMonitor: @unchecked Sendable {

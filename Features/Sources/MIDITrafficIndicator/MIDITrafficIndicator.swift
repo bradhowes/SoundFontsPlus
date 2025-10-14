@@ -22,7 +22,7 @@ public struct MIDITrafficIndicator {
     }
   }
 
-  public enum Action {
+  public enum Action: Equatable {
     case initialize
     case showMIDITraffic(MIDITraffic)
   }
