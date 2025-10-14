@@ -295,6 +295,7 @@ extension Synth {
     return .publisher {
       parameter.publisher(for: \.value)
         .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
+        .removeDuplicates()
         .filter { $0 > 0.0 }
         .map { _ in
             .lastPresetLoadFinished

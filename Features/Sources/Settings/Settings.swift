@@ -242,14 +242,9 @@ extension Settings {
   private func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
     @Shared(.midi) var midi
     guard let midi else { return .none }
-    return .run { send in
-      for await count in midi.publisher(for: \.activeConnections)
-        .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
-        .map({ $0.count })
-        .removeDuplicates()
-        .values {
-        await send(.midiConnectionCountChanged(count))
-      }
+    return .publisher {
+      midi.activeConnectionsCountPublisher
+        .map { .midiConnectionCountChanged(Int($0)) }
     }.cancellable(id: CancelId.monitorMIDIConnections)
   }
 

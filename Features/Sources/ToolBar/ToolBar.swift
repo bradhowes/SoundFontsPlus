@@ -206,8 +206,6 @@ private extension ToolBar {
   }
 
   func initialize(_ state: inout State) -> Effect<Action> {
-
-//    let publisher = synthAudioUnit?.auAudioUnit.parameterTree?.publisher(for: \AUParameterTree.activeVoiceCount)
     reduce(into: &state, action: .midiTrafficIndicator(.initialize))
   }
 
@@ -223,13 +221,13 @@ private extension ToolBar {
       fatalError("did not find activeVoiceCount parameter")
     }
 
-    return .run { send in
-      for await value in node.publisher(for: \.value)
+    return .publisher {
+      node.publisher(for: \.value)
         .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
-        .map({ Int($0) })
-        .values {
-        await send(.activeVoiceCountChanged(value))
-      }
+        .removeDuplicates()
+        .map {
+          .activeVoiceCountChanged(Int($0))
+        }
     }.cancellable(id: CancelId.monitorActiveVoiceCount)
   }
 

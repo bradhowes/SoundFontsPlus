@@ -145,8 +145,12 @@ public struct MIDIConnections {
         }
         return .none
 
-      case .initialize: return initialize(&state)
-      case .midiConnectionsChanged: return updateMidiConnections(&state)
+      case .initialize:
+        return initialize(&state)
+
+      case .midiConnectionsChanged:
+        return updateMidiConnections(&state)
+
       case .midiTrafficIndicator: return .none
       case .sawMIDITraffic(let traffic): return updateMIDIChannel(&state, traffic: traffic)
       }
@@ -180,8 +184,7 @@ extension MIDIConnections {
   private func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
     guard let midi else { return .none }
     return .publisher {
-      midi.publisher(for: \.activeConnections)
-        .removeDuplicates()
+      midi.activeConnectionsPublisher
         .map { _ in .midiConnectionsChanged }
     }.cancellable(id: CancelId.monitorMIDIConnections)
   }
