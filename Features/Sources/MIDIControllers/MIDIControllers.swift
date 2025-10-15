@@ -117,7 +117,7 @@ public struct MIDIControllersView: View {
       }
     }
     .padding([.leading, .trailing], 16.0)
-    .navigationTitle(Text("Controllers"))
+    .navigationTitle(Text("MIDI Controllers"))
     .task {
       await store.send(.initialize).finish()
     }

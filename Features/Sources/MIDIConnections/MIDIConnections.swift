@@ -277,7 +277,7 @@ public struct MIDIConnectionsView: View {
       }
     }
     .padding([.leading, .trailing], 16.0)
-    .navigationTitle(Text("Connections"))
+    .navigationTitle(Text("MIDI Connections"))
     .task {
       await store.send(.initialize).finish()
     }
