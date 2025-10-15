@@ -37,7 +37,7 @@ struct SynthTests {
     await store.send(.initialize)
 
     await store.receive(\.synthCreated) {
-      $0.sessionActive = true
+      $0.audioSessionActivated = true
     }
 
     await store.receive(\.activePresetIdChanged, timeout: .seconds(30)) {
@@ -67,7 +67,7 @@ struct SynthTests {
     await store.receive(\.synthCreated) {
       $0.loadedSoundFontId = 1
       $0.loadedPresetIndex = 0
-      $0.sessionActive = true
+      $0.audioSessionActivated = true
     }
 
     await store.receive(\.activePresetIdChanged, timeout: .seconds(30))
@@ -103,7 +103,7 @@ struct SynthTests {
     await store.receive(\.synthCreated) {
       $0.loadedSoundFontId = 1
       $0.loadedPresetIndex = 0
-      $0.sessionActive = true
+      $0.audioSessionActivated = true
     }
 
     await store.receive(\.activePresetIdChanged, timeout: .seconds(30))

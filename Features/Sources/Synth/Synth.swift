@@ -23,7 +23,7 @@ public struct Synth {
     var firstTimePresetLoaded: Bool = true
 
     @ObservationStateIgnored
-    var sessionActive: Bool = false
+    var audioSessionActivated: Bool = false
 
     public init() {}
   }
@@ -61,7 +61,8 @@ public struct Synth {
   public var body: some ReducerOf<Self> {
 
     Reduce { state, action in
-      print("synth action: ", action)
+      log.debug("reducer action: \(action)")
+
       switch action {
 
       case .activePresetIdChanged(let presetId):
@@ -107,12 +108,14 @@ public struct Synth {
 extension Synth {
 
   private func audioSessionRouteChanged(_ state: inout State) -> Effect<Action> {
+    log.info("audioSessionRouteChanged - BEGIN")
     return restartAudioSession(&state)
   }
 
   private func beginMonitoring(_ state: inout State) -> Effect<Action> {
+    log.info("beginMonitoring - BEGIN")
     // Start up the monitors now that we have a synth
-    .merge(
+    return .merge(
       monitorActivePresetId(&state),
       monitorMediaServices(&state),
       monitorRouteChanged(&state),
@@ -121,45 +124,47 @@ extension Synth {
   }
 
   private func configureAudioSession() {
+    log.info("configureAudioSession - BEGIN")
     let bufferSize: Int = 64
 
     do {
-      log.info("routeChanged - setting AudioSession category")
+      log.info("configureAudioSession - setting AudioSession category")
       try audioSession.setCategory(.playback, .default, [.mixWithOthers])
     } catch let error as NSError {
       let err = error.localizedDescription
-      log.error("routeChanged - failed to set the audio session category and mode: \(err)")
+      log.error("configureAudioSession - failed to set the audio session category and mode: \(err)")
     }
 
-    log.info("routeChanged - sampleRate: \(audioSession.sampleRate())")
+    log.info("configureAudioSession- sampleRate: \(audioSession.sampleRate())")
 
     do {
-      log.info("routeChanged - setting preferred sample rate")
+      log.info("configureAudioSession - setting preferred sample rate")
       try audioSession.setPreferredSampleRate(audioFormat.sampleRate)
     } catch let error as NSError {
       let err = error.localizedDescription
-      log.error("routeChanged - failed to set the preferred sample rate to \(audioFormat.sampleRate) - \(err)")
+      log.error("configureAudioSession - failed to set the preferred sample rate to \(audioFormat.sampleRate) - \(err)")
     }
 
     let bufferDuration = Double(bufferSize) / audioFormat.sampleRate
     do {
-      log.info("routeChanged - setting IO buffer duration \(bufferDuration)")
+      log.info("configureAudioSession - setting IO buffer duration \(bufferDuration)")
       try audioSession.setPreferredIOBufferDuration(bufferDuration)
     } catch let error as NSError {
       let err = error.localizedDescription
-      log.error("routeChanged - failed to set the preferred buffer size to \(bufferSize) - \(err)")
+      log.error("configureAudioSession - failed to set the preferred buffer size to \(bufferSize) - \(err)")
     }
 
     audioSession.currentRoute().dump()
+    log.info("configureAudioSession - END")
   }
 
-  private func createAudioChain(_ state: inout State) -> Bool {
-    log.info("createAudioChain BEGIN")
+  private func createAudioGraph(_ state: inout State) -> Bool {
+    log.info("createAudioGraph BEGIN")
     @Shared(.delayEffect) var delayEffect
     @Shared(.reverbEffect) var reverbEffect
 
     guard let synthAudioUnit, let delayEffect, let reverbEffect else {
-      log.info("createAudioChain - no synth, delay, or reverb available")
+      log.info("createAudioGraph - no synth, delay, or reverb available")
       return false
     }
 
@@ -167,17 +172,17 @@ extension Synth {
       engine.stop()
     }
 
-    log.info("createAudioChain - attaching to engine")
+    log.info("createAudioGraph - attaching audio units to engine")
     engine.attach(synthAudioUnit)
     engine.attach(delayEffect)
     engine.attach(reverbEffect)
 
-    log.info("createAudioChain - connecting audio units")
+    log.info("createAudioGraph - connecting audio units together")
     engine.connect(reverbEffect, to: engine.outputNode, format: audioFormat)
     engine.connect(delayEffect, to: reverbEffect, format: audioFormat)
     engine.connect(synthAudioUnit, to: delayEffect, format: audioFormat)
 
-    log.info("createAudioChain END")
+    log.info("createAudioGraph END")
     return true
   }
 
@@ -206,52 +211,48 @@ extension Synth {
   }
 
   private func createSynthDone(_ state: inout State) -> Effect<Action> {
-    log.info("synthCreated BEGIN")
+    log.info("createSynthDone BEGIN")
 
-    // There is a race between making the AVAudioSession active and having an synth audio unit. If the synth is
-    // available first, then
-    if state.sessionActive {
-      if createAudioChain(&state) {
+    if state.audioSessionActivated {
+      if createAudioGraph(&state) {
         startEngine(&state)
       }
     } else {
       startAudioSession(&state)
     }
 
-    log.info("synthCreated END")
-    return .concatenate(
-      beginMonitoring(&state)
-      // useActivePreset(&state, presetId: activeState.activePresetId),
-    )
+    log.info("createSynthDone END")
+    return beginMonitoring(&state)
   }
 
-  private func destroyAudioChain(_ state: inout State) {
-    log.info("destroyAudioChain BEGIN")
+  private func destroyAudioGraph(_ state: inout State) {
+    log.info("destroyAudioGraph BEGIN")
     @Shared(.delayEffect) var delayEffect
     @Shared(.reverbEffect) var reverbEffect
 
-    log.info("destroyAudioChain - resetting synth")
+    log.info("destroyAudioGraph - resetting synth")
     synthAudioUnit?.reset()
-    log.info("destroyAudioChain - stopping engine")
+
+    log.info("destroyAudioGraph - stopping engine")
     engine.stop()
 
     if let delay = delayEffect {
-      log.info("destroyAudioChain - detaching delay")
+      log.info("destroyAudioGraph - detaching delay")
       engine.detach(delay)
     }
 
     if let reverb = reverbEffect {
-      log.info("destroyAudioChain - detaching reverb")
+      log.info("destroyAudioGraph - detaching reverb")
       engine.detach(reverb)
     }
 
     if let synth = synthAudioUnit {
-      log.info("destroyAudioChain - detaching synth")
+      log.info("destroyAudioGraph - detaching synth")
       engine.detach(synth)
-      $synthAudioUnit.withLock { $0 = nil }
+      // $synthAudioUnit.withLock { $0 = nil }
     }
 
-    log.info("destroyAudioChain END")
+    log.info("destroyAudioGraph END")
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {
@@ -260,9 +261,10 @@ extension Synth {
   }
 
   private func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
-    log.info("lastPresetLoadFinished - \(state.firstTimePresetLoaded)")
+    log.info("lastPresetLoadFinished BEGIN - \(state.firstTimePresetLoaded)")
 
     guard let synthAudioUnit = synthAudioUnit?.synth else {
+      log.info("lastPresetLoadFinished END - no synthAudioUnit")
       return .none
     }
 
@@ -273,23 +275,28 @@ extension Synth {
   }
 
   private func monitorActivePresetId(_ state: inout State) -> Effect<Action> {
-    .publisher {
+    log.info("monitorActivePresetId BEGIN")
+    return .publisher {
       $activeState.activePresetId
         .publisher
         .removeDuplicates()
-        .map { value in .activePresetIdChanged(value) }
+        .map { value in
+          log.debug("monitorActivePresetId activePresetId changed - \(String(describing: value))")
+          return .activePresetIdChanged(value)
+        }
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
   private func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
+    log.info("monitorLastLoadFinished BEGIN")
     guard let parameterTree = synthAudioUnit?.auAudioUnit.parameterTree else {
-      fatalError("unexpected nil parameterTree chain")
+      fatalError("monitorLastLoadFinished - unexpected nil parameterTree chain")
     }
 
     guard
       let parameter = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.lastLoadFinished.rawValue)
     else {
-      fatalError("did not find lastLoadFinished parameter")
+      fatalError("monitorLastLoadFinished - did not find lastLoadFinished parameter")
     }
 
     return .publisher {
@@ -297,35 +304,51 @@ extension Synth {
         .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
         .removeDuplicates()
         .filter { $0 > 0.0 }
-        .map { _ in
-            .lastPresetLoadFinished
+        .map { lastLoadFinished in
+          log.debug("monitorMediaServices lastLoadFinished value changed - \(lastLoadFinished)")
+          return .lastPresetLoadFinished
         }
     }.cancellable(id: CancelId.monitorLastLoadFinished)
   }
 
   private func monitorMediaServices(_ state: inout State) -> Effect<Action> {
-    .publisher {
+    log.info("monitorMediaServices BEGIN")
+    return .publisher {
       NotificationCenter.default
         .publisher(for: AVAudioSession.mediaServicesWereResetNotification)
-        .map { _ in .mediaServicesWereReset }
+        .map { _ in
+          log.debug("monitorMediaServices - mediaServicesWereResetNotification fired")
+          return .mediaServicesWereReset
+        }
     }.cancellable(id: CancelId.monitorMediaServices, cancelInFlight: true)
   }
 
   private func monitorRouteChanged(_ state: inout State) -> Effect<Action> {
-    .publisher {
+    log.info("monitorRouteChanged BEGIN")
+    return .publisher {
       NotificationCenter.default
         .publisher(for: AVAudioSession.routeChangeNotification)
-        .map { _ in .audioSessionRouteChanged }
+        .map { _ in
+          log.debug("monitorRouteChanged - routeChangeNotification fired")
+          return .audioSessionRouteChanged
+        }
     }.cancellable(id: CancelId.monitorRouteChanged, cancelInFlight: true)
   }
 
   private func playNote(_ state: State, synth: SF2LibAU) -> Effect<Action> {
+    log.debug("playNote BEGIN")
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
-    guard playSoundOnPresetChange else { return .none }
+    guard playSoundOnPresetChange else {
+      log.debug("playNote END - !playSoundOnPresetChange")
+      return .none
+    }
+
     return .run { _ in
       @Dependency(\.continuousClock) var clock
+      log.debug("sending note on")
       synth.sendNoteOn(note: 60)
       try? await clock.sleep(for: .milliseconds(250))
+      log.debug("sending note off")
       synth.sendNoteOff(note: 60)
     }.cancellable(id: CancelId.playNote, cancelInFlight: true)
   }
@@ -334,21 +357,25 @@ extension Synth {
     log.info("restartAudioSession - BEGIN")
     stopAudioSession(&state)
     startAudioSession(&state)
-    log.info("recreateSynth - END")
+    log.info("restartAudioSession - END")
     return .none
   }
 
   private func sceneBecameActive(_ state: inout State) -> Effect<Action> {
-    if !state.sessionActive {
+    log.info("sceneBecameActive - BEGIN")
+    if !state.audioSessionActivated {
       startAudioSession(&state)
     }
+    log.info("sceneBecameActive - END")
     return .none
   }
 
   private func sceneBecameInactive(_ state: inout State) -> Effect<Action> {
+    log.info("sceneBecameInactive - BEGIN")
     if !backgroundProcessing {
       stopAudioSession(&state)
     }
+    log.info("sceneBecameInactive - END")
     return .none
   }
 
@@ -358,20 +385,23 @@ extension Synth {
     configureAudioSession()
 
     do {
-      log.info("routeChanged - setting active audio session")
+      log.info("startAudioSession - making audio session active")
       try audioSession.setActive(true, [])
-      state.sessionActive = true
+      state.audioSessionActivated = true
     } catch {
       let err = error.localizedDescription
-      log.error("routeChanged - failed to set active - \(err)")
+      log.error("startAudioSession - failed to set active - \(err)")
     }
 
-    if state.sessionActive && createAudioChain(&state) {
+    if state.audioSessionActivated && createAudioGraph(&state) {
       startEngine(&state)
     }
+
+    log.info("startAudioSession END")
   }
 
   private func startEngine(_ state: inout State) {
+    log.info("startEngine BEGIN")
     guard !engine.isRunning else {
       log.info("startEngine - already running")
       return
@@ -380,26 +410,26 @@ extension Synth {
     do {
       log.info("startEngine - starting")
       try engine.start()
-      log.info("startEngine - done")
     } catch {
-      log.error("startAudioSession - failed to start - \(error.localizedDescription)")
+      log.error("startEngine - failed to start - \(error.localizedDescription)")
     }
+    log.info("startEngine END")
   }
 
   private func stopAudioSession(_ state: inout State) {
     log.info("stopAudioSession BEGIN")
 
-    destroyAudioChain(&state)
+    destroyAudioGraph(&state)
 
     do {
-      log.info("stopAudioSession - setting AudioSession to inactive")
+      log.info("stopAudioSession - deactivating AudioSession")
       try audioSession.setActive(false, [.notifyOthersOnDeactivation])
       log.info("stopAudioSession - done")
     } catch let error as NSError {
       log.error("stopAudioSession - Failed session.setActive(false): \(error.localizedDescription)")
     }
 
-    state.sessionActive = false
+    state.audioSessionActivated = false
 
     log.info("stopAudioSession END")
   }
@@ -408,34 +438,34 @@ extension Synth {
     log.info("useActivePreset BEGIN - presetId: \(presetId ?? -1)")
     guard
       let synth = synthAudioUnit?.synth,
-      state.sessionActive else
+      state.audioSessionActivated else
     {
-      log.info("nil audioUnit or no audio session -- ignoring")
+      log.info("useActivePreset END - nil audioUnit or inactive audio session")
       return .none
     }
 
     guard let presetInfo = Operations.presetLoadingInfo(id: presetId) else {
-      log.info("no presetInfo -- ignoring")
+      log.info("useActivePreset END - no presetInfo")
       return .none
     }
 
     guard state.loadedPresetIndex != presetInfo.presetIndex || state.loadedSoundFontId != presetInfo.soundFontId else {
-      log.info("already loaded")
+      log.info("useActivePreset END - already loaded")
       return .none
     }
 
     let result: Bool
     if presetInfo.soundFontId == state.loadedSoundFontId {
-      log.info("loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
+      log.info("useActivePreset - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
       result = synth.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
     } else {
       guard let location = try? SoundFontKind(kind: presetInfo.kind, location: presetInfo.location)
       else {
-        log.error("unexpected nil location for \(presetInfo)")
+        log.error("useActivePreset END - unexpected nil location for \(presetInfo)")
         return .none
       }
       let path = location.path.path(percentEncoded: false)
-      log.info("loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
+      log.info("useActivePreset - loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
       result = synth.sendLoadFileUsePreset(
         path: path,
         preset: presetInfo.presetIndex,
