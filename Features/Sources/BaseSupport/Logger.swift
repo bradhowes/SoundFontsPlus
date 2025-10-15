@@ -22,7 +22,7 @@ public struct Logger: Sendable {
   public func log(level: OSLogType = .default, _ string: @autoclosure () -> String) {
     let string = string()
     if isRunningForPreviews {
-      print("\(string)")
+      print("\(category) - \(string)")
     } else {
       if #available(iOS 14, macOS 11, tvOS 14, watchOS 7, *) {
         self.logger.log(level: level, "\(string)")
