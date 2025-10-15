@@ -1,5 +1,5 @@
 {
-  "originHash" : "1bb685125213bf33a390e8bc3de88b83e1b684144854793571e09bde26d44566",
+  "originHash" : "725be17e0373a4c21be01454454f80b881a07134546bdbc6b4a9825bbc7e27e0",
   "pins" : [
     {
       "identity" : "auv3controls",
@@ -60,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/SF2Lib",
       "state" : {
-        "revision" : "f3cf2f063a6ad34611d5c2bfd53ab715e801e5b3",
-        "version" : "8.3.5"
+        "revision" : "77ebda30992cea94fc930b084ede663c69867529",
+        "version" : "8.3.6"
       }
     },
     {
@@ -123,8 +123,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "2d60d4082dfb4978974307acf0f00dfa20e5f621",
-        "version" : "1.22.3"
+        "revision" : "a9c3fecb5d31fc8aad5d8ba5d830924966d7fb15",
+        "version" : "1.23.0"
       }
     },
     {
@@ -168,8 +168,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
-        "revision" : "91415670c91d41e8e1872ef6fe1bf118e20dee37",
-        "version" : "2.5.1"
+        "revision" : "bf498690e1f6b4af790260f542e8428a4ba10d78",
+        "version" : "2.6.0"
       }
     },
     {
@@ -186,8 +186,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-perception",
       "state" : {
-        "revision" : "30721accd0370d7c9cb5bd0f7cdf5a1a767b383d",
-        "version" : "2.0.8"
+        "revision" : "4f47ebafed5f0b0172cf5c661454fa8e28fb2ac4",
+        "version" : "2.0.9"
       }
     },
     {
@@ -213,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "740c49c10ba653086fa85a5476a767cc78612ee4",
-        "version" : "0.23.1"
+        "revision" : "b4fadef78ba174a24bdf0215f5a53028a710a2cb",
+        "version" : "0.23.2"
       }
     },
     {
