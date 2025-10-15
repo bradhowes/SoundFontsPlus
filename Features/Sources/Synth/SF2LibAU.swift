@@ -14,8 +14,8 @@ public final class SF2LibAU: AUAudioUnit {
   private var _audioUnitName: String?
   private var _audioUnitShortName: String?
   private var _currentPreset: AUAudioUnitPreset?
-  private var engine: SF2Engine
 
+  private var engine: SF2Engine = SF2Engine()
   private var dryBus: AUAudioUnitBus
   private var reverbSendBus: AUAudioUnitBus
   private var chorusSendBus: AUAudioUnitBus
@@ -68,7 +68,7 @@ sub: \(componentDescription.componentSubType)
       throw Failure.invalidFormat
     }
 
-    engine = SF2Engine(format.sampleRate, getVoiceCount())
+    engine.create(format.sampleRate, getVoiceCount())
     dryBus = try Self.createBus(name: "dry", format: format)
     reverbSendBus = try Self.createBus(name: "reverbSend", format: format)
     chorusSendBus = try Self.createBus(name: "chorusSend", format: format)
@@ -256,22 +256,7 @@ extension SF2LibAU {
   public override var canPerformOutput: Bool { true }
 
   /// Provide a block that asks the internal SF2 `engine` to render samples.
-  public override var internalRenderBlock: AUInternalRenderBlock {
-    let bus: NSInteger = 0
-    // Make private 'copy' of the engine for capturing by the block. This mirrors what we would do with Objective-C.
-    // Copies all share the same underlying implementation object.
-    let engine = self.engine
-    return { _, timestamp, frameCount, _, output, realtimeEventListHead, pullInputBlock in
-      return unsafe engine.processAndRender(
-        timestamp,
-        frameCount,
-        bus,
-        output,
-        realtimeEventListHead,
-        pullInputBlock
-      )
-    }
-  }
+  public override var internalRenderBlock: AUInternalRenderBlock { engine.getRenderBlock() }
 }
 
 // MARK: - State Management

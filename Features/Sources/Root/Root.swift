@@ -397,10 +397,10 @@ private extension Root {
     switch phase {
 
     case .active:
-      return reduce(into: &state, action: .synth(.sceneBecameActive))
+      return reduce(into: &state, action: .synth(.acquireAudioSession))
 
     case .background, .inactive:
-      return reduce(into: &state, action: .synth(.sceneBecameInactive))
+      return reduce(into: &state, action: .synth(.releaseAudioSession))
 
     @unknown default:
       fatalError("Unhandled ScenePhase \(phase):")
