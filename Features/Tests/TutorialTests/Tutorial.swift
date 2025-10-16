@@ -8,6 +8,9 @@ import Testing
 
 @testable import Tutorial
 
+@Suite(
+  .snapshots(record: .failed)
+)
 @MainActor
 struct TutorialTests {
 
@@ -118,16 +121,14 @@ struct TutorialTests {
     col: Int = #column
   ) throws {
     let store = StoreOf<Tutorial>(initialState: .init(page: page)) { Tutorial() }
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(
-        matching: TutorialView(store: store),
-        fileID: fileID,
-        file: file,
-        testName: testName,
-        line: line,
-        col: col
-      )
-    }
+    try TestSupport.assertSnapshot(
+      matching: TutorialView(store: store),
+      fileID: fileID,
+      file: file,
+      testName: testName,
+      line: line,
+      col: col
+    )
   }
 
   @Test func introPage() throws { try snapshotPage(.intro) }
