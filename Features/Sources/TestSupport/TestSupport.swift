@@ -6,6 +6,8 @@ import Testing
 
 public enum TestSupport {
 
+  static let log = Logger(category: "TestSupport")
+
   /// A mock of AVAudioSession.outputVolume that toggles between 1.0 and 0.0
   final public class OutputVolumeFlipFlop: @unchecked Sendable {
     public var continuation: AsyncStream<Float>.Continuation?
@@ -56,6 +58,10 @@ public enum TestSupport {
     col: Int = #column
   ) throws {
     let uniqueTestName = makeUniqueSnapshotName(testName)
+    log.info("assertSnapshot - \(uniqueTestName)")
+    for (key, value) in ProcessInfo.processInfo.environment {
+      log.info("environment[\(key)]: \(value)")
+    }
 
     let view = SnapshotTestViewWrapper(size: size, colorScheme: colorScheme, background: background) {
       matching
@@ -77,12 +83,9 @@ public enum TestSupport {
       line: UInt(line),
       column: UInt(col)
     ) {
-      for (key, value) in ProcessInfo.processInfo.environment {
-        print("*** environment[\(key)]: \(value)")
-      }
       // Only record failures when not runnng in CI pipeline on Github
       if ProcessInfo.processInfo.isOnGithub {
-        print("***", result)
+        log.info("*** \(result)")
       } else {
         Issue.record(
           Comment(rawValue: result),

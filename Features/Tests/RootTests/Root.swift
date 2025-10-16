@@ -45,8 +45,6 @@ struct RootTests {
   }
 
   @Test func rootViewPreview() async throws {
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: RootView.preview)
-    }
+    try TestSupport.assertSnapshot(matching: RootView.preview)
   }
 }
