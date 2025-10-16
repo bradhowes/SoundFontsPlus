@@ -32,7 +32,7 @@ struct SettingsTests {
 
     // store.exhaustivity = .off
     await store.send(.initialize)
-    await store.receive(\.midiConnectionCountChanged, 1)
+    await store.receive(\.midiConnectionCountChanged)
 
     // await store.skipReceivedActions(strict: false)
     midiMonitor?.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
@@ -142,4 +142,3 @@ struct SettingsTests {
     try TestSupport.assertSnapshot(matching: view)
   }
 }
-
