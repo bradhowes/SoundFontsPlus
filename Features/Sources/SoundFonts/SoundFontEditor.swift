@@ -13,12 +13,12 @@ import Tags
 @Reducer
 public struct SoundFontEditor {
 
-  @Reducer(state: .equatable)
+  @Reducer
   public enum Path {
     case editTags(TagsEditor)
   }
 
-  @Reducer(state: .equatable)
+  @Reducer
   public enum Destination: Equatable {
     case alert(AlertState<Alert>)
 
@@ -150,6 +150,9 @@ public struct SoundFontEditor {
     .ifLet(\.$destination, action: \.destination)
   }
 }
+
+extension SoundFontEditor.Path.State: Equatable {}
+extension SoundFontEditor.Destination.State: Equatable {}
 
 extension SoundFontEditor {
 

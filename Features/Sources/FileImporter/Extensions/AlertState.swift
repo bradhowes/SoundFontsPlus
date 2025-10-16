@@ -79,7 +79,7 @@ extension AlertState {
 @Reducer
 private struct AlertDemo {
 
-  @Reducer(state: .equatable)
+  @Reducer
   fileprivate enum Destination: Equatable {
     case alert(AlertState<Alert>)
 
@@ -161,6 +161,8 @@ private struct AlertDemo {
     }
   }
 }
+
+extension AlertDemo.Destination.State: Equatable {}
 
 private struct AlertDemoView: View {
   @State private var store: StoreOf<AlertDemo>

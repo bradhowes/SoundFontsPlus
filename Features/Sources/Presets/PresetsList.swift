@@ -15,7 +15,7 @@ public struct PresetsList {
   public static var delayBeforeShowingActivePreset: Duration { .milliseconds(100) }
   public static var playNoteDuration: Duration { .milliseconds(250) }
 
-  @Reducer(state: .equatable, action: .equatable)
+  @Reducer
   public enum Destination {
     case alert(AlertState<Alert>)
 
@@ -205,10 +205,6 @@ public struct PresetsList {
   }
 }
 
-extension PresetsList.Destination.State: _EphemeralState {
-  public typealias Action = Alert
-}
-
 extension PresetsList {
 
   private func deleteFavorite(_ state: inout State, preset: Preset) -> Effect<Action> {
@@ -342,6 +338,12 @@ extension PresetsList {
       await send(.showActivePresetNow)
     }.cancellable(id: CancelId.showActivePresetNow, cancelInFlight: true)
   }
+}
+
+extension PresetsList.Destination.State: Equatable {}
+extension PresetsList.Destination.Action: Equatable {}
+extension PresetsList.Destination.State: _EphemeralState {
+  public typealias Action = Alert
 }
 
 public struct PresetsListView: View {

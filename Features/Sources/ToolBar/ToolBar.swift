@@ -20,7 +20,7 @@ private let log = Logger(category: "ToolBar")
 @Reducer
 public struct ToolBar {
 
-  @Reducer(state: .equatable)
+  @Reducer
   public enum Destination {
     case settings(Settings)
   }
@@ -182,6 +182,8 @@ public struct ToolBar {
     case monitorActiveVoiceCount
   }
 }
+
+extension ToolBar.Destination.State: Equatable {}
 
 private extension ToolBar {
 

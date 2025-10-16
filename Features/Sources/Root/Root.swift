@@ -31,7 +31,7 @@ private let log = Logger(category: "Root")
 @Reducer
 public struct Root {
 
-  @Reducer(state: .equatable)
+  @Reducer
   public enum Destination {
     case changes(Changes)
     case presetEditor(PresetEditor)
@@ -407,6 +407,8 @@ private extension Root {
     }
   }
 }
+
+extension Root.Destination.State: Equatable {}
 
 public struct RootView: View, KeyboardVisibilityPublisher {
   @Environment(\.scenePhase) var scenePhase

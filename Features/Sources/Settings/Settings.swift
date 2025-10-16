@@ -18,14 +18,14 @@ private let log = Logger(category: "Settings")
 @Reducer
 public struct Settings {
 
-  @Reducer(state: .equatable)
+  @Reducer
   public enum Path {
     case midiAssignments(MIDIAssignments)
     case midiConnections(MIDIConnections)
     case midiControllers(MIDIControllers)
   }
 
-  @Reducer(state: .equatable)
+  @Reducer
   public enum Destination: Equatable {
     case alert(AlertState<Alert>)
 
@@ -221,10 +221,6 @@ public struct Settings {
   }
 }
 
-extension Settings.Destination.State: _EphemeralState {
-  public typealias Action = Alert
-}
-
 extension Settings {
 
   private func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
@@ -263,6 +259,12 @@ extension Settings {
     $store.withLock { $0 = value }
     return .none
   }
+}
+
+extension Settings.Path.State: Equatable {}
+extension Settings.Destination.State: Equatable {}
+extension Settings.Destination.State: _EphemeralState {
+  public typealias Action = Alert
 }
 
 public struct SettingsView: View {

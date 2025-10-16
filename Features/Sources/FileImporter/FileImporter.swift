@@ -12,7 +12,7 @@ private let log = Logger(category: "FileImporterFeature")
 @Reducer
 public struct FileImporter {
 
-  @Reducer(state: .equatable, action: .equatable)
+  @Reducer
   public enum Destination: Equatable {
     case alert(AlertState<Alert>)
 
@@ -68,12 +68,6 @@ public struct FileImporter {
 
   @Dependency(\.fileManager) private var fileManager
   @Dependency(\.dismiss) private var dismiss
-}
-
-// extension Result<URL, Error>: Equatable {}
-
-extension FileImporter.Destination.State: _EphemeralState {
-  public typealias Action = Alert
 }
 
 extension FileImporter {
@@ -158,4 +152,10 @@ extension FileImporter {
 
     return destination
   }
+}
+
+extension FileImporter.Destination.State: Equatable {}
+extension FileImporter.Destination.Action: Equatable {}
+extension FileImporter.Destination.State: _EphemeralState {
+  public typealias Action = Alert
 }

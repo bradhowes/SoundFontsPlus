@@ -246,7 +246,6 @@ extension Synth {
 
     guard let synth = synthAudioUnit?.synth else {
       fatalError("lastPresetLoadFinished - unexpected nil synthAudioUnit")
-      return .none
     }
 
     let firstTimePresetLoaded = state.firstTimePresetLoaded

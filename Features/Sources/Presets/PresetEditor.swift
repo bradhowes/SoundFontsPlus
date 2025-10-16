@@ -13,7 +13,7 @@ import Tuning
 @Reducer
 public struct PresetEditor {
 
-  @Reducer(state: .equatable, action: .equatable)
+  @Reducer
   public enum Destination {
     case alert(AlertState<Alert>)
 
@@ -171,10 +171,6 @@ public struct PresetEditor {
   @Shared(.confirmPresetHiding) private var confirmPresetHiding
 }
 
-extension PresetEditor.Destination.State: _EphemeralState {
-  public typealias Action = Alert
-}
-
 extension PresetEditor {
 
   private func confirmHidePreset(_ state: inout State) -> Effect<Action> {
@@ -207,6 +203,12 @@ extension PresetEditor {
     state.pendingAudioConfig.keyboardLowestNote = lowestKey
     return .none
   }
+}
+
+extension PresetEditor.Destination.State: Equatable {}
+extension PresetEditor.Destination.Action: Equatable {}
+extension PresetEditor.Destination.State: _EphemeralState {
+  public typealias Action = Alert
 }
 
 public struct PresetEditorView: View {
