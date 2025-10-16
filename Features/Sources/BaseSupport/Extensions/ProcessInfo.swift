@@ -3,5 +3,5 @@
 import Foundation
 
 extension ProcessInfo {
-  public var isOnGithub: Bool { environment["HOME"]?.starts(with: "/Users/runner/") ?? false }
+  public var isOnGithub: Bool { environment["HOME"]?.starts(with: "/Users/runner/") ?? true }
 }

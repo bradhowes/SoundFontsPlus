@@ -77,6 +77,9 @@ public enum TestSupport {
       line: UInt(line),
       column: UInt(col)
     ) {
+      for (key, value) in ProcessInfo.processInfo.environment {
+        print("*** environment[\(key)]: \(value)")
+      }
       // Only record failures when not runnng in CI pipeline on Github
       if ProcessInfo.processInfo.isOnGithub {
         print("***", result)
