@@ -101,9 +101,6 @@ public struct Note: CustomStringConvertible, Sendable {
   public static let lowest = Note(midiNoteValue: midiRange.lowerBound)
   public static let highest = Note(midiNoteValue: midiRange.upperBound)
 
-  public static let C4 = Note(midiNoteValue: 60)
-  public static let A4 = Note(midiNoteValue: 69)
-
   /// @returns true if instance is a valid MIDI v1 note
   public var isValidMidiNote: Bool { Self.midiRange.contains(midiNoteValue) }
 
@@ -216,4 +213,92 @@ extension Note: QueryBindable {
 extension Note: Strideable {
   public func distance(to other: Note) -> Int { other.midiNoteValue - midiNoteValue }
   public func advanced(by delta: Int) -> Note { .init(midiNoteValue: midiNoteValue + delta) }
+}
+
+extension Note {
+  public static var `C-1`: Note { .init(midiNoteValue: 0) }
+  public static var `D-1`: Note { .init(midiNoteValue: 2) }
+  public static var `E-1`: Note { .init(midiNoteValue: 4) }
+  public static var `F-1`: Note { .init(midiNoteValue: 5) }
+  public static var `G-1`: Note { .init(midiNoteValue: 7) }
+  public static var `A-1`: Note { .init(midiNoteValue: 9) }
+  public static var `B-1`: Note { .init(midiNoteValue: 11) }
+
+  public static var C0: Note { .init(midiNoteValue: 12) }
+  public static var D0: Note { .init(midiNoteValue: 14) }
+  public static var E0: Note { .init(midiNoteValue: 16) }
+  public static var F0: Note { .init(midiNoteValue: 17) }
+  public static var G0: Note { .init(midiNoteValue: 19) }
+  public static var A0: Note { .init(midiNoteValue: 21) }
+  public static var B0: Note { .init(midiNoteValue: 23) }
+
+  public static var C1: Note { .init(midiNoteValue: 24) }
+  public static var D1: Note { .init(midiNoteValue: 26) }
+  public static var E1: Note { .init(midiNoteValue: 28) }
+  public static var F1: Note { .init(midiNoteValue: 39) }
+  public static var G1: Note { .init(midiNoteValue: 31) }
+  public static var A1: Note { .init(midiNoteValue: 33) }
+  public static var B1: Note { .init(midiNoteValue: 35) }
+
+  public static var C2: Note { .init(midiNoteValue: 36) }
+  public static var D2: Note { .init(midiNoteValue: 38) }
+  public static var E2: Note { .init(midiNoteValue: 40) }
+  public static var F2: Note { .init(midiNoteValue: 41) }
+  public static var G2: Note { .init(midiNoteValue: 43) }
+  public static var A2: Note { .init(midiNoteValue: 45) }
+  public static var B2: Note { .init(midiNoteValue: 47) }
+
+  public static var C3: Note { .init(midiNoteValue: 48) }
+  public static var D3: Note { .init(midiNoteValue: 50) }
+  public static var E3: Note { .init(midiNoteValue: 52) }
+  public static var F3: Note { .init(midiNoteValue: 53) }
+  public static var G3: Note { .init(midiNoteValue: 55) }
+  public static var A3: Note { .init(midiNoteValue: 57) }
+  public static var B3: Note { .init(midiNoteValue: 59) }
+
+  public static var C4: Note { .init(midiNoteValue: 60) }
+  public static var D4: Note { .init(midiNoteValue: 62) }
+  public static var E4: Note { .init(midiNoteValue: 64) }
+  public static var F4: Note { .init(midiNoteValue: 65) }
+  public static var G4: Note { .init(midiNoteValue: 67) }
+  public static var A4: Note { .init(midiNoteValue: 69) }
+  public static var B4: Note { .init(midiNoteValue: 71) }
+
+  public static var C5: Note { .init(midiNoteValue: 72) }
+  public static var D5: Note { .init(midiNoteValue: 74) }
+  public static var E5: Note { .init(midiNoteValue: 76) }
+  public static var F5: Note { .init(midiNoteValue: 77) }
+  public static var G5: Note { .init(midiNoteValue: 79) }
+  public static var A5: Note { .init(midiNoteValue: 81) }
+  public static var B5: Note { .init(midiNoteValue: 83) }
+
+  public static var C6: Note { .init(midiNoteValue: 84) }
+  public static var D6: Note { .init(midiNoteValue: 86) }
+  public static var E6: Note { .init(midiNoteValue: 88) }
+  public static var F6: Note { .init(midiNoteValue: 89) }
+  public static var G6: Note { .init(midiNoteValue: 91) }
+  public static var A6: Note { .init(midiNoteValue: 93) }
+  public static var B6: Note { .init(midiNoteValue: 95) }
+
+  public static var C7: Note { .init(midiNoteValue: 96) }
+  public static var D7: Note { .init(midiNoteValue: 98) }
+  public static var E7: Note { .init(midiNoteValue: 100) }
+  public static var F7: Note { .init(midiNoteValue: 101) }
+  public static var G7: Note { .init(midiNoteValue: 103) }
+  public static var A7: Note { .init(midiNoteValue: 105) }
+  public static var B7: Note { .init(midiNoteValue: 107) }
+
+  public static var C8: Note { .init(midiNoteValue: 108) }
+  public static var D8: Note { .init(midiNoteValue: 110) }
+  public static var E8: Note { .init(midiNoteValue: 112) }
+  public static var F8: Note { .init(midiNoteValue: 113) }
+  public static var G8: Note { .init(midiNoteValue: 115) }
+  public static var A8: Note { .init(midiNoteValue: 117) }
+  public static var B8: Note { .init(midiNoteValue: 119) }
+
+  public static var C9: Note { .init(midiNoteValue: 120) }
+  public static var D9: Note { .init(midiNoteValue: 122) }
+  public static var E9: Note { .init(midiNoteValue: 124) }
+  public static var F9: Note { .init(midiNoteValue: 125) }
+  public static var G9: Note { .init(midiNoteValue: 127) }
 }

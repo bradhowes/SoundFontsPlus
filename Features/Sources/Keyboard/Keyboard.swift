@@ -158,7 +158,7 @@ extension Keyboard {
 public struct KeyboardView: View {
   typealias Event = SpatialEventGesture.Value.Element
   @State private var store: StoreOf<Keyboard>
-  @State private var eventNoteMap = EventNoteMap()
+  @State private var eventNoteMap = EventNoteMap<SpatialEventCollection.Event.ID>()
   @State private var frames: [CGRect] = Array(repeating: .zero, count: Note.midiRange.count)
 
   @Shared(.keyboardSlides) private var keyboardSlides
@@ -327,14 +327,14 @@ public struct KeyboardView: View {
     let pos = frames.orderedInsertionIndex(for: event.location)
     guard pos < frames.endIndex else { return }
     let note = Note(midiNoteValue: frames.distance(from: frames.startIndex, to: pos))
-    let update = eventNoteMap.assign(event: event, note: note, fixedKeys: !keyboardSlides)
+    let update = eventNoteMap.assign(event: event.id, note: note, fixedKeys: !keyboardSlides)
     if update.previous != nil || update.firstTime {
       store.send(.keyAssigned(previous: update.previous, note: note))
     }
   }
 
   private func releaseNote(for event: Event) {
-    if let note = eventNoteMap.release(event: event) {
+    if let note = eventNoteMap.release(event: event.id) {
       store.send(.keyReleased(note: note))
     }
   }
