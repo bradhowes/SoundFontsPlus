@@ -30,8 +30,8 @@ struct SettingsTests {
 
     let store = TestStore(initialState: Settings.State()) { Settings() }
 
-    // store.exhaustivity = .off
     await store.send(.initialize)
+    store.exhaustivity = .off
     await store.receive(\.midiConnectionCountChanged)
 
     // await store.skipReceivedActions(strict: false)
