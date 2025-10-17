@@ -235,7 +235,7 @@ extension Note {
   public static var C1: Note { .init(midiNoteValue: 24) }
   public static var D1: Note { .init(midiNoteValue: 26) }
   public static var E1: Note { .init(midiNoteValue: 28) }
-  public static var F1: Note { .init(midiNoteValue: 39) }
+  public static var F1: Note { .init(midiNoteValue: 29) }
   public static var G1: Note { .init(midiNoteValue: 31) }
   public static var A1: Note { .init(midiNoteValue: 33) }
   public static var B1: Note { .init(midiNoteValue: 35) }
