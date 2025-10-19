@@ -192,6 +192,7 @@ extension TestSupport.SnapshotConfig {
       .init(preferredContentSizeCategory: .medium),
       .init(userInterfaceIdiom: .phone),
     ]
+
     switch self {
     case .landscape: return .init(
       traitsFrom: base + [

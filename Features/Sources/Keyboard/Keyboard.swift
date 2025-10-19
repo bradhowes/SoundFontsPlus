@@ -54,12 +54,13 @@ public struct Keyboard {
     @Shared(.synthAudioUnit) var synthAudioUnit
 
     var midiInstrument: AVAudioUnitMIDIInstrument? { synthAudioUnit?.midiInstrument }
-    var activeKeyColor: Color = .green
+    var muted: Bool
     var scrollTo: Note?
     let settingsDemo: Bool
 
-    public init(settingsDemo: Bool = false, activeNotes: [(EventId, Note)] = []) {
+    public init(settingsDemo: Bool = false, activeNotes: [(EventId, Note)] = [], muted: Bool = false) {
       @Shared(.firstVisibleKey) var firstVisibleKey
+      self.muted = muted
       self.scrollTo = firstVisibleKey
       self.settingsDemo = settingsDemo
       for (event, note) in activeNotes {
@@ -77,6 +78,7 @@ public struct Keyboard {
   public enum Action: Equatable {
     case activePresetIdChanged(Preset.ID?)
     case allOff
+    case deinitialize
     case delegate(Delegate)
     case initialize
     case outputVolumeStateChanged(OutputVolumeState)
@@ -105,6 +107,9 @@ public struct Keyboard {
         state.noteCounters = .init(repeating: 0, count: state.noteCounters.count)
         return .none
 
+      case .deinitialize:
+        return .merge(CancelId.allCases.map { .cancel(id: $0) })
+
       case .delegate:
         return .none
 
@@ -112,7 +117,7 @@ public struct Keyboard {
         return initialize(&state)
 
       case .outputVolumeStateChanged(let value):
-        state.activeKeyColor = value == .muted ? .red : .green
+        state.muted = value == .muted
         return .none
 
       case let .scrollTo(key):
@@ -133,7 +138,7 @@ public struct Keyboard {
 
   @Shared(.activeState) private var activeState
 
-  private enum CancelId {
+  private enum CancelId: CaseIterable {
     case activePresetId
     case scrollTo
   }
@@ -241,6 +246,7 @@ public struct KeyboardView: View {
   @Environment(\.maxKeyboardPanelHeight) private var maxKeyboardPanelHeight
   @Environment(\.verticalSizeClass) private var verticalSizeClass
 
+  private var activeColor: Color { store.muted ? .red : .green }
   private let whiteNotes: [Note] = .init(WhiteKeySequenceGenerator().makeIterator())
   private let blackNotes: [Note] = .init(BlackKeySequenceGenerator().makeIterator())
 
@@ -381,7 +387,7 @@ public struct KeyboardView: View {
     return RoundedRectangle(cornerRadius: cornerRadius)
       .fill(color)
       .fill((note.isValidMidiNote && store.noteCounters[note.midiNoteValue] > 0) ?
-            store.activeKeyColor.opacity(0.3) : .clear)
+            activeColor.opacity(0.3) : .clear)
       .frame(width: width, height: height + cornerRadius)
       .offset(y: -cornerRadius)
       .id(note)
