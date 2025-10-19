@@ -10,7 +10,10 @@ import SQLiteData
 private let log = Logger(category: "Database")
 
 // swiftlint:disable:next function_body_length
-public func appDatabase(fullTestLoading: Bool = false) throws -> any DatabaseWriter {
+public func appDatabase(
+  fullTestLoading: Bool = false,
+  seeder: ((Database) throws -> Void)? = nil
+) throws -> any DatabaseWriter {
   @Dependency(\.context) var context
   let database: any DatabaseWriter
   var configuration = GRDB.Configuration()
@@ -73,14 +76,6 @@ public func appDatabase(fullTestLoading: Bool = false) throws -> any DatabaseWri
     }
   }
 
-#if DEBUG && targetEnvironment(simulator)
-  if context != .test {
-    migrator.registerMigration("Seed sample data") { db in
-      try db.seedSampleData()
-    }
-  }
-#endif // DEBUG && targetEnvironment(simulator)
-
   try migrator.migrate(database)
 
   // Update locations of builtin SF2 files everytime we startup since app container location could change.
@@ -98,14 +93,11 @@ public func appDatabase(fullTestLoading: Bool = false) throws -> any DatabaseWri
         try update.execute(db)
       }
     }
+
+    if let seeder {
+      try seeder(db)
+    }
   }
 
   return database
 }
-
-#if DEBUG
-extension Database {
-  func seedSampleData() throws {
-  }
-}
-#endif // DEBUG
