@@ -48,7 +48,6 @@ let package = Package(
     .lib("SoundFonts"),
     .lib("Synth"),
     .lib("Tags"),
-    // .lib("TestSupport"),
     .lib("ToolBar"),
     .lib("Tuning"),
     .lib("Tutorial"),
@@ -180,8 +179,15 @@ let package = Package(
       plugins: ["BuildFluidFont"]
     ),
     .target(name: "Synth", dependencies: ["Models"]),
-    // Special-case -- not a `.feature`
-    .target(name: "TestSupport", dependencies: ["BaseSupport"]),
+
+    // Library only used for tests
+    .target(
+      name: "TestSupport",
+      dependencies: [
+        "BaseSupport",
+        .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+      ]
+    ),
 
     // MARK: - Feature Test Targets - name is the feature name from above, and the test name will be that + "Tests"
 
