@@ -46,10 +46,17 @@ public enum TestSupport {
     public init() {}
   }
 
+  public enum SnapshotConfig {
+    case portrait
+    case landscape
+    case tablet
+  }
+
   @MainActor
   public static func assertSnapshot<V: SwiftUI.View>(
     matching: V,
-    size: CGSize = CGSize(width: 400, height: 800),
+    size: CGSize? = nil,
+    config: SnapshotConfig = .portrait,
     colorScheme: ColorScheme = .dark,
     background: Color = .black,
     fileID: StaticString = #fileID,
@@ -60,11 +67,19 @@ public enum TestSupport {
   ) throws {
     let uniqueTestName = makeUniqueSnapshotName(testName)
     log.info("assertSnapshot - \(uniqueTestName)")
-    for (key, value) in ProcessInfo.processInfo.environment {
-      log.info("environment[\(key)]: \(value)")
-    }
+//    for (key, value) in ProcessInfo.processInfo.environment {
+//      log.info("environment[\(key)]: \(value)")
+//    }
 
-    let view = SnapshotTestViewWrapper(size: size, colorScheme: colorScheme, background: background) {
+    let width = size?.width ?? config.size.width
+    let height = size?.height ?? config.size.height
+    let layout: SwiftUISnapshotLayout = .fixed(width: width, height: height)
+
+    let view = SnapshotTestViewWrapper(
+      size: .init(width: width, height: height),
+      colorScheme: colorScheme,
+      background: background
+    ) {
       matching
     }
 
@@ -72,7 +87,8 @@ public enum TestSupport {
       of: view,
       as: .image(
         drawHierarchyInKeyWindow: false,
-        layout: .fixed(width: size.width, height: size.height)
+        layout: layout,
+        traits: config.traits
       ),
       named: uniqueTestName,
       record: nil,
@@ -157,6 +173,46 @@ public enum TestSupport {
     }
     public override func reset() {
       events.append((.reset, 0, 0, 0))
+    }
+  }
+}
+
+extension TestSupport.SnapshotConfig {
+  var size: CGSize {
+    switch self {
+    case .landscape: return .init(width: 800, height: 400)
+    case .portrait: return .init(width: 400, height: 800)
+    case .tablet: return .init(width: 800, height: 800)
+    }
+  }
+
+  var traits: UITraitCollection {
+    let base: [UITraitCollection] = [
+      .init(layoutDirection: .leftToRight),
+      .init(preferredContentSizeCategory: .medium),
+      .init(userInterfaceIdiom: .phone),
+    ]
+    switch self {
+    case .landscape: return .init(
+      traitsFrom: base + [
+        .init(horizontalSizeClass: .regular),
+        .init(verticalSizeClass: .compact),
+      ]
+    )
+
+    case .portrait: return .init(
+      traitsFrom: base + [
+        .init(horizontalSizeClass: .compact),
+        .init(verticalSizeClass: .regular),
+        ]
+      )
+
+    case .tablet: return .init(
+      traitsFrom: base + [
+        .init(horizontalSizeClass: .regular),
+        .init(verticalSizeClass: .regular),
+      ]
+    )
     }
   }
 }

@@ -29,10 +29,22 @@ extension Keyboard.State.EventId {
 @MainActor
 struct KeyboardTests {
 
-  @Test func keyboardPreview() async throws {
+  @Test func keyboardPreviewPortrait() async throws {
     @Shared(.activeState) var activeState
     $activeState.withLock { $0 = .none }
-    try TestSupport.assertSnapshot(matching: KeyboardPreview())
+    try TestSupport.assertSnapshot(
+      matching: KeyboardPreview(),
+      config: .portrait
+    )
+  }
+
+  @Test func keyboardPreviewLandscape() async throws {
+    @Shared(.activeState) var activeState
+    $activeState.withLock { $0 = .none }
+    try TestSupport.assertSnapshot(
+      matching: KeyboardPreview(),
+      config: .landscape
+    )
   }
 
   @Test func keyboardRenders64NoLabelsC4() async throws {
