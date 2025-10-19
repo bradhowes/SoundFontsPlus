@@ -75,9 +75,7 @@ public struct DelayEffect {
         return updateAndSave(&state, path: \.cutoff, value: state.cutoff.value)
 
       case .deinitialize:
-        return .merge(
-          CancelId.allCases.map { .cancel(id: $0) }
-        )
+        return .merge(CancelId.allCases.map { .cancel(id: $0) })
 
       case .enabled:
         return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
