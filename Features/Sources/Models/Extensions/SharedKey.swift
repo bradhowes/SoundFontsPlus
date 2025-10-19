@@ -13,7 +13,7 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
 
 extension SharedKey where Self == FileStorageKey<ActiveState>.Default {
   public static var activeState: Self {
-    Self[.fileStorage(.activeStateURL), default: .init()]
+    Self[.fileStorage(.activeStateURL), default: .default]
   }
 }
 

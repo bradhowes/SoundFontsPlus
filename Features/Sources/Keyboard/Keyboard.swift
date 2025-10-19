@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFAudio
+import AVFAudio.AVAudioUnit
 import BaseSupport
 import ComposableArchitecture
 import Dependencies
@@ -11,13 +11,43 @@ import SwiftUI
 
 private let log = Logger(category: "Keyboard")
 
+/**
+ Representation of a virtual piano keyboard. Touching a key triggers the note assigned to the key. Handles multiple
+ touches. The keyboard can be fixed or slidable. When fixed, moving a touch to a different key will release the old
+ key and trigger a the note assigned to the new key. When sliding, moving a touch will scroll the keyboard in the
+ direction of the touch movement.
+ */
 @Reducer
 public struct Keyboard {
-  public typealias Event = SpatialEventGesture.Value.Element
 
   @ObservableState
   public struct State: Equatable {
-    var active: [Bool] = .init(repeating: false, count: Note.midiRange.count)
+
+    /**
+     Wrapper around a `SpatialEventId` prototype value that allows us to use them as keys in a dictionary.
+     */
+    public struct EventId {
+      public typealias Equals = (any SpatialEventId, any SpatialEventId) -> Bool
+
+      let value: any SpatialEventId
+      let equals: Equals
+
+      /**
+       Initialize a new instance with a `SpatialEventId` value and a closure that can compare it to another
+       `SpatialEventId` to determine if the two are the same value.
+       */
+      public init(_ value: any SpatialEventId, equals: @escaping Equals) {
+        self.value = value
+        self.equals = equals
+      }
+    }
+
+    // Mapping from unique event ID to a Note value.
+    var eventNoteMap = [EventId: Note]()
+
+    // Collection of activation counters for MIDI notes. A counter can be > 1 but it will only trigger a note ON in the
+    // synth when it becomes 1, and it will only trigger a note OFF when it becomes 0.
+    var noteCounters: [Int] = .init(repeating: 0, count: Note.midiRange.count)
 
     @Shared(.keyWidth) var keyWidth
     @Shared(.keyLabels) var keyLabels
@@ -28,10 +58,14 @@ public struct Keyboard {
     var scrollTo: Note?
     let settingsDemo: Bool
 
-    public init(settingsDemo: Bool = false) {
+    public init(settingsDemo: Bool = false, activeNotes: [(EventId, Note)] = []) {
       @Shared(.firstVisibleKey) var firstVisibleKey
       self.scrollTo = firstVisibleKey
       self.settingsDemo = settingsDemo
+      for (event, note) in activeNotes {
+        self.eventNoteMap[event] = note
+        self.noteCounters[note.midiNoteValue] = 1
+      }
     }
   }
 
@@ -43,12 +77,12 @@ public struct Keyboard {
   public enum Action: Equatable {
     case activePresetIdChanged(Preset.ID?)
     case allOff
-    case keyAssigned(previous: Note?, note: Note)
     case delegate(Delegate)
     case initialize
-    case keyReleased(note: Note)
     case outputVolumeStateChanged(OutputVolumeState)
     case scrollTo(Note?)
+    case touchBegan(State.EventId, Note)
+    case touchEnded(State.EventId)
     case updateVisibleKeys(lowest: Note, highest: Note)
 
     public enum Delegate: Equatable {
@@ -67,17 +101,12 @@ public struct Keyboard {
         return activePresetIdChanged(&state, presetId: presetId)
 
       case .allOff:
-        state.active = .init(repeating: false, count: state.active.count)
+        state.eventNoteMap.removeAll()
+        state.noteCounters = .init(repeating: 0, count: state.noteCounters.count)
         return .none
 
       case .delegate:
         return .none
-
-      case let .keyAssigned(previous, key):
-        return keyAssigned(&state, previous: previous, key: key)
-
-      case let .keyReleased(note):
-        return noteOff(&state, key: note)
 
       case .initialize:
         return initialize(&state)
@@ -89,6 +118,12 @@ public struct Keyboard {
       case let .scrollTo(key):
         state.scrollTo = key
         return .none
+
+      case let .touchBegan(event, note):
+        return touchBegan(&state, event: event, note: note)
+
+      case let .touchEnded(event):
+        return touchEnded(&state, event: event)
 
       case let .updateVisibleKeys(lowest, highest):
         return updateVisibleKeys(&state, lowest: lowest, highest: highest)
@@ -104,25 +139,35 @@ public struct Keyboard {
   }
 }
 
+extension Keyboard.State.EventId: Hashable {
+  public static func ==(a: Self, b: Self) -> Bool { a.equals(a.value, b.value) }
+  public func hash(into hasher: inout Hasher) { value.hash(into: &hasher) }
+}
+
+extension Keyboard.State.EventId {
+
+  /**
+   Factory method to wrap a `SpatialEventGesture.Value.Element.ID` value in a `Keyboard.State.EventId`
+   */
+  static func wrap(_ id: SpatialEventGesture.Value.Element.ID) -> Self {
+    .init(
+      id,
+      equals: { ($0 as? SpatialEventGesture.Value.Element.ID) == ($1 as? SpatialEventGesture.Value.Element.ID) }
+    )
+  }
+}
+
 extension Keyboard {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     guard let presetId = presetId else { return .none }
     guard let audioConfig = AudioConfig.with(presetId: presetId) else { return .none }
     guard audioConfig.keyboardLowestNoteEnabled else { return .none }
-    state.active = .init(repeating: false, count: state.active.count)
+    state.noteCounters = .init(repeating: 0, count: state.noteCounters.count)
     log.info("activePresetidChanged - scrollTo \(audioConfig.keyboardLowestNote)")
     return .run { send in
       await send(.scrollTo(audioConfig.keyboardLowestNote))
     }.cancellable(id: CancelId.scrollTo)
-  }
-
-  private func keyAssigned(_ state: inout State, previous: Note?, key: Note) -> Effect<Action> {
-    guard previous != key else { return .none }
-    if let previous {
-      _ = noteOff(&state, key: previous)
-    }
-    return noteOn(&state, key: key)
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {
@@ -130,22 +175,53 @@ extension Keyboard {
       $activeState.activePresetId
         .publisher
         .removeDuplicates()
-        .map { .activePresetIdChanged($0) }
+        .map {
+          .activePresetIdChanged($0)
+        }
     }.cancellable(id: CancelId.activePresetId, cancelInFlight: true)
   }
 
-  private func noteOff(_ state: inout State, key: Note) -> Effect<Action> {
-    log.info("noteOff - \(key) \(state.midiInstrument != nil)")
-    state.active[key.midiNoteValue] = false
-    state.midiInstrument?.stopNote(UInt8(key.midiNoteValue), onChannel: 0)
+  private func reduceNoteCount(_ state: inout State, note: Note) -> Bool {
+    let count = state.noteCounters[note.midiNoteValue]
+    if count > 0 {
+      state.noteCounters[note.midiNoteValue] = count - 1
+    }
+    return count == 1
+  }
+
+  private func touchBegan(_ state: inout State, event: State.EventId, note: Note) -> Effect<Action> {
+    @Shared(.keyboardSlides) var keyboardSlides
+    if let previous = state.eventNoteMap[event] {
+
+      // Same note being activated or keyboard slides then nothing to change in state
+      if previous == note || keyboardSlides {
+        return .none
+      }
+
+      // If key is no longer held down, stop the note
+      if reduceNoteCount(&state, note: previous) {
+        state.midiInstrument?.stopNote(UInt8(previous.midiNoteValue), onChannel: 0)
+      }
+    }
+
+    state.eventNoteMap[event] = note
+    state.noteCounters[note.midiNoteValue] += 1
+
+    // If first time touching the key, start playing the note for it
+    if state.noteCounters[note.midiNoteValue] == 1 {
+      state.midiInstrument?.startNote(UInt8(note.midiNoteValue), withVelocity: 127, onChannel: 0)
+      return .send(.delegate(.noteOn(note)))
+    }
+
     return .none
   }
 
-  private func noteOn(_ state: inout State, key: Note) -> Effect<Action> {
-    log.info("noteOn - \(key) \(state.midiInstrument != nil)")
-    state.active[key.midiNoteValue] = true
-    state.midiInstrument?.startNote(UInt8(key.midiNoteValue), withVelocity: 127, onChannel: 0)
-    return .send(.delegate(.noteOn(key)))
+  private func touchEnded(_ state: inout State, event: State.EventId) -> Effect<Action> {
+    if let note = state.eventNoteMap.removeValue(forKey: event),
+       reduceNoteCount(&state, note: note) {
+      state.midiInstrument?.stopNote(UInt8(note.midiNoteValue), onChannel: 0)
+    }
+    return .none
   }
 
   private func updateVisibleKeys(_ state: inout State, lowest: Note, highest: Note) -> Effect<Action> {
@@ -158,9 +234,7 @@ extension Keyboard {
 public struct KeyboardView: View {
   typealias Event = SpatialEventGesture.Value.Element
   @State private var store: StoreOf<Keyboard>
-  @State private var eventNoteMap = EventNoteMap<SpatialEventCollection.Event.ID>()
   @State private var frames: [CGRect] = Array(repeating: .zero, count: Note.midiRange.count)
-
   @Shared(.keyboardSlides) private var keyboardSlides
 
   @Environment(\.appPanelBackground) private var appPanelBackground
@@ -241,15 +315,15 @@ public struct KeyboardView: View {
       .onChanged { events in
         for event in events {
           if event.phase == .active {
-            assignNote(to: event)
+            touchDown(to: event)
           } else {
-            releaseNote(for: event)
+            touchUp(for: event)
           }
         }
       }
       .onEnded { events in
         for event in events {
-          releaseNote(for: event)
+          touchUp(for: event)
         }
       }
   }
@@ -306,7 +380,8 @@ public struct KeyboardView: View {
 
     return RoundedRectangle(cornerRadius: cornerRadius)
       .fill(color)
-      .fill(eventNoteMap.isOn(note) ? store.activeKeyColor.opacity(0.3) : .clear)
+      .fill((note.isValidMidiNote && store.noteCounters[note.midiNoteValue] > 0) ?
+            store.activeKeyColor.opacity(0.3) : .clear)
       .frame(width: width, height: height + cornerRadius)
       .offset(y: -cornerRadius)
       .id(note)
@@ -323,70 +398,15 @@ public struct KeyboardView: View {
       }
   }
 
-  private func assignNote(to event: Event) {
+  private func touchDown(to event: Event) {
     let pos = frames.orderedInsertionIndex(for: event.location)
     guard pos < frames.endIndex else { return }
     let note = Note(midiNoteValue: frames.distance(from: frames.startIndex, to: pos))
-    let update = eventNoteMap.assign(event: event.id, note: note, fixedKeys: !keyboardSlides)
-    if update.previous != nil || update.firstTime {
-      store.send(.keyAssigned(previous: update.previous, note: note))
-    }
+    store.send(.touchBegan(.wrap(event.id), note))
   }
 
-  private func releaseNote(for event: Event) {
-    if let note = eventNoteMap.release(event: event.id) {
-      store.send(.keyReleased(note: note))
-    }
-  }
-}
-
-extension RandomAccessCollection where Element == CGRect, Index == Int {
-
-  /**
-   Obtain the index of the key in the collection that corresponds to the given position. Performs a binary search to
-   quickly locate the best candidate. NOTE: pretty sure this can be done in constant time via straightforward math.
-
-   - parameter point: the location to consider
-   - returns: index where to insert
-   */
-  func orderedInsertionIndex(for point: CGPoint) -> Index {
-    var low = startIndex
-    var high = endIndex
-
-    while low != high {
-      let mid = index(low, offsetBy: distance(from: low, to: high) / 2)
-      let frame = self[mid]
-      if frame.contains(point) {
-        low = mid
-        break
-      }
-      if frame.midX < point.x {
-        low = index(after: mid)
-      } else {
-        high = mid
-      }
-    }
-
-    // Don't continue if outside of collection
-    guard low < endIndex else { return endIndex }
-
-    // Don't continue if referencing an accented note -- there is no ambiguity and we have what we want
-    let key = Note(midiNoteValue: distance(from: startIndex, to: low))
-    guard !key.accented else { return low }
-
-    // Point is in the region of a white key. Check if previous or next key is accented and has the point to handle the
-    // overlap of the black keys on the white ones.
-    let next = index(after: low)
-    if next != endIndex && Note(midiNoteValue: next).accented && self[next].contains(point) {
-      return next
-    }
-
-    let prev = index(before: low)
-    if prev >= startIndex && Note(midiNoteValue: prev).accented && self[prev].contains(point) {
-      return prev
-    }
-
-    return low
+  private func touchUp(for event: Event) {
+    store.send(.touchEnded(.wrap(event.id)))
   }
 }
 
@@ -433,11 +453,6 @@ struct KeyboardPreview: View {
       }
     }
   }
-}
-
-extension FloatingPoint {
-  var whole: Self { modf(self).0 }
-  var fraction: Self { modf(self).1 }
 }
 
 #Preview {

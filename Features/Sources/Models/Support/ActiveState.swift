@@ -12,11 +12,37 @@ public struct ActiveState: Codable, Equatable, Sendable {
   public var activeDelayConfigId: DelayConfig.ID?
   public var activeReverbConfigId: ReverbConfig.ID?
 
-  public init() {
-    activeSoundFontId = SoundFont.ID(rawValue: 1)
-    activePresetId = Preset.ID(rawValue: 1)
-    activeTagId = FontTag.Ubiquitous.all.id
-    activeDelayConfigId = nil
-    activeReverbConfigId = nil
+  public init(
+    activeSoundFontId: SoundFont.ID?,
+    activePresetId: Preset.ID?,
+    activeTagId: FontTag.ID?,
+    activeDelayConfigId: DelayConfig.ID?,
+    activeReverbConfigId: ReverbConfig.ID?
+  ) {
+    self.activeSoundFontId = activeSoundFontId
+    self.activePresetId = activePresetId
+    self.activeTagId = activeTagId
+    self.activeDelayConfigId = activeDelayConfigId
+    self.activeReverbConfigId = activeReverbConfigId
+  }
+
+  public static var `default`: Self {
+    .init(
+      activeSoundFontId: .init(rawValue: 1),
+      activePresetId: .init(rawValue: 1),
+      activeTagId: FontTag.Ubiquitous.all.id,
+      activeDelayConfigId: nil,
+      activeReverbConfigId: nil
+    )
+  }
+
+  public static var none: Self {
+    .init(
+      activeSoundFontId: nil,
+      activePresetId: nil,
+      activeTagId: nil,
+      activeDelayConfigId: nil,
+      activeReverbConfigId: nil
+    )
   }
 }

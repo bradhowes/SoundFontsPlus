@@ -6,7 +6,7 @@ import Foundation
 import Models
 
 /// Generate a sequence of MIDI values for the white keys. Generates up to MIDI note 127.
-public struct WhiteKeySequenceGenerator: Sequence, IteratorProtocol {
+struct WhiteKeySequenceGenerator: Sequence, IteratorProtocol {
   // Number of note steps to move to the next unaccented note
   private var steps = [2, 2, 1, 2, 2, 2, 1].cycled().makeIterator()
   private var nextMidiNote: Int = Note.midiRange.lowerBound
@@ -23,10 +23,6 @@ public struct WhiteKeySequenceGenerator: Sequence, IteratorProtocol {
     defer { nextMidiNote += step }
     return Note(midiNoteValue: nextMidiNote)
   }
-
-  public var whiteKeyNotes: [Note] {
-    [Note](WhiteKeySequenceGenerator().makeIterator())
-  }
 }
 
 /**
@@ -34,7 +30,7 @@ public struct WhiteKeySequenceGenerator: Sequence, IteratorProtocol {
  NOTE: generates "phantom" MIDI keys that are used by the Keyboard code to draw an invisible key at E# and B#.
  Consumers of this Note sequence must account for these phantom notes in the stream.
  */
-public struct BlackKeySequenceGenerator: Sequence, IteratorProtocol {
+struct BlackKeySequenceGenerator: Sequence, IteratorProtocol {
   // Number of note steps to move to the next accented note
   private var steps = [2, 3, 0, 2, 2, 3, 0].cycled().makeIterator()
   private var nextMidiNote: Int = Note.midiRange.lowerBound + 1

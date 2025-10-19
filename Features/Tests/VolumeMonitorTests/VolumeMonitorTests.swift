@@ -28,7 +28,7 @@ struct VolumeMonitorTests {
     let store = TestStore(initialState: VolumeMonitor.State()) {
       VolumeMonitor()
     } withDependencies: {
-      @Shared(.activeState) var activeState = .init()
+      @Shared(.activeState) var activeState = .default
       $0.outputVolume = mockVolume.makeOutputVolume()
     }
 
