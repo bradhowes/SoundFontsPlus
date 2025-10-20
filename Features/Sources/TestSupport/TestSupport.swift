@@ -187,32 +187,35 @@ extension TestSupport.SnapshotConfig {
   }
 
   var traits: UITraitCollection {
-    let base: [UITraitCollection] = [
-      .init(layoutDirection: .leftToRight),
-      .init(preferredContentSizeCategory: .medium),
-      .init(userInterfaceIdiom: .phone),
-    ]
+    func sharedTraits(_ mutations: inout UIMutableTraits) {
+      mutations.layoutDirection = .leftToRight
+      mutations.preferredContentSizeCategory = .medium
+      mutations.userInterfaceIdiom = .phone
+    }
 
     switch self {
     case .landscape: return .init(
-      traitsFrom: base + [
-        .init(horizontalSizeClass: .regular),
-        .init(verticalSizeClass: .compact),
-      ]
+      mutations: {
+        sharedTraits(&$0)
+        $0.horizontalSizeClass = .regular
+        $0.verticalSizeClass = .compact
+      }
     )
 
     case .portrait: return .init(
-      traitsFrom: base + [
-        .init(horizontalSizeClass: .compact),
-        .init(verticalSizeClass: .regular),
-        ]
-      )
+      mutations: {
+        sharedTraits(&$0)
+        $0.horizontalSizeClass = .compact
+        $0.verticalSizeClass = .regular
+      }
+    )
 
     case .tablet: return .init(
-      traitsFrom: base + [
-        .init(horizontalSizeClass: .regular),
-        .init(verticalSizeClass: .regular),
-      ]
+      mutations: {
+        sharedTraits(&$0)
+        $0.horizontalSizeClass = .regular
+        $0.verticalSizeClass = .regular
+      }
     )
     }
   }
