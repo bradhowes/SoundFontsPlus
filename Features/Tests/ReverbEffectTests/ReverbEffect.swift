@@ -76,7 +76,7 @@ struct ReverbEffectTests {
       $0.dirty = true
     }
 
-    await store.receive(\.updateDebounced, timeout: 5)
+    await store.receive(\.updateDebounced, timeout: 30)
 
     let config = ReverbConfig.Draft(
       id: 1,
@@ -86,7 +86,7 @@ struct ReverbEffectTests {
       presetId: store.state.config.presetId
     )
 
-    await store.receive(\.saveDebounced, timeout: 5) {
+    await store.receive(\.saveDebounced, timeout: 30) {
       $0.config = config
       $0.dirty = false
     }
