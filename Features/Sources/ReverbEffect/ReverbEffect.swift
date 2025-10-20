@@ -35,7 +35,7 @@ public struct ReverbEffect {
 
   public enum Action {
     case activePresetIdChanged(Preset.ID?)
-    case applyConfigForPreset(Preset.ID?)
+    case applyConfigForPreset(Preset.ID)
     case deinitialize
     case enabled(ToggleFeature.Action)
     case initialize
@@ -57,10 +57,10 @@ public struct ReverbEffect {
     Reduce { state, action in
       switch action {
 
-      case let .activePresetIdChanged(presetId):
+      case .activePresetIdChanged(let presetId):
         return activePresetIdChanged(&state, presetId: presetId)
 
-      case let .applyConfigForPreset(presetId):
+      case .applyConfigForPreset(let presetId):
         return applyConfigForPreset(&state, presetId: presetId)
 
       case .deinitialize:
@@ -138,11 +138,7 @@ extension ReverbEffect {
     }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
   }
 
-  private func applyConfigForPreset(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
-    guard let presetId else {
-      return .none
-    }
-
+  private func applyConfigForPreset(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
     let config = ReverbConfig.draft(for: presetId, cloning: state.config)
     reverbDevice.setConfig(config)
     state.config = config

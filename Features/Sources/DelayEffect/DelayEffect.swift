@@ -7,6 +7,7 @@ import FeatureSupport
 import Models
 import Sharing
 import SwiftUI
+import Tagged
 
 @Reducer
 public struct DelayEffect {
@@ -15,7 +16,7 @@ public struct DelayEffect {
   public struct State: Equatable {
 
     @ObservationStateIgnored
-    var config: DelayConfig.Draft = .init(presetId: -1)
+    var config: DelayConfig.Draft
     var enabled: ToggleFeature.State
     var locked: ToggleFeature.State
     var time: KnobFeature.State
@@ -24,9 +25,10 @@ public struct DelayEffect {
     var wetDryMix: KnobFeature.State
     var dirty: Bool = false
 
-    public init() {
+    public init(presetId: Preset.ID = -1) {
       @Shared(.parameterTree) var parameterTree
       @Shared(.delayLockEnabled) var locked
+      self.config = .init(presetId: presetId)
       self.locked = .init(isOn: locked, displayName: "Lock")
       self.enabled = .init(isOn: false, displayName: "On")
       self.time = .init(parameter: parameterTree[.delayTime])
@@ -37,8 +39,8 @@ public struct DelayEffect {
   }
 
   public enum Action {
-    case activePresetIdChanged
-    case applyConfigForPreset
+    case activePresetIdChanged(Preset.ID?)
+    case applyConfigForPreset(Preset.ID)
     case cutoff(KnobFeature.Action)
     case deinitialize
     case enabled(ToggleFeature.Action)
@@ -65,16 +67,19 @@ public struct DelayEffect {
     Reduce { state, action in
       switch action {
 
-      case .activePresetIdChanged:
-        return activePresetIdChanged(&state)
+      case .activePresetIdChanged(let presetId):
+        return activePresetIdChanged(&state, presetId: presetId)
 
-      case .applyConfigForPreset:
-        return applyConfigForPreset(&state)
+      case .applyConfigForPreset(let presetId):
+        return applyConfigForPreset(&state, presetId: presetId)
 
       case .cutoff:
         return updateAndSave(&state, path: \.cutoff, value: state.cutoff.value)
 
       case .deinitialize:
+        if state.dirty {
+          _ = saveDebounced(&state)
+        }
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
 
       case .enabled:
@@ -122,11 +127,10 @@ public struct DelayEffect {
 
 extension DelayEffect {
 
-  private func activePresetIdChanged(_ state: inout State) -> Effect<Action> {
-
+  private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     guard
       !state.locked.isOn,
-      let presetId = activeState.activePresetId,
+      let presetId,
       state.config.presetId != presetId
     else {
       return .none
@@ -139,21 +143,17 @@ extension DelayEffect {
           DelayConfig.save(config: toSave)
         },
         .run { send in
-          await send(.applyConfigForPreset)
+          await send(.applyConfigForPreset(presetId))
         }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
       )
     }
 
     return .run { send in
-      await send(.applyConfigForPreset)
+      await send(.applyConfigForPreset(presetId))
     }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
   }
 
-  private func applyConfigForPreset(_ state: inout State) -> Effect<Action> {
-    guard let presetId = activeState.activePresetId else {
-      return .none
-    }
-
+  private func applyConfigForPreset(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
     let config = DelayConfig.draft(for: presetId, cloning: state.config)
     delayDevice.setConfig(config)
     state.config = config
@@ -173,7 +173,7 @@ extension DelayEffect {
       $activeState.activePresetId
         .publisher
         .removeDuplicates()
-        .map { _ in .activePresetIdChanged }
+        .map { .activePresetIdChanged($0) }
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
@@ -190,6 +190,7 @@ extension DelayEffect {
   }
 
   private func saveDebounced(_ state: inout State) -> Effect<Action> {
+    state.dirty = false
     if let presetId = activeState.activePresetId,
        state.config.presetId == presetId,
        let found = DelayConfig.save(config: state.config) {
