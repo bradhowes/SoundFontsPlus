@@ -261,7 +261,41 @@ struct DelayEffectTests {
 
   @Test(
     .dependencies {
-      $0.defaultDatabase = try appDatabase(seeder: addDelayConfigs)
+      $0.defaultDatabase = try appDatabase { db in
+        try DelayConfig.insert {
+          DelayConfig.Draft(
+            time: 0.5,
+            feedback: 80,
+            cutoff: 8000.0,
+            wetDryMix: 50.0,
+            enabled: true,
+            presetId: 1
+          )
+        }
+        .execute(db)
+        try DelayConfig.insert {
+          DelayConfig.Draft(
+            time: 1.0,
+            feedback: -70,
+            cutoff: 12000.0,
+            wetDryMix: 100.0,
+            enabled: true,
+            presetId: 2
+          )
+        }
+        .execute(db)
+        try DelayConfig.insert {
+          DelayConfig.Draft(
+            time: 1.5,
+            feedback: 80,
+            cutoff: 8000.0,
+            wetDryMix: 50.0,
+            enabled: false,
+            presetId: 3
+          )
+        }
+        .execute(db)
+      }
     },
   )
   func presetIdChanged() async throws {
@@ -311,8 +345,16 @@ struct DelayEffectTests {
     #expect(await device.getTimesChanged() == 2)
   }
 
-  @Test func preview() throws {
-    try TestSupport.assertSnapshot(matching: DelayEffectView.preview, config: .landscape)
+  @Test func preview1() throws {
+    try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 1), config: .landscape)
+  }
+
+  @Test func preview2() throws {
+    try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 2), config: .landscape)
+  }
+  
+  @Test func preview3() throws {
+    try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 3), config: .landscape)
   }
 }
 
@@ -326,40 +368,4 @@ private actor DelayDevice {
     self.config = config
     self.timesChanged += 1
   }
-}
-
-private func addDelayConfigs(_ db: Database) throws {
-  try DelayConfig.insert {
-    DelayConfig.Draft(
-      time: 1.0,
-      feedback: 80,
-      cutoff: 8000.0,
-      wetDryMix: 50.0,
-      enabled: true,
-      presetId: 1
-    )
-  }
-  .execute(db)
-  try DelayConfig.insert {
-    DelayConfig.Draft(
-      time: 1.0,
-      feedback: -70,
-      cutoff: 12000.0,
-      wetDryMix: 100.0,
-      enabled: true,
-      presetId: 2
-    )
-  }
-  .execute(db)
-  try DelayConfig.insert {
-    DelayConfig.Draft(
-      time: 1.0,
-      feedback: 80,
-      cutoff: 8000.0,
-      wetDryMix: 50.0,
-      enabled: false,
-      presetId: 3
-    )
-  }
-  .execute(db)
 }

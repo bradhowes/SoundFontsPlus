@@ -6,6 +6,7 @@ import Dependencies
 import FeatureSupport
 import Models
 import Sharing
+import SQLiteData
 import SwiftUI
 import Tagged
 
@@ -276,10 +277,10 @@ public struct DelayEffectView: View {
 }
 
 extension DelayEffectView {
-  static var preview: some View {
+  static func preview(presetId: Preset.ID) -> some View {
     @Shared(.activeState) var activeState
     $activeState.withLock {
-      $0.activePresetId = 1
+      $0.activePresetId = presetId
     }
 
     var theme = Theme()
@@ -292,7 +293,42 @@ extension DelayEffectView {
 
     prepareDependencies {
       // swiftlint:disable:next force_try
-      $0.defaultDatabase = try! appDatabase()
+      $0.defaultDatabase = try! appDatabase { db in
+        try DelayConfig.insert {
+          DelayConfig.Draft(
+            time: 0.5,
+            feedback: 80,
+            cutoff: 8000.0,
+            wetDryMix: 50.0,
+            enabled: true,
+            presetId: 1
+          )
+        }
+        .execute(db)
+        try DelayConfig.insert {
+          DelayConfig.Draft(
+            time: 1.0,
+            feedback: -70,
+            cutoff: 12000.0,
+            wetDryMix: 100.0,
+            enabled: true,
+            presetId: 2
+          )
+        }
+        .execute(db)
+        try DelayConfig.insert {
+          DelayConfig.Draft(
+            time: 1.5,
+            feedback: 0,
+            cutoff: 3000.0,
+            wetDryMix: 25.0,
+            enabled: false,
+            presetId: 3
+          )
+        }
+        .execute(db)
+      }
+
       $0.delayDevice = .init(setConfig: { print("DelayDevice.setConfig:", $0) })
     }
 
@@ -315,10 +351,15 @@ extension DelayEffectView {
           $0.activePresetId = 2
         }
       }
+      Button("Preset 3") {
+        $activeState.withLock {
+          $0.activePresetId = 3
+        }
+      }
     }
   }
 }
 
 #Preview {
-  DelayEffectView.preview
+  DelayEffectView.preview(presetId: 2)
 }
