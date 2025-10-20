@@ -159,18 +159,23 @@ public enum TestSupport {
     public override func sendPressure(forKey note: UInt8, withValue pressure: UInt8, onChannel channel: UInt8) {
       events.append((.keyPressure, note, pressure, channel))
     }
+
     public override func sendController(_ controller: UInt8, withValue value: UInt8, onChannel channel: UInt8) {
       events.append((.controlChange, controller, value, channel))
     }
+
     public override func sendProgramChange(_ program: UInt8, onChannel channel: UInt8) {
       events.append((.programChange, program, 0, channel))
     }
+
     public override func sendPressure(_ pressure: UInt8, onChannel channel: UInt8) {
       events.append((.channelPressure, pressure, 0, channel))
     }
+
     public override func sendPitchBend(_ value: UInt16, onChannel channel: UInt8) {
       events.append((.pitchBend, UInt8(value & 0x7F), UInt8(value >> 7), channel))
     }
+
     public override func reset() {
       events.append((.reset, 0, 0, 0))
     }
@@ -178,7 +183,8 @@ public enum TestSupport {
 }
 
 extension TestSupport.SnapshotConfig {
-  var size: CGSize {
+
+  public var size: CGSize {
     switch self {
     case .landscape: return .init(width: 800, height: 400)
     case .portrait: return .init(width: 400, height: 800)
@@ -186,13 +192,13 @@ extension TestSupport.SnapshotConfig {
     }
   }
 
-  var traits: UITraitCollection {
-    func sharedTraits(_ mutations: inout UIMutableTraits) {
-      mutations.layoutDirection = .leftToRight
-      mutations.preferredContentSizeCategory = .medium
-      mutations.userInterfaceIdiom = .phone
-    }
+  private func sharedTraits(_ mutations: inout UIMutableTraits) {
+    mutations.layoutDirection = .leftToRight
+    mutations.preferredContentSizeCategory = .medium
+    mutations.userInterfaceIdiom = .phone
+  }
 
+  public var traits: UITraitCollection {
     switch self {
     case .landscape: return .init(
       mutations: {
