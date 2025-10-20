@@ -115,9 +115,9 @@ extension SoundFontButton {
 
   func deleteButtonTapped(_ state: inout State) -> Effect<Action> {
     if state.soundFontInfo.isInstalled {
-      state.confirmationDialog = Self.deleteFromDeviceConfirmationDialogState(displayName: state.soundFontInfo.displayName)
-    } else if state.soundFontInfo.isExternal {
       state.confirmationDialog = Self.deleteFromAppConfirmationDialogState(displayName: state.soundFontInfo.displayName)
+    } else if state.soundFontInfo.isExternal {
+      state.confirmationDialog = Self.deleteFromDeviceConfirmationDialogState(displayName: state.soundFontInfo.displayName)
     } else {
       let name = state.soundFontInfo.displayName
       log.error("request to delete built-in soundfont \(name)")

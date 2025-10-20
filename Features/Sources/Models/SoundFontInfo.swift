@@ -18,9 +18,32 @@ public struct SoundFontInfo: Equatable, Identifiable, Sendable {
   public var isInstalled: Bool { kind == .installed }
   public var isExternal: Bool { kind == .external }
   public var isBuiltin: Bool { kind == .builtin }
+
+  public init(
+    id: SoundFont.ID,
+    displayName: String,
+    kind: SoundFont.Kind,
+    location: Data
+  ) {
+    self.id = id
+    self.displayName = displayName
+    self.kind = kind
+    self.location = location
+  }
 }
 
 extension SoundFontInfo {
+
+  public static func fetch(for soundFontId: SoundFont.ID) -> SoundFontInfo? {
+    withDatabaseReader { db in
+      try SoundFont.all
+        .where({ $0.id.eq(soundFontId) })
+        .select {
+          SoundFontInfo.Columns(id: $0.id, displayName: $0.displayName, kind: $0.kind, location: $0.location)
+        }
+        .fetchAll(db)
+    }?.first
+  }
 
   public static func query(id tagId: FontTag.ID? = nil) -> Select<Self.Columns.QueryValue, TaggedSoundFont, SoundFont> {
     @Shared(.activeState) var activeState
