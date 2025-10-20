@@ -8,6 +8,7 @@ import FeatureSupport
 import Models
 import Sharing
 import SwiftUI
+import Tagged
 
 @Reducer
 public struct ReverbEffect {
@@ -16,15 +17,16 @@ public struct ReverbEffect {
   public struct State: Equatable {
 
     @ObservationStateIgnored
-    var config: ReverbConfig.Draft = .init(presetId: -1)
+    var config: ReverbConfig.Draft
     var enabled: ToggleFeature.State
     var locked: ToggleFeature.State
     var wetDryMix: KnobFeature.State
     var dirty: Bool = false
 
-    public init() {
+    public init(presetId: Preset.ID = -1) {
       @Shared(.parameterTree) var parameterTree
       @Shared(.reverbLockEnabled) var locked
+      self.config = .init(presetId: presetId)
       self.locked = .init(isOn: locked, displayName: "Lock")
       self.enabled = .init(isOn: false, displayName: "On")
       self.wetDryMix = .init(parameter: parameterTree[.reverbAmount])
@@ -33,7 +35,7 @@ public struct ReverbEffect {
 
   public enum Action {
     case activePresetIdChanged(Preset.ID?)
-    case applyConfigForPreset
+    case applyConfigForPreset(Preset.ID?)
     case deinitialize
     case enabled(ToggleFeature.Action)
     case initialize
@@ -58,10 +60,13 @@ public struct ReverbEffect {
       case let .activePresetIdChanged(presetId):
         return activePresetIdChanged(&state, presetId: presetId)
 
-      case .applyConfigForPreset:
-        return applyConfigForPreset(&state)
+      case let .applyConfigForPreset(presetId):
+        return applyConfigForPreset(&state, presetId: presetId)
 
       case .deinitialize:
+        if state.dirty {
+          _ = saveDebounced(&state)
+        }
         return .merge(
           CancelId.allCases.map { .cancel(id: $0) }
         )
@@ -109,10 +114,9 @@ public struct ReverbEffect {
 extension ReverbEffect {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
-
     guard
       !state.locked.isOn,
-      let presetId = activeState.activePresetId,
+      let presetId,
       state.config.presetId != presetId
     else {
       return .none
@@ -125,17 +129,17 @@ extension ReverbEffect {
           ReverbConfig.save(config: toSave)
         },
           .run { send in
-            await send(.applyConfigForPreset)
+            await send(.applyConfigForPreset(presetId))
           }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
       )
     }
     return .run { send in
-      await send(.applyConfigForPreset)
+      await send(.applyConfigForPreset(presetId))
     }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
   }
 
-  private func applyConfigForPreset(_ state: inout State) -> Effect<Action> {
-    guard let presetId = activeState.activePresetId else {
+  private func applyConfigForPreset(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+    guard let presetId else {
       return .none
     }
 
@@ -164,14 +168,23 @@ extension ReverbEffect {
     return .merge(
       .run { send in
         await send(.updateDebounced)
-      }.debounce(id: CancelId.updateDebouncer, for: updateDebounceDuration, scheduler: mainQueue),
+      }.debounce(
+        id: CancelId.updateDebouncer,
+        for: updateDebounceDuration,
+        scheduler: mainQueue
+      ),
       .run { send in
         await send(.saveDebounced)
-      }.debounce(id: CancelId.saveDebouncer, for: saveDebounceDuration, scheduler: mainQueue)
+      }.debounce(
+        id: CancelId.saveDebouncer,
+        for: saveDebounceDuration,
+        scheduler: mainQueue
+      )
     )
   }
 
   private func saveDebounced(_ state: inout State) -> Effect<Action> {
+    state.dirty = false
     if let presetId = activeState.activePresetId,
        state.config.presetId == presetId,
        let found = ReverbConfig.save(config: state.config) {
@@ -257,15 +270,13 @@ public struct ReverbEffectView: View {
       }
     }
     .task { await store.send(.initialize).finish() }
+    .onDisappear { store.send(.deinitialize) }
   }
 }
 
 extension ReverbEffectView {
   static var preview: some View {
-    @Shared(.activeState) var activeState
-    $activeState.withLock {
-      $0.activePresetId = 1
-    }
+    @Shared(.activeState) var activeState = .default
 
     var theme = Theme()
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
