@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import FeatureSupport
+import Numerics
 
 @Reducer
 public struct Tuning {
@@ -35,7 +36,7 @@ public struct Tuning {
       let cents = frequencyToCents(frequency)
       let clampedCents = min(max(cents, -2400.0), 2400.0)
       let transposeCents = (clampedCents / 100).rounded() * 100.0
-      if transposeCents == clampedCents {
+      if transposeCents.isApproximatelyEqual(to: clampedCents) {
         if transposeCents == 0 {
           self.shiftA4Value = "None"
           self.frequency = 440.0
@@ -94,19 +95,38 @@ public struct Tuning {
 
     Reduce { state, action in
       switch action {
-      case .binding(\.cents): return setCents(&state, cents: state.cents)
+      case .binding(\.cents):
+        return setCents(&state, cents: state.cents)
+
       case .binding(\.enabled):
         return .send(.delegate(.tuningChanged(enabled: state.enabled, frequency: state.frequency)))
-      case .binding(\.frequency): return setFrequency(&state, frequency: state.frequency)
-      case .binding: return .none
-      case .centsSumbmitted: return setCents(&state, cents: state.cents)
-      case .delegate: return .none
-      case .frequencySubmitted: return setFrequency(&state, frequency: state.frequency)
-      case .scientificTuningApplyPressed: return setFrequency(&state, frequency: 432.0)
-      case .standardTuningApplyPressed: return setFrequency(&state, frequency: 440.0)
+
+      case .binding(\.frequency):
+        return setFrequency(&state, frequency: state.frequency)
+
+      case .binding:
+        return .none
+
+      case .centsSumbmitted:
+        return setCents(&state, cents: state.cents)
+
+      case .delegate:
+        return .none
+
+      case .frequencySubmitted:
+        return setFrequency(&state, frequency: state.frequency)
+
+      case .scientificTuningApplyPressed:
+        return setFrequency(&state, frequency: 432.0)
+
+      case .standardTuningApplyPressed:
+        return setFrequency(&state, frequency: 440.0)
       }
     }
   }
+}
+
+extension Tuning {
 
   private func setCents(_ state: inout State, cents: Int) -> Effect<Action> {
     state.setCents(cents)

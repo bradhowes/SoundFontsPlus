@@ -169,7 +169,7 @@ struct ReverbEffectTests {
       presetId: store.state.config.presetId
     )
 
-    await store.receive(\.saveDebounced) {
+    await store.receive(\.saveDebounced, timeout: 30) {
       $0.config = config
       $0.dirty = false
     }
