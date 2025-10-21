@@ -1,14 +1,11 @@
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import Testing
 import Numerics
 
 @testable import BaseSupport
 
-@Suite(
-  //  .dependencies {
-  //    $0.defaultDatabase = try appDatabase()
-  //  },
-  //  .snapshots(record: .failed)
-)
+@Suite
 struct DSPTests {
 
   @Test func panToCCValue() throws {

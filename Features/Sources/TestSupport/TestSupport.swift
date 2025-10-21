@@ -1,4 +1,5 @@
-import AVFAudio.AVAudioUnit
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import BaseSupport
 import Foundation
 import SnapshotTesting
@@ -30,9 +31,9 @@ public enum TestSupport {
   ) throws {
     let uniqueTestName = makeUniqueSnapshotName(testName)
     log.info("assertSnapshot - \(uniqueTestName)")
-//    for (key, value) in ProcessInfo.processInfo.environment {
-//      log.info("environment[\(key)]: \(value)")
-//    }
+    //    for (key, value) in ProcessInfo.processInfo.environment {
+    //      log.info("environment[\(key)]: \(value)")
+    //    }
 
     let width = size?.width ?? config.size.width
     let height = size?.height ?? config.size.height
@@ -74,6 +75,9 @@ public enum TestSupport {
       }
     }
   }
+}
+
+extension TestSupport {
 
   @inlinable
   static func makeUniqueSnapshotName(_ funcName: StaticString) -> String {
@@ -85,7 +89,7 @@ public enum TestSupport {
 #endif // os(macOS)
   }
 
-  struct SnapshotTestViewWrapper<Content: View>: View {
+  private struct SnapshotTestViewWrapper<Content: View>: View {
     let size: CGSize
     let content: Content
     let colorScheme: ColorScheme
@@ -105,42 +109,6 @@ public enum TestSupport {
       .frame(width: size.width, height: size.height)
       .background(background)
       .environment(\.colorScheme, colorScheme)
-    }
-  }
-
-  public final class MockAudioUnit: AVAudioUnitSampler, @unchecked Sendable {
-    public var events: [(MIDICoreEvent, UInt8, UInt8, UInt8)] = []
-
-    public override func startNote(_ note: UInt8, withVelocity velocity: UInt8, onChannel channel: UInt8) {
-      events.append((.noteOn, note, velocity, channel))
-    }
-
-    public override func stopNote(_ note: UInt8, onChannel channel: UInt8) {
-      events.append((.noteOff, note, 0, channel))
-    }
-
-    public override func sendPressure(forKey note: UInt8, withValue pressure: UInt8, onChannel channel: UInt8) {
-      events.append((.keyPressure, note, pressure, channel))
-    }
-
-    public override func sendController(_ controller: UInt8, withValue value: UInt8, onChannel channel: UInt8) {
-      events.append((.controlChange, controller, value, channel))
-    }
-
-    public override func sendProgramChange(_ program: UInt8, onChannel channel: UInt8) {
-      events.append((.programChange, program, 0, channel))
-    }
-
-    public override func sendPressure(_ pressure: UInt8, onChannel channel: UInt8) {
-      events.append((.channelPressure, pressure, 0, channel))
-    }
-
-    public override func sendPitchBend(_ value: UInt16, onChannel channel: UInt8) {
-      events.append((.pitchBend, UInt8(value & 0x7F), UInt8(value >> 7), channel))
-    }
-
-    public override func reset() {
-      events.append((.reset, 0, 0, 0))
     }
   }
 }

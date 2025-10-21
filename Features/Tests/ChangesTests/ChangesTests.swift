@@ -1,19 +1,14 @@
-import ComposableArchitecture
-import DependenciesTestSupport
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import FeatureSupport
-import Models
-import Sharing
+import DependenciesTestSupport
 import SnapshotTesting
-import SwiftUI
 import Testing
 import TestSupport
 
 @testable import Changes
 
 @Suite(
-  .dependencies {
-    $0.defaultDatabase = try appDatabase()
-  },
   .snapshots(record: .failed)
 )
 @MainActor

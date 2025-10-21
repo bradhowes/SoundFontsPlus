@@ -1,7 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Foundation
-import Models
+import FeatureSupport
 
 public enum PresetError: Error {
   case failedToSave(preset: Preset)

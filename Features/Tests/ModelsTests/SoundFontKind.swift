@@ -7,12 +7,7 @@ import Testing
 
 @testable import Models
 
-@Suite(
-  .dependencies {
-    $0.defaultDatabase = try appDatabase()
-  },
-  //  .snapshots(record: .failed)
-)
+@Suite
 @MainActor
 struct SoundFontKindTests {
   

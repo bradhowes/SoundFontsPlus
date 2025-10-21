@@ -1,10 +1,10 @@
-import ComposableArchitecture
-import TestSupport
+// Copyright © 2025 Brad Howes. All rights reserved.
+
+import DependenciesTestSupport
 import FeatureSupport
-import Sharing
 import SnapshotTesting
-import SwiftUI
 import Testing
+import TestSupport
 
 @testable import Tutorial
 

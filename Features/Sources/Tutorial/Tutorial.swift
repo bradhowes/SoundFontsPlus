@@ -1,7 +1,6 @@
-import ComposableArchitecture
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import FeatureSupport
-import Sharing
-import SwiftUI
 
 @Reducer
 public struct Tutorial {

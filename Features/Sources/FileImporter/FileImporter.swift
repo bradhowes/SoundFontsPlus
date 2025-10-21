@@ -1,10 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import BaseSupport
-import ComposableArchitecture
 import Engine
-import Models
-import SwiftUI
+import FeatureSupport
 import UniformTypeIdentifiers
 
 private let log = Logger(category: "FileImporterFeature")

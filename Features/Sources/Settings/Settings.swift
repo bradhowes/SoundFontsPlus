@@ -1,7 +1,5 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import BaseSupport
-import ComposableArchitecture
 import FeatureSupport
 import Keyboard
 import MIDIAssignments
@@ -9,8 +7,6 @@ import MIDIConnections
 import MIDIControllers
 import MIDITrafficIndicator
 import MorkAndMIDI
-import Sharing
-import SwiftUI
 import Tuning
 
 private let log = Logger(category: "Settings")

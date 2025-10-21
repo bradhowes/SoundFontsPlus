@@ -1,23 +1,14 @@
-import BaseSupport
-import ComposableArchitecture
-import Dependencies
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import DependenciesTestSupport
-import Foundation
-import Models
-import Sharing
+import FeatureSupport
 import SnapshotTesting
-import SwiftUI
 import Testing
 import TestSupport
 
 @testable import VolumeMonitor
 
-@Suite(
-  .dependencies {
-    $0.defaultDatabase = try appDatabase()
-  },
-  //  .snapshots(record: .failed)
-)
+@Suite
 @MainActor
 struct VolumeMonitorTests {
   private let mockVolume: OutputVolumeFlipFlop

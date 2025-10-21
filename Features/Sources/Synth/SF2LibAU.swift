@@ -1,15 +1,16 @@
-// Copyright © 2020 Brad Howes. All rights reserved.
+// Copyright © 2025 Brad Howes. All rights reserved.
 
 import AudioToolbox
 import BaseSupport
 import CoreAudioKit
 import Engine
 
+private let log = Logger(category: "SF2LibAU")
+
 /**
  AUv3 component for SF2Lib engine.
  */
 public final class SF2LibAU: AUAudioUnit {
-  private let log = Logger(category: "SF2LibAU")
 
   private var _audioUnitName: String?
   private var _audioUnitShortName: String?
@@ -89,6 +90,23 @@ extension SF2LibAU {
     set {
       fatalError("unable to set parameter tree - \(String(describing: newValue))")
     }
+  }
+}
+
+extension SF2LibAU {
+  static func create() async throws -> AVAudioUnit {
+    let acd: AudioComponentDescription = .init(
+      componentType: FourCharCode(stringLiteral: "aumu"),
+      componentSubType: FourCharCode(stringLiteral: "Sf2L"),
+      componentManufacturer: FourCharCode(stringLiteral: "BRay"),
+      componentFlags: 0,
+      componentFlagsMask: 0
+    )
+
+    AUAudioUnit.registerSubclass(SF2LibAU.self, as: acd, name: "SF2LibAU", version: 1)
+    log.info("createSynth - instantiating audio unit")
+
+    return try await AVAudioUnit.instantiate(with: acd, options: [])
   }
 }
 

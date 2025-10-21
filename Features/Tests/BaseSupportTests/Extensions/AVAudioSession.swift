@@ -1,3 +1,5 @@
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import AVKit
 import BaseSupport
 import Combine
@@ -17,12 +19,7 @@ import Testing
   }
 }
 
-@Suite(
-  .dependencies {
-    $0.defaultDatabase = try appDatabase()
-  },
-  //  .snapshots(record: .failed)
-)
+@Suite
 @MainActor
 struct AVAudioSessionTests {
 

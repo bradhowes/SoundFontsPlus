@@ -1,9 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import ComposableArchitecture
 import CoreMIDI
-import Sharing
-import SwiftUI
+import FeatureSupport
 
 @Reducer
 public struct MIDIControllers {

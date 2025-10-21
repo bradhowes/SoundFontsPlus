@@ -1,14 +1,10 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import Combine
-import ComposableArchitecture
 import CoreMIDI
 import FeatureSupport
 import MIDITrafficIndicator
-import Models
 @preconcurrency @unsafe import MorkAndMIDI
-import SQLiteData
-import SwiftUI
 
 public struct MIDIConnectionRow: Equatable, Identifiable {
   public let id: MIDIUniqueID

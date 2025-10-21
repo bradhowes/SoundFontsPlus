@@ -2,6 +2,7 @@
 
 import AudioUnit.AUParameters
 import CasePathsCore
+import Dependencies
 
 extension AUParameterTree {
 
@@ -17,4 +18,12 @@ extension AUParameterTree {
     }
     return param
   }
+}
+
+extension AUParameterTree: @retroactive @unchecked Sendable, @retroactive TestDependencyKey {}
+
+extension AUParameterTree: @retroactive DependencyKey {
+  public static var liveValue: AUParameterTree { ParameterAddress.createParameterTree() }
+  public static var previewValue: AUParameterTree { ParameterAddress.createParameterTree() }
+  public static var testValue: AUParameterTree { ParameterAddress.createParameterTree() }
 }

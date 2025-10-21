@@ -1,5 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AudioUnit.AUParameters
+import AVFAudio.AVAudioSession
 import Dependencies
 
 extension DependencyValues {
@@ -17,5 +19,10 @@ extension DependencyValues {
   public var outputVolume: OutputVolume {
     get { self[OutputVolume.self] }
     set { self[OutputVolume.self] = newValue }
+  }
+
+  public var parameters: AUParameterTree {
+    get { self[AUParameterTree.self] }
+    set { self[AUParameterTree.self] = newValue }
   }
 }

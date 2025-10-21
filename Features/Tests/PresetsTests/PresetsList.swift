@@ -1,11 +1,10 @@
-import ComposableArchitecture
-import TestSupport
-import Dependencies
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import DependenciesTestSupport
-import Models
+import FeatureSupport
 import SnapshotTesting
-import Tagged
 import Testing
+import TestSupport
 
 @testable import Presets
 
@@ -215,7 +214,13 @@ struct PresetsListTests {
       $0.sections = [.init(section: 0, presets: presets.filter({$0.displayName.contains("arp")})[...])]
     }
 
-    await store.send(\.sections, .element(id: PresetsList.noGroupingSize, action: .rows(.element(id: 7, action: .delegate(.selectPreset(presets[6])))))) {
+    await store.send(
+      \.sections,
+       .element(
+        id: PresetsList.noGroupingSize,
+        action: .rows(.element(id: 7, action: .delegate(.selectPreset(presets[6]))))
+       )
+    ) {
       $0.isSearchFieldPresented = false
       $0.focusedField = nil
       $0.sections = [.init(section: 0, presets: presets[...])]
@@ -315,7 +320,18 @@ struct PresetsListTests {
     )
 
     var presetsWithFavorite = presets
-    presetsWithFavorite.insert(.init(id: 32, index: 0, bank: 0, program: 0, originalName: "Yamaha Grand Piano", soundFontId: 1, displayName: "Yamaha Grand Piano copy"), at: 1)
+    presetsWithFavorite.insert(
+      .init(
+        id: 32,
+        index: 0,
+        bank: 0,
+        program: 0,
+        originalName: "Yamaha Grand Piano",
+        soundFontId: 1,
+        displayName: "Yamaha Grand Piano copy"
+      ),
+      at: 1
+    )
     presetsWithFavorite[1].kind = .favorite
 
     await store.receive(
@@ -383,7 +399,18 @@ struct PresetsListTests {
     )
 
     var presetsWithFavorite = presets
-    presetsWithFavorite.insert(.init(id: 32, index: 0, bank: 0, program: 0, originalName: "Yamaha Grand Piano", soundFontId: 1, displayName: "Yamaha Grand Piano copy"), at: 1)
+    presetsWithFavorite.insert(
+      .init(
+        id: 32,
+        index: 0,
+        bank: 0,
+        program: 0,
+        originalName: "Yamaha Grand Piano",
+        soundFontId: 1,
+        displayName: "Yamaha Grand Piano copy"
+      ),
+      at: 1
+    )
     presetsWithFavorite[1].kind = .favorite
 
     await store.receive(

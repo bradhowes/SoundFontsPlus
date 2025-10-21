@@ -1,15 +1,12 @@
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import AVFAudio
 import Foundation
 import Testing
 
 @testable import BaseSupport
 
-@Suite(
-  //  .dependencies {
-  //    $0.defaultDatabase = try appDatabase()
-  //  },
-  //  .snapshots(record: .failed)
-)
+@Suite
 struct AVAudioUnitReverbPresetTests {
 
   @Test func idProperty() async throws {

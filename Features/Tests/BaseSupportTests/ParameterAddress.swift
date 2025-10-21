@@ -1,3 +1,5 @@
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import Dependencies
 import DependenciesTestSupport
 import Foundation
@@ -7,14 +9,9 @@ import SwiftUI
 import Testing
 import TestSupport
 
-@testable import FeatureSupport
+@testable import BaseSupport
 
-@Suite(
-//  .dependencies {
-//    $0.defaultDatabase = try appDatabase()
-//  },
-//  .snapshots(record: .failed)
-)
+@Suite
 @MainActor
 struct ParameterAddressTests {
 

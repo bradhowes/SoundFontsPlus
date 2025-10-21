@@ -1,9 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import Combine
-import ComposableArchitecture
 import FeatureSupport
-import SwiftUI
 
 @Reducer
 public struct MIDITrafficIndicator {

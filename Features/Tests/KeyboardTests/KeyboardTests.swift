@@ -1,11 +1,9 @@
-import BaseSupport
-import ComposableArchitecture
-import Dependencies
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import DependenciesTestSupport
-import Models
 import SnapshotTesting
+import FeatureSupport
 import SQLiteData
-import SwiftUI
 import Testing
 import TestSupport
 
@@ -126,7 +124,7 @@ struct KeyboardTests {
   }
 
   @Test func touchBegan() async throws {
-    let mau = TestSupport.MockAudioUnit()
+    let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
     @Shared(.activeState) var activeState = .none
@@ -147,7 +145,7 @@ struct KeyboardTests {
   }
 
   @Test func touchEndedWithoutBegan() async throws {
-    let mau = TestSupport.MockAudioUnit()
+    let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
     @Shared(.activeState) var activeState = .none
@@ -161,7 +159,7 @@ struct KeyboardTests {
   }
 
   @Test func touchEndedAfterBegan() async throws {
-    let mau = TestSupport.MockAudioUnit()
+    let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
     @Shared(.activeState) var activeState = .none

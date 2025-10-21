@@ -1,3 +1,5 @@
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 /// Custom plugin that runs `BuildFluidFontCmd` to create the `FluidR3_GM.sf2` soundfont file.
 
 import Foundation

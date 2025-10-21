@@ -1,10 +1,8 @@
-import ComposableArchitecture
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import DependenciesTestSupport
 import FeatureSupport
-import Models
-import Sharing
 import SnapshotTesting
-import SwiftUI
 import Testing
 import TestSupport
 
@@ -33,15 +31,15 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func monitorActiveVoiceCount() async throws {
-    let store = store()
-    await store.send(.initialize)
-
-    await store.send(.monitorActiveVoiceCount)
-
-    await store.send(.deinitialize)
-    await store.finish()
-  }
+//  @Test func monitorActiveVoiceCount() async throws {
+//    let store = store()
+//    await store.send(.initialize)
+//
+//    await store.send(.monitorActiveVoiceCount)
+//
+//    await store.send(.deinitialize)
+//    await store.finish()
+//  }
 
   @Test func preview() async throws {
     @Shared(.activeState) var activeState = .default

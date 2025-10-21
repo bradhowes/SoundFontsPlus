@@ -1,12 +1,9 @@
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import AVFAudio.AVAudioUnit
-import BaseSupport
-import ComposableArchitecture
-import Dependencies
 import DependenciesTestSupport
-import Foundation
-import Models
+import FeatureSupport
 import SnapshotTesting
-import SwiftUI
 import Testing
 import TestSupport
 
@@ -35,7 +32,7 @@ struct MIDIMonitorTests {
   }
 
   @Test func monitorWithSynth() {
-    let mau = TestSupport.MockAudioUnit()
+    let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
 
@@ -51,7 +48,7 @@ struct MIDIMonitorTests {
   }
 
   @Test func forwarding() {
-    let mau = TestSupport.MockAudioUnit()
+    let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
     let monitor = MIDIMonitor()
@@ -78,7 +75,7 @@ struct MIDIMonitorTests {
   }
 
   @Test func trafficOmni() {
-    let mau = TestSupport.MockAudioUnit()
+    let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
     let monitor = MIDIMonitor()
@@ -90,7 +87,7 @@ struct MIDIMonitorTests {
   }
 
   @Test func trafficOneChannel() {
-    let mau = TestSupport.MockAudioUnit()
+    let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = 1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
     let monitor = MIDIMonitor()

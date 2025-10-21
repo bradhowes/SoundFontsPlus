@@ -70,14 +70,6 @@ extension SharedKey where Self == AppStorageKey<String>.Default {
 
 // MARK: - InMemory settings
 
-extension AUParameterTree: @unchecked @retroactive Sendable {}
-
-extension SharedKey where Self == InMemoryKey<AUParameterTree>.Default {
-  public static var parameterTree: Self {
-    Self[.inMemory("parameterTree"), default: ParameterAddress.createParameterTree()]
-  }
-}
-
 extension SharedKey where Self == InMemoryKey<Double>.Default {
   public static var activePresetGain: Self { Self[.inMemory("activePresetGain"), default: 0.0] }
   public static var activePresetPan: Self { Self[.inMemory("activePresetPan"), default: 0.0] }

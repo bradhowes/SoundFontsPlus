@@ -1,13 +1,10 @@
+// Copyright © 2025 Brad Howes. All rights reserved.
+
 import AUv3Controls
-import ComposableArchitecture
 import DependenciesTestSupport
-import Foundation
-import Models
+import FeatureSupport
 import Numerics
-import Sharing
 import SnapshotTesting
-import SQLiteData
-import SwiftUI
 import Testing
 import TestSupport
 
@@ -155,7 +152,7 @@ struct DelayEffectTests {
 
     store.exhaustivity = .on
 
-    await store.receive(\.updateDebounced)
+    await store.receive(\.updateDebounced, timeout: 30)
 
     let config2 = DelayConfig.Draft(
       id: 1,
@@ -168,7 +165,7 @@ struct DelayEffectTests {
     )
 
 
-    await store.receive(\.saveDebounced) {
+    await store.receive(\.saveDebounced, timeout: 30) {
       $0.config = config2
       $0.dirty = false
     }
