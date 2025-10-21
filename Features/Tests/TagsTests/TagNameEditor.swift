@@ -9,36 +9,43 @@ import TestSupport
 @testable import Tags
 
 @Suite(
-  .dependencies {
-    $0.defaultDatabase = try appDatabase()
-  },
-  //  .snapshots(record: .failed)
+  .snapshots(record: .failed)
 )
 @MainActor
 struct TagNameEditorTests {
 
-  func initialize(_ body: (TestStoreOf<TagNameEditor>) async throws -> Void) async throws {
-    try await withDependencies {
-      $0.defaultDatabase = try appDatabase()
-    } operation: {
-      let newTag = try FontTag.make(displayName: "New Tag")
-      try await body(TestStore(initialState: TagNameEditor.State(id: newTag.id, draft: FontTag.Draft(newTag))) {
-        TagNameEditor()
-      })
+  func store(membership: Bool? = nil) throws -> TestStoreOf<TagNameEditor> {
+    let tag = FontTag(id: 5, displayName: "New Tag", ordering: 5)
+    return TestStore(
+      initialState: TagNameEditor.State(
+        id: tag.id,
+        draft: FontTag.Draft(tag),
+        membership: membership
+      )
+    ) {
+      TagNameEditor()
     }
   }
 
   @Test func deleteTag() async throws {
-    try await initialize { store in
-      await store.send(.tagSwipedToDelete)
-      await store.receive(.delegate(.tagSwipedToDelete(store.state.id)))
-      await store.finish()
+    let store = try store()
+    await store.send(.tagSwipedToDelete)
+    await store.receive(.delegate(.tagSwipedToDelete(store.state.id)))
+    await store.finish()
+  }
+
+  @Test func membershipButtonTapped() async throws {
+    let store = try store(membership: false)
+    await store.send(.binding(.set(\.membership, true))) {
+      $0.membership = true
     }
+    await store.send(.binding(.set(\.membership, false))) {
+      $0.membership = false
+    }
+    await store.finish()
   }
 
   @Test func tagNameEditorPreview() async throws {
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: TagNameEditorView.preview)
-    }
+    try TestSupport.assertSnapshot(matching: TagNameEditorView.preview)
   }
 }

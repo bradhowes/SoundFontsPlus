@@ -3,6 +3,8 @@
 import FeatureSupport
 import SQLiteData
 
+private let log = Logger(category: "TagNameEditor")
+
 /**
  Feature that allows for editing of a tag name and optionally the association of a soundFont with the tag.
  */
@@ -34,6 +36,7 @@ public struct TagNameEditor {
         // Only update DB if there is a change to record. Be sure to capture the ID any new Tag
         var id = self.id
         if id < 0 || newName != originalDisplayName || ordering != draft.ordering {
+          log.debug("saving changes - \(id) \(newName) \(ordering)")
           draft.displayName = newName
           draft.ordering = ordering
           let query = FontTag.upsert {
@@ -49,11 +52,18 @@ public struct TagNameEditor {
 
         if membership != originalMembership {
           if membership {
+            log.debug("tagging font with \(newName)")
             try TaggedSoundFont.insert {
               .init(soundFontId: soundFontId, tagId: id)
-            }.execute(db)
+            }
+            .execute(db)
           } else {
-            try TaggedSoundFont.delete().where { $0.soundFontId.eq(soundFontId) && $0.tagId.eq(id) }.execute(db)
+            log.debug("untagging font")
+            try TaggedSoundFont.delete()
+              .where {
+                $0.soundFontId.eq(soundFontId) && $0.tagId.eq(id)
+              }
+              .execute(db)
           }
         }
       }
@@ -63,7 +73,6 @@ public struct TagNameEditor {
   public enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
     case delegate(Delegate)
-    case membershipButtonTapped(Bool)
     case tagSwipedToDelete
 
     @CasePathable
@@ -79,18 +88,11 @@ public struct TagNameEditor {
     Reduce { state, action in
       switch action {
 
-      case .binding:
-        return .none
-
-      case .delegate:
-        return .none
-
-      case .membershipButtonTapped(let value):
-        state.membership = value
-        return .none
-
       case .tagSwipedToDelete:
         return .send(.delegate(.tagSwipedToDelete(state.id)), animation: .default)
+
+      default:
+        return .none
       }
     }
   }

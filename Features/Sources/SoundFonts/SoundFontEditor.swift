@@ -105,10 +105,6 @@ public struct SoundFontEditor {
       case .destination(.presented(.alert(.showHiddenPresetsConfirmed))):
         return unhidePresets(&state)
 
-      case .destination(.dismiss):
-        state.tagsList = State.generateTagsList(from: state.soundFont.tags)
-        return .none
-
       case .destination:
         return .none
 
@@ -118,6 +114,11 @@ public struct SoundFontEditor {
 
       case .notesChanged(let value):
         state.notes = value
+        return .none
+
+      case .path(.popFrom(id: _)):
+        let tags = state.soundFont.tags
+        state.tagsList = State.generateTagsList(from: tags)
         return .none
 
       case .path:
@@ -137,7 +138,6 @@ public struct SoundFontEditor {
       case .useOriginalNameTapped:
         state.displayName = state.soundFont.originalName
         return .none
-
       }
     }
     .forEach(\.path, action: \.path)

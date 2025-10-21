@@ -187,8 +187,8 @@ public struct Settings {
 //      case .midiTrafficIndicator:
 //        return .none
 
-//      case .path:
-//        return .none
+      case .path(.popFrom(id: _)): // Handle dismissal of children here
+        return .none
 //
 //      case .reviewAppTapped:
 //        return .none
@@ -432,6 +432,7 @@ extension SettingsView {
       }
       .buttonStyle(.borderless) // !!! keep from activating entire row and *both* buttons when one is touched
     }
+    .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
   }
 
   private var tuningSection: some View {

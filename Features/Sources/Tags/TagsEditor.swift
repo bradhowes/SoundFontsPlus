@@ -2,6 +2,8 @@
 
 import FeatureSupport
 
+private let log = Logger(category: "TagsEditor")
+
 @Reducer
 public struct TagsEditor {
 
@@ -52,6 +54,7 @@ public struct TagsEditor {
 
     public mutating func save() {
       @Dependency(\.defaultDatabase) var database
+      log.debug("saving state")
       withErrorReporting {
         try database.write { db in
           for id in deleted {

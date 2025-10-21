@@ -4,7 +4,7 @@ import SQLiteData
 import Tagged
 
 /**
- View of the `Tag` table that is used to populate the list of available tags. It holds the `soundFontCount` of the
+ View of the `Tag` table that is used to populate the list of available tags. It holds the `soundFontsCount` of the
  number of SoundFont instances that are members of the tag.
  */
 @Selection

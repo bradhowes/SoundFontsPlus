@@ -58,6 +58,12 @@ public struct FontTag: Hashable, Identifiable, Sendable {
 
   public var isUbiquitous: Bool { id.isUbiquitous }
   public var isUserDefined: Bool { id.isUserDefined }
+
+  public init(id: ID, displayName: String, ordering: Int) {
+    self.id = id
+    self.displayName = displayName
+    self.ordering = ordering
+  }
 }
 
 extension FontTag {
