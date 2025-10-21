@@ -241,3 +241,10 @@ extension SoundFont {
     return (found ?? [(presetCount: 0, favoriteCount: 0, hiddenCount: 0)])[0]
   }
 }
+
+extension SoundFont.ID {
+  public static var fluidFont: SoundFont.ID { SF2ResourceTag.fluidFont.soundFontId }
+  public static var freeFont: SoundFont.ID { SF2ResourceTag.freeFont.soundFontId }
+  public static var museScore: SoundFont.ID { SF2ResourceTag.museScore.soundFontId }
+  public static var rolandNicePiano: SoundFont.ID { SF2ResourceTag.rolandNicePiano.soundFontId }
+}

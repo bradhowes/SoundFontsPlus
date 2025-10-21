@@ -18,7 +18,7 @@ import Testing
 struct OperationsTests {
 
   @Test func presetsOrdering() async throws {
-    var presets = Operations.presets(for: nil)
+    var presets = Operations.presets(for: .fluidFont)
     #expect(presets.count == 10)
 
     let preset3Name = presets[3].displayName
@@ -31,26 +31,35 @@ struct OperationsTests {
 
     @Shared(.favoritesOnTop) var favoritesOnTop
     $favoritesOnTop.withLock { $0 = false }
-    presets = Operations.presets(for: nil)
+    presets = Operations.presets(for: .fluidFont)
     #expect(presets.count == 12)
     #expect(presets[3].displayName == preset3Name)
     #expect(presets[4].displayName == clone3?.displayName)
     #expect(presets[6].displayName == preset5Name)
     #expect(presets[7].displayName == clone5?.displayName)
 
+    presets = Operations.presets(for: .rolandNicePiano)
+    #expect(presets.count == 1)
+
     $favoritesOnTop.withLock { $0 = true }
-    presets = Operations.presets(for: nil)
+    presets = Operations.presets(for: .fluidFont)
     #expect(presets.count == SoundFont.soundFontPresetLoadLimit + 2)
     #expect(presets[0].displayName == clone3?.displayName)
     #expect(presets[1].displayName == clone5?.displayName)
     #expect(presets[5].displayName == preset3Name)
     #expect(presets[7].displayName == preset5Name)
 
+    presets = Operations.presets(for: .rolandNicePiano)
+    #expect(presets.count == 1)
+
     @Shared(.showOnlyFavorites) var showOnlyFavorites
     $showOnlyFavorites.withLock { $0 = true }
 
-    presets = Operations.presets(for: nil)
+    presets = Operations.presets(for: .fluidFont)
     #expect(presets.count == 2)
+
+    presets = Operations.presets(for: .rolandNicePiano)
+    #expect(presets.count == 0)
   }
 
   @Test func presets() async throws {
