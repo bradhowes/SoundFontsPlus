@@ -72,6 +72,7 @@
 		BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		BD9E461D2E7A079B00D0806E /* Changes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Changes.md; sourceTree = "<group>"; };
 		BDB6A3972E8EC8F400126442 /* Features */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Features; sourceTree = "<group>"; };
+		BDDE0BE22EA819B200A5707D /* SharedKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedKey.swift; path = Features/Sources/Tuning/SharedKey.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +118,7 @@
 		BD1D27762B6F13DD005C3ED0 = {
 			isa = PBXGroup;
 			children = (
+				BDDE0BE22EA819B200A5707D /* SharedKey.swift */,
 				BDB6A3972E8EC8F400126442 /* Features */,
 				BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */,
 				BD0BD9172E11E7E400772FE5 /* Common.xcconfig */,

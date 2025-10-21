@@ -3,16 +3,17 @@
 import FeatureSupport
 import Numerics
 
+private let log = Logger(category: "Tuning")
+
 @Reducer
 public struct Tuning {
 
   @ObservableState
-  public struct State: Equatable, Sendable {
+  public struct State: Equatable {
     public var enabled: Bool = false
     public var frequency: Double = 440.0
     public var cents: Int = 0
     public var shiftA4Value: String = ""
-    public var disabled: Bool { !enabled }
 
     public init(config: AudioConfig.Draft) {
       self.enabled = config.customTuningEnabled
@@ -95,6 +96,7 @@ public struct Tuning {
 
     Reduce { state, action in
       switch action {
+
       case .binding(\.cents):
         return setCents(&state, cents: state.cents)
 
@@ -141,12 +143,12 @@ extension Tuning {
 
 public struct TuningView: View {
   @State private var store: StoreOf<Tuning>
-
-  @State private var formatter: NumberFormatter = {
+  private let formatter: NumberFormatter = {
     var formatter = NumberFormatter()
     formatter.numberStyle = .decimal
     return formatter
   }()
+  private var disabled: Bool { !store.enabled }
 
   public init(store: StoreOf<Tuning>) {
     self.store = store
@@ -173,7 +175,7 @@ public struct TuningView: View {
             .foregroundStyle(store.enabled ? .primary : .secondary)
             .animation(.smooth, value: store.enabled)
         }
-        .disabled(store.disabled)
+        .disabled(disabled)
         .animation(.smooth, value: store.enabled)
         HStack {
           Text("Standard tuning (A4 = 440 Hz)")
@@ -188,7 +190,7 @@ public struct TuningView: View {
               .animation(.smooth, value: store.enabled)
           }
         }
-        .disabled(store.disabled)
+        .disabled(disabled)
         HStack {
           Text("Scientific tuning (A4 = 432 Hz)")
             .foregroundStyle(store.enabled ? .primary : .secondary)
@@ -202,7 +204,7 @@ public struct TuningView: View {
               .animation(.smooth, value: store.enabled)
           }
         }
-        .disabled(store.disabled)
+        .disabled(disabled)
         HStack {
           Text("Cents (± 2400):")
             .foregroundStyle(store.enabled ? .primary : .secondary)
@@ -219,7 +221,7 @@ public struct TuningView: View {
             store.send(.centsSumbmitted)
           }
         }
-        .disabled(store.disabled)
+        .disabled(disabled)
         HStack {
           Text("A4 Frequency (Hz):")
             .foregroundStyle(store.enabled ? .primary : .secondary)
@@ -236,7 +238,7 @@ public struct TuningView: View {
             store.send(.frequencySubmitted)
           }
         }
-        .disabled(store.disabled)
+        .disabled(disabled)
       }
     }
     header: {

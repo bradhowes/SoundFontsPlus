@@ -65,9 +65,9 @@ public struct Settings {
       @Shared(.midi) var midi
       hasMIDI = midi != nil
       self.midiConnectCount = midi?.sourceConnections.count ?? 0
-      @Shared(.globalTuningEnabled) var tuningEnabled
-      @Shared(.globalTuning) var frequency
-      self.tuning = .init(frequency: frequency, enabled: tuningEnabled)
+      @Shared(.globalTuningEnabled) var globalTuningEnabled
+      @Shared(.globalTuningFrequency) var globalTuningFrequency
+      self.tuning = .init(frequency: globalTuningFrequency, enabled: globalTuningEnabled)
     }
   }
 
@@ -105,10 +105,11 @@ public struct Settings {
   public var body: some ReducerOf<Self> {
     BindingReducer()
 
-    Scope(state: \.tuning, action: \.tuning) { Tuning() }
     Scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator) { MIDITrafficIndicator() }
+    Scope(state: \.tuning, action: \.tuning) { Tuning() }
 
     Reduce { state, action in
+      log.info("state action: \(action)")
       switch action {
 
       case .binding(\.keyWidth):
@@ -130,17 +131,17 @@ public struct Settings {
         }
         return .none
 
-//      case .binding:
-//        return .none
-//
-//      case .bluetoothMIDILocateButtonTapped:
-//        return .none
-//
-//      case .contactDeveloperTapped:
-//        return .none
-//
-//      case .delegate:
-//        return .none
+      case .binding:
+        return .none
+
+      case .bluetoothMIDILocateButtonTapped:
+        return .none
+
+      case .contactDeveloperTapped:
+        return .none
+
+      case .delegate:
+        return .none
 
       case .destination(.presented(.alert(.disableCopyFileConfirmed))):
         state.$copyFileWhenInstalling.withLock { $0 = false }
@@ -150,20 +151,20 @@ public struct Settings {
         state.$disableIdleTimer.withLock { $0 = true }
         return .none
 
-//      case .destination:
-//        return .none
+      case .destination:
+        return .none
 
       case .dismissButtonTapped:
         return dismissButtonTapped(&state)
 
-//      case .exportFilesTapped:
-//        return .none
-//
-//      case .hideBuiltInFilesTapped:
-//        return .none
-//
-//      case .importFilesTapped:
-//        return .none
+      case .exportFilesTapped:
+        return .none
+
+      case .hideBuiltInFilesTapped:
+        return .none
+
+      case .importFilesTapped:
+        return .none
 
       case .initialize:
         return initialize(&state)
@@ -184,28 +185,32 @@ public struct Settings {
         state.path.append(.midiControllers(MIDIControllers.State()))
         return .none
 
-//      case .midiTrafficIndicator:
-//        return .none
+      case .midiTrafficIndicator:
+        return .none
 
       case .path(.popFrom(id: _)): // Handle dismissal of children here
         return .none
-//
-//      case .reviewAppTapped:
-//        return .none
-//
-//      case .tuning:
-//        return .none
-//
-//      case .unhideBuiltInFilesTapped:
-//        return .none
+
+      case .path:
+        return .none
+
+      case .reviewAppTapped:
+        return .none
+
+      case let .tuning(.delegate(.tuningChanged(enabled, frequency))):
+        return tuningChanged(&state, enabled: enabled, frequency: frequency)
+
+      case .tuning:
+        return .none
+
+      case .unhideBuiltInFilesTapped:
+        return .none
 
       case .viewChangesTapped:
         return .send(.delegate(.showChanges))
 
       case .viewTutorialTapped:
         return .send(.delegate(.showTutorial))
-
-      default: return .none
       }
     }
     .forEach(\.path, action: \.path)
@@ -238,6 +243,14 @@ extension Settings {
       midi.activeConnectionsCountPublisher
         .map { .midiConnectionCountChanged(Int($0)) }
     }.cancellable(id: CancelId.monitorMIDIConnections)
+  }
+
+  private func tuningChanged(_ state: inout State, enabled: Bool, frequency: Double) -> Effect<Action> {
+    @Shared(.globalTuningEnabled) var globalTuningEnabled
+    @Shared(.globalTuningFrequency) var globalTuningFrequency
+    $globalTuningEnabled.withLock { $0 = enabled }
+    $globalTuningFrequency.withLock { $0 = frequency }
+    return .none
   }
 
   private func updateKeyWidth(_ state: inout State) -> Effect<Action> {
@@ -436,7 +449,7 @@ extension SettingsView {
   }
 
   private var tuningSection: some View {
-    TuningView(store: Store(initialState: store.tuning) { Tuning() })
+    TuningView(store: store.scope(state: \.tuning, action: \.tuning))
   }
 
   private var appSection: some View {

@@ -17,7 +17,6 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var disableIdleTimer: Self { Self[.appStorage("disableIdleTimer"), default: false]}
   public static var effectsPanelVisible: Self { Self[.appStorage("effectsPanelVisible"), default: false] }
   public static var favoritesOnTop: Self { Self[.appStorage("favoritesOnTop"), default: false] }
-  public static var globalTuningEnabled: Self { Self[.appStorage("globalTuningEnabled"), default: false] }
   public static var keyboardSlides: Self { Self[.appStorage("keyboardSlides"), default: false] }
   public static var midiAutoConnect: Self { Self[.appStorage("midiAutoConnect"), default: true] }
   public static var reverbLockEnabled: Self { Self[.appStorage("reverbLockEnabled"), default: false] }
@@ -39,7 +38,6 @@ extension SharedKey where Self == AppStorageKey<Double>.Default {
   public static var fontsAndTagsSplitPosition: Self {
     Self[.appStorage("fontsAndTagsSplitPosition"), default: 0.4]
   }
-  public static var globalTuning: Self { Self[.appStorage("globalTuning"), default: 440.0 ] }
   public static var keyWidth: Self { Self[.appStorage("keyWidth"), default: 64.0] }
 }
 
