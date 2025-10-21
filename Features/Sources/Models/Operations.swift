@@ -14,15 +14,34 @@ public enum Operations {
 
   public static func presetsQuery(for soundFontId: SoundFont.ID? = nil) -> Where<Preset> {
     @Shared(.showOnlyFavorites) var showOnlyFavorites
-    let query = Preset
-      .all
-      .where { $0.soundFontId.eq(soundFontId ?? currentPresetsSource() ?? -1) }
+    let query = Preset.all.where { $0.soundFontId.eq(soundFontId ?? currentPresetsSource() ?? -1) }
     if showOnlyFavorites {
-      return query
-        .where { $0.kind.eq(Preset.Kind.favorite) }
+      return query && .where { $0.kind.eq(Preset.Kind.favorite) }
+    }
+    return query && .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.favorite) }
+  }
+
+  public static func orderedPresetsQuery(for soundFontId: SoundFont.ID? = nil) -> Select<(), Preset, ()> {
+    @Shared(.favoritesOnTop) var favoritesOnTop
+    @Shared(.sortPresetsByName) var sortPresetsByName
+    let query = presetsQuery(for: soundFontId)
+    if sortPresetsByName {
+      return favoritesOnTop
+      ? query
+        .order { $0.kind.desc() }
+        .order { $0.displayName }
+      : query
+        .order { $0.kind }
+        .order { $0.displayName }
     } else {
-      return query
-        .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.favorite) }
+      return favoritesOnTop
+      ? query
+        .order { $0.kind.desc() }
+        .order { $0.index }
+      : query
+        .order { $0.index }
+        .order { $0.kind }
+        .order { $0.displayName }
     }
   }
 
