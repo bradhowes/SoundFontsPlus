@@ -22,7 +22,7 @@ public struct Tuning {
     }
 
     public init(frequency: Double, enabled: Bool) {
-      self.frequency = frequency != 0.0 ? frequency : 440.0
+      self.frequency = frequency
       self.enabled = enabled
       self.setFrequency(frequency)
     }
@@ -81,7 +81,7 @@ public struct Tuning {
     case delegate(Delegate)
     case standardTuningApplyPressed
     case scientificTuningApplyPressed
-    case centsSumbmitted
+    case centsSubmitted
     case frequencySubmitted
 
     public enum Delegate: Equatable {
@@ -106,14 +106,8 @@ public struct Tuning {
       case .binding(\.frequency):
         return setFrequency(&state, frequency: state.frequency)
 
-      case .binding:
-        return .none
-
-      case .centsSumbmitted:
+      case .centsSubmitted:
         return setCents(&state, cents: state.cents)
-
-      case .delegate:
-        return .none
 
       case .frequencySubmitted:
         return setFrequency(&state, frequency: state.frequency)
@@ -123,6 +117,8 @@ public struct Tuning {
 
       case .standardTuningApplyPressed:
         return setFrequency(&state, frequency: 440.0)
+
+      default: return .none
       }
     }
   }
@@ -218,7 +214,7 @@ public struct TuningView: View {
           .textFieldStyle(.roundedBorder)
           .disableAutocorrection(true)
           .onSubmit {
-            store.send(.centsSumbmitted)
+            store.send(.centsSubmitted)
           }
         }
         .disabled(disabled)
