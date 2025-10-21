@@ -11,7 +11,7 @@ import Testing
 
 @Suite(
   .dependencies {
-    let mockVolume = TestSupport.OutputVolumeFlipFlop()
+    let mockVolume = OutputVolumeFlipFlop()
     $0.outputVolume = mockVolume.makeOutputVolume()
     $0.defaultDatabase = try appDatabase()
     $0.mainQueue = .immediate

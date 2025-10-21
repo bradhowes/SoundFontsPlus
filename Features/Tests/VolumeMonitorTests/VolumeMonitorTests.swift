@@ -20,11 +20,11 @@ import TestSupport
 )
 @MainActor
 struct VolumeMonitorTests {
-  private let mockVolume: TestSupport.OutputVolumeFlipFlop
+  private let mockVolume: OutputVolumeFlipFlop
   private let store: TestStoreOf<VolumeMonitor>
 
   init() async throws {
-    let mockVolume = TestSupport.OutputVolumeFlipFlop()
+    let mockVolume = OutputVolumeFlipFlop()
     let store = TestStore(initialState: VolumeMonitor.State()) {
       VolumeMonitor()
     } withDependencies: {
@@ -157,12 +157,12 @@ struct VolumeMonitorTests {
 
 struct VolumeMonitorDemoView: View {
 
-  private let volumes: TestSupport.OutputVolumeFlipFlop
+  private let volumes: OutputVolumeFlipFlop
   @State private var volume: Float
   @State private var store: StoreOf<VolumeMonitor>
   @Shared(.activeState) var activeState
 
-  init(volumes: TestSupport.OutputVolumeFlipFlop, store: StoreOf<VolumeMonitor>) {
+  init(volumes: OutputVolumeFlipFlop, store: StoreOf<VolumeMonitor>) {
     self.volumes = volumes
     self.store = store
     self.volume = self.volumes.getValue()

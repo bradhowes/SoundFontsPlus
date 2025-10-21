@@ -1,5 +1,4 @@
 import ComposableArchitecture
-import TestSupport
 import DependenciesTestSupport
 import FeatureSupport
 import Models
@@ -7,6 +6,7 @@ import Sharing
 import SnapshotTesting
 import SwiftUI
 import Testing
+import TestSupport
 
 @testable import Changes
 

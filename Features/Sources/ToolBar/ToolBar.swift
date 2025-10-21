@@ -66,6 +66,7 @@ public struct ToolBar {
     case activePresetIdChanged(Preset.ID?)
     case activeVoiceCountChanged(Int)
     case addSoundFontButtonTapped
+    case deinitialize
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case effectsVisibilityButtonTapped
@@ -114,6 +115,9 @@ public struct ToolBar {
 
       case .addSoundFontButtonTapped:
         return reduce(into: &state, action: .fileImporter(.showFileImporter))
+
+      case .deinitialize:
+        return .merge(CancelId.allCases.map({ .cancel(id: $0) }))
 
       case .delegate:
         return .none
@@ -177,7 +181,7 @@ public struct ToolBar {
   @Shared(.showKeyNotes) private var showKeyNotes
   @Shared(.showSolfegeTags) private var showSolfegeTags
 
-  private enum CancelId {
+  private enum CancelId: CaseIterable {
     case lastPlayedKeyChanged
     case monitorActiveVoiceCount
   }
@@ -185,7 +189,7 @@ public struct ToolBar {
 
 extension ToolBar.Destination.State: Equatable {}
 
-private extension ToolBar {
+extension ToolBar {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     if let presetId = presetId,
@@ -197,21 +201,21 @@ private extension ToolBar {
     return .none
   }
 
-  func editPresetVisibility(_ state: inout State) -> Effect<Action> {
+  private func editPresetVisibility(_ state: inout State) -> Effect<Action> {
     state.editingPresetVisibility.toggle()
     return .send(.delegate(.editingPresetVisibilityChanged(state.editingPresetVisibility)))
   }
 
-  func hideMoreButtons(_ state: inout State) -> Effect<Action> {
+  private func hideMoreButtons(_ state: inout State) -> Effect<Action> {
     state.showMoreButtons = false
     return .none.animation(.smooth)
   }
 
-  func initialize(_ state: inout State) -> Effect<Action> {
+  private func initialize(_ state: inout State) -> Effect<Action> {
     reduce(into: &state, action: .midiTrafficIndicator(.initialize))
   }
 
-  func monitorActiveVoiceCount(_ state: inout State) -> Effect<Action> {
+  private func monitorActiveVoiceCount(_ state: inout State) -> Effect<Action> {
     @Shared(.synthAudioUnit) var synthAudioUnit
     guard let parameterTree = synthAudioUnit?.auAudioUnit.parameterTree else {
       fatalError("unexpected nil parameterTree chain")
@@ -233,18 +237,18 @@ private extension ToolBar {
     }.cancellable(id: CancelId.monitorActiveVoiceCount)
   }
 
-  func settingsButtonTapped(_ state: inout State) -> Effect<Action> {
+  private func settingsButtonTapped(_ state: inout State) -> Effect<Action> {
     state.showMoreButtons = false
     return .send(.delegate(.settingsButtonTapped))
   }
 
-  func setVisibleKeyRange(_ state: inout State, lowest: Note, highest: Note) -> Effect<Action> {
+  private func setVisibleKeyRange(_ state: inout State, lowest: Note, highest: Note) -> Effect<Action> {
     state.lowestKey = lowest
     state.highestKey = highest
     return .none
   }
 
-  func shiftKeyboardDownButtonTapped(_ state: inout State) -> Effect<Action> {
+  private func shiftKeyboardDownButtonTapped(_ state: inout State) -> Effect<Action> {
     let span = state.highestKey.midiNoteValue - state.lowestKey.midiNoteValue
     var newLow = Note(midiNoteValue: max(Note.midiRange.lowerBound, state.lowestKey.midiNoteValue - span))
     if newLow.accented {
@@ -256,7 +260,7 @@ private extension ToolBar {
     return .send(.delegate(.visibleKeyRangeChanged(lowest: newLow, highest: newHigh)))
   }
 
-  func shiftKeyboardUpButtonTapped(_ state: inout State) -> Effect<Action> {
+  private func shiftKeyboardUpButtonTapped(_ state: inout State) -> Effect<Action> {
     let span = state.highestKey.midiNoteValue - state.lowestKey.midiNoteValue
     let newHigh = Note(midiNoteValue: min(Note.midiRange.upperBound, state.highestKey.midiNoteValue + span))
     var newLow = Note(midiNoteValue: max(Note.midiRange.lowerBound, newHigh.midiNoteValue - span))
@@ -268,11 +272,11 @@ private extension ToolBar {
     return .send(.delegate(.visibleKeyRangeChanged(lowest: newLow, highest: newHigh)))
   }
 
-  func showHelp(_ state: inout State) -> Effect<Action> {
+  private func showHelp(_ state: inout State) -> Effect<Action> {
     return hideMoreButtons(&state)
   }
 
-  func lastPlayedKeyChanged(_ state: inout State, key: Note?) -> Effect<Action> {
+  private func lastPlayedKeyChanged(_ state: inout State, key: Note?) -> Effect<Action> {
     guard showKeyNotes || showSolfegeTags else { return .none }
 
     guard let key else {
@@ -293,14 +297,14 @@ private extension ToolBar {
     .animation(.smooth)
   }
 
-  func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
+  private func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
     state.keyboardSlides.toggle()
     @Shared(.keyboardSlides) var keyboardSlides
     $keyboardSlides.withLock { $0 = state.keyboardSlides }
     return .none
   }
 
-  func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
+  private func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
     state.effectsPanelVisible.toggle()
     @Shared(.effectsPanelVisible) var effectsPanelVisible
     $effectsPanelVisible.withLock { $0 = state.effectsPanelVisible }
@@ -308,7 +312,7 @@ private extension ToolBar {
     return .send(.delegate(.effectsVisibilityChanged(state.effectsPanelVisible)))
   }
 
-  func toggleShowMoreButtons(_ state: inout State) -> Effect<Action> {
+  private func toggleShowMoreButtons(_ state: inout State) -> Effect<Action> {
     state.showMoreButtons.toggle()
     if !state.showMoreButtons && state.editingPresetVisibility {
       state.editingPresetVisibility = false
@@ -317,7 +321,7 @@ private extension ToolBar {
     return .none.animation(.smooth)
   }
 
-  func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
+  private func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
     state.tagsListVisible.toggle()
     @Shared(.tagsListVisible) var tagsListVisible
     $tagsListVisible.withLock { $0 = state.tagsListVisible }
