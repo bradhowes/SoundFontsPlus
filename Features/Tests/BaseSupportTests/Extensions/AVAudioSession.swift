@@ -1,7 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVKit
-import BaseSupport
 import Combine
 import Dependencies
 import Foundation
@@ -9,7 +8,7 @@ import Models
 import SQLiteData
 import Testing
 
-@testable import VolumeMonitor
+@testable import BaseSupport
 
 @objc final class VolumeProvider: NSObject, OutputVolumeStream, @unchecked Sendable {
   @objc dynamic private(set) var outputVolume: Float = 0.0
