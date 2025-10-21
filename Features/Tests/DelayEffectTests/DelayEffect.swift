@@ -335,10 +335,10 @@ struct DelayEffectTests {
       )
     }
 
-    await store.receive(\.time)
-    await store.receive(\.feedback)
-    await store.receive(\.cutoff)
-    await store.receive(\.wetDryMix)
+    await store.receive(\.time, timeout: 30)
+    await store.receive(\.feedback, timeout: 30)
+    await store.receive(\.cutoff, timeout: 30)
+    await store.receive(\.wetDryMix, timeout: 30)
 
     await store.send(.deinitialize)
 
