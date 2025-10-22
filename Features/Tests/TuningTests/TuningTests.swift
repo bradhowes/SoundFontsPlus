@@ -157,6 +157,13 @@ struct TuningTests {
     await store.receive(.delegate(.tuningChanged(enabled: true, frequency: 440.0)))
   }
 
+  @Test func disabled() async throws {
+    let view = Form {
+      TuningView(store: Store(initialState: .init(frequency: 587.3295358348151, enabled: false)) { Tuning() })
+    }
+    try TestSupport.assertSnapshot(matching: view)
+  }
+
   @Test func preview() async throws {
     try TestSupport.assertSnapshot(matching: TuningView.preview)
   }

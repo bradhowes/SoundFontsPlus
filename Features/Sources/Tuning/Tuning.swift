@@ -5,6 +5,14 @@ import Numerics
 
 private let log = Logger(category: "Tuning")
 
+/**
+ Feature that handles custom tuning settings. A global tuning setting can be configured in the Settings view
+ and individual presets can have a custom tuning. If both are enabled, the preset one is used over the global
+ one.
+
+ The tuning setting consists of a frequency value (Hz), though the control also allows for setting using
+ cents (1200 cents per octave) since this is the unit used in the SF2 specification. If the
+ */
 @Reducer
 public struct Tuning {
 
@@ -34,45 +42,32 @@ public struct Tuning {
 
     mutating func setFrequency(_ frequency: Double) {
       self.frequency = frequency
-      let cents = frequencyToCents(frequency)
-      let clampedCents = min(max(cents, -2400.0), 2400.0)
-      let transposeCents = (clampedCents / 100).rounded() * 100.0
-      if transposeCents.isApproximatelyEqual(to: clampedCents) {
-        if transposeCents == 0 {
-          self.shiftA4Value = "None"
-          self.frequency = 440.0
-        } else {
-          let note = Note.A4.offset(Int(transposeCents/100))
-          self.shiftA4Value = note < Note.A4 ? note.labelWithFlats : note.labelWithSharps
-        }
-      } else {
-        // Fractional component -- no mapping exists to a MIDI note
-        self.shiftA4Value = "-"
-      }
-
-      self.cents = Int(clampedCents.rounded())
+      self.cents = evaluateCents(frequencyToCents(frequency))
     }
 
     mutating func setCents(_ cents: Int) {
-      self.cents = cents
       self.frequency = centsToFrequency(cents)
+      self.cents = evaluateCents(Double(cents))
+    }
 
-      let clampedCents = min(max(Double(cents), -2400.0), 2400.0)
-      let transposeCents = (clampedCents / 100).rounded() * 100.0
+    private mutating func evaluateCents(_ cents: Double) -> Int {
+      let clampedCents = min(max(cents, -2400.0), 2400.0)
+      let roundedCents = (clampedCents / 100).rounded() * 100.0
 
-      if transposeCents == clampedCents {
-        if transposeCents == 0 {
+      if roundedCents.isApproximatelyEqual(to: clampedCents) {
+        if roundedCents == 0 {
           self.shiftA4Value = "None"
           self.frequency = 440.0
         } else {
-          let note = Note.A4.offset(Int(transposeCents/100))
-          print("note: \(note)")
+          let note = Note.A4.offset(Int(roundedCents/100))
           self.shiftA4Value = note < Note.A4 ? note.labelWithFlats : note.labelWithSharps
         }
       } else {
         // Fractional component -- no mapping exists to a MIDI note
         self.shiftA4Value = "-"
       }
+
+      return Int(clampedCents.rounded())
     }
   }
 
