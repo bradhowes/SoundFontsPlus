@@ -10,11 +10,11 @@ Main dependencies:
 
 * [Composable Architecture (TCA)][1] -- opinionated approach to structuring an iOS app as composable features that
   provide for well-structured, understandable, testable, event flows and data transformations to drive SwiftUI views.
-* [sharing-grdb][2] -- provides a shared-data capability by combining Point-Free's [Sharing][3] and
-  [StructuredQueries][4] libraries with the robust [GRDB][5] toolkit for SQLite
+* [sqlite-data][2] -- provides a shared-data capability by combining Point-Free's [Sharing][3] and
+  [StructuredQueries][4] libraries with the robust [GRDB][5] toolkit for SQLite.
 * [AUv3Controls][6] -- custom SwiftUI controls (a circular knob and a toggle) that supports easy integration with AUv3
   AUParameter entities (built using the [TCA][1] library as well)
-* [SF2Lib][7] -- an audio synthesizer in Objective-C++ that reads sound font (SF2) files. It is used here to read the
+* [SF2Lib][7] -- an audio synthesizer in C++23 and Objective-C++ that reads sound font (SF2) files. It is used here to read the
   files and provide the presets info and meta data that goes into the SQLite tables.
 * [brh-splitview][9] -- custom TCA-based SwiftUI view/feature that adjusts the width or height between two children.
 
@@ -33,10 +33,12 @@ The app is getting close to feature-parity with the the original UIKit version:
 Nearly all app data resides in SQLite database, though there are some `UserDefaults` settings and a file-based `@Shared`
 struct that holds:
 
-* selected SoundFont ID
 * active SoundFont ID
 * active preset ID
 * active tag ID
+
+These values are saved when changed and restored at app launch. An additional value (the selected SoundFont ID) is
+shared as well but it is not restore.
 
 When any of these values change, the various views update as would be expected:
 
@@ -81,19 +83,28 @@ There are three SwiftUI list views on the home view:
 Only the tags list uses a [@FetchAll][tags] macro in its feature state since it does not depend on any other state to
 determine what to show. The list of sound fonts relies on the contents of the [@Shared(.activeState)'s
 activeTagId][activeTagId] value to determine what fonts to show. When this changes, an action is sent back to the
-reducer to generate a new [@FetchAll][sf2] query and then start listening to *it* for changes that drive the SwiftUI
-view updates:
+reducer to generate a new [@FetchAll][monitoring] query and then start listening to *it* for changes that drive the
+SwiftUI view updates:
 
 ```swift
-private func monitorFetchAll(_ state: inout State) -> Effect<Action> {
-  return .run { send in
-    @FetchAll(SoundFontInfo.taggedQuery) var soundFontInfos
-    try await $soundFontInfos.load(SoundFontInfo.taggedQuery)
-    for try await update in $soundFontInfos.publisher.values {
-      await send(.soundFontInfosChanged(update))
-    }
-  }.cancellable(id: CancelId.fetchAll, cancelInFlight: true)
-}
+  private func monitorActiveTag(_ state: inout State) -> Effect<Action> {
+    .publisher {
+      $activeState.activeTagId
+        .publisher
+        .removeDuplicates()
+        .map { .activeTagIdChanged($0 ?? FontTag.ID(rawValue: -1)) }
+    }.cancellable(id: CancelId.monitorActiveTagId, cancelInFlight: true)
+  }
+
+  private func monitorFetchAll(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
+    .run { send in
+      @FetchAll(SoundFontInfo.query(id: tagId)) var soundFontInfos
+      try await $soundFontInfos.load(SoundFontInfo.query())
+      for try await update in $soundFontInfos.publisher.values {
+        await send(.soundFontInfosChanged(update))
+      }
+    }.cancellable(id: CancelId.monitorFetchAll, cancelInFlight: true)
+  }
 ```
 
 There may be a better way to do this, but it works without any perceptible delays.
@@ -103,9 +114,9 @@ There may be a better way to do this, but it works without any perceptible delay
 The list of presets is the most complicated view due to the fact that the preset entries usually live in numbered
 sections, the view supports searching on preset names, and preset visibility can be toggled on/off. However, even with
 all of this complication, the code is fairly straighforward due to the structured flow of actions and state
-transformations due to TCA design.
+transformations found in the TCA design.
 
-Like the sound fonts list, the presets list monitors the contents of the [@Shared(.activeState)'s
+Similar the sound fonts list, the presets list monitors the contents of the [@Shared(.activeState)'s
 selectedSoundFontId][selectedSoundFontId] to know when to change its contents.
 
 # History
@@ -119,7 +130,7 @@ Originally it was based on SwiftData, but I encountered too many issues and hurd
 
 [0]: https://github.com/bradhowes/SoundFonts
 [1]: https://github.com/pointfreeco/swift-composable-architecture
-[2]: https://github.com/pointfreeco/sharing-grdb
+[2]: https://github.com/pointfreeco/sqlite-data
 [3]: https://github.com/pointfreeco/swift-sharing
 [4]: https://github.com/pointfreeco/swift-structured-queries
 [5]: https://github.com/groue/GRDB.swift
@@ -129,10 +140,9 @@ Originally it was based on SwiftData, but I encountered too many issues and hurd
 [9]: https://github.com/bradhowes/brh-splitview
 
 [tags]: https://github.com/bradhowes/SoundFontsPlus/blob/main/SoundFontsPlus/TagsFeature/TagsList.swift#L25
-[activeTagId]: https://github.com/bradhowes/SoundFontsPlus/blob/main/SoundFontsPlus/SoundFontsFeature/SoundFontsList.swift#L133
-[sf2]: https://github.com/bradhowes/SoundFontsPlus/blob/main/SoundFontsPlus/SoundFontsFeature/SoundFontsList.swift#L147
-[selectedSoundFontId]: https://github.com/bradhowes/SoundFontsPlus/blob/main/SoundFontsPlus/PresetsFeature/PresetsList.swift#L161
-
+[activeTagId]: https://github.com/bradhowes/SoundFontsPlus/blob/b5e786688593cf8ac2f6ab10a7ff1e1cdede9a5d/Features/Sources/Models/Support/ActiveState.swift#L10
+[monitoring]: https://github.com/bradhowes/SoundFontsPlus/blob/b5e786688593cf8ac2f6ab10a7ff1e1cdede9a5d/Features/Sources/SoundFonts/SoundFontsList.swift#L103
+[selectedSoundFontId]: https://github.com/bradhowes/SoundFontsPlus/blob/b5e786688593cf8ac2f6ab10a7ff1e1cdede9a5d/Features/Sources/Presets/PresetsList.swift#L266
 
 [ci]: https://github.com/bradhowes/SoundFontsPlus/actions/workflows/CI.yml
 [status]: https://github.com/bradhowes/SoundFontsPlus/actions/workflows/CI.yml/badge.svg

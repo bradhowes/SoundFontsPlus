@@ -6,21 +6,36 @@ import SQLiteData
 
 public enum Operations {
 
+  /// - returns the SoundFont ID to use when querying for presets to show, either the active or the selected font.
   public static func currentPresetsSource() -> SoundFont.ID? {
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     @Shared(.activeState) var activeState
     return selectedSoundFontId ?? activeState.activeSoundFontId
   }
 
+  /**
+   Obtain a query that returns the set of presets to show (unordered) for a given sound font ID. Honors the
+   `showOnlyFavorites` setting.
+
+   - parameter soundFontId: the sound font to query for
+   - returns: a query showing the appropriate contents
+   */
   public static func presetsQuery(for soundFontId: SoundFont.ID? = nil) -> Where<Preset> {
     @Shared(.showOnlyFavorites) var showOnlyFavorites
-    let query = Preset.all.where { $0.soundFontId.eq(soundFontId ?? currentPresetsSource() ?? -1) }
-    if showOnlyFavorites {
-      return query && .where { $0.kind.eq(Preset.Kind.favorite) }
-    }
-    return query && .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.favorite) }
+    return Preset.all.where { $0.soundFontId.eq(soundFontId ?? currentPresetsSource() ?? -1) } && (
+      showOnlyFavorites
+      ? .where { $0.kind.eq(Preset.Kind.favorite) }
+      : .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.favorite) }
+    )
   }
 
+  /**
+   Obtain a query that returns an ordered collection of presets to show for a given sound font ID. Honors the
+   `favoritesOnTop` and `sortPresetsByName` settings which affect the ordering.
+
+   - parameter soundFontId: the sound font to query for
+   - returns: the select query
+   */
   public static func orderedPresetsQuery(for soundFontId: SoundFont.ID? = nil) -> Select<(), Preset, ()> {
     @Shared(.favoritesOnTop) var favoritesOnTop
     @Shared(.sortPresetsByName) var sortPresetsByName
@@ -45,31 +60,41 @@ public enum Operations {
     }
   }
 
+  /**
+   Execute a query to obtain the presets for a given sound font ID.
+
+   - parameter soundFontId: the sound font to query for
+   - returns: the collection of presets
+   */
   public static func presets(for soundFontId: SoundFont.ID? = nil) -> [Preset] {
-    @Shared(.favoritesOnTop) var favoritesOnTop
-    @Shared(.sortPresetsByName) var sortPresetsByName
-    let query: Select<(), Preset, ()>
-    if sortPresetsByName {
-      query = favoritesOnTop
-      ? presetsQuery(for: soundFontId)
-        .order { $0.kind.desc() }
-        .order(by: \.displayName)
-      : presetsQuery(for: soundFontId)
-        .order(by: \.kind)
-        .order(by: \.displayName)
-    } else {
-      query = favoritesOnTop
-      ? presetsQuery(for: soundFontId)
-        .order { $0.kind.desc() }
-        .order(by: \.index)
-      : presetsQuery(for: soundFontId)
-        .order(by: \.index)
-        .order(by: \.kind)
-        .order(by: \.displayName)
-    }
+    withDatabaseReader {
+      try orderedPresetsQuery(for: soundFontId).fetchAll($0)
+    } ?? []
+  }
+
+  /**
+   Obtain the collection of presets for a given sound font ID. Does not perform any filter of hidden presets, and is
+   used when editing preset visibility.
+
+   - parameter soundFontId: the sound font to query for
+   - returns: the collection of presets
+   */
+  public static func allPresets(for soundFontId: SoundFont.ID?) -> [Preset] {
+    guard let soundFontId = (soundFontId ?? currentPresetsSource()) else { return [] }
+    let query = Preset
+      .all
+      .where { $0.soundFontId.eq(soundFontId) }
+      .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.hidden) }
+      .order(by: \.index)
     return withDatabaseReader { try query.fetchAll($0) } ?? []
   }
 
+  /**
+   Obtain the loading info for a given preset ID. Used when directing the synth to begin using the preset.
+
+   - parameter id: the preset to query for
+   - returns: the optional `PresetLoadingInfo` for the preset
+   */
   public static func presetLoadingInfo(id: Preset.ID? = nil) -> PresetLoadingInfo? {
     withDatabaseReader {
       try PresetLoadingInfo.query(for: id).fetchAll($0)
@@ -79,16 +104,6 @@ public enum Operations {
   public static func presetAudioConfig(id: Preset.ID? = nil) -> AudioConfig? {
     @Shared(.activeState) var activeState
     return AudioConfig.with(presetId: id ?? activeState.activePresetId)
-  }
-
-  public static func allPresets(for soundFontId: SoundFont.ID?) -> [Preset] {
-    guard let soundFontId = (soundFontId ?? currentPresetsSource()) else { return [] }
-    let query = Preset
-      .all
-      .where { $0.soundFontId.eq(soundFontId) }
-      .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.hidden) }
-      .order(by: \.index)
-    return withDatabaseReader { try query.fetchAll($0) } ?? []
   }
 
   public static func soundFontIds(for tagId: FontTag.ID) -> [SoundFont.ID] {
