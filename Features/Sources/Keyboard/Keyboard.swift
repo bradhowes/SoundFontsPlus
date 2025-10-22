@@ -82,6 +82,7 @@ public struct Keyboard {
     case touchEnded(State.EventId)
     case updateVisibleKeys(lowest: Note, highest: Note)
 
+    @CasePathable
     public enum Delegate: Equatable {
       case noteOn(Note)
       case visibleKeyRangeChanged(lowest: Note, highest: Note)

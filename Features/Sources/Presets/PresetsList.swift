@@ -83,6 +83,7 @@ public struct PresetsList {
     case stop // only used for testing
     case visibilityEditModeChanged(Bool)
 
+    @CasePathable
     public enum Delegate: Equatable {
       case edit(sectionId: Int, preset: Preset)
     }

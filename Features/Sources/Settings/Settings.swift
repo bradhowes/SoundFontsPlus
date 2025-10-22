@@ -94,6 +94,7 @@ public struct Settings {
     case viewChangesTapped
     case viewTutorialTapped
 
+    @CasePathable
     public enum Delegate {
       case showChanges
       case showTutorial

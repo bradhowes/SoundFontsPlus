@@ -23,6 +23,7 @@ public struct SoundFontsList {
     case showActiveSoundFont
     case soundFontInfosChanged([SoundFontInfo])
 
+    @CasePathable
     public enum Delegate: Equatable {
       case edit(SoundFont)
     }

@@ -378,7 +378,7 @@ private extension Root {
       state.destination = nil
       return reduce(into: &state, action: .appReview(.ask))
 
-    case let .tagsVisibilityChanged(visible):
+    case let .tagsListVisibilityChanged(visible):
       let panes: SplitViewPanes = visible ? .both : .primary
       return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
 

@@ -77,6 +77,7 @@ public struct SoundFontEditor {
     case useEmbeddedNameTapped
     case useOriginalNameTapped
 
+    @CasePathable
     public enum Delegate {
       case refreshPresets
     }

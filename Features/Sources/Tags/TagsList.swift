@@ -26,6 +26,8 @@ public struct TagsList {
     case editButtonTapped(TagInfo)
     case longPressGestureFired
     case tagButtonTapped(TagInfo)
+
+    @CasePathable
     public enum Delegate: Equatable {
       case edit(TagInfo.ID?)
     }

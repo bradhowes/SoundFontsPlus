@@ -75,13 +75,14 @@ public struct ToolBar {
     case lastPlayedKeyChanged(Note?)
     case showMoreButtonTapped
     case slidingKeyboardButtonTapped
-    case tagVisibilityButtonTapped
+    case tagsListVisibilityButtonTapped
 
+    @CasePathable
     public enum Delegate: Equatable {
       case editingPresetVisibilityChanged(Bool)
       case effectsVisibilityChanged(Bool)
       case presetNameTapped
-      case tagsVisibilityChanged(Bool)
+      case tagsListVisibilityChanged(Bool)
       case settingsButtonTapped
       case settingsDismissed
       case visibleKeyRangeChanged(lowest: Note, highest: Note)
@@ -162,8 +163,8 @@ public struct ToolBar {
       case .slidingKeyboardButtonTapped:
         return slidingKeyboardButtonTapped(&state)
 
-      case .tagVisibilityButtonTapped:
-        return toggleTagsVisibility(&state)
+      case .tagsListVisibilityButtonTapped:
+        return toggleTagsListVisibility(&state)
       }
     }.ifLet(\.$destination, action: \.destination)
   }
@@ -198,10 +199,10 @@ extension ToolBar {
     return .send(.delegate(.editingPresetVisibilityChanged(state.editingPresetVisibility)))
   }
 
-  private func hideMoreButtons(_ state: inout State) -> Effect<Action> {
-    state.showMoreButtons = false
-    return .none.animation(.smooth)
-  }
+//  private func hideMoreButtons(_ state: inout State) -> Effect<Action> {
+//    state.showMoreButtons = false
+//    return .none.animation(.smooth)
+//  }
 
   private func initialize(_ state: inout State) -> Effect<Action> {
     reduce(into: &state, action: .midiTrafficIndicator(.initialize))
@@ -265,7 +266,7 @@ extension ToolBar {
   }
 
   private func showHelp(_ state: inout State) -> Effect<Action> {
-    return hideMoreButtons(&state)
+    return .none
   }
 
   private func lastPlayedKeyChanged(_ state: inout State, key: Note?) -> Effect<Action> {
@@ -281,7 +282,8 @@ extension ToolBar {
     log.info("lastPlayedKey - \(key.label)")
 
     return .run { send in
-      try await Task.sleep(for: .seconds(1.8))
+      @Dependency(\.continuousClock) var clock
+      try await clock.sleep(for: .seconds(1.8))
       log.info("clearing lastPlayedKey")
       await send(.lastPlayedKeyChanged(nil))
     }
@@ -313,12 +315,12 @@ extension ToolBar {
     return .none.animation(.smooth)
   }
 
-  private func toggleTagsVisibility(_ state: inout State) -> Effect<Action> {
+  private func toggleTagsListVisibility(_ state: inout State) -> Effect<Action> {
     state.tagsListVisible.toggle()
     @Shared(.tagsListVisible) var tagsListVisible
     $tagsListVisible.withLock { $0 = state.tagsListVisible }
     state.showMoreButtons = false
-    return .send(.delegate(.tagsVisibilityChanged(state.tagsListVisible)))
+    return .send(.delegate(.tagsListVisibilityChanged(state.tagsListVisible)))
   }
 }
 
@@ -413,7 +415,7 @@ public struct ToolBarView: View {
 
   private var toggleTagsButton: some View {
     Button {
-      store.send(.tagVisibilityButtonTapped)
+      store.send(.tagsListVisibilityButtonTapped)
     } label: {
       Image(systemName: .tagsListButtonImageName)
         .tint(if: store.tagsListVisible)

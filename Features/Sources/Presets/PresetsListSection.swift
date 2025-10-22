@@ -41,6 +41,7 @@ public struct PresetsListSection {
     case rows(IdentifiedActionOf<PresetButton>)
     case searchButtonTapped
 
+    @CasePathable
     public enum Delegate: Equatable {
       case headerTapped(Preset.ID)
       case searchButtonTapped

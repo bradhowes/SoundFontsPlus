@@ -30,6 +30,7 @@ public struct VolumeMonitor {
     case deinitialize
     case volumeChanged(Float)
 
+    @CasePathable
     public enum Delegate {
       case mutedVolume(Reason?)
     }

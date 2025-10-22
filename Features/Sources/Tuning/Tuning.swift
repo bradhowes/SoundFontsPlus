@@ -79,6 +79,7 @@ public struct Tuning {
     case centsSubmitted
     case frequencySubmitted
 
+    @CasePathable
     public enum Delegate: Equatable {
       case tuningChanged(enabled: Bool, frequency: Double)
     }
