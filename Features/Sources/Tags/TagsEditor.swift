@@ -4,6 +4,17 @@ import FeatureSupport
 
 private let log = Logger(category: "TagsEditor")
 
+/**
+ Editor for the collection of tags. The tag editing takes place in two areas: one for the tags shown in
+ the tags panel on the main screen, and one when editing a specific font. In both, one can create new
+ tags, rename previously-created ones, and delete user-created tags. The four built-in tags cannot be modified nor
+ deleted.
+
+ * When editing from the tags panel, one can also rearrange the order of the tags by entering "edit mode" and then
+   dragging them around.
+ * When editing from the font editor, one can change the membership of the font and a user tag.
+
+ */
 @Reducer
 public struct TagsEditor {
 
@@ -29,6 +40,15 @@ public struct TagsEditor {
 
     let soundFontId: SoundFont.ID?
 
+    /**
+     Define intial state of the feature.
+
+     - parameter mode indication which kind of editing is being done, all tags or font-specific.
+     - parameter focused optional tag to make active and focused (only valid for user-defined tags)
+     - parameter soundFontId optional sound font that is being edited (only valid in `.fontEditing` mode)
+     - parameter memberships optional mapping that describes which tags a font is a member of
+     - parameter editMode the SwiftUI edit mode to start off in. Only used here when testing.
+     */
     public init(
       mode: Mode,
       focused: FontTag.ID? = nil,
@@ -53,18 +73,13 @@ public struct TagsEditor {
     }
 
     public mutating func save() {
-      @Dependency(\.defaultDatabase) var database
       log.debug("saving state")
-      withErrorReporting {
-        try database.write { db in
-          for id in deleted {
-            withErrorReporting {
-              try FontTag.find(id).delete().execute(db)
-            }
-          }
-          for (index, var row) in rows.enumerated() {
-            row.save(db, ordering: index, soundFontId: soundFontId)
-          }
+      withDatabaseWriter { db in
+        for id in deleted {
+          try FontTag.find(id).delete().execute(db)
+        }
+        for (index, var row) in rows.enumerated() {
+          row.save(db, ordering: index, soundFontId: soundFontId)
         }
       }
     }
@@ -89,11 +104,9 @@ public struct TagsEditor {
     BindingReducer()
     Reduce { state, action in
       switch action {
+
       case .addButtonTapped:
         return addTag(&state)
-
-      case .binding:
-        return .none
 
       case .cancelButtonTapped:
         return dismiss(&state, save: false)
@@ -107,9 +120,6 @@ public struct TagsEditor {
       case let .rows(.element(id: id, action: .delegate(.tagSwipedToDelete))):
         return deleteTag(&state, tagId: id)
 
-      case .rows:
-        return .none
-
       case .saveButtonTapped:
         return dismiss(&state, save: true)
 
@@ -118,6 +128,9 @@ public struct TagsEditor {
 
       case .toggleEditMode:
         return toggleEditMode(&state)
+
+      default:
+        return .none
       }
     }
     .forEach(\.rows, action: \.rows) {
@@ -135,14 +148,14 @@ private extension TagsEditor {
     let existingNames = Set<String>(state.rows.map { $0.draft.displayName.trimmed(or: $0.originalDisplayName) })
     var newName = base
 
-    var tagId: FontTag.ID = 0
+    var counter = 0
     while existingNames.contains(newName) {
-      tagId += 1
-      newName = base + " \(tagId.rawValue)"
+      counter += 1
+      newName = base + " \(counter)"
     }
 
     // Added tags always have negative Tag.ID values so we can properly handle them when we save.
-    tagId = FontTag.ID(rawValue: -1)
+    var tagId = FontTag.ID(rawValue: -1)
     while state.rows.index(id: tagId) != nil {
       tagId -= 1
     }
@@ -183,9 +196,15 @@ private extension TagsEditor {
     withAnimation(.smooth) {
       state.rows = state.rows.filter { $0.id != tagId }
     }
+
     if tagId > 0 {
       state.deleted.insert(tagId)
     }
+
+    if state.focused == tagId {
+      state.focused = nil
+    }
+
     return .none
   }
 
