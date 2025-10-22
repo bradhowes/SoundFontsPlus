@@ -9,6 +9,7 @@ public struct IndicatorModifier: ViewModifier {
     case none
     // Selected item -- only for SoundFont button when switching to a non-active item
     case selected
+
     // Active item -- shows the active SoundFont, Tag, or Preset
     case active
 
@@ -16,27 +17,31 @@ public struct IndicatorModifier: ViewModifier {
 
     case activeNoIndicator
 
+    case favorite
+
     var labelColor: Color {
       switch self {
-      case .none: return .whiteText
-      case .active, .activeNoIndicator: return .accentColor
+      case .none: return .accentColor.darker
+      case .active, .activeNoIndicator: return .accentColor.lighter
       case .activeFavorite: return .orange
-      case .selected: return .white
+      case .favorite: return .orange.darker
+      case .selected: return .whiteText
       }
     }
 
     var indicatorColor: Color {
       switch self {
       case .none, .activeNoIndicator: return .clear
-      case .active: return .accentColor
-      case .activeFavorite: return .orange
+      case .active: return .accentColor.lighter
+      case .activeFavorite: return .orange.lighter
+      case .favorite: return .orange.darker
       case .selected: return .clear
       }
     }
 
     var indicatorGradient: Gradient {
       switch self {
-      case .active, .activeFavorite: return .init(colors: [.black, indicatorColor, .black])
+      case .active, .activeFavorite: return .init(colors: [.clear, indicatorColor, .clear])
       default: return .init(colors: [.clear, .clear])
       }
     }
@@ -64,7 +69,7 @@ public struct IndicatorModifier: ViewModifier {
         .font(.button)
         .foregroundStyle(labelColor)
     }
-    .animation(.linear(duration: isEditing ? 0.0 : 0.5), value: indicator)
+    .animation(.linear(duration: 0.3), value: indicator)
   }
 }
 
@@ -77,4 +82,9 @@ extension View {
   public func indicator(_ shown: Bool) -> some View {
     modifier(IndicatorModifier(state: shown ? .active : .none))
   }
+}
+
+extension Color {
+  fileprivate var darker: Self { self.mix(with: .black, by: 0.25) }
+  fileprivate var lighter: Self { self.mix(with: .white, by: 0.30) }
 }

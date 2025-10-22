@@ -22,7 +22,7 @@ public struct PresetNameView: View {
         Image(systemName: symbolName)
       }
       Text(preset?.displayName ?? "—")
+        .font(.button)
     }
-    .foregroundStyle(preset?.isFavorite ?? false ? .orange: .teal)
   }
 }

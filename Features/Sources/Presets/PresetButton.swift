@@ -86,7 +86,7 @@ public struct PresetButtonView: View {
     if activeState.activeSoundFontId == store.preset.soundFontId && activeState.activePresetId == store.preset.id {
       return isFavorite ? .activeFavorite : .active
     }
-    return .none
+    return isFavorite ? .favorite : .none
   }
 
   public var body: some View {
@@ -102,7 +102,7 @@ public struct PresetButtonView: View {
           .animation(.smooth, value: store.preset.kind) // animate the visibiliity toggle image
           .animation(.smooth, value: isEditing) // animate the transition to/from visibility editing
         PresetNameView(preset: store.preset)
-          .indicator(isEditing ? .none : state)
+          .indicator(isEditing ? .favorite : state)
       }
     }
     .id(store.preset.id) // !!! For proper scrollTo behavior

@@ -109,7 +109,7 @@ public struct TagsListView: View {
         Spacer()
         Text("\(tagInfo.soundFontsCount)")
       }
-      .font(Font.custom("Eurostile", size: 20))
+      .font(.button)
       .indicator(activeState.activeTagId == tagInfo.id ? .active : .none )
     }
     .listRowSeparator(.hidden)

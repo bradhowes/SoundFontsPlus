@@ -8,17 +8,68 @@ import TestSupport
 
 @testable import Tags
 
-//import ComposableArchitecture
-//import Dependencies
-//import SnapshotTesting
-//import SwiftUI
-//import Tagged
-//import Testing
-//
-//@testable import SoundFontsPlus
-//
-//@MainActor
-//struct TagsListTests {
+@Suite(
+  .dependencies { $0.defaultDatabase = try appDatabase() },
+  .snapshots(record: .failed)
+)
+@MainActor
+struct TagsListTests {
+
+  func store() throws -> TestStoreOf<TagsList> {
+    _ = try FontTag.make(displayName: "My New Tag")
+    return TestStore(initialState: TagsList.State()) { TagsList() }
+  }
+
+  @Test func deleteButtonTapped() async throws {
+    @Shared(.activeState) var activeState = .default
+    $activeState.withLock { $0.activeTagId = 5 }
+
+    let store = try store()
+    let tagInfos = store.state.tagInfos
+    #expect(tagInfos.count == 5)
+    #expect(tagInfos.last?.displayName == "My New Tag")
+
+    await store.send(.deleteButtonTapped(tagInfos.last!))
+
+    let found = withDatabaseReader { db in
+      try TagInfo.query.fetchAll(db)
+    }
+
+    #expect(found?.count == 4)
+    #expect(activeState.activeTagId == FontTag.Ubiquitous.all.id)
+  }
+
+  @Test func editButtonTapped() async throws {
+    let store = try store()
+    await store.send(.editButtonTapped(store.state.tagInfos[0]))
+    await store.receive(.delegate(.edit(store.state.tagInfos[0].id)))
+    await store.send(.editButtonTapped(store.state.tagInfos.last!))
+    await store.receive(.delegate(.edit(store.state.tagInfos.last!.id)))
+  }
+
+  @Test func tagButtonTapped() async throws {
+    @Shared(.activeState) var activeState = .default
+    #expect(activeState.activeTagId == 1)
+
+    let store = try store()
+    await store.send(.tagButtonTapped(store.state.tagInfos.last!))
+    #expect(activeState.activeTagId == store.state.tagInfos.last!.id)
+  }
+
+  @Test func longPressGestureFired() async throws {
+    let store = try store()
+    await store.send(.longPressGestureFired)
+    await store.receive(.delegate(.edit(nil)))
+  }
+
+  @Test func preview() async throws {
+    try TestSupport.assertSnapshot(matching: TagsListView.preview)
+  }
+}
+
+
+
+
 //  func initialize(_ body: (TestStoreOf<TagsList>) async throws -> Void) async throws {
 //    try await withDependencies {
 //      $0.defaultDatabase = try appDatabase()

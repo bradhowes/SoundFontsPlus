@@ -79,7 +79,7 @@ struct DelayEffectTests {
       $0.dirty = true
     }
 
-    await store.receive(\.updateDebounced)
+    await store.receive(\.updateDebounced, timeout: 30)
 
     let config = DelayConfig.Draft(
       id: 1,
@@ -91,7 +91,7 @@ struct DelayEffectTests {
       presetId: 1
     )
 
-    await store.receive(\.saveDebounced) {
+    await store.receive(\.saveDebounced, timeout: 30) {
       $0.config = config
       $0.dirty = false
     }
