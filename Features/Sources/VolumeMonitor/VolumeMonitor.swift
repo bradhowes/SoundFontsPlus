@@ -166,16 +166,3 @@ extension View {
     modifier(VolumeMonitorModifier(store: store))
   }
 }
-//
-//#Preview {
-//  let mockVolume = OutputVolumeFlipFlop()
-//  // swiftlint:disable:next redundant_discardable_let
-//  let _ = prepareDependencies {
-//    @Shared(.activeState) var activeState
-//    $activeState.activePresetId.withLock { $0 = Preset.ID(rawValue: 1) }
-//    $0.outputVolume = mockVolume.makeOutputVolume()
-//    mockVolume.advance()
-//  }
-//  let store: StoreOf<VolumeMonitor> = .init(initialState: VolumeMonitor.State()) { VolumeMonitor() }
-//  VolumeMonitorDemoView(volumes: mockVolume, store: store)
-//}

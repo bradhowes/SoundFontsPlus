@@ -99,8 +99,6 @@ struct AppReviewTests {
     let view = AppReviewDemoView(store: store)
     store.send(.ask)
 
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: view)
-    }
+    try TestSupport.assertSnapshot(matching: view)
   }
 }
