@@ -25,4 +25,9 @@ extension DependencyValues {
     get { self[AUParameterTree.self] }
     set { self[AUParameterTree.self] = newValue }
   }
+
+  public var debounceDurations: DebounceDurations {
+    get { self[DebounceDurations.self] }
+    set { self[DebounceDurations.self] = newValue }
+  }
 }

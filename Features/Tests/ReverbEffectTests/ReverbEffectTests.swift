@@ -14,7 +14,9 @@ import TestSupport
 @Suite(
   .dependencies {
     $0.defaultDatabase = try appDatabase()
+    $0.continuousClock = ImmediateClock()
     $0.mainQueue = .immediate
+    $0.debounceDurations = .testValue
   },
   .snapshots(record: .failed)
 )

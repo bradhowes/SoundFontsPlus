@@ -6,9 +6,9 @@ BUILD_FLAGS = -skipMacroValidation -skipPackagePluginValidation -enableCodeCover
 			  -clonedSourcePackagesDirPath "$(WORKSPACE)"
 WORKSPACE = $(PWD)/.workspace
 
-ifeq ($(GITHUB_ENV),)
+# ifeq ($(GITHUB_ENV),)
 XCB = | xcbeautify --renderer github-actions
-endif
+# endif
 
 default: report
 

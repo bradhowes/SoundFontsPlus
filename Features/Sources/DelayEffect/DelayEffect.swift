@@ -107,6 +107,7 @@ public struct DelayEffect {
   @Shared(.parameterTree) private var parameterTree
   @Dependency(\.mainQueue) private var mainQueue
   @Dependency(\.delayDevice) private var delayDevice
+  @Dependency(\.debounceDurations) private var debounceDurations
 
   private enum CancelId: CaseIterable {
     case applyConfigForPreset
@@ -114,9 +115,6 @@ public struct DelayEffect {
     case saveDebouncer
     case updateDebouncer
   }
-
-  private var updateDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(100) }
-  private var saveDebounceDuration: DispatchQueue.SchedulerTimeType.Stride { .milliseconds(1000) }
 }
 
 extension DelayEffect {
@@ -176,10 +174,18 @@ extension DelayEffect {
     return .merge(
       .run { send in
         await send(.updateDebounced)
-      }.debounce(id: CancelId.updateDebouncer, for: updateDebounceDuration, scheduler: mainQueue),
+      }.debounce(
+        id: CancelId.updateDebouncer,
+        for: debounceDurations.effectsDisplayUpdates,
+        scheduler: mainQueue
+      ),
       .run { send in
         await send(.saveDebounced)
-      }.debounce(id: CancelId.saveDebouncer, for: saveDebounceDuration, scheduler: mainQueue)
+      }.debounce(
+        id: CancelId.saveDebouncer,
+        for: debounceDurations.effectsConfigurationSaves,
+        scheduler: mainQueue
+      )
     )
   }
 
