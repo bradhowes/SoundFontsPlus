@@ -71,35 +71,45 @@ extension SoundFont {
 extension SoundFont {
   public static var soundFontPresetLoadLimit: Int { 10 }
 
+  /**
+   Add a builtin soundfont to the database
+
+   - parameter db: the database to update
+   - parameter sf2: the tag of the soundfont to add
+   - parameter limitedLoading: if true, limit number of presets added to soundFontPresetLoadLimit (testing only)
+   */
   public static func addBuiltIn(_ db: Database, sf2: SF2ResourceTag, limitedLoading: Bool) throws {
     let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
     let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()
-    let soundFontDraft = try makeSoundFontDraft(soundFontKind: soundFontKind, name: sf2.name, fileInfo: fileInfo)
-    let limit = limitedLoading ? Swift.min(soundFontPresetLoadLimit, fileInfo.size()) : fileInfo.size()
     withErrorReporting {
-      try install(
+      _ = try insertWithAssociations(
         db: db,
-        soundFontDraft: soundFontDraft,
+        insertion: try makeInsertion(soundFontKind: soundFontKind, name: sf2.name, fileInfo: fileInfo),
         fileInfo: fileInfo,
-        soundFontKind: soundFontKind,
-        limit: limit
+        tagIds: soundFontKind.tagIds,
+        limitedLoading: limitedLoading
       )
     }
   }
 
-  public static func add(displayName: String, soundFontKind: SoundFontKind) throws {
+  @discardableResult
+  public static func add(displayName: String, soundFontKind: SoundFontKind) throws -> SoundFont {
     let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()
-    let soundFontDraft = try makeSoundFontDraft(soundFontKind: soundFontKind, name: displayName, fileInfo: fileInfo)
-
-    withDatabaseWriter { db in
-      try install(
+    guard let value = withDatabaseWriter({ db in
+      guard let value = try insertWithAssociations(
         db: db,
-        soundFontDraft: soundFontDraft,
+        insertion: try makeInsertion(soundFontKind: soundFontKind, name: displayName, fileInfo: fileInfo),
         fileInfo: fileInfo,
-        soundFontKind: soundFontKind,
-        limit: fileInfo.size()
-      )
+        tagIds: soundFontKind.tagIds,
+        limitedLoading: false
+      ) else {
+        throw ModelError.failedToInsertSoundFont(name: displayName)
+      }
+      return value
+    }) else {
+      throw ModelError.failedToInsertSoundFont(name: displayName)
     }
+    return value
   }
 
   public static func delete(id: SoundFont.ID) {
@@ -110,27 +120,39 @@ extension SoundFont {
     }
   }
 
-  private static func install(
+  private static func insertWithAssociations(
     db: Database,
-    soundFontDraft: Insert<SoundFont, SoundFont.ID>,
+    insertion: Insert<SoundFont, SoundFont>,
     fileInfo: SF2FileInfo,
-    soundFontKind: SoundFontKind,
-    limit: Int
-  ) throws {
-    guard let soundFontId = try soundFontDraft.fetchOne(db) else { return }
+    tagIds: [FontTag.ID],
+    limitedLoading: Bool
+  ) throws -> SoundFont? {
+    guard
+      let soundFont = try insertion.fetchOne(db)
+    else {
+      return nil
+    }
+
     try TaggedSoundFont.insert {
-      soundFontKind.tagIds.map { .init(soundFontId: soundFontId, tagId: $0) }
+      tagIds.map { .init(soundFontId: soundFont.id, tagId: $0) }
     }.execute(db)
+
     try Preset.insert {
-      makePresets(soundFontId: soundFontId, fileInfo: fileInfo, limit: limit)
+      makePresets(
+        soundFontId: soundFont.id,
+        fileInfo: fileInfo,
+        limit: limitedLoading ? Swift.min(soundFontPresetLoadLimit, fileInfo.size()) : fileInfo.size()
+      )
     }.execute(db)
+
+    return soundFont
   }
 
-  private static func makeSoundFontDraft(
+  private static func makeInsertion(
     soundFontKind: SoundFontKind,
     name: String,
     fileInfo: SF2FileInfo
-  ) throws -> Insert<SoundFont, SoundFont.ID> {
+  ) throws -> Insert<SoundFont, SoundFont> {
     let (kind, location) = try soundFontKind.data()
     let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()
     let embeddedName = String(fileInfo.embeddedName())
@@ -149,7 +171,7 @@ extension SoundFont {
         embeddedCopyright: embeddedCopyright,
         notes: ""
       )
-    }.returning(\.id)
+    }.returning(\.self)
   }
 
   private static func makePresets(

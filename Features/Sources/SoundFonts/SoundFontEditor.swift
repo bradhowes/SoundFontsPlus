@@ -8,11 +8,13 @@ import Tags
 public struct SoundFontEditor {
 
   @Reducer
+  @CasePathable
   public enum Path {
     case editTags(TagsEditor)
   }
 
   @Reducer
+  @CasePathable
   public enum Destination: Equatable {
     case alert(AlertState<Alert>)
 
@@ -35,6 +37,11 @@ public struct SoundFontEditor {
     var tagsList: String
     var displayName: String
     var notes: String
+
+    public var memberships: [FontTag.ID: Bool] {
+      let tags = FontTag.tags
+      return tags.reduce(into: [:]) { $0[$1.id] = soundFont.tags.contains($1) }
+    }
 
     public init(soundFont: SoundFont) {
       self.soundFont = soundFont
@@ -63,6 +70,7 @@ public struct SoundFontEditor {
     }
   }
 
+  @CasePathable
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case cancelButtonTapped
@@ -91,23 +99,14 @@ public struct SoundFontEditor {
     Reduce { state, action in
       switch action {
 
-      case .binding:
-        return .none
-
       case .cancelButtonTapped:
         return dismiss(&state, save: false)
 
       case .changeTagsButtonTapped:
         return editTags(&state)
 
-      case .delegate:
-        return .none
-
       case .destination(.presented(.alert(.showHiddenPresetsConfirmed))):
         return unhidePresets(&state)
-
-      case .destination:
-        return .none
 
       case .displayNameChanged(let value):
         state.displayName = value
@@ -120,9 +119,6 @@ public struct SoundFontEditor {
       case .path(.popFrom(id: _)):
         let tags = state.soundFont.tags
         state.tagsList = State.generateTagsList(from: tags)
-        return .none
-
-      case .path:
         return .none
 
       case .saveButtonTapped:
@@ -138,6 +134,9 @@ public struct SoundFontEditor {
 
       case .useOriginalNameTapped:
         state.displayName = state.soundFont.originalName
+        return .none
+
+      default:
         return .none
       }
     }
@@ -160,14 +159,15 @@ extension SoundFontEditor {
   }
 
   func editTags(_ state: inout State) -> Effect<Action> {
-    let tags = FontTag.tags
-    let memberships = tags.reduce(into: [:]) { $0[$1.id] = state.soundFont.tags.contains($1) }
-    state.path.append(.editTags(TagsEditor.State(
-      mode: .fontEditing,
-      focused: nil,
-      soundFontId: state.soundFont.id,
-      memberships: memberships
-    )))
+    state.path.append(
+      .editTags(
+        TagsEditor.State(
+          mode: .fontEditing,
+          soundFontId: state.soundFont.id,
+          memberships: state.memberships
+        )
+      )
+    )
     return .none
   }
 

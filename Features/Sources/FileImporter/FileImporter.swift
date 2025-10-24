@@ -90,7 +90,7 @@ extension FileImporter {
       guard let kind = try placeSoundFont(&state, displayName: displayName, source: url) else {
         return .none
       }
-      try SoundFont.add(displayName: displayName, soundFontKind: kind)
+      _ = try SoundFont.add(displayName: displayName, soundFontKind: kind)
     } catch CocoaError.fileWriteFileExists {
       state.destination = .alert(.continueWithDuplicateFile(url: url, action: .importDuplicateFileConfirmed))
     } catch {

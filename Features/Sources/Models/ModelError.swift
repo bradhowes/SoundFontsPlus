@@ -7,6 +7,7 @@ public enum ModelError: Error, Equatable {
   case renameUbiquitous(name: String)
   case emptyTagName
   case deleteUbiquitous(name: String?)
+  case failedToInsertSoundFont(name: String)
   case failedToSave(name: String)
   case failedToFetch(key: String)
   case failedToFetchAny
