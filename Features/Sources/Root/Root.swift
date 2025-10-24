@@ -155,15 +155,6 @@ public struct Root {
           reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId)))
         )
 
-      case .appReview:
-        return .none
-
-      case .binding:
-        return .none
-
-      case .delay:
-        return .none
-
       case .destination(.presented(.soundFontEditor(.delegate(.refreshPresets)))):
         return reduce(into: &state, action: .presetsList(.fetchPresets))
 
@@ -184,33 +175,18 @@ public struct Root {
           destinationDismissed(&state)
         )
 
-      case .destination:
-        return .none
-
       case .initialize:
         return initialize(&state)
 
       case let .keyboard(.delegate(action)):
         return monitorKeyboardAction(&state, action: action)
 
-      case .keyboard:
-        return .none
-
       case let .presetsList(.delegate(.edit(sectionId, preset))):
         state.destination = .presetEditor(PresetEditor.State(sectionId: sectionId, preset: preset))
         return .none
 
-      case .presetsList:
-        return .none
-
       case let .presetsSplit(.delegate(action)):
         return monitorPresetsSplitAction(&state, action: action)
-
-      case .presetsSplit:
-        return .none
-
-      case .reverb:
-        return .none
 
       case let .scenePhaseChanged(phase):
         return scenePhaseChanged(&state, phase: phase)
@@ -219,33 +195,18 @@ public struct Root {
         state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
         return .none
 
-      case .soundFontsList:
-        return .none
-
-      case .synth(.synthCreated):
+      case .synth(.synthAudioUnitCreated):
         return reduce(into: &state, action: .toolBar(.monitorActiveVoiceCount))
-
-      case .synth:
-        return .none
 
       case let .tagsList(.delegate(.edit(focused))):
         state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
         return .none
 
-      case .tagsList:
-        return .none
-
       case let .tagsSplit(.delegate(action)):
         return monitorTagsSplitAction(&state, action: action)
 
-      case .tagsSplit:
-        return .none
-
       case let .toolBar(.delegate(action)):
         return monitorToolBarAction(&state, action: action)
-
-      case .toolBar:
-        return .none
 
       case .volumeMonitor(.delegate(.mutedVolume(let reason))):
         return reduce(
@@ -254,6 +215,9 @@ public struct Root {
         )
 
       case .volumeMonitor:
+        return .none
+
+      default:
         return .none
       }
     }.ifLet(\.$destination, action: \.destination)
@@ -373,10 +337,6 @@ private extension Root {
     case .settingsButtonTapped:
       state.destination = .settings(Settings.State())
       return .none
-
-    case .settingsDismissed:
-      state.destination = nil
-      return reduce(into: &state, action: .appReview(.ask))
 
     case let .tagsListVisibilityChanged(visible):
       let panes: SplitViewPanes = visible ? .both : .primary

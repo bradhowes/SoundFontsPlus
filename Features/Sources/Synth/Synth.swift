@@ -40,7 +40,7 @@ public struct Synth {
     case lastPresetLoadFinished
     case mediaServicesWereReset
     case releaseAudioSession
-    case synthCreated(AVAudioUnit)
+    case synthAudioUnitCreated(AVAudioUnit)
   }
 
   public init() {}
@@ -90,8 +90,8 @@ public struct Synth {
       case .releaseAudioSession:
         return releaseAudioSession(&state)
 
-      case .synthCreated(let audioUnit):
-        return createSynthDone(&state, synth: audioUnit)
+      case .synthAudioUnitCreated(let audioUnit):
+        return createSynthAudioUnitDone(&state, synth: audioUnit)
       }
     }
   }
@@ -168,30 +168,18 @@ extension Synth {
     log.info("configureAudioSession - END")
   }
 
-  private func createSynth(_ state: inout State) -> Effect<Action> {
+  private func createSynthAudioUnit(_ state: inout State) -> Effect<Action> {
     log.info("createSynth")
     return .run { send in
-      let acd: AudioComponentDescription = .init(
-        componentType: FourCharCode(stringLiteral: "aumu"),
-        componentSubType: FourCharCode(stringLiteral: "Sf2L"),
-        componentManufacturer: FourCharCode(stringLiteral: "BRay"),
-        componentFlags: 0,
-        componentFlagsMask: 0
-      )
-
-      AUAudioUnit.registerSubclass(SF2LibAU.self, as: acd, name: "SF2LibAU", version: 1)
-
       log.info("createSynth - instantiating audio unit")
-      let sau = try await AVAudioUnit.instantiate(with: acd, options: [])
+      let sau = try await SF2LibAU.create()
       log.debug("createSynth - synth: \(sau.description)")
-
-      log.info("createSynth - created")
-      await send(.synthCreated(sau))
+      await send(.synthAudioUnitCreated(sau))
     }.cancellable(id: CancelId.createSynth, cancelInFlight: true)
   }
 
-  private func createSynthDone(_ state: inout State, synth: AVAudioUnit) -> Effect<Action> {
-    log.info("createSynthDone BEGIN")
+  private func createSynthAudioUnitDone(_ state: inout State, synth: AVAudioUnit) -> Effect<Action> {
+    log.info("createSynthAudioUnitDone BEGIN")
 
     $synthAudioUnit.withLock { $0 = synth }
 
@@ -238,7 +226,7 @@ extension Synth {
 
   private func initialize(_ state: inout State) -> Effect<Action> {
     log.info("initialize")
-    return createSynth(&state)
+    return createSynthAudioUnit(&state)
   }
 
   private func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {

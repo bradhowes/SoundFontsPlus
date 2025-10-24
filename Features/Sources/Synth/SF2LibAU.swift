@@ -94,7 +94,8 @@ extension SF2LibAU {
 }
 
 extension SF2LibAU {
-  static func create() async throws -> AVAudioUnit {
+
+  public static func create() async throws -> AVAudioUnit {
     let acd: AudioComponentDescription = .init(
       componentType: FourCharCode(stringLiteral: "aumu"),
       componentSubType: FourCharCode(stringLiteral: "Sf2L"),
@@ -104,7 +105,7 @@ extension SF2LibAU {
     )
 
     AUAudioUnit.registerSubclass(SF2LibAU.self, as: acd, name: "SF2LibAU", version: 1)
-    log.info("createSynth - instantiating audio unit")
+    log.info("create - instantiating audio unit")
 
     return try await AVAudioUnit.instantiate(with: acd, options: [])
   }

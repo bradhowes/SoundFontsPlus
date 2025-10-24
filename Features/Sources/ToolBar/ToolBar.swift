@@ -12,15 +12,8 @@ private let log = Logger(category: "ToolBar")
 @Reducer
 public struct ToolBar {
 
-  @Reducer
-  public enum Destination {
-    case settings(Settings)
-  }
-
   @ObservableState
   public struct State: Equatable {
-    @Presents public var destination: Destination.State?
-
     var lowestKey: Note
     var highestKey: Note
 
@@ -29,19 +22,20 @@ public struct ToolBar {
     var tagsListVisible: Bool
 
     var editingPresetVisibility: Bool = false
-    var showMoreButtons: Bool = false
+    var showMoreButtons: Bool
     var preset: Preset?
     var lastPlayedKey: Note?
     var midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "ToolBar")
     var fileImporter: FileImporter.State = .init()
     var activeVoiceCount: Int = 0
 
-    public init() {
+    public init(showMoreButtons: Bool = false) {
       @Shared(.firstVisibleKey) var firstVisibleKey: Note
       @Shared(.keyboardSlides) var keyboardSlides: Bool
       @Shared(.effectsPanelVisible) var effectsPanelVisible: Bool
       @Shared(.tagsListVisible) var tagsListVisible: Bool
 
+      self.showMoreButtons = showMoreButtons
       self.lowestKey = firstVisibleKey
       self.highestKey = .C4
       self.keyboardSlides = keyboardSlides
@@ -60,7 +54,6 @@ public struct ToolBar {
     case addSoundFontButtonTapped
     case deinitialize
     case delegate(Delegate)
-    case destination(PresentationAction<Destination.Action>)
     case effectsVisibilityButtonTapped
     case fileImporter(FileImporter.Action)
     case helpButtonTapped
@@ -84,7 +77,6 @@ public struct ToolBar {
       case presetNameTapped
       case tagsListVisibilityChanged(Bool)
       case settingsButtonTapped
-      case settingsDismissed
       case visibleKeyRangeChanged(lowest: Note, highest: Note)
     }
   }
@@ -112,20 +104,8 @@ public struct ToolBar {
       case .deinitialize:
         return .merge(CancelId.allCases.map({ .cancel(id: $0) }))
 
-      case .delegate:
-        return .none
-
-      case .destination(.dismiss):
-        return .send(.delegate(.settingsDismissed))
-
-      case .destination:
-        return .none
-
       case .effectsVisibilityButtonTapped:
         return toggleEffectsVisibility(&state)
-
-      case .fileImporter:
-        return .none
 
       case .helpButtonTapped:
         return showHelp(&state)
@@ -138,9 +118,6 @@ public struct ToolBar {
 
       case .lastPlayedKeyChanged(let key):
         return lastPlayedKeyChanged(&state, key: key)
-
-      case .midiTrafficIndicator:
-        return .none
 
       case .shiftKeyboardDownButtonTapped:
         return shiftKeyboardDownButtonTapped(&state)
@@ -165,8 +142,11 @@ public struct ToolBar {
 
       case .tagsListVisibilityButtonTapped:
         return toggleTagsListVisibility(&state)
+
+      default:
+        return .none
       }
-    }.ifLet(\.$destination, action: \.destination)
+    }
   }
 
   @Shared(.firstVisibleKey) private var firstVisibleKey: Note
@@ -179,8 +159,6 @@ public struct ToolBar {
     case monitorActiveVoiceCount
   }
 }
-
-extension ToolBar.Destination.State: Equatable {}
 
 extension ToolBar {
 
@@ -500,6 +478,9 @@ extension ToolBarView {
         ToolBar()
       })
       KeyboardView(store: Store(initialState: .init()) { Keyboard() })
+      ToolBarView(store: Store(initialState: .init(showMoreButtons: true)) {
+        ToolBar()
+      })
     }
   }
 }

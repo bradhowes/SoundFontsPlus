@@ -38,7 +38,7 @@ struct SynthTests {
     // store.exhaustivity = .off
     await store.send(.initialize)
 
-    await store.receive(\.synthCreated) {
+    await store.receive(\.synthAudioUnitCreated) {
       $0.audioSessionActivated = true
     }
 
@@ -66,7 +66,7 @@ struct SynthTests {
     store.exhaustivity = .off
     await store.send(.initialize)
 
-    await store.receive(\.synthCreated) {
+    await store.receive(\.synthAudioUnitCreated) {
       $0.loadedSoundFontId = 1
       $0.loadedPresetIndex = 0
       $0.audioSessionActivated = true
@@ -102,7 +102,7 @@ struct SynthTests {
 
     await store.send(.initialize)
 
-    await store.receive(\.synthCreated) {
+    await store.receive(\.synthAudioUnitCreated) {
       $0.loadedSoundFontId = 1
       $0.loadedPresetIndex = 0
       $0.audioSessionActivated = true

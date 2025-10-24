@@ -19,21 +19,14 @@ import TestSupport
 struct ToolBarTests {
   @Shared(.activeState) var activeState = .default
 
-  fileprivate func store() -> TestStoreOf<ToolBar> {
+  fileprivate func store() async throws -> TestStoreOf<ToolBar> {
     TestStoreOf<ToolBar>(initialState: .init()) {
       ToolBar()
     }
   }
 
-  @Test func initialize() async {
-    let store = store()
-    await store.send(.initialize)
-    await store.send(.deinitialize)
-    await store.finish()
-  }
-
-  @Test func activeVoiceCountChanged() async {
-    let store = store()
+  @Test func activeVoiceCountChanged() async throws {
+    let store = try await store()
     await store.send(.initialize)
 
     await store.send(.activeVoiceCountChanged(3)) {
@@ -44,9 +37,9 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func activePresetIdChanged() async {
+  @Test func activePresetIdChanged() async throws {
     @Shared(.activeState) var activeState
-    let store = store()
+    let store = try await store()
     await store.send(.initialize)
 
     await store.send(.activePresetIdChanged(2)) {
@@ -71,8 +64,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func editPresetVisibility() async {
-    let store = store()
+  @Test func editPresetVisibility() async throws {
+    let store = try await store()
     await store.send(.initialize)
 
     await store.send(.presetsVisibilityButtonTapped) {
@@ -91,9 +84,9 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test(arguments: [false, true]) func effectsVisibilityButtonTapped(_ initValue: Bool) async {
+  @Test(arguments: [false, true]) func effectsVisibilityButtonTapped(_ initValue: Bool) async throws {
     @Shared(.effectsPanelVisible) var effectsPanelVisible = initValue
-    let store = store()
+    let store = try await store()
     #expect(store.state.effectsPanelVisible == initValue)
 
     await store.send(.initialize)
@@ -120,8 +113,25 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func lastPlayedKeyChangedIgnore() async {
-    let store = store()
+  @Test func helpButtonTapped() async throws {
+    let store = try await store()
+    await store.send(.initialize)
+
+    await store.send(.helpButtonTapped)
+
+    await store.send(.deinitialize)
+    await store.finish()
+  }
+
+  @Test func initialize() async throws {
+    let store = try await store()
+    await store.send(.initialize)
+    await store.send(.deinitialize)
+    await store.finish()
+  }
+
+  @Test func lastPlayedKeyChangedIgnore() async throws {
+    let store = try await store()
     await store.send(.initialize)
 
     await store.send(.lastPlayedKeyChanged(.A6)) {
@@ -136,11 +146,11 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func lastPlayedKeyChangedShow() async {
+  @Test func lastPlayedKeyChangedShow() async throws {
     @Shared(.showKeyNotes) var showKeyNotes
     $showKeyNotes.withLock { $0 = true }
 
-    let store = store()
+    let store = try await store()
     await store.send(.initialize)
 
     await store.send(.lastPlayedKeyChanged(.A6)) {
@@ -151,11 +161,11 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func lastPlayedKeyChangedShowSolfege() async {
+  @Test func lastPlayedKeyChangedShowSolfege() async throws {
     @Shared(.showSolfegeTags) var showSolfegeTags
     $showSolfegeTags.withLock { $0 = true }
 
-    let store = store()
+    let store = try await store()
     await store.send(.initialize)
 
     await store.send(.lastPlayedKeyChanged(.A6)) {
@@ -166,8 +176,27 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func settingsButtonTapped() async {
-    let store = store()
+  @Test func monitorActiveVoiceCount() async throws {
+    @Shared(.synthAudioUnit) var synthAudioUnit
+    let synth = try await SF2LibAU.create()
+    $synthAudioUnit.withLock { $0 = synth }
+
+    let store = try await store()
+    await store.send(.initialize)
+
+    await store.send(.monitorActiveVoiceCount)
+
+    await store.receive(\.activeVoiceCountChanged, 0)
+
+    // @Shared(.synthAudioUnit) var synthAudioUnit
+    // synthAudioUnit.synth?.sendNoteOn(note: .C4)
+
+    await store.send(.deinitialize)
+    await store.finish()
+  }
+
+  @Test func settingsButtonTapped() async throws {
+    let store = try await store()
     await store.send(.initialize)
 
     await store.send(.showMoreButtonTapped) {
@@ -184,8 +213,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func setVisibleKeyRange() async {
-    let store = store()
+  @Test func setVisibleKeyRange() async throws {
+    let store = try await store()
     await store.send(.initialize)
 
     await store.send(.setVisibleKeyRange(lowest: .A1, highest: .B3)) {
@@ -197,8 +226,48 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func showMoreButtonTapped() async {
-    let store = store()
+  @Test func shiftKeyboardDownButtonTapped() async throws {
+    let store = try await store()
+    await store.send(.initialize)
+
+    await store.send(.setVisibleKeyRange(lowest: .C5, highest: .B5)) {
+      $0.lowestKey = .C5
+      $0.highestKey = .B5
+    }
+
+    await store.send(.shiftKeyboardDownButtonTapped) {
+      $0.lowestKey = .C4
+      $0.highestKey = .B4
+    }
+
+    await store.receive(\.delegate.visibleKeyRangeChanged)
+
+    await store.send(.deinitialize)
+    await store.finish()
+  }
+
+  @Test func shiftKeyboardUpButtonTapped() async throws {
+    let store = try await store()
+    await store.send(.initialize)
+
+    await store.send(.setVisibleKeyRange(lowest: .A2, highest: .C4)) {
+      $0.lowestKey = .A2
+      $0.highestKey = .C4
+    }
+
+    await store.send(.shiftKeyboardUpButtonTapped) {
+      $0.lowestKey = .C4
+      $0.highestKey = .init(midiNoteValue: 75)
+    }
+
+    await store.receive(\.delegate.visibleKeyRangeChanged)
+
+    await store.send(.deinitialize)
+    await store.finish()
+  }
+
+  @Test func showMoreButtonTapped() async throws {
+    let store = try await store()
     await store.send(.initialize)
 
     await store.send(.showMoreButtonTapped) {
@@ -222,10 +291,10 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test(arguments: [false, true]) func slidingKeyboardButtonTappedInitFalse(_ initValue: Bool) async {
+  @Test(arguments: [false, true]) func slidingKeyboardButtonTappedInitFalse(_ initValue: Bool) async throws {
     @Shared(.keyboardSlides) var keyboardSlides = initValue
 
-    let store = store()
+    let store = try await store()
     await store.send(.initialize)
     #expect(store.state.keyboardSlides == initValue)
 
@@ -243,10 +312,10 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test(arguments: [false, true]) func tagsVisibilityButtonTapped(_ initValue: Bool) async {
+  @Test(arguments: [false, true]) func tagsVisibilityButtonTapped(_ initValue: Bool) async throws {
     @Shared(.tagsListVisible) var tagsListVisible = initValue
 
-    let store = store()
+    let store = try await store()
     await store.send(.initialize)
     #expect(store.state.tagsListVisible == initValue)
 
@@ -265,16 +334,6 @@ struct ToolBarTests {
     await store.send(.deinitialize)
     await store.finish()
   }
-
-//  @Test func monitorActiveVoiceCount() async throws {
-//    let store = store()
-//    await store.send(.initialize)
-//
-//    await store.send(.monitorActiveVoiceCount)
-//
-//    await store.send(.deinitialize)
-//    await store.finish()
-//  }
 
   @Test func preview() async throws {
     @Shared(.activeState) var activeState = .default
