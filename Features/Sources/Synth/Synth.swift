@@ -36,11 +36,17 @@ public struct Synth {
     case activePresetIdChanged(Preset.ID?)
     case audioSessionRouteChanged
     case deinitialize
+    case delegate(Delegate)
     case initialize
     case lastPresetLoadFinished
     case mediaServicesWereReset
     case releaseAudioSession
     case synthAudioUnitCreated(AVAudioUnit)
+
+    public enum Delegate: Equatable {
+      case running
+      case stopped
+    }
   }
 
   public init() {}
@@ -77,6 +83,9 @@ public struct Synth {
 
       case .deinitialize:
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
+
+      case .delegate:
+        return .none
 
       case .initialize:
         return initialize(&state)
@@ -129,7 +138,8 @@ extension Synth {
       monitorActivePresetId(&state),
       monitorMediaServices(&state),
       monitorRouteChanged(&state),
-      monitorLastLoadFinished(&state)
+      monitorLastLoadFinished(&state),
+      .send(.delegate(.running))
     )
   }
 

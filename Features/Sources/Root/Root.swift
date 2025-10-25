@@ -111,6 +111,7 @@ public struct Root {
     case activePresetIdChanged(Preset.ID?)
     case appReview(AppReview.Action)
     case binding(BindingAction<State>)
+    case deinitialize
     case delay(DelayEffect.Action)
     case destination(PresentationAction<Destination.Action>)
     case initialize
@@ -155,19 +156,18 @@ public struct Root {
           reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId)))
         )
 
+      case .deinitialize:
+        return .merge(
+          .merge(CancelId.allCases.map { .cancel(id: $0) }),
+          reduce(into: &state, action: .synth(.deinitialize)),
+          reduce(into: &state, action: .toolBar(.deinitialize))
+        )
+
       case .destination(.presented(.soundFontEditor(.delegate(.refreshPresets)))):
         return reduce(into: &state, action: .presetsList(.fetchPresets))
 
       case let .destination(.presented(.settings(.delegate(action)))):
-        switch action {
-        case .showChanges:
-          state.showChanges()
-          return .none
-
-        case .showTutorial:
-          state.showTutorial()
-          return .none
-        }
+        return processSettingsAction(&state, action: action)
 
       case .destination(.dismiss):
         return .merge(
@@ -179,14 +179,14 @@ public struct Root {
         return initialize(&state)
 
       case let .keyboard(.delegate(action)):
-        return monitorKeyboardAction(&state, action: action)
+        return processKeyboardAction(&state, action: action)
 
       case let .presetsList(.delegate(.edit(sectionId, preset))):
         state.destination = .presetEditor(PresetEditor.State(sectionId: sectionId, preset: preset))
         return .none
 
       case let .presetsSplit(.delegate(action)):
-        return monitorPresetsSplitAction(&state, action: action)
+        return processPresetsSplitAction(&state, action: action)
 
       case let .scenePhaseChanged(phase):
         return scenePhaseChanged(&state, phase: phase)
@@ -195,7 +195,7 @@ public struct Root {
         state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
         return .none
 
-      case .synth(.synthAudioUnitCreated):
+      case .synth(.delegate(.running)):
         return reduce(into: &state, action: .toolBar(.monitorActiveVoiceCount))
 
       case let .tagsList(.delegate(.edit(focused))):
@@ -203,19 +203,16 @@ public struct Root {
         return .none
 
       case let .tagsSplit(.delegate(action)):
-        return monitorTagsSplitAction(&state, action: action)
+        return processTagsSplitAction(&state, action: action)
 
       case let .toolBar(.delegate(action)):
-        return monitorToolBarAction(&state, action: action)
+        return processToolBarAction(&state, action: action)
 
       case .volumeMonitor(.delegate(.mutedVolume(let reason))):
         return reduce(
           into: &state,
           action: .keyboard(.outputVolumeStateChanged(reason != nil ? .muted : .unmuted))
         )
-
-      case .volumeMonitor:
-        return .none
 
       default:
         return .none
@@ -226,12 +223,26 @@ public struct Root {
   @Shared(.activeState) private var activeState
   @Shared(.firstVisibleKey) private var firstVisibleKey
 
-  private enum CancelId {
+  private enum CancelId: CaseIterable {
+    case createCloudDocumentsDirectory
     case monitorActivePresetId
   }
 }
 
 private extension Root {
+
+  func createCloudDocumentsDirectory() -> Effect<Action> {
+    .run { _ in
+      Task.detached(priority: .medium) {
+        if let url = FileManager.default.cloudDocumentsDirectory {
+          log.info("iCloud documents directory: \(url)")
+        } else {
+          log.error("iCloud documents directory is not available")
+        }
+        await Self.disableIdleTimer()
+      }
+    }.cancellable(id: CancelId.createCloudDocumentsDirectory, cancelInFlight: true)
+  }
 
   func destinationDismissed(_ state: inout State) -> Effect<Action> {
     switch state.destination {
@@ -257,21 +268,9 @@ private extension Root {
 
   func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
-      .concatenate(
-        .run { _ in
-          Task.detached(priority: .medium) {
-            if let url = FileManager.default.cloudDocumentsDirectory {
-              log.info("iCloud documents directory: \(url)")
-            } else {
-              log.error("iCloud documents directory is not available")
-            }
-            await Self.disableIdleTimer()
-          }
-        },
-        monitorActivePresetId()
-      ),
+      createCloudDocumentsDirectory(),
+      monitorActivePresetId(),
       reduce(into: &state, action: .synth(.initialize)),
-      reduce(into: &state, action: .presetsList(.showActivePreset))
     )
   }
 
@@ -284,7 +283,7 @@ private extension Root {
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
-  func monitorKeyboardAction(_ state: inout State, action: Keyboard.Action.Delegate) -> Effect<Action> {
+  func processKeyboardAction(_ state: inout State, action: Keyboard.Action.Delegate) -> Effect<Action> {
     switch action {
     case .noteOn(let key):
       return reduce(into: &state, action: .toolBar(.lastPlayedKeyChanged(key)))
@@ -296,7 +295,7 @@ private extension Root {
     }
   }
 
-  func monitorPresetsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
+  func processPresetsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
     if case let .stateChanged(_, position) = action {
       @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
       $fontsAndPresetsSplitPosition.withLock { $0 = position }
@@ -304,7 +303,19 @@ private extension Root {
     return .none
   }
 
-  func monitorTagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
+  func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
+    switch action {
+    case .showChanges:
+      state.showChanges()
+
+    case .showTutorial:
+      state.showTutorial()
+    }
+
+    return .none
+  }
+
+  func processTagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
     if case let .stateChanged(panesVisible, position) = action {
       let visible = panesVisible.contains(.bottom)
       state.toolBar.setTagsListVisible(visible)
@@ -316,7 +327,7 @@ private extension Root {
     return .none
   }
 
-  func monitorToolBarAction(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
+  func processToolBarAction(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
     switch action {
 
     case let .editingPresetVisibilityChanged(active):
