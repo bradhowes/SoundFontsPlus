@@ -11,19 +11,20 @@ public struct ReverbEffect {
   public struct State: Equatable {
 
     @ObservationStateIgnored
-    var config: ReverbConfig.Draft
-    var enabled: ToggleFeature.State
-    var locked: ToggleFeature.State
-    var wetDryMix: KnobFeature.State
-    var dirty: Bool = false
+    public var config: ReverbConfig.Draft
+    public var enabled: ToggleFeature.State
+    public var locked: ToggleFeature.State
+    public var wetDryMix: KnobFeature.State
+    public var dirty: Bool
 
-    public init(presetId: Preset.ID = -1) {
+    public init(presetId: Preset.ID = -1, dirty: Bool = false) {
       @Shared(.parameterTree) var parameterTree
       @Shared(.reverbLockEnabled) var locked
       self.config = .init(presetId: presetId)
       self.locked = .init(isOn: locked, displayName: "Lock")
       self.enabled = .init(isOn: false, displayName: "On")
       self.wetDryMix = .init(parameter: parameterTree[.reverbAmount])
+      self.dirty = dirty
     }
   }
 

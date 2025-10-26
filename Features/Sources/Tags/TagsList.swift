@@ -15,12 +15,12 @@ public struct TagsList {
 
   @ObservableState
   public struct State: Equatable {
-    @FetchAll(TagInfo.query, animation: .smooth) var tagInfos
+    @FetchAll(TagInfo.query, animation: .smooth) public var tagInfos
 
     public init() {}
   }
 
-  public enum Action: Equatable {
+  public enum Action {
     case delegate(Delegate)
     case deleteButtonTapped(TagInfo)
     case editButtonTapped(TagInfo)

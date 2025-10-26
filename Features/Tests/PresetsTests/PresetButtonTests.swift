@@ -35,37 +35,37 @@ struct PresetButtonTests {
   @Test func buttonTapped() async throws {
     let store = store()
     await store.send(\.buttonTapped)
-    await store.receive(.delegate(.selectPreset(store.state.preset)))
+    await store.receive(\.delegate, .selectPreset(store.state.preset))
   }
 
   @Test func editButtonTapped() async throws {
     let store = store()
     await store.send(\.editButtonTapped)
-    await store.receive(.delegate(.editPreset(store.state.preset)))
+    await store.receive(\.delegate, .editPreset(store.state.preset))
   }
 
   @Test func favoriteButtonTapped() async throws {
     let store = store()
     await store.send(\.favoriteButtonTapped)
-    await store.receive(.delegate(.createFavorite(store.state.preset)))
+    await store.receive(\.delegate, .createFavorite(store.state.preset))
   }
 
   @Test func hidePresetButtonTapped() async throws {
     let store = store()
     await store.send(\.hidePresetButtonTapped)
-    await store.receive(.delegate(.hidePreset(store.state.preset)))
+    await store.receive(\.delegate, .hidePreset(store.state.preset))
   }
 
   @Test func deleteFavoriteButtonTapped() async throws {
     let store = store()
     await store.send(\.deleteFavoriteButtonTapped)
-    await store.receive(.delegate(.deleteFavorite(store.state.preset)))
+    await store.receive(\.delegate, .deleteFavorite(store.state.preset))
   }
 
   @Test func longPressGestureFired() async throws {
     let store = store()
     await store.send(\.longPressGestureFired)
-    await store.receive(.delegate(.editPreset(store.state.preset)))
+    await store.receive(\.delegate, .editPreset(store.state.preset))
   }
 
   @Test(

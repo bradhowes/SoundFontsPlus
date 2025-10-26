@@ -36,8 +36,7 @@ struct SettingsTests {
     // await store.skipReceivedActions(strict: false)
     midiMonitor?.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     let traffic = MIDITraffic(id: 123, channel: 0, accepted: true)
-    await store.receive(\.midiTrafficIndicator, .showMIDITraffic(traffic))
-
+    await store.receive(\.midiTrafficIndicator.showMIDITraffic, traffic)
     await store.send(.dismissButtonTapped)
   }
 

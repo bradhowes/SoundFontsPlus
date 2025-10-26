@@ -14,20 +14,20 @@ public struct ToolBar {
 
   @ObservableState
   public struct State: Equatable {
-    var lowestKey: Note
-    var highestKey: Note
+    public var lowestKey: Note
+    public var highestKey: Note
 
-    var keyboardSlides: Bool
-    var effectsPanelVisible: Bool
-    var tagsListVisible: Bool
+    public var keyboardSlides: Bool
+    public var effectsPanelVisible: Bool
+    public var tagsListVisible: Bool
 
-    var editingPresetVisibility: Bool = false
-    var showMoreButtons: Bool
-    var preset: Preset?
-    var lastPlayedKey: Note?
-    var midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "ToolBar")
-    var fileImporter: FileImporter.State = .init()
-    var activeVoiceCount: Int = 0
+    public var editingPresetVisibility: Bool = false
+    public var showMoreButtons: Bool
+    public var preset: Preset?
+    public var lastPlayedKey: Note?
+    public var midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "ToolBar")
+    public var fileImporter: FileImporter.State = .init()
+    public var activeVoiceCount: Int = 0
 
     public init(showMoreButtons: Bool = false) {
       @Shared(.firstVisibleKey) var firstVisibleKey: Note

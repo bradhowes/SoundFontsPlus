@@ -12,33 +12,33 @@ public struct PresetEditor {
     case alert(AlertState<Alert>)
 
     @CasePathable
-    public enum Alert: Equatable {
+    public enum Alert {
       case hidePresetConfirmed
     }
   }
 
   @ObservableState
   public struct State: Equatable {
+    @Presents public var destination: Destination.State?
+
     public let sectionId: Int
     public let preset: Preset
 
     public var displayName: String
     public var visible: Bool
 
-    @Presents var destination: Destination.State?
+    public let soundFontName: String
+    public let originalAudioConfig: AudioConfig.Draft
+    public var pendingAudioConfig: AudioConfig.Draft
 
-    let soundFontName: String
-    let originalAudioConfig: AudioConfig.Draft
-    var pendingAudioConfig: AudioConfig.Draft
+    public var originalName: String
+    public var notes: String
 
-    var originalName: String
-    var notes: String
+    public var gainSlider: Double
+    public var panSlider: Double
+    public var tuning: Tuning.State
 
-    var gainSlider: Double
-    var panSlider: Double
-    var tuning: Tuning.State
-
-    var isFavorite: Bool { preset.kind == .favorite }
+    public var isFavorite: Bool { preset.kind == .favorite }
 
     public init(sectionId: Int, preset: Preset) {
       self.sectionId = sectionId
@@ -89,7 +89,7 @@ public struct PresetEditor {
     }
   }
 
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case cancelButtonTapped
     case destination(PresentationAction<Destination.Action>)
@@ -108,6 +108,7 @@ public struct PresetEditor {
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Scope(state: \.tuning, action: \.tuning) { Tuning() }
+
     Reduce { state, action in
       switch action {
 

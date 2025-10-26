@@ -32,13 +32,12 @@ public struct TagsEditor {
 
   @ObservableState
   public struct State: Equatable, Sendable {
-    var rows: IdentifiedArrayOf<TagNameEditor.State>
-    let mode: Mode
-    var editMode: EditMode = .inactive
-    var focused: FontTag.ID?
-    var deleted: Set<FontTag.ID> = []
-
-    let soundFontId: SoundFont.ID?
+    public var rows: IdentifiedArrayOf<TagNameEditor.State>
+    public let mode: Mode
+    public var editMode: EditMode = .inactive
+    public var focused: FontTag.ID?
+    public var deleted: Set<FontTag.ID> = []
+    public let soundFontId: SoundFont.ID?
 
     /**
      Define intial state of the feature.
@@ -61,7 +60,7 @@ public struct TagsEditor {
         uniqueElements: FontTag.tags
           .map {
             .init(
-              id: $0.id,
+              tagId: $0.id,
               draft: .init($0),
               membership: memberships != nil ? (memberships?[$0.id] ?? false) : nil
             )
@@ -85,7 +84,7 @@ public struct TagsEditor {
     }
   }
 
-  public enum Action: Equatable, BindableAction {
+  public enum Action: BindableAction {
     case addButtonTapped
     case binding(BindingAction<State>)
     case cancelButtonTapped
@@ -161,7 +160,7 @@ private extension TagsEditor {
     }
 
     state.rows.append(.init(
-      id: tagId,
+      tagId: tagId,
       draft: .init(displayName: newName, ordering: state.rows.count),
       membership: state.soundFontId != nil ? false : nil
     ))

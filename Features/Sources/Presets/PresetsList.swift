@@ -3,6 +3,8 @@
 import Algorithms // for `chunks` addition to collections
 import FeatureSupport
 
+private let log = Logger(category: "PresetsList")
+
 @Reducer
 public struct PresetsList {
   public static var groupingSize: Int { 20 }
@@ -34,22 +36,27 @@ public struct PresetsList {
 
   @ObservableState
   public struct State: Equatable {
-    @Presents var destination: Destination.State?
-    var sections: IdentifiedArrayOf<PresetsListSection.State>
-    var searchText: String
-    var isSearchFieldPresented: Bool
-    var focusedField: Field?
-    var optionalSearchText: String? { isSearchFieldPresented ? searchText : nil }
-    var scrollToPresetId: ScrollToTarget?
-    var soundFontId: SoundFont.ID?
+    @Presents public var destination: Destination.State?
+    public var sections: IdentifiedArrayOf<PresetsListSection.State>
+    public var searchText: String
+    public var isSearchFieldPresented: Bool
+    public var focusedField: Field?
+    public var optionalSearchText: String? { isSearchFieldPresented ? searchText : nil }
+    public var scrollToPresetId: ScrollToTarget?
 
-    enum Field: String, Hashable {
+    public enum Field: String, Hashable {
       case searchText
     }
 
-    var visibilityEditMode: EditMode
+    public var visibilityEditMode: EditMode
 
-    public init(searchText: String? = nil, visibilityEditMode: Bool = false) {
+    public init(
+      destination: Destination.State? = nil,
+      sections: IdentifiedArrayOf<PresetsListSection.State> = [],
+      searchText: String? = nil,
+      focusedField: Field? = nil,
+      visibilityEditMode: Bool = false
+    ) {
       self.isSearchFieldPresented = searchText != nil
       self.searchText = searchText ?? ""
       self.visibilityEditMode = visibilityEditMode ? .active : .inactive
@@ -94,9 +101,8 @@ public struct PresetsList {
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce<State, Action> { state, action in
+      log.info("reduce \(action)")
       switch action {
-      case .binding:
-        return .none
 
       case .cancelSearchButtonTapped:
         return dismissSearch(&state)
@@ -108,17 +114,11 @@ public struct PresetsList {
         state.scrollToPresetId = nil
         return .none
 
-      case .delegate:
-        return .none
-
       case .destination(.presented(.alert(.deleteFavoriteConfirmed(let preset)))):
         return deleteFavoriteConfirmed(&state, preset: preset)
 
       case .destination(.presented(.alert(.hidePresetConfirmed(let preset)))):
         return hidePresetConfirmed(&state, preset: preset)
-
-      case .destination(.dismiss):
-        return .none
 
       case .fetchPresets:
         state.scrollToPresetId = .init(presetId: activeState.activePresetId)
@@ -130,40 +130,8 @@ public struct PresetsList {
       case .searchTextChanged(let value):
         return searchTextChanged(&state, searchText: value)
 
-      case let .sections(.element(id: _, action: .delegate(action))):
-        switch action {
-
-        case let .headerTapped(presetId):
-          state.scrollToPresetId = .init(presetId: presetId, anchor: .top)
-          return .none
-
-        case .searchButtonTapped:
-          return searchButtonTapped(&state)
-        }
-
-        // Preset delegated actions
-      case let .sections(.element(id: sectionId, action: .rows(.element(id: _, action: .delegate(action))))):
-        switch action {
-
-        case let .createFavorite(preset):
-          _ = preset.clone()
-          return generatePresetSections(&state)
-
-        case let .deleteFavorite(preset):
-          return deleteFavorite(&state, preset: preset)
-
-        case let .editPreset(preset):
-          return .send(.delegate(.edit(sectionId: sectionId, preset: preset)))
-
-        case let .hidePreset(preset):
-          return hidePreset(&state, preset: preset)
-
-        case let .selectPreset(preset):
-          return selectPreset(&state, preset: preset)
-        }
-
-      case .sections:
-        return .none
+      case let .sections(.element(id: sectionId, action: .delegate(action))):
+        return processSectionAction(&state, sectionId: sectionId, action: action)
 
       case .selectedSoundFontIdChanged(let soundFontId):
         return setSoundFont(&state, soundFontId: soundFontId)
@@ -181,6 +149,9 @@ public struct PresetsList {
       case let .visibilityEditModeChanged(editing):
         state.visibilityEditMode = editing ? .active : .inactive
         return generatePresetSections(&state)
+
+      default:
+        return .none
       }
     }
     .forEach(\.sections, action: \.sections) {
@@ -230,7 +201,11 @@ extension PresetsList {
   @discardableResult
   private func generatePresetSections(_ state: inout State, soundFontId: SoundFont.ID? = nil) -> Effect<Action> {
     let grouping = state.optionalSearchText != nil ? Self.noGroupingSize : Self.groupingSize
-    var presets = state.visibilityEditMode == .active ? Operations.allPresets(for: soundFontId) : Operations.presets(for: soundFontId)
+    var presets = (
+      state.visibilityEditMode == .active
+      ? Operations.allPresets(for: soundFontId)
+      : Operations.presets(for: soundFontId)
+    )
     if let searchText = state.optionalSearchText {
       presets = presets.filter {
         $0.displayName.localizedLowercase.contains(searchText.lowercased())
@@ -285,6 +260,38 @@ extension PresetsList {
       try? await clock.sleep(for: Self.playNoteDuration)
       synth.sendNoteOff(note: 60)
     }.cancellable(id: CancelId.playNote, cancelInFlight: true)
+  }
+
+  private func processSectionAction(
+    _ state: inout State,
+    sectionId: Int,
+    action: PresetsListSection.Action.Delegate
+  ) -> Effect<Action> {
+    switch action {
+
+    case let .createFavorite(preset):
+      _ = preset.clone()
+      return generatePresetSections(&state)
+
+    case let .deleteFavorite(preset):
+      return deleteFavorite(&state, preset: preset)
+
+    case let .editPreset(preset):
+      return .send(.delegate(.edit(sectionId: sectionId, preset: preset)))
+
+    case let .headerTapped(presetId):
+      state.scrollToPresetId = .init(presetId: presetId, anchor: .top)
+      return .none
+
+    case let .hidePreset(preset):
+      return hidePreset(&state, preset: preset)
+
+    case .searchButtonTapped:
+      return searchButtonTapped(&state)
+
+    case let .selectPreset(preset):
+      return selectPreset(&state, preset: preset)
+    }
   }
 
   private func searchButtonTapped(_ state: inout State) -> Effect<Action> {

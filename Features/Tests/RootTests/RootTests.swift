@@ -2,11 +2,13 @@
 
 import DependenciesTestSupport
 import FeatureSupport
+import Models
 import Settings
 import SnapshotTesting
 import Testing
 import TestSupport
 
+@testable import Presets
 @testable import Root
 
 @Suite(
@@ -98,6 +100,15 @@ struct RootTests {
     }
   }
 
+  @Test func refreshPresets() async throws {
+    try await initialized { store in
+      let soundFont = SoundFont.with(id: 1)!
+      await store.send(\.soundFontsList.delegate, .edit(soundFont))
+      #expect(store.state.destination != nil)
+      await store.send(\.destination.presented.soundFontEditor.delegate, .refreshPresets)
+    }
+  }
+
   @Test func showChanges() async throws {
     try await initialized { store in
       @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
@@ -108,6 +119,23 @@ struct RootTests {
       await store.send(\.destination.settings.delegate, .showChanges)
       #expect(store.state.destination != settings)
       #expect(lastShowedChangesVersion != "")
+    }
+  }
+
+//  @Test func showPresetEditor() async throws {
+//    try await initialized { store in
+//      await store.send(\.presetsList, .fetchPresets)
+//      let preset = Preset.with(id: 1)
+//      await store.send(\.presetsList.sections, .element(id: 10000, action: .rows(.element(id: 1, action: .delegate(.editPreset(preset!))))))
+//      #expect(store.state.destination != nil)
+//    }
+//  }
+
+  @Test func showSoundFontEditor() async throws {
+    try await initialized { store in
+      let soundFont = SoundFont.with(id: 1)!
+      await store.send(\.soundFontsList.delegate, .edit(soundFont))
+      #expect(store.state.destination != nil)
     }
   }
 

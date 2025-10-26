@@ -10,16 +10,16 @@ public struct DelayEffect {
   public struct State: Equatable {
 
     @ObservationStateIgnored
-    var config: DelayConfig.Draft
-    var enabled: ToggleFeature.State
-    var locked: ToggleFeature.State
-    var time: KnobFeature.State
-    var feedback: KnobFeature.State
-    var cutoff: KnobFeature.State
-    var wetDryMix: KnobFeature.State
-    var dirty: Bool = false
+    public var config: DelayConfig.Draft
+    public var enabled: ToggleFeature.State
+    public var locked: ToggleFeature.State
+    public var time: KnobFeature.State
+    public var feedback: KnobFeature.State
+    public var cutoff: KnobFeature.State
+    public var wetDryMix: KnobFeature.State
+    public var dirty: Bool
 
-    public init(presetId: Preset.ID = -1) {
+    public init(presetId: Preset.ID = -1, dirty: Bool = false) {
       @Shared(.parameterTree) var parameterTree
       @Shared(.delayLockEnabled) var locked
       self.config = .init(presetId: presetId)
@@ -29,6 +29,7 @@ public struct DelayEffect {
       self.feedback = .init(parameter: parameterTree[.delayFeedback])
       self.cutoff = .init(parameter: parameterTree[.delayCutoff])
       self.wetDryMix = .init(parameter: parameterTree[.delayAmount])
+      self.dirty = dirty
     }
   }
 

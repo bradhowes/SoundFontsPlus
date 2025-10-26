@@ -18,7 +18,7 @@ struct TagNameEditorTests {
     let tag = FontTag(id: 5, displayName: "New Tag", ordering: 5)
     return TestStore(
       initialState: TagNameEditor.State(
-        id: tag.id,
+        tagId: tag.id,
         draft: FontTag.Draft(tag),
         membership: membership
       )
@@ -30,7 +30,7 @@ struct TagNameEditorTests {
   @Test func deleteTag() async throws {
     let store = try store()
     await store.send(.tagSwipedToDelete)
-    await store.receive(.delegate(.tagSwipedToDelete(store.state.id)))
+    await store.receive(\.delegate, .tagSwipedToDelete(store.state.id))
     await store.finish()
   }
 

@@ -15,14 +15,14 @@ public struct TagNameEditor {
   public struct State: Equatable, Identifiable, Sendable {
     public var id: FontTag.ID { tagId }
 
-    var draft: FontTag.Draft
-    let tagId: FontTag.ID
-    let originalMembership: Bool?
-    let originalDisplayName: String
-    var membership: Bool
+    public var draft: FontTag.Draft
+    public let tagId: FontTag.ID
+    public let originalMembership: Bool?
+    public let originalDisplayName: String
+    public var membership: Bool
 
-    public init(id: FontTag.ID, draft: FontTag.Draft, membership: Bool? = nil) {
-      self.tagId = id
+    public init(tagId: FontTag.ID, draft: FontTag.Draft, membership: Bool? = nil) {
+      self.tagId = tagId
       self.draft = draft
       self.originalDisplayName = draft.displayName
       self.originalMembership = membership
@@ -70,7 +70,7 @@ public struct TagNameEditor {
     }
   }
 
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case delegate(Delegate)
     case tagSwipedToDelete
@@ -151,7 +151,7 @@ extension TagNameEditorView {
           TagNameEditorView(
             store: Store(
               initialState: .init(
-                id: tag.id,
+                tagId: tag.id,
                 draft: .init(tag),
                 membership: tag.isUbiquitous ? nil : tag.id.rawValue % 2 == 0
               )
@@ -166,7 +166,7 @@ extension TagNameEditorView {
           TagNameEditorView(
             store: Store(
               initialState: .init(
-                id: tag.id,
+                tagId: tag.id,
                 draft: .init(tag)
               )
             ) {

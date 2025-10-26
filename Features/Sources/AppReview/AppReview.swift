@@ -25,11 +25,16 @@ public struct AppReview {
 
   @ObservableState
   public struct State: Equatable {
-    var askForReview: Bool = false
-    var activityCounter: Int = 0
-    let minActivityCounter: Int
+    public var askForReview: Bool
+    public var activityCounter: Int
+    public let minActivityCounter: Int
 
-    public init(activityCounter: Int = 0, minActivityCounter: Int = 50) {
+    public init(
+      askForReview: Bool = false,
+      activityCounter: Int = 0,
+      minActivityCounter: Int = 50
+    ) {
+      self.askForReview = askForReview
       self.activityCounter = activityCounter
       self.minActivityCounter = minActivityCounter
     }

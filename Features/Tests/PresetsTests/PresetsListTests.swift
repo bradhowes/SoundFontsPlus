@@ -220,6 +220,14 @@ struct PresetsListTests {
         id: PresetsList.noGroupingSize,
         action: .rows(.element(id: 7, action: .delegate(.selectPreset(presets[6]))))
        )
+    )
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: PresetsList.noGroupingSize,
+        action: .delegate(.selectPreset(presets[6]))
+       )
     ) {
       $0.isSearchFieldPresented = false
       $0.focusedField = nil
@@ -297,6 +305,14 @@ struct PresetsListTests {
        )
     )
 
+    await store.receive(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .delegate(.selectPreset(presets[7]))
+       )
+    )
+
     #expect(activeState.activePresetId == presets[7].id)
 
     await store.send(.stop)
@@ -340,9 +356,16 @@ struct PresetsListTests {
         id: store.state.sections[0].id,
         action: .rows(.element(id: presets[0].id, action: .delegate(.createFavorite(presets[0]))))
        )
+    )
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .delegate(.createFavorite(presets[0]))
+       )
     ) {
       $0.sections[0] = .init(section: 0, presets: presetsWithFavorite[...])
-      // $0.sections[0].rows = .init(uniqueElements: presetsWithFavorite.map { .init(preset: $0) })
     }
 
     var updated = Operations.presets(for: nil)
@@ -361,6 +384,14 @@ struct PresetsListTests {
        .element(
         id: store.state.sections[0].id,
         action: .rows(.element(id: updated[1].id, action: .delegate(.deleteFavorite(updated[1]))))
+       )
+    )
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .delegate(.deleteFavorite(updated[1]))
        )
     ) {
       $0.destination = .alert(
@@ -419,6 +450,14 @@ struct PresetsListTests {
         id: store.state.sections[0].id,
         action: .rows(.element(id: presets[0].id, action: .delegate(.createFavorite(presets[0]))))
        )
+    )
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .delegate(.createFavorite(presets[0]))
+       )
     ) {
       $0.sections[0] = .init(section: 0, presets: presetsWithFavorite[...])
     }
@@ -439,6 +478,14 @@ struct PresetsListTests {
        .element(
         id: store.state.sections[0].id,
         action: .rows(.element(id: updated[1].id, action: .delegate(.deleteFavorite(updated[1]))))
+       )
+    )
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: store.state.sections[0].id,
+        action: .delegate(.deleteFavorite(updated[1]))
        )
     ) {
       $0.destination = .alert(
@@ -469,19 +516,30 @@ struct PresetsListTests {
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
 
+    let sectionId = store.state.sections[0].id
+    let preset = presets[0]
+
     await store.send(
       \.sections,
        .element(
-        id: store.state.sections[0].id,
-        action: .rows(.element(id: presets[0].id, action: .editButtonTapped))
+        id: sectionId,
+        action: .rows(.element(id: preset.id, action: .editButtonTapped))
        )
     )
 
     await store.receive(
       \.sections,
        .element(
-        id: store.state.sections[0].id,
-        action: .rows(.element(id: presets[0].id, action: .delegate(.editPreset(presets[0]))))
+        id: sectionId,
+        action: .rows(.element(id: preset.id, action: .delegate(.editPreset(preset))))
+       )
+    )
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: sectionId,
+        action: .delegate(.editPreset(preset))
        )
     )
 
@@ -501,25 +559,37 @@ struct PresetsListTests {
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
 
+    let sectionId = store.state.sections[0].id
+    let preset = presets[1]
+
     await store.send(
       \.sections,
        .element(
-        id: store.state.sections[0].id,
-        action: .rows(.element(id: presets[1].id, action: .hidePresetButtonTapped))
+        id: sectionId,
+        action: .rows(.element(id: preset.id, action: .hidePresetButtonTapped))
        )
     )
 
     await store.receive(
       \.sections,
        .element(
-        id: store.state.sections[0].id,
-        action: .rows(.element(id: presets[1].id, action: .delegate(.hidePreset(presets[1]))))
+        id: sectionId,
+        action: .rows(.element(id: preset.id, action: .delegate(.hidePreset(preset))))
        )
-    ) {
+    )
+
+    await store.receive(
+      \.sections,
+       .element(
+        id: sectionId,
+        action: .delegate(.hidePreset(preset))
+       )
+    )
+    {
       $0.destination = .alert(
         AlertState.confirmHidePreset(
-          action: .hidePresetConfirmed(presets[1]),
-          displayName: presets[1].displayName
+          action: .hidePresetConfirmed(preset),
+          displayName: preset.displayName
         )
       )
     }
@@ -546,25 +616,36 @@ struct PresetsListTests {
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
 
+    let sectionId = store.state.sections[0].id
+    let preset = presets[1]
+
     await store.send(
       \.sections,
        .element(
-        id: store.state.sections[0].id,
-        action: .rows(.element(id: presets[1].id, action: .hidePresetButtonTapped))
+        id: sectionId,
+        action: .rows(.element(id: preset.id, action: .hidePresetButtonTapped))
        )
     )
 
     await store.receive(
       \.sections,
        .element(
-        id: store.state.sections[0].id,
-        action: .rows(.element(id: presets[1].id, action: .delegate(.hidePreset(presets[1]))))
+        id: sectionId,
+        action: .rows(.element(id: preset.id, action: .delegate(.hidePreset(preset))))
        )
-    ) {
+    )
+
+    await store.receive(
+        \.sections,
+         .element(
+          id: sectionId,
+          action: .delegate(.hidePreset(preset))
+         )
+      ) {
       $0.destination = .alert(
         AlertState.confirmHidePreset(
-          action: .hidePresetConfirmed(presets[1]),
-          displayName: presets[1].displayName
+          action: .hidePresetConfirmed(preset),
+          displayName: preset.displayName
         )
       )
     }

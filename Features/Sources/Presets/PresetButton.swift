@@ -8,7 +8,7 @@ public struct PresetButton {
   @ObservableState
   public struct State: Equatable, Identifiable {
     public var id: Preset.ID { preset.id }
-    var preset: Preset
+    public var preset: Preset
 
     public init(preset: Preset) {
       self.preset = preset

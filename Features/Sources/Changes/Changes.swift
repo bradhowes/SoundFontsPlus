@@ -17,7 +17,7 @@ public struct Changes {
 
   @ObservableState
   public struct State: Equatable {
-    let log: [Change]
+    public let log: [Change]
 
     public init(_ data: String) {
       self.log = Changes.compile(data)

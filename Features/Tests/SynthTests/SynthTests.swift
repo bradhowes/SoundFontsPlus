@@ -47,6 +47,8 @@ struct SynthTests {
       $0.loadedPresetIndex = 0
     }
 
+    await store.receive(\.delegate, .running)
+
     await store.receive(\.lastPresetLoadFinished, timeout: .seconds(30)) {
       $0.firstTimePresetLoaded = false
     }

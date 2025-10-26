@@ -21,11 +21,14 @@ public struct FileImporter {
 
   @ObservableState
   public struct State: Equatable {
-    let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
-    var showChooser: Bool = false
-    @Presents var destination: Destination.State?
+    public let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
+    public var showChooser: Bool
+    @Presents public var destination: Destination.State?
 
-    public init() {}
+    public init(showChooser: Bool = false, destination: Destination.State? = nil) {
+      self.showChooser = showChooser
+      self.destination = destination
+    }
   }
 
   public enum Action {

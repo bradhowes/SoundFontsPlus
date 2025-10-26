@@ -15,7 +15,7 @@ public struct VolumeMonitor {
 
   @ObservableState
   public struct State: Equatable {
-    var reason: Reason?
+    public var reason: Reason?
 
     public init(reason: Reason? = nil) {
       self.reason = reason

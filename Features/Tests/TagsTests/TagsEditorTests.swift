@@ -41,7 +41,7 @@ struct TagsEditorTests {
     #expect(rows.count == 4)
     rows.append(
       .init(
-        id: -1,
+        tagId: -1,
         draft: .init(displayName: "New Tag", ordering: rows.count),
         membership: nil
       )
@@ -54,7 +54,7 @@ struct TagsEditorTests {
 
     rows.append(
       .init(
-        id: -2,
+        tagId: -2,
         draft: .init(displayName: "New Tag 1", ordering: rows.count),
         membership: nil
       )
@@ -73,7 +73,7 @@ struct TagsEditorTests {
 
     rows.append(
       .init(
-        id: -1,
+        tagId: -1,
         draft: .init(displayName: "New Tag", ordering: rows.count),
         membership: false
       )
@@ -86,7 +86,7 @@ struct TagsEditorTests {
 
     rows.append(
       .init(
-        id: -2,
+        tagId: -2,
         draft: .init(displayName: "New Tag 1", ordering: rows.count),
         membership: false
       )
@@ -105,7 +105,7 @@ struct TagsEditorTests {
 
     rows.append(
       .init(
-        id: -1,
+        tagId: -1,
         draft: .init(displayName: "New Tag", ordering: rows.count),
         membership: false
       )
@@ -132,7 +132,7 @@ struct TagsEditorTests {
 
     rows.append(
       .init(
-        id: -1,
+        tagId: -1,
         draft: .init(displayName: "New Tag", ordering: rows.count),
         membership: false
       )
@@ -146,7 +146,7 @@ struct TagsEditorTests {
     rows.removeLast()
 
     await store.send(.deleteButtonTapped(at: IndexSet([-1])))
-    await store.receive(.finalizeDeleteTag(tagId: -1)) {
+    await store.receive(\.finalizeDeleteTag, -1) {
       $0.rows = rows
       $0.focused = nil
     }
@@ -159,7 +159,7 @@ struct TagsEditorTests {
     await store.send(.deleteButtonTapped(at: IndexSet([1])))
 
     rows.remove(at: 0)
-    await store.receive(.finalizeDeleteTag(tagId: 1)) {
+    await store.receive(\.finalizeDeleteTag, 1) {
       $0.rows = rows
       $0.focused = nil
       $0.deleted = Set([1])
@@ -173,7 +173,7 @@ struct TagsEditorTests {
     await store.send(.rows(.element(id: 1, action: .delegate(.tagSwipedToDelete(1)))))
 
     rows.remove(at: 0)
-    await store.receive(.finalizeDeleteTag(tagId: 1)) {
+    await store.receive(\.finalizeDeleteTag, 1) {
       $0.rows = rows
       $0.focused = nil
       $0.deleted = Set([1])
@@ -192,7 +192,7 @@ struct TagsEditorTests {
 
     rows.append(
       .init(
-        id: -1,
+        tagId: -1,
         draft: .init(displayName: "New Tag", ordering: rows.count),
         membership: false
       )
@@ -205,7 +205,7 @@ struct TagsEditorTests {
 
     await store.send(.deleteButtonTapped(at: IndexSet([1])))
     rows.remove(at: 0)
-    await store.receive(.finalizeDeleteTag(tagId: 1)) {
+    await store.receive(\.finalizeDeleteTag, 1) {
       $0.rows = rows
       $0.deleted = Set([1])
     }

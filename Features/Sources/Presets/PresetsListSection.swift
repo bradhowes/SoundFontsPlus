@@ -19,7 +19,6 @@ public struct PresetsListSection {
     public init(section: Int, presets: ArraySlice<Preset>) {
       self.section = section
       self.rows = .init(uniqueElements: presets.map { .init(preset: $0) })
-      print("PresetsListSection: \(section) - sectionId: \(sectionId)")
     }
 
     /**
@@ -43,8 +42,13 @@ public struct PresetsListSection {
 
     @CasePathable
     public enum Delegate: Equatable {
+      case createFavorite(Preset)
+      case deleteFavorite(Preset)
+      case editPreset(Preset)
       case headerTapped(Preset.ID)
+      case hidePreset(Preset)
       case searchButtonTapped
+      case selectPreset(Preset)
     }
   }
 
@@ -53,17 +57,18 @@ public struct PresetsListSection {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .delegate:
-        return .none
 
       case let .headerTapped(count):
         return headerTapped(&state, count: count)
 
-      case .rows:
-        return .none
+      case let .rows(.element(id: _, action: .delegate(action))):
+        return processRowAction(&state, action: action)
 
       case .searchButtonTapped:
         return .send(.delegate(.searchButtonTapped))
+
+      default:
+        return .none
       }
     }
     .forEach(\.rows, action: \.rows) {
@@ -77,6 +82,27 @@ public struct PresetsListSection {
     let target = count == 1 ? state.section - (PresetsList.groupingSize - 1) : 1
     print("headerTapped - target: \(target)")
     return .send(.delegate(.headerTapped(Preset.ID(rawValue: Int64(target)))))
+  }
+
+  private func processRowAction(_ state: inout State, action: PresetButton.Action.Delegate) -> Effect<Action> {
+    switch action {
+
+      // Remap 
+    case let .createFavorite(preset):
+      return .send(.delegate(.createFavorite(preset)))
+
+    case let .deleteFavorite(preset):
+      return .send(.delegate(.deleteFavorite(preset)))
+
+    case let .editPreset(preset):
+      return .send(.delegate(.editPreset(preset)))
+
+    case let .hidePreset(preset):
+      return .send(.delegate(.hidePreset(preset)))
+
+    case let .selectPreset(preset):
+      return .send(.delegate(.selectPreset(preset)))
+    }
   }
 }
 

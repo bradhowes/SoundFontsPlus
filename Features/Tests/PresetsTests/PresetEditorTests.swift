@@ -52,11 +52,11 @@ struct PresetEditorTests {
       $0.tuning.cents = -32
       $0.tuning.shiftA4Value = "-"
     }
-    await store.receive(\.tuning, .delegate(.tuningChanged(enabled: false, frequency: 432.0)))
+    await store.receive(\.tuning.delegate, .tuningChanged(enabled: false, frequency: 432.0))
     await store.send(\.tuning.binding.enabled, true) {
       $0.tuning.enabled = true
     }
-    await store.receive(\.tuning, .delegate(.tuningChanged(enabled: true, frequency: 432.0)))
+    await store.receive(\.tuning.delegate, .tuningChanged(enabled: true, frequency: 432.0))
 
     @Shared(.firstVisibleKey) var lowestKey
     $lowestKey.withLock { $0 = .A4 }

@@ -1,9 +1,9 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AUv3Controls
+import AVFoundation
 import AppReview
 import AudioUnit.AUParameters
-import AVFoundation
-import AUv3Controls
 import BRHSplitView
 import Changes
 import DelayEffect
@@ -11,10 +11,10 @@ import FeatureSupport
 import Keyboard
 import Presets
 import ReverbEffect
+import SQLiteData
 import Settings
 import SoundFonts
 import Synth
-import SQLiteData
 import Tags
 import ToolBar
 import Tutorial
@@ -38,60 +38,92 @@ public struct Root {
 
   @ObservableState
   public struct State: Equatable {
-    @Presents var destination: Destination.State?
+    @Presents public var destination: Destination.State?
     @ObservationStateIgnored
-    @FetchAll var soundFontInfos: [SoundFontInfo]
+    @FetchAll public var soundFontInfos: [SoundFontInfo]
 
-    var appReview: AppReview.State = .init()
-    var delay: DelayEffect.State = .init()
-    var keyboard: Keyboard.State = .init()
-    var presetsList: PresetsList.State = .init()
-    var presetsSplit: SplitViewReducer.State
-    var reverb: ReverbEffect.State = .init()
-    var soundFontsList: SoundFontsList.State = .init()
-    var synth: Synth.State = .init()
-    var tagsList: TagsList.State = .init()
-    var tagsSplit: SplitViewReducer.State
-    var toolBar: ToolBar.State = .init()
-    var volumeMonitor: VolumeMonitor.State = .init()
+    public var appReview: AppReview.State
+    public var delay: DelayEffect.State
+    public var keyboard: Keyboard.State
+    public var presetsList: PresetsList.State
+    public var reverb: ReverbEffect.State
+    public var soundFontsList: SoundFontsList.State
+    public var synth: Synth.State
+    public var tagsList: TagsList.State
+    public var toolBar: ToolBar.State
+    public var volumeMonitor: VolumeMonitor.State
 
-    public init() {
+    public var presetsSplit: SplitViewReducer.State
+    public var tagsSplit: SplitViewReducer.State
+
+    public init(
+      destination: Destination.State? = nil,
+      appReview: AppReview.State = .init(),
+      delay: DelayEffect.State = .init(),
+      keyboard: Keyboard.State = .init(),
+      presetsList: PresetsList.State = .init(),
+      reverb: ReverbEffect.State = .init(),
+      soundFontsList: SoundFontsList.State = .init(),
+      synth: Synth.State = .init(),
+      tagsList: TagsList.State = .init(),
+      toolBar: ToolBar.State = .init(),
+      volumeMonitor: VolumeMonitor.State = .init(),
+      presetsSplit: SplitViewReducer.State = Self.makePresetsSplitState(),
+      tagsSplit: SplitViewReducer.State = Self.makeTagsSplitState()
+    ) {
       _soundFontInfos = FetchAll(SoundFontInfo.query(), animation: .default)
 
-      @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsPosition
-      @Shared(.tagsListVisible) var tagsListVisible
-      self.tagsSplit = .init(
-        panesVisible: tagsListVisible ? .both : .primary,
-        initialPosition: fontsAndTagsPosition
-      )
+      self.appReview = appReview
+      self.delay = delay
+      self.keyboard = keyboard
+      self.presetsList = presetsList
+      self.reverb = reverb
+      self.soundFontsList = soundFontsList
+      self.synth = synth
+      self.tagsList = tagsList
+      self.toolBar = toolBar
+      self.volumeMonitor = volumeMonitor
+      self.presetsSplit = presetsSplit
+      self.tagsSplit = tagsSplit
 
-      @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsPosition
-      self.presetsSplit = .init(
-        panesVisible: .both,
-        initialPosition: fontsAndPresetsPosition
-      )
+      #if ALWAYS_SHOW_TUTORIAL
 
-#if ALWAYS_SHOW_TUTORIAL
-
-      showTutorial()
-
-#elseif ALWAYS_SHOW_CHANGES
-
-      showChanges()
-
-#elseif !(DEBUG && targetEnvironment(simulator))
-
-      if Tutorial.shouldShow {
         showTutorial()
-      } else if Changes.shouldShow {
-        showChanges()
-      }
 
-#endif
+      #elseif ALWAYS_SHOW_CHANGES
+
+        showChanges()
+
+      #elseif !(DEBUG && targetEnvironment(simulator))
+
+        if Tutorial.shouldShow {
+          showTutorial()
+        } else if Changes.shouldShow {
+          showChanges()
+        }
+
+      #endif
 
       // Deep-linking to a destination at start up for dev/testing
       //
       // destination = .settings(SettingsFeature.State(midi: midi, midiMonitor: midiMonitor))
+    }
+
+    static public func makePresetsSplitState() -> SplitViewReducer.State {
+      @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsPosition
+      @Shared(.tagsListVisible) var tagsListVisible
+      return .init(
+        panesVisible: tagsListVisible ? .both : .primary,
+        initialPosition: fontsAndTagsPosition
+      )
+    }
+
+    static public func makeTagsSplitState() -> SplitViewReducer.State {
+      @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsPosition
+      return .init(
+        panesVisible: .both,
+        initialPosition: fontsAndPresetsPosition
+      )
     }
 
     mutating func showChanges() {
@@ -137,19 +169,21 @@ public struct Root {
     Scope(state: \.delay, action: \.delay) { DelayEffect() }
     Scope(state: \.keyboard, action: \.keyboard) { Keyboard() }
     Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
-    Scope(state: \.presetsSplit, action: \.presetsSplit) { SplitViewReducer() }
     Scope(state: \.reverb, action: \.reverb) { ReverbEffect() }
     Scope(state: \.soundFontsList, action: \.soundFontsList) { SoundFontsList() }
     Scope(state: \.synth, action: \.synth) { Synth() }
     Scope(state: \.tagsList, action: \.tagsList) { TagsList() }
-    Scope(state: \.tagsSplit, action: \.tagsSplit) { SplitViewReducer() }
     Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
     Scope(state: \.volumeMonitor, action: \.volumeMonitor) { VolumeMonitor() }
 
+    Scope(state: \.presetsSplit, action: \.presetsSplit) { SplitViewReducer() }
+    Scope(state: \.tagsSplit, action: \.tagsSplit) { SplitViewReducer() }
+
     Reduce { state, action in
+      log.info("reduce \(action)")
       switch action {
 
-      case let .activePresetIdChanged(presetId):
+      case .activePresetIdChanged(let presetId):
         return .merge(
           reduce(into: &state, action: .appReview(.ask)),
           reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId))),
@@ -166,7 +200,7 @@ public struct Root {
       case .destination(.presented(.soundFontEditor(.delegate(.refreshPresets)))):
         return reduce(into: &state, action: .presetsList(.fetchPresets))
 
-      case let .destination(.presented(.settings(.delegate(action)))):
+      case .destination(.presented(.settings(.delegate(let action)))):
         return processSettingsAction(&state, action: action)
 
       case .destination(.dismiss):
@@ -178,34 +212,34 @@ public struct Root {
       case .initialize:
         return initialize(&state)
 
-      case let .keyboard(.delegate(action)):
+      case .keyboard(.delegate(let action)):
         return processKeyboardAction(&state, action: action)
 
-      case let .presetsList(.delegate(.edit(sectionId, preset))):
+      case .presetsList(.delegate(.edit(let sectionId, let preset))):
         state.destination = .presetEditor(PresetEditor.State(sectionId: sectionId, preset: preset))
         return .none
 
-      case let .presetsSplit(.delegate(action)):
+      case .presetsSplit(.delegate(let action)):
         return processPresetsSplitAction(&state, action: action)
 
-      case let .scenePhaseChanged(phase):
+      case .scenePhaseChanged(let phase):
         return scenePhaseChanged(&state, phase: phase)
 
-      case let .soundFontsList(.delegate(.edit(soundFont))):
+      case .soundFontsList(.delegate(.edit(let soundFont))):
         state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
         return .none
 
       case .synth(.delegate(.running)):
         return reduce(into: &state, action: .toolBar(.monitorActiveVoiceCount))
 
-      case let .tagsList(.delegate(.edit(focused))):
+      case .tagsList(.delegate(.edit(let focused))):
         state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
         return .none
 
-      case let .tagsSplit(.delegate(action)):
+      case .tagsSplit(.delegate(let action)):
         return processTagsSplitAction(&state, action: action)
 
-      case let .toolBar(.delegate(action)):
+      case .toolBar(.delegate(let action)):
         return processToolBarAction(&state, action: action)
 
       case .volumeMonitor(.delegate(.mutedVolume(let reason))):
@@ -229,9 +263,9 @@ public struct Root {
   }
 }
 
-private extension Root {
+extension Root {
 
-  func createCloudDocumentsDirectory() -> Effect<Action> {
+  fileprivate func createCloudDocumentsDirectory() -> Effect<Action> {
     .run { _ in
       Task.detached(priority: .medium) {
         if let url = FileManager.default.cloudDocumentsDirectory {
@@ -244,10 +278,10 @@ private extension Root {
     }.cancellable(id: CancelId.createCloudDocumentsDirectory, cancelInFlight: true)
   }
 
-  func destinationDismissed(_ state: inout State) -> Effect<Action> {
+  fileprivate func destinationDismissed(_ state: inout State) -> Effect<Action> {
     switch state.destination {
 
-    case let .presetEditor(editor):
+    case .presetEditor(let editor):
       return editorDismissed(&state, editor: editor)
 
     case .settings:
@@ -258,7 +292,7 @@ private extension Root {
     }
   }
 
-  func editorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
+  fileprivate func editorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
     if editor.visible {
       state.presetsList.updateSection(editor.sectionId, presetId: editor.preset.id, displayName: editor.displayName)
       return .none
@@ -266,7 +300,7 @@ private extension Root {
     return reduce(into: &state, action: .presetsList(.fetchPresets))
   }
 
-  func initialize(_ state: inout State) -> Effect<Action> {
+  fileprivate func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
       createCloudDocumentsDirectory(),
       monitorActivePresetId(),
@@ -274,7 +308,7 @@ private extension Root {
     )
   }
 
-  func monitorActivePresetId() -> Effect<Action> {
+  fileprivate func monitorActivePresetId() -> Effect<Action> {
     .publisher {
       $activeState.activePresetId
         .publisher
@@ -283,27 +317,29 @@ private extension Root {
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
-  func processKeyboardAction(_ state: inout State, action: Keyboard.Action.Delegate) -> Effect<Action> {
+  fileprivate func processKeyboardAction(_ state: inout State, action: Keyboard.Action.Delegate) -> Effect<Action> {
     switch action {
     case .noteOn(let key):
       return reduce(into: &state, action: .toolBar(.lastPlayedKeyChanged(key)))
         .animation(.smooth)
 
-    case let .visibleKeyRangeChanged(lowest, highest):
+    case .visibleKeyRangeChanged(let lowest, let highest):
       $firstVisibleKey.withLock { $0 = lowest }
       return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
     }
   }
 
-  func processPresetsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
-    if case let .stateChanged(_, position) = action {
+  fileprivate func processPresetsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<
+    Action
+  > {
+    if case .stateChanged(_, let position) = action {
       @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
       $fontsAndPresetsSplitPosition.withLock { $0 = position }
     }
     return .none
   }
 
-  func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
+  fileprivate func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
     switch action {
     case .showChanges:
       state.showChanges()
@@ -315,8 +351,10 @@ private extension Root {
     return .none
   }
 
-  func processTagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
-    if case let .stateChanged(panesVisible, position) = action {
+  fileprivate func processTagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<
+    Action
+  > {
+    if case .stateChanged(let panesVisible, let position) = action {
       let visible = panesVisible.contains(.bottom)
       state.toolBar.setTagsListVisible(visible)
       @Shared(.tagsListVisible) var tagsListVisible
@@ -327,13 +365,13 @@ private extension Root {
     return .none
   }
 
-  func processToolBarAction(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
+  fileprivate func processToolBarAction(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
     switch action {
 
-    case let .editingPresetVisibilityChanged(active):
+    case .editingPresetVisibilityChanged(let active):
       return reduce(into: &state, action: .presetsList(.visibilityEditModeChanged(active)))
 
-    case let .effectsVisibilityChanged(visible):
+    case .effectsVisibilityChanged(let visible):
       @Shared(.effectsPanelVisible) var effectsPanelVisible
       $effectsPanelVisible.withLock { $0 = visible }
       return .none.animation(.smooth)
@@ -349,17 +387,17 @@ private extension Root {
       state.destination = .settings(Settings.State())
       return .none
 
-    case let .tagsListVisibilityChanged(visible):
+    case .tagsListVisibilityChanged(let visible):
       let panes: SplitViewPanes = visible ? .both : .primary
       return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
 
-    case let .visibleKeyRangeChanged(lowest, _):
+    case .visibleKeyRangeChanged(let lowest, _):
       $firstVisibleKey.withLock { $0 = lowest }
       return reduce(into: &state, action: .keyboard(.scrollTo(lowest)))
     }
   }
 
-  func scenePhaseChanged(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
+  fileprivate func scenePhaseChanged(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
     switch phase {
 
     case .active:
@@ -396,8 +434,8 @@ public struct RootView: View, KeyboardVisibilityPublisher {
 
   private var keyboardHeight: CGFloat {
     isInputKeyboardVisible
-    ? 1.0
-    : maxKeyboardPanelHeight * (verticalSizeClass == .compact ? 0.5 : 1.0)
+      ? 1.0
+      : maxKeyboardPanelHeight * (verticalSizeClass == .compact ? 0.5 : 1.0)
   }
 
   public init(store: StoreOf<Root>) {
@@ -454,9 +492,9 @@ public struct RootView: View, KeyboardVisibilityPublisher {
   }
 }
 
-private extension RootView {
+extension RootView {
 
-  var listViews: some View {
+  fileprivate var listViews: some View {
     SplitView(
       store: store.scope(state: \.presetsSplit, action: \.presetsSplit),
       primary: {
@@ -476,7 +514,7 @@ private extension RootView {
     )
   }
 
-  var fontsAndTags: some View {
+  fileprivate var fontsAndTags: some View {
     SplitView(
       store: store.scope(state: \.tagsSplit, action: \.tagsSplit),
       primary: {
@@ -498,7 +536,7 @@ private extension RootView {
     )
   }
 
-  var handleDivider: some View {
+  fileprivate var handleDivider: some View {
     HandleDivider(
       dividerColor: dividerBorderColor,
       handleColor: .black,
@@ -509,7 +547,7 @@ private extension RootView {
     )
   }
 
-  var effectsView: some View {
+  fileprivate var effectsView: some View {
     let effectsHeight = 110.0
     let padding = 4.0
     let viewHeight = effectsHeight + padding * 4
@@ -541,34 +579,34 @@ private extension RootView {
     .offset(x: 0, y: effectsPanelVisible ? 0.0 : viewHeight / 2 - padding - 1)
   }
 
-  var toolbarAndKeyboard: some View {
+  fileprivate var toolbarAndKeyboard: some View {
     VStack {
       ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
       keyboardView
     }
   }
 
-  var keyboardView: some View {
+  fileprivate var keyboardView: some View {
     KeyboardView(store: store.scope(state: \.keyboard, action: \.keyboard))
       .frame(height: keyboardHeight)
       .opacity(isInputKeyboardVisible ? 0.0 : 1.0)
   }
 }
 
-private extension View {
+extension View {
 
   /// Swift compiler struggles to deal with too many `.sheet` definitions, hence the explosion of custom `View` methods
   /// to isolate each one in its own method.
 
   /**
    Custom `View` modifier that generates all of the optional sheets that can be created in the feature.
-
+  
    - parameter store: the `Root` store which will be scoped to a child feature for displaying
    - parameter horizontalSizeClass: indicator of the horizontal size of the view
    - parameter verticalSizeClass: indicator of the vertical size of the view
    - returns: modified view
    */
-  func sheets(
+  fileprivate func sheets(
     store: Bindable<StoreOf<Root>>,
     horizontalSizeClass: UserInterfaceSizeClass?,
     verticalSizeClass: UserInterfaceSizeClass?
@@ -582,7 +620,7 @@ private extension View {
       .tutorialSheet(store)
   }
 
-  func changesSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
+  fileprivate func changesSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.changes, action: \.destination.changes)) { child in
         NavigationStack {
@@ -593,7 +631,7 @@ private extension View {
       }
   }
 
-  func presetEditorSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
+  fileprivate func presetEditorSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
         PresetEditorView(store: $0)
@@ -602,7 +640,7 @@ private extension View {
       }
   }
 
-  func settingsSheet(_ store: Bindable<StoreOf<Root>>, showFakeKeyboard: Bool) -> some View {
+  fileprivate func settingsSheet(_ store: Bindable<StoreOf<Root>>, showFakeKeyboard: Bool) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.settings, action: \.destination.settings)) {
         SettingsView(store: $0, showFakeKeyboard: showFakeKeyboard)
@@ -611,7 +649,7 @@ private extension View {
       }
   }
 
-  func soundFontEditorSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
+  fileprivate func soundFontEditorSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.soundFontEditor, action: \.destination.soundFontEditor)) {
         SoundFontEditorView(store: $0)
@@ -620,7 +658,7 @@ private extension View {
       }
   }
 
-  func tagsEditorSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
+  fileprivate func tagsEditorSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor)) { child in
         NavigationStack {
@@ -631,7 +669,7 @@ private extension View {
       }
   }
 
-  func tutorialSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
+  fileprivate func tutorialSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.tutorial, action: \.destination.tutorial)) { child in
         NavigationStack {

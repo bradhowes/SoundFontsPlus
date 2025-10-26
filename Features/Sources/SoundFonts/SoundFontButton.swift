@@ -9,16 +9,19 @@ public struct SoundFontButton {
   @ObservableState
   public struct State: Equatable, Identifiable {
     public var id: SoundFont.ID { soundFontInfo.id }
+    public let soundFontInfo: SoundFontInfo
+    @Presents public var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
 
-    let soundFontInfo: SoundFontInfo
-    @Presents var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
-
-    public init(soundFontInfo: SoundFontInfo) {
+    public init(
+      soundFontInfo: SoundFontInfo,
+      confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>? = nil
+    ) {
       self.soundFontInfo = soundFontInfo
+      self.confirmationDialog = confirmationDialog
     }
   }
 
-  public enum Action: Equatable {
+  public enum Action {
     case buttonTapped
     case confirmationDialog(PresentationAction<ConfirmationDialog>)
     case delegate(Delegate)
@@ -60,10 +63,7 @@ public struct SoundFontButton {
       case .longPressGestureFired:
         return .send(.delegate(.editSoundFont(state.soundFontInfo)))
 
-      case .confirmationDialog:
-        return .none
-
-      case .delegate:
+      default:
         return .none
       }
     }

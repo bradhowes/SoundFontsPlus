@@ -18,17 +18,27 @@ public struct Synth {
 
   @ObservableState
   public struct State: Equatable {
-    var loadedSoundFontId: SoundFont.ID?
-    var loadedPresetIndex: Int?
+    public var loadedSoundFontId: SoundFont.ID?
+    public var loadedPresetIndex: Int?
 
     @ObservationStateIgnored
-    let engine = AVAudioEngine()
+    public let engine = AVAudioEngine()
     @ObservationStateIgnored
-    var firstTimePresetLoaded: Bool = true
+    public var firstTimePresetLoaded: Bool = true
     @ObservationStateIgnored
-    var audioSessionActivated: Bool = false
+    public var audioSessionActivated: Bool = false
 
-    public init() {}
+    public init(
+      loadedSoundFontId: SoundFont.ID? = nil,
+      loadedPresetIndex: Int? = nil,
+      firstTimePresetLoaded: Bool = true,
+      audioSessionActivated: Bool = false
+    ) {
+      self.loadedSoundFontId = loadedSoundFontId
+      self.loadedPresetIndex = loadedPresetIndex
+      self.firstTimePresetLoaded = firstTimePresetLoaded
+      self.audioSessionActivated = audioSessionActivated
+    }
   }
 
   public enum Action {

@@ -88,10 +88,10 @@ public struct MIDIConnections {
 
   @ObservableState
   public struct State: Equatable {
-    var rows: IdentifiedArrayOf<MIDIConnectionRow>
-    var midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "MIDI Connections")
+    public var rows: IdentifiedArrayOf<MIDIConnectionRow>
+    public var midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "MIDI Connections")
     @ObservationStateIgnored
-    var midiChannelsCache: [MIDIUniqueID: UInt8] = [:]
+    public var midiChannelsCache: [MIDIUniqueID: UInt8] = [:]
 
     public init() {
       @Shared(.midi) var midi

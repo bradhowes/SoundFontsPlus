@@ -22,7 +22,7 @@ public struct Settings {
   }
 
   @Reducer
-  public enum Destination: Equatable {
+  public enum Destination {
     case alert(AlertState<Alert>)
 
     @CasePathable
@@ -34,9 +34,12 @@ public struct Settings {
 
   @ObservableState
   public struct State: Equatable {
-    var path = StackState<Path.State>()
-    @Presents var destination: Destination.State?
-    var midiConnectCount: Int = 0
+    public var path = StackState<Path.State>()
+    @Presents public var destination: Destination.State?
+    public var midiConnectCount: Int = 0
+    public var midiTrafficIndicator: MIDITrafficIndicator.State
+    public var tuning: Tuning.State
+    public let hasMIDI: Bool
 
     @Shared(.backgroundProcessing) var backgroundProcessing
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
@@ -57,17 +60,26 @@ public struct Settings {
     @Shared(.sortPresetsByName) var sortPresetsByName
     @Shared(.starFavoriteNames) var starFavoriteNames
 
-    var midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "Settings")
-    var tuning: Tuning.State
-    let hasMIDI: Bool
-
-    public init() {
+    public init(
+      path: StackState<Path.State> = .init(),
+      destination: Destination.State? = nil,
+      midiConnectCount: Int = 0,
+      midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "Settings"),
+      tuning: Tuning.State = Self.makeTuningState()
+    ) {
       @Shared(.midi) var midi
       hasMIDI = midi != nil
-      self.midiConnectCount = midi?.sourceConnections.count ?? 0
+      self.path = path
+      self.destination = destination
+      self.midiConnectCount = midi?.sourceConnections.count ?? midiConnectCount
+      self.midiTrafficIndicator = midiTrafficIndicator
+      self.tuning = tuning
+    }
+
+    public static func makeTuningState() -> Tuning.State {
       @Shared(.globalTuningEnabled) var globalTuningEnabled
       @Shared(.globalTuningFrequency) var globalTuningFrequency
-      self.tuning = .init(frequency: globalTuningFrequency, enabled: globalTuningEnabled)
+      return .init(frequency: globalTuningFrequency, enabled: globalTuningEnabled)
     }
   }
 
@@ -132,18 +144,6 @@ public struct Settings {
         }
         return .none
 
-      case .binding:
-        return .none
-
-      case .bluetoothMIDILocateButtonTapped:
-        return .none
-
-      case .contactDeveloperTapped:
-        return .none
-
-      case .delegate:
-        return .none
-
       case .destination(.presented(.alert(.disableCopyFileConfirmed))):
         state.$copyFileWhenInstalling.withLock { $0 = false }
         return .none
@@ -152,20 +152,8 @@ public struct Settings {
         state.$disableIdleTimer.withLock { $0 = true }
         return .none
 
-      case .destination:
-        return .none
-
       case .dismissButtonTapped:
         return dismissButtonTapped(&state)
-
-      case .exportFilesTapped:
-        return .none
-
-      case .hideBuiltInFilesTapped:
-        return .none
-
-      case .importFilesTapped:
-        return .none
 
       case .initialize:
         return initialize(&state)
@@ -186,32 +174,17 @@ public struct Settings {
         state.path.append(.midiControllers(MIDIControllers.State()))
         return .none
 
-      case .midiTrafficIndicator:
-        return .none
-
-      case .path(.popFrom(id: _)): // Handle dismissal of children here
-        return .none
-
-      case .path:
-        return .none
-
-      case .reviewAppTapped:
-        return .none
-
       case let .tuning(.delegate(.tuningChanged(enabled, frequency))):
         return tuningChanged(&state, enabled: enabled, frequency: frequency)
-
-      case .tuning:
-        return .none
-
-      case .unhideBuiltInFilesTapped:
-        return .none
 
       case .viewChangesTapped:
         return .send(.delegate(.showChanges))
 
       case .viewTutorialTapped:
         return .send(.delegate(.showTutorial))
+
+      default:
+        return .none
       }
     }
     .forEach(\.path, action: \.path)

@@ -11,7 +11,7 @@ public struct MIDIAssignments {
     public init() {}
   }
 
-  public enum Action: Equatable, Sendable {
+  public enum Action: Sendable {
     case initialize
   }
 

@@ -24,8 +24,8 @@ public struct Keyboard {
     public struct EventId {
       public typealias Equals = (any SpatialEventId, any SpatialEventId) -> Bool
 
-      let value: any SpatialEventId
-      let equals: Equals
+      public let value: any SpatialEventId
+      public let equals: Equals
 
       /**
        Initialize a new instance with a `SpatialEventId` value and a closure that can compare it to another
@@ -38,22 +38,26 @@ public struct Keyboard {
     }
 
     // Mapping from unique event ID to a Note value.
-    var eventNoteMap = [EventId: Note]()
+    public var eventNoteMap: [EventId: Note] = [:]
 
     // Collection of activation counters for MIDI notes. A counter can be > 1 but it will only trigger a note ON in the
     // synth when it becomes 1, and it will only trigger a note OFF when it becomes 0.
-    var noteCounters: [Int] = .init(repeating: 0, count: Note.midiRange.count)
+    public var noteCounters: [Int] = .init(repeating: 0, count: Note.midiRange.count)
 
-    @Shared(.keyWidth) var keyWidth
-    @Shared(.keyLabels) var keyLabels
-    @Shared(.synthAudioUnit) var synthAudioUnit
+    public var midiInstrument: AVAudioUnitMIDIInstrument? { synthAudioUnit?.midiInstrument }
+    public var muted: Bool
+    public let settingsDemo: Bool
+    public var scrollTo: Note?
 
-    var midiInstrument: AVAudioUnitMIDIInstrument? { synthAudioUnit?.midiInstrument }
-    var muted: Bool
-    var scrollTo: Note?
-    let settingsDemo: Bool
+    @Shared(.keyWidth) public var keyWidth
+    @Shared(.keyLabels) public var keyLabels
+    @Shared(.synthAudioUnit) public var synthAudioUnit
 
-    public init(settingsDemo: Bool = false, activeNotes: [(EventId, Note)] = [], muted: Bool = false) {
+    public init(
+      muted: Bool = false,
+      settingsDemo: Bool = false,
+      activeNotes: [(EventId, Note)] = []
+    ) {
       @Shared(.firstVisibleKey) var firstVisibleKey
       self.muted = muted
       self.scrollTo = firstVisibleKey
@@ -70,7 +74,7 @@ public struct Keyboard {
     case unmuted
   }
 
-  public enum Action: Equatable {
+  public enum Action {
     case activePresetIdChanged(Preset.ID?)
     case allOff
     case deinitialize
@@ -83,7 +87,7 @@ public struct Keyboard {
     case updateVisibleKeys(lowest: Note, highest: Note)
 
     @CasePathable
-    public enum Delegate: Equatable {
+    public enum Delegate {
       case noteOn(Note)
       case visibleKeyRangeChanged(lowest: Note, highest: Note)
     }

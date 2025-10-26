@@ -9,12 +9,14 @@ public struct SoundFontsList {
 
   @ObservableState
   public struct State: Equatable {
-    var rows: IdentifiedArrayOf<SoundFontButton.State> = []
+    public var rows: IdentifiedArrayOf<SoundFontButton.State> = []
 
-    public init() {}
+    public init(rows: IdentifiedArrayOf<SoundFontButton.State> = []) {
+      self.rows = rows
+    }
   }
 
-  public enum Action: Equatable {
+  public enum Action {
     case activeTagIdChanged(FontTag.ID)
     case delegate(Delegate)
     case deinitialize

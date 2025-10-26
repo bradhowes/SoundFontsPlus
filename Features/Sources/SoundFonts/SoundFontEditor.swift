@@ -26,17 +26,17 @@ public struct SoundFontEditor {
 
   @ObservableState
   public struct State: Equatable {
-    var path = StackState<Path.State>()
-    @Presents var destination: Destination.State?
+    public var path = StackState<Path.State>()
+    @Presents public var destination: Destination.State?
 
-    let soundFont: SoundFont
-    let presetCount: Int
-    let favoriteCount: Int
+    public let soundFont: SoundFont
+    public let presetCount: Int
+    public let favoriteCount: Int
 
-    var hiddenCount: Int
-    var tagsList: String
-    var displayName: String
-    var notes: String
+    public var hiddenCount: Int
+    public var tagsList: String
+    public var displayName: String
+    public var notes: String
 
     public var memberships: [FontTag.ID: Bool] {
       let tags = FontTag.tags

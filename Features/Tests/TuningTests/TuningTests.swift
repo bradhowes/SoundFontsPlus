@@ -56,7 +56,7 @@ struct TuningTests {
       $0.shiftA4Value = "None"
     }
 
-    await store.receive(.delegate(.tuningChanged(enabled: true, frequency: 440.0)))
+    await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 440.0))
 
     store.state.updateConfig(&config)
     #expect(config.customTuningEnabled == true)
@@ -66,7 +66,7 @@ struct TuningTests {
       $0.enabled = false
     }
 
-    await store.receive(.delegate(.tuningChanged(enabled: false, frequency: 440.0)))
+    await store.receive(\.delegate, .tuningChanged(enabled: false, frequency: 440.0))
 
     store.state.updateConfig(&config)
     #expect(config.customTuningEnabled == false)
@@ -87,7 +87,7 @@ struct TuningTests {
       $0.shiftA4Value = "None"
     }
 
-    await store.receive(.delegate(.tuningChanged(enabled: true, frequency: 440.0)))
+    await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 440.0))
   }
 
   @Test func scientificTuningApplyPressed() async {
@@ -102,7 +102,7 @@ struct TuningTests {
       $0.shiftA4Value = "-"
     }
 
-    await store.receive(.delegate(.tuningChanged(enabled: true, frequency: 432.0)))
+    await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 432.0))
   }
 
   @Test func bindingCents() async {
@@ -114,7 +114,7 @@ struct TuningTests {
       $0.shiftA4Value = "D5"
     }
 
-    await store.receive(.delegate(.tuningChanged(enabled: true, frequency: 587.3295358348151)))
+    await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 587.3295358348151))
   }
 
   @Test func centsSubmitted() async {
@@ -126,13 +126,13 @@ struct TuningTests {
       $0.shiftA4Value = "-"
     }
 
-    await store.receive(.delegate(.tuningChanged(enabled: true, frequency: 456.04310394454166)))
+    await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 456.04310394454166))
   }
 
   @Test func frequencySubmitted() async {
     let store = store(frequency: 456.0, enabled: true)
     await store.send(.frequencySubmitted)
-    await store.receive(.delegate(.tuningChanged(enabled: true, frequency: 456.0)))
+    await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 456.0))
   }
 
   @Test func bindingEnabled() async {
@@ -142,7 +142,7 @@ struct TuningTests {
       $0.enabled = false
     }
 
-    await store.receive(.delegate(.tuningChanged(enabled: false, frequency: 456.0)))
+    await store.receive(\.delegate, .tuningChanged(enabled: false, frequency: 456.0))
   }
 
   @Test func bindingFrequency() async {
@@ -154,7 +154,7 @@ struct TuningTests {
       $0.shiftA4Value = "None"
     }
 
-    await store.receive(.delegate(.tuningChanged(enabled: true, frequency: 440.0)))
+    await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 440.0))
   }
 
   @Test func disabled() async throws {
