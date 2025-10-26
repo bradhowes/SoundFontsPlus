@@ -453,7 +453,7 @@ extension Synth {
 
     guard state.loadedPresetIndex != presetInfo.presetIndex || state.loadedSoundFontId != presetInfo.soundFontId else {
       log.info("useActivePreset END - already loaded")
-      return .none
+      return playNote(state, synth: synth)
     }
 
     let result: Bool
