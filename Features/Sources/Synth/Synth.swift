@@ -324,8 +324,8 @@ extension Synth {
   }
 
   private func playNote(_ state: State, synth: SF2LibAU) -> Effect<Action> {
-    log.debug("playNote BEGIN")
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
+    log.debug("playNote BEGIN - \(playSoundOnPresetChange) ")
     guard playSoundOnPresetChange else {
       log.debug("playNote END - !playSoundOnPresetChange")
       return .none

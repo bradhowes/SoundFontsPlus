@@ -21,21 +21,19 @@ import Testing
     $0.defaultDatabase = try appDatabase()
     // TODO: use mock here
     $0.audioSession = AudioSession.liveValue
+    $0.continuousClock = .immediate
   },
   .snapshots(record: .failed)
 )
 @MainActor
 struct SynthTests {
 
-  @Test
-  func initialize() async throws {
-    guard !ProcessInfo.processInfo.isOnGithub else { return }
-
+  func initialized(_ closure: (TestStoreOf<Synth>) async throws -> Void) async throws {
+    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange = false
     @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
     let store = TestStore(initialState: Synth.State()) { Synth() }
 
-    // store.exhaustivity = .off
     await store.send(.initialize)
 
     await store.receive(\.synthAudioUnitCreated) {
@@ -53,72 +51,54 @@ struct SynthTests {
       $0.firstTimePresetLoaded = false
     }
 
-    await store.send(.deinitialize)
-    await store.finish(timeout: .seconds(1))
-  }
-
-  @Test
-  func activePresetIdChanged() async throws {
-    guard !ProcessInfo.processInfo.isOnGithub else { return }
-
-    @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
-    @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
-    let store = TestStore(initialState: Synth.State()) { Synth() }
-
-    store.exhaustivity = .off
-    await store.send(.initialize)
-
-    await store.receive(\.synthAudioUnitCreated) {
-      $0.loadedSoundFontId = 1
-      $0.loadedPresetIndex = 0
-      $0.audioSessionActivated = true
-    }
-
-    await store.receive(\.activePresetIdChanged, timeout: .seconds(30))
-    await store.receive(\.lastPresetLoadFinished, timeout: .seconds(30)) {
-      $0.firstTimePresetLoaded = false
-    }
-
-    store.exhaustivity = .on
-    @Shared(.activeState) var activeState
-    $activeState.withLock { $0.activePresetId = .init(rawValue: 5) }
-    try await $activeState.load()
-
-    await store.receive(\.activePresetIdChanged, timeout: .seconds(30)) {
-      $0.loadedPresetIndex = 4
-    }
-
-    await store.receive(\.lastPresetLoadFinished, timeout: .seconds(30))
+    try await closure(store)
 
     await store.send(.deinitialize)
     await store.finish(timeout: .seconds(1))
   }
 
-  @Test
-  func audioSessionRouteChanged() async throws {
+  @Test func initialize() async throws {
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
+    try await initialized { _ in }
+  }
+
+  @Test func activePresetIdChanged() async throws {
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
+    try await initialized { store in
+      @Shared(.activeState) var activeState
+      $activeState.withLock { $0.activePresetId = .init(rawValue: 5) }
+      try await $activeState.load()
+
+      await store.receive(\.activePresetIdChanged, timeout: .seconds(30)) {
+        $0.loadedPresetIndex = 4
+      }
+
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(30))
+    }
+  }
+
+  @Test func audioSessionRouteChanged() async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
 
-    @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
-    @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
-    let store = TestStore(initialState: Synth.State()) { Synth() }
-
-    await store.send(.initialize)
-
-    await store.receive(\.synthAudioUnitCreated) {
-      $0.loadedSoundFontId = 1
-      $0.loadedPresetIndex = 0
-      $0.audioSessionActivated = true
+    try await initialized { store in
+      await store.send(.audioSessionRouteChanged)
     }
+  }
 
-    await store.receive(\.activePresetIdChanged, timeout: .seconds(30))
-    await store.receive(\.lastPresetLoadFinished, timeout: .seconds(30)) {
-      $0.firstTimePresetLoaded = false
+  @Test func audioSessionMediaServicesWereReset() async throws {
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
+    try await initialized { store in
+      NotificationCenter.default.post(name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
+      await store.receive(\.mediaServicesWereReset)
     }
+  }
 
-    await store.send(.audioSessionRouteChanged)
-
-    await store.send(.deinitialize)
-    await store.finish(timeout: .seconds(1))
+  @Test func audioSessionReleaseAcquire() async throws {
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
+    try await initialized { store in
+      await store.send(\.releaseAudioSession)
+      await store.send(\.acquireAudioSession)
+    }
   }
 }
 

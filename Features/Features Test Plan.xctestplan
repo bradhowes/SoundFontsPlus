@@ -133,17 +133,6 @@
     },
     {
       "parallelizable" : false,
-      "skippedTests" : {
-        "suites" : [
-          {
-            "name" : "SynthTests",
-            "testFunctions" : [
-              "activePresetIdChanged()",
-              "audioSessionRouteChanged()"
-            ]
-          }
-        ]
-      },
       "target" : {
         "containerPath" : "container:Features",
         "identifier" : "SynthTests",
