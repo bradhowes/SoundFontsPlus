@@ -91,7 +91,7 @@ struct ToolBarTests {
 
     await store.send(.initialize)
     await store.send(.effectsVisibilityButtonTapped) {
-      $0.$effectsPanelVisible.withLock { $0.toggle() }
+      $0.effectsPanelVisible.toggle()
     }
 
     await store.receive(\.delegate.effectsVisibilityChanged, !initValue)
@@ -101,7 +101,8 @@ struct ToolBarTests {
     }
 
     await store.send(.effectsVisibilityButtonTapped) {
-      $0.$effectsPanelVisible.withLock { $0.toggle() }
+      $0.effectsPanelVisible.toggle()
+      $0.showMoreButtons = false
     }
 
     await store.receive(\.delegate.effectsVisibilityChanged, initValue)
