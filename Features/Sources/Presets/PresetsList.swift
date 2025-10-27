@@ -96,6 +96,12 @@ public struct PresetsList {
     }
   }
 
+  @Dependency(\.defaultDatabase) private var database
+  @Shared(.activeState) private var activeState
+  @Shared(.confirmPresetHiding) private var confirmPresetHiding
+  @Shared(.selectedSoundFontId) private var selectedSoundFontId
+  @Shared(.synthAudioUnit) var synthAudioUnit
+
   public init() {}
 
   public var body: some ReducerOf<Self> {
@@ -159,11 +165,6 @@ public struct PresetsList {
     }
     .ifLet(\.destination, action: \.destination)
   }
-
-  @Dependency(\.defaultDatabase) private var database
-  @Shared(.activeState) private var activeState
-  @Shared(.selectedSoundFontId) private var selectedSoundFontId
-  @Shared(.confirmPresetHiding) private var confirmPresetHiding
 
   private enum CancelId {
     case monitorSelectedSoundFontId
@@ -248,20 +249,6 @@ extension PresetsList {
     }.cancellable(id: CancelId.monitorSelectedSoundFontId, cancelInFlight: true)
   }
 
-  private func playNote() -> Effect<Action> {
-    @Shared(.synthAudioUnit) var synthAudioUnit
-    guard let synth = synthAudioUnit?.synth else { return .none }
-
-    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
-    guard playSoundOnPresetChange else { return .none }
-    return .run { _ in
-      @Dependency(\.continuousClock) var clock
-      synth.sendNoteOn(note: 60)
-      try? await clock.sleep(for: Self.playNoteDuration)
-      synth.sendNoteOff(note: 60)
-    }.cancellable(id: CancelId.playNote, cancelInFlight: true)
-  }
-
   private func processSectionAction(
     _ state: inout State,
     sectionId: Int,
@@ -317,10 +304,7 @@ extension PresetsList {
         $0.activeSoundFontId = preset.soundFontId
       }
     }
-    return .concatenate(
-      state.isSearchFieldPresented ? dismissSearch(&state) : .none,
-      changed ? .none : playNote()
-    )
+    return state.isSearchFieldPresented ? dismissSearch(&state) : .none
   }
 
   private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
