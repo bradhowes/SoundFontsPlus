@@ -14,29 +14,48 @@ public struct ToolBar {
 
   @ObservableState
   public struct State: Equatable {
-    public var lowestKey: Note
+    public var activeVoiceCount: Int
+    public var editingPresetVisibility: Bool
+    public var effectsPanelVisible: Bool
+    public var fileImporter: FileImporter.State
     public var highestKey: Note
-
     @ObservationStateIgnored
     @Shared(.keyboardSlides) public var keyboardSlides
-    @Shared(.effectsPanelVisible) public var effectsPanelVisible
+    public var lastPlayedKey: Note?
+    public var lowestKey: Note
+    public var midiTrafficIndicator: MIDITrafficIndicator.State
+    public var preset: Preset?
+    public var showMoreButtons: Bool
     public var tagsListVisible: Bool
 
-    public var editingPresetVisibility: Bool = false
-    public var showMoreButtons: Bool
-    public var preset: Preset?
-    public var lastPlayedKey: Note?
-    public var midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "ToolBar")
-    public var fileImporter: FileImporter.State = .init()
-    public var activeVoiceCount: Int = 0
+    public init(
+      activeVoiceCount: Int = 0,
+      editingPresetVisibility: Bool = false,
+      effectsPanelVisible: Bool? = nil,
+      fileImporter: FileImporter.State? = nil,
+      highestKey: Note? = nil,
+      lastPlayedKey: Note? = nil,
+      lowestKey: Note? = nil,
+      midiTrafficIndicator: MIDITrafficIndicator.State? = nil,
+      preset: Preset? = nil,
+      showMoreButtons: Bool = false,
+      tagsListVisible: Bool? = nil
+    ) {
+      @Shared(.effectsPanelVisible) var savedEffectsPanelVisible
+      @Shared(.firstVisibleKey) var savedLowestKey
+      @Shared(.tagsListVisible) var savedTagsListVisible
 
-    public init(showMoreButtons: Bool = false) {
-      @Shared(.firstVisibleKey) var firstVisibleKey
-      @Shared(.tagsListVisible) var tagsListVisible
+      self.activeVoiceCount = activeVoiceCount
+      self.editingPresetVisibility = editingPresetVisibility
+      self.effectsPanelVisible = effectsPanelVisible ?? savedEffectsPanelVisible
+      self.fileImporter = fileImporter ?? .init()
+      self.highestKey = highestKey ?? .C4
+      self.lastPlayedKey = lastPlayedKey
+      self.lowestKey = lowestKey ?? savedLowestKey
+      self.midiTrafficIndicator = midiTrafficIndicator ?? .init(tag: "ToolBar")
+      self.preset = preset
       self.showMoreButtons = showMoreButtons
-      self.lowestKey = firstVisibleKey
-      self.highestKey = .C4
-      self.tagsListVisible = tagsListVisible
+      self.tagsListVisible = tagsListVisible ?? savedTagsListVisible
     }
 
     public mutating func setTagsListVisible(_ state: Bool) {
@@ -81,7 +100,6 @@ public struct ToolBar {
   @Shared(.showKeyNotes) private var showKeyNotes
   @Shared(.showSolfegeTags) private var showSolfegeTags
   @Shared(.synthAudioUnit) private var synthAudioUnit
-  @Shared(.tagsListVisible) var tagsListVisible
 
   public init() {}
 
@@ -268,7 +286,8 @@ extension ToolBar {
   }
 
   private func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
-    state.$effectsPanelVisible.withLock { $0 = !state.effectsPanelVisible }
+    state.effectsPanelVisible.toggle()
+    state.showMoreButtons = false
     return .send(.delegate(.effectsVisibilityChanged(state.effectsPanelVisible)))
   }
 
@@ -283,7 +302,6 @@ extension ToolBar {
 
   private func toggleTagsListVisibility(_ state: inout State) -> Effect<Action> {
     state.tagsListVisible.toggle()
-    $tagsListVisible.withLock { $0 = state.tagsListVisible }
     state.showMoreButtons = false
     return .send(.delegate(.tagsListVisibilityChanged(state.tagsListVisible)))
   }

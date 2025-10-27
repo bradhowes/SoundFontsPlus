@@ -38,12 +38,9 @@ public struct Root {
 
   @ObservableState
   public struct State: Equatable {
-    @Presents public var destination: Destination.State?
-    @ObservationStateIgnored
-    @FetchAll public var soundFontInfos: [SoundFontInfo]
-
     public var appReview: AppReview.State
     public var delay: DelayEffect.State
+    @Presents public var destination: Destination.State?
     public var fontsAndPresetsSplit: SplitViewReducer.State
     public var fontsAndTagsSplit: SplitViewReducer.State
     public var keyboard: Keyboard.State
@@ -56,34 +53,32 @@ public struct Root {
     public var volumeMonitor: VolumeMonitor.State
 
     public init(
+      appReview: AppReview.State? = nil,
+      delay: DelayEffect.State? = nil,
       destination: Destination.State? = nil,
-      appReview: AppReview.State = .init(),
-      delay: DelayEffect.State = .init(),
-      fontsAndPresetsSplit: SplitViewReducer.State = Self.makeFontsAndPresetsSplitState(),
-      fontsAndTagsSplit: SplitViewReducer.State = Self.makeFontsAndTagsSplitState(),
-      keyboard: Keyboard.State = .init(),
-      presetsList: PresetsList.State = .init(),
-      reverb: ReverbEffect.State = .init(),
-      soundFontsList: SoundFontsList.State = .init(),
-      synth: Synth.State = .init(),
-      tagsList: TagsList.State = .init(),
-      toolBar: ToolBar.State = .init(),
-      volumeMonitor: VolumeMonitor.State = .init()
+      fontsAndPresetsSplit: SplitViewReducer.State? = nil,
+      fontsAndTagsSplit: SplitViewReducer.State? = nil,
+      keyboard: Keyboard.State? = nil,
+      presetsList: PresetsList.State? = nil,
+      reverb: ReverbEffect.State? = nil,
+      soundFontsList: SoundFontsList.State? = nil,
+      synth: Synth.State? = nil,
+      tagsList: TagsList.State? = nil,
+      toolBar: ToolBar.State? = nil,
+      volumeMonitor: VolumeMonitor.State? = nil
     ) {
-      _soundFontInfos = FetchAll(SoundFontInfo.query(), animation: .default)
-
-      self.appReview = appReview
-      self.delay = delay
-      self.fontsAndPresetsSplit = fontsAndPresetsSplit
-      self.fontsAndTagsSplit = fontsAndTagsSplit
-      self.keyboard = keyboard
-      self.presetsList = presetsList
-      self.reverb = reverb
-      self.soundFontsList = soundFontsList
-      self.synth = synth
-      self.tagsList = tagsList
-      self.toolBar = toolBar
-      self.volumeMonitor = volumeMonitor
+      self.appReview = appReview ?? .init()
+      self.delay = delay ?? .init()
+      self.fontsAndPresetsSplit = fontsAndPresetsSplit ?? Self.makeFontsAndPresetsSplitState()
+      self.fontsAndTagsSplit = fontsAndTagsSplit ?? Self.makeFontsAndTagsSplitState()
+      self.keyboard = keyboard ?? .init()
+      self.presetsList = presetsList ?? .init()
+      self.reverb = reverb ?? .init()
+      self.soundFontsList = soundFontsList ?? .init()
+      self.synth = synth ?? .init()
+      self.tagsList = tagsList ?? .init()
+      self.toolBar = toolBar ?? .init()
+      self.volumeMonitor = volumeMonitor ?? .init()
 
       #if ALWAYS_SHOW_TUTORIAL
 
@@ -395,6 +390,7 @@ extension Root {
       return .none
 
     case .tagsListVisibilityChanged(let visible):
+      $tagsListVisible.withLock { $0 = visible }
       let panes: SplitViewPanes = visible ? .both : .primary
       return reduce(into: &state, action: .fontsAndTagsSplit(.updatePanesVisibility(panes)))
 
