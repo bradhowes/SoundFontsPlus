@@ -68,11 +68,14 @@ public struct Synth {
     interleaved: false
   )
 
+  static var playNoteDurationMilliseconds: Duration { .milliseconds(500) }
+
   @Dependency(\.defaultDatabase) private var database
   @Dependency(\.audioSession) private var audioSession
 
   @Shared(.activeState) private var activeState
   @Shared(.backgroundProcessing) private var backgroundProcessing
+  @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
   @Shared(.synthAudioUnit) private var synthAudioUnit
 
   public var body: some ReducerOf<Self> {
@@ -251,14 +254,9 @@ extension Synth {
 
   private func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
     log.info("lastPresetLoadFinished BEGIN - \(state.firstTimePresetLoaded)")
-
-    guard let synth = synthAudioUnit?.synth else {
-      fatalError("lastPresetLoadFinished - unexpected nil synthAudioUnit")
-    }
-
+    guard let synth = synthAudioUnit?.synth else { return .none }
     let firstTimePresetLoaded = state.firstTimePresetLoaded
     state.firstTimePresetLoaded = false
-
     return firstTimePresetLoaded ? .none : playNote(state, synth: synth)
   }
 
@@ -324,7 +322,6 @@ extension Synth {
   }
 
   private func playNote(_ state: State, synth: SF2LibAU) -> Effect<Action> {
-    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
     log.debug("playNote BEGIN - \(playSoundOnPresetChange) ")
     guard playSoundOnPresetChange else {
       log.debug("playNote END - !playSoundOnPresetChange")
@@ -335,7 +332,7 @@ extension Synth {
       @Dependency(\.continuousClock) var clock
       log.debug("sending note on")
       synth.sendNoteOn(note: 60)
-      try? await clock.sleep(for: .milliseconds(250))
+      try? await clock.sleep(for: Self.playNoteDurationMilliseconds)
       log.debug("sending note off")
       synth.sendNoteOff(note: 60)
     }.cancellable(id: CancelId.playNote, cancelInFlight: true)
