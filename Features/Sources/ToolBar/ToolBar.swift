@@ -17,8 +17,9 @@ public struct ToolBar {
     public var lowestKey: Note
     public var highestKey: Note
 
-    public var keyboardSlides: Bool
-    public var effectsPanelVisible: Bool
+    @ObservationStateIgnored
+    @Shared(.keyboardSlides) public var keyboardSlides
+    @Shared(.effectsPanelVisible) public var effectsPanelVisible
     public var tagsListVisible: Bool
 
     public var editingPresetVisibility: Bool = false
@@ -30,16 +31,11 @@ public struct ToolBar {
     public var activeVoiceCount: Int = 0
 
     public init(showMoreButtons: Bool = false) {
-      @Shared(.firstVisibleKey) var firstVisibleKey: Note
-      @Shared(.keyboardSlides) var keyboardSlides: Bool
-      @Shared(.effectsPanelVisible) var effectsPanelVisible: Bool
-      @Shared(.tagsListVisible) var tagsListVisible: Bool
-
+      @Shared(.firstVisibleKey) var firstVisibleKey
+      @Shared(.tagsListVisible) var tagsListVisible
       self.showMoreButtons = showMoreButtons
       self.lowestKey = firstVisibleKey
       self.highestKey = .C4
-      self.keyboardSlides = keyboardSlides
-      self.effectsPanelVisible = effectsPanelVisible
       self.tagsListVisible = tagsListVisible
     }
 
@@ -80,6 +76,12 @@ public struct ToolBar {
       case visibleKeyRangeChanged(lowest: Note, highest: Note)
     }
   }
+
+  @Shared(.activeState) private var activeState
+  @Shared(.showKeyNotes) private var showKeyNotes
+  @Shared(.showSolfegeTags) private var showSolfegeTags
+  @Shared(.synthAudioUnit) private var synthAudioUnit
+  @Shared(.tagsListVisible) var tagsListVisible
 
   public init() {}
 
@@ -149,11 +151,6 @@ public struct ToolBar {
     }
   }
 
-  @Shared(.firstVisibleKey) private var firstVisibleKey: Note
-  @Shared(.activeState) private var activeState
-  @Shared(.showKeyNotes) private var showKeyNotes
-  @Shared(.showSolfegeTags) private var showSolfegeTags
-
   private enum CancelId: CaseIterable {
     case lastPlayedKeyChanged
     case monitorActiveVoiceCount
@@ -187,15 +184,11 @@ extension ToolBar {
   }
 
   private func monitorActiveVoiceCount(_ state: inout State) -> Effect<Action> {
-    @Shared(.synthAudioUnit) var synthAudioUnit
-    guard let parameterTree = synthAudioUnit?.auAudioUnit.parameterTree else {
-      fatalError("unexpected nil parameterTree chain")
-    }
-
     guard
+      let parameterTree = synthAudioUnit?.auAudioUnit.parameterTree,
       let node = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.activeVoiceCount.rawValue)
     else {
-      fatalError("did not find activeVoiceCount parameter")
+      return .none
     }
 
     return .publisher {
@@ -270,17 +263,12 @@ extension ToolBar {
   }
 
   private func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
-    state.keyboardSlides.toggle()
-    @Shared(.keyboardSlides) var keyboardSlides
-    $keyboardSlides.withLock { $0 = state.keyboardSlides }
+    state.$keyboardSlides.withLock { $0 = !state.keyboardSlides }
     return .none
   }
 
   private func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
-    state.effectsPanelVisible.toggle()
-    @Shared(.effectsPanelVisible) var effectsPanelVisible
-    $effectsPanelVisible.withLock { $0 = state.effectsPanelVisible }
-    state.showMoreButtons = false
+    state.$effectsPanelVisible.withLock { $0 = !state.effectsPanelVisible }
     return .send(.delegate(.effectsVisibilityChanged(state.effectsPanelVisible)))
   }
 
@@ -295,7 +283,6 @@ extension ToolBar {
 
   private func toggleTagsListVisibility(_ state: inout State) -> Effect<Action> {
     state.tagsListVisible.toggle()
-    @Shared(.tagsListVisible) var tagsListVisible
     $tagsListVisible.withLock { $0 = state.tagsListVisible }
     state.showMoreButtons = false
     return .send(.delegate(.tagsListVisibilityChanged(state.tagsListVisible)))

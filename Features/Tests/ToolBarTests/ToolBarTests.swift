@@ -91,7 +91,7 @@ struct ToolBarTests {
 
     await store.send(.initialize)
     await store.send(.effectsVisibilityButtonTapped) {
-      $0.effectsPanelVisible.toggle()
+      $0.$effectsPanelVisible.withLock { $0.toggle() }
     }
 
     await store.receive(\.delegate.effectsVisibilityChanged, !initValue)
@@ -101,8 +101,7 @@ struct ToolBarTests {
     }
 
     await store.send(.effectsVisibilityButtonTapped) {
-      $0.effectsPanelVisible.toggle()
-      $0.showMoreButtons = false
+      $0.$effectsPanelVisible.withLock { $0.toggle() }
     }
 
     await store.receive(\.delegate.effectsVisibilityChanged, initValue)
@@ -299,11 +298,11 @@ struct ToolBarTests {
     #expect(store.state.keyboardSlides == initValue)
 
     await store.send(.slidingKeyboardButtonTapped) {
-      $0.keyboardSlides.toggle()
+      $0.$keyboardSlides.withLock { $0.toggle() }
     }
 
     await store.send(.slidingKeyboardButtonTapped) {
-      $0.keyboardSlides.toggle()
+      $0.$keyboardSlides.withLock { $0.toggle() }
     }
 
     #expect(keyboardSlides == initValue)

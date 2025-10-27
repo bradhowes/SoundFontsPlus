@@ -44,6 +44,8 @@ public struct Root {
 
     public var appReview: AppReview.State
     public var delay: DelayEffect.State
+    public var fontsAndPresetsSplit: SplitViewReducer.State
+    public var fontsAndTagsSplit: SplitViewReducer.State
     public var keyboard: Keyboard.State
     public var presetsList: PresetsList.State
     public var reverb: ReverbEffect.State
@@ -53,13 +55,12 @@ public struct Root {
     public var toolBar: ToolBar.State
     public var volumeMonitor: VolumeMonitor.State
 
-    public var presetsSplit: SplitViewReducer.State
-    public var tagsSplit: SplitViewReducer.State
-
     public init(
       destination: Destination.State? = nil,
       appReview: AppReview.State = .init(),
       delay: DelayEffect.State = .init(),
+      fontsAndPresetsSplit: SplitViewReducer.State = Self.makeFontsAndPresetsSplitState(),
+      fontsAndTagsSplit: SplitViewReducer.State = Self.makeFontsAndTagsSplitState(),
       keyboard: Keyboard.State = .init(),
       presetsList: PresetsList.State = .init(),
       reverb: ReverbEffect.State = .init(),
@@ -67,14 +68,14 @@ public struct Root {
       synth: Synth.State = .init(),
       tagsList: TagsList.State = .init(),
       toolBar: ToolBar.State = .init(),
-      volumeMonitor: VolumeMonitor.State = .init(),
-      presetsSplit: SplitViewReducer.State = Self.makePresetsSplitState(),
-      tagsSplit: SplitViewReducer.State = Self.makeTagsSplitState()
+      volumeMonitor: VolumeMonitor.State = .init()
     ) {
       _soundFontInfos = FetchAll(SoundFontInfo.query(), animation: .default)
 
       self.appReview = appReview
       self.delay = delay
+      self.fontsAndPresetsSplit = fontsAndPresetsSplit
+      self.fontsAndTagsSplit = fontsAndTagsSplit
       self.keyboard = keyboard
       self.presetsList = presetsList
       self.reverb = reverb
@@ -83,8 +84,6 @@ public struct Root {
       self.tagsList = tagsList
       self.toolBar = toolBar
       self.volumeMonitor = volumeMonitor
-      self.presetsSplit = presetsSplit
-      self.tagsSplit = tagsSplit
 
       #if ALWAYS_SHOW_TUTORIAL
 
@@ -109,20 +108,20 @@ public struct Root {
       // destination = .settings(SettingsFeature.State(midi: midi, midiMonitor: midiMonitor))
     }
 
-    static public func makePresetsSplitState() -> SplitViewReducer.State {
-      @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsPosition
-      @Shared(.tagsListVisible) var tagsListVisible
+    static public func makeFontsAndPresetsSplitState() -> SplitViewReducer.State {
+      @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
       return .init(
-        panesVisible: tagsListVisible ? .both : .primary,
-        initialPosition: fontsAndTagsPosition
+        panesVisible: .both,
+        initialPosition: fontsAndPresetsSplitPosition
       )
     }
 
-    static public func makeTagsSplitState() -> SplitViewReducer.State {
-      @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsPosition
+    static public func makeFontsAndTagsSplitState() -> SplitViewReducer.State {
+      @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
+      @Shared(.tagsListVisible) var tagsListVisible
       return .init(
-        panesVisible: .both,
-        initialPosition: fontsAndPresetsPosition
+        panesVisible: tagsListVisible ? .both : .primary,
+        initialPosition: fontsAndTagsSplitPosition
       )
     }
 
@@ -146,21 +145,28 @@ public struct Root {
     case deinitialize
     case delay(DelayEffect.Action)
     case destination(PresentationAction<Destination.Action>)
+    case fontsAndPresetsSplit(SplitViewReducer.Action)
+    case fontsAndTagsSplit(SplitViewReducer.Action)
     case initialize
     case keyboard(Keyboard.Action)
     case presetsList(PresetsList.Action)
-    case presetsSplit(SplitViewReducer.Action)
     case reverb(ReverbEffect.Action)
     case scenePhaseChanged(ScenePhase)
     case soundFontsList(SoundFontsList.Action)
     case synth(Synth.Action)
     case tagsList(TagsList.Action)
-    case tagsSplit(SplitViewReducer.Action)
     case toolBar(ToolBar.Action)
     case volumeMonitor(VolumeMonitor.Action)
   }
 
   public init() {}
+
+  @Shared(.activeState) private var activeState
+  @Shared(.effectsPanelVisible) var effectsPanelVisible
+  @Shared(.firstVisibleKey) private var firstVisibleKey
+  @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
+  @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
+  @Shared(.tagsListVisible) var tagsListVisible
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -176,8 +182,8 @@ public struct Root {
     Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
     Scope(state: \.volumeMonitor, action: \.volumeMonitor) { VolumeMonitor() }
 
-    Scope(state: \.presetsSplit, action: \.presetsSplit) { SplitViewReducer() }
-    Scope(state: \.tagsSplit, action: \.tagsSplit) { SplitViewReducer() }
+    Scope(state: \.fontsAndPresetsSplit, action: \.fontsAndPresetsSplit) { SplitViewReducer() }
+    Scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit) { SplitViewReducer() }
 
     Reduce { state, action in
       log.info("reduce \(action)")
@@ -209,6 +215,12 @@ public struct Root {
           destinationDismissed(&state)
         )
 
+      case .fontsAndPresetsSplit(.delegate(let action)):
+        return processFontsAndPresetsSplitAction(&state, action: action)
+
+      case .fontsAndTagsSplit(.delegate(let action)):
+        return processFontsAndTagsSplitAction(&state, action: action)
+
       case .initialize:
         return initialize(&state)
 
@@ -218,9 +230,6 @@ public struct Root {
       case .presetsList(.delegate(.edit(let sectionId, let preset))):
         state.destination = .presetEditor(PresetEditor.State(sectionId: sectionId, preset: preset))
         return .none
-
-      case .presetsSplit(.delegate(let action)):
-        return processPresetsSplitAction(&state, action: action)
 
       case .scenePhaseChanged(let phase):
         return scenePhaseChanged(&state, phase: phase)
@@ -236,9 +245,6 @@ public struct Root {
         state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
         return .none
 
-      case .tagsSplit(.delegate(let action)):
-        return processTagsSplitAction(&state, action: action)
-
       case .toolBar(.delegate(let action)):
         return processToolBarAction(&state, action: action)
 
@@ -253,9 +259,6 @@ public struct Root {
       }
     }.ifLet(\.$destination, action: \.destination)
   }
-
-  @Shared(.activeState) private var activeState
-  @Shared(.firstVisibleKey) private var firstVisibleKey
 
   private enum CancelId: CaseIterable {
     case createCloudDocumentsDirectory
@@ -329,12 +332,31 @@ extension Root {
     }
   }
 
-  fileprivate func processPresetsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<
-    Action
-  > {
+  fileprivate func processFontsAndPresetsSplitAction(
+    _ state: inout State,
+    action: SplitViewReducer.Action.Delegate
+  ) -> Effect<Action> {
     if case .stateChanged(_, let position) = action {
-      @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
-      $fontsAndPresetsSplitPosition.withLock { $0 = position }
+      if position != fontsAndPresetsSplitPosition {
+        $fontsAndPresetsSplitPosition.withLock { $0 = position }
+      }
+    }
+    return .none
+  }
+
+  fileprivate func processFontsAndTagsSplitAction(
+    _ state: inout State,
+    action: SplitViewReducer.Action.Delegate
+  ) -> Effect<Action> {
+    if case .stateChanged(let panesVisible, let position) = action {
+      let visible = panesVisible.contains(.bottom)
+      if visible != tagsListVisible {
+        $tagsListVisible.withLock { $0 = visible }
+        state.toolBar.setTagsListVisible(visible)
+      }
+      if position != fontsAndTagsSplitPosition {
+        $fontsAndTagsSplitPosition.withLock { $0 = position }
+      }
     }
     return .none
   }
@@ -351,20 +373,6 @@ extension Root {
     return .none
   }
 
-  fileprivate func processTagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<
-    Action
-  > {
-    if case .stateChanged(let panesVisible, let position) = action {
-      let visible = panesVisible.contains(.bottom)
-      state.toolBar.setTagsListVisible(visible)
-      @Shared(.tagsListVisible) var tagsListVisible
-      $tagsListVisible.withLock { $0 = visible }
-      @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
-      $fontsAndTagsSplitPosition.withLock { $0 = position }
-    }
-    return .none
-  }
-
   fileprivate func processToolBarAction(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
     switch action {
 
@@ -372,7 +380,6 @@ extension Root {
       return reduce(into: &state, action: .presetsList(.visibilityEditModeChanged(active)))
 
     case .effectsVisibilityChanged(let visible):
-      @Shared(.effectsPanelVisible) var effectsPanelVisible
       $effectsPanelVisible.withLock { $0 = visible }
       return .none.animation(.smooth)
 
@@ -389,7 +396,7 @@ extension Root {
 
     case .tagsListVisibilityChanged(let visible):
       let panes: SplitViewPanes = visible ? .both : .primary
-      return reduce(into: &state, action: .tagsSplit(.updatePanesVisibility(panes)))
+      return reduce(into: &state, action: .fontsAndTagsSplit(.updatePanesVisibility(panes)))
 
     case .visibleKeyRangeChanged(let lowest, _):
       $firstVisibleKey.withLock { $0 = lowest }
@@ -496,7 +503,7 @@ extension RootView {
 
   fileprivate var listViews: some View {
     SplitView(
-      store: store.scope(state: \.presetsSplit, action: \.presetsSplit),
+      store: store.scope(state: \.fontsAndPresetsSplit, action: \.fontsAndPresetsSplit),
       primary: {
         fontsAndTags
       },
@@ -516,7 +523,7 @@ extension RootView {
 
   fileprivate var fontsAndTags: some View {
     SplitView(
-      store: store.scope(state: \.tagsSplit, action: \.tagsSplit),
+      store: store.scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit),
       primary: {
         SoundFontsListView(store: store.scope(state: \.soundFontsList, action: \.soundFontsList))
       },
@@ -689,6 +696,8 @@ extension RootView {
       $0.defaultDatabase = try! appDatabase()
       $0.delayDevice = .init(setConfig: { print("delayDevice.set: ", $0) })
       $0.reverbDevice = .init(setConfig: { print("reverbDevice.set: ", $0) })
+      @Shared(.tagsListVisible) var tagsListVisible
+      $tagsListVisible.withLock { $0 = true }
     }
 
     return ZStack {

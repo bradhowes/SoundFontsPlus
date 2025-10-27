@@ -83,7 +83,7 @@ struct RootTests {
     try await initialized { store in
       @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
       #expect(fontsAndPresetsSplitPosition == 0.5)
-      await store.send(\.presetsSplit.delegate, .stateChanged(panesVisible: .both, position: 0.3))
+      await store.send(\.fontsAndPresetsSplit.delegate, .stateChanged(panesVisible: .both, position: 0.3))
       #expect(fontsAndPresetsSplitPosition == 0.3)
     }
   }
@@ -94,7 +94,7 @@ struct RootTests {
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
       #expect(tagsListVisible == false)
       #expect(fontsAndTagsSplitPosition == 0.4)
-      await store.send(\.tagsSplit.delegate, .stateChanged(panesVisible: .both, position: 0.5))
+      await store.send(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: .both, position: 0.5))
       #expect(tagsListVisible == true)
       #expect(fontsAndTagsSplitPosition == 0.5)
     }

@@ -9,7 +9,7 @@ public struct SoundFontsList {
 
   @ObservableState
   public struct State: Equatable {
-    public var rows: IdentifiedArrayOf<SoundFontButton.State> = []
+    public var rows: IdentifiedArrayOf<SoundFontButton.State>
 
     public init(rows: IdentifiedArrayOf<SoundFontButton.State> = []) {
       self.rows = rows
@@ -40,15 +40,19 @@ public struct SoundFontsList {
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
-
+        
       case .activeTagIdChanged(let tagId):
         return monitorFetchAll(&state, tagId: tagId)
-
+        
       case .deinitialize:
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
-
+        
       case .initialize:
-        return monitorActiveTag(&state)
+        let tagId = activeState.activeTagId ?? -1
+        return .merge(
+          monitorFetchAll(&state, tagId: tagId),
+          monitorActiveTag(&state)
+        )
 
       case .rows(.element(_, .delegate(let action))):
         return dispatchRowAction(&state, action: action)
