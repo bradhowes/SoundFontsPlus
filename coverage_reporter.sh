@@ -16,7 +16,6 @@ fi
 # For each source file, get its coverage stats as a JSON object
 stats="${PWD}/coverage_iOS/stats.txt"
 if [[ ! -f "${stats}" ]]; then
-    xcrun xccov view --archive --file-list ${archive} | grep '/Features/Sources/' > "${files}"
     while read -r line; do
         xcrun xccov view --report --functions-for-file "${line}" --json ${archive} >> "${stats}"
     done < ${files}

@@ -77,11 +77,30 @@ struct SynthTests {
     }
   }
 
+  @Test func activePresetIdChangeCanPlayNote() async throws {
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
+    try await initialized { store in
+
+      @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
+      $playSoundOnPresetChange.withLock { $0 = true }
+
+      @Shared(.activeState) var activeState
+      $activeState.withLock { $0.activePresetId = .init(rawValue: 5) }
+      try await $activeState.load()
+
+      await store.receive(\.activePresetIdChanged, timeout: .seconds(30)) {
+        $0.loadedPresetIndex = 4
+      }
+
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(30))
+    }
+  }
+
   @Test func audioSessionRouteChanged() async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
-
     try await initialized { store in
-      await store.send(.audioSessionRouteChanged)
+      NotificationCenter.default.post(name: AVAudioSession.routeChangeNotification, object: nil)
+      await store.receive(\.audioSessionRouteChanged)
     }
   }
 
@@ -98,6 +117,17 @@ struct SynthTests {
     try await initialized { store in
       await store.send(\.releaseAudioSession)
       await store.send(\.acquireAudioSession)
+
+      @Shared(.backgroundProcessing) var backgroundProcessing
+      $backgroundProcessing.withLock { $0 = false }
+
+      await store.send(\.releaseAudioSession) {
+        $0.audioSessionActivated = false
+      }
+
+      await store.send(\.acquireAudioSession) {
+        $0.audioSessionActivated = true
+      }
     }
   }
 }

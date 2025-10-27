@@ -50,6 +50,7 @@ public struct Synth {
     case initialize
     case lastPresetLoadFinished
     case mediaServicesWereReset
+    case playNote
     case releaseAudioSession
     case synthAudioUnitCreated(AVAudioUnit)
 
@@ -109,6 +110,9 @@ public struct Synth {
 
       case .mediaServicesWereReset:
         return restartAudioSession(&state)
+
+      case .playNote:
+        return playNote(state)
 
       case .releaseAudioSession:
         return releaseAudioSession(&state)
@@ -322,8 +326,14 @@ extension Synth {
     }.cancellable(id: CancelId.monitorRouteChanged, cancelInFlight: true)
   }
 
-  private func playNote(_ state: State, synth: SF2LibAU) -> Effect<Action> {
+  private func playNote(_ state: State, synth: SF2LibAU? = nil) -> Effect<Action> {
     log.debug("playNote BEGIN - \(playSoundOnPresetChange) ")
+
+    guard let synth = (synth ?? synthAudioUnit?.synth) else {
+      log.debug("playNote END - !synth")
+      return .none
+    }
+
     guard playSoundOnPresetChange else {
       log.debug("playNote END - !playSoundOnPresetChange")
       return .none
