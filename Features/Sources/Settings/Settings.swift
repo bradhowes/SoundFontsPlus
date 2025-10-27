@@ -41,24 +41,24 @@ public struct Settings {
     public var tuning: Tuning.State
     public let hasMIDI: Bool
 
-    @Shared(.backgroundProcessing) var backgroundProcessing
-    @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
-    @Shared(.disableIdleTimer) var disableIdleTimer
-    @Shared(.favoritesOnTop) var favoritesOnTop
-    @Shared(.favoriteSymbolName) var favoriteSymbolName
-    @Shared(.keyboardSlides) var keyboardSlides
-    @Shared(.keyLabels) var keyLabels
-    @Shared(.keyWidth) var keyWidth
-    @Shared(.midiAutoConnect) var midiAutoConnect
-    @Shared(.midiChannel) var midiChannel
-    @Shared(.pitchBendRange) var pitchBendRange
-    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
-    @Shared(.showActiveVoiceCount) var showActiveVoiceCount
-    @Shared(.showKeyNotes) var showKeyNotes
-    @Shared(.showOnlyFavorites) var showOnlyFavorites
-    @Shared(.showSolfegeTags) var showSolfegeTags
-    @Shared(.sortPresetsByName) var sortPresetsByName
-    @Shared(.starFavoriteNames) var starFavoriteNames
+    @Shared(.backgroundProcessing) public var backgroundProcessing
+    @Shared(.copyFileWhenInstalling) public var copyFileWhenInstalling
+    @Shared(.disableIdleTimer) public var disableIdleTimer
+    @Shared(.favoritesOnTop) public var favoritesOnTop
+    @Shared(.favoriteSymbolName) public var favoriteSymbolName
+    @Shared(.keyboardSlides) public var keyboardSlides
+    @Shared(.keyLabels) public var keyLabels
+    @Shared(.keyWidth) public var keyWidth
+    @Shared(.midiAutoConnect) public var midiAutoConnect
+    @Shared(.midiChannel) public var midiChannel
+    @Shared(.pitchBendRange) public var pitchBendRange
+    @Shared(.playSoundOnPresetChange) public var playSoundOnPresetChange
+    @Shared(.showActiveVoiceCount) public var showActiveVoiceCount
+    @Shared(.showKeyNotes) public var showKeyNotes
+    @Shared(.showOnlyFavorites) public var showOnlyFavorites
+    @Shared(.showSolfegeTags) public var showSolfegeTags
+    @Shared(.sortPresetsByName) public var sortPresetsByName
+    @Shared(.starFavoriteNames) public var starFavoriteNames
 
     public init(
       path: StackState<Path.State> = .init(),
