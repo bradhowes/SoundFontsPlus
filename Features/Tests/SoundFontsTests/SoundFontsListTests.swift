@@ -27,7 +27,7 @@ struct SoundFontsListTests {
   @Test func initialize() async throws {
     let store = store()
     await store.send(.initialize)
-    await store.receive(\.activeTagIdChanged, FontTag.Ubiquitous.all.id)
+    await store.receive(\.activeTagIdChanged)
 
     store.exhaustivity = .off(showSkippedAssertions: false)
     await store.receive(\.soundFontInfosChanged)
@@ -42,7 +42,7 @@ struct SoundFontsListTests {
   @Test func activeTagIdChanged() async throws {
     let store = store()
     await store.send(.initialize)
-    await store.receive(\.activeTagIdChanged, FontTag.Ubiquitous.all.id)
+    await store.receive(\.activeTagIdChanged)
 
     store.exhaustivity = .off(showSkippedAssertions: false)
     await store.receive(\.soundFontInfosChanged)
@@ -51,12 +51,12 @@ struct SoundFontsListTests {
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.activeTagId = nil }
 
-    await store.receive(\.activeTagIdChanged, -1)
+    await store.receive(\.activeTagIdChanged)
     await store.receive(\.soundFontInfosChanged)
 
     $activeState.withLock { $0.activeTagId = FontTag.Ubiquitous.external.id }
 
-    await store.receive(\.activeTagIdChanged, 4)
+    await store.receive(\.activeTagIdChanged)
     await store.receive(\.soundFontInfosChanged) {
       $0.rows = []
     }
@@ -68,7 +68,7 @@ struct SoundFontsListTests {
   @Test func showActiveSoundFont() async throws {
     let store = store()
     await store.send(.initialize)
-    await store.receive(\.activeTagIdChanged, FontTag.Ubiquitous.all.id)
+    await store.receive(\.activeTagIdChanged)
 
     store.exhaustivity = .off(showSkippedAssertions: false)
     await store.receive(\.soundFontInfosChanged)
@@ -91,7 +91,7 @@ struct SoundFontsListTests {
 
     let store = store()
     await store.send(.initialize)
-    await store.receive(\.activeTagIdChanged, FontTag.Ubiquitous.all.id)
+    await store.receive(\.activeTagIdChanged)
 
     store.exhaustivity = .off(showSkippedAssertions: false)
     await store.receive(\.soundFontInfosChanged)
@@ -109,7 +109,7 @@ struct SoundFontsListTests {
   @Test func deleteSoundFont() async throws {
     let store = store()
     await store.send(.initialize)
-    await store.receive(\.activeTagIdChanged, FontTag.Ubiquitous.all.id)
+    await store.receive(\.activeTagIdChanged)
 
     store.exhaustivity = .off(showSkippedAssertions: false)
     await store.receive(\.soundFontInfosChanged)
@@ -134,7 +134,7 @@ struct SoundFontsListTests {
   @Test func editSoundFont() async throws {
     let store = store()
     await store.send(.initialize)
-    await store.receive(\.activeTagIdChanged, FontTag.Ubiquitous.all.id)
+    await store.receive(\.activeTagIdChanged)
 
     store.exhaustivity = .off(showSkippedAssertions: false)
     await store.receive(\.soundFontInfosChanged)

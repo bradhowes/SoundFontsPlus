@@ -81,7 +81,8 @@ public struct Synth {
   public var body: some ReducerOf<Self> {
 
     Reduce { state, action in
-      log.debug("reducer action: \(action)")
+
+      log.info("reduce \(action)")
 
       switch action {
 

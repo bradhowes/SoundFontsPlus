@@ -4,6 +4,8 @@ import FeatureSupport
 import SQLiteData
 import Tags
 
+private let log = Logger(category: "SoundFontsList")
+
 @Reducer
 public struct SoundFontsList {
 
@@ -11,13 +13,15 @@ public struct SoundFontsList {
   public struct State: Equatable {
     public var rows: IdentifiedArrayOf<SoundFontButton.State>
 
-    public init(rows: IdentifiedArrayOf<SoundFontButton.State> = []) {
-      self.rows = rows
+    public init() {
+      @FetchAll(SoundFontInfo.query()) var soundFontInfos
+      log.info("init \(soundFontInfos)")
+      self.rows = .init(uncheckedUniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
     }
   }
 
   public enum Action {
-    case activeTagIdChanged(FontTag.ID)
+    case activeTagIdChanged
     case delegate(Delegate)
     case deinitialize
     case initialize
@@ -39,29 +43,30 @@ public struct SoundFontsList {
 
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
+      log.info("reduce \(action)")
+
       switch action {
-        
-      case .activeTagIdChanged(let tagId):
-        return monitorFetchAll(&state, tagId: tagId)
-        
+
+      case .activeTagIdChanged:
+        return monitorFetchAll(&state)
+
       case .deinitialize:
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
-        
+
       case .initialize:
-        let tagId = activeState.activeTagId ?? -1
         return .merge(
-          monitorFetchAll(&state, tagId: tagId),
-          monitorActiveTag(&state)
+          monitorActiveTag(&state),
+          monitorFetchAll(&state)
         )
 
       case .rows(.element(_, .delegate(let action))):
-        return dispatchRowAction(&state, action: action)
+        return processRowAction(&state, action: action)
 
       case .showActiveSoundFont:
         return showActiveSoundFont(&state)
 
       case .soundFontInfosChanged(let soundFontInfos):
-        return updateRows(&state, soundFontInfos: soundFontInfos)
+        return soundFontInfosChanged(&state, soundFontInfos: soundFontInfos)
 
       default:
         return .none
@@ -80,8 +85,16 @@ public struct SoundFontsList {
 
 extension SoundFontsList {
 
-  private func dispatchRowAction(_ state: inout State, action: SoundFontButton.Delegate) -> Effect<Action> {
-    print("dispatchRowAction: \(action)")
+  private func edit(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
+    if let soundFont = SoundFont.with(id: soundFontId) {
+      return .send(.delegate(.edit(soundFont)))
+    }
+    return .none
+  }
+
+  private func processRowAction(_ state: inout State, action: SoundFontButton.Delegate) -> Effect<Action> {
+    log.info("processRowAction: \(action)")
+
     switch action {
 
     case .deleteSoundFont(let soundFont):
@@ -96,33 +109,26 @@ extension SoundFontsList {
     }
   }
 
-  private func edit(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
-    guard let soundFont = try? database.read({ db in
-      return try SoundFont.all.find(soundFontId).fetchOne(db)
-    })
-    else {
-      return .none
-    }
-
-    return .send(.delegate(.edit(soundFont)))
-  }
-
   private func monitorActiveTag(_ state: inout State) -> Effect<Action> {
     .publisher {
       $activeState.activeTagId
         .publisher
         .removeDuplicates()
-        .map { .activeTagIdChanged($0 ?? FontTag.ID(rawValue: -1)) }
+        .map { _ in .activeTagIdChanged }
     }.cancellable(id: CancelId.monitorActiveTagId, cancelInFlight: true)
   }
 
-  private func monitorFetchAll(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
+  private func monitorFetchAll(_ state: inout State) -> Effect<Action> {
     .run { send in
       // Update a query for the SoundFont list view. When the DB changes, this will emit a `soundFontInfoChanged` action
       // causing the rows to change. The query depends on the value of `activeState.activeTagId` so when that changes,
       // `monitorFetchAll` reruns which cancels the old query and installs a new one.
-      @FetchAll(SoundFontInfo.query(id: tagId)) var soundFontInfos
+      @FetchAll(SoundFontInfo.query()) var soundFontInfos
+
+      // Make sure we are reading from the latest value of `activeState.activeTagId` before processing
       try await $soundFontInfos.load(SoundFontInfo.query())
+
+      // When the query results change, send them into the reducer to create a new collection of rows
       for try await update in $soundFontInfos.publisher.values {
         await send(.soundFontInfosChanged(update))
       }
@@ -144,13 +150,14 @@ extension SoundFontsList {
     }
   }
 
-  private func updateRows(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
+  private func soundFontInfosChanged(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
     let update = IdentifiedArrayOf<SoundFontButton.State>(
       uncheckedUniqueElements: soundFontInfos.map {
         .init(soundFontInfo: $0)
       }
     )
     if state.rows != update {
+      log.info("replacing rows with changes")
       state.rows = update
     }
     return .none
@@ -176,6 +183,7 @@ public struct SoundFontsListView: View {
         StyledHeader { Text("Files") }
       }
     }
+    .animation(.smooth, value: store.rows)
     .task {
       await store.send(.initialize).finish()
     }
