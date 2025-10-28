@@ -6,83 +6,6 @@ import FeatureSupport
 import MIDITrafficIndicator
 @preconcurrency @unsafe import MorkAndMIDI
 
-public struct MIDIConnectionRow: Equatable, Identifiable {
-  public let id: MIDIUniqueID
-  public let displayName: String
-  public var channel: UInt8
-  public var fixedVolume: Int
-  public var autoConnect: Bool
-
-  public init(id: MIDIUniqueID, displayName: String, channel: UInt8) {
-    self.id = id
-    self.displayName = displayName
-    self.channel = channel
-
-    @Dependency(\.defaultDatabase) var database
-    if let config = ((try? database.read {
-      try MIDIConfig.all.where({$0.uniqueId.eq(id)}).fetchAll($0)
-    }) ?? []).first {
-      self.fixedVolume = config.fixedVolume
-      self.autoConnect = config.autoConnect
-    } else {
-      self.fixedVolume = 128
-      self.autoConnect = false
-    }
-  }
-
-  func saveConfig() {
-    @Dependency(\.defaultDatabase) var database
-    withErrorReporting {
-      try database.write { db in
-        try MIDIConfig.upsert {
-          .init(uniqueId: self.id, autoConnect: self.autoConnect, fixedVolume: self.fixedVolume)
-        }.execute(db)
-      }
-    }
-  }
-}
-
-public struct MIDIConnectionRowView: View {
-  @State var row: MIDIConnectionRow
-
-  public init(row: MIDIConnectionRow) {
-    self.row = row
-  }
-
-  public var body: some View {
-    Text("\(row.displayName)")
-      .frame(maxWidth: .infinity)
-    Text("\(row.channel)")
-    HStack(spacing: 0) {
-      Text(row.fixedVolume == 128 ? "Off" : "\(row.fixedVolume)")
-      Button {
-        row.fixedVolume -= 1
-      } label: {
-        Image(systemName: "arrowtriangle.down")
-          .frame(width: 40, height: 40)
-      }
-      .offset(x: 6)
-      .disabled(row.fixedVolume == 1)
-      .buttonRepeatBehavior(.enabled)
-      Button {
-        row.fixedVolume += 1
-      } label: {
-        Image(systemName: "arrowtriangle.up")
-          .frame(width: 40, height: 40)
-      }
-      .disabled(row.fixedVolume == 128)
-      .buttonRepeatBehavior(.enabled)
-    }
-    .offset(x: 8)
-    Button {
-      row.autoConnect.toggle()
-    } label: {
-      Image(systemName: row.autoConnect ? "checkmark.circle.fill" : "circle")
-        .frame(width: 40, height: 40)
-    }
-  }
-}
-
 @Reducer
 public struct MIDIConnections {
 
@@ -94,27 +17,50 @@ public struct MIDIConnections {
     public var midiChannelsCache: [MIDIUniqueID: UInt8] = [:]
 
     public init() {
+      self.rows = .init()
       @Shared(.midi) var midi
-      let connections = midi?.sourceConnections ?? []
-      self.rows = .init(
-        uniqueElements: connections.map {
-          .init(id: $0.uniqueId, displayName: $0.displayName, channel: 255)
+      if let midi {
+        self.rows = makeRows(from: midi.sourceConnections)
+      }
+    }
+
+    public init(rows: [MIDIConnectionRow]) {
+      self.rows = .init(uniqueElements: rows)
+    }
+
+    public func makeRows(
+      from sourceConnections: [MIDI.SourceConnectionState]
+    ) -> IdentifiedArrayOf<MIDIConnectionRow> {
+      @Shared(.midiAutoConnect) var midiAutoConnect
+      return .init(
+        uniqueElements: sourceConnections.map { sourceConnection in
+          let channel = midiChannelsCache[sourceConnection.uniqueId] ?? MIDIConnectionRow.unknownChannel
+          return MIDIConnectionRow(
+            id: sourceConnection.uniqueId,
+            displayName: sourceConnection.displayName,
+            channel: channel,
+            fixedVolume: MIDIConnectionRow.disabledFixedVolume,
+            autoConnect: midiAutoConnect
+          )
         }
       )
     }
   }
 
-  public init() {}
-
   public enum Action {
     case autoConnectToggleTapped(MIDIUniqueID)
+    case deinitialize
     case fixedVolumeDecrementTapped(MIDIUniqueID)
     case fixedVolumeIncrementTapped(MIDIUniqueID)
     case initialize
-    case midiConnectionsChanged
+    case midiConnectionsChanged([MIDI.SourceConnectionState])
     case midiTrafficIndicator(MIDITrafficIndicator.Action)
     case sawMIDITraffic(MIDITraffic)
   }
+
+  public init() {}
+
+  @Shared(.midi) var midi
 
   public var body: some ReducerOf<Self> {
 
@@ -126,52 +72,52 @@ public struct MIDIConnections {
       case .autoConnectToggleTapped(let id):
         if let index = state.rows.index(id: id) {
           state.rows[index].autoConnect.toggle()
+          state.rows[index].save()
         }
         return .none
+
+      case .deinitialize:
+        return .merge(CancelId.allCases.map{ .cancel(id: $0) })
 
       case .fixedVolumeDecrementTapped(let id):
         if let index = state.rows.index(id: id) {
           state.rows[index].fixedVolume -= 1
+          state.rows[index].save()
         }
         return .none
 
       case .fixedVolumeIncrementTapped(let id):
         if let index = state.rows.index(id: id) {
           state.rows[index].fixedVolume += 1
+          state.rows[index].save()
         }
         return .none
 
       case .initialize:
         return initialize(&state)
 
-      case .midiConnectionsChanged:
-        return updateMidiConnections(&state)
+      case .midiConnectionsChanged(let sourceConnections):
+        return updateMidiConnections(&state, sourceConnections: sourceConnections)
 
-      case .midiTrafficIndicator: return .none
-      case .sawMIDITraffic(let traffic): return updateMIDIChannel(&state, traffic: traffic)
+      case .midiTrafficIndicator:
+        return .none
+
+      case .sawMIDITraffic(let traffic):
+        return updateMIDIChannel(&state, traffic: traffic)
       }
     }
   }
 
-  @Shared(.midi) var midi
-
-  private enum CancelId {
+  private enum CancelId: CaseIterable {
     case monitorMIDIConnections
   }
 }
 
 extension MIDIConnections {
 
-  private func updateMIDIChannel(_ state: inout State, traffic: MIDITraffic) -> Effect<Action> {
-    state.midiChannelsCache[traffic.id] = traffic.channel
-    if let index = state.rows.index(id: traffic.id) {
-      state.rows[index].channel = traffic.channel
-    }
-    return .none
-  }
-
   private func initialize(_ state: inout State) -> Effect<Action> {
-    .merge(
+    _ = updateMidiConnections(&state, sourceConnections: midi?.sourceConnections ?? [])
+    return .merge(
       reduce(into: &state, action: .midiTrafficIndicator(.initialize)),
       monitorMIDIConnections(&state)
     )
@@ -181,21 +127,23 @@ extension MIDIConnections {
     guard let midi else { return .none }
     return .publisher {
       midi.activeConnectionsPublisher
-        .map { _ in .midiConnectionsChanged }
+        .map { _ in .midiConnectionsChanged(midi.sourceConnections) }
     }.cancellable(id: CancelId.monitorMIDIConnections)
   }
 
-  private func updateMidiConnections(_ state: inout State) -> Effect<Action> {
-    guard let midi else { return .none }
-    state.rows = .init(
-      uniqueElements: midi.sourceConnections.map {
-        .init(
-          id: $0.uniqueId,
-          displayName: $0.displayName,
-          channel: state.midiChannelsCache[$0.uniqueId] ?? 255
-        )
-      }
-    )
+  private func updateMIDIChannel(_ state: inout State, traffic: MIDITraffic) -> Effect<Action> {
+    state.midiChannelsCache[traffic.id] = traffic.channel
+    if let index = state.rows.index(id: traffic.id) {
+      state.rows[index].channel = traffic.channel
+    }
+    return .none
+  }
+
+  private func updateMidiConnections(
+    _ state: inout State,
+    sourceConnections: [MIDI.SourceConnectionState]
+  ) -> Effect<Action> {
+    state.rows = state.makeRows(from: sourceConnections)
     return .none
   }
 }
@@ -294,10 +242,10 @@ public struct MIDIConnectionsView: View {
 extension MIDIConnectionsView {
   static var preview: some View {
     prepareDependencies {
-      // swiftlint:disable:next force_try
-      $0.defaultDatabase = try! appDatabase()
       @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
       midi?.start()
+      // swiftlint:disable:next force_try
+      $0.defaultDatabase = try! appDatabase()
     }
     navigationBarTitleStyle()
     return VStack {

@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/morkandmidi",
       "state" : {
-        "revision" : "5aabfdf6655accc53ea4abb9a4ba9109f92d4dad",
-        "version" : "4.0.1"
+        "revision" : "f80bbbf5a66afa48f3caff57da08cead43955c4f",
+        "version" : "4.0.2"
       }
     },
     {
@@ -123,8 +123,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-composable-architecture",
       "state" : {
-        "revision" : "a9c3fecb5d31fc8aad5d8ba5d830924966d7fb15",
-        "version" : "1.23.0"
+        "revision" : "5b0890fabfd68a2d375d68502bc3f54a8548c494",
+        "version" : "1.23.1"
       }
     },
     {
@@ -213,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "3a95b70a81b7027b8a5117e7dd08188837e5f54e",
-        "version" : "0.24.0"
+        "revision" : "1447ea20550f6f02c4b48cc80931c3ed40a9c756",
+        "version" : "0.25.0"
       }
     },
     {

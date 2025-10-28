@@ -1,12 +1,15 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFoundation
+import BaseSupport
 import Sharing
 import SQLiteData
 import Tagged
 
+private let log = Logger(category: "ReverbConfig")
+
 @Table
-public struct ReverbConfig: Hashable, Identifiable, Sendable {
+public struct ReverbConfig {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
@@ -58,7 +61,8 @@ extension ReverbConfig {
    */
   @discardableResult
   public static func save(config: Draft) -> Self? {
-    withDatabaseWriter { db in
+    log.info("saving \(config)")
+    return withDatabaseWriter { db in
       precondition(config.presetId != -1)
       return try Self.upsert {
         config
@@ -123,5 +127,6 @@ extension ReverbConfig {
 //  }
 //}
 
+extension ReverbConfig: Hashable, Identifiable, Sendable {}
 extension ReverbConfig.Draft: Equatable, Sendable {}
 extension AVAudioUnitReverbPreset: @retroactive QueryBindable {}

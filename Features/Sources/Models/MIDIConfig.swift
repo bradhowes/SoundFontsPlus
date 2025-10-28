@@ -4,8 +4,12 @@ import CoreMIDI
 import SQLiteData
 import Tagged
 
+/**
+ Table that holds customizations associated with a `MIDIUniqueID`. Since this is unique by definition, the table uses
+ this value as the primary key and for identity.
+ */
 @Table
-public struct MIDIConfig: Identifiable, Hashable, Sendable {
+public struct MIDIConfig {
   @Column(primaryKey: true)
   public var uniqueId: MIDIUniqueID
   public var id: Int64 { Int64(uniqueId) }
@@ -20,7 +24,7 @@ extension MIDIConfig {
       try #sql(
       """
       CREATE TABLE "\(raw: Self.tableName)" (
-        "uniqueId" INTEGER PRIMARY KEY,
+        "uniqueId" INTEGER PRIMARY KEY NOT NULL,
         "autoConnect" INTEGER NOT NULL CHECK ("autoConnect" in (0, 1)),
         "fixedVolume" INTEGER NOT NULL
       ) STRICT
@@ -39,3 +43,5 @@ extension MIDIConfig {
     }?.first
   }
 }
+
+extension MIDIConfig: Hashable, Identifiable, Sendable {}

@@ -1,12 +1,15 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFoundation
+import BaseSupport
 import Sharing
 import SQLiteData
 import Tagged
 
+private let log = Logger(category: "DelayConfig")
+
 @Table
-public struct DelayConfig: Hashable, Identifiable, Sendable {
+public struct DelayConfig {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
@@ -68,7 +71,8 @@ extension DelayConfig {
    */
   @discardableResult
   public static func save(config: Draft) -> Self? {
-    withDatabaseWriter { db in
+    log.info("saving \(config)")
+    return withDatabaseWriter { db in
       precondition(config.presetId != -1)
       return try Self.upsert {
         config
@@ -127,5 +131,7 @@ extension DelayConfig {
     } ?? cloneDisabledDraft(clone, presetId: presetId)
   }
 }
+
+extension DelayConfig: Hashable, Identifiable, Sendable {}
 
 extension DelayConfig.Draft: Equatable, Sendable {}
