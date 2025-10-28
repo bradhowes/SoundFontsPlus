@@ -308,7 +308,7 @@ struct DelayEffectTests {
 
     store.exhaustivity = .on
     @Shared(.activeState) var activeState
-    $activeState.withLock { $0.activePresetId = .init(rawValue: 2) }
+    $activeState.withLock { $0.activePresetId = 2 }
 
     await store.receive(\.activePresetIdChanged, 2)
 

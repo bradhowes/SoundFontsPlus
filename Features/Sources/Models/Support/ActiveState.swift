@@ -28,8 +28,8 @@ public struct ActiveState: Codable, Equatable, Sendable {
 
   public static var `default`: Self {
     .init(
-      activeSoundFontId: .init(rawValue: 1),
-      activePresetId: .init(rawValue: 1),
+      activeSoundFontId: 1,
+      activePresetId: 1,
       activeTagId: FontTag.Ubiquitous.all.id,
       activeDelayConfigId: nil,
       activeReverbConfigId: nil

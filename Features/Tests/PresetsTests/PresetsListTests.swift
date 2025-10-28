@@ -48,15 +48,15 @@ struct PresetsListTests {
   )
 
   func setup(
-    activeSoundFontId: SoundFont.ID? = .init(rawValue: 1),
-    selectedSoundFontId: SoundFont.ID? = .init(rawValue: 1),
+    activeSoundFontId: SoundFont.ID? = 1,
+    selectedSoundFontId: SoundFont.ID? = 1,
     searchText: String? = nil,
     visibilityEditMode: Bool = false
   ) throws -> TestStoreOf<PresetsList> {
     @Shared(.activeState) var activeState
     $activeState.withLock {
       $0.activeSoundFontId = activeSoundFontId
-      $0.activePresetId = .init(rawValue: 1)
+      $0.activePresetId = 1
     }
 
     @Shared(.selectedSoundFontId) var selectedSoundFontId
@@ -255,10 +255,10 @@ struct PresetsListTests {
     }
 
     @Shared(.selectedSoundFontId) var selectedSoundFontId
-    $selectedSoundFontId.withLock { $0 = .init(rawValue: 4) }
+    $selectedSoundFontId.withLock { $0 = 4 }
     try await $selectedSoundFontId.load()
 
-    await store.receive(\.selectedSoundFontIdChanged, .init(rawValue: 4)) {
+    await store.receive(\.selectedSoundFontIdChanged, 4) {
       $0.scrollToPresetId = nil
       $0.sections = [.init(
         section: 0,

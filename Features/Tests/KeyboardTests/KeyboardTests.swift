@@ -211,11 +211,11 @@ struct KeyboardTests {
       $0.scrollTo = .G5
     }
 
-    $activeState.withLock { $0.activePresetId = .init(rawValue: 2) }
+    $activeState.withLock { $0.activePresetId = 2 }
 
     await store.receive(\.activePresetIdChanged, 2)
 
-    $activeState.withLock { $0.activePresetId = .init(rawValue: 3) }
+    $activeState.withLock { $0.activePresetId = 3 }
 
     await store.receive(\.activePresetIdChanged, 3)
 
@@ -223,7 +223,7 @@ struct KeyboardTests {
       $0.scrollTo = .A2
     }
 
-    $activeState.withLock { $0.activePresetId = .init(rawValue: 4) }
+    $activeState.withLock { $0.activePresetId = 4 }
 
     await store.receive(\.activePresetIdChanged, 4)
 
@@ -240,7 +240,7 @@ func addAudioConfig(_ db: Database) throws {
     AudioConfig.Draft(
       keyboardLowestNoteEnabled: true,
       keyboardLowestNote: .G5,
-      presetId: .init(rawValue: 1)
+      presetId: 1
     )
   }
   .execute(db)
@@ -248,7 +248,7 @@ func addAudioConfig(_ db: Database) throws {
     AudioConfig.Draft(
       keyboardLowestNoteEnabled: false,
       keyboardLowestNote: .A2,
-      presetId: .init(rawValue: 2)
+      presetId: 2
     )
   }
   .execute(db)
@@ -256,7 +256,7 @@ func addAudioConfig(_ db: Database) throws {
     AudioConfig.Draft(
       keyboardLowestNoteEnabled: true,
       keyboardLowestNote: .A2,
-      presetId: .init(rawValue: 3)
+      presetId: 3
     )
   }
   .execute(db)

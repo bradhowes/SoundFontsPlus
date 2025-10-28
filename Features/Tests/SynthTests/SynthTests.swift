@@ -66,7 +66,7 @@ struct SynthTests {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
       @Shared(.activeState) var activeState
-      $activeState.withLock { $0.activePresetId = .init(rawValue: 5) }
+      $activeState.withLock { $0.activePresetId = 5 }
       try await $activeState.load()
 
       await store.receive(\.activePresetIdChanged, timeout: .seconds(30)) {
@@ -85,7 +85,7 @@ struct SynthTests {
       $playSoundOnPresetChange.withLock { $0 = true }
 
       @Shared(.activeState) var activeState
-      $activeState.withLock { $0.activePresetId = .init(rawValue: 5) }
+      $activeState.withLock { $0.activePresetId = 5 }
       try await $activeState.load()
 
       await store.receive(\.activePresetIdChanged, timeout: .seconds(30)) {

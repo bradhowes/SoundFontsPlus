@@ -148,7 +148,7 @@ extension TagsListView {
       $0.defaultDatabase = try! appDatabase()
       // swiftlint:disable:next force_try
       let tag = try! FontTag.make(displayName: "Another Tag")
-      Operations.tagSoundFont(tag.id, soundFontId: .init(rawValue: 1))
+      Operations.tagSoundFont(tag.id, soundFontId: 1)
     }
 
     return TagsListView(store: Store(initialState: .init()) { TagsList() })

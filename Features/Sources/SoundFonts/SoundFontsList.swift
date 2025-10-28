@@ -199,7 +199,7 @@ extension SoundFontsListView {
 
     // swiftlint:disable:next force_try
     let tag = try! FontTag.make(displayName: "My Tag")
-    Operations.tagSoundFont(tag.id, soundFontId: .init(rawValue: 2))
+    Operations.tagSoundFont(tag.id, soundFontId: 2)
 
     return VStack {
       SoundFontsListView(store: Store(initialState: .init()) { SoundFontsList() })

@@ -418,7 +418,7 @@ extension PresetsListView {
     // swiftlint:disable:next force_try
     prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     @Shared(.selectedSoundFontId) var selectedSoundFontId
-    $selectedSoundFontId.withLock { $0 = .init(rawValue: 1) }
+    $selectedSoundFontId.withLock { $0 = 1 }
     return VStack {
       let store = Store(initialState: .init()) { PresetsList() }
       PresetsListView(store: store)
@@ -434,7 +434,7 @@ extension PresetsListView {
     // swiftlint:disable:next force_try
     prepareDependencies { $0.defaultDatabase = try! appDatabase() }
     @Shared(.selectedSoundFontId) var selectedSoundFontId
-    $selectedSoundFontId.withLock { $0 = .init(rawValue: 1) }
+    $selectedSoundFontId.withLock { $0 = 1 }
     return PresetsListView(store: Store(initialState: .init(visibilityEditMode: true)) { PresetsList() })
   }
 }
