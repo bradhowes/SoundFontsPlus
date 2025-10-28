@@ -20,10 +20,4 @@ extension AUParameterTree {
   }
 }
 
-extension AUParameterTree: @retroactive @unchecked Sendable, @retroactive TestDependencyKey {}
-
-extension AUParameterTree: @retroactive DependencyKey {
-  public static var liveValue: AUParameterTree { ParameterAddress.createParameterTree() }
-  public static var previewValue: AUParameterTree { ParameterAddress.createParameterTree() }
-  public static var testValue: AUParameterTree { ParameterAddress.createParameterTree() }
-}
+extension AUParameterTree: @retroactive @unchecked Sendable {}
