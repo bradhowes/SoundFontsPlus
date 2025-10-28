@@ -290,3 +290,26 @@ public struct MIDIConnectionsView: View {
     }
   }
 }
+
+extension MIDIConnectionsView {
+  static var preview: some View {
+    prepareDependencies {
+      // swiftlint:disable:next force_try
+      $0.defaultDatabase = try! appDatabase()
+      @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
+      midi?.start()
+    }
+    navigationBarTitleStyle()
+    return VStack {
+      MIDIConnectionsView(
+        store: Store(initialState: .init()) {
+          MIDIConnections()
+        }
+      )
+    }
+  }
+}
+
+#Preview {
+  MIDIConnectionsView.preview
+}
