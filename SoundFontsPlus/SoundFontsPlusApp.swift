@@ -18,10 +18,11 @@ struct SoundFontsPlusApp: App {
   init() {
     prepareDependencies {
 
+      $0.audioGraph = .liveValue
+      $0.audioSession = .liveValue
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       $0.defaultFileStorage = .fileSystem
-      $0.audioSession = .liveValue
 
       let delay = AVAudioUnitDelay()
       $0.delayDevice = .init(setConfig: { delay.setConfig($0) })
@@ -30,6 +31,9 @@ struct SoundFontsPlusApp: App {
       let reverb = AVAudioUnitReverb()
       $0.reverbDevice = .init( setConfig: { reverb.setConfig($0) })
       @Shared(.reverbEffect) var reverbEffect = reverb
+
+      let engine = AVAudioEngine()
+      @Shared(.audioEngine) var audioEngine = engine
 
       @Shared(.midiInputPortId) var midiInputPortId
       @Shared(.midi) var midi = .init(clientName: "SoundFonts+", uniqueId: Int32(midiInputPortId), midiProto: .legacy)

@@ -28,6 +28,10 @@ extension SharedKey where Self == InMemoryKey<AVAudioUnitReverb?>.Default {
   public static var reverbEffect: Self { Self[.inMemory("reverbEffect"), default: nil] }
 }
 
+extension SharedKey where Self == InMemoryKey<AVAudioEngine?>.Default {
+  public static var audioEngine: Self { Self[.inMemory("audioEngine"), default: nil] }
+}
+
 extension SharedKey where Self == InMemoryKey<AUParameterTree>.Default {
   public static var parameterTree: Self {
     Self[.inMemory("parameterTree"), default: ParameterAddress.createParameterTree()]

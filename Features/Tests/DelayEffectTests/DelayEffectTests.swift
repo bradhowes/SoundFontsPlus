@@ -3,8 +3,8 @@
 import AUv3Controls
 import DependenciesTestSupport
 import FeatureSupport
-import Numerics
 import SnapshotTesting
+import SQLiteData
 import Testing
 import TestSupport
 
@@ -16,12 +16,11 @@ import TestSupport
     $0.mainQueue = .immediate
     $0.debounceDurations = .testValue
   },
-  .snapshots(record: .failed),
-  .serialized
+  .snapshots(record: .failed)
 )
 @MainActor
 struct DelayEffectTests {
-  fileprivate let device = DelayDevice()
+  fileprivate let device = MockDelayDevice()
   @Shared(.activeState) var activeState = .default
 
   fileprivate func store() -> TestStoreOf<DelayEffect> {
@@ -252,42 +251,8 @@ struct DelayEffectTests {
 
   @Test(
     .dependencies {
-      $0.defaultDatabase = try appDatabase { db in
-        try DelayConfig.insert {
-          DelayConfig.Draft(
-            time: 0.5,
-            feedback: 80,
-            cutoff: 8000.0,
-            wetDryMix: 50.0,
-            enabled: true,
-            presetId: 1
-          )
-        }
-        .execute(db)
-        try DelayConfig.insert {
-          DelayConfig.Draft(
-            time: 1.0,
-            feedback: -70,
-            cutoff: 12000.0,
-            wetDryMix: 100.0,
-            enabled: true,
-            presetId: 2
-          )
-        }
-        .execute(db)
-        try DelayConfig.insert {
-          DelayConfig.Draft(
-            time: 1.5,
-            feedback: 80,
-            cutoff: 8000.0,
-            wetDryMix: 50.0,
-            enabled: false,
-            presetId: 3
-          )
-        }
-        .execute(db)
-      }
-    },
+      $0.defaultDatabase = try appDatabase(seeder: addDelayConfigs)
+    }
   )
   func presetIdChanged() async throws {
     let store = store()
@@ -338,19 +303,34 @@ struct DelayEffectTests {
   }
 
   @Test func preview1() throws {
-    try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 1), config: .landscape)
+    let device = MockDelayDevice()
+    try withDependencies {
+      $0.delayDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })
+    } operation: {
+      try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 1), config: .landscape)
+    }
   }
 
   @Test func preview2() throws {
-    try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 2), config: .landscape)
+    let device = MockDelayDevice()
+    try withDependencies {
+      $0.delayDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })
+    } operation: {
+      try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 2), config: .landscape)
+    }
   }
   
   @Test func preview3() throws {
-    try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 3), config: .landscape)
+    let device = MockDelayDevice()
+    try withDependencies {
+      $0.delayDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })
+    } operation: {
+      try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 3), config: .landscape)
+    }
   }
 }
 
-private actor DelayDevice {
+fileprivate actor MockDelayDevice {
   private var config: DelayConfig.Draft = .init(presetId: -1)
   private var timesChanged: Int = 0
 
@@ -360,4 +340,40 @@ private actor DelayDevice {
     self.config = config
     self.timesChanged += 1
   }
+}
+
+fileprivate func addDelayConfigs(_ db: Database) throws {
+  try DelayConfig.insert {
+    DelayConfig.Draft(
+      time: 0.5,
+      feedback: 80,
+      cutoff: 8000.0,
+      wetDryMix: 50.0,
+      enabled: true,
+      presetId: 1
+    )
+  }
+  .execute(db)
+  try DelayConfig.insert {
+    DelayConfig.Draft(
+      time: 1.0,
+      feedback: -70,
+      cutoff: 12000.0,
+      wetDryMix: 100.0,
+      enabled: true,
+      presetId: 2
+    )
+  }
+  .execute(db)
+  try DelayConfig.insert {
+    DelayConfig.Draft(
+      time: 1.5,
+      feedback: 80,
+      cutoff: 8000.0,
+      wetDryMix: 50.0,
+      enabled: false,
+      presetId: 3
+    )
+  }
+  .execute(db)
 }

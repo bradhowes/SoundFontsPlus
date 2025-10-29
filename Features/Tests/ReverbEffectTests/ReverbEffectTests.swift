@@ -3,7 +3,6 @@
 import AUv3Controls
 import DependenciesTestSupport
 import FeatureSupport
-import Numerics
 import SnapshotTesting
 import SQLiteData
 import Testing
@@ -14,17 +13,14 @@ import TestSupport
 @Suite(
   .dependencies {
     $0.defaultDatabase = try appDatabase()
-    $0.continuousClock = ImmediateClock()
     $0.mainQueue = .immediate
     $0.debounceDurations = .testValue
   },
-  .snapshots(record: .failed),
-  .serialized
+  .snapshots(record: .failed)
 )
 @MainActor
 struct ReverbEffectTests {
-  fileprivate let device = ReverbDevice()
-  @Shared(.parameterTree) var parameterTree
+  fileprivate let device = MockReverbDevice()
   @Shared(.activeState) var activeState = .default
 
   fileprivate func store() -> TestStoreOf<ReverbEffect> {
@@ -327,11 +323,16 @@ struct ReverbEffectTests {
   }
 
   @Test func preview() throws {
-    try TestSupport.assertSnapshot(matching: ReverbEffectView.preview)
+    let device = MockReverbDevice()
+    try withDependencies {
+      $0.reverbDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })
+    } operation: {
+      try TestSupport.assertSnapshot(matching: ReverbEffectView.preview)
+    }
   }
 }
 
-private actor ReverbDevice {
+private actor MockReverbDevice {
   private var config: ReverbConfig.Draft = .init(presetId: -1)
   private var timesChanged: Int = 0
 

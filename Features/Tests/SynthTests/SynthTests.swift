@@ -20,7 +20,8 @@ import Testing
   .dependencies {
     $0.defaultDatabase = try appDatabase()
     // TODO: use mock here
-    $0.audioSession = AudioSession.liveValue
+    $0.audioGraph = .liveValue
+    $0.audioSession = .liveValue
     $0.continuousClock = .immediate
   },
   .snapshots(record: .failed),
@@ -30,9 +31,10 @@ import Testing
 struct SynthTests {
 
   func initialized(_ closure: (TestStoreOf<Synth>) async throws -> Void) async throws {
-    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange = false
+    @Shared(.audioEngine) var audioEngine = AVAudioEngine()
     @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
+    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange = false
     let store = TestStore(initialState: Synth.State()) { Synth() }
 
     await store.send(.initialize)
@@ -41,14 +43,14 @@ struct SynthTests {
       $0.audioSessionActivated = true
     }
 
-    await store.receive(\.activePresetIdChanged, timeout: .seconds(30)) {
+    await store.receive(\.activePresetIdChanged, timeout: .seconds(5)) {
       $0.loadedSoundFontId = 1
       $0.loadedPresetIndex = 0
     }
 
     await store.receive(\.delegate, .running)
 
-    await store.receive(\.lastPresetLoadFinished, timeout: .seconds(30)) {
+    await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5)) {
       $0.firstTimePresetLoaded = false
     }
 
@@ -70,11 +72,11 @@ struct SynthTests {
       $activeState.withLock { $0.activePresetId = 5 }
       try await $activeState.load()
 
-      await store.receive(\.activePresetIdChanged, timeout: .seconds(30)) {
+      await store.receive(\.activePresetIdChanged, timeout: .seconds(5)) {
         $0.loadedPresetIndex = 4
       }
 
-      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(30))
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
     }
   }
 
@@ -89,11 +91,11 @@ struct SynthTests {
       $activeState.withLock { $0.activePresetId = 5 }
       try await $activeState.load()
 
-      await store.receive(\.activePresetIdChanged, timeout: .seconds(30)) {
+      await store.receive(\.activePresetIdChanged, timeout: .seconds(5)) {
         $0.loadedPresetIndex = 4
       }
 
-      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(30))
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
     }
   }
 

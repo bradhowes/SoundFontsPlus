@@ -10,24 +10,19 @@ import Testing
 struct AudioSessionTests {
 
   @Test func liveClient() throws {
+    let audioFormat: AVAudioFormat! = AVAudioFormat(
+      commonFormat: .pcmFormatFloat32,
+      sampleRate: 48_000.0,
+      channels: 2,
+      interleaved: false
+    )
+
     let uat = AudioSession.liveValue
     #expect(throws: Never.self) {
-      try uat.setCategory(
-        AVAudioSession.Category.playback,
-        AVAudioSession.Mode.default,
-        [AVAudioSession.CategoryOptions.allowAirPlay]
-      )
-    }
-    #expect(uat.sampleRate() >= 48_000)
-    #expect(throws: Never.self) {
-      try uat.setPreferredSampleRate(48_000)
+      uat.start(audioFormat)
     }
     #expect(throws: Never.self) {
-      try uat.setPreferredIOBufferDuration(0.01)
-    }
-    #expect(uat.currentRoute().inputs.count == 0)
-    #expect(throws: Never.self) {
-      try uat.setActive(false, [])
+      uat.stop()
     }
   }
 }

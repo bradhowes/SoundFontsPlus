@@ -17,6 +17,7 @@ import TestSupport
     $0.outputVolume = mockVolume.makeOutputVolume()
     $0.defaultDatabase = try appDatabase()
     $0.mainQueue = .immediate
+    $0.audioGraph = .previewValue
     $0.audioSession = .liveValue
     $0.date = .constant(.now)
   },

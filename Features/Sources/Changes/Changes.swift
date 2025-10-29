@@ -128,13 +128,6 @@ public struct ChangesView: View {
 extension ChangesView {
 
   static var preview: some View {
-    prepareDependencies { _ in
-      // swiftlint:disable:next force_try
-      // $0.defaultDatabase = try! appDatabase()
-      // $0.delayDevice = .init(setConfig: { print("delayDevice.set: ", $0) })
-      // $0.reverbDevice = .init(setConfig: { print("reverbDevice.set: ", $0) })
-    }
-
     let data = """
       # 1.0.0
       * First item

@@ -5,6 +5,11 @@ import Dependencies
 
 extension DependencyValues {
 
+  public var audioGraph: AudioGraph {
+    get { self[AudioGraph.self] }
+    set { self[AudioGraph.self] = newValue }
+  }
+
   public var audioSession: AudioSession {
     get { self[AudioSession.self] }
     set { self[AudioSession.self] = newValue }

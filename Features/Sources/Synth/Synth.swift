@@ -22,8 +22,6 @@ public struct Synth {
     public var loadedPresetIndex: Int?
 
     @ObservationStateIgnored
-    public let engine = AVAudioEngine()
-    @ObservationStateIgnored
     public var firstTimePresetLoaded: Bool = true
     @ObservationStateIgnored
     public var audioSessionActivated: Bool = false
@@ -71,8 +69,9 @@ public struct Synth {
 
   static var playNoteDurationMilliseconds: Duration { .milliseconds(500) }
 
-  @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.audioGraph) private var audioGraph
   @Dependency(\.audioSession) private var audioSession
+  @Dependency(\.defaultDatabase) private var database
 
   @Shared(.activeState) private var activeState
   @Shared(.backgroundProcessing) private var backgroundProcessing
@@ -143,7 +142,7 @@ extension Synth {
   private func acquireAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("acquireAudioSession - BEGIN")
     if !state.audioSessionActivated {
-      startAudioSession(&state)
+      state.audioSessionActivated = audioSession.start(audioFormat)
     }
     log.info("acquireAudioSession - END")
     return .none
@@ -159,41 +158,6 @@ extension Synth {
       monitorLastLoadFinished(&state),
       .send(.delegate(.running))
     )
-  }
-
-  private func configureAudioSession() {
-    log.info("configureAudioSession - BEGIN")
-    let bufferSize: Int = 64
-
-    do {
-      log.info("configureAudioSession - setting AudioSession category")
-      try audioSession.setCategory(.playback, .default, [.mixWithOthers])
-    } catch let error as NSError {
-      let err = error.localizedDescription
-      log.error("configureAudioSession - failed to set the audio session category and mode: \(err)")
-    }
-
-    log.info("configureAudioSession - sampleRate: \(audioSession.sampleRate())")
-
-    do {
-      log.info("configureAudioSession - setting preferred sample rate")
-      try audioSession.setPreferredSampleRate(audioFormat.sampleRate)
-    } catch let error as NSError {
-      let err = error.localizedDescription
-      log.error("configureAudioSession - failed to set the preferred sample rate to \(audioFormat.sampleRate) - \(err)")
-    }
-
-    let bufferDuration = Double(bufferSize) / audioFormat.sampleRate
-    do {
-      log.info("configureAudioSession - setting IO buffer duration \(bufferDuration)")
-      try audioSession.setPreferredIOBufferDuration(bufferDuration)
-    } catch let error as NSError {
-      let err = error.localizedDescription
-      log.error("configureAudioSession - failed to set the preferred buffer size to \(bufferSize) - \(err)")
-    }
-
-    audioSession.currentRoute().dump()
-    log.info("configureAudioSession - END")
   }
 
   private func createSynthAudioUnit(_ state: inout State) -> Effect<Action> {
@@ -223,32 +187,7 @@ extension Synth {
 
   private func destroyAudioGraph(_ state: inout State) {
     log.info("destroyAudioGraph BEGIN")
-    @Shared(.delayEffect) var delayEffect
-    @Shared(.reverbEffect) var reverbEffect
-
-    log.info("destroyAudioGraph - resetting synth")
-    synthAudioUnit?.reset()
-
-    log.info("destroyAudioGraph - stopping engine")
-    if state.engine.isRunning {
-      state.engine.stop()
-    }
-
-    if let delay = delayEffect {
-      log.info("destroyAudioGraph - detaching delay")
-      state.engine.detach(delay)
-    }
-
-    if let reverb = reverbEffect {
-      log.info("destroyAudioGraph - detaching reverb")
-      state.engine.detach(reverb)
-    }
-
-    if let synth = synthAudioUnit {
-      log.info("destroyAudioGraph - detaching synth")
-      state.engine.detach(synth)
-    }
-
+    audioGraph.stop()
     log.info("destroyAudioGraph END")
   }
 
@@ -351,8 +290,8 @@ extension Synth {
 
   private func restartAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("restartAudioSession - BEGIN")
-    stopAudioSession(&state)
-    startAudioSession(&state)
+    audioSession.stop()
+    state.audioSessionActivated = audioSession.start(audioFormat)
     log.info("restartAudioSession - END")
     return .none
   }
@@ -360,7 +299,8 @@ extension Synth {
   private func releaseAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("releaseAudioSession - BEGIN")
     if !backgroundProcessing {
-      stopAudioSession(&state)
+      audioSession.stop()
+      state.audioSessionActivated = false
     }
     log.info("releaseAudioSession - END")
     return .none
@@ -369,18 +309,7 @@ extension Synth {
   private func startAudioSession(_ state: inout State) {
     log.info("startAudioSession BEGIN")
     precondition(!state.audioSessionActivated)
-
-    configureAudioSession()
-
-    do {
-      log.info("startAudioSession - making audio session active")
-      try audioSession.setActive(true, [])
-      state.audioSessionActivated = true
-    } catch {
-      let err = error.localizedDescription
-      log.error("startAudioSession - failed to set active - \(err)")
-    }
-
+    state.audioSessionActivated = audioSession.start(audioFormat)
     if state.audioSessionActivated {
       startEngine(&state)
     }
@@ -388,59 +317,15 @@ extension Synth {
 
   private func startEngine(_ state: inout State) {
     log.info("startEngine BEGIN")
-    guard !state.engine.isRunning else {
-      log.info("startEngine - already running")
-      return
-    }
-
-    @Shared(.delayEffect) var delayEffect
-    @Shared(.reverbEffect) var reverbEffect
-
-    guard let synthAudioUnit, let delayEffect, let reverbEffect else {
-      log.info("startEngine - no synth, delay, or reverb available")
-      return
-    }
-
-    if state.engine.isRunning {
-      log.info("startEngine - stopping engine")
-      state.engine.stop()
-    }
-
-    log.info("startEngine - attaching audio units to engine")
-    state.engine.attach(synthAudioUnit)
-    state.engine.attach(delayEffect)
-    state.engine.attach(reverbEffect)
-
-    log.info("startEngine - connecting audio units together")
-    state.engine.connect(reverbEffect, to: state.engine.outputNode, format: audioFormat)
-    state.engine.connect(delayEffect, to: reverbEffect, format: audioFormat)
-    state.engine.connect(synthAudioUnit, to: delayEffect, format: audioFormat)
-
-    do {
-      log.info("startEngine - starting")
-      try state.engine.start()
-    } catch {
-      log.error("startEngine - failed to start - \(error.localizedDescription)")
-    }
-
-    log.info("startEngine END")
+    let started = audioGraph.start(audioFormat)
+    log.info("startEngine END - \(started)")
   }
 
   private func stopAudioSession(_ state: inout State) {
     log.info("stopAudioSession BEGIN")
-
     destroyAudioGraph(&state)
-
-    do {
-      log.info("stopAudioSession - deactivating AudioSession")
-      try audioSession.setActive(false, [.notifyOthersOnDeactivation])
-      log.info("stopAudioSession - done")
-    } catch let error as NSError {
-      log.error("stopAudioSession - Failed session.setActive(false): \(error.localizedDescription)")
-    }
-
+    audioSession.stop()
     state.audioSessionActivated = false
-
     log.info("stopAudioSession END")
   }
 
@@ -489,16 +374,5 @@ extension Synth {
 
     log.info("useActivePreset END - \(result)")
     return .none
-  }
-}
-
-extension AVAudioSessionRouteDescription {
-  fileprivate func dump() {
-    for input in self.inputs {
-      log.debug("AVAudioSession input - \(input.portName)")
-    }
-    for output in self.outputs {
-      log.debug("AVAudioSession output - \(output.portName)")
-    }
   }
 }
