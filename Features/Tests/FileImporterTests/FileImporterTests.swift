@@ -23,6 +23,6 @@ struct FileImporterTests {
   }
 
   @Test func firstTest() async {
-    let store = store()
+    _ = store()
   }
 }

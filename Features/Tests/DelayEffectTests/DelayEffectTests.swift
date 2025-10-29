@@ -16,7 +16,8 @@ import TestSupport
     $0.mainQueue = .immediate
     $0.debounceDurations = .testValue
   },
-  .snapshots(record: .failed)
+  .snapshots(record: .failed),
+  .serialized
 )
 @MainActor
 struct DelayEffectTests {

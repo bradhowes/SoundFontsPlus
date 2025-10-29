@@ -23,7 +23,8 @@ import Testing
     $0.audioSession = AudioSession.liveValue
     $0.continuousClock = .immediate
   },
-  .snapshots(record: .failed)
+  .snapshots(record: .failed),
+  .serialized
 )
 @MainActor
 struct SynthTests {

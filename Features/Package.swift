@@ -194,6 +194,7 @@ let package = Package(
     .testFeature("AppReview"),
     .testFeature("Changes"),
     .testFeature("DelayEffect"),
+    .testFeature("FileImporter"),
     .testFeature("Keyboard"),
     .testFeature("MIDIAssignments"),
     .testFeature("MIDIConnections"),
@@ -201,6 +202,7 @@ let package = Package(
     .testFeature("Models"),
     .testFeature("Presets"),
     .testFeature("Root"),
+    .testFeature("ReverbEffect"),
     .testFeature("Settings"),
     .testFeature("SoundFonts"),
     .testFeature("Tags"),
@@ -214,12 +216,6 @@ let package = Package(
     .testTarget(name: "BaseSupportTests", dependencies: ["BaseSupport"]),
     .testTarget(name: "FeatureSupportTests", dependencies: ["FeatureSupport"]),
     .testTarget(name: "MIDITrafficIndicatorTests", dependencies: ["MIDITrafficIndicator"]),
-    .testTarget(name: "ReverbEffectTests",
-                dependencies: [
-                  "ReverbEffect",
-                  .product(name: "Numerics", package: "swift-numerics"),
-                ]
-               ),
     .testTarget(name: "SF2ResourcesTests", dependencies: ["BaseSupport"]),
     .testTarget(
       name: "SynthTests",
@@ -227,7 +223,7 @@ let package = Package(
         "BaseSupport",
         "DelayEffect",
         "ReverbEffect",
-        "Synth",
+        "Synth"
       ]
     ),
   ],
@@ -255,7 +251,7 @@ extension PackageDescription.Target {
 
   public static func testFeature(
     _ name: String,
-    dependencies: [PackageDescription.Target.Dependency] = [],
+    dependencies: [PackageDescription.Target.Dependency] = [.product(name: "Numerics", package: "swift-numerics")],
     resources: [PackageDescription.Resource] = []
   ) -> PackageDescription.Target {
     .testTarget(name: name + "Tests", dependencies: dependencies + [.init(stringLiteral: name)])
