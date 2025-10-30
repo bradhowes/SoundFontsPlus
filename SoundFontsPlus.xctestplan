@@ -1,0 +1,22 @@
+{
+  "configurations" : [
+    {
+      "id" : "F20CABD9-BB8C-4368-8832-11A03A5A6C24",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:SoundFontsPlus.xcodeproj",
+      "identifier" : "BD1D277E2B6F13DD005C3ED0",
+      "name" : "SoundFontsPlus"
+    }
+  },
+  "testTargets" : [
+
+  ],
+  "version" : 1
+}

@@ -32,6 +32,9 @@
             reference = "container:Features.xctestplan"
             default = "YES">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:SoundFontsPlus.xctestplan">
+         </TestPlanReference>
       </TestPlans>
       <Testables>
          <TestableReference
@@ -39,7 +42,7 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BD1D27922B6F13DE005C3ED0"
+               BlueprintIdentifier = "BDF6538F2EB3569700BF74C6"
                BuildableName = "SoundFontsPlusTests.xctest"
                BlueprintName = "SoundFontsPlusTests"
                ReferencedContainer = "container:SoundFontsPlus.xcodeproj">
