@@ -121,3 +121,24 @@ public struct MIDIControllersView: View {
     }
   }
 }
+
+extension MIDIControllersView {
+  static var preview: some View {
+    prepareDependencies {
+      // swiftlint:disable:next force_try
+      $0.defaultDatabase = try! appDatabase()
+    }
+    navigationBarTitleStyle()
+    return VStack {
+      MIDIControllersView(
+        store: Store(initialState: .init()) {
+          MIDIControllers()
+        }
+      )
+    }
+  }
+}
+
+#Preview {
+  MIDIControllersView.preview
+}
