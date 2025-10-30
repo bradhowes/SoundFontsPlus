@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -44,6 +44,16 @@
 		BDB8CC2F2E9508580035EBEA /* ToolBar in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC2E2E9508580035EBEA /* ToolBar */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		BDF653942EB3569700BF74C6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BD1D27772B6F13DD005C3ED0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BD1D277E2B6F13DD005C3ED0;
+			remoteInfo = SoundFontsPlus;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		BD0BD8CF2E11E23000772FE5 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -73,7 +83,12 @@
 		BD9E461D2E7A079B00D0806E /* Changes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Changes.md; sourceTree = "<group>"; };
 		BDB6A3972E8EC8F400126442 /* Features */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Features; sourceTree = "<group>"; };
 		BDF653892EB2673E00BF74C6 /* Features.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Features.xctestplan; sourceTree = "<group>"; };
+		BDF653902EB3569700BF74C6 /* SoundFontsPlusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoundFontsPlusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		BDF653912EB3569700BF74C6 /* SoundFontsPlusTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SoundFontsPlusTests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		BD1D277C2B6F13DD005C3ED0 /* Frameworks */ = {
@@ -112,6 +127,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BDF6538D2EB3569700BF74C6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -125,6 +147,7 @@
 				BD7DBC892DF36955005A31DE /* Development.xcconfig */,
 				BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */,
 				BD1D27812B6F13DD005C3ED0 /* SoundFontsPlus */,
+				BDF653912EB3569700BF74C6 /* SoundFontsPlusTests */,
 				BD1D27802B6F13DD005C3ED0 /* Products */,
 				BD6E7D9F2B6FC319004201F2 /* Frameworks */,
 			);
@@ -134,6 +157,7 @@
 			isa = PBXGroup;
 			children = (
 				BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */,
+				BDF653902EB3569700BF74C6 /* SoundFontsPlusTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -220,6 +244,29 @@
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */;
 			productType = "com.apple.product-type.application";
 		};
+		BDF6538F2EB3569700BF74C6 /* SoundFontsPlusTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BDF653982EB3569700BF74C6 /* Build configuration list for PBXNativeTarget "SoundFontsPlusTests" */;
+			buildPhases = (
+				BDF6538C2EB3569700BF74C6 /* Sources */,
+				BDF6538D2EB3569700BF74C6 /* Frameworks */,
+				BDF6538E2EB3569700BF74C6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BDF653952EB3569700BF74C6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BDF653912EB3569700BF74C6 /* SoundFontsPlusTests */,
+			);
+			name = SoundFontsPlusTests;
+			packageProductDependencies = (
+			);
+			productName = SoundFontsPlusTests;
+			productReference = BDF653902EB3569700BF74C6 /* SoundFontsPlusTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -227,11 +274,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					BD1D277E2B6F13DD005C3ED0 = {
 						CreatedOnToolsVersion = 15.2;
+					};
+					BDF6538F2EB3569700BF74C6 = {
+						CreatedOnToolsVersion = 26.1;
+						TestTargetID = BD1D277E2B6F13DD005C3ED0;
 					};
 				};
 			};
@@ -251,6 +302,7 @@
 			projectRoot = "";
 			targets = (
 				BD1D277E2B6F13DD005C3ED0 /* SoundFontsPlus */,
+				BDF6538F2EB3569700BF74C6 /* SoundFontsPlusTests */,
 			);
 		};
 /* End PBXProject section */
@@ -268,6 +320,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BDF6538E2EB3569700BF74C6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -279,7 +338,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BDF6538C2EB3569700BF74C6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BDF653952EB3569700BF74C6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BD1D277E2B6F13DD005C3ED0 /* SoundFontsPlus */;
+			targetProxy = BDF653942EB3569700BF74C6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		BD1D27A52B6F13DE005C3ED0 /* Debug */ = {
@@ -527,6 +601,57 @@
 			};
 			name = Release;
 		};
+		BDF653962EB3569700BF74C6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UP6SS5ES7E;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.braysoftware.SoundFontsPlusTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SoundFontsPlus.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SoundFontsPlus";
+			};
+			name = Debug;
+		};
+		BDF653972EB3569700BF74C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UP6SS5ES7E;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.braysoftware.SoundFontsPlusTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SoundFontsPlus.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SoundFontsPlus";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -544,6 +669,15 @@
 			buildConfigurations = (
 				BD1D27A82B6F13DE005C3ED0 /* Debug */,
 				BD1D27A92B6F13DE005C3ED0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BDF653982EB3569700BF74C6 /* Build configuration list for PBXNativeTarget "SoundFontsPlusTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BDF653962EB3569700BF74C6 /* Debug */,
+				BDF653972EB3569700BF74C6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
