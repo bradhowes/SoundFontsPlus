@@ -40,18 +40,15 @@ public struct FileImporter {
 
   public init() {}
 
+  @Dependency(\.fileManager) private var fileManager
+  @Dependency(\.dismiss) private var dismiss
+
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
 
       case .filePickerCancelled:
         state.showChooser = false
-        return .none
-
-      case .destination(.presented(.alert(.importDuplicateFileConfirmed))):
-        return .none
-
-      case .destination:
         return .none
 
       case let .filePicked(result):
@@ -61,13 +58,13 @@ public struct FileImporter {
       case .showFileImporter:
         state.showChooser = true
         return .none
+
+      default:
+        return .none
       }
     }
     .ifLet(\.destination, action: \.destination)
   }
-
-  @Dependency(\.fileManager) private var fileManager
-  @Dependency(\.dismiss) private var dismiss
 }
 
 extension FileImporter {
@@ -89,20 +86,24 @@ extension FileImporter {
   }
 
   private func importFile(_ state: inout State, displayName: String, url: URL) -> Effect<Action> {
+    if !validateSoundFont(url: url) {
+      log.info("invalid SF2 file")
+      state.destination = .alert(.invalidSoundFontFormat(displayName: displayName))
+      return .none
+    }
+
     do {
-      guard let kind = try placeSoundFont(&state, displayName: displayName, source: url) else {
-        return .none
-      }
+      let kind = try placeSoundFont(&state, displayName: displayName, source: url)
       _ = try SoundFont.add(displayName: displayName, soundFontKind: kind)
+      state.destination = .alert(.addedSummary(displayName: displayName))
+      return .none
     } catch CocoaError.fileWriteFileExists {
-      state.destination = .alert(.continueWithDuplicateFile(url: url, action: .importDuplicateFileConfirmed))
+      state.destination = .alert(.fileAlreadyImported(url: url))
+      return .none
     } catch {
       state.destination = .alert(.genericFailureToImport(displayName: displayName, error: error))
       return .none
     }
-
-    state.destination = .alert(.addedSummary(displayName: displayName))
-    return .none
   }
 
   private func validateSoundFont(url: URL) -> Bool {
@@ -112,38 +113,23 @@ extension FileImporter {
     return fileInfo.load()
   }
 
-  private func placeSoundFont(_ state: inout State, displayName: String, source: URL) throws -> SoundFontKind? {
+  private func placeSoundFont(_ state: inout State, displayName: String, source: URL) throws -> SoundFontKind {
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
+
     let location: SoundFontKind
     if copyFileWhenInstalling {
       log.info("copying file to app folder")
-      guard let destination = try copyToSharedFolder(&state, displayName: displayName, source: source) else {
-        log.info("copying failed")
-        return nil
-      }
-
-      if !validateSoundFont(url: destination) {
-        log.info("invalid SF2 file")
-        state.destination = .alert(.invalidSoundFontFormat(displayName: displayName))
-        return nil
-      }
-
+      let destination = try copyToSharedFolder(&state, displayName: displayName, source: source)
       location = .installed(file: destination)
     } else {
       log.info("using external file")
-      if !validateSoundFont(url: source) {
-        log.info("invalid SF2 file")
-        state.destination = .alert(.invalidSoundFontFormat(displayName: displayName))
-        return nil
-      }
-
       let bookmark = Bookmark(url: source, name: displayName)
       location = .external(bookmark: bookmark)
     }
     return location
   }
 
-  private func copyToSharedFolder(_ state: inout State, displayName: String, source: URL) throws -> URL? {
+  private func copyToSharedFolder(_ state: inout State, displayName: String, source: URL) throws -> URL {
     let accessing = source.startAccessingSecurityScopedResource()
     defer { if accessing { source.stopAccessingSecurityScopedResource() } }
 
@@ -159,3 +145,4 @@ extension FileImporter.Destination.Action: Equatable {}
 extension FileImporter.Destination.State: _EphemeralState {
   public typealias Action = Alert
 }
+

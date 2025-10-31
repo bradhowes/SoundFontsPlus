@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import FeatureSupport
+import FileImporter
 import Keyboard
 import MIDIAssignments
 import MIDIConnections

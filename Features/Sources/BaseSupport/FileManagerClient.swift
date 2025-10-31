@@ -20,7 +20,7 @@ public struct FileManagerClient: Sendable {
 extension FileManagerClient: DependencyKey {
 
   /// Mapping of FileManager functionality to use in "live" situations. Note that there is no state here in order 
-  /// to satisfy Sendable conformance.0
+  /// to satisfy Sendable conformance.
   public static var liveValue: FileManagerClient {
     .init(
       hasCloudDirectory: { FileManager.default.hasCloudDirectory },

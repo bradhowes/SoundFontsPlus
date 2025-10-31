@@ -18,22 +18,34 @@ extension AlertState {
     }
   }
 
-  static func continueWithDuplicateFile(url: URL, action: Action) -> Self {
+  static func fileAlreadyImported(url: URL) -> Self {
     Self {
-      TextState("Duplicate File")
+      TextState("Already Imported")
     } actions: {
-      ButtonState(action: action) {
-        TextState("Continue")
-      }
       ButtonState(role: .cancel) {
-        TextState("Cancel")
+        TextState("OK")
       }
     } message: {
       let baseName = url.lastPathComponent
       return TextState(
       """
-      The file "\(baseName)" already exists. \
-      You can continue to add it, but you may see duplicate entries.
+      The file "\(baseName)" already exists in the collection.
+      """
+      )
+    }
+  }
+
+  static func failedToCopy(displayName: String) -> Self {
+    Self {
+      TextState("Failed to Copy")
+    } actions: {
+      ButtonState(role: .cancel) {
+        TextState("OK")
+      }
+    } message: {
+      return TextState(
+      """
+      Failed to copy "\(displayName)" to application folder.
       """
       )
     }
@@ -86,8 +98,8 @@ private struct AlertDemo {
     @CasePathable
     fileprivate enum Alert {
       case addedSummary
-      case continueWithDuplicateFile
       case failedToPick
+      case fileAlreadyImported
       case genericFailureToImport
       case invalidSoundFontFormat
     }
@@ -102,9 +114,9 @@ private struct AlertDemo {
   fileprivate enum Action {
     case addedSummary
     case beginTapped
-    case continueWithDuplicateFile
     case destination(PresentationAction<Destination.Action>)
     case failedToPick
+    case fileAlreadyImported
     case fileImporter(FileImporter.Action)
     case genericFailureToImport
     case invalidSoundFontFormat
@@ -126,14 +138,6 @@ private struct AlertDemo {
         state.fileImporter.showChooser = true
         return .none
 
-      case .continueWithDuplicateFile:
-        state.destination = .alert(AlertState<Destination.Alert>.continueWithDuplicateFile(
-          // swiftlint:disable:next force_unwrapping
-          url: URL(filePath: "file://one/two/three.sf2")!,
-          action: Destination.Alert.continueWithDuplicateFile
-        ))
-        return .none
-
       case .destination(.presented(.alert)):
         return .none
 
@@ -142,6 +146,13 @@ private struct AlertDemo {
 
       case .failedToPick:
         state.destination = .alert(.failedToPick(error: ModelError.invalidLocation(name: "blah")))
+        return .none
+
+      case .fileAlreadyImported:
+        state.destination = .alert(.fileAlreadyImported(
+          // swiftlint:disable:next force_unwrapping
+          url: URL(filePath: "file://one/two/three.sf2")!
+        ))
         return .none
 
       case .fileImporter:
@@ -184,9 +195,9 @@ private struct AlertDemoView: View {
         Text("Added Summary")
       }
       Button {
-        store.send(.continueWithDuplicateFile)
+        store.send(.fileAlreadyImported)
       } label: {
-        Text("Continue with Dup File")
+        Text("Already Imported")
       }
       Button {
         store.send(.failedToPick)

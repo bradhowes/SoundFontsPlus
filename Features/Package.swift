@@ -112,6 +112,7 @@ let package = Package(
       "Settings",
       dependencies: [
         "Keyboard",
+        "FileImporter",
         "MIDIAssignments",
         "MIDIConnections",
         "MIDIControllers",
