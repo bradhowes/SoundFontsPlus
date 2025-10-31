@@ -199,7 +199,9 @@ extension SoundFont {
 
 extension SoundFont {
 
-  public func source() throws -> SoundFontKind { try SoundFontKind(kind: kind, location: location) }
+  public func source() throws -> SoundFontKind {
+    try SoundFontKind(kind: kind, location: location, displayName: self.displayName)
+  }
 
   public var sourceKind: String { (try? source())?.description ?? "N/A" }
 

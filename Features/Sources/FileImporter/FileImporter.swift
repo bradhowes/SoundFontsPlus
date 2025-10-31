@@ -4,7 +4,7 @@ import Engine
 import FeatureSupport
 import UniformTypeIdentifiers
 
-private let log = Logger(category: "FileImporterFeature")
+private let log = Logger(category: "FileImporter")
 
 @Reducer
 public struct FileImporter {
@@ -45,6 +45,8 @@ public struct FileImporter {
 
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
+      log.debug("action: \(action)")
+
       switch action {
 
       case .filePickerCancelled:
@@ -132,7 +134,7 @@ extension FileImporter {
   private func copyToSharedFolder(_ state: inout State, displayName: String, source: URL) throws -> URL {
     let accessing = source.startAccessingSecurityScopedResource()
     defer { if accessing { source.stopAccessingSecurityScopedResource() } }
-
+    log.info("copying \(source) to \(fileManager.sharedDocumentsDirectory())")
     let destination = fileManager.sharedDocumentsDirectory().appendingPathComponent(source.lastPathComponent)
     try fileManager.copyItem(source, destination)
 

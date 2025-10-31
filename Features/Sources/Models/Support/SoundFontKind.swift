@@ -6,13 +6,6 @@ import Engine
 import Foundation
 import os
 
-/// Various error conditions for loading or working with a sound font (SF2) file
-public enum SoundFontKindError: Error {
-  case invalidKind
-  case failedToRead
-  case failedToResolveURL
-}
-
 /// Indicators for the various types of SoundFont installs
 public enum SoundFontKind: Equatable {
 
@@ -28,10 +21,10 @@ public enum SoundFontKind: Equatable {
   /// is not currently available.
   case external(bookmark: Bookmark)
 
-  public init(kind: SoundFont.Kind, location: Data) throws {
+  public init(kind: SoundFont.Kind, location: Data, displayName: String) throws {
     switch kind {
-    case .builtin: self = try .builtin(resource: dataToUrl(location))
-    case .installed: self = try .installed(file: dataToUrl(location))
+    case .builtin: self = try .builtin(resource: dataToUrl(location, displayName: displayName))
+    case .installed: self = try .installed(file: dataToUrl(location, displayName: displayName))
     case .external: self = try .external(bookmark: Bookmark.from(data: location))
     }
   }
@@ -109,16 +102,16 @@ extension SoundFontKind {
   private func fileInfo(from url: URL) throws -> SF2FileInfo {
     var fileInfo = SF2FileInfo(std.string(url.path(percentEncoded: false)))
     guard fileInfo.load() else {
-      throw ModelError.loadFailure(name: url.absoluteString)
+      throw ModelError.loadFailure(url: url)
     }
     return fileInfo
   }
 }
 
-private func dataToUrl(_ data: Data) throws -> URL {
+private func dataToUrl(_ data: Data, displayName: String) throws -> URL {
   guard let path = String(data: data, encoding: .utf8),
         let url = URL(string: path, encodingInvalidCharacters: false) else {
-    throw ModelError.dataIsNotValidURL(data: data)
+    throw ModelError.dataIsNotValidURL(data: data, displayName: displayName)
   }
   return url
 }

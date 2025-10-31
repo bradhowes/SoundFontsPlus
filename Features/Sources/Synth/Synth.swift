@@ -354,7 +354,11 @@ extension Synth {
       log.info("useActivePreset - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
       result = synth.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
     } else {
-      guard let location = try? SoundFontKind(kind: presetInfo.kind, location: presetInfo.location)
+      guard let location = try? SoundFontKind(
+        kind: presetInfo.kind,
+        location: presetInfo.location,
+        displayName: presetInfo.soundFontName
+      )
       else {
         log.error("useActivePreset END - unexpected nil location for \(presetInfo)")
         return .none

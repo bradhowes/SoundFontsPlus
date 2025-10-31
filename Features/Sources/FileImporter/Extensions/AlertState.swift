@@ -145,7 +145,7 @@ private struct AlertDemo {
         return .none
 
       case .failedToPick:
-        state.destination = .alert(.failedToPick(error: ModelError.invalidLocation(name: "blah")))
+        state.destination = .alert(.failedToPick(error: ModelError.loadFailure(url: URL(filePath: "blah")!)))
         return .none
 
       case .fileAlreadyImported:
@@ -161,7 +161,7 @@ private struct AlertDemo {
       case .genericFailureToImport:
         state.destination = .alert(.genericFailureToImport(
           displayName: "Foo Bar",
-          error: ModelError.failedToSave(name: "Blahblahblah")
+          error: ModelError.loadFailure(url: URL(filePath: "blah")!)
         ))
         return .none
 

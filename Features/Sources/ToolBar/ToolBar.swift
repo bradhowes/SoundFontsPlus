@@ -109,6 +109,8 @@ public struct ToolBar {
     Scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator) { MIDITrafficIndicator() }
 
     Reduce<State, Action> { state, action in
+      log.info("action: \(action)")
+
       switch action {
 
       case .activePresetIdChanged(let presetId):

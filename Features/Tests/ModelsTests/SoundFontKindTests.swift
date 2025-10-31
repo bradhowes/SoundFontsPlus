@@ -19,7 +19,7 @@ struct SoundFontKindTests {
     let (kind, data) = try sfk.data()
     #expect(sfk.description == "built-in")
     #expect(sfk.path == SF2ResourceTag.freeFont.url)
-    let back = try SoundFontKind(kind: kind, location: data)
+    let back = try SoundFontKind(kind: kind, location: data, displayName: "blah")
     #expect(sfk == back)
 
     let fileInfo = try back.fileInfo()
@@ -33,7 +33,7 @@ struct SoundFontKindTests {
   @Test func installed() async throws {
     let builtin = SoundFontKind.builtin(resource: SF2ResourceTag.freeFont.url)
     let (_, data) = try builtin.data()
-    let sfk = try SoundFontKind(kind: .installed, location: data)
+    let sfk = try SoundFontKind(kind: .installed, location: data, displayName: "blah")
     #expect(!sfk.isBuiltin)
     #expect(sfk.isInstalled)
     #expect(!sfk.isExternal)
@@ -53,7 +53,7 @@ struct SoundFontKindTests {
     let url = SF2ResourceTag.freeFont.url
     let bookmark = Bookmark(url: url, name: SF2ResourceTag.freeFont.name)
     let data = try bookmark.toData()
-    let sfk = try SoundFontKind(kind: .external, location: data)
+    let sfk = try SoundFontKind(kind: .external, location: data, displayName: "blah")
     #expect(!sfk.isBuiltin)
     #expect(!sfk.isInstalled)
     #expect(sfk.isExternal)
@@ -72,15 +72,15 @@ struct SoundFontKindTests {
   @Test func fileInfo() throws {
     let url = SF2ResourceTag.freeFont.url.appendingPathComponent(".bogus")
     let sfk = SoundFontKind.builtin(resource: url)
-    #expect(throws: ModelError.loadFailure(name: url.absoluteString)) {
+    #expect(throws: ModelError.loadFailure(url: url)) {
       try sfk.fileInfo()
     }
   }
 
   @Test func dataToUrl() throws {
     let data = Data(count: 0)
-    #expect(throws: ModelError.dataIsNotValidURL(data: data)) {
-      try SoundFontKind(kind: .builtin, location: data)
+    #expect(throws: ModelError.dataIsNotValidURL(data: data, displayName: "blah")) {
+      try SoundFontKind(kind: .builtin, location: data, displayName: "blah")
     }
   }
 }

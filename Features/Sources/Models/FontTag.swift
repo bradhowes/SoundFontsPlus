@@ -132,7 +132,7 @@ extension FontTag {
   }
 
   public static func delete(id: FontTag.ID) throws {
-    guard id.isUserDefined else { throw ModelError.deleteUbiquitous(name: id.displayName) }
+    guard id.isUserDefined else { throw ModelError.deleteUbiquitous(name: id.displayName ?? "???") }
     withDatabaseWriter {
       try Self.delete()
         .where { $0.id.eq(id) }
