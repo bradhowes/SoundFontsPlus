@@ -11,7 +11,7 @@ import TestSupport
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
+    $0.defaultDatabase = TestSupport.testDatabase()
   }
 )
 @MainActor
@@ -145,13 +145,19 @@ struct MIDIConnectionsTests {
     }
   }
 
-  @Test func previewAutoConnect() async throws {
+  @Test(
+    .dependencies { _ in }
+  )
+  func previewAutoConnect() async throws {
     try withSnapshotTesting(record: .failed) {
       try TestSupport.assertSnapshot(matching: MIDIConnectionsView.preview)
     }
   }
 
-  @Test func previewNoAutoConnect() async throws {
+  @Test(
+    .dependencies { _ in }
+  )
+  func previewNoAutoConnect() async throws {
     @Shared(.midiAutoConnect) var midiAutoConnect = false
     try withSnapshotTesting(record: .failed) {
       try TestSupport.assertSnapshot(matching: MIDIConnectionsView.preview)

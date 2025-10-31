@@ -9,7 +9,7 @@ import TestSupport
 @testable import Presets
 
 @Suite(
-  .dependency(\.defaultDatabase, try appDatabase()),
+  .dependency(\.defaultDatabase, TestSupport.testDatabase(seeder: TestSupport.addMockPresets)),
   .snapshots(record: .failed)
 )
 @MainActor

@@ -10,7 +10,7 @@ import TestSupport
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
+    $0.defaultDatabase = TestSupport.testDatabase()
   },
   .snapshots(record: .failed)
 )
@@ -33,7 +33,7 @@ struct SoundFontsListTests {
     await store.receive(\.soundFontInfosChanged)
     store.exhaustivity = .on
 
-    #expect(store.state.rows.count == 4)
+    #expect(store.state.rows.count == 2)
 
     await store.send(.deinitialize)
     await store.finish()
@@ -121,7 +121,7 @@ struct SoundFontsListTests {
 
     let deleted = oldRows.remove(id: row.id)
     #expect(deleted != nil)
-    #expect(deleted?.soundFontInfo.displayName == "FreeFont")
+    #expect(deleted?.soundFontInfo.displayName == "Font 2")
 
     await store.receive(\.soundFontInfosChanged) {
       $0.rows = oldRows

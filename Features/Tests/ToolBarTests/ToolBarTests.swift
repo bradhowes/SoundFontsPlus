@@ -10,7 +10,6 @@ import TestSupport
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
     $0.continuousClock = TestClock()
   },
   .snapshots(record: .failed)
@@ -37,7 +36,10 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func activePresetIdChanged() async throws {
+  @Test(
+    .dependencies { $0.defaultDatabase = TestSupport.testDatabase() }
+  )
+  func activePresetIdChanged() async throws {
     @Shared(.activeState) var activeState
     let store = try await store()
     await store.send(.initialize)
@@ -48,9 +50,9 @@ struct ToolBarTests {
         index: 1,
         bank: 0,
         program: 1,
-        originalName: "Bright Yamaha Grand",
+        originalName: "Original Preset 2",
         soundFontId: Tagged(rawValue: 1),
-        displayName: "Bright Yamaha Grand",
+        displayName: "Font 1 Preset 2",
         notes: "",
         kind: .preset
       )
@@ -176,7 +178,10 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func monitorActiveVoiceCount() async throws {
+  @Test(
+    .dependencies { $0.defaultDatabase = TestSupport.testDatabase() }
+  )
+  func monitorActiveVoiceCount() async throws {
     @Shared(.synthAudioUnit) var synthAudioUnit
     let synth = try await SF2LibAU.create()
     $synthAudioUnit.withLock { $0 = synth }
@@ -335,7 +340,10 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func preview() async throws {
+  @Test(
+    .dependencies { $0.defaultDatabase = TestSupport.testDatabase() }
+  )
+  func preview() async throws {
     @Shared(.activeState) var activeState = .default
     try TestSupport.assertSnapshot(matching: ToolBarView.preview)
   }

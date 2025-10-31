@@ -15,7 +15,7 @@ import TestSupport
   .dependencies {
     let mockVolume = OutputVolumeFlipFlop()
     $0.outputVolume = mockVolume.makeOutputVolume()
-    $0.defaultDatabase = try appDatabase()
+    $0.defaultDatabase = TestSupport.testDatabase()
     $0.mainQueue = .immediate
     $0.audioGraph = .previewValue
     $0.audioSession = .liveValue

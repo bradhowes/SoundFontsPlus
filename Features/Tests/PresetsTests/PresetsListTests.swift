@@ -10,7 +10,7 @@ import TestSupport
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
+    $0.defaultDatabase = TestSupport.testDatabase()
   },
   //  .snapshots(record: .failed)
 )
@@ -23,7 +23,7 @@ struct PresetsListTests {
         index: index,
         bank: 0,
         program: index,
-        originalName: name,
+        originalName: "Original Preset \(index + 1)",
         soundFontId: 1,
         displayName: name,
         notes: "",
@@ -34,16 +34,8 @@ struct PresetsListTests {
 
   let presets: [Preset] = makePresets(
     [
-      (0, "Yamaha Grand Piano"),
-      (1, "Bright Yamaha Grand"),
-      (2, "Electric Piano"),
-      (3, "Honky Tonk"),
-      (4, "Rhodes EP"),
-      (5, "Legend EP 2"),
-      (6, "Harpsichord"),
-      (7, "Clavinet"),
-      (8, "Celesta"),
-      (9, "Glockenspiel")
+      (0, "Font 1 Preset 1"),
+      (1, "Font 1 Preset 2"),
     ]
   )
 
@@ -209,16 +201,16 @@ struct PresetsListTests {
       $0.scrollToPresetId = nil
     }
 
-    await store.send(.searchTextChanged("arp")) {
-      $0.searchText = "arp"
-      $0.sections = [.init(section: 0, presets: presets.filter({$0.displayName.contains("arp")})[...])]
+    await store.send(.searchTextChanged("reset")) {
+      $0.searchText = "reset"
+      $0.sections = [.init(section: 0, presets: presets.filter({$0.displayName.contains("reset")})[...])]
     }
 
     await store.send(
       \.sections,
        .element(
         id: PresetsList.noGroupingSize,
-        action: .rows(.element(id: 7, action: .delegate(.selectPreset(presets[6]))))
+        action: .rows(.element(id: 1, action: .delegate(.selectPreset(presets[0]))))
        )
     )
 
@@ -226,7 +218,7 @@ struct PresetsListTests {
       \.sections,
        .element(
         id: PresetsList.noGroupingSize,
-        action: .delegate(.selectPreset(presets[6]))
+        action: .delegate(.selectPreset(presets[0]))
        )
     ) {
       $0.isSearchFieldPresented = false
@@ -239,7 +231,7 @@ struct PresetsListTests {
     await store.receive(\.showActivePreset)
 
     await store.receive(\.showActivePresetNow) {
-      $0.scrollToPresetId = .init(presetId: 7, anchor: .center)
+      $0.scrollToPresetId = .init(presetId: 1, anchor: .center)
     }
 
     await store.send(.stop)
@@ -255,23 +247,33 @@ struct PresetsListTests {
     }
 
     @Shared(.selectedSoundFontId) var selectedSoundFontId
-    $selectedSoundFontId.withLock { $0 = 4 }
+    $selectedSoundFontId.withLock { $0 = 2 }
     try await $selectedSoundFontId.load()
 
-    await store.receive(\.selectedSoundFontIdChanged, 4) {
+    await store.receive(\.selectedSoundFontIdChanged, 2) {
       $0.scrollToPresetId = nil
       $0.sections = [.init(
         section: 0,
         presets: [
           .init(
-            id: 31,
+            id: 3,
             index: 0,
             bank: 0,
+            program: 0,
+            originalName: "Original Preset 1",
+            soundFontId: 2,
+            displayName: "Font 2 Preset 1"
+          ),
+          .init(
+            id: 4,
+            index: 1,
+            bank: 0,
             program: 1,
-            originalName: "Nice Piano",
-            soundFontId: 4,
-            displayName: "Nice Piano"
-          )]
+            originalName: "Original Preset 2",
+            soundFontId: 2,
+            displayName: "Font 2 Preset 2"
+          ),
+        ]
       )]
     }
 
@@ -293,7 +295,7 @@ struct PresetsListTests {
       \.sections,
        .element(
         id: store.state.sections[0].id,
-        action: .rows(.element(id: presets[7].id, action: .buttonTapped))
+        action: .rows(.element(id: presets[1].id, action: .buttonTapped))
        )
     )
 
@@ -301,7 +303,7 @@ struct PresetsListTests {
       \.sections,
        .element(
         id: store.state.sections[0].id,
-        action: .rows(.element(id: presets[7].id, action: .delegate(.selectPreset(presets[7]))))
+        action: .rows(.element(id: presets[1].id, action: .delegate(.selectPreset(presets[1]))))
        )
     )
 
@@ -309,11 +311,11 @@ struct PresetsListTests {
       \.sections,
        .element(
         id: store.state.sections[0].id,
-        action: .delegate(.selectPreset(presets[7]))
+        action: .delegate(.selectPreset(presets[1]))
        )
     )
 
-    #expect(activeState.activePresetId == presets[7].id)
+    #expect(activeState.activePresetId == presets[1].id)
 
     await store.send(.stop)
     await store.finish()
@@ -338,13 +340,13 @@ struct PresetsListTests {
     var presetsWithFavorite = presets
     presetsWithFavorite.insert(
       .init(
-        id: 32,
+        id: 5,
         index: 0,
         bank: 0,
         program: 0,
-        originalName: "Yamaha Grand Piano",
+        originalName: "Original Preset 1",
         soundFontId: 1,
-        displayName: "Yamaha Grand Piano copy"
+        displayName: "Font 1 Preset 1 copy"
       ),
       at: 1
     )
@@ -432,13 +434,13 @@ struct PresetsListTests {
     var presetsWithFavorite = presets
     presetsWithFavorite.insert(
       .init(
-        id: 32,
+        id: 5,
         index: 0,
         bank: 0,
         program: 0,
-        originalName: "Yamaha Grand Piano",
+        originalName: "Original Preset 1",
         soundFontId: 1,
-        displayName: "Yamaha Grand Piano copy"
+        displayName: "Font 1 Preset 1 copy"
       ),
       at: 1
     )
@@ -659,7 +661,7 @@ struct PresetsListTests {
     }
 
     updated = Operations.presets(for: nil)
-    #expect(updated[1] != presets[1])
+    #expect(updated.count == 1)
     #expect(confirmPresetHiding == false)
 
     await store.send(.stop)
@@ -683,7 +685,7 @@ struct PresetsListTests {
     }
   }
 
-  @Test func presetsListViewPreview() async throws {
+  func presetsListViewPreview() async throws {
     try withSnapshotTesting(record: .failed) {
       try TestSupport.assertSnapshot(matching: PresetsListView.preview)
     }

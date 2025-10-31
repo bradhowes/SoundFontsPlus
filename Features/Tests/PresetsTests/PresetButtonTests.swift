@@ -69,7 +69,7 @@ struct PresetButtonTests {
   }
 
   @Test(
-    .dependencies { $0.defaultDatabase = try appDatabase() }
+    .dependencies { $0.defaultDatabase = TestSupport.testDatabase(seeder: TestSupport.addMockPresets) }
   )
   func toggleVisibility() async throws {
     let store = store()

@@ -2,13 +2,115 @@
 
 import BaseSupport
 import Foundation
+import Models
+import SF2Resources
+import SQLiteData
 import SnapshotTesting
 import SwiftUI
 import Testing
 
 public enum TestSupport {
-
   static let log = Logger(category: "TestSupport")
+
+  public static func testDatabase(seeder: ((Database) throws -> Void)? = addMockPresets) -> any DatabaseWriter {
+    try! appDatabase(addBuiltInFonts: false, loadAllPresets: false, seeder: seeder)
+  }
+}
+
+extension TestSupport {
+
+  public static func addMockPresets(_ db: Database) throws {
+    let font1 = try SoundFontKind.builtin(resource: SF2ResourceTag.fluidFont.url).data()
+    let font2 = try SoundFontKind.builtin(resource: SF2ResourceTag.freeFont.url).data()
+
+    try SoundFont.insert {
+      SoundFont.Draft(
+        displayName: "Font 1",
+        kind: font1.0,
+        location: font1.1,
+        originalName: "Original Font 1",
+        embeddedName: "Embedded Font 1",
+        embeddedComment: "",
+        embeddedAuthor: "",
+        embeddedCopyright: "",
+        notes: "",
+      )
+      SoundFont.Draft(
+        displayName: "Font 2",
+        kind: font2.0,
+        location: font2.1,
+        originalName: "Original Font 1",
+        embeddedName: "Embedded Font 1",
+        embeddedComment: "",
+        embeddedAuthor: "",
+        embeddedCopyright: "",
+        notes: "",
+      )
+    }.execute(db)
+    try Preset.insert {
+      Preset.Draft(
+        index: 0,
+        bank: 0,
+        program: 0,
+        originalName: "Original Preset 1",
+        soundFontId: 1,
+        displayName: "Font 1 Preset 1",
+        notes: "",
+        kind: .preset
+      )
+      Preset.Draft(
+        index: 1,
+        bank: 0,
+        program: 1,
+        originalName: "Original Preset 2",
+        soundFontId: 1,
+        displayName: "Font 1 Preset 2",
+        notes: "",
+        kind: .preset
+      )
+      Preset.Draft(
+        index: 0,
+        bank: 0,
+        program: 0,
+        originalName: "Original Preset 1",
+        soundFontId: 2,
+        displayName: "Font 2 Preset 1",
+        notes: "",
+        kind: .preset
+      )
+      Preset.Draft(
+        index: 1,
+        bank: 0,
+        program: 1,
+        originalName: "Original Preset 2",
+        soundFontId: 2,
+        displayName: "Font 2 Preset 2",
+        notes: "",
+        kind: .preset
+      )
+    }.execute(db)
+    try TaggedSoundFont.insert {
+      TaggedSoundFont(
+        soundFontId: 1,
+        tagId: 1
+      )
+      TaggedSoundFont(
+        soundFontId: 2,
+        tagId: 1
+      )
+      TaggedSoundFont(
+        soundFontId: 1,
+        tagId: 2
+      )
+      TaggedSoundFont(
+        soundFontId: 2,
+        tagId: 2
+      )
+    }.execute(db)
+  }
+}
+
+extension TestSupport {
 
   public enum SnapshotConfig {
     case portrait

@@ -11,7 +11,7 @@ import TestSupport
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
+    $0.defaultDatabase = TestSupport.testDatabase()
   },
   .snapshots(record: .failed)
 )
@@ -27,13 +27,13 @@ struct SoundFontEditorTests {
 
   @Test func cancelButtonTapped() async {
     let store = store()
-    #expect(store.state.displayName == "Fluid R3")
+    #expect(store.state.displayName == "Font 1")
     await store.send(.displayNameChanged("blah")) {
       $0.displayName = "blah"
     }
     await store.send(.cancelButtonTapped)
     let soundFont = SoundFont.with(id: 1)
-    #expect(soundFont?.displayName == "Fluid R3")
+    #expect(soundFont?.displayName == "Font 1")
   }
 
   @Test func changeTagsButtonTapped() async {
@@ -82,12 +82,12 @@ struct SoundFontEditorTests {
 
     var presets = Operations.presets(for: soundFontId)
     #expect(presets[0].kind == .preset)
-    #expect(presets[0].displayName == "Yamaha Grand Piano")
+    #expect(presets[0].displayName == "Font 1 Preset 1")
 
     presets[0].toggleVisibility()
 
     presets = Operations.presets(for: soundFontId)
-    #expect(presets[0].displayName == "Bright Yamaha Grand")
+    #expect(presets[0].displayName == "Font 1 Preset 2")
 
     await store.send(.unhideAllButtonTapped) {
       $0.destination = .alert(.confirmShowHiddenPresets(action: .showHiddenPresetsConfirmed))
@@ -100,7 +100,7 @@ struct SoundFontEditorTests {
     await store.receive(\.delegate.refreshPresets)
 
     presets = Operations.presets(for: soundFontId)
-    #expect(presets[0].displayName == "Yamaha Grand Piano")
+    #expect(presets[0].displayName == "Font 1 Preset 1")
   }
 
   @Test func saveButtonTapped() async throws {
@@ -122,7 +122,7 @@ struct SoundFontEditorTests {
       $0.displayName = "blah"
     }
     await store.send(.useEmbeddedNameTapped) {
-      $0.displayName = "Fluid R3 GM"
+      $0.displayName = "Embedded Font 1"
     }
   }
 
@@ -132,7 +132,7 @@ struct SoundFontEditorTests {
       $0.displayName = "blah"
     }
     await store.send(.useOriginalNameTapped) {
-      $0.displayName = "Fluid R3"
+      $0.displayName = "Original Font 1"
     }
   }
 

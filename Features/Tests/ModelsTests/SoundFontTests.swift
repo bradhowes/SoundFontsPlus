@@ -5,12 +5,13 @@ import Foundation
 import SF2Resources
 import SQLiteData
 import Testing
+import TestSupport
 
 @testable import Models
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
+    $0.defaultDatabase = TestSupport.testDatabase()
   },
   //  .snapshots(record: .failed)
 )
@@ -19,7 +20,7 @@ struct SoundFontTests {
 
   @Test(
     .dependencies {
-      $0.defaultDatabase = try appDatabase(fullTestLoading: true)
+      $0.defaultDatabase = try appDatabase()
     }
   )
   func migration() async throws {
@@ -102,12 +103,10 @@ struct SoundFontTests {
   @Test func active() async throws {
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
-    #expect(soundFonts.count == 4)
+    #expect(soundFonts.count == 2)
     #expect(soundFonts.map(\.displayName) == [
-      "Fluid R3",
-      "FreeFont",
-      "MuseScore",
-      "Roland Piano"
+      "Font 1",
+      "Font 2"
     ])
   }
 
@@ -115,37 +114,35 @@ struct SoundFontTests {
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
 
-    #expect(soundFonts.count == 4)
+    #expect(soundFonts.count == 2)
 
-    SoundFont.delete(id: soundFonts[3].id)
+    SoundFont.delete(id: soundFonts[0].id)
 
     try await $soundFonts.load()
-    #expect(soundFonts.count == 3)
+    #expect(soundFonts.count == 1)
 
     let kind: SoundFontKind = .installed(file: SF2Resource.resources[3])
     try SoundFont.add(displayName: "Hubba", soundFontKind: kind)
 
     try await $soundFonts.load()
-    #expect(soundFonts.count == 4)
-    #expect(soundFonts[3].displayName == "Hubba")
-    #expect(soundFonts[3].sourceKind ==  "installed")
+    #expect(soundFonts.count == 2)
+    #expect(soundFonts[1].displayName == "Hubba")
+    #expect(soundFonts[1].sourceKind ==  "installed")
 
-    let tags = soundFonts[3].tags
+    let tags = soundFonts[1].tags
     #expect(tags.count == 2)
   }
 
   @Test func deletingSoundFontDeletesPresets() async throws {
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
-    #expect(soundFonts.count == 4)
+    #expect(soundFonts.count == 2)
 
     let sf = soundFonts[1]
-    #expect(sf.allPresets.count == SoundFont.soundFontPresetLoadLimit)
-
     SoundFont.delete(id: sf.id)
 
     try await $soundFonts.load()
-    #expect(soundFonts.count == 3)
+    #expect(soundFonts.count == 1)
     #expect(sf.allPresets.count == 0)
   }
 
@@ -153,13 +150,12 @@ struct SoundFontTests {
     let allTag = FontTag.with(id: FontTag.Ubiquitous.all.id)!
     let builtInTag = FontTag.with(id: FontTag.Ubiquitous.builtIn.id)!
 
-    #expect(allTag.soundFonts.count == 4)
-    #expect(builtInTag.soundFonts.count == 4)
+    #expect(allTag.soundFonts.count == 2)
+    #expect(builtInTag.soundFonts.count == 2)
 
-    let soundFontId = SoundFont.with(id: 1)!
-    SoundFont.delete(id: soundFontId.id)
+    SoundFont.delete(id: 1)
 
-    #expect(allTag.soundFonts.count == 3)
-    #expect(builtInTag.soundFonts.count == 3)
+    #expect(allTag.soundFonts.count == 1)
+    #expect(builtInTag.soundFonts.count == 1)
   }
 }

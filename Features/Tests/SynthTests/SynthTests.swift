@@ -13,12 +13,13 @@ import Sharing
 import SnapshotTesting
 import SwiftUI
 import Testing
+import TestSupport
 
 @testable import Synth
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
+    $0.defaultDatabase = TestSupport.testDatabase()
     // TODO: use mock here
     $0.audioGraph = .liveValue
     $0.audioSession = .liveValue
@@ -69,11 +70,11 @@ struct SynthTests {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
       @Shared(.activeState) var activeState
-      $activeState.withLock { $0.activePresetId = 5 }
+      $activeState.withLock { $0.activePresetId = 2 }
       try await $activeState.load()
 
       await store.receive(\.activePresetIdChanged, timeout: .seconds(5)) {
-        $0.loadedPresetIndex = 4
+        $0.loadedPresetIndex = 1
       }
 
       await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
@@ -88,11 +89,11 @@ struct SynthTests {
       $playSoundOnPresetChange.withLock { $0 = true }
 
       @Shared(.activeState) var activeState
-      $activeState.withLock { $0.activePresetId = 5 }
+      $activeState.withLock { $0.activePresetId = 2 }
       try await $activeState.load()
 
       await store.receive(\.activePresetIdChanged, timeout: .seconds(5)) {
-        $0.loadedPresetIndex = 4
+        $0.loadedPresetIndex = 1
       }
 
       await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))

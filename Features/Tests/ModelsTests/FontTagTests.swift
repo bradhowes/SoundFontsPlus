@@ -4,12 +4,13 @@ import Dependencies
 import Foundation
 import SQLiteData
 import Testing
+import TestSupport
 
 @testable import Models
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
+    $0.defaultDatabase = TestSupport.testDatabase()
   },
   //  .snapshots(record: .failed)
 )
@@ -24,23 +25,23 @@ struct FontTagTests {
 
     @FetchAll(SoundFont.all) var soundFonts
     try await $soundFonts.load()
-    #expect(soundFonts.count == 4)
+    #expect(soundFonts.count == 2)
 
     @FetchAll(TaggedSoundFont.all) var taggedSoundFonts
     try await $taggedSoundFonts.load()
-    #expect(taggedSoundFonts.count == 8)
+    #expect(taggedSoundFonts.count == 4)
 
     @FetchAll(Preset.all) var presets
     try await $presets.load()
-    #expect(presets.count == 3 * SoundFont.soundFontPresetLoadLimit + 1)
+    #expect(presets.count == 4)
   }
 
   @Test func tagged() async throws {
     @FetchAll(FontTag.tagsQuery) var tags
     try await $tags.load()
 
-    #expect(tags[0].soundFonts.count == 4)
-    #expect(tags[1].soundFonts.count == 4)
+    #expect(tags[0].soundFonts.count == 2)
+    #expect(tags[1].soundFonts.count == 2)
     #expect(tags[2].soundFonts.count == 0)
     #expect(tags[3].soundFonts.count == 0)
   }

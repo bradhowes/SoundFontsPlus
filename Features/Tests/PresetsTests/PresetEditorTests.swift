@@ -10,7 +10,7 @@ import TestSupport
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
+    $0.defaultDatabase = TestSupport.testDatabase()
   },
   //  .snapshots(record: .failed)
 )
@@ -112,7 +112,7 @@ struct PresetEditorTests {
       $0.notes = "Important notes"
     }
     await store.send(\.useOriginalNameTapped) {
-      $0.displayName = store.state.preset.displayName
+      $0.displayName = "Original Preset 1"
     }
   }
 

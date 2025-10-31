@@ -209,10 +209,10 @@ extension Preset {
       } ?? []
     )
     var index = 0
-    var candidate = self.originalName + " copy"
+    var candidate = self.displayName + " copy"
     while names.contains(candidate) {
       index += 1
-      candidate = self.originalName + " copy \(index)"
+      candidate = self.displayName + " copy \(index)"
     }
 
     return candidate

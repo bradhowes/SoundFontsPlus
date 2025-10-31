@@ -5,13 +5,14 @@ import Foundation
 import Sharing
 import SQLiteData
 import Testing
+import TestSupport
 
 @testable import Models
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
-  },
+    $0.defaultDatabase = TestSupport.testDatabase()
+  }
   //  .snapshots(record: .failed)
 )
 @MainActor

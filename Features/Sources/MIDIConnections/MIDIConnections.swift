@@ -245,7 +245,7 @@ extension MIDIConnectionsView {
       @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
       midi?.start()
       // swiftlint:disable:next force_try
-      $0.defaultDatabase = try! appDatabase()
+      $0.defaultDatabase = try! appDatabase(addBuiltInFonts: false)
     }
     navigationBarTitleStyle()
     return VStack {

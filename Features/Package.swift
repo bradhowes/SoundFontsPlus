@@ -186,6 +186,7 @@ let package = Package(
       name: "TestSupport",
       dependencies: [
         "BaseSupport",
+        "Models",
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ]
     ),
@@ -252,7 +253,9 @@ extension PackageDescription.Target {
 
   public static func testFeature(
     _ name: String,
-    dependencies: [PackageDescription.Target.Dependency] = [.product(name: "Numerics", package: "swift-numerics")],
+    dependencies: [PackageDescription.Target.Dependency] = [
+      .product(name: "Numerics", package: "swift-numerics")
+    ],
     resources: [PackageDescription.Resource] = []
   ) -> PackageDescription.Target {
     .testTarget(name: name + "Tests", dependencies: dependencies + [.init(stringLiteral: name)])

@@ -9,7 +9,7 @@ import TestSupport
 @testable import Tags
 
 @Suite(
-  .dependencies { $0.defaultDatabase = try appDatabase() },
+  .dependencies { $0.defaultDatabase = TestSupport.testDatabase() },
   .snapshots(record: .failed)
 )
 @MainActor

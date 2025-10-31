@@ -12,7 +12,7 @@ import TestSupport
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
+    $0.defaultDatabase = TestSupport.testDatabase()
     $0.mainQueue = .immediate
     $0.debounceDurations = .testValue
   },
@@ -251,7 +251,7 @@ struct DelayEffectTests {
 
   @Test(
     .dependencies {
-      $0.defaultDatabase = try appDatabase(seeder: addDelayConfigs)
+      $0.defaultDatabase = TestSupport.testDatabase(seeder: addDelayConfigs)
     }
   )
   func presetIdChanged() async throws {
@@ -343,6 +343,7 @@ fileprivate actor MockDelayDevice {
 }
 
 fileprivate func addDelayConfigs(_ db: Database) throws {
+  try TestSupport.addMockPresets(db)
   try DelayConfig.insert {
     DelayConfig.Draft(
       time: 0.5,
@@ -352,9 +353,6 @@ fileprivate func addDelayConfigs(_ db: Database) throws {
       enabled: true,
       presetId: 1
     )
-  }
-  .execute(db)
-  try DelayConfig.insert {
     DelayConfig.Draft(
       time: 1.0,
       feedback: -70,
@@ -363,9 +361,6 @@ fileprivate func addDelayConfigs(_ db: Database) throws {
       enabled: true,
       presetId: 2
     )
-  }
-  .execute(db)
-  try DelayConfig.insert {
     DelayConfig.Draft(
       time: 1.5,
       feedback: 80,

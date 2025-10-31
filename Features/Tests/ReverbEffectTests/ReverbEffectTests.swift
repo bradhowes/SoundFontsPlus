@@ -12,7 +12,7 @@ import TestSupport
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
+    $0.defaultDatabase = TestSupport.testDatabase()
     $0.mainQueue = .immediate
     $0.debounceDurations = .testValue
   },
@@ -280,7 +280,7 @@ struct ReverbEffectTests {
 
   @Test(
     .dependencies {
-      $0.defaultDatabase = try appDatabase(seeder: addReverbConfigs)
+      $0.defaultDatabase = TestSupport.testDatabase(seeder: addReverbConfigs)
     },
   )
   func presetIdChanged() async throws {
@@ -345,6 +345,7 @@ private actor MockReverbDevice {
 }
 
 private func addReverbConfigs(_ db: Database) throws {
+  try TestSupport.addMockPresets(db)
   try ReverbConfig.insert {
     ReverbConfig.Draft(
       roomPreset: .plate,
@@ -352,18 +353,12 @@ private func addReverbConfigs(_ db: Database) throws {
       enabled: true,
       presetId: 1
     )
-  }
-  .execute(db)
-  try ReverbConfig.insert {
     ReverbConfig.Draft(
       roomPreset: .cathedral,
       wetDryMix: 81.0,
       enabled: true,
       presetId: 2
     )
-  }
-  .execute(db)
-  try ReverbConfig.insert {
     ReverbConfig.Draft(
       roomPreset: .smallRoom,
       wetDryMix: 20.0,

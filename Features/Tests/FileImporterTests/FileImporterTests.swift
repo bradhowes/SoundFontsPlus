@@ -46,24 +46,6 @@ struct FileImporterTests {
     }
   }
 
-  @Test func filePickedAlreadyImported() async throws {
-    let store = TestStoreOf<FileImporter>(initialState: .init()) {
-      FileImporter()
-    } withDependencies: {
-      $0.fileManager = .liveValue
-      $0.defaultDatabase = try! appDatabase()
-    }
-    await store.send(.showFileImporter) {
-      $0.showChooser = true
-    }
-
-    let url = SF2ResourceTag.fluidFont.url
-    await store.send(.filePicked(.success(url))) {
-      $0.showChooser = false
-      $0.destination = .alert(.fileAlreadyImported(url: url))
-    }
-  }
-
   @Test func filePickedInvalidFile() async throws {
     let store = store()
     await store.send(.showFileImporter) {
@@ -118,7 +100,7 @@ struct FileImporterTests {
       FileImporter()
     } withDependencies: {
       $0.fileManager = .liveValue
-      $0.defaultDatabase = try! appDatabase()
+      $0.defaultDatabase = TestSupport.testDatabase()
       // $0.fileManager.copyItem = { _, _ in throw err}
     }
 
@@ -134,6 +116,15 @@ struct FileImporterTests {
       $0.showChooser = false
       $0.destination = .alert(.addedSummary(displayName: "BlahBlah"))
     }
+
+    await store.send(.showFileImporter) {
+      $0.showChooser = true
+    }
+
+    await store.send(.filePicked(.success(tmp))) {
+      $0.showChooser = false
+      $0.destination = .alert(.fileAlreadyImported(url: tmp))
+    }
   }
 
   @Test func filePickedAddedNoCopy() async throws {
@@ -142,7 +133,7 @@ struct FileImporterTests {
       FileImporter()
     } withDependencies: {
       $0.fileManager = .liveValue
-      $0.defaultDatabase = try! appDatabase()
+      $0.defaultDatabase = TestSupport.testDatabase()
       // $0.fileManager.copyItem = { _, _ in throw err}
     }
 

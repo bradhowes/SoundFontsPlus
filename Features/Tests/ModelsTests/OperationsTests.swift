@@ -10,7 +10,7 @@ import Testing
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
+    $0.defaultDatabase = try appDatabase(loadAllPresets: false)
   },
   //  .snapshots(record: .failed)
 )

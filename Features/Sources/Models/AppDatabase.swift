@@ -7,16 +7,19 @@ import OSLog
 import SF2Resources
 import SQLiteData
 
-private let log = Logger(category: "Database")
+private let log = Logger(category: "appDatabase")
 
 // swiftlint:disable:next function_body_length
 public func appDatabase(
-  fullTestLoading: Bool = false,
+  addBuiltInFonts: Bool = true,
+  loadAllPresets: Bool = true,
   seeder: ((Database) throws -> Void)? = nil
 ) throws -> any DatabaseWriter {
   @Dependency(\.context) var context
   let database: any DatabaseWriter
   var configuration = GRDB.Configuration()
+
+  log.info("appDatabase BEGIN - addBuiltInFonts: \(addBuiltInFonts) loadAllPresets: \(loadAllPresets)")
 
   configuration.foreignKeysEnabled = true
 
@@ -46,6 +49,7 @@ public func appDatabase(
   }
 
   var migrator = DatabaseMigrator()
+
 #if DEBUG
   migrator.eraseDatabaseOnSchemaChange = true
 #endif // DEBUG
@@ -68,33 +72,39 @@ public func appDatabase(
     }.execute(db)
   }
 
-  migrator.registerMigration("Add builtin fonts") { db in
-    for sf2 in SF2ResourceTag.allCases {
-      log.info("add \(sf2)")
-      let limitedLoading: Bool = context == .test && !fullTestLoading
-      try SoundFont.addBuiltIn(db, sf2: sf2, limitedLoading: limitedLoading)
+  if addBuiltInFonts {
+    migrator.registerMigration("Add builtin fonts") { db in
+      for sf2 in SF2ResourceTag.allCases {
+        log.info("add \(sf2)")
+        let limitedLoading: Bool = context == .test && loadAllPresets == false
+        try SoundFont.addBuiltIn(db, sf2: sf2, limitedLoading: limitedLoading)
+      }
     }
   }
 
   try migrator.migrate(database)
 
-  // Update locations of builtin SF2 files everytime we startup since app container location could change.
-  try database.write { db in
-    for sf2 in SF2ResourceTag.allCases {
-      withErrorReporting {
-        let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
-        let (kind, location) = try soundFontKind.data()
-        let update = SoundFont
-          .where { $0.id.eq(sf2.id) }
-          .update {
-            $0.kind = kind
-            $0.location = location
-          }
-        try update.execute(db)
+  if addBuiltInFonts {
+    // Update locations of builtin SF2 files everytime we startup since app container location could change.
+    try database.write { db in
+      for sf2 in SF2ResourceTag.allCases {
+        withErrorReporting {
+          let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
+          let (kind, location) = try soundFontKind.data()
+          let update = SoundFont
+            .where { $0.id.eq(sf2.id) }
+            .update {
+              $0.kind = kind
+              $0.location = location
+            }
+          try update.execute(db)
+        }
       }
     }
+  }
 
-    if let seeder {
+  if let seeder {
+    try database.write { db in
       try seeder(db)
     }
   }

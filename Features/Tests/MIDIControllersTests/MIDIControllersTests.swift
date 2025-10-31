@@ -9,9 +9,9 @@ import TestSupport
 @testable import MIDIControllers
 
 @Suite(
-  .dependencies {
-    $0.defaultDatabase = try appDatabase()
-  }
+//  .dependencies {
+//    $0.defaultDatabase = try appDatabase()
+//  }
 )
 @MainActor
 struct MIDIControllersTests {

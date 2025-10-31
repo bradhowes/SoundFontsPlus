@@ -198,7 +198,7 @@ struct KeyboardTests {
 
   @Test(
     .dependencies {
-      $0.defaultDatabase = try appDatabase(seeder: addAudioConfig)
+      $0.defaultDatabase = TestSupport.testDatabase(seeder: addAudioConfig)
     },
   )
   func activePresetIdChanged() async throws {
@@ -236,23 +236,18 @@ struct KeyboardTests {
 }
 
 func addAudioConfig(_ db: Database) throws {
+  try TestSupport.addMockPresets(db)
   try AudioConfig.insert {
     AudioConfig.Draft(
       keyboardLowestNoteEnabled: true,
       keyboardLowestNote: .G5,
       presetId: 1
     )
-  }
-  .execute(db)
-  try AudioConfig.insert {
     AudioConfig.Draft(
       keyboardLowestNoteEnabled: false,
       keyboardLowestNote: .A2,
       presetId: 2
     )
-  }
-  .execute(db)
-  try AudioConfig.insert {
     AudioConfig.Draft(
       keyboardLowestNoteEnabled: true,
       keyboardLowestNote: .A2,

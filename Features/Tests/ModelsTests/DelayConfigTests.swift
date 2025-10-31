@@ -4,12 +4,13 @@ import Dependencies
 import Foundation
 import SQLiteData
 import Testing
+import TestSupport
 
 @testable import Models
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase()
+    $0.defaultDatabase = TestSupport.testDatabase(seeder: TestSupport.addMockPresets)
   },
   //  .snapshots(record: .failed)
 )
