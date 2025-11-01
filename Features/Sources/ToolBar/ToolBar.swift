@@ -478,7 +478,7 @@ extension ToolBarView {
   static var preview: some View {
     prepareDependencies {
       // swiftlint:disable:next force_try
-      $0.defaultDatabase = try! appDatabase()
+      $0.defaultDatabase = previewDatabase()
     }
     return VStack {
       ToolBarView(store: Store(initialState: .init()) {

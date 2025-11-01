@@ -275,7 +275,7 @@ extension ReverbEffectView {
 
     prepareDependencies {
       // swiftlint:disable:next force_try
-      $0.defaultDatabase = try! appDatabase()
+      $0.defaultDatabase = previewDatabase()
       $0.reverbDevice = .init(setConfig: { print("ReverbDevice.setConfig:", $0) })
     }
 

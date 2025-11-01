@@ -153,7 +153,7 @@ extension PresetButtonView {
   static var preview: some View {
     var presets = prepareDependencies {
       // swiftlint:disable:next force_try
-      $0.defaultDatabase = try! appDatabase()
+      $0.defaultDatabase = previewDatabase()
       return Operations.presets(for: nil)
     }
 

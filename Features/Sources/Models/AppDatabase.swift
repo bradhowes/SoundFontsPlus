@@ -11,7 +11,7 @@ private let log = Logger(category: "appDatabase")
 
 // swiftlint:disable:next function_body_length
 public func appDatabase(
-  addBuiltInFonts: Bool = true,
+  fonts: [SF2ResourceTag] = SF2ResourceTag.allCases,
   loadAllPresets: Bool = true,
   seeder: ((Database) throws -> Void)? = nil
 ) throws -> any DatabaseWriter {
@@ -19,7 +19,7 @@ public func appDatabase(
   let database: any DatabaseWriter
   var configuration = GRDB.Configuration()
 
-  log.info("appDatabase BEGIN - addBuiltInFonts: \(addBuiltInFonts) loadAllPresets: \(loadAllPresets)")
+  log.info("appDatabase BEGIN - fonts: \(fonts) loadAllPresets: \(loadAllPresets)")
 
   configuration.foreignKeysEnabled = true
 
@@ -72,32 +72,29 @@ public func appDatabase(
     }.execute(db)
   }
 
-  if addBuiltInFonts {
-    migrator.registerMigration("Add builtin fonts") { db in
-      for sf2 in SF2ResourceTag.allCases {
-        log.info("add \(sf2)")
-        let limitedLoading: Bool = context == .test && loadAllPresets == false
-        try SoundFont.addBuiltIn(db, sf2: sf2, limitedLoading: limitedLoading)
-      }
+  migrator.registerMigration("Add builtin fonts") { db in
+    for sf2 in fonts {
+      log.info("add \(sf2)")
+      let limitedLoading: Bool = context == .test && loadAllPresets == false
+      try SoundFont.addBuiltIn(db, sf2: sf2, limitedLoading: limitedLoading)
     }
   }
 
   try migrator.migrate(database)
 
-  if addBuiltInFonts {
+  if !fonts.isEmpty {
     // Update locations of builtin SF2 files everytime we startup since app container location could change.
     try database.write { db in
       for sf2 in SF2ResourceTag.allCases {
         withErrorReporting {
           let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
           let (kind, location) = try soundFontKind.data()
-          let update = SoundFont
+          try SoundFont
             .where { $0.id.eq(sf2.id) }
             .update {
               $0.kind = kind
               $0.location = location
-            }
-          try update.execute(db)
+            }.execute(db)
         }
       }
     }
@@ -111,3 +108,12 @@ public func appDatabase(
 
   return database
 }
+
+public func previewDatabase(
+  fonts: [SF2ResourceTag] = [.fluidFont, .rolandNicePiano],
+  loadAllPresets: Bool = false,
+  seeder: ((Database) throws -> Void)? = nil
+) -> any DatabaseWriter {
+  try! appDatabase(fonts: fonts, loadAllPresets: loadAllPresets, seeder: seeder)
+}
+

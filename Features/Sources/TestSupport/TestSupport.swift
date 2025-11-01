@@ -13,7 +13,7 @@ public enum TestSupport {
   static let log = Logger(category: "TestSupport")
 
   public static func testDatabase(seeder: ((Database) throws -> Void)? = addMockPresets) -> any DatabaseWriter {
-    try! appDatabase(addBuiltInFonts: false, loadAllPresets: false, seeder: seeder)
+    try! appDatabase(fonts: [], loadAllPresets: false, seeder: seeder)
   }
 }
 

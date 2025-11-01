@@ -174,7 +174,7 @@ extension SoundFontButtonView {
     // swiftlint:disable:next force_try
     let soundFontInfos = try! prepareDependencies {
       // swiftlint:disable:next force_try
-      $0.defaultDatabase = try! appDatabase()
+      $0.defaultDatabase = previewDatabase()
       return try $0.defaultDatabase.read { db in
         try SoundFontInfo.query().fetchAll(db)
       }
@@ -190,7 +190,6 @@ extension SoundFontButtonView {
         List {
           SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[0])) { SoundFontButton() })
           SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[1])) { SoundFontButton() })
-          SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[2])) { SoundFontButton() })
         }
         .listRowSeparator(.hidden)
         .listStyle(.plain)
@@ -198,7 +197,6 @@ extension SoundFontButtonView {
       List {
         SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[0])) { SoundFontButton() })
         SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[1])) { SoundFontButton() })
-        SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[2])) { SoundFontButton() })
       }.listStyle(.grouped)
     }
   }

@@ -141,7 +141,7 @@ extension TagNameEditorView {
 
   static var preview: some View {
     // swiftlint:disable:next force_try
-    prepareDependencies { $0.defaultDatabase = try! appDatabase() }
+    prepareDependencies { $0.defaultDatabase = previewDatabase() }
     _ = try? FontTag.make(displayName: "New Tag")
     _ = try? FontTag.make(displayName: "Another Tag")
     let tags = FontTag.tags

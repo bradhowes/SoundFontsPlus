@@ -689,7 +689,7 @@ extension RootView {
   static var preview: some View {
     prepareDependencies {
       // swiftlint:disable:next force_try
-      $0.defaultDatabase = try! appDatabase()
+      $0.defaultDatabase = previewDatabase()
       $0.delayDevice = .init(setConfig: { print("delayDevice.set: ", $0) })
       $0.reverbDevice = .init(setConfig: { print("reverbDevice.set: ", $0) })
       @Shared(.tagsListVisible) var tagsListVisible

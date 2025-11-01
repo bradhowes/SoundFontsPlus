@@ -464,7 +464,7 @@ struct KeyboardPreview: View {
 #Preview {
   prepareDependencies {
     // swiftlint:disable:next force_try
-    $0.defaultDatabase = try! appDatabase()
+    $0.defaultDatabase = previewDatabase()
     @Shared(.firstVisibleKey) var firstVisibleKey
     $firstVisibleKey.withLock { $0 = .C4 }
     @Shared(.keyboardSlides) var keyboardSlides

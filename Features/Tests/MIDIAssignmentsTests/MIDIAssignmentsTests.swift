@@ -10,7 +10,7 @@ import TestSupport
 
 @Suite(
   // .dependencies {
-    // $0.defaultDatabase = try appDatabase()
+    // $0.defaultDatabase = previewDatabase()
   // }
 )
 @MainActor
