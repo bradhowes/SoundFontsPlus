@@ -5,19 +5,24 @@ import Foundation
 import Sharing
 import SQLiteData
 import Testing
+import TestSupport
 
 @testable import Models
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = try appDatabase(loadAllPresets: false)
-  },
-  //  .snapshots(record: .failed)
+    $0.defaultDatabase = TestSupport.testDatabase()
+  }
 )
 @MainActor
 struct OperationsTests {
 
-  @Test func presetsOrdering() async throws {
+  @Test(
+    .dependencies {
+      $0.defaultDatabase = try appDatabase(loadAllPresets: false)
+    },
+  )
+  func presetsOrdering() async throws {
     @Shared(.favoritesOnTop) var favoritesOnTop = false
     @Shared(.showOnlyFavorites) var showOnlyFavorites = false
     @Shared(.sortPresetsByName) var sortPresetsByName = false
@@ -80,50 +85,57 @@ struct OperationsTests {
     #expect(presets.count == 0)
   }
 
-  @Test(arguments: [false, true]) func presets(_ showOnlyFavorites: Bool) async throws {
+  @Test(
+    arguments: [false, true]
+  )
+  func presets(_ showOnlyFavorites: Bool) async throws {
     @Shared(.activeState) var activeState
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     @Shared(.showOnlyFavorites) var showOnlyFavorites = showOnlyFavorites
 
-    let expectedCount = showOnlyFavorites ? 0 : SoundFont.soundFontPresetLoadLimit
+    let expectedCount = showOnlyFavorites ? 0 : 2
     #expect(Operations.presets(for: nil).count == expectedCount)
     $selectedSoundFontId.withLock { $0 = 2 }
     #expect(Operations.presets(for: nil).count == expectedCount)
     $selectedSoundFontId.withLock { $0 = 3 }
-    #expect(Operations.presets(for: nil).count == expectedCount)
+    #expect(Operations.presets(for: nil).count == 0)
     $selectedSoundFontId.withLock { $0 = nil }
     #expect(Operations.presets(for: nil).count == expectedCount)
     $activeState.withLock { $0.activeSoundFontId = nil }
     #expect(Operations.presets(for: nil).count == 0)
   }
 
-  @Test func allPresets() async throws {
+  @Test
+  func allPresets() async throws {
     @Shared(.activeState) var activeState
     @Shared(.selectedSoundFontId) var selectedSoundFontId
-    #expect(Operations.allPresets(for: nil).count == SoundFont.soundFontPresetLoadLimit)
+    #expect(Operations.allPresets(for: nil).count == 2)
     $selectedSoundFontId.withLock { $0 = 2 }
-    #expect(Operations.allPresets(for: nil).count == SoundFont.soundFontPresetLoadLimit)
+    #expect(Operations.allPresets(for: nil).count == 2)
     $selectedSoundFontId.withLock { $0 = 3 }
-    #expect(Operations.allPresets(for: nil).count == SoundFont.soundFontPresetLoadLimit)
+    #expect(Operations.allPresets(for: nil).count == 0)
     $selectedSoundFontId.withLock { $0 = nil }
     $activeState.withLock { $0.activeSoundFontId = nil }
     #expect(Operations.allPresets(for: nil).count == 0)
   }
 
-  @Test func soundFontIdsForTag() async throws {
-    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.all.id) == [1, 2, 3, 4])
-    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.builtIn.id) == [1, 2, 3, 4])
+  @Test
+  func soundFontIdsForTag() async throws {
+    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.all.id) == [1, 2])
+    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.builtIn.id) == [1, 2])
     #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.added.id) == [])
     #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.external.id) == [])
   }
 
-  @Test func tagIdsForSoundFont() async throws {
+  @Test
+  func tagIdsForSoundFont() async throws {
     #expect(Operations.tagIds(for: 1).count == 2)
     #expect(Operations.tagIds(for: 2).count == 2)
-    #expect(Operations.tagIds(for: 3).count == 2)
+    #expect(Operations.tagIds(for: 3).count == 0)
   }
 
-  @Test func tagSoundFont() async throws {
+  @Test
+  func tagSoundFont() async throws {
     let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
     #expect(Operations.tagIds(for: 1) == [1, 2, 5])
@@ -133,7 +145,8 @@ struct OperationsTests {
     #expect(Operations.tagIds(for: 1) == [1, 2, 5])
   }
 
-  @Test func tagSoundFontIgnoresUbiquitousTags() async throws {
+  @Test
+  func tagSoundFontIgnoresUbiquitousTags() async throws {
     let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
     #expect(Operations.tagIds(for: 1) == [1, 2, 5])
@@ -141,7 +154,8 @@ struct OperationsTests {
     #expect(Operations.tagIds(for: 1) == [1, 2, 5])
   }
 
-  @Test func untagSoundFont() async throws {
+  @Test
+  func untagSoundFont() async throws {
     @Dependency(\.defaultDatabase) var database
     let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
@@ -150,7 +164,8 @@ struct OperationsTests {
     #expect(Operations.tagIds(for: 1) == [1, 2])
   }
 
-  @Test func untagSoundFontIgnoresUbiquitousTags() async throws {
+  @Test
+  func untagSoundFontIgnoresUbiquitousTags() async throws {
     @Dependency(\.defaultDatabase) var database
     let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
@@ -159,7 +174,8 @@ struct OperationsTests {
     #expect(Operations.tagIds(for: 1) == [1, 2, 5])
   }
 
-  @Test func activePresetLoadingInfo() async throws {
+  @Test
+  func activePresetLoadingInfo() async throws {
     let presets = Operations.presets(for: nil)
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.activePresetId = presets[presets.count - 1].id }
@@ -172,7 +188,8 @@ struct OperationsTests {
     #expect(apli?.presetIndex == presets[0].index)
   }
 
-  @Test func activePresetAudioConfig() async throws {
+  @Test
+  func activePresetAudioConfig() async throws {
     let presets = Operations.presets(for: nil)
     @Dependency(\.defaultDatabase) var database
     @Shared(.activeState) var activeState

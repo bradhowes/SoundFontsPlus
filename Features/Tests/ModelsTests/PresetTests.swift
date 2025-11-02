@@ -28,18 +28,21 @@ struct PresetTests {
     return Operations.presets(for: 1)
   }
 
-  @Test func soundFontName() async throws {
+  @Test
+  func soundFontName() async throws {
     let presets = try await setup()
     #expect(presets[0].soundFontName == "Font 1")
   }
 
-  @Test func with() async throws {
+  @Test
+  func with() async throws {
     let presets = try await setup()
     let preset = Preset.with(id: 1)
     #expect(presets[0] == preset)
   }
 
-  @Test func uniqueName() async throws {
+  @Test
+  func uniqueName() async throws {
     let presets = try await setup()
     #expect(presets[0].uniqueName == "Font 1 Preset 1 copy")
     let clone1 = presets[0].clone()
@@ -57,7 +60,8 @@ struct PresetTests {
     #expect(presets[0].uniqueName == "Font 1 Preset 1 copy 2")
   }
 
-  @Test func clone() async throws {
+  @Test
+  func clone() async throws {
     let presets = try await setup()
 
     let clone1 = presets[0].clone()
@@ -77,7 +81,8 @@ struct PresetTests {
     #expect(clone2?.reverbConfig != nil)
   }
 
-  @Test func toggleVisibility() async throws {
+  @Test
+  func toggleVisibility() async throws {
     var presets = try await setup()
     var preset = presets[0]
     #expect(preset.kind == .preset)

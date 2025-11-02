@@ -23,7 +23,8 @@ struct FileImporterTests {
     }
   }
 
-  @Test func showFileImporter() async throws {
+  @Test
+  func showFileImporter() async throws {
     let store = store()
     await store.send(.showFileImporter) {
       $0.showChooser = true
@@ -33,7 +34,8 @@ struct FileImporterTests {
     }
   }
 
-  @Test func filePickedFailure() async throws {
+  @Test
+  func filePickedFailure() async throws {
     let store = store()
     await store.send(.showFileImporter) {
       $0.showChooser = true
@@ -46,7 +48,8 @@ struct FileImporterTests {
     }
   }
 
-  @Test func filePickedInvalidFile() async throws {
+  @Test
+  func filePickedInvalidFile() async throws {
     let store = store()
     await store.send(.showFileImporter) {
       $0.showChooser = true
@@ -59,7 +62,8 @@ struct FileImporterTests {
     }
   }
 
-  @Test func filePickedGenericFailure() async throws {
+  @Test
+  func filePickedGenericFailure() async throws {
     let lastPathComponent = "BlahBlah.sf2"
     let url = SF2ResourceTag.fluidFont.url.appendingPathComponent("foo")
     let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(lastPathComponent)
@@ -94,7 +98,8 @@ struct FileImporterTests {
     }
   }
 
-  @Test func filePickedAdded() async throws {
+  @Test
+  func filePickedAdded() async throws {
     let mockSharedDocumentsDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     try? FileManager.default.createDirectory(at: mockSharedDocumentsDirectory, withIntermediateDirectories: true)
     defer { try? FileManager.default.removeItem(at: mockSharedDocumentsDirectory) }
@@ -136,7 +141,8 @@ struct FileImporterTests {
     }
   }
 
-  @Test func filePickedAddedNoCopy() async throws {
+  @Test
+  func filePickedAddedNoCopy() async throws {
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling = false
     let store = TestStoreOf<FileImporter>(initialState: .init()) {
       FileImporter()

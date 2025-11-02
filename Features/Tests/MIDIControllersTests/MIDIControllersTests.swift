@@ -24,7 +24,8 @@ struct MIDIControllersTests {
     }
   }
 
-  @Test func preview() async throws {
+  @Test
+  func preview() async throws {
     try withSnapshotTesting(record: .failed) {
       try TestSupport.assertSnapshot(matching: MIDIControllersView.preview)
     }

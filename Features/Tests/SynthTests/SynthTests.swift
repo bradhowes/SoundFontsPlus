@@ -61,12 +61,14 @@ struct SynthTests {
     await store.finish(timeout: .seconds(1))
   }
 
-  @Test func initialize() async throws {
+  @Test
+  func initialize() async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { _ in }
   }
 
-  @Test func activePresetIdChanged() async throws {
+  @Test
+  func activePresetIdChanged() async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
       @Shared(.activeState) var activeState
@@ -81,7 +83,8 @@ struct SynthTests {
     }
   }
 
-  @Test func activePresetIdChangeCanPlayNote() async throws {
+  @Test
+  func activePresetIdChangeCanPlayNote() async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
 
@@ -100,7 +103,8 @@ struct SynthTests {
     }
   }
 
-  @Test func audioSessionRouteChanged() async throws {
+  @Test
+  func audioSessionRouteChanged() async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
       NotificationCenter.default.post(name: AVAudioSession.routeChangeNotification, object: nil)
@@ -108,7 +112,8 @@ struct SynthTests {
     }
   }
 
-  @Test func audioSessionMediaServicesWereReset() async throws {
+  @Test
+  func audioSessionMediaServicesWereReset() async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
       NotificationCenter.default.post(name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
@@ -116,7 +121,8 @@ struct SynthTests {
     }
   }
 
-  @Test func audioSessionReleaseAcquire() async throws {
+  @Test
+  func audioSessionReleaseAcquire() async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
       await store.send(\.releaseAudioSession)

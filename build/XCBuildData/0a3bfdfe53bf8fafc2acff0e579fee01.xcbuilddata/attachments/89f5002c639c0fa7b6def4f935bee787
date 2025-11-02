@@ -1,0 +1,476 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftToasts-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftToasts-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftToasts-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftToasts-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftToasts-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftToasts-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftToasts-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Animation/Animatable.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Animatable.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Animatable.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Animatable.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Animation/CAAnimatable.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/CAAnimatable.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/CAAnimatable.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/CAAnimatable.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Animation/Properties/AnimatablePropertiesBuilder.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnimatablePropertiesBuilder.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnimatablePropertiesBuilder.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnimatablePropertiesBuilder.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Animation/Properties/AnimatableProperty.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnimatableProperty.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnimatableProperty.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnimatableProperty.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Animation/Properties/AnyAnimationProperty.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnyAnimationProperty.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnyAnimationProperty.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnyAnimationProperty.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Animation/Properties/Array+AnyAnimationPropertyMerging.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Array+AnyAnimationPropertyMerging.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Array+AnyAnimationPropertyMerging.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Array+AnyAnimationPropertyMerging.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Animation/Properties/OpacityProperty.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/OpacityProperty.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/OpacityProperty.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/OpacityProperty.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Animation/Properties/TransformProperty+CATransform3D.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/TransformProperty+CATransform3D.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/TransformProperty+CATransform3D.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/TransformProperty+CATransform3D.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Animation/Properties/TransformProperty.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/TransformProperty.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/TransformProperty.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/TransformProperty.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Compatibility/Cocoa+Fallbacks.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Cocoa+Fallbacks.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Cocoa+Fallbacks.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Cocoa+Fallbacks.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Compatibility/Combine+Fallbacks.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Combine+Fallbacks.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Combine+Fallbacks.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Combine+Fallbacks.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Compatibility/PropertyWrappers/FallbackStateObject.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/FallbackStateObject.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/FallbackStateObject.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/FallbackStateObject.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Compatibility/PropertyWrappers/PresentationBoundState.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PresentationBoundState.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PresentationBoundState.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PresentationBoundState.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Compatibility/RuntimeWarning.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/RuntimeWarning.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/RuntimeWarning.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/RuntimeWarning.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Compatibility/SwiftUI+Fallbacks.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftUI+Fallbacks.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftUI+Fallbacks.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftUI+Fallbacks.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Compatibility/UIKit+Fallbacks.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIKit+Fallbacks.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIKit+Fallbacks.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIKit+Fallbacks.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Configuration/SwiftToastsConfiguration.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftToastsConfiguration.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftToastsConfiguration.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftToastsConfiguration.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Constraints/PlatformLayoutConstraints.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlatformLayoutConstraints.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlatformLayoutConstraints.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlatformLayoutConstraints.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Controllers/PresenterPhaseObserver.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PresenterPhaseObserver.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PresenterPhaseObserver.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PresenterPhaseObserver.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Controllers/ScenePhaseObserver.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ScenePhaseObserver.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ScenePhaseObserver.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ScenePhaseObserver.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Controllers/ToastPresentationCanceller.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationCanceller.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationCanceller.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationCanceller.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Controllers/ToastPresentationContextSelector.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationContextSelector.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationContextSelector.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationContextSelector.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Controllers/ToastPresenting.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresenting.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresenting.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresenting.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Controllers/ToastScheduler.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastScheduler.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastScheduler.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastScheduler.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Models/PlatformIdiom.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlatformIdiom.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlatformIdiom.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlatformIdiom.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Models/PresentationContext.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PresentationContext.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PresentationContext.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PresentationContext.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Models/ToastAlignment.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastAlignment.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastAlignment.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastAlignment.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Models/ToastCancellation.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastCancellation.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastCancellation.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastCancellation.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Models/ToastDismissAction.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastDismissAction.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastDismissAction.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastDismissAction.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Models/ToastDuration.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastDuration.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastDuration.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastDuration.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Models/ToastOrnament.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastOrnament.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastOrnament.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastOrnament.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Models/ToastPresentation.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentation.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentation.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentation.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Models/ToastPresentationInvalidationOptions.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationInvalidationOptions.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationInvalidationOptions.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationInvalidationOptions.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Models/ToastPresentationSpace.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationSpace.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationSpace.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationSpace.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Models/ToastRole.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastRole.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastRole.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastRole.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/Models/ToastTransition.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTransition.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTransition.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTransition.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/NSObjectHelpers/NSAssociatedProperty.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSAssociatedProperty.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSAssociatedProperty.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSAssociatedProperty.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/PlatformCocoa/NSToastHostingController.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSToastHostingController.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSToastHostingController.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSToastHostingController.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/PlatformCocoa/NSTransientFloatingWindow.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSTransientFloatingWindow.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSTransientFloatingWindow.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSTransientFloatingWindow.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/PlatformCocoa/NSView+Animatable.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSView+Animatable.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSView+Animatable.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSView+Animatable.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/PlatformCocoa/NSWindow+ToastPresenting.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSWindow+ToastPresenting.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSWindow+ToastPresenting.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSWindow+ToastPresenting.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/PlatformCocoa/NSWindowToastPresenterReaderModifier.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSWindowToastPresenterReaderModifier.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSWindowToastPresenterReaderModifier.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/NSWindowToastPresenterReaderModifier.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/PlatformUIKit/UIToastHostingController.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIToastHostingController.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIToastHostingController.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIToastHostingController.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/PlatformUIKit/UIView+Animatable.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIView+Animatable.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIView+Animatable.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIView+Animatable.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/PlatformUIKit/UIWindow+ToastPresenting .swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIWindow+ToastPresenting .o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIWindow+ToastPresenting .bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIWindow+ToastPresenting .o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/PlatformUIKit/UIWindowToastPresenterReaderModifier.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIWindowToastPresenterReaderModifier.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIWindowToastPresenterReaderModifier.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIWindowToastPresenterReaderModifier.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/PlatformUIKit/VisionOS/UIToastHostingOrnament.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIToastHostingOrnament.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIToastHostingOrnament.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIToastHostingOrnament.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/PlatformUIKit/VisionOS/UIWindow+ToastOrnament.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIWindow+ToastOrnament.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIWindow+ToastOrnament.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UIWindow+ToastOrnament.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftToasts.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftToasts.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftToasts.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SwiftToasts.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/CancellablesBox.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/CancellablesBox.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/CancellablesBox.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/CancellablesBox.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Environment/EnvironmentReaderModifier.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/EnvironmentReaderModifier.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/EnvironmentReaderModifier.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/EnvironmentReaderModifier.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Environment/PlatformIdiomEnvironmentKey.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlatformIdiomEnvironmentKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlatformIdiomEnvironmentKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlatformIdiomEnvironmentKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Environment/ToastCancellationEnvironmentKey.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastCancellationEnvironmentKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastCancellationEnvironmentKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastCancellationEnvironmentKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Environment/ToastDismissEnvironmentKey.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastDismissEnvironmentKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastDismissEnvironmentKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastDismissEnvironmentKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Environment/ToastEnvironmentValues.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastEnvironmentValues.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastEnvironmentValues.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastEnvironmentValues.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Environment/ToastInteractiveDismissEnabledEnvironmentKey.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastInteractiveDismissEnabledEnvironmentKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastInteractiveDismissEnabledEnvironmentKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastInteractiveDismissEnabledEnvironmentKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Environment/ToastOrnamentPresentationEnvironmentKey.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastOrnamentPresentationEnvironmentKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastOrnamentPresentationEnvironmentKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastOrnamentPresentationEnvironmentKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Environment/ToastPresentationInvalidationOptionsEnvironmentKey.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationInvalidationOptionsEnvironmentKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationInvalidationOptionsEnvironmentKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationInvalidationOptionsEnvironmentKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Environment/ToastPresentedAlignmentEnvironmentKey.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentedAlignmentEnvironmentKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentedAlignmentEnvironmentKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentedAlignmentEnvironmentKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Environment/ToastPresenterEnvironmentKey.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresenterEnvironmentKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresenterEnvironmentKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresenterEnvironmentKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Environment/ToastPresentingLayoutGeometryKey.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentingLayoutGeometryKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentingLayoutGeometryKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentingLayoutGeometryKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Environment/ToastTransitionEnvironmentKey.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTransitionEnvironmentKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTransitionEnvironmentKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTransitionEnvironmentKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Modifiers/AssignToastPresenterModifier.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AssignToastPresenterModifier.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AssignToastPresenterModifier.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AssignToastPresenterModifier.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Modifiers/ToastBuilder.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastBuilder.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastBuilder.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastBuilder.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Modifiers/ToastIdentifiableTaskModifier.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastIdentifiableTaskModifier.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastIdentifiableTaskModifier.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastIdentifiableTaskModifier.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Modifiers/ToastModifier.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastModifier.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastModifier.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastModifier.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Modifiers/ToastPresentingLayoutModifier.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentingLayoutModifier.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentingLayoutModifier.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentingLayoutModifier.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Modifiers/ToastReceivePublisherModifier.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastReceivePublisherModifier.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastReceivePublisherModifier.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastReceivePublisherModifier.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Modifiers/ToastTargetSceneModifier.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTargetSceneModifier.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTargetSceneModifier.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTargetSceneModifier.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Modifiers/ToastTaskModifier.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTaskModifier.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTaskModifier.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTaskModifier.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Modifiers/ToastTriggerModifier.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTriggerModifier.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTriggerModifier.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastTriggerModifier.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/ScheduleToastAction.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ScheduleToastAction.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ScheduleToastAction.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ScheduleToastAction.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Toast/Style/AnyToastStyle.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnyToastStyle.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnyToastStyle.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnyToastStyle.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Toast/Style/Common/PlainToastStyle/PlainToastBackground.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlainToastBackground.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlainToastBackground.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlainToastBackground.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Toast/Style/Common/PlainToastStyle/PlainToastStyle.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlainToastStyle.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlainToastStyle.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PlainToastStyle.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Toast/Style/Common/PlainToastStyle/ToastButtonStyle.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastButtonStyle.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastButtonStyle.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastButtonStyle.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Toast/Style/Common/PlainToastStyle/ToastLabelStyle.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastLabelStyle.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastLabelStyle.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastLabelStyle.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Toast/Style/Common/PlainToastStyle/ToastLabeledContentStyle.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastLabeledContentStyle.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastLabeledContentStyle.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastLabeledContentStyle.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Toast/Style/ToastConfiguration.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastConfiguration.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastConfiguration.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastConfiguration.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Toast/Style/ToastStyle.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastStyle.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastStyle.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastStyle.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Toast/Style/ToastStyleEnvironmentKey.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastStyleEnvironmentKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastStyleEnvironmentKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastStyleEnvironmentKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Toast/Toast.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Toast.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Toast.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/Toast.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/ToastPresenterProxy.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresenterProxy.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresenterProxy.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresenterProxy.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Transition/AnyTransition+ToastTransition.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnyTransition+ToastTransition.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnyTransition+ToastTransition.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/AnyTransition+ToastTransition.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Views/HostedToastContent.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/HostedToastContent.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/HostedToastContent.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/HostedToastContent.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Views/ToastButton.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastButton.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastButton.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastButton.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/SwiftUI/Views/ToastPresenterReader.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresenterReader.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresenterReader.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresenterReader.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/_Examples/SoundSettingsExample.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SoundSettingsExample.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SoundSettingsExample.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SoundSettingsExample.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/_Examples/ToastPresentationLayoutExample.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationLayoutExample.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationLayoutExample.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/ToastPresentationLayoutExample.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/_Examples/UserInfoFormExample.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UserInfoFormExample.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UserInfoFormExample.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/UserInfoFormExample.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/_Previews/PresentedPreview.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PresentedPreview.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PresentedPreview.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PresentedPreview.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/_Previews/PreviewContent.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PreviewContent.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PreviewContent.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/PreviewContent.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/Sources/SwiftToasts/_Previews/SomeObservableOject.swift" : {
+    "index-unit-output-path" : "/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SomeObservableOject.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SomeObservableOject.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-toasts/build/SwiftToasts.build/Release-iphoneos/SwiftToasts.build/Objects-normal/arm64/SomeObservableOject.o"
+  }
+}

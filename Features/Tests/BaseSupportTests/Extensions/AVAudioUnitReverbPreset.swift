@@ -9,16 +9,19 @@ import Testing
 @Suite
 struct AVAudioUnitReverbPresetTests {
 
-  @Test func idProperty() async throws {
+  @Test
+  func idProperty() async throws {
     let preset0 = AVAudioUnitReverbPreset(rawValue: 0)
     #expect(preset0?.id == AVAudioUnitReverbPreset.smallRoom.rawValue)
   }
 
-  @Test func range() async throws {
+  @Test
+  func range() async throws {
     #expect(AVAudioUnitReverbPreset.range == 0...12)
   }
 
-  @Test func name() async throws {
+  @Test
+  func name() async throws {
     #expect(AVAudioUnitReverbPreset(rawValue: 0)?.name == "Room 1")
     #expect(AVAudioUnitReverbPreset(rawValue: 1)?.name == "Room 2")
     #expect(AVAudioUnitReverbPreset(rawValue: 2)?.name == "Room 3")

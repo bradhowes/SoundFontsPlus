@@ -25,7 +25,8 @@ struct ChangesFeatureTests {
     }
   }
 
-  @Test func shouldShow() throws {
+  @Test
+  func shouldShow() throws {
     @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion = ""
     #expect(Changes.shouldShow)
     #expect(!Changes.shouldShow)
@@ -34,7 +35,8 @@ struct ChangesFeatureTests {
     #expect(!Changes.shouldShow)
   }
 
-  @Test func compile() throws {
+  @Test
+  func compile() throws {
     var changes: [Changes.Change] = Changes.compile("")
     #expect(changes.isEmpty)
     changes = Changes.compile("blah\nblah")
@@ -98,7 +100,8 @@ struct ChangesFeatureTests {
     )
   }
 
-  @Test func creation() async throws {
+  @Test
+  func creation() async throws {
     let store = makeStore(
       data:
         """
@@ -118,7 +121,8 @@ struct ChangesFeatureTests {
     await store.send(.dismissButtonTapped)
   }
 
-  @Test func changesPreview() async throws {
+  @Test
+  func changesPreview() async throws {
     try TestSupport.assertSnapshot(matching: ChangesView.preview)
   }
 }

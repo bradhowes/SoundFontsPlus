@@ -31,7 +31,8 @@ struct PresetsListSectionTests {
     return store
   }
 
-  @Test func headerTapped() async throws {
+  @Test
+  func headerTapped() async throws {
     let store = try setup()
 
     await store.send(\.headerTapped, 1)
@@ -41,7 +42,8 @@ struct PresetsListSectionTests {
     await store.receive(\.delegate, .headerTapped(Preset.ID(rawValue: 1)))
   }
 
-  @Test func searchButtonTapped() async throws {
+  @Test
+  func searchButtonTapped() async throws {
     let store = try setup()
 
     await store.send(\.searchButtonTapped)

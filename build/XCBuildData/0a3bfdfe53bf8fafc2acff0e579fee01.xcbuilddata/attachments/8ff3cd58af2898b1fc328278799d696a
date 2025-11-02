@@ -1,0 +1,21 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-case-paths/build/swift-case-paths.build/Release/CasePathsMacros.build/Objects-normal/arm64/CasePathsMacros-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-case-paths/build/swift-case-paths.build/Release/CasePathsMacros.build/Objects-normal/arm64/CasePathsMacros-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-case-paths/build/swift-case-paths.build/Release/CasePathsMacros.build/Objects-normal/arm64/CasePathsMacros-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-case-paths/build/swift-case-paths.build/Release/CasePathsMacros.build/Objects-normal/arm64/CasePathsMacros-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-case-paths/build/swift-case-paths.build/Release/CasePathsMacros.build/Objects-normal/arm64/CasePathsMacros-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-case-paths/build/swift-case-paths.build/Release/CasePathsMacros.build/Objects-normal/arm64/CasePathsMacros-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-case-paths/build/swift-case-paths.build/Release/CasePathsMacros.build/Objects-normal/arm64/CasePathsMacros-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/CasePathableMacro.swift" : {
+    "index-unit-output-path" : "/swift-case-paths.build/Release/CasePathsMacros.build/Objects-normal/arm64/CasePathableMacro.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-case-paths/build/swift-case-paths.build/Release/CasePathsMacros.build/Objects-normal/arm64/CasePathableMacro.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-case-paths/build/swift-case-paths.build/Release/CasePathsMacros.build/Objects-normal/arm64/CasePathableMacro.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-case-paths/Sources/CasePathsMacros/Plugin.swift" : {
+    "index-unit-output-path" : "/swift-case-paths.build/Release/CasePathsMacros.build/Objects-normal/arm64/Plugin.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-case-paths/build/swift-case-paths.build/Release/CasePathsMacros.build/Objects-normal/arm64/Plugin.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-case-paths/build/swift-case-paths.build/Release/CasePathsMacros.build/Objects-normal/arm64/Plugin.o"
+  }
+}

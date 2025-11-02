@@ -1,0 +1,166 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/AUv3Controls-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/AUv3Controls-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/AUv3Controls-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/AUv3Controls-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/AUv3Controls-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/AUv3Controls-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/AUv3Controls-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/DimmedAppearanceModifier.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/DimmedAppearanceModifier.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/DimmedAppearanceModifier.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/DimmedAppearanceModifier.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/EffectsContainers.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/EffectsContainers.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/EffectsContainers.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/EffectsContainers.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Examples/Duality.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Duality.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Duality.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Duality.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Examples/Envelope.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Envelope.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Envelope.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Envelope.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Extensions/AUParameter.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/AUParameter.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/AUParameter.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/AUParameter.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Extensions/AUParameterTree.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/AUParameterTree.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/AUParameterTree.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/AUParameterTree.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Extensions/Angle.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Angle.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Angle.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Angle.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Extensions/ClosedRange.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ClosedRange.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ClosedRange.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ClosedRange.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Extensions/Color.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Color.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Color.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Color.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Extensions/KeyPath.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/KeyPath.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/KeyPath.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/KeyPath.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Extensions/UUID.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/UUID.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/UUID.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/UUID.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Extensions/View.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/View.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/View.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/View.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Knob/ControlFeature.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ControlFeature.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ControlFeature.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ControlFeature.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Knob/Editors/CustomValueEditorHost.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/CustomValueEditorHost.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/CustomValueEditorHost.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/CustomValueEditorHost.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Knob/Editors/EditorFeature.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/EditorFeature.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/EditorFeature.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/EditorFeature.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Knob/Editors/NativeValueEditorHost.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/NativeValueEditorHost.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/NativeValueEditorHost.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/NativeValueEditorHost.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Knob/Editors/ValueEditorHost.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ValueEditorHost.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ValueEditorHost.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ValueEditorHost.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Knob/Editors/ValueEditorInfo.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ValueEditorInfo.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ValueEditorInfo.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ValueEditorInfo.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Knob/KnobConfig.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/KnobConfig.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/KnobConfig.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/KnobConfig.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Knob/KnobFeature.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/KnobFeature.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/KnobFeature.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/KnobFeature.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Knob/KnobValueFormatter.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/KnobValueFormatter.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/KnobValueFormatter.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/KnobValueFormatter.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Knob/NormValueTransform.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/NormValueTransform.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/NormValueTransform.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/NormValueTransform.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Knob/TextFieldClearButton.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/TextFieldClearButton.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/TextFieldClearButton.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/TextFieldClearButton.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Knob/TitleFeature.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/TitleFeature.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/TitleFeature.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/TitleFeature.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Knob/TrackFeature.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/TrackFeature.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/TrackFeature.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/TrackFeature.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Support/Logger.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Logger.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Logger.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Logger.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Theme.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Theme.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Theme.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/Theme.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Toggle/CheckedToggleStyle.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/CheckedToggleStyle.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/CheckedToggleStyle.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/CheckedToggleStyle.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/Sources/AUv3Controls/Toggle/ToggleFeature.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ToggleFeature.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ToggleFeature.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/ToggleFeature.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/GeneratedAssetSymbols.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/DerivedSources/resource_bundle_accessor.swift" : {
+    "index-unit-output-path" : "/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/resource_bundle_accessor.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/resource_bundle_accessor.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/AUv3Controls/build/AUv3Controls.build/Release-iphoneos/AUv3Controls.build/Objects-normal/arm64/resource_bundle_accessor.o"
+  }
+}

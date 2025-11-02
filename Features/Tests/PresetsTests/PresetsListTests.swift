@@ -66,7 +66,8 @@ struct PresetsListTests {
     return store
   }
 
-  @Test func initializeWithNoSoundFontId() async throws {
+  @Test
+  func initializeWithNoSoundFontId() async throws {
     let store = try setup(activeSoundFontId: nil, selectedSoundFontId: nil)
     #expect(store.state.sections.count == 0)
 
@@ -81,7 +82,8 @@ struct PresetsListTests {
     await store.finish()
   }
 
-  @Test func initializeWithSoundFontId() async throws {
+  @Test
+  func initializeWithSoundFontId() async throws {
     let store = try setup()
     #expect(store.state.sections.count == 0)
 
@@ -95,7 +97,8 @@ struct PresetsListTests {
     await store.finish()
   }
 
-  @Test func fetchPresets() async throws {
+  @Test
+  func fetchPresets() async throws {
     let store = try setup()
 
     await store.send(.fetchPresets) {
@@ -108,7 +111,8 @@ struct PresetsListTests {
     await store.finish()
   }
 
-  @Test func clearScrollTo() async throws {
+  @Test
+  func clearScrollTo() async throws {
     let store = try setup()
 
     await store.send(.fetchPresets) {
@@ -238,7 +242,8 @@ struct PresetsListTests {
     await store.finish()
   }
 
-  @Test func detectSoundFontIdChange() async throws {
+  @Test
+  func detectSoundFontIdChange() async throws {
     let store = try setup()
     await store.send(.initialize)
 
@@ -281,7 +286,8 @@ struct PresetsListTests {
     await store.finish()
   }
 
-  @Test func buttonTapped() async throws {
+  @Test
+  func buttonTapped() async throws {
     @Shared(.activeState) var activeState
     let store = try setup()
 
@@ -321,7 +327,8 @@ struct PresetsListTests {
     await store.finish()
   }
 
-  @Test func deleteFavoriteCancel() async throws {
+  @Test
+  func deleteFavoriteCancel() async throws {
     let store = try setup()
 
     await store.send(.fetchPresets) {
@@ -415,7 +422,8 @@ struct PresetsListTests {
     await store.finish()
   }
 
-  @Test func deleteFavoriteConfirm() async throws {
+  @Test
+  func deleteFavoriteConfirm() async throws {
     let store = try setup()
 
     await store.send(.fetchPresets) {
@@ -510,7 +518,8 @@ struct PresetsListTests {
     await store.finish()
   }
 
-  @Test func editButtonTapped() async throws {
+  @Test
+  func editButtonTapped() async throws {
     let store = try setup()
 
     await store.send(.fetchPresets) {
@@ -551,7 +560,8 @@ struct PresetsListTests {
     await store.finish()
   }
 
-  @Test func hidePresetFirstTimeCancel() async throws {
+  @Test
+  func hidePresetFirstTimeCancel() async throws {
     let store = try setup()
     @Shared(.confirmPresetHiding) var confirmPresetHiding
     #expect(confirmPresetHiding == true)
@@ -608,7 +618,8 @@ struct PresetsListTests {
     await store.finish()
   }
 
-  @Test func hidePresetFirstTimeConfirm() async throws {
+  @Test
+  func hidePresetFirstTimeConfirm() async throws {
     let store = try setup()
     @Shared(.confirmPresetHiding) var confirmPresetHiding
     #expect(confirmPresetHiding == true)
@@ -668,7 +679,8 @@ struct PresetsListTests {
     await store.finish()
   }
 
-  @Test func presetsListViewSearchingPreview() async throws {
+  @Test
+  func presetsListViewSearchingPreview() async throws {
     let store = StoreOf<PresetsList>(initialState: .init(searchText: "ian")) {
       PresetsList()
     }
@@ -679,7 +691,8 @@ struct PresetsListTests {
     }
   }
 
-  @Test func presetsListViewVisibilityEditing() async throws {
+  @Test
+  func presetsListViewVisibilityEditing() async throws {
     try withSnapshotTesting(record: .failed) {
       try TestSupport.assertSnapshot(matching: PresetsListView.previewEditing)
     }

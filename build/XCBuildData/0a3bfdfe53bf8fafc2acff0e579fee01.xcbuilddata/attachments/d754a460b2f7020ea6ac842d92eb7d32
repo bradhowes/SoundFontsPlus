@@ -1,0 +1,4 @@
+module SF2Resources {
+header "SF2Resources-Swift.h"
+export *
+}

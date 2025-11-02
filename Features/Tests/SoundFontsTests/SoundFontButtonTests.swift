@@ -22,14 +22,16 @@ struct SoundFontButtonTests {
     }
   }
 
-  @Test func buttonTapped() async throws {
+  @Test
+  func buttonTapped() async throws {
     let store = store(kind: .installed)
     #expect(store.state.id == 123)
     await store.send(\.buttonTapped)
     await store.receive(\.delegate.selectSoundFont, store.state.soundFontInfo)
   }
 
-  @Test func deleteButtonTappedOnInstalled() async throws {
+  @Test
+  func deleteButtonTappedOnInstalled() async throws {
     let store = store(kind: .installed)
 
     await store.send(.deleteButtonTapped) {
@@ -50,7 +52,8 @@ struct SoundFontButtonTests {
     await store.finish()
   }
 
-  @Test func deleteButtonTappedOnExternal() async throws {
+  @Test
+  func deleteButtonTappedOnExternal() async throws {
     let store = store(kind: .external)
 
     await store.send(.deleteButtonTapped) {
@@ -71,28 +74,32 @@ struct SoundFontButtonTests {
     await store.finish()
   }
 
-  @Test func deleteButtonTappedOnBuiltin() async throws {
+  @Test
+  func deleteButtonTappedOnBuiltin() async throws {
     let store = store(kind: .builtin)
     // This should never actually happen in the UI, but if it does it should do nothing
     await store.send(.deleteButtonTapped)
     await store.finish()
   }
 
-  @Test func editButtonTapped() async throws {
+  @Test
+  func editButtonTapped() async throws {
     let store = store(kind: .builtin)
     await store.send(.editButtonTapped)
     await store.receive(\.delegate.editSoundFont, store.state.soundFontInfo)
     await store.finish()
   }
 
-  @Test func longPressGestureFired() async throws {
+  @Test
+  func longPressGestureFired() async throws {
     let store = store(kind: .builtin)
     await store.send(.longPressGestureFired)
     await store.receive(\.delegate.editSoundFont, store.state.soundFontInfo)
     await store.finish()
   }
 
-  @Test func preview() async throws {
+  @Test
+  func preview() async throws {
     try TestSupport.assertSnapshot(matching: SoundFontButtonView.preview)
   }
 }

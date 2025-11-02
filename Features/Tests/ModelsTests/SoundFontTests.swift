@@ -100,7 +100,8 @@ struct SoundFontTests {
     #expect(soundFonts[3].elementCounts == (presetCount: 1, favoriteCount: 0, hiddenCount: 0))
   }
 
-  @Test func active() async throws {
+  @Test
+  func active() async throws {
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
     #expect(soundFonts.count == 2)
@@ -110,7 +111,8 @@ struct SoundFontTests {
     ])
   }
 
-  @Test func add() async throws {
+  @Test
+  func add() async throws {
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
 
@@ -133,7 +135,8 @@ struct SoundFontTests {
     #expect(tags.count == 2)
   }
 
-  @Test func deletingSoundFontDeletesPresets() async throws {
+  @Test
+  func deletingSoundFontDeletesPresets() async throws {
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
     #expect(soundFonts.count == 2)
@@ -146,7 +149,8 @@ struct SoundFontTests {
     #expect(sf.allPresets.count == 0)
   }
 
-  @Test func deletingSoundFontUpdatesTags() async throws {
+  @Test
+  func deletingSoundFontUpdatesTags() async throws {
     let allTag = FontTag.with(id: FontTag.Ubiquitous.all.id)!
     let builtInTag = FontTag.with(id: FontTag.Ubiquitous.builtIn.id)!
 

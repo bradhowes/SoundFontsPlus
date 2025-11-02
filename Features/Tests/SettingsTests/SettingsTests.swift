@@ -15,13 +15,15 @@ import TestSupport
 @MainActor
 struct SettingsTests {
 
-  @Test func initializeNoMidi() async throws {
+  @Test
+  func initializeNoMidi() async throws {
     let store = TestStore(initialState: Settings.State()) { Settings() }
     await store.send(.initialize)
     await store.send(.dismissButtonTapped)
   }
 
-  @Test func initializeWithMidi() async throws {
+  @Test
+  func initializeWithMidi() async throws {
     @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
     midi?.start()
     @Shared(.midiMonitor) var midiMonitor = MIDIMonitor()
@@ -40,7 +42,8 @@ struct SettingsTests {
     await store.send(.dismissButtonTapped)
   }
 
-  @Test func updateKeyWidth() async throws {
+  @Test
+  func updateKeyWidth() async throws {
     let store = TestStore(initialState: Settings.State()) { Settings() }
     await store.send(.initialize)
     await store.send(\.binding.keyWidth, 21.2)
@@ -49,7 +52,8 @@ struct SettingsTests {
     await store.send(.dismissButtonTapped)
   }
 
-  @Test func copyFileWhenInstalling() async throws {
+  @Test
+  func copyFileWhenInstalling() async throws {
     let store = TestStore(initialState: Settings.State()) { Settings() }
     await store.send(.initialize)
     await store.send(\.binding.copyFileWhenInstalling, false) {
@@ -69,7 +73,8 @@ struct SettingsTests {
     await store.send(.dismissButtonTapped)
   }
 
-  @Test func disableIdleTimer() async throws {
+  @Test
+  func disableIdleTimer() async throws {
     let store = TestStore(initialState: Settings.State()) { Settings() }
     await store.send(.initialize)
     await store.send(\.binding.disableIdleTimer, true) {
@@ -89,7 +94,8 @@ struct SettingsTests {
     await store.send(.dismissButtonTapped)
   }
 
-  @Test func midiAssignmentsButtonTapped() async throws {
+  @Test
+  func midiAssignmentsButtonTapped() async throws {
     let store = TestStore(initialState: Settings.State()) { Settings() }
     await store.send(.initialize)
     _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
@@ -99,7 +105,8 @@ struct SettingsTests {
     await store.send(.dismissButtonTapped)
   }
 
-  @Test func midiConnectionsButtonTapped() async throws {
+  @Test
+  func midiConnectionsButtonTapped() async throws {
     let store = TestStore(initialState: Settings.State()) { Settings() }
     await store.send(.initialize)
     _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
@@ -109,7 +116,8 @@ struct SettingsTests {
     await store.send(.dismissButtonTapped)
   }
 
-  @Test func midiControllersButtonTapped() async throws {
+  @Test
+  func midiControllersButtonTapped() async throws {
     let store = TestStore(initialState: Settings.State()) { Settings() }
     await store.send(.initialize)
     _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
@@ -119,7 +127,8 @@ struct SettingsTests {
     await store.send(.dismissButtonTapped)
   }
 
-  @Test func viewChangesTapped() async throws {
+  @Test
+  func viewChangesTapped() async throws {
     let store = TestStore(initialState: Settings.State()) { Settings() }
     await store.send(.initialize)
     await store.send(\.viewChangesTapped)
@@ -127,7 +136,8 @@ struct SettingsTests {
     await store.send(.dismissButtonTapped)
   }
 
-  @Test func viewTutorialTapped() async throws {
+  @Test
+  func viewTutorialTapped() async throws {
     let store = TestStore(initialState: Settings.State()) { Settings() }
     await store.send(.initialize)
     await store.send(\.viewTutorialTapped)
@@ -135,7 +145,8 @@ struct SettingsTests {
     await store.send(.dismissButtonTapped)
   }
 
-  @Test func settingsViewPreview() async throws {
+  @Test
+  func settingsViewPreview() async throws {
     let view = SettingsView.preview
     try TestSupport.assertSnapshot(matching: view)
   }

@@ -27,7 +27,8 @@ struct DelayConfigTests {
     return (presets, delayConfig!)
   }
 
-  @Test func draft() async throws {
+  @Test
+  func draft() async throws {
     let (presets, delayConfig) = try await setup()
     #expect(delayConfig.time == 1.5)
     #expect(delayConfig.feedback == 25.0)
@@ -66,7 +67,8 @@ struct DelayConfigTests {
     #expect(draft.time == 1.9)
   }
 
-  @Test func save() async throws {
+  @Test
+  func save() async throws {
     let (_, delayConfig) = try await setup()
     var draft = DelayConfig.Draft(delayConfig)
     draft.wetDryMix = 100.0
@@ -75,7 +77,8 @@ struct DelayConfigTests {
     #expect(savedConfig!.wetDryMix == 100.0)
   }
 
-  @Test func deleteCascades() async throws {
+  @Test
+  func deleteCascades() async throws {
     let (_, delayConfig) = try await setup()
 
     withDatabaseWriter { db in

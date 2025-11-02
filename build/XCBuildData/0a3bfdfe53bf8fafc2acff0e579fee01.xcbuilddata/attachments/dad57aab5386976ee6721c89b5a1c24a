@@ -1,0 +1,16 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ToolBar.build/Objects-normal/arm64/ToolBar-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ToolBar.build/Objects-normal/arm64/ToolBar-primary.d",
+    "diagnostics" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ToolBar.build/Objects-normal/arm64/ToolBar-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ToolBar.build/Objects-normal/arm64/ToolBar-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ToolBar.build/Objects-normal/arm64/ToolBar-primary-emit-module.dia",
+    "pch" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ToolBar.build/Objects-normal/arm64/ToolBar-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ToolBar.build/Objects-normal/arm64/ToolBar-primary.swiftdeps"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/ToolBar/ToolBar.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/ToolBar.build/Objects-normal/arm64/ToolBar.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ToolBar.build/Objects-normal/arm64/ToolBar.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ToolBar.build/Objects-normal/arm64/ToolBar.o"
+  }
+}

@@ -8,7 +8,8 @@ import Testing
 @Suite
 struct FourCharCodeTests {
 
-  @Test func isPrintableAscii() {
+  @Test
+  func isPrintableAscii() {
     #expect(!Character(UnicodeScalar(31)).isPrintableASCII)
     #expect(Character(" ").isPrintableASCII)
     #expect(Character(UnicodeScalar(126)).isPrintableASCII)
@@ -16,7 +17,8 @@ struct FourCharCodeTests {
     #expect(!Character("ñ").isPrintableASCII)
   }
 
-  @Test func initial() {
+  @Test
+  func initial() {
     #expect(FourCharCode("1234") == 825373492)
     #expect(FourCharCode(String("1234")) == 825373492)
     #expect(FourCharCode("") == FourCharCode.invalidFourCharCode)
@@ -26,7 +28,8 @@ struct FourCharCodeTests {
     #expect(FourCharCode("niño") == FourCharCode.invalidFourCharCode)
   }
 
-  @Test func stringValue() {
+  @Test
+  func stringValue() {
     #expect(FourCharCode("1234").stringValue == "1234")
     #expect(FourCharCode.invalidFourCharCode.stringValue == "????")
   }

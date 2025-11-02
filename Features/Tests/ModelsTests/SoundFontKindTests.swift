@@ -11,7 +11,8 @@ import Testing
 @MainActor
 struct SoundFontKindTests {
   
-  @Test func builtin() async throws {
+  @Test
+  func builtin() async throws {
     let sfk = SoundFontKind.builtin(resource: SF2ResourceTag.freeFont.url)
     #expect(sfk.isBuiltin)
     #expect(!sfk.isInstalled)
@@ -30,7 +31,8 @@ struct SoundFontKindTests {
     #expect(sfk.deleteWhenRemoved == false)
   }
 
-  @Test func installed() async throws {
+  @Test
+  func installed() async throws {
     let builtin = SoundFontKind.builtin(resource: SF2ResourceTag.freeFont.url)
     let (_, data) = try builtin.data()
     let sfk = try SoundFontKind(kind: .installed, location: data, displayName: "blah")
@@ -49,7 +51,8 @@ struct SoundFontKindTests {
     #expect(sfk.deleteWhenRemoved == true)
   }
 
-  @Test func external() async throws {
+  @Test
+  func external() async throws {
     let url = SF2ResourceTag.freeFont.url
     let bookmark = Bookmark(url: url, name: SF2ResourceTag.freeFont.name)
     let data = try bookmark.toData()
@@ -69,7 +72,8 @@ struct SoundFontKindTests {
     #expect(sfk.deleteWhenRemoved == false)
   }
 
-  @Test func fileInfo() throws {
+  @Test
+  func fileInfo() throws {
     let url = SF2ResourceTag.freeFont.url.appendingPathComponent(".bogus")
     let sfk = SoundFontKind.builtin(resource: url)
     #expect(throws: ModelError.loadFailure(url: url)) {
@@ -77,7 +81,8 @@ struct SoundFontKindTests {
     }
   }
 
-  @Test func dataToUrl() throws {
+  @Test
+  func dataToUrl() throws {
     let data = Data(count: 0)
     #expect(throws: ModelError.dataIsNotValidURL(data: data, displayName: "blah")) {
       try SoundFontKind(kind: .builtin, location: data, displayName: "blah")

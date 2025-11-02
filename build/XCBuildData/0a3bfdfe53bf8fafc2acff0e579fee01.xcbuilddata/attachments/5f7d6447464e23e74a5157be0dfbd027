@@ -1,0 +1,141 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Dependencies-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Dependencies-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Dependencies-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Dependencies-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Dependencies-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Dependencies-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Dependencies-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/Dependency.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Dependency.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Dependency.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Dependency.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyContext.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/DependencyContext.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/DependencyContext.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/DependencyContext.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyKey.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/DependencyKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/DependencyKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/DependencyKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/DependencyValues.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/DependencyValues.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/DependencyValues.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/Assert.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Assert.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Assert.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Assert.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/Calendar.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Calendar.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Calendar.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Calendar.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/Clocks.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Clocks.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Clocks.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Clocks.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/Context.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Context.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Context.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Context.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/Date.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Date.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Date.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Date.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/FireAndForget.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/FireAndForget.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/FireAndForget.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/FireAndForget.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/Locale.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Locale.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Locale.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Locale.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/MainQueue.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/MainQueue.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/MainQueue.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/MainQueue.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/MainRunLoop.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/MainRunLoop.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/MainRunLoop.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/MainRunLoop.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/NotificationCenter.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/NotificationCenter.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/NotificationCenter.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/NotificationCenter.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/OpenURL.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/OpenURL.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/OpenURL.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/OpenURL.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/TimeZone.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/TimeZone.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/TimeZone.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/TimeZone.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/URLSession.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/URLSession.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/URLSession.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/URLSession.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/UUID.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/UUID.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/UUID.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/UUID.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/DependencyValues/WithRandomNumberGenerator.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/WithRandomNumberGenerator.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/WithRandomNumberGenerator.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/WithRandomNumberGenerator.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/Internal/AppEntryPoint.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/AppEntryPoint.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/AppEntryPoint.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/AppEntryPoint.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/Internal/Deprecations.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Deprecations.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Deprecations.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Deprecations.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/Internal/Exports.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Exports.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Exports.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/Exports.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/Internal/TypeName.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/TypeName.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/TypeName.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/TypeName.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/Traits/PreviewTrait.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/PreviewTrait.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/PreviewTrait.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/PreviewTrait.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/Traits/TestTrait.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/TestTrait.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/TestTrait.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/TestTrait.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/Sources/Dependencies/WithDependencies.swift" : {
+    "index-unit-output-path" : "/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/WithDependencies.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/WithDependencies.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-dependencies/build/swift-dependencies.build/Release-iphoneos/Dependencies.build/Objects-normal/arm64/WithDependencies.o"
+  }
+}

@@ -1,0 +1,4 @@
+module SoundFonts {
+header "SoundFonts-Swift.h"
+export *
+}

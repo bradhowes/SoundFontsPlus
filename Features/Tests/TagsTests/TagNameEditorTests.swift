@@ -27,14 +27,16 @@ struct TagNameEditorTests {
     }
   }
 
-  @Test func deleteTag() async throws {
+  @Test
+  func deleteTag() async throws {
     let store = try store()
     await store.send(.tagSwipedToDelete)
     await store.receive(\.delegate, .tagSwipedToDelete(store.state.id))
     await store.finish()
   }
 
-  @Test func membershipButtonTapped() async throws {
+  @Test
+  func membershipButtonTapped() async throws {
     let store = try store(membership: false)
     await store.send(.binding(.set(\.membership, true))) {
       $0.membership = true
@@ -45,7 +47,8 @@ struct TagNameEditorTests {
     await store.finish()
   }
 
-  @Test func tagNameEditorPreview() async throws {
+  @Test
+  func tagNameEditorPreview() async throws {
     try TestSupport.assertSnapshot(matching: TagNameEditorView.preview)
   }
 }

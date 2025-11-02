@@ -30,7 +30,8 @@ struct MIDIConfigTests {
     return midiConfigs[0]
   }
 
-  @Test func with() async throws {
+  @Test
+  func with() async throws {
     let midiConfig = try await setup()
     #expect(midiConfig == MIDIConfig.with(id: 12345))
     #expect(midiConfig.id == 12345)

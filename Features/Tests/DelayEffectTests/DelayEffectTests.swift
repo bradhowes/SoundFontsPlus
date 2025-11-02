@@ -31,7 +31,8 @@ struct DelayEffectTests {
     }
   }
 
-  @Test func initialization() async throws {
+  @Test
+  func initialization() async throws {
     let store = store()
 
     store.exhaustivity = .off(showSkippedAssertions: false)
@@ -53,7 +54,8 @@ struct DelayEffectTests {
     #expect(store.state.time.value.isApproximatelyEqual(to: 0.5))
   }
 
-  @Test func enabledToggled() async throws {
+  @Test
+  func enabledToggled() async throws {
     let store = store()
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
       await store.send(.initialize)
@@ -99,7 +101,8 @@ struct DelayEffectTests {
     #expect(await device.getTimesChanged() == 2)
   }
 
-  @Test func wetDryMix() async throws {
+  @Test
+  func wetDryMix() async throws {
     let store = store()
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
       await store.send(.initialize)
@@ -168,7 +171,8 @@ struct DelayEffectTests {
     #expect(await device.getTimesChanged() == 3)
   }
 
-  @Test func globalLockDisabled() async throws {
+  @Test
+  func globalLockDisabled() async throws {
     @Shared(.delayLockEnabled) var locked = true
     let store = store()
 
@@ -229,7 +233,8 @@ struct DelayEffectTests {
     #expect(await device.getTimesChanged() == 2)
   }
 
-  @Test func presetIdChangedWhileLocked() async throws {
+  @Test
+  func presetIdChangedWhileLocked() async throws {
     @Shared(.delayLockEnabled) var locked = true
     let store = store()
 
@@ -302,7 +307,8 @@ struct DelayEffectTests {
     #expect(await device.getTimesChanged() == 2)
   }
 
-  @Test func preview1() throws {
+  @Test
+  func preview1() throws {
     let device = MockDelayDevice()
     try withDependencies {
       $0.delayDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })
@@ -311,7 +317,8 @@ struct DelayEffectTests {
     }
   }
 
-  @Test func preview2() throws {
+  @Test
+  func preview2() throws {
     let device = MockDelayDevice()
     try withDependencies {
       $0.delayDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })
@@ -320,7 +327,8 @@ struct DelayEffectTests {
     }
   }
   
-  @Test func preview3() throws {
+  @Test
+  func preview3() throws {
     let device = MockDelayDevice()
     try withDependencies {
       $0.delayDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })

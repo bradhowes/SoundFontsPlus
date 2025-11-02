@@ -24,7 +24,8 @@ struct ToolBarTests {
     }
   }
 
-  @Test func activeVoiceCountChanged() async throws {
+  @Test
+  func activeVoiceCountChanged() async throws {
     let store = try await store()
     await store.send(.initialize)
 
@@ -66,7 +67,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func editPresetVisibility() async throws {
+  @Test
+  func editPresetVisibility() async throws {
     let store = try await store()
     await store.send(.initialize)
 
@@ -115,7 +117,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func helpButtonTapped() async throws {
+  @Test
+  func helpButtonTapped() async throws {
     let store = try await store()
     await store.send(.initialize)
 
@@ -125,14 +128,16 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func initialize() async throws {
+  @Test
+  func initialize() async throws {
     let store = try await store()
     await store.send(.initialize)
     await store.send(.deinitialize)
     await store.finish()
   }
 
-  @Test func lastPlayedKeyChangedIgnore() async throws {
+  @Test
+  func lastPlayedKeyChangedIgnore() async throws {
     let store = try await store()
     await store.send(.initialize)
 
@@ -148,7 +153,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func lastPlayedKeyChangedShow() async throws {
+  @Test
+  func lastPlayedKeyChangedShow() async throws {
     @Shared(.showKeyNotes) var showKeyNotes
     $showKeyNotes.withLock { $0 = true }
 
@@ -163,7 +169,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func lastPlayedKeyChangedShowSolfege() async throws {
+  @Test
+  func lastPlayedKeyChangedShowSolfege() async throws {
     @Shared(.showSolfegeTags) var showSolfegeTags
     $showSolfegeTags.withLock { $0 = true }
 
@@ -200,7 +207,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func settingsButtonTapped() async throws {
+  @Test
+  func settingsButtonTapped() async throws {
     let store = try await store()
     await store.send(.initialize)
 
@@ -218,7 +226,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func setVisibleKeyRange() async throws {
+  @Test
+  func setVisibleKeyRange() async throws {
     let store = try await store()
     await store.send(.initialize)
 
@@ -231,7 +240,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func shiftKeyboardDownButtonTapped() async throws {
+  @Test
+  func shiftKeyboardDownButtonTapped() async throws {
     let store = try await store()
     await store.send(.initialize)
 
@@ -251,7 +261,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func shiftKeyboardUpButtonTapped() async throws {
+  @Test
+  func shiftKeyboardUpButtonTapped() async throws {
     let store = try await store()
     await store.send(.initialize)
 
@@ -271,7 +282,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test func showMoreButtonTapped() async throws {
+  @Test
+  func showMoreButtonTapped() async throws {
     let store = try await store()
     await store.send(.initialize)
 

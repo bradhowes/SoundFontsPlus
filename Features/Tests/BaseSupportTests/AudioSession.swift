@@ -9,7 +9,8 @@ import Testing
 @Suite
 struct AudioSessionTests {
 
-  @Test func liveClient() throws {
+  @Test
+  func liveClient() throws {
     let audioFormat: AVAudioFormat! = AVAudioFormat(
       commonFormat: .pcmFormatFloat32,
       sampleRate: 48_000.0,

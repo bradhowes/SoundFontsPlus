@@ -1,0 +1,66 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/RealModule-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/RealModule-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/RealModule-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/RealModule-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/RealModule-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/RealModule-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/RealModule-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/Sources/RealModule/AlgebraicField.swift" : {
+    "index-unit-output-path" : "/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/AlgebraicField.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/AlgebraicField.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/AlgebraicField.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/Sources/RealModule/ApproximateEquality.swift" : {
+    "index-unit-output-path" : "/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/ApproximateEquality.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/ApproximateEquality.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/ApproximateEquality.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/Sources/RealModule/AugmentedArithmetic.swift" : {
+    "index-unit-output-path" : "/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/AugmentedArithmetic.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/AugmentedArithmetic.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/AugmentedArithmetic.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/Sources/RealModule/Double+Real.swift" : {
+    "index-unit-output-path" : "/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Double+Real.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Double+Real.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Double+Real.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/Sources/RealModule/ElementaryFunctions.swift" : {
+    "index-unit-output-path" : "/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/ElementaryFunctions.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/ElementaryFunctions.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/ElementaryFunctions.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/Sources/RealModule/Float+Real.swift" : {
+    "index-unit-output-path" : "/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Float+Real.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Float+Real.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Float+Real.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/Sources/RealModule/Float16+Real.swift" : {
+    "index-unit-output-path" : "/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Float16+Real.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Float16+Real.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Float16+Real.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/Sources/RealModule/Float80+Real.swift" : {
+    "index-unit-output-path" : "/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Float80+Real.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Float80+Real.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Float80+Real.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/Sources/RealModule/Real.swift" : {
+    "index-unit-output-path" : "/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Real.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Real.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/Real.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/Sources/RealModule/RealFunctions.swift" : {
+    "index-unit-output-path" : "/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/RealFunctions.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/RealFunctions.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/RealFunctions.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/Sources/RealModule/RelaxedArithmetic.swift" : {
+    "index-unit-output-path" : "/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/RelaxedArithmetic.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/RelaxedArithmetic.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/RealModule.build/Objects-normal/arm64/RelaxedArithmetic.o"
+  }
+}

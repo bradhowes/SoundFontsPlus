@@ -8,7 +8,8 @@ import Testing
 @Suite
 struct ProcessInfoTests {
 
-  @Test func isOnGithub() {
+  @Test
+  func isOnGithub() {
     #expect(ProcessInfo.processInfo.isOnGithub == ProcessInfo.processInfo.isOnGithub)
   }
 }

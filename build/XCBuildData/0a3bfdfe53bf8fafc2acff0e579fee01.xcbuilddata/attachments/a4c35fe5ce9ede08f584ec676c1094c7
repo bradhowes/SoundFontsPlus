@@ -1,0 +1,4 @@
+module SF2File {
+umbrella "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/SF2Lib/Sources/SF2File/include"
+export *
+}

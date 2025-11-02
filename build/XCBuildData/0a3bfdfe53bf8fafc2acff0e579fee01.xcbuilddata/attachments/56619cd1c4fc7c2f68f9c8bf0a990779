@@ -1,0 +1,86 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/StructuredQueriesSQLiteCore-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/StructuredQueriesSQLiteCore-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/StructuredQueriesSQLiteCore-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/StructuredQueriesSQLiteCore-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/StructuredQueriesSQLiteCore-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/StructuredQueriesSQLiteCore-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/StructuredQueriesSQLiteCore-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/Cast.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Cast.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Cast.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Cast.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/Collation+SQLite.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Collation+SQLite.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Collation+SQLite.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Collation+SQLite.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/DatabaseFunction.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/DatabaseFunction.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/DatabaseFunction.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/DatabaseFunction.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/Exports.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Exports.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Exports.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Exports.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/FTS5.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/FTS5.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/FTS5.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/FTS5.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/Internal/Deprecations.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Deprecations.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Deprecations.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Deprecations.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/JSONFunctions.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/JSONFunctions.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/JSONFunctions.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/JSONFunctions.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/QueryRepresentable/Date+JulianDay.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Date+JulianDay.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Date+JulianDay.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Date+JulianDay.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/QueryRepresentable/Date+UnixTime.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Date+UnixTime.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Date+UnixTime.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Date+UnixTime.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/QueryRepresentable/UUID+Bytes.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/UUID+Bytes.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/UUID+Bytes.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/UUID+Bytes.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/QueryRepresentable/UUID+Uppercased.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/UUID+Uppercased.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/UUID+Uppercased.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/UUID+Uppercased.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/RowID.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/RowID.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/RowID.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/RowID.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/ScalarFunctions.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/ScalarFunctions.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/ScalarFunctions.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/ScalarFunctions.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/Triggers.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Triggers.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Triggers.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Triggers.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteCore/Views.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Views.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Views.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release-iphoneos/StructuredQueriesSQLiteCore.build/Objects-normal/arm64/Views.o"
+  }
+}

@@ -31,7 +31,8 @@ struct MIDIConnectionsTests {
     }
   }
 
-  @Test func autoConnectToggleTapped() async {
+  @Test
+  func autoConnectToggleTapped() async {
     let store = store()
     #expect(store.state.rows.count == 3)
     await store.send(.autoConnectToggleTapped(1)) {
@@ -50,7 +51,8 @@ struct MIDIConnectionsTests {
     #expect(rows[1].autoConnect == false)
   }
 
-  @Test func fixedVolumeDecrementTapped() async {
+  @Test
+  func fixedVolumeDecrementTapped() async {
     let store = store()
     #expect(store.state.rows.count == 3)
     await store.send(.fixedVolumeDecrementTapped(1)) {
@@ -68,7 +70,8 @@ struct MIDIConnectionsTests {
     #expect(rows[1].fixedVolume == 63)
   }
 
-  @Test func fixedVolumeIncrementTapped() async {
+  @Test
+  func fixedVolumeIncrementTapped() async {
     let store = store()
     #expect(store.state.rows.count == 3)
     await store.send(.fixedVolumeIncrementTapped(1)) {
@@ -86,7 +89,8 @@ struct MIDIConnectionsTests {
     #expect(rows[1].fixedVolume == 65)
   }
 
-  @Test func sawMIDITraffic() async {
+  @Test
+  func sawMIDITraffic() async {
     let store = store()
     #expect(store.state.rows.count == 3)
 
@@ -97,7 +101,8 @@ struct MIDIConnectionsTests {
     }
   }
 
-  @Test func updateMIDIConnections() async {
+  @Test
+  func updateMIDIConnections() async {
     let store = store()
     #expect(store.state.rows.count == 3)
 

@@ -1,0 +1,266 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteData-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteData-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteData-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteData-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteData-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteData-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteData-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/CloudKit+StructuredQueries.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudKit+StructuredQueries.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudKit+StructuredQueries.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudKit+StructuredQueries.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/CloudKitSharing.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudKitSharing.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudKitSharing.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudKitSharing.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/DefaultSyncEngine.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DefaultSyncEngine.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DefaultSyncEngine.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DefaultSyncEngine.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/IdentifierStringConvertible.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/IdentifierStringConvertible.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/IdentifierStringConvertible.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/IdentifierStringConvertible.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/CloudContainer.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudContainer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudContainer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudContainer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/CloudDatabase.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudDatabase.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudDatabase.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudDatabase.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/CloudKitFunctions.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudKitFunctions.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudKitFunctions.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CloudKitFunctions.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/DataManager.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DataManager.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DataManager.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DataManager.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/DatetimeGenerator.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DatetimeGenerator.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DatetimeGenerator.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DatetimeGenerator.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/DefaultNotificationCenter.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DefaultNotificationCenter.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DefaultNotificationCenter.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DefaultNotificationCenter.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/ForeignKey.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/ForeignKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/ForeignKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/ForeignKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/IsolatedWeakVar.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/IsolatedWeakVar.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/IsolatedWeakVar.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/IsolatedWeakVar.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/Logging.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Logging.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Logging.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Logging.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/Metadatabase.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Metadatabase.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Metadatabase.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Metadatabase.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/MockCloudContainer.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/MockCloudContainer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/MockCloudContainer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/MockCloudContainer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/MockCloudDatabase.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/MockCloudDatabase.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/MockCloudDatabase.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/MockCloudDatabase.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/MockSyncEngine.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/MockSyncEngine.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/MockSyncEngine.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/MockSyncEngine.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/PendingRecordZoneChange.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/PendingRecordZoneChange.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/PendingRecordZoneChange.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/PendingRecordZoneChange.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/Pragmas.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Pragmas.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Pragmas.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Pragmas.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/RecordType.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/RecordType.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/RecordType.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/RecordType.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/SQLiteSchema.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteSchema.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteSchema.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteSchema.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/StateSerialization.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/StateSerialization.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/StateSerialization.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/StateSerialization.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/SyncEngine.Event.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngine.Event.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngine.Event.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngine.Event.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/SyncEngineProtocol+Live.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngineProtocol+Live.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngineProtocol+Live.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngineProtocol+Live.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/SyncEngineProtocol.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngineProtocol.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngineProtocol.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngineProtocol.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/TableInfo.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/TableInfo.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/TableInfo.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/TableInfo.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/Triggers.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Triggers.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Triggers.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Triggers.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/UnsyncedRecordID.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/UnsyncedRecordID.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/UnsyncedRecordID.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/UnsyncedRecordID.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/UserDatabase.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/UserDatabase.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/UserDatabase.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/UserDatabase.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/Internal/_SendableMetatype.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/_SendableMetatype.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/_SendableMetatype.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/_SendableMetatype.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/PrimaryKeyMigration.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/PrimaryKeyMigration.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/PrimaryKeyMigration.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/PrimaryKeyMigration.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/SyncEngine.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngine.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngine.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngine.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/SyncEngineDelegate.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngineDelegate.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngineDelegate.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncEngineDelegate.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/CloudKit/SyncMetadata.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncMetadata.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncMetadata.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SyncMetadata.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/Fetch.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Fetch.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Fetch.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Fetch.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/FetchAll.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchAll.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchAll.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchAll.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/FetchKeyRequest.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchKeyRequest.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchKeyRequest.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchKeyRequest.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/FetchOne.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchOne.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchOne.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchOne.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/Internal/Exports.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Exports.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Exports.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Exports.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/Internal/FetchKey+SwiftUI.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchKey+SwiftUI.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchKey+SwiftUI.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchKey+SwiftUI.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/Internal/FetchKey.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/FetchKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/Internal/ISO8601.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/ISO8601.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/ISO8601.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/ISO8601.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/Internal/StatementKey.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/StatementKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/StatementKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/StatementKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/StructuredQueries+GRDB/CustomFunctions.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CustomFunctions.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CustomFunctions.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/CustomFunctions.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/StructuredQueries+GRDB/DefaultDatabase.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DefaultDatabase.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DefaultDatabase.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/DefaultDatabase.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/StructuredQueries+GRDB/QueryCursor.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/QueryCursor.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/QueryCursor.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/QueryCursor.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/StructuredQueries+GRDB/SQLiteFunctionDecoder.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteFunctionDecoder.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteFunctionDecoder.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteFunctionDecoder.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/StructuredQueries+GRDB/SQLiteQueryDecoder.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteQueryDecoder.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteQueryDecoder.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/SQLiteQueryDecoder.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/StructuredQueries+GRDB/Seed.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Seed.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Seed.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Seed.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/StructuredQueries+GRDB/Statement+GRDB.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Statement+GRDB.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Statement+GRDB.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Statement+GRDB.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/Sources/SQLiteData/Traits/Tagged.swift" : {
+    "index-unit-output-path" : "/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Tagged.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Tagged.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/sqlite-data/build/sqlite-data.build/Release-iphoneos/SQLiteData.build/Objects-normal/arm64/Tagged.o"
+  }
+}

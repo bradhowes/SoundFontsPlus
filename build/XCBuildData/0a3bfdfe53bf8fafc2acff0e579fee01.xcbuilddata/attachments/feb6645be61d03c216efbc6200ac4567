@@ -1,0 +1,4 @@
+module SwiftToasts {
+header "SwiftToasts-Swift.h"
+export *
+}

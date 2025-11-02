@@ -27,7 +27,8 @@ struct TuningTests {
     }
   }
 
-  @Test func initialization() async {
+  @Test
+  func initialization() async {
     let config = AudioConfig.Draft(
       customTuningEnabled: true,
       customTuning: 587.3295358348153,
@@ -42,7 +43,8 @@ struct TuningTests {
     #expect(store.state.enabled)
   }
 
-  @Test func updateConfig() async {
+  @Test
+  func updateConfig() async {
     var config = AudioConfig.Draft(
       customTuningEnabled: true,
       customTuning: 587.3295358348153,
@@ -73,7 +75,8 @@ struct TuningTests {
     #expect(config.customTuning == 440.0)
   }
 
-  @Test func standardTuningApplyPressed() async {
+  @Test
+  func standardTuningApplyPressed() async {
     let store = store(frequency: 329.62755691287, enabled: true)
 
     #expect(store.state.frequency.isApproximatelyEqual(to: 329.62755691287))
@@ -90,7 +93,8 @@ struct TuningTests {
     await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 440.0))
   }
 
-  @Test func scientificTuningApplyPressed() async {
+  @Test
+  func scientificTuningApplyPressed() async {
     let store = store(frequency: 456.0, enabled: true)
 
     #expect(store.state.frequency == 456.0)
@@ -105,7 +109,8 @@ struct TuningTests {
     await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 432.0))
   }
 
-  @Test func bindingCents() async {
+  @Test
+  func bindingCents() async {
     let store = store(frequency: 456.0, enabled: true)
 
     await store.send(\.binding.cents, 500) {
@@ -117,7 +122,8 @@ struct TuningTests {
     await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 587.3295358348151))
   }
 
-  @Test func centsSubmitted() async {
+  @Test
+  func centsSubmitted() async {
     let store = store(frequency: 456.0, enabled: true)
 
     await store.send(.centsSubmitted) {
@@ -129,13 +135,15 @@ struct TuningTests {
     await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 456.04310394454166))
   }
 
-  @Test func frequencySubmitted() async {
+  @Test
+  func frequencySubmitted() async {
     let store = store(frequency: 456.0, enabled: true)
     await store.send(.frequencySubmitted)
     await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 456.0))
   }
 
-  @Test func bindingEnabled() async {
+  @Test
+  func bindingEnabled() async {
     let store = store(frequency: 456.0, enabled: true)
 
     await store.send(\.binding.enabled, false) {
@@ -145,7 +153,8 @@ struct TuningTests {
     await store.receive(\.delegate, .tuningChanged(enabled: false, frequency: 456.0))
   }
 
-  @Test func bindingFrequency() async {
+  @Test
+  func bindingFrequency() async {
     let store = store(frequency: 456.0, enabled: true)
 
     await store.send(\.binding.frequency, 440.0) {
@@ -157,14 +166,16 @@ struct TuningTests {
     await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 440.0))
   }
 
-  @Test func disabled() async throws {
+  @Test
+  func disabled() async throws {
     let view = Form {
       TuningView(store: Store(initialState: .init(frequency: 587.3295358348151, enabled: false)) { Tuning() })
     }
     try TestSupport.assertSnapshot(matching: view)
   }
 
-  @Test func preview() async throws {
+  @Test
+  func preview() async throws {
     try TestSupport.assertSnapshot(matching: TuningView.preview)
   }
 }

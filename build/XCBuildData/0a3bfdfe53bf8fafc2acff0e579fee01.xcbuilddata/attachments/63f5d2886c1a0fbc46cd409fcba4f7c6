@@ -1,0 +1,91 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/DequeModule-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/DequeModule-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/DequeModule-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/DequeModule-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/DequeModule-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/DequeModule-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/DequeModule-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/Deque+Codable.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Codable.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Codable.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Codable.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/Deque+Collection.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Collection.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Collection.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Collection.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/Deque+CustomReflectable.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+CustomReflectable.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+CustomReflectable.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+CustomReflectable.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/Deque+Descriptions.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Descriptions.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Descriptions.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Descriptions.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/Deque+Equatable.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Equatable.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Equatable.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Equatable.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/Deque+ExpressibleByArrayLiteral.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+ExpressibleByArrayLiteral.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+ExpressibleByArrayLiteral.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+ExpressibleByArrayLiteral.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/Deque+Extras.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Extras.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Extras.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Extras.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/Deque+Hashable.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Hashable.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Hashable.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Hashable.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/Deque+Testing.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Testing.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Testing.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque+Testing.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/Deque._Storage.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque._Storage.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque._Storage.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque._Storage.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/Deque._UnsafeHandle.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque._UnsafeHandle.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque._UnsafeHandle.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque._UnsafeHandle.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/Deque.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/Deque.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/_DequeBuffer.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/_DequeBuffer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/_DequeBuffer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/_DequeBuffer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/_DequeBufferHeader.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/_DequeBufferHeader.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/_DequeBufferHeader.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/_DequeBufferHeader.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/_DequeSlot.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/_DequeSlot.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/_DequeSlot.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/_DequeSlot.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/Sources/DequeModule/_UnsafeWrappedBuffer.swift" : {
+    "index-unit-output-path" : "/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/_UnsafeWrappedBuffer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/_UnsafeWrappedBuffer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-collections/build/swift-collections.build/Release-iphoneos/DequeModule.build/Objects-normal/arm64/_UnsafeWrappedBuffer.o"
+  }
+}

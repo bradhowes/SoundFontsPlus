@@ -1,0 +1,4 @@
+module Synth {
+header "Synth-Swift.h"
+export *
+}

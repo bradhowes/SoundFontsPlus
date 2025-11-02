@@ -16,7 +16,8 @@ import TestSupport
 struct PrsetNameViewTests {
   let viewSize = CGSize(width: 200, height: 200)
 
-  @Test func defaultRendering() throws {
+  @Test
+  func defaultRendering() throws {
     @Shared(.favoriteSymbolName) var symbolName = "star.circle.fill"
     @Shared(.starFavoriteNames) var starFavoriteNames = true
 
@@ -52,7 +53,8 @@ struct PrsetNameViewTests {
     try TestSupport.assertSnapshot(matching: view, size: viewSize)
   }
 
-  @Test func noStarRendering() throws {
+  @Test
+  func noStarRendering() throws {
     @Shared(.favoriteSymbolName) var symbolName = "star.circle.fill"
     @Shared(.starFavoriteNames) var starFavoriteNames = false
 
@@ -88,7 +90,8 @@ struct PrsetNameViewTests {
     try TestSupport.assertSnapshot(matching: view, size: viewSize)
   }
 
-  @Test func emptySymbolRendering() throws {
+  @Test
+  func emptySymbolRendering() throws {
     @Shared(.favoriteSymbolName) var symbolName = ""
     @Shared(.starFavoriteNames) var starFavoriteNames = true
 

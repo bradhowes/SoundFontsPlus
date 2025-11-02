@@ -35,7 +35,8 @@ struct TagsEditorTests {
     }
   }
 
-  @Test func addButtonTapped() async {
+  @Test
+  func addButtonTapped() async {
     let store = store(mode: .tagEditing)
     var rows = store.state.rows
     #expect(rows.count == 4)
@@ -66,7 +67,8 @@ struct TagsEditorTests {
     }
   }
 
-  @Test func addButtonTappedForFont() async {
+  @Test
+  func addButtonTappedForFont() async {
     let store = store(mode: .fontEditing, soundFontId: 1, memberships: [:])
     var rows = store.state.rows
     #expect(rows.count == 4)
@@ -98,7 +100,8 @@ struct TagsEditorTests {
     }
   }
 
-  @Test func cancelButtonTapped() async {
+  @Test
+  func cancelButtonTapped() async {
     let store = store(mode: .tagEditing, soundFontId: 1, memberships: [:])
     var rows = store.state.rows
     #expect(rows.count == 4)
@@ -125,7 +128,8 @@ struct TagsEditorTests {
     #expect(found.count == 4)
   }
 
-  @Test func deleteButtonTappedOnNew() async {
+  @Test
+  func deleteButtonTappedOnNew() async {
     let store = store(mode: .tagEditing, soundFontId: 1, memberships: [:])
     var rows = store.state.rows
     #expect(rows.count == 4)
@@ -152,7 +156,8 @@ struct TagsEditorTests {
     }
   }
 
-  @Test func deleteButtonTappedOnOld() async {
+  @Test
+  func deleteButtonTappedOnOld() async {
     let store = store(mode: .tagEditing, soundFontId: 1, memberships: [:])
     var rows = store.state.rows
 
@@ -166,7 +171,8 @@ struct TagsEditorTests {
     }
   }
 
-  @Test func deleteButtonSwipedOnOld() async {
+  @Test
+  func deleteButtonSwipedOnOld() async {
     let store = store(mode: .tagEditing)
     var rows = store.state.rows
 
@@ -180,12 +186,14 @@ struct TagsEditorTests {
     }
   }
 
-  @Test func deleteButtonTappedInvalidIndex() async {
+  @Test
+  func deleteButtonTappedInvalidIndex() async {
     let store = store(mode: .fontEditing, soundFontId: 1, memberships: [:])
     await store.send(.deleteButtonTapped(at: IndexSet([-1])))
   }
 
-  @Test func saveButtonTapped() async {
+  @Test
+  func saveButtonTapped() async {
     let store = store(mode: .tagEditing, soundFontId: 1, memberships: [:])
     var rows = store.state.rows
     #expect(rows.count == 4)
@@ -220,7 +228,8 @@ struct TagsEditorTests {
     #expect(found.first(where: { $0.displayName == "New Tag" }) != nil)
   }
 
-  @Test func tagMoved() async {
+  @Test
+  func tagMoved() async {
     let store = store(mode: .tagEditing)
     var rows = store.state.rows
     rows.move(fromOffsets: IndexSet([1]), toOffset: 3)
@@ -229,7 +238,8 @@ struct TagsEditorTests {
     }
   }
 
-  @Test func toggleEditMode() async {
+  @Test
+  func toggleEditMode() async {
     let store = store(mode: .tagEditing)
     await store.send(.toggleEditMode) {
       $0.editMode = .active
@@ -239,15 +249,18 @@ struct TagsEditorTests {
     }
   }
 
-  @Test func preview() async throws {
+  @Test
+  func preview() async throws {
     try TestSupport.assertSnapshot(matching: TagsEditorView.preview)
   }
 
-  @Test func previewInEditMode() async throws {
+  @Test
+  func previewInEditMode() async throws {
     try TestSupport.assertSnapshot(matching: TagsEditorView.previewInEditMode)
   }
 
-  @Test func previewWithMemberships() async throws {
+  @Test
+  func previewWithMemberships() async throws {
     try TestSupport.assertSnapshot(matching: TagsEditorView.previewWithMemberships)
   }
 }

@@ -9,7 +9,8 @@ import Testing
 @Suite
 struct AVAudioUnitTests {
 
-  @Test func midiInstrument() async throws {
+  @Test
+  func midiInstrument() async throws {
     let no = AVAudioUnitReverb()
     #expect(no.midiInstrument == nil)
     let yes = AVAudioUnitSampler()

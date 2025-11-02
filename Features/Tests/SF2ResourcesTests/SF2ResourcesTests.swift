@@ -9,14 +9,16 @@ import Testing
 @Suite
 struct SF2ResourcesTests {
 
-  @Test func resourcesExist() throws {
+  @Test
+  func resourcesExist() throws {
     #expect(SF2Resource.resources.count == 4)
     for url in SF2Resource.resources {
       #expect(try url.checkResourceIsReachable() == true)
     }
   }
 
-  @Test func resourceByFileName() throws {
+  @Test
+  func resourceByFileName() throws {
     for name in ["RolandNicePiano", "FreeFont", "GeneralUser GS MuseScore v1.442"] {
       let url = try SF2Resource.resource(fileName: name)
       #expect(try url.checkResourceIsReachable())
@@ -26,7 +28,8 @@ struct SF2ResourcesTests {
     }
   }
 
-  @Test func resourceByTag() throws {
+  @Test
+  func resourceByTag() throws {
     for tag in SF2ResourceTag.allCases {
       let url = SF2Resource.resources[tag.resourceIndex]
       #expect(url == tag.url)
@@ -34,14 +37,16 @@ struct SF2ResourcesTests {
     }
   }
 
-  @Test func resourceNames() throws {
+  @Test
+  func resourceNames() throws {
     #expect(SF2ResourceTag.fluidFont.name == "Fluid R3")
     #expect(SF2ResourceTag.freeFont.name == "FreeFont")
     #expect(SF2ResourceTag.museScore.name == "MuseScore")
     #expect(SF2ResourceTag.rolandNicePiano.name == "Roland Piano")
   }
 
-  @Test func fluidFontFileInfo() throws {
+  @Test
+  func fluidFontFileInfo() throws {
     let fileInfo = SF2ResourceTag.fluidFont.fileInfo!
     #expect(fileInfo.embeddedName() == "Fluid R3 GM")
     #expect(fileInfo.embeddedAuthor() == "Frank Wen")
@@ -50,7 +55,8 @@ struct SF2ResourcesTests {
     #expect(fileInfo.size() == 189)
   }
 
-  @Test func freeFontFileInfo() throws {
+  @Test
+  func freeFontFileInfo() throws {
     let fileInfo = SF2ResourceTag.freeFont.fileInfo!
     #expect(fileInfo.embeddedName() == "Free Font GM Ver. 3.2")
     #expect(fileInfo.embeddedAuthor() == "")
@@ -76,7 +82,8 @@ struct SF2ResourcesTests {
     #expect(presetInfo.program() == 56)
   }
 
-  @Test func rolandNicePianoFileInfo() throws {
+  @Test
+  func rolandNicePianoFileInfo() throws {
     let fileInfo = SF2ResourceTag.rolandNicePiano.fileInfo!
     #expect(fileInfo.embeddedName() == "User Bank")
     #expect(fileInfo.embeddedAuthor() == "Vienna Master")
@@ -90,7 +97,8 @@ struct SF2ResourcesTests {
     #expect(presetInfo.program() == 1)
   }
 
-  @Test func museScoreFileInfo() throws {
+  @Test
+  func museScoreFileInfo() throws {
     let fileInfo = SF2ResourceTag.museScore.fileInfo!
     #expect(fileInfo.embeddedName() == "GeneralUser GS MuseScore version 1.442")
     #expect(fileInfo.embeddedAuthor() == "S. Christian Collins")

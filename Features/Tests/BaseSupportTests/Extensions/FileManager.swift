@@ -8,7 +8,8 @@ import Testing
 @Suite
 struct FileManagerTests {
 
-  @Test func sharedDocumentsDirectory() async throws {
+  @Test
+  func sharedDocumentsDirectory() async throws {
     let url = FileManager.default.sharedDocumentsDirectory
     #expect(url.path() != "")
     #expect(FileManager.default.fileExists(atPath: url.path()))
@@ -17,24 +18,29 @@ struct FileManagerTests {
     #expect(FileManager.default.sharedDocumentsDirectory.path() != "")
   }
 
-  @Test func hasCloudDirectory() async throws {
+  @Test
+  func hasCloudDirectory() async throws {
     #expect(FileManager.default.hasCloudDirectory == (FileManager.default.ubiquityIdentityToken != nil))
   }
 
-  @Test func localDocumentsDirectory() async throws {
+  @Test
+  func localDocumentsDirectory() async throws {
     #expect(FileManager.default.localDocumentsDirectory.path() != "")
   }
 
-  @Test func cloudDocumentsDirectory() async throws {
+  @Test
+  func cloudDocumentsDirectory() async throws {
     #expect(FileManager.default.cloudDocumentsDirectory == nil)
   }
 
-  @Test func fileSizeOfUrl() async throws {
+  @Test
+  func fileSizeOfUrl() async throws {
     #expect(FileManager.default.fileSizeOf(url: Bundle.main.bundleURL) != 0)
     #expect(FileManager.default.fileSizeOf(url: URL(filePath: "blahblahblah")!) == 0)
   }
 
-  @Test func fileManagerLiveClient() async throws {
+  @Test
+  func fileManagerLiveClient() async throws {
     let uat = FileManagerClient.liveValue
     #expect(uat.hasCloudDirectory() == FileManager.default.hasCloudDirectory)
     #expect(uat.localDocumentsDirectory() == FileManager.default.localDocumentsDirectory)
@@ -44,7 +50,8 @@ struct FileManagerTests {
     #expect(uat.isUbiquitousItem(Bundle.main.bundleURL) == FileManager.default.isUbiquitousItem(at: Bundle.main.bundleURL))
   }
 
-  @Test func fileManagerPreviewClient() async throws {
+  @Test
+  func fileManagerPreviewClient() async throws {
     let uat = FileManagerClient.previewValue
     #expect(uat.hasCloudDirectory() == false)
     #expect(uat.localDocumentsDirectory() == FileManager.default.localDocumentsDirectory)

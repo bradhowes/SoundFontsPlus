@@ -1,0 +1,4 @@
+module Root {
+header "Root-Swift.h"
+export *
+}

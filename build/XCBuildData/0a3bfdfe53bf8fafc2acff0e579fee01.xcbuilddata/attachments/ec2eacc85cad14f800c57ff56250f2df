@@ -1,0 +1,4 @@
+module StructuredQueriesCore {
+header "StructuredQueriesCore-Swift.h"
+export *
+}

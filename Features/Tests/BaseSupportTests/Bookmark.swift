@@ -8,19 +8,22 @@ import Testing
 
 struct BookmarkTests {
 
-  @Test func testRestore() throws {
+  @Test
+  func testRestore() throws {
     let url = SF2ResourceTag.freeFont.url
     let bookmark = Bookmark(url: url, name: SF2ResourceTag.freeFont.name)
     #expect(bookmark.url == url)
   }
 
-  @Test func testIsAvailable() throws {
+  @Test
+  func testIsAvailable() throws {
     let url = SF2ResourceTag.freeFont.url
     let bookmark = Bookmark(url: url, name: SF2ResourceTag.freeFont.name)
     #expect(bookmark.isAvailable)
   }
 
-  @Test func testCloudState() throws {
+  @Test
+  func testCloudState() throws {
     prepareDependencies {
       $0.fileManager = .liveValue
     }
@@ -30,7 +33,8 @@ struct BookmarkTests {
     #expect(bookmark.cloudState == .local)
   }
 
-  @Test func testIsUbiquitous() throws {
+  @Test
+  func testIsUbiquitous() throws {
     prepareDependencies {
       $0.fileManager = .liveValue
     }
@@ -40,7 +44,8 @@ struct BookmarkTests {
     #expect(bookmark.isUbiquitous == false)
   }
 
-  @Test func testEncodingDecoding() throws {
+  @Test
+  func testEncodingDecoding() throws {
     let url = SF2ResourceTag.freeFont.url
     let bookmark = Bookmark(url: url, name: SF2ResourceTag.freeFont.name)
 

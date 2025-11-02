@@ -50,7 +50,8 @@ struct RootTests {
     await store.finish()
   }
 
-  @Test func disableIdleTimer() throws {
+  @Test
+  func disableIdleTimer() throws {
     @Shared(.disableIdleTimer) var disableIdleTimer = false
     #expect(!UIKit.UIApplication.shared.isIdleTimerDisabled)
 
@@ -63,7 +64,8 @@ struct RootTests {
     // #expect(UIKit.UIApplication.shared.isIdleTimerDisabled)
   }
 
-  @Test func initialize() async throws {
+  @Test
+  func initialize() async throws {
     let store = store()
 
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
@@ -80,7 +82,8 @@ struct RootTests {
     await store.finish()
   }
 
-  @Test func processPresetsSplitAction() async throws {
+  @Test
+  func processPresetsSplitAction() async throws {
     try await initialized { store in
       @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
       #expect(fontsAndPresetsSplitPosition == 0.5)
@@ -89,7 +92,8 @@ struct RootTests {
     }
   }
 
-  @Test func processTagsSplitAction() async throws {
+  @Test
+  func processTagsSplitAction() async throws {
     try await initialized { store in
       @Shared(.tagsListVisible) var tagsListVisible
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
@@ -101,7 +105,8 @@ struct RootTests {
     }
   }
 
-  @Test func refreshPresets() async throws {
+  @Test
+  func refreshPresets() async throws {
     try await initialized { store in
       let soundFont = SoundFont.with(id: 1)!
       await store.send(\.soundFontsList.delegate, .edit(soundFont))
@@ -110,7 +115,8 @@ struct RootTests {
     }
   }
 
-  @Test func showChanges() async throws {
+  @Test
+  func showChanges() async throws {
     try await initialized { store in
       @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
       await store.send(\.toolBar.delegate, .settingsButtonTapped)
@@ -132,7 +138,8 @@ struct RootTests {
 //    }
 //  }
 
-  @Test func showSoundFontEditor() async throws {
+  @Test
+  func showSoundFontEditor() async throws {
     try await initialized { store in
       let soundFont = SoundFont.with(id: 1)!
       await store.send(\.soundFontsList.delegate, .edit(soundFont))
@@ -140,13 +147,15 @@ struct RootTests {
     }
   }
 
-  @Test func showTagsEditor() async throws {
+  @Test
+  func showTagsEditor() async throws {
     try await initialized { store in
       await store.send(\.tagsList.delegate, .edit(1))
     }
   }
 
-  @Test func showTutorial() async throws {
+  @Test
+  func showTutorial() async throws {
     try await initialized { store in
       @Shared(.showedTutorial) var showedTutorial
       await store.send(\.toolBar.delegate, .settingsButtonTapped)
@@ -159,7 +168,8 @@ struct RootTests {
     }
   }
 
-  @Test func rootViewPreview() async throws {
+  @Test
+  func rootViewPreview() async throws {
     try TestSupport.assertSnapshot(matching: RootView.preview)
   }
 }

@@ -8,18 +8,21 @@ import Numerics
 @Suite
 struct DSPTests {
 
-  @Test func panToCCValue() throws {
+  @Test
+  func panToCCValue() throws {
     #expect(DSP.panToCCValue(-1.0) == UInt8(0))
     #expect(DSP.panToCCValue(0.0) == UInt8(63))
     #expect(DSP.panToCCValue(1.0) == UInt8(127))
   }
 
-  @Test func gainToCCValue() throws {
+  @Test
+  func gainToCCValue() throws {
     #expect(DSP.gainToCCValue(1.0) == UInt8(1))
     #expect(DSP.gainToCCValue(0.0) == UInt8(0))
   }
 
-  @Test func attenuationConversions() throws {
+  @Test
+  func attenuationConversions() throws {
     var gain = DSP.Attenuation(value: 0.0)
     #expect(gain.slider.isApproximatelyEqual(to: 0.0))
     #expect(gain.value.isApproximatelyEqual(to: 0.0))
@@ -40,7 +43,8 @@ struct DSPTests {
     #expect(gain.value.isApproximatelyEqual(to: 0.0))
   }
 
-  @Test func panConversions() throws {
+  @Test
+  func panConversions() throws {
     var pan = DSP.Pan(value: 0.0)
     #expect(pan.slider.isApproximatelyEqual(to: 0.0))
     #expect(pan.value.isApproximatelyEqual(to: 0.0))
@@ -61,4 +65,3 @@ struct DSPTests {
     #expect(pan.value.isApproximatelyEqual(to: 0.0))
   }
 }
-

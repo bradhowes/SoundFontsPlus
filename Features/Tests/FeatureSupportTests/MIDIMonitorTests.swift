@@ -13,13 +13,15 @@ import TestSupport
 @MainActor
 struct MIDIMonitorTests {
 
-  @Test func misc() {
+  @Test
+  func misc() {
     let monitor = MIDIMonitor()
     #expect(monitor.channel == -1)
     #expect(monitor.group == -1)
   }
 
-  @Test func monitorNoSynth() {
+  @Test
+  func monitorNoSynth() {
     @Shared(.midiChannel) var midiChannel = -1
 
     let monitor = MIDIMonitor()
@@ -31,7 +33,8 @@ struct MIDIMonitorTests {
     monitor.noteOff(source: 123, note: 60, velocity: 64, channel:1)
   }
 
-  @Test func monitorWithSynth() {
+  @Test
+  func monitorWithSynth() {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
@@ -47,7 +50,8 @@ struct MIDIMonitorTests {
     #expect(mau.events.count == 2)
   }
 
-  @Test func forwarding() {
+  @Test
+  func forwarding() {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
@@ -74,7 +78,8 @@ struct MIDIMonitorTests {
     #expect(mau.events.last! == (.reset, 0, 0, 0))
   }
 
-  @Test func trafficOmni() {
+  @Test
+  func trafficOmni() {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
@@ -86,7 +91,8 @@ struct MIDIMonitorTests {
     #expect(monitor.traffic! == MIDITraffic(id: 124, channel: 1, accepted: true))
   }
 
-  @Test func trafficOneChannel() {
+  @Test
+  func trafficOneChannel() {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = 1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
@@ -100,7 +106,8 @@ struct MIDIMonitorTests {
     #expect(monitor.traffic! == MIDITraffic(id: 124, channel: 2, accepted: false))
   }
 
-  @Test func unusedMethods() {
+  @Test
+  func unusedMethods() {
     let monitor = MIDIMonitor()
     #expect(throws: Never.self) {
       monitor.noteOff2(source: 123, note: 84, velocity: 12345, channel: 0, attributeType: 0, attributeData: 0)

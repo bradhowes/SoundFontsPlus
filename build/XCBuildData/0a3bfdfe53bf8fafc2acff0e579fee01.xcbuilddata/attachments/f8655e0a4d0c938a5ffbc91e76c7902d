@@ -1,0 +1,4 @@
+module MorkAndMIDI {
+header "MorkAndMIDI-Swift.h"
+export *
+}

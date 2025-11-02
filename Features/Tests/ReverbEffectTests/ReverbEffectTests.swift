@@ -31,7 +31,8 @@ struct ReverbEffectTests {
     }
   }
 
-  @Test func initialization() async throws {
+  @Test
+  func initialization() async throws {
     let store = store()
 
     store.exhaustivity = .off(showSkippedAssertions: false)
@@ -50,7 +51,8 @@ struct ReverbEffectTests {
     #expect(await device.getTimesChanged() == 1)
   }
 
-  @Test func roomPresetChanged() async throws {
+  @Test
+  func roomPresetChanged() async throws {
     let store = store()
 
     store.exhaustivity = .off(showSkippedAssertions: false)
@@ -93,7 +95,8 @@ struct ReverbEffectTests {
     #expect(await device.getTimesChanged() == 2)
   }
 
-  @Test func enabledToggled() async throws {
+  @Test
+  func enabledToggled() async throws {
     let store = store()
 
     store.exhaustivity = .off(showSkippedAssertions: false)
@@ -136,7 +139,8 @@ struct ReverbEffectTests {
     #expect(await device.getTimesChanged() == 2)
   }
 
-  @Test func wetDryMix() async throws {
+  @Test
+  func wetDryMix() async throws {
     let store = store()
 
     store.exhaustivity = .off(showSkippedAssertions: false)
@@ -202,7 +206,8 @@ struct ReverbEffectTests {
     #expect(await device.getTimesChanged() == 3)
   }
 
-  @Test func globalLockDisabled() async throws {
+  @Test
+  func globalLockDisabled() async throws {
     @Shared(.reverbLockEnabled) var locked = true
     let store = store()
 
@@ -258,7 +263,8 @@ struct ReverbEffectTests {
     #expect(await device.getTimesChanged() == 2)
   }
 
-  @Test func presetIdChangedWhileLocked() async throws {
+  @Test
+  func presetIdChangedWhileLocked() async throws {
     @Shared(.reverbLockEnabled) var locked = true
     let store = store()
 
@@ -322,7 +328,8 @@ struct ReverbEffectTests {
     #expect(await device.getTimesChanged() == 2)
   }
 
-  @Test func preview() throws {
+  @Test
+  func preview() throws {
     let device = MockReverbDevice()
     try withDependencies {
       $0.reverbDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })

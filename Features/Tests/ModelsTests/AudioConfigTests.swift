@@ -33,7 +33,8 @@ struct AudioConfigTests {
     return (presets, audioConfigs![0])
   }
 
-  @Test func createNew() async throws {
+  @Test
+  func createNew() async throws {
     let (_, audioConfig) = try await setup()
     #expect(audioConfig.gain == 0.0)
     #expect(audioConfig.pan == 0.5)
@@ -44,14 +45,16 @@ struct AudioConfigTests {
     #expect(audioConfig.customTuning == 440.0)
   }
 
-  @Test func with() async throws {
+  @Test
+  func with() async throws {
     let (_, audioConfig) = try await setup()
     #expect(audioConfig == AudioConfig.with(presetId: audioConfig.presetId))
     #expect(nil == AudioConfig.with(presetId: nil))
     #expect(nil == AudioConfig.with(presetId: 123123))
   }
 
-  @Test func updating() async throws {
+  @Test
+  func updating() async throws {
     let (_, audioConfig) = try await setup()
     let check = withDatabaseWriter { db in
       try AudioConfig.update {
@@ -81,7 +84,8 @@ struct AudioConfigTests {
     }
   }
 
-  @Test func clone() async throws {
+  @Test
+  func clone() async throws {
     let (_, audioConfig) = try await setup()
 
     let cloned = audioConfig.clone(presetId: 2)
@@ -97,7 +101,8 @@ struct AudioConfigTests {
     #expect(AudioConfig.with(presetId: 2) == cloned)
   }
 
-  @Test func deleteCascades() async throws {
+  @Test
+  func deleteCascades() async throws {
     let (_, audioConfig) = try await setup()
 
     withDatabaseWriter { db in

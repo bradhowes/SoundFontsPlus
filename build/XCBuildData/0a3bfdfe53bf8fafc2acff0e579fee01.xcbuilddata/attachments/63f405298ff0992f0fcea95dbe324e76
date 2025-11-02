@@ -1,0 +1,86 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MorkAndMIDI-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MorkAndMIDI-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MorkAndMIDI-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MorkAndMIDI-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MorkAndMIDI-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MorkAndMIDI-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MorkAndMIDI-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/Extensions/MIDINotificationMessageID.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDINotificationMessageID.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDINotificationMessageID.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDINotificationMessageID.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/Extensions/MIDIObjectRef.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDIObjectRef.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDIObjectRef.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDIObjectRef.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/Extensions/MIDIUniqueID.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDIUniqueID.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDIUniqueID.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDIUniqueID.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/Extensions/OSStatus.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/OSStatus.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/OSStatus.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/OSStatus.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/Extensions/String.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/String.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/String.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/String.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/Extensions/UInt32.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/UInt32.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/UInt32.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/UInt32.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/Extensions/UInt8.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/UInt8.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/UInt8.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/UInt8.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/KnownEntities.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/KnownEntities.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/KnownEntities.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/KnownEntities.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/Logging.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/Logging.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/Logging.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/Logging.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/MIDI.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDI.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDI.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDI.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/MIDI1Parser.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDI1Parser.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDI1Parser.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDI1Parser.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/MIDI2Parser.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDI2Parser.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDI2Parser.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDI2Parser.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/MIDIProto.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDIProto.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDIProto.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/MIDIProto.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/Monitor.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/Monitor.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/Monitor.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/Monitor.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/Sources/MorkAndMIDI/Receiver.swift" : {
+    "index-unit-output-path" : "/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/Receiver.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/Receiver.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/morkandmidi/build/MorkAndMIDI.build/Release-iphoneos/MorkAndMIDI.build/Objects-normal/arm64/Receiver.o"
+  }
+}

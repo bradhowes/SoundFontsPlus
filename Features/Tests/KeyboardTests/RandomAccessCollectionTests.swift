@@ -16,12 +16,14 @@ import TestSupport
 @MainActor
 struct OrderedInsertionIndexTests {
 
-  @Test func empty() async throws {
+  @Test
+  func empty() async throws {
     let uat: [CGRect] = []
     #expect(uat.orderedInsertionIndex(for: .zero) == 0)
   }
 
-  @Test func one() async throws {
+  @Test
+  func one() async throws {
     let uat: [CGRect] = [
       .init(x: 10, y: 0, width: 10, height: 10)
     ]
@@ -30,7 +32,8 @@ struct OrderedInsertionIndexTests {
     #expect(uat.orderedInsertionIndex(for: .init(x: 20, y: 0)) == uat.count)
   }
 
-  @Test func multiple() async throws {
+  @Test
+  func multiple() async throws {
     let uat: [CGRect] = [
       .init(x: 0, y: 0, width: 10, height: 10),
       .init(x: 10, y: 0, width: 10, height: 10),
@@ -46,7 +49,8 @@ struct OrderedInsertionIndexTests {
     #expect(uat.orderedInsertionIndex(for: .init(x: 65, y: 0)) == uat.count)
   }
 
-  @Test func overlapping() async throws {
+  @Test
+  func overlapping() async throws {
     let uat: [CGRect] = [
       .init(x: 0, y: 0, width: 10, height: 10), // C
       .init(x: 7, y: 0, width: 6, height: 5), // C#

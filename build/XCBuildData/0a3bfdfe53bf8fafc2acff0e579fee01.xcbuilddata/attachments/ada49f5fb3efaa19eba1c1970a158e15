@@ -1,0 +1,4 @@
+module BRHSplitView {
+header "BRHSplitView-Swift.h"
+export *
+}

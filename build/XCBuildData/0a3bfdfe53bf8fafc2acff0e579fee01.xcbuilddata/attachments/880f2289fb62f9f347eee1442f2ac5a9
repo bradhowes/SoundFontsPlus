@@ -1,0 +1,31 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/PerceptionMacros-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/PerceptionMacros-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/PerceptionMacros-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/PerceptionMacros-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/PerceptionMacros-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/PerceptionMacros-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/PerceptionMacros-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Availability.swift" : {
+    "index-unit-output-path" : "/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/Availability.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/Availability.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/Availability.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Extensions.swift" : {
+    "index-unit-output-path" : "/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/Extensions.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/Extensions.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/Extensions.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/PerceptibleMacro.swift" : {
+    "index-unit-output-path" : "/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/PerceptibleMacro.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/PerceptibleMacro.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/PerceptibleMacro.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/Sources/PerceptionMacros/Plugins.swift" : {
+    "index-unit-output-path" : "/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/Plugins.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/Plugins.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-perception/build/swift-perception.build/Release/PerceptionMacros.build/Objects-normal/arm64/Plugins.o"
+  }
+}

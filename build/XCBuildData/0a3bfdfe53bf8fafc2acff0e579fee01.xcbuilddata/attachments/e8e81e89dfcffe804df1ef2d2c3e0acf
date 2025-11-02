@@ -1,0 +1,4 @@
+module DelayEffect {
+header "DelayEffect-Swift.h"
+export *
+}

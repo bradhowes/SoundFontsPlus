@@ -23,7 +23,8 @@ struct PresetLoadingInfoTests {
     withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
   }
 
-  @Test func activePresetLoadingInfo() async throws {
+  @Test
+  func activePresetLoadingInfo() async throws {
     @Shared(.activeState) var activeState
 
     $activeState.withLock { $0.activePresetId = nil }

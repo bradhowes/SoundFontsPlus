@@ -12,13 +12,15 @@ import Testing
 @MainActor
 struct SharingTests {
 
-  @Test func boolValues() {
+  @Test
+  func boolValues() {
     boolChecker(.favoritesOnTop)
     boolChecker(.showOnlyFavorites)
     boolChecker(.sortPresetsByName)
   }
 
-  @Test func customValues() {
+  @Test
+  func customValues() {
     @Shared(.selectedSoundFontId) var value3
     #expect(value3 == nil)
     $value3.withLock { $0 = 1 }

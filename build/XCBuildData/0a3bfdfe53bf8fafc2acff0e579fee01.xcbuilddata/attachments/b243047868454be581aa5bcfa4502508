@@ -1,0 +1,51 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/BRHSplitView-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/BRHSplitView-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/BRHSplitView-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/BRHSplitView-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/BRHSplitView-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/BRHSplitView-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/BRHSplitView-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/Sources/brh-splitview/Dividers/Debug.swift" : {
+    "index-unit-output-path" : "/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/Debug.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/Debug.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/Debug.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/Sources/brh-splitview/Dividers/Handle.swift" : {
+    "index-unit-output-path" : "/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/Handle.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/Handle.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/Handle.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/Sources/brh-splitview/Dividers/Minimal.swift" : {
+    "index-unit-output-path" : "/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/Minimal.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/Minimal.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/Minimal.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/Sources/brh-splitview/Extensions.swift" : {
+    "index-unit-output-path" : "/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/Extensions.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/Extensions.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/Extensions.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/Sources/brh-splitview/SplitViewConfiguration.swift" : {
+    "index-unit-output-path" : "/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/SplitViewConfiguration.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/SplitViewConfiguration.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/SplitViewConfiguration.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/Sources/brh-splitview/SplitViewFeature.swift" : {
+    "index-unit-output-path" : "/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/SplitViewFeature.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/SplitViewFeature.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/SplitViewFeature.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/Sources/brh-splitview/SplitViewOrientation.swift" : {
+    "index-unit-output-path" : "/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/SplitViewOrientation.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/SplitViewOrientation.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/SplitViewOrientation.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/Sources/brh-splitview/SplitViewPanes.swift" : {
+    "index-unit-output-path" : "/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/SplitViewPanes.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/SplitViewPanes.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/brh-splitview/build/brh-splitview.build/Release-iphoneos/BRHSplitView.build/Objects-normal/arm64/SplitViewPanes.o"
+  }
+}

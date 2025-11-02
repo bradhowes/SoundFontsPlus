@@ -10,16 +10,14 @@ import TestSupport
 @testable import Models
 
 @Suite(
-  //  .snapshots(record: .failed)
+  .dependencies {
+    $0.defaultDatabase = TestSupport.testDatabase()
+  }
 )
 @MainActor
 struct TagInfoTests {
 
-  @Test(
-    .dependencies {
-      $0.defaultDatabase = TestSupport.testDatabase()
-    }
-  )
+  @Test
   func testQuery() async throws {
     let found = withDatabaseReader { try TagInfo.query.fetchAll($0) } ?? []
     #expect(found.count == 4)

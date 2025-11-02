@@ -1,0 +1,4 @@
+module Tagged {
+header "Tagged-Swift.h"
+export *
+}

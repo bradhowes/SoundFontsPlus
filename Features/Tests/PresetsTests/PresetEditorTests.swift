@@ -30,7 +30,8 @@ struct PresetEditorTests {
     return (presets[0], store)
   }
 
-  @Test func acceptButtonTappedSavesChanges() async throws {
+  @Test
+  func acceptButtonTappedSavesChanges() async throws {
     let (preset, store) = try setup()
     @Shared(.confirmPresetHiding) var confirmPresetHiding
     $confirmPresetHiding.withLock { $0 = false }
@@ -81,7 +82,8 @@ struct PresetEditorTests {
     #expect(audioConfig.customTuningEnabled)
   }
 
-  @Test func cancelButtonTappedIgnoresChanges() async throws {
+  @Test
+  func cancelButtonTappedIgnoresChanges() async throws {
     let (preset, store) = try setup()
     @Shared(.confirmPresetHiding) var confirmPresetHiding
     $confirmPresetHiding.withLock { $0 = false }
@@ -102,13 +104,14 @@ struct PresetEditorTests {
     #expect(changed == store.state.preset)
   }
 
-  @Test func useOriginalNameButtonTappedResetsNameChanges() async throws {
+  @Test
+  func useOriginalNameButtonTappedResetsNameChanges() async throws {
     let (_, store) = try setup()
 
-    await store.send(\.displayNameChanged, "New Name") {
+    await store.send(\.binding.displayName, "New Name") {
       $0.displayName = "New Name"
     }
-    await store.send(\.notesChanged, "Important notes") {
+    await store.send(\.binding.notes, "Important notes") {
       $0.notes = "Important notes"
     }
     await store.send(\.useOriginalNameTapped) {
@@ -116,7 +119,8 @@ struct PresetEditorTests {
     }
   }
 
-  @Test func resetGainTapped() async throws {
+  @Test
+  func resetGainTapped() async throws {
     let (_, store) = try setup()
 
     await store.send(\.binding.gainSlider, 0.5) {
@@ -127,7 +131,8 @@ struct PresetEditorTests {
     }
   }
 
-  @Test func resetPanTapped() async throws {
+  @Test
+  func resetPanTapped() async throws {
     let (_, store) = try setup()
 
     await store.send(\.binding.panSlider, 0.75) {
@@ -138,7 +143,8 @@ struct PresetEditorTests {
     }
   }
 
-  @Test func useLowestKeyTapped() async throws {
+  @Test
+  func useLowestKeyTapped() async throws {
     let (_, store) = try setup()
     @Shared(.firstVisibleKey) var lowestKey = .A4
     await store.send(\.useLowestKeyTapped) {
@@ -146,7 +152,8 @@ struct PresetEditorTests {
     }
   }
 
-  @Test func presetEditorPreview() async throws {
+  @Test
+  func presetEditorPreview() async throws {
     try withSnapshotTesting(record: .failed) {
       try TestSupport.assertSnapshot(matching: PresetEditorView.preview)
     }

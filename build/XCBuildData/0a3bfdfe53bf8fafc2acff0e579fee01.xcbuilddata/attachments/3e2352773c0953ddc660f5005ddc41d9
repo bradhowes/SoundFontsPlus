@@ -1,0 +1,4 @@
+module MIDIAssignments {
+header "MIDIAssignments-Swift.h"
+export *
+}

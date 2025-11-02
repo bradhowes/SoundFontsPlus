@@ -28,7 +28,8 @@ extension Keyboard.State.EventId {
 @MainActor
 struct KeyboardTests {
 
-  @Test func keyboardPreviewPortrait() async throws {
+  @Test
+  func keyboardPreviewPortrait() async throws {
     @Shared(.activeState) var activeState = .none
     try TestSupport.assertSnapshot(
       matching: KeyboardPreview(),
@@ -36,7 +37,8 @@ struct KeyboardTests {
     )
   }
 
-  @Test func keyboardPreviewLandscape() async throws {
+  @Test
+  func keyboardPreviewLandscape() async throws {
     @Shared(.activeState) var activeState = .none
     try TestSupport.assertSnapshot(
       matching: KeyboardPreview(),
@@ -44,7 +46,8 @@ struct KeyboardTests {
     )
   }
 
-  @Test func keyboardRenders64NoLabelsC4() async throws {
+  @Test
+  func keyboardRenders64NoLabelsC4() async throws {
     @Shared(.activeState) var activeState = .none
     @Shared(.keyWidth) var keyWidth = 64.0
     @Shared(.keyLabels) var keyLabels = .none
@@ -53,7 +56,8 @@ struct KeyboardTests {
     try TestSupport.assertSnapshot(matching: view)
   }
 
-  @Test func keyboardRenders48COnlyLabelsA4() async throws {
+  @Test
+  func keyboardRenders48COnlyLabelsA4() async throws {
     @Shared(.activeState) var activeState = .none
     @Shared(.keyWidth) var keyWidth = 48.0
     @Shared(.keyLabels) var keyLabels = .cOnly
@@ -62,7 +66,8 @@ struct KeyboardTests {
     try TestSupport.assertSnapshot(matching: view)
   }
 
-  @Test func keyboardRenders72AllLabelsE1() async throws {
+  @Test
+  func keyboardRenders72AllLabelsE1() async throws {
     @Shared(.activeState) var activeState = .none
     @Shared(.keyWidth) var keyWidth = 72.0
     @Shared(.keyLabels) var keyLabels = .all
@@ -71,7 +76,8 @@ struct KeyboardTests {
     try TestSupport.assertSnapshot(matching: view)
   }
 
-  @Test func keyboardRendersActiveNotes() async throws {
+  @Test
+  func keyboardRendersActiveNotes() async throws {
     @Shared(.activeState) var activeState = .none
     let store = Store(
       initialState: Keyboard.State(activeNotes: [
@@ -86,7 +92,8 @@ struct KeyboardTests {
     try TestSupport.assertSnapshot(matching: view)
   }
 
-  @Test func keyboardRendersRedActiveNotesWhenMuted() async throws {
+  @Test
+  func keyboardRendersRedActiveNotesWhenMuted() async throws {
     @Shared(.activeState) var activeState = .none
     let store = Store(
       initialState: Keyboard.State(
@@ -104,7 +111,8 @@ struct KeyboardTests {
     try TestSupport.assertSnapshot(matching: view)
   }
 
-  @Test func allOffClearsActiveNotes() async throws {
+  @Test
+  func allOffClearsActiveNotes() async throws {
     @Shared(.activeState) var activeState = .none
     let activeNotes: [(Keyboard.State.EventId, Note)] = [
       (.wrap(MockEventId(id: 1)), .C4),
@@ -123,7 +131,8 @@ struct KeyboardTests {
     }
   }
 
-  @Test func touchBegan() async throws {
+  @Test
+  func touchBegan() async throws {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
@@ -144,7 +153,8 @@ struct KeyboardTests {
     #expect(mau.events[0] == (MIDICoreEvent.noteOn, 60, 127, 0))
   }
 
-  @Test func touchEndedWithoutBegan() async throws {
+  @Test
+  func touchEndedWithoutBegan() async throws {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
@@ -158,7 +168,8 @@ struct KeyboardTests {
     #expect(mau.events.count == 0)
   }
 
-  @Test func touchEndedAfterBegan() async throws {
+  @Test
+  func touchEndedAfterBegan() async throws {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
@@ -184,7 +195,8 @@ struct KeyboardTests {
     #expect(mau.events[0] == (MIDICoreEvent.noteOn, 60, 127, 0))
   }
 
-  @Test func outputVolumeChanged() async throws {
+  @Test
+  func outputVolumeChanged() async throws {
     @Shared(.activeState) var activeState = .none
 
     let store = TestStore(initialState: Keyboard.State()) { Keyboard() }

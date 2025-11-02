@@ -1,0 +1,111 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Models-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Models-primary.d",
+    "diagnostics" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Models-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Models-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Models-primary-emit-module.dia",
+    "pch" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Models-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Models-primary.swiftdeps"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/AppDatabase.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/AppDatabase.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/AppDatabase.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/AppDatabase.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/AudioConfig.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/AudioConfig.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/AudioConfig.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/AudioConfig.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/DelayConfig.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/DelayConfig.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/DelayConfig.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/DelayConfig.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/Extensions/SF2ResourceTag.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SF2ResourceTag.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SF2ResourceTag.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SF2ResourceTag.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/Extensions/SharedKey.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SharedKey.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SharedKey.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SharedKey.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/Extensions/Tagged.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Tagged.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Tagged.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Tagged.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/FontTag.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/FontTag.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/FontTag.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/FontTag.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/MIDIConfig.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/MIDIConfig.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/MIDIConfig.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/MIDIConfig.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/ModelError.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/ModelError.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/ModelError.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/ModelError.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/Operations.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Operations.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Operations.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Operations.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/Preset.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Preset.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Preset.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/Preset.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/PresetLoadingInfo.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/PresetLoadingInfo.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/PresetLoadingInfo.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/PresetLoadingInfo.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/ReverbConfig.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/ReverbConfig.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/ReverbConfig.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/ReverbConfig.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/SoundFont.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SoundFont.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SoundFont.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SoundFont.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/SoundFontInfo.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SoundFontInfo.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SoundFontInfo.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SoundFontInfo.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/Support/ActiveState.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/ActiveState.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/ActiveState.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/ActiveState.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/Support/SoundFontKind.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SoundFontKind.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SoundFontKind.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/SoundFontKind.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/Support/WithDatabase.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/WithDatabase.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/WithDatabase.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/WithDatabase.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/TagInfo.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/TagInfo.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/TagInfo.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/TagInfo.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Models/TaggedSoundFont.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/TaggedSoundFont.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/TaggedSoundFont.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Models.build/Objects-normal/arm64/TaggedSoundFont.o"
+  }
+}

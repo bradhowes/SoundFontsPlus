@@ -1,0 +1,5 @@
+ extern const unsigned char SoundFontsPlusVersionString[];
+ extern const double SoundFontsPlusVersionNumber;
+
+ const unsigned char SoundFontsPlusVersionString[] __attribute__ ((used)) = "@(#)PROGRAM:SoundFontsPlus  PROJECT:SoundFontsPlus-20250629214538" "\n";
+ const double SoundFontsPlusVersionNumber __attribute__ ((used)) = (double)20250629214538.;

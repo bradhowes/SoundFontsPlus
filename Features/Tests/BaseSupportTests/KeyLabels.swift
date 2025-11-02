@@ -6,7 +6,8 @@ import Testing
 
 struct KeyLabelsTests {
 
-  @Test func attributes() async throws {
+  @Test
+  func attributes() async throws {
     #expect(KeyLabels.none.id.rawValue == "Off")
     #expect(KeyLabels.cOnly.id.rawValue == "C")
     #expect(KeyLabels.all.id.rawValue == "All")

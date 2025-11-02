@@ -10,7 +10,8 @@ import Testing
 @Suite
 struct AudioGraphTests {
 
-  @Test func liveClientMissingComponents() throws {
+  @Test
+  func liveClientMissingComponents() throws {
     let audioFormat: AVAudioFormat! = AVAudioFormat(
       commonFormat: .pcmFormatFloat32,
       sampleRate: 48_000.0,
@@ -27,7 +28,8 @@ struct AudioGraphTests {
     }
   }
 
-  @Test func liveClientHasComponents() throws {
+  @Test
+  func liveClientHasComponents() throws {
     @Shared(.audioEngine) var audioEngine = AVAudioEngine()
     @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
@@ -48,7 +50,8 @@ struct AudioGraphTests {
     }
   }
 
-  @Test func previewClient() throws {
+  @Test
+  func previewClient() throws {
     let audioFormat: AVAudioFormat! = AVAudioFormat(
       commonFormat: .pcmFormatFloat32,
       sampleRate: 48_000.0,

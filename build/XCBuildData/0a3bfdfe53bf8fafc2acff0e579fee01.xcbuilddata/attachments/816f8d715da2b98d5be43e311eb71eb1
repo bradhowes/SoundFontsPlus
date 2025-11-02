@@ -1,0 +1,4 @@
+module ToolBar {
+header "ToolBar-Swift.h"
+export *
+}

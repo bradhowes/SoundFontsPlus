@@ -28,7 +28,8 @@ struct ReverbConfigTests {
     return (presets, reverbConfig!)
   }
 
-  @Test func draft() async throws {
+  @Test
+  func draft() async throws {
     let (presets, reverbConfig) = try await setup()
     #expect(reverbConfig.roomPreset == .plate)
     #expect(reverbConfig.wetDryMix == 25.0)
@@ -61,7 +62,8 @@ struct ReverbConfigTests {
     #expect(draft.roomPreset == .cathedral)
   }
 
-  @Test func save() async throws {
+  @Test
+  func save() async throws {
     let (_, reverbConfig) = try await setup()
     var draft = ReverbConfig.Draft(reverbConfig)
     draft.wetDryMix = 100.0
@@ -70,7 +72,8 @@ struct ReverbConfigTests {
     #expect(savedConfig!.wetDryMix == 100.0)
   }
 
-  @Test func deleteCascades() async throws {
+  @Test
+  func deleteCascades() async throws {
     let (_, reverbConfig) = try await setup()
 
     withDatabaseWriter { db in

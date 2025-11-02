@@ -1,0 +1,431 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ComposableArchitecture-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ComposableArchitecture-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ComposableArchitecture-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ComposableArchitecture-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ComposableArchitecture-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ComposableArchitecture-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ComposableArchitecture-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/CaseReducer.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/CaseReducer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/CaseReducer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/CaseReducer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Core.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Core.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Core.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Core.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Dependencies/Dismiss.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Dismiss.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Dismiss.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Dismiss.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Dependencies/IsPresented.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IsPresented.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IsPresented.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IsPresented.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Effect.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Effect.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Effect.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Effect.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Effects/Animation.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Animation.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Animation.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Animation.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Effects/Cancellation.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Cancellation.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Cancellation.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Cancellation.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Effects/Debounce.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Debounce.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Debounce.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Debounce.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Effects/Publisher.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Publisher.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Publisher.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Publisher.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Effects/TaskResult.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/TaskResult.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/TaskResult.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/TaskResult.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Effects/Throttle.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Throttle.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Throttle.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Throttle.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/AreOrderedSetsDuplicates.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/AreOrderedSetsDuplicates.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/AreOrderedSetsDuplicates.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/AreOrderedSetsDuplicates.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/AssumeIsolated.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/AssumeIsolated.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/AssumeIsolated.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/AssumeIsolated.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/Box.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Box.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Box.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Box.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/Create.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Create.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Create.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Create.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/CurrentValueRelay.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/CurrentValueRelay.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/CurrentValueRelay.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/CurrentValueRelay.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/Debug.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Debug.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Debug.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Debug.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/DefaultSubscript.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/DefaultSubscript.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/DefaultSubscript.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/DefaultSubscript.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/Deprecations.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Deprecations.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Deprecations.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Deprecations.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/DispatchQueue.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/DispatchQueue.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/DispatchQueue.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/DispatchQueue.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/EffectActions.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/EffectActions.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/EffectActions.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/EffectActions.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/EphemeralState.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/EphemeralState.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/EphemeralState.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/EphemeralState.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/Exports.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Exports.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Exports.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Exports.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/HashableStaticString.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/HashableStaticString.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/HashableStaticString.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/HashableStaticString.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/KeyPath+Sendable.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/KeyPath+Sendable.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/KeyPath+Sendable.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/KeyPath+Sendable.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/Locking.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Locking.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Locking.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Locking.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/Logger.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Logger.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Logger.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Logger.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/NavigationID.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationID.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationID.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationID.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/NotificationName.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NotificationName.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NotificationName.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NotificationName.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/OpenExistential.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/OpenExistential.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/OpenExistential.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/OpenExistential.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/PresentationID.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/PresentationID.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/PresentationID.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/PresentationID.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/ReturningLastNonNilValue.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ReturningLastNonNilValue.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ReturningLastNonNilValue.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ReturningLastNonNilValue.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/RuntimeWarnings.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/RuntimeWarnings.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/RuntimeWarnings.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/RuntimeWarnings.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Internal/StackIDGenerator.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/StackIDGenerator.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/StackIDGenerator.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/StackIDGenerator.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Macros.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Macros.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Macros.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Macros.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Observation/Alert+Observation.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Alert+Observation.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Alert+Observation.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Alert+Observation.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Observation/Binding+Observation.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Binding+Observation.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Binding+Observation.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Binding+Observation.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Observation/IdentifiedArray+Observation.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IdentifiedArray+Observation.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IdentifiedArray+Observation.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IdentifiedArray+Observation.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Observation/NavigationStack+Observation.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationStack+Observation.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationStack+Observation.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationStack+Observation.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Observation/ObservableState.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ObservableState.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ObservableState.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ObservableState.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Observation/ObservationStateRegistrar.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ObservationStateRegistrar.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ObservationStateRegistrar.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ObservationStateRegistrar.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Observation/Store+Observation.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Store+Observation.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Store+Observation.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Store+Observation.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Observation/ViewAction.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ViewAction.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ViewAction.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ViewAction.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Reducer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Reducer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Reducer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/ReducerBuilder.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ReducerBuilder.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ReducerBuilder.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ReducerBuilder.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/BindingReducer.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/BindingReducer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/BindingReducer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/BindingReducer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/CombineReducers.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/CombineReducers.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/CombineReducers.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/CombineReducers.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/DebugReducer.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/DebugReducer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/DebugReducer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/DebugReducer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/DependencyKeyWritingReducer.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/DependencyKeyWritingReducer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/DependencyKeyWritingReducer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/DependencyKeyWritingReducer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/EmptyReducer.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/EmptyReducer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/EmptyReducer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/EmptyReducer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/ForEachReducer.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ForEachReducer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ForEachReducer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ForEachReducer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/IfCaseLetReducer.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IfCaseLetReducer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IfCaseLetReducer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IfCaseLetReducer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/IfLetReducer.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IfLetReducer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IfLetReducer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IfLetReducer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/OnChange.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/OnChange.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/OnChange.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/OnChange.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/Optional.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Optional.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Optional.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Optional.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/PresentationReducer.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/PresentationReducer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/PresentationReducer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/PresentationReducer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/Reduce.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Reduce.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Reduce.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Reduce.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/Scope.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Scope.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Scope.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Scope.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/SignpostReducer.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/SignpostReducer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/SignpostReducer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/SignpostReducer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Reducer/Reducers/StackReducer.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/StackReducer.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/StackReducer.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/StackReducer.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Sharing/AppStorageKeyPathKey.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/AppStorageKeyPathKey.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/AppStorageKeyPathKey.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/AppStorageKeyPathKey.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/Store.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Store.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Store.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Store.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/Alert.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Alert.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Alert.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Alert.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/Binding.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Binding.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Binding.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Binding.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/ConfirmationDialog.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ConfirmationDialog.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ConfirmationDialog.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ConfirmationDialog.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/Deprecated/ActionSheet.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ActionSheet.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ActionSheet.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ActionSheet.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/Deprecated/LegacyAlert.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/LegacyAlert.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/LegacyAlert.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/LegacyAlert.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/Deprecated/NavigationLinkStore.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationLinkStore.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationLinkStore.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationLinkStore.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/ForEachStore.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ForEachStore.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ForEachStore.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ForEachStore.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/FullScreenCover.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/FullScreenCover.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/FullScreenCover.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/FullScreenCover.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/IfLetStore.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IfLetStore.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IfLetStore.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IfLetStore.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/NavigationDestination.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationDestination.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationDestination.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationDestination.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/NavigationStackStore.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationStackStore.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationStackStore.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationStackStore.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/Popover.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Popover.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Popover.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Popover.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/PresentationModifier.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/PresentationModifier.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/PresentationModifier.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/PresentationModifier.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/Sheet.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Sheet.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Sheet.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/Sheet.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/SwitchStore.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/SwitchStore.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/SwitchStore.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/SwitchStore.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/SwiftUI/WithViewStore.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/WithViewStore.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/WithViewStore.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/WithViewStore.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/TestStore.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/TestStore.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/TestStore.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/TestStore.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/UIKit/AlertStateUIKit.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/AlertStateUIKit.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/AlertStateUIKit.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/AlertStateUIKit.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/UIKit/IfLetUIKit.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IfLetUIKit.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IfLetUIKit.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/IfLetUIKit.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/UIKit/NavigationStackControllerUIKit.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationStackControllerUIKit.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationStackControllerUIKit.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/NavigationStackControllerUIKit.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/Sources/ComposableArchitecture/ViewStore.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ViewStore.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ViewStore.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/ViewStore.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/DerivedSources/resource_bundle_accessor.swift" : {
+    "index-unit-output-path" : "/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/resource_bundle_accessor.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/resource_bundle_accessor.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-composable-architecture/build/swift-composable-architecture.build/Release-iphoneos/ComposableArchitecture.build/Objects-normal/arm64/resource_bundle_accessor.o"
+  }
+}

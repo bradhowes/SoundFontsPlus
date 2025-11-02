@@ -1,0 +1,146 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Algorithms-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Algorithms-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Algorithms-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Algorithms-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Algorithms-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Algorithms-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Algorithms-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/AdjacentPairs.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/AdjacentPairs.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/AdjacentPairs.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/AdjacentPairs.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Chain.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Chain.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Chain.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Chain.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Chunked.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Chunked.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Chunked.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Chunked.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Combinations.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Combinations.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Combinations.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Combinations.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Compacted.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Compacted.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Compacted.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Compacted.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Cycle.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Cycle.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Cycle.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Cycle.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/EitherSequence.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/EitherSequence.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/EitherSequence.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/EitherSequence.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/FirstNonNil.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/FirstNonNil.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/FirstNonNil.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/FirstNonNil.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/FlattenCollection.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/FlattenCollection.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/FlattenCollection.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/FlattenCollection.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Grouped.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Grouped.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Grouped.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Grouped.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Indexed.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Indexed.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Indexed.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Indexed.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Intersperse.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Intersperse.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Intersperse.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Intersperse.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Joined.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Joined.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Joined.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Joined.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Keyed.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Keyed.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Keyed.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Keyed.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/MinMax.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/MinMax.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/MinMax.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/MinMax.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Partition.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Partition.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Partition.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Partition.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Permutations.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Permutations.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Permutations.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Permutations.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Product.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Product.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Product.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Product.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/RandomSample.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/RandomSample.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/RandomSample.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/RandomSample.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Reductions.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Reductions.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Reductions.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Reductions.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Rotate.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Rotate.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Rotate.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Rotate.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Split.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Split.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Split.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Split.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Stride.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Stride.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Stride.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Stride.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Suffix.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Suffix.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Suffix.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Suffix.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Trim.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Trim.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Trim.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Trim.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Unique.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Unique.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Unique.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Unique.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/Sources/Algorithms/Windows.swift" : {
+    "index-unit-output-path" : "/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Windows.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Windows.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-algorithms/build/swift-algorithms.build/Release-iphoneos/Algorithms.build/Objects-normal/arm64/Windows.o"
+  }
+}

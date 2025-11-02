@@ -1,0 +1,31 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/ReverbEffect-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/ReverbEffect-primary.d",
+    "diagnostics" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/ReverbEffect-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/ReverbEffect-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/ReverbEffect-primary-emit-module.dia",
+    "pch" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/ReverbEffect-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/ReverbEffect-primary.swiftdeps"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/ReverbEffect/Extensions/AVAudioUnitReverb.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/AVAudioUnitReverb.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/AVAudioUnitReverb.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/AVAudioUnitReverb.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/ReverbEffect/Extensions/DependencyValues.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/DependencyValues.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/DependencyValues.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/DependencyValues.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/ReverbEffect/ReverbDevice.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/ReverbDevice.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/ReverbDevice.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/ReverbDevice.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/ReverbEffect/ReverbEffect.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/ReverbEffect.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/ReverbEffect.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/ReverbEffect.build/Objects-normal/arm64/ReverbEffect.o"
+  }
+}

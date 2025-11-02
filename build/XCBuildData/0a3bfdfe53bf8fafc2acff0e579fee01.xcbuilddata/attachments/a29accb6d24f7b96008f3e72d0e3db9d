@@ -1,0 +1,31 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DelayEffect-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DelayEffect-primary.d",
+    "diagnostics" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DelayEffect-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DelayEffect-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DelayEffect-primary-emit-module.dia",
+    "pch" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DelayEffect-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DelayEffect-primary.swiftdeps"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/DelayEffect/DelayDevice.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DelayDevice.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DelayDevice.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DelayDevice.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/DelayEffect/DelayEffect.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DelayEffect.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DelayEffect.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DelayEffect.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/DelayEffect/Extensions/AVAudioUnitDelay.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/AVAudioUnitDelay.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/AVAudioUnitDelay.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/AVAudioUnitDelay.o"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/DelayEffect/Extensions/DependencyValues.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DependencyValues.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DependencyValues.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/DelayEffect.build/Objects-normal/arm64/DependencyValues.o"
+  }
+}

@@ -1,0 +1,4 @@
+module StructuredQueriesSQLite {
+header "StructuredQueriesSQLite-Swift.h"
+export *
+}

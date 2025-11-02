@@ -1,0 +1,16 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/Numerics.build/Objects-normal/arm64/Numerics-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/Numerics.build/Objects-normal/arm64/Numerics-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/Numerics.build/Objects-normal/arm64/Numerics-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/Numerics.build/Objects-normal/arm64/Numerics-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/Numerics.build/Objects-normal/arm64/Numerics-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/Numerics.build/Objects-normal/arm64/Numerics-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/Numerics.build/Objects-normal/arm64/Numerics-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/Sources/Numerics/Numerics.swift" : {
+    "index-unit-output-path" : "/swift-numerics.build/Release-iphoneos/Numerics.build/Objects-normal/arm64/Numerics.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/Numerics.build/Objects-normal/arm64/Numerics.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-numerics/build/swift-numerics.build/Release-iphoneos/Numerics.build/Objects-normal/arm64/Numerics.o"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/StructuredQueriesSQLiteMacros-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/StructuredQueriesSQLiteMacros-primary.d",
+    "diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/StructuredQueriesSQLiteMacros-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/StructuredQueriesSQLiteMacros-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/StructuredQueriesSQLiteMacros-primary-emit-module.dia",
+    "pch" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/StructuredQueriesSQLiteMacros-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/StructuredQueriesSQLiteMacros-primary.swiftdeps"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteMacros/DatabaseFunctionMacro.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/DatabaseFunctionMacro.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/DatabaseFunctionMacro.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/DatabaseFunctionMacro.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteMacros/Nonisolated.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/Nonisolated.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/Nonisolated.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/Nonisolated.o"
+  },
+  "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/Sources/StructuredQueriesSQLiteMacros/Plugin.swift" : {
+    "index-unit-output-path" : "/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/Plugin.o",
+    "llvm-bc" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/Plugin.bc",
+    "object" : "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-structured-queries/build/swift-structured-queries.build/Release/StructuredQueriesSQLiteMacros.build/Objects-normal/arm64/Plugin.o"
+  }
+}

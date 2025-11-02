@@ -20,7 +20,8 @@ struct TagsListTests {
     return TestStore(initialState: TagsList.State()) { TagsList() }
   }
 
-  @Test func deleteButtonTapped() async throws {
+  @Test
+  func deleteButtonTapped() async throws {
     @Shared(.activeState) var activeState = .default
     $activeState.withLock { $0.activeTagId = 5 }
 
@@ -39,7 +40,8 @@ struct TagsListTests {
     #expect(activeState.activeTagId == FontTag.Ubiquitous.all.id)
   }
 
-  @Test func editButtonTapped() async throws {
+  @Test
+  func editButtonTapped() async throws {
     let store = try store()
     await store.send(.editButtonTapped(store.state.tagInfos[0]))
     await store.receive(\.delegate, .edit(store.state.tagInfos[0].id))
@@ -47,7 +49,8 @@ struct TagsListTests {
     await store.receive(\.delegate, .edit(store.state.tagInfos.last!.id))
   }
 
-  @Test func tagButtonTapped() async throws {
+  @Test
+  func tagButtonTapped() async throws {
     @Shared(.activeState) var activeState = .default
     #expect(activeState.activeTagId == 1)
 
@@ -56,13 +59,15 @@ struct TagsListTests {
     #expect(activeState.activeTagId == store.state.tagInfos.last!.id)
   }
 
-  @Test func longPressGestureFired() async throws {
+  @Test
+  func longPressGestureFired() async throws {
     let store = try store()
     await store.send(.longPressGestureFired)
     await store.receive(\.delegate, .edit(nil))
   }
 
-  @Test func preview() async throws {
+  @Test
+  func preview() async throws {
     try TestSupport.assertSnapshot(matching: TagsListView.preview)
   }
 }

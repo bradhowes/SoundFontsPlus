@@ -32,37 +32,43 @@ struct PresetButtonTests {
     }
   }
 
-  @Test func buttonTapped() async throws {
+  @Test
+  func buttonTapped() async throws {
     let store = store()
     await store.send(\.buttonTapped)
     await store.receive(\.delegate, .selectPreset(store.state.preset))
   }
 
-  @Test func editButtonTapped() async throws {
+  @Test
+  func editButtonTapped() async throws {
     let store = store()
     await store.send(\.editButtonTapped)
     await store.receive(\.delegate, .editPreset(store.state.preset))
   }
 
-  @Test func favoriteButtonTapped() async throws {
+  @Test
+  func favoriteButtonTapped() async throws {
     let store = store()
     await store.send(\.favoriteButtonTapped)
     await store.receive(\.delegate, .createFavorite(store.state.preset))
   }
 
-  @Test func hidePresetButtonTapped() async throws {
+  @Test
+  func hidePresetButtonTapped() async throws {
     let store = store()
     await store.send(\.hidePresetButtonTapped)
     await store.receive(\.delegate, .hidePreset(store.state.preset))
   }
 
-  @Test func deleteFavoriteButtonTapped() async throws {
+  @Test
+  func deleteFavoriteButtonTapped() async throws {
     let store = store()
     await store.send(\.deleteFavoriteButtonTapped)
     await store.receive(\.delegate, .deleteFavorite(store.state.preset))
   }
 
-  @Test func longPressGestureFired() async throws {
+  @Test
+  func longPressGestureFired() async throws {
     let store = store()
     await store.send(\.longPressGestureFired)
     await store.receive(\.delegate, .editPreset(store.state.preset))
@@ -78,7 +84,8 @@ struct PresetButtonTests {
     }
   }
 
-  @Test func presetButtonPreview() async throws {
+  @Test
+  func presetButtonPreview() async throws {
     try TestSupport.assertSnapshot(matching: PresetButtonView.preview)
   }
 }

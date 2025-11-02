@@ -1,0 +1,4 @@
+module MIDIConnections {
+header "MIDIConnections-Swift.h"
+export *
+}

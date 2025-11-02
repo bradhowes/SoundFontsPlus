@@ -17,7 +17,8 @@ import TestSupport
 @MainActor
 struct FontTagTests {
 
-  @Test func migration() async throws {
+  @Test
+  func migration() async throws {
     @FetchAll(FontTag.tagsQuery) var tags
     try await $tags.load()
 
@@ -36,7 +37,8 @@ struct FontTagTests {
     #expect(presets.count == 4)
   }
 
-  @Test func tagged() async throws {
+  @Test
+  func tagged() async throws {
     @FetchAll(FontTag.tagsQuery) var tags
     try await $tags.load()
 
@@ -46,7 +48,8 @@ struct FontTagTests {
     #expect(tags[3].soundFonts.count == 0)
   }
 
-  @Test func create() async throws {
+  @Test
+  func create() async throws {
     @FetchAll(FontTag.tagsQuery) var tags
     let displayName = "new tag"
     let tag = try FontTag.make(displayName: displayName)
@@ -57,7 +60,8 @@ struct FontTagTests {
     #expect(tags.count == FontTag.Ubiquitous.allCases.count + 1)
   }
 
-  @Test func deletingUbiquitous() async throws {
+  @Test
+  func deletingUbiquitous() async throws {
     @FetchAll(FontTag.tagsQuery) var tags
     try await $tags.load()
     for each in FontTag.Ubiquitous.allCases {
@@ -67,7 +71,8 @@ struct FontTagTests {
     }
   }
 
-  @Test func delete() async throws {
+  @Test
+  func delete() async throws {
     @FetchAll(FontTag.tagsQuery) var tags
     let displayName = "tag to delete"
     let tag = try FontTag.make(displayName: displayName)
@@ -79,7 +84,8 @@ struct FontTagTests {
     #expect(!tags.map(\.id).contains(tag.id))
   }
 
-  @Test func renameUbiquitous() async throws {
+  @Test
+  func renameUbiquitous() async throws {
     @FetchAll(FontTag.tagsQuery) var tags
     try await $tags.load()
     for each in FontTag.Ubiquitous.allCases {
@@ -89,7 +95,8 @@ struct FontTagTests {
     }
   }
 
-  @Test func renameToBlank() async throws {
+  @Test
+  func renameToBlank() async throws {
     @FetchAll(FontTag.tagsQuery) var tags
     let displayName = "tag to rename"
     let tag = try FontTag.make(displayName: displayName)
@@ -105,7 +112,8 @@ struct FontTagTests {
     }
   }
 
-  @Test func rename() async throws {
+  @Test
+  func rename() async throws {
     @FetchAll(FontTag.tagsQuery) var tags
     let displayName = "tag to rename"
     let tag = try FontTag.make(displayName: displayName)
@@ -117,7 +125,8 @@ struct FontTagTests {
     #expect(tags.last!.displayName == "another name")
   }
 
-  @Test func createWithInvalidName() async throws {
+  @Test
+  func createWithInvalidName() async throws {
     @FetchAll(FontTag.tagsQuery) var tags
     #expect(throws: ModelError.emptyTagName) {
       try FontTag.make(displayName: "")
@@ -127,7 +136,8 @@ struct FontTagTests {
     }
   }
 
-  @Test func createWithExistingName() async throws {
+  @Test
+  func createWithExistingName() async throws {
     for each in FontTag.Ubiquitous.allCases {
       let newTag = try FontTag.make(displayName: each.displayName)
       #expect(newTag.displayName == each.displayName + " 1")
@@ -139,7 +149,8 @@ struct FontTagTests {
     }
   }
 
-  @Test func reorder() async throws {
+  @Test
+  func reorder() async throws {
     @FetchAll(FontTag.tagsQuery) var tags
     try await $tags.load()
     try FontTag.reorder(tagIds: [tags[1], tags[0], tags[3], tags[2]].map(\.id))

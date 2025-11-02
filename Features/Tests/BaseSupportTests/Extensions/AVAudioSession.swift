@@ -22,12 +22,14 @@ import Testing
 @MainActor
 struct AVAudioSessionTests {
 
-  @Test func monitorVolume() async throws {
+  @Test
+  func monitorVolume() async throws {
     let bits = AVAudioSession.sharedInstance().startStreamingOutputVolume()
     print(bits)
   }
 
-  @Test func outputVolumeStream() async throws {
+  @Test
+  func outputVolumeStream() async throws {
     let volumeProvider = VolumeProvider()
     let stream = volumeProvider.startStreaming()
 

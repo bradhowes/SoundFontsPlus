@@ -1,0 +1,16 @@
+{
+  "" : {
+    "const-values" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Settings.build/Objects-normal/arm64/Settings-primary.swiftconstvalues",
+    "dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Settings.build/Objects-normal/arm64/Settings-primary.d",
+    "diagnostics" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Settings.build/Objects-normal/arm64/Settings-primary.dia",
+    "emit-module-dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Settings.build/Objects-normal/arm64/Settings-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Settings.build/Objects-normal/arm64/Settings-primary-emit-module.dia",
+    "pch" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Settings.build/Objects-normal/arm64/Settings-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Settings.build/Objects-normal/arm64/Settings-primary.swiftdeps"
+  },
+  "/Users/howes/src/Mine/SoundFontsPlus/Features/Sources/Settings/Settings.swift" : {
+    "index-unit-output-path" : "/Features.build/Release-iphoneos/Settings.build/Objects-normal/arm64/Settings.o",
+    "llvm-bc" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Settings.build/Objects-normal/arm64/Settings.bc",
+    "object" : "/Users/howes/src/Mine/SoundFontsPlus/Features/build/Features.build/Release-iphoneos/Settings.build/Objects-normal/arm64/Settings.o"
+  }
+}

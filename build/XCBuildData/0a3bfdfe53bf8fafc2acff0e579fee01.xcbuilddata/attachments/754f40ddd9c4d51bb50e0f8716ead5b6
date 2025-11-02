@@ -1,0 +1,4 @@
+module RealModule {
+header "RealModule-Swift.h"
+export *
+}

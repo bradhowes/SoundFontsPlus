@@ -24,7 +24,8 @@ struct SoundFontsListTests {
     }
   }
 
-  @Test func initialize() async throws {
+  @Test
+  func initialize() async throws {
     let store = store()
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
@@ -39,7 +40,8 @@ struct SoundFontsListTests {
     await store.finish()
   }
 
-  @Test func activeTagIdChanged() async throws {
+  @Test
+  func activeTagIdChanged() async throws {
     let store = store()
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
@@ -65,7 +67,8 @@ struct SoundFontsListTests {
     await store.finish()
   }
 
-  @Test func showActiveSoundFont() async throws {
+  @Test
+  func showActiveSoundFont() async throws {
     let store = store()
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
@@ -85,7 +88,8 @@ struct SoundFontsListTests {
     await store.finish()
   }
 
-  @Test func selectSoundFont() async throws {
+  @Test
+  func selectSoundFont() async throws {
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     #expect(selectedSoundFontId == nil)
 
@@ -106,7 +110,8 @@ struct SoundFontsListTests {
     await store.finish()
   }
 
-  @Test func deleteSoundFont() async throws {
+  @Test
+  func deleteSoundFont() async throws {
     let store = store()
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
@@ -131,7 +136,8 @@ struct SoundFontsListTests {
     await store.finish()
   }
 
-  @Test func editSoundFont() async throws {
+  @Test
+  func editSoundFont() async throws {
     let store = store()
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
@@ -155,7 +161,8 @@ struct SoundFontsListTests {
     await store.finish()
   }
 
-  @Test func soundFontsListViewPreview() async throws {
+  @Test
+  func soundFontsListViewPreview() async throws {
     try TestSupport.assertSnapshot(matching: SoundFontsListView.preview)
   }
 }

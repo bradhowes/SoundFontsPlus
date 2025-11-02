@@ -25,10 +25,11 @@ struct SoundFontEditorTests {
     }
   }
 
-  @Test func cancelButtonTapped() async {
+  @Test
+  func cancelButtonTapped() async {
     let store = store()
     #expect(store.state.displayName == "Font 1")
-    await store.send(.displayNameChanged("blah")) {
+    await store.send(\.binding.displayName, "blah") {
       $0.displayName = "blah"
     }
     await store.send(.cancelButtonTapped)
@@ -36,7 +37,8 @@ struct SoundFontEditorTests {
     #expect(soundFont?.displayName == "Font 1")
   }
 
-  @Test func changeTagsButtonTapped() async {
+  @Test
+  func changeTagsButtonTapped() async {
     let store = store()
     let editorState = TagsEditor.State(
       mode: .fontEditing,
@@ -48,7 +50,8 @@ struct SoundFontEditorTests {
     }
   }
 
-  @Test func updatedTagsAfterEditing() async {
+  @Test
+  func updatedTagsAfterEditing() async {
     let store = store()
     #expect(store.state.tagsList == "All, Built-in")
 
@@ -77,7 +80,8 @@ struct SoundFontEditorTests {
     }
   }
 
-  @Test func showHiddenPresetsConfirmed() async {
+  @Test
+  func showHiddenPresetsConfirmed() async {
     let store = store()
 
     var presets = Operations.presets(for: soundFontId)
@@ -103,12 +107,13 @@ struct SoundFontEditorTests {
     #expect(presets[0].displayName == "Font 1 Preset 1")
   }
 
-  @Test func saveButtonTapped() async throws {
+  @Test
+  func saveButtonTapped() async throws {
     let store = store()
-    await store.send(.displayNameChanged("blah")) {
+    await store.send(\.binding.displayName, "blah") {
       $0.displayName = "blah"
     }
-    await store.send(.notesChanged("notes")) {
+    await store.send(\.binding.notes, "notes") {
       $0.notes = "notes"
     }
     await store.send(.saveButtonTapped)
@@ -116,9 +121,10 @@ struct SoundFontEditorTests {
     #expect(soundFont?.displayName == "blah")
   }
 
-  @Test func useEmbeddedNameTapped() async throws {
+  @Test
+  func useEmbeddedNameTapped() async throws {
     let store = store()
-    await store.send(.displayNameChanged("blah")) {
+    await store.send(\.binding.displayName, "blah") {
       $0.displayName = "blah"
     }
     await store.send(.useEmbeddedNameTapped) {
@@ -126,9 +132,10 @@ struct SoundFontEditorTests {
     }
   }
 
-  @Test func useOriginalNameTapped() async throws {
+  @Test
+  func useOriginalNameTapped() async throws {
     let store = store()
-    await store.send(.displayNameChanged("blah")) {
+    await store.send(\.binding.displayName, "blah") {
       $0.displayName = "blah"
     }
     await store.send(.useOriginalNameTapped) {
@@ -136,7 +143,8 @@ struct SoundFontEditorTests {
     }
   }
 
-  @Test func soundFontEditorViewPreview() async throws {
+  @Test
+  func soundFontEditorViewPreview() async throws {
     try TestSupport.assertSnapshot(matching: SoundFontEditorView.preview)
   }
 }

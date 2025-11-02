@@ -18,7 +18,8 @@ import TestSupport
 @MainActor
 struct SoundFontInfoTests {
 
-  @Test func query() async throws {
+  @Test
+  func query() async throws {
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.activeTagId = 99 }
     var found = withDatabaseReader { try SoundFontInfo.query().fetchAll($0) } ?? []
