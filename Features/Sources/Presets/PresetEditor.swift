@@ -4,6 +4,8 @@ import AVFoundation
 import FeatureSupport
 import Tuning
 
+private let log = Logger(category: "PresetEditor")
+
 @Reducer
 public struct PresetEditor {
 
@@ -93,8 +95,6 @@ public struct PresetEditor {
     case binding(BindingAction<State>)
     case cancelButtonTapped
     case destination(PresentationAction<Destination.Action>)
-    case displayNameChanged(String)
-    case notesChanged(String)
     case resetGainTapped
     case resetPanTapped
     case saveButtonTapped
@@ -110,6 +110,8 @@ public struct PresetEditor {
     Scope(state: \.tuning, action: \.tuning) { Tuning() }
 
     Reduce { state, action in
+      log.info("PresetEditor action: \(action)")
+
       switch action {
 
       case .binding(\.visible):
@@ -118,25 +120,11 @@ public struct PresetEditor {
         }
         return .none
 
-      case .binding:
-        return .none
-
       case .cancelButtonTapped:
         return dismiss(&state, save: false)
 
       case .destination(.presented(.alert(.hidePresetConfirmed))):
         return hidePresetConfirmed(&state)
-
-      case .destination(.dismiss):
-        return .none
-
-      case .displayNameChanged(let value):
-        state.displayName = value
-        return .none
-
-      case .notesChanged(let value):
-        state.notes = value
-        return .none
 
       case .resetGainTapped:
         state.gainSlider = 0.0
@@ -149,14 +137,14 @@ public struct PresetEditor {
       case .saveButtonTapped:
         return dismiss(&state, save: true)
 
-      case .tuning:
-        return .none
-
       case .useLowestKeyTapped:
         return useLowestKey(&state)
 
       case .useOriginalNameTapped:
         state.displayName = state.preset.originalName
+        return .none
+
+      default:
         return .none
       }
     }
@@ -250,7 +238,7 @@ public struct PresetEditorView: View {
       if !store.isFavorite {
         Toggle("Visible", isOn: $store.visible)
       }
-      NameFieldView(text: $store.displayName.sending(\.displayNameChanged), readOnly: false)
+      NameFieldView(text: $store.displayName, readOnly: false)
       HStack {
         Text(store.preset.originalName)
           .foregroundStyle(.secondary)
@@ -297,7 +285,7 @@ public struct PresetEditorView: View {
 
   var notesSection: some View {
     Section(header: Text("Notes")) {
-      TextEditor(text: $store.notes.sending(\.notesChanged))
+      TextEditor(text: $store.notes)
     }
   }
 

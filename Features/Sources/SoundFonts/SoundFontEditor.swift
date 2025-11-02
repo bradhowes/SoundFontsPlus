@@ -77,8 +77,6 @@ public struct SoundFontEditor {
     case changeTagsButtonTapped
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
-    case displayNameChanged(String)
-    case notesChanged(String)
     case path(StackActionOf<Path>)
     case saveButtonTapped
     case unhideAllButtonTapped
@@ -107,14 +105,6 @@ public struct SoundFontEditor {
 
       case .destination(.presented(.alert(.showHiddenPresetsConfirmed))):
         return unhidePresets(&state)
-
-      case .displayNameChanged(let value):
-        state.displayName = value
-        return .none
-
-      case .notesChanged(let value):
-        state.notes = value
-        return .none
 
       case .path(.popFrom(id: _)):
         let tags = state.soundFont.tags
@@ -259,7 +249,7 @@ public struct SoundFontEditorView: View {
 
   var notesSection: some View {
     Section(header: Text("Notes")) {
-      TextEditor(text: $store.notes.sending(\.notesChanged))
+      TextEditor(text: $store.notes)
         .textEditorStyle(.automatic)
         .lineLimit(1...5)
     }
