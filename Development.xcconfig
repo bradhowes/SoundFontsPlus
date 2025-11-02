@@ -5,22 +5,22 @@
 
 #include "Common.xcconfig"
 
-// Periodically force an AV media services restart sequence
+/// Periodically force an AV media services restart sequence
 TEST_MEDIA_SERVICES_RESTART = -DTEST_MEDIA_SERVICES_RESTART
 
-// Play rendered samples in unit tests
+/// Play rendered samples in unit tests
 PLAY_AUDIO = -DPLAY_AUDIO
 
-// Always show the tutorial screen at start
+/// Always show the tutorial screen at start
 ALWAYS_SHOW_TUTORIAL = -DALWAYS_SHOW_TUTORIAL
 
-// Always show the changes screen at start (only if ALWAYS_SHOW_TUTORIAL is undefined)
+/// Always show the changes screen at start (only if ALWAYS_SHOW_TUTORIAL is undefined)
 ALWAYS_SHOW_CHANGES = -DALWAYS_SHOW_CHANGES
 
-// Show contents of events in internal render block
+/// Show contents of events in internal render block
 DEBUG_INTERNAL_RENDER_BLOCK = -DDEBUG_INTERNAL_RENDER_BLOCK
 
-// All of the flags above. To disable one, just prepend an 'x' to its name.
+/// All of the flags above. To disable one, just prepend an 'x' to its name.
 DEBUG_FLAGS = $(inherited) $(xTEST_MEDIA_SERVICES_RESTART)
 DEBUG_FLAGS = $(inherited) $(xDELAY_NOTIFICATIONS)
 DEBUG_FLAGS = $(inherited) $(xPLAY_AUDIO)
@@ -28,12 +28,11 @@ DEBUG_FLAGS = $(inherited) $(xDEBUG_INTERNAL_RENDER_BLOCK)
 DEBUG_FLAGS = $(inherited) $(xALWAYS_SHOW_TUTORIAL)
 DEBUG_FLAGS = $(inherited) $(xALWAYS_SHOW_CHANGES)
 
+/// Suffix to apply to builds
 NAME_SUFFIX = Dev
 
 SWIFT_ENABLE_OPAQUE_TYPE_ERASURE = NO
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited)
 OTHER_SWIFT_FLAGS = $(inherited) -DDev $(DEBUG_FLAGS) -DDEBUG
-
 OTHER_CPLUSPLUSFLAGS = $(inherited) $(DEBUG_FLAGS)
-
 OTHER_LDFLAGS = $(inherited)
