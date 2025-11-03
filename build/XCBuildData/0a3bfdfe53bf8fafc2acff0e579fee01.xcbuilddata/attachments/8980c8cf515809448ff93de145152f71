@@ -1,4 +1,0 @@
-module PerceptionCore {
-header "PerceptionCore-Swift.h"
-export *
-}

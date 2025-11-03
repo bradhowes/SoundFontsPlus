@@ -1,4 +1,0 @@
-module Numerics {
-header "Numerics-Swift.h"
-export *
-}

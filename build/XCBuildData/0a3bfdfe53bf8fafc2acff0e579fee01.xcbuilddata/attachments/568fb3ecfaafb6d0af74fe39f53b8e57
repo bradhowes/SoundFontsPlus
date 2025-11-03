@@ -1,4 +1,0 @@
-module SQLiteData {
-header "SQLiteData-Swift.h"
-export *
-}

@@ -1,4 +1,0 @@
-module ComposableArchitecture {
-header "ComposableArchitecture-Swift.h"
-export *
-}

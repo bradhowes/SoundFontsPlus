@@ -1,4 +1,0 @@
-module AppReview {
-header "AppReview-Swift.h"
-export *
-}

@@ -1,4 +1,0 @@
-module Changes {
-header "Changes-Swift.h"
-export *
-}

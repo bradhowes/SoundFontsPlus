@@ -1,4 +1,0 @@
-module VolumeMonitor {
-header "VolumeMonitor-Swift.h"
-export *
-}

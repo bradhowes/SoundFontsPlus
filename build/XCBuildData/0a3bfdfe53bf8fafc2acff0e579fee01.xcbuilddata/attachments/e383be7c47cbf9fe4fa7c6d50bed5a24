@@ -1,4 +1,0 @@
-module BaseSupport {
-header "BaseSupport-Swift.h"
-export *
-}

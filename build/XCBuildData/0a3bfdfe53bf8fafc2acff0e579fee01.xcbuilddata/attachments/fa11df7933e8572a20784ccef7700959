@@ -1,4 +1,0 @@
-module ReverbEffect {
-header "ReverbEffect-Swift.h"
-export *
-}

@@ -1,4 +1,0 @@
-module Dependencies {
-header "Dependencies-Swift.h"
-export *
-}

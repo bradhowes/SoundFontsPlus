@@ -1,4 +1,0 @@
-module UIKitNavigationShim {
-umbrella "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/swift-navigation/Sources/UIKitNavigationShim/include"
-export *
-}

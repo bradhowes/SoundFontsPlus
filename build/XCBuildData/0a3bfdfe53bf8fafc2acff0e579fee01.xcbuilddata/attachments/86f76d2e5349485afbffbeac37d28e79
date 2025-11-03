@@ -1,4 +1,0 @@
-module CombineSchedulers {
-header "CombineSchedulers-Swift.h"
-export *
-}

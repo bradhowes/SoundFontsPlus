@@ -1,4 +1,0 @@
-module StructuredQueries {
-header "StructuredQueries-Swift.h"
-export *
-}

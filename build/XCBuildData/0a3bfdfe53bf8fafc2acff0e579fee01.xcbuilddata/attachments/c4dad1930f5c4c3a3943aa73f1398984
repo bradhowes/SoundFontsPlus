@@ -1,4 +1,0 @@
-module DependenciesMacros {
-header "DependenciesMacros-Swift.h"
-export *
-}

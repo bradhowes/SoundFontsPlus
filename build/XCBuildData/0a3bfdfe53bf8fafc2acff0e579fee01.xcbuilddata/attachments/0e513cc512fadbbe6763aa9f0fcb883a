@@ -1,4 +1,0 @@
-module CustomDump {
-header "CustomDump-Swift.h"
-export *
-}

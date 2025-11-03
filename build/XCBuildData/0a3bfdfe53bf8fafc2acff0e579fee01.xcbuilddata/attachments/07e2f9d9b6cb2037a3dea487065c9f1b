@@ -1,4 +1,0 @@
-module FileImporter {
-header "FileImporter-Swift.h"
-export *
-}

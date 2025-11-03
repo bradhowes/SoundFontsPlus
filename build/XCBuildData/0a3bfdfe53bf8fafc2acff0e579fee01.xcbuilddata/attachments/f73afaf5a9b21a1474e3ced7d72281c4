@@ -1,4 +1,0 @@
-module SwiftNavigation {
-header "SwiftNavigation-Swift.h"
-export *
-}

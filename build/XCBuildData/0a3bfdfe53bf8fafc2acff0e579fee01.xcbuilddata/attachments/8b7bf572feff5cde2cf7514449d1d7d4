@@ -1,4 +1,0 @@
-module AUv3Controls {
-header "AUv3Controls-Swift.h"
-export *
-}

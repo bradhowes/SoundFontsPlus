@@ -1,4 +1,0 @@
-module ComplexModule {
-header "ComplexModule-Swift.h"
-export *
-}

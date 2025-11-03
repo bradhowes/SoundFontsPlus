@@ -1,4 +1,0 @@
-module FeatureSupport {
-header "FeatureSupport-Swift.h"
-export *
-}

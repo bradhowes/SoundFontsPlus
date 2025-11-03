@@ -1,4 +1,0 @@
-module MIDITrafficIndicator {
-header "MIDITrafficIndicator-Swift.h"
-export *
-}

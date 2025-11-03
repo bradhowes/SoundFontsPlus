@@ -1,4 +1,0 @@
-module SF2Util {
-umbrella "/Users/howes/Library/Developer/Xcode/DerivedData/SoundFontsPlus-fypdzagpawesifakxukykbhwxprt/SourcePackages/checkouts/SF2Lib/Sources/SF2Util/include"
-export *
-}

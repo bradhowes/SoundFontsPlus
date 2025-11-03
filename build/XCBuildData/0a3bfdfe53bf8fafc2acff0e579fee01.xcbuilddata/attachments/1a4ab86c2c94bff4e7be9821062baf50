@@ -1,4 +1,0 @@
-module MIDIControllers {
-header "MIDIControllers-Swift.h"
-export *
-}
