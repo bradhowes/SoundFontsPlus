@@ -20,6 +20,7 @@ struct SoundFontsPlusApp: App {
 
       $0.audioGraph = .liveValue
       $0.audioSession = .liveValue
+
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       $0.defaultFileStorage = .fileSystem
@@ -41,8 +42,8 @@ struct SoundFontsPlusApp: App {
       @Shared(.midiMonitor) var midiMonitor = .init()
       midi?.receiver = midiMonitor
 
-      @Shared(.confirmPresetHiding) var confirmPresetHiding
-      $confirmPresetHiding.withLock { $0 = true }
+//      @Shared(.confirmPresetHiding) var confirmPresetHiding
+//      $confirmPresetHiding.withLock { $0 = true }
     }
   }
 
