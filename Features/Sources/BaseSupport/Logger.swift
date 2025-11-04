@@ -9,8 +9,8 @@ public struct Logger: Sendable {
   /// The top-level identifier for the app.
   public static let subsystem = Bundle(for: BundleTag.self).bundleIdentifier?.lowercased() ?? "?"
 
-  let category: String
-  let logger: os.Logger
+  public let category: String
+  public let logger: os.Logger
 
   public init(category: String) {
     self.category = category
