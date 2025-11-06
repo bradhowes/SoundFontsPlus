@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import Clocks
 import Dependencies
 import Foundation
 
@@ -11,6 +12,7 @@ import Foundation
  TODO: reevaluate approach. Not convinced this is the best way to handle bookmarks.
  */
 public final class Bookmark: Codable {
+
   public enum CodingKeys: CodingKey {
     case name
     case bookmark
@@ -19,11 +21,14 @@ public final class Bookmark: Codable {
 
   /// The name of the sound font represented by the bookmark
   public let name: String
+  /// The latest bookmark data from the URL
   public private(set) var bookmark: Data?
+  /// The original URL that was picked by the user
   public let original: URL
-
+  /// The current URL that may have deviated from the original
   public var url: URL { restore() }
 
+  /// Cache of the last restored URL. Used to reduce churn due to UI updates.
   private var lastRestoredUrl: URL?
   private var lastRestoredWhen: CFTimeInterval
 
@@ -59,33 +64,40 @@ public final class Bookmark: Codable {
 
 extension Bookmark {
 
+  /**
+   Create a Bookmark from the contents of a Data instance.
+
+   - parameter data: the container to decode
+   - returns: new Bookmark instance
+   */
   public static func from(data: Data) throws -> Bookmark {
     let decoder = PropertyListDecoder()
     return try decoder.decode(Bookmark.self, from: data)
   }
 
+  /**
+   Encode the Bookmark into a Data container.
+
+   - returns: the container holding the encoded bookmark data
+   */
   public func toData() throws -> Data {
     let encoder = PropertyListEncoder()
     return try encoder.encode(self)
   }
 
-  /// Determine the availability state for a bookmarked URL
+  /// Determine the availability state for a bookmarked URL.
   public var isAvailable: Bool {
-    if url.startAccessingSecurityScopedResource() {
-      defer { url.stopAccessingSecurityScopedResource() }
-      return (try? url.checkResourceIsReachable()) ?? false
-    }
-    return false
+    url.withSecurityScoping { url in
+      try url.checkResourceIsReachable()
+    } ?? false
   }
 
   /// Determine if the file is located in an iCloud container
   public var isUbiquitous: Bool {
-    @Dependency(\.fileManager.isUbiquitousItem) var isUbiquitousItem
-    if url.startAccessingSecurityScopedResource() {
-      defer { url.stopAccessingSecurityScopedResource() }
+    url.withSecurityScoping { url in
+      @Dependency(\.fileManager.isUbiquitousItem) var isUbiquitousItem
       return isUbiquitousItem(url)
-    }
-    return false
+    } ?? false
   }
 
   /// The various iCloud states a bookmark item may be in.
@@ -108,45 +120,34 @@ extension Bookmark {
 
   /// Obtain the current iCloud state of the bookmark item
   public var cloudState: CloudState {
-    let secured = url.startAccessingSecurityScopedResource()
-    defer { if secured { url.stopAccessingSecurityScopedResource() } }
+    url.withSecurityScoping { url in
+      guard
+        let values = try? url.resourceValues(
+          forKeys: [
+            .isUbiquitousItemKey,
+            .ubiquitousItemDownloadRequestedKey,
+            .ubiquitousItemDownloadingStatusKey,
+            .ubiquitousItemIsDownloadingKey,
+            .ubiquitousItemDownloadingErrorKey
+          ]
+        )
+      else {
+        return .unknown
+      }
 
-    guard
-      let values = try? url.resourceValues(
-        forKeys: [
-          .isUbiquitousItemKey,
-          .ubiquitousItemDownloadRequestedKey,
-          .ubiquitousItemDownloadingStatusKey,
-          .ubiquitousItemIsDownloadingKey,
-          .ubiquitousItemDownloadingErrorKey
-        ]
-      )
-    else {
-      return .unknown
-    }
+      let isUbiquitous = (values.isUbiquitousItem ?? false)
+      if !isUbiquitous { return .local }
 
-    let isUbiquitous = (values.isUbiquitousItem ?? false)
-    if !isUbiquitous { return .local }
+      guard values.ubiquitousItemDownloadingError == nil else { return .downloadError }
+      guard let status = values.ubiquitousItemDownloadingStatus else { return .inCloud }
 
-    guard values.ubiquitousItemDownloadingError == nil else { return .downloadError }
-
-    guard let status = values.ubiquitousItemDownloadingStatus else { return .inCloud }
-    switch status {
-    case .current: return .downloaded
-    case .downloaded: return .downloading
-    case .notDownloaded: return .inCloud
-    default: return .inCloud
-    }
-  }
-}
-
-extension URL {
-
-  fileprivate var secureBookmarkData: Data? {
-    let secured = self.startAccessingSecurityScopedResource()
-    let data = try? self.bookmarkData(options: .minimalBookmark, includingResourceValuesForKeys: nil, relativeTo: nil)
-    if secured { self.stopAccessingSecurityScopedResource() }
-    return data
+      switch status {
+      case .current: return .downloaded
+      case .downloaded: return .downloading
+      case .notDownloaded: return .inCloud
+      default: return .inCloud
+      }
+    } ?? .unknown
   }
 }
 
@@ -175,7 +176,12 @@ extension Bookmark {
     guard let data = data else { return (url: nil, stale: false) }
     do {
       var isStale = false
-      let url = try URL(resolvingBookmarkData: data, options: [], relativeTo: nil, bookmarkDataIsStale: &isStale)
+      let url = try URL(
+        resolvingBookmarkData: data,
+        options: [],
+        relativeTo: nil,
+        bookmarkDataIsStale: &isStale
+      )
       return (url: url, stale: isStale)
     } catch {
       return (url: nil, stale: false)

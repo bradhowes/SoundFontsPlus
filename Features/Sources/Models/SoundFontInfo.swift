@@ -9,7 +9,7 @@ import Tagged
  Subset of SoundFont table columns used to show the list of available soundfont files.
  */
 @Selection
-public struct SoundFontInfo: Equatable, Identifiable, Sendable {
+public struct SoundFontInfo {
   public let id: SoundFont.ID
   public let displayName: String
   public let kind: SoundFont.Kind
@@ -34,6 +34,15 @@ public struct SoundFontInfo: Equatable, Identifiable, Sendable {
 
 extension SoundFontInfo {
 
+  var source: SoundFontKind? {
+    withErrorReporting {
+      try SoundFontKind(kind: kind, location: location, displayName: displayName)
+    }
+  }
+}
+
+extension SoundFontInfo {
+
   public static func query(id tagId: FontTag.ID? = nil) -> Select<Self.Columns.QueryValue, TaggedSoundFont, SoundFont> {
     @Shared(.activeState) var activeState
     let tagId = tagId ?? activeState.activeTagId ?? FontTag.Ubiquitous.all.id
@@ -47,3 +56,5 @@ extension SoundFontInfo {
       .order { $1.displayName }
   }
 }
+
+extension SoundFontInfo: Equatable, Identifiable, Sendable {}

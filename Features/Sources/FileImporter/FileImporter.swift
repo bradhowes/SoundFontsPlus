@@ -109,10 +109,10 @@ extension FileImporter {
   }
 
   private func validateSoundFont(url: URL) -> Bool {
-    let accessing = url.startAccessingSecurityScopedResource()
-    defer { if accessing { url.stopAccessingSecurityScopedResource() } }
-    var fileInfo = SF2FileInfo(std.string(url.path(percentEncoded: false)))
-    return fileInfo.load()
+    url.withSecurityScoping { url in
+      var fileInfo = SF2FileInfo(std.string(url.path(percentEncoded: false)))
+      return fileInfo.load()
+    } ?? false
   }
 
   private func placeSoundFont(_ state: inout State, displayName: String, source: URL) throws -> SoundFontKind {
@@ -132,13 +132,12 @@ extension FileImporter {
   }
 
   private func copyToSharedFolder(_ state: inout State, displayName: String, source: URL) throws -> URL {
-    let accessing = source.startAccessingSecurityScopedResource()
-    defer { if accessing { source.stopAccessingSecurityScopedResource() } }
-    log.info("copying \(source) to \(fileManager.sharedDocumentsDirectory())")
-    let destination = fileManager.sharedDocumentsDirectory().appendingPathComponent(source.lastPathComponent)
-    try fileManager.copyItem(source, destination)
-
-    return destination
+    try source.withSecurityScopingThrows { url in
+      log.info("copying \(url) to \(fileManager.sharedDocumentsDirectory())")
+      let destination = fileManager.sharedDocumentsDirectory().appendingPathComponent(url.lastPathComponent)
+      try fileManager.copyItem(source, destination)
+      return destination
+    }
   }
 }
 

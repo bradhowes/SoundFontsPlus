@@ -22,7 +22,7 @@ public struct MIDITraffic: Equatable, Sendable {
   }
 }
 
-public final class MIDIMonitor: @unchecked Sendable {
+public final class MIDIMonitor {
   @Shared(.midiChannel) private var midiChannel
   @Shared(.synthAudioUnit) private var synthAudioUnit
   var midiInstrument: AVAudioUnitMIDIInstrument? { synthAudioUnit?.midiInstrument }
@@ -37,6 +37,8 @@ public final class MIDIMonitor: @unchecked Sendable {
 
   public init() {}
 }
+
+extension MIDIMonitor: @unchecked Sendable {}
 
 extension MIDIMonitor: Receiver {
 

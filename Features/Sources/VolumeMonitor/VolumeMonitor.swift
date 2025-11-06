@@ -11,6 +11,7 @@ public struct VolumeMonitor {
   public enum Reason : Sendable{
     case volumeLevelIsZero
     case noActivePreset
+    case missingSoundFontFile
   }
 
   @ObservableState
@@ -25,9 +26,9 @@ public struct VolumeMonitor {
   public enum Action: BindableAction {
     case activePresetIdChanged(Preset.ID?)
     case binding(BindingAction<State>)
+    case deinitialize
     case delegate(Delegate)
     case initialize
-    case deinitialize
     case volumeChanged(Float)
 
   @CasePathable
@@ -44,20 +45,20 @@ public struct VolumeMonitor {
     Reduce { state, action in
       switch action {
 
+      case .activePresetIdChanged(let presetId):
+        return presetChanged(&state, presetId: presetId)
+
       case .binding:
         return .none
 
       case .deinitialize:
         return .cancel(id: CancelId.monitorSessionVolume)
 
-      case .initialize:
-        return initialize(&state)
-
-      case .activePresetIdChanged(let presetId):
-        return presetChanged(&state, presetId: presetId)
-
       case .delegate:
         return .none
+
+      case .initialize:
+        return initialize(&state)
 
       case .volumeChanged(let volume):
         return volumeChanged(&state, volume: volume)
@@ -155,7 +156,6 @@ public struct VolumeMonitorModifier: ViewModifier {
         }
       }
       .toastStyle(.plain)
-    // .toastTransition(.scale)
       .toastPresentationInvalidation(.all)
       .toastInteractiveDismissDisabled(false)
   }

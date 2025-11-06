@@ -7,7 +7,7 @@ import Foundation
 import os
 
 /// Indicators for the various types of SoundFont installs
-public enum SoundFontKind: Equatable {
+public enum SoundFontKind {
 
   /// Built-in sound font file that is comes with the app. Holds a URL to a bundle resource
   case builtin(resource: URL)
@@ -29,6 +29,8 @@ public enum SoundFontKind: Equatable {
     }
   }
 }
+
+extension SoundFontKind: Equatable {}
 
 extension SoundFontKind {
 
