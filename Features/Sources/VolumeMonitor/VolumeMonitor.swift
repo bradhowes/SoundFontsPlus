@@ -11,7 +11,6 @@ public struct VolumeMonitor {
   public enum Reason : Sendable{
     case volumeLevelIsZero
     case noActivePreset
-    case missingSoundFontFile
   }
 
   @ObservableState
