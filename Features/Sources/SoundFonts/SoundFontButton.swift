@@ -152,7 +152,7 @@ public struct SoundFontButton {
     }
   }
 
-  enum CancelId {
+  private enum CancelId {
     case bookmarkMonitor
   }
 }
@@ -175,53 +175,6 @@ extension SoundFontButton {
       }
     }.cancellable(id: CancelId.bookmarkMonitor)
   }
-
-  static func deleteFromAppConfirmationDialogState(
-    displayName: String
-  ) -> ConfirmationDialogState<Action.ConfirmationDialog> {
-    ConfirmationDialogState(
-      titleVisibility: .visible,
-      title: {
-        TextState("Delete \(displayName)?")
-    }, actions: {
-      ButtonState(role: .cancel) { TextState("Cancel") }
-      ButtonState(action: .deleteButtonTapped) { TextState("Delete") }
-    }, message: {
-      TextState(
-        "Deleting will remove the sound font from this application. It will remain on " +
-        "your device."
-      )
-    })
-  }
-
-  static func deleteFromDeviceConfirmationDialogState(
-    displayName: String
-  ) -> ConfirmationDialogState<Action.ConfirmationDialog> {
-    ConfirmationDialogState(
-      titleVisibility: .visible,
-      title: {
-        TextState("Delete \(displayName)?")
-      }, actions: {
-        ButtonState(role: .cancel) { TextState("Cancel") }
-        ButtonState(action: .deleteButtonTapped) { TextState("Delete") }
-      }, message: {
-        TextState(
-          "Deleting will remove it from the application and your device."
-        )
-      })
-  }
-
-//  private func deleteButtonTapped(_ state: inout State) -> Effect<Action> {
-//    if state.soundFontInfo.isInstalled {
-//      state.confirmationDialog = Self.deleteFromAppConfirmationDialogState(displayName: state.soundFontInfo.displayName)
-//    } else if state.soundFontInfo.isExternal {
-//      state.confirmationDialog = Self.deleteFromDeviceConfirmationDialogState(displayName: state.soundFontInfo.displayName)
-//    } else {
-//      let name = state.soundFontInfo.displayName
-//      log.error("request to delete built-in soundfont \(name)")
-//    }
-//    return .none.animation(.default)
-//  }
 
   private func downloadFile(_ state: inout State) -> Effect<Action> {
     guard let bookmark = try? Bookmark.from(data: state.soundFontInfo.location) else { return .none }
