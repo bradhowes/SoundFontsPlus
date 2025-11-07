@@ -16,8 +16,10 @@ extension String {
     return trimmed.isEmpty ? `default` : trimmed
   }
 
+  /// - returns content trimmed of whitespaces from start and end.
   @inlinable
   public var trimmedOfWhitespaces: String { trimmingCharacters(in: .whitespaces) }
 
+  /// - returns `Substring` that does not have the last extension.
   public var withoutExtension: Substring { self[self.startIndex..<(self.lastIndex(of: ".") ?? self.endIndex)] }
 }

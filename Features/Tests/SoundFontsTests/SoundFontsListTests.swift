@@ -111,7 +111,40 @@ struct SoundFontsListTests {
   }
 
   @Test
-  func deleteSoundFont() async throws {
+  func deleteSoundFontCancelled() async throws {
+    let store = store()
+    await store.send(.initialize)
+    await store.receive(\.activeTagIdChanged)
+
+    store.exhaustivity = .off(showSkippedAssertions: false)
+    await store.receive(\.soundFontInfosChanged)
+    store.exhaustivity = .on
+
+    // let oldRows = store.state.rows
+    let row = store.state.rows[1]
+    await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo))))) {
+      $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(row.soundFontInfo),
+                                                      displayName: "Font 2"))
+    }
+
+    await store.send(.destination(.dismiss)) {
+      $0.destination = nil
+    }
+
+//    let deleted = oldRows.remove(id: row.id)
+//    #expect(deleted != nil)
+//    #expect(deleted?.soundFontInfo.displayName == "Font 2")
+//
+//    await store.receive(\.soundFontInfosChanged) {
+//      $0.rows = oldRows
+//    }
+
+    await store.send(.deinitialize)
+    await store.finish()
+  }
+
+  @Test
+  func deleteSoundFontConfirmed() async throws {
     let store = store()
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
@@ -122,7 +155,14 @@ struct SoundFontsListTests {
 
     var oldRows = store.state.rows
     let row = oldRows[1]
-    await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo)))))
+    await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo))))) {
+      $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(row.soundFontInfo),
+                                                      displayName: "Font 2"))
+    }
+
+    await store.send(.destination(.presented(.alert(.deleteSoundFontConfirmed(row.soundFontInfo))))) {
+      $0.destination = nil
+    }
 
     let deleted = oldRows.remove(id: row.id)
     #expect(deleted != nil)

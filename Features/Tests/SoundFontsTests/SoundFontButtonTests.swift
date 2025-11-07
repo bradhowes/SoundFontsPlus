@@ -34,20 +34,8 @@ struct SoundFontButtonTests {
   func deleteButtonTappedOnInstalled() async throws {
     let store = store(kind: .installed)
 
-    await store.send(.deleteButtonTapped) {
-      $0.confirmationDialog = SoundFontButton.deleteFromAppConfirmationDialogState(displayName: $0.soundFontInfo.displayName)
-    }
-    await store.send(.confirmationDialog(.presented(.cancelButtonTapped))) {
-      $0.confirmationDialog = nil
-    }
-
-    await store.send(.deleteButtonTapped) {
-      $0.confirmationDialog = SoundFontButton.deleteFromAppConfirmationDialogState(displayName: $0.soundFontInfo.displayName)
-    }
-    await store.send(.confirmationDialog(.presented(.deleteButtonTapped))) {
-      $0.confirmationDialog = nil
-    }
-    await store.receive(\.delegate.deleteSoundFont, store.state.soundFontInfo)
+    await store.send(.deleteButtonTapped)
+    await store.receive(.delegate(.deleteSoundFont(store.state.soundFontInfo)))
 
     await store.finish()
   }
@@ -56,20 +44,8 @@ struct SoundFontButtonTests {
   func deleteButtonTappedOnExternal() async throws {
     let store = store(kind: .external)
 
-    await store.send(.deleteButtonTapped) {
-      $0.confirmationDialog = SoundFontButton.deleteFromDeviceConfirmationDialogState(displayName: $0.soundFontInfo.displayName)
-    }
-    await store.send(.confirmationDialog(.presented(.cancelButtonTapped))) {
-      $0.confirmationDialog = nil
-    }
-
-    await store.send(.deleteButtonTapped) {
-      $0.confirmationDialog = SoundFontButton.deleteFromDeviceConfirmationDialogState(displayName: $0.soundFontInfo.displayName)
-    }
-    await store.send(.confirmationDialog(.presented(.deleteButtonTapped))) {
-      $0.confirmationDialog = nil
-    }
-    await store.receive(\.delegate.deleteSoundFont, store.state.soundFontInfo)
+    await store.send(.deleteButtonTapped)
+    await store.receive(.delegate(.deleteSoundFont(store.state.soundFontInfo)))
 
     await store.finish()
   }
@@ -77,8 +53,10 @@ struct SoundFontButtonTests {
   @Test
   func deleteButtonTappedOnBuiltin() async throws {
     let store = store(kind: .builtin)
-    // This should never actually happen in the UI, but if it does it should do nothing
+
     await store.send(.deleteButtonTapped)
+    await store.receive(.delegate(.deleteSoundFont(store.state.soundFontInfo)))
+
     await store.finish()
   }
 
