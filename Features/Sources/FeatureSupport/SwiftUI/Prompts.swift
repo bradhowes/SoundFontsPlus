@@ -2,39 +2,7 @@
 
 import ComposableArchitecture
 
-extension AlertState {
-
-  static public func confirmHidePreset(action: Action, displayName: String) -> Self {
-    Self {
-      TextState("Hide '\(displayName)'?")
-    } actions: {
-      ButtonState(action: action) { TextState("Hide") }
-      ButtonState(role: .cancel) { TextState("Cancel") }
-    } message: {
-      TextState(
-"""
-Hiding a preset will keep it from appearing in the list of presets. \
-You can restore visibility via the preset visibility button in the toolbar.
-"""
-      )
-    }
-  }
-
-  static public func confirmDeleteFavorite(action: Action, displayName: String) -> Self {
-    Self {
-      TextState("Delete '\(displayName)'?")
-    } actions: {
-      ButtonState(role: .destructive, action: action) { TextState("Delete") }
-      ButtonState(role: .cancel) { TextState("Cancel") }
-    } message: {
-      TextState(
-"""
-Deleting a favorite cannot be undone.
-"""
-      )
-    }
-  }
-}
+// MARK: - App alerts
 
 extension AlertState {
 
@@ -78,6 +46,95 @@ extension AlertState {
     }
   }
 }
+
+// MARK: - Preset alerts
+
+extension AlertState {
+
+  static public func confirmHidePreset(action: Action, displayName: String) -> Self {
+    Self {
+      TextState("Hide '\(displayName)'?")
+    } actions: {
+      ButtonState(action: action) { TextState("Hide") }
+      ButtonState(role: .cancel) { TextState("Cancel") }
+    } message: {
+      TextState(
+"""
+Hiding a preset will keep it from appearing in the list of presets. \
+You can restore visibility via the preset visibility button in the toolbar.
+"""
+      )
+    }
+  }
+
+  static public func confirmDeleteFavorite(action: Action, displayName: String) -> Self {
+    Self {
+      TextState("Delete '\(displayName)'?")
+    } actions: {
+      ButtonState(role: .destructive, action: action) { TextState("Delete") }
+      ButtonState(role: .cancel) { TextState("Cancel") }
+    } message: {
+      TextState(
+"""
+Deleting a favorite cannot be undone.
+"""
+      )
+    }
+  }
+}
+
+
+// MARK: - SoundFont alerts
+
+extension AlertState {
+
+  static public func confirmDeleteSoundFont(action: Action, displayName: String) -> Self {
+    Self {
+      TextState("Delete '\(displayName)'?")
+    } actions: {
+      ButtonState(role: .destructive, action: action) { TextState("Delete") }
+      ButtonState(role: .cancel) { TextState("Cancel") }
+    } message: {
+      TextState(
+"""
+Deleting a SoundFont will delete any customizations you may have made to its presets. This cannot be undone.
+"""
+      )
+    }
+  }
+
+  static public func invalidBookmark(displayName: String) -> Self {
+    Self {
+      TextState("Invalid Bookmark for '\(displayName)'")
+    } actions: {
+      ButtonState(role: .cancel) { TextState("OK") }
+    } message: {
+      TextState(
+"""
+Unable to resolve the bookmark for the sound font '\(displayName)' due to an internal error.
+Please delete the sound font and then add it back.
+"""
+      )
+    }
+  }
+
+  static public func missingFile(displayName: String) -> Self {
+    Self {
+      TextState("Missing File for '\(displayName)'")
+    } actions: {
+      ButtonState(role: .cancel) { TextState("OK") }
+    } message: {
+      TextState(
+"""
+Unable to locate the external file for sound font '\(displayName)'.
+Connect the external drive containing the file to resolve this issue.
+"""
+      )
+    }
+  }
+}
+
+// MARK: - SoundFontEditor alerts
 
 extension AlertState {
 

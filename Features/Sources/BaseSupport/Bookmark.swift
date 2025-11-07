@@ -4,6 +4,8 @@ import Clocks
 import Dependencies
 import Foundation
 
+private let log = Logger(category: "Bookmark")
+
 /**
  A bookmark represents a file located outside of the app's own storage space. It is used to reference sound font files
  without making a copy of them. However there are risks involved, namely that the bookmark may not resolve to a real
@@ -88,7 +90,12 @@ extension Bookmark {
   /// Determine the availability state for a bookmarked URL.
   public var isAvailable: Bool {
     url.withSecurityScoping { url in
-      try url.checkResourceIsReachable()
+      do {
+        return try url.checkResourceIsReachable()
+      } catch CocoaError.fileReadNoSuchFile {
+        log.debug("file does not exist")
+        return false
+      }
     } ?? false
   }
 
@@ -132,21 +139,30 @@ extension Bookmark {
           ]
         )
       else {
+        log.debug("bookmark cloudState: .unknown")
         return .unknown
       }
 
       let isUbiquitous = (values.isUbiquitousItem ?? false)
-      if !isUbiquitous { return .local }
 
-      guard values.ubiquitousItemDownloadingError == nil else { return .downloadError }
-      guard let status = values.ubiquitousItemDownloadingStatus else { return .inCloud }
-
-      switch status {
-      case .current: return .downloaded
-      case .downloaded: return .downloading
-      case .notDownloaded: return .inCloud
-      default: return .inCloud
+      let state: CloudState
+      if !isUbiquitous {
+        log.debug("bookmark cloudState: .local")
+        state = .local
+      } else if values.ubiquitousItemDownloadingError != nil {
+        state = .downloadError
+      } else {
+        switch values.ubiquitousItemDownloadingStatus {
+        case nil: state = .inCloud
+        case .current: state = .downloaded
+        case .downloaded: state = .downloading
+        case .notDownloaded: state = .inCloud
+        default: state = .inCloud
+        }
       }
+
+      log.debug("cloudState: \(state)")
+      return state
     } ?? .unknown
   }
 }

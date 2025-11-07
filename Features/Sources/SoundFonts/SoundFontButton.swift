@@ -66,15 +66,11 @@ public struct SoundFontButton {
     public let soundFontInfo: SoundFontInfo
     public var statusInfoTag: StatusInfoTag
 
-    @Presents public var confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>?
-
     public init(
       soundFontInfo: SoundFontInfo,
-      confirmationDialog: ConfirmationDialogState<Action.ConfirmationDialog>? = nil
     ) {
       self.soundFontInfo = soundFontInfo
       self.statusInfoTag = Self.statusInfoTag(for: soundFontInfo)
-      self.confirmationDialog = confirmationDialog
     }
 
     static public func statusInfoTag(for soundFontInfo: SoundFontInfo) -> StatusInfoTag {
@@ -88,7 +84,6 @@ public struct SoundFontButton {
     case bookmarkMonitorStart
     case bookmarkMonitorStop
     case buttonTapped
-    case confirmationDialog(PresentationAction<ConfirmationDialog>)
     case delegate(Delegate)
     case deleteButtonTapped
     case downloadFileButtonTapped
@@ -107,6 +102,8 @@ public struct SoundFontButton {
 
   @CasePathable
   public enum Delegate: Equatable {
+    case alertInvalidBookmark(SoundFontInfo)
+    case alertMissingFile(SoundFontInfo)
     case deleteSoundFont(SoundFontInfo)
     case editSoundFont(SoundFontInfo)
     case selectSoundFont(SoundFontInfo)
@@ -117,6 +114,7 @@ public struct SoundFontButton {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
+
       case .bookmarkMonitorStart:
         return bookmarkMonitorStart(&state)
 
@@ -126,17 +124,23 @@ public struct SoundFontButton {
       case .buttonTapped:
         return .send(.delegate(.selectSoundFont(state.soundFontInfo)))
 
-      case .confirmationDialog(.presented(.deleteButtonTapped)):
+      case .deleteButtonTapped:
         return .send(.delegate(.deleteSoundFont(state.soundFontInfo))).animation(.default)
 
-      case .deleteButtonTapped:
-        return deleteButtonTapped(&state)
+      case .downloadFileButtonTapped:
+        return downloadFile(&state)
 
       case .editButtonTapped:
         return .send(.delegate(.editSoundFont(state.soundFontInfo)))
 
+      case .invalidBookmarkButtonTapped:
+        return .send(.delegate(.alertInvalidBookmark(state.soundFontInfo)))
+
       case .longPressGestureFired:
         return .send(.delegate(.editSoundFont(state.soundFontInfo)))
+
+      case .missingFileButtonTapped:
+        return .send(.delegate(.alertMissingFile(state.soundFontInfo)))
 
       case .statusInfoChanged(let statusInfoTag):
         state.statusInfoTag = statusInfoTag
@@ -146,7 +150,6 @@ public struct SoundFontButton {
         return .none
       }
     }
-    .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
   }
 
   enum CancelId {
@@ -208,16 +211,28 @@ extension SoundFontButton {
       })
   }
 
-  func deleteButtonTapped(_ state: inout State) -> Effect<Action> {
-    if state.soundFontInfo.isInstalled {
-      state.confirmationDialog = Self.deleteFromAppConfirmationDialogState(displayName: state.soundFontInfo.displayName)
-    } else if state.soundFontInfo.isExternal {
-      state.confirmationDialog = Self.deleteFromDeviceConfirmationDialogState(displayName: state.soundFontInfo.displayName)
-    } else {
-      let name = state.soundFontInfo.displayName
-      log.error("request to delete built-in soundfont \(name)")
+//  private func deleteButtonTapped(_ state: inout State) -> Effect<Action> {
+//    if state.soundFontInfo.isInstalled {
+//      state.confirmationDialog = Self.deleteFromAppConfirmationDialogState(displayName: state.soundFontInfo.displayName)
+//    } else if state.soundFontInfo.isExternal {
+//      state.confirmationDialog = Self.deleteFromDeviceConfirmationDialogState(displayName: state.soundFontInfo.displayName)
+//    } else {
+//      let name = state.soundFontInfo.displayName
+//      log.error("request to delete built-in soundfont \(name)")
+//    }
+//    return .none.animation(.default)
+//  }
+
+  private func downloadFile(_ state: inout State) -> Effect<Action> {
+    guard let bookmark = try? Bookmark.from(data: state.soundFontInfo.location) else { return .none }
+    bookmark.url.withSecurityScoping { url in
+      try FileManager.default.startDownloadingUbiquitousItem(at: url)
     }
-    return .none.animation(.default)
+    return .none
+  }
+
+  private func postMissingFileAlert(_ state: inout State) -> Effect<Action> {
+    return .none
   }
 }
 
@@ -269,7 +284,6 @@ struct SoundFontButtonView: View {
       LongPressGesture(minimumDuration: 1.0)
         .onEnded { _ in store.send(.longPressGestureFired) }
     )
-    .confirmationDialog($store.scope(state: \.confirmationDialog, action: \.confirmationDialog))
     .task {
       await store.send(.bookmarkMonitorStart).finish()
     }

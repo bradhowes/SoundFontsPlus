@@ -9,11 +9,22 @@ private let log = Logger(category: "SoundFontsList")
 @Reducer
 public struct SoundFontsList {
 
+  @Reducer
+  public enum Destination {
+    case alert(AlertState<Alert>)
+
+    @CasePathable
+    public enum Alert: Equatable {
+      case deleteSoundFontConfirmed(SoundFontInfo)
+    }
+  }
+
   @ObservableState
   public struct State: Equatable {
+    @Presents public var destination: Destination.State?
     public var rows: IdentifiedArrayOf<SoundFontButton.State>
 
-    public init() {
+    public init(destination: Destination.State? = nil) {
       @FetchAll(SoundFontInfo.query()) var soundFontInfos
       log.info("init \(soundFontInfos)")
       self.rows = .init(uncheckedUniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
@@ -24,6 +35,7 @@ public struct SoundFontsList {
     case activeTagIdChanged
     case delegate(Delegate)
     case deinitialize
+    case destination(PresentationAction<Destination.Action>)
     case initialize
     case rows(IdentifiedActionOf<SoundFontButton>)
     case showActiveSoundFont
@@ -53,6 +65,10 @@ public struct SoundFontsList {
       case .deinitialize:
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
 
+      case .destination(.presented(.alert(.deleteSoundFontConfirmed(let soundFontInfo)))):
+        SoundFont.delete(id: soundFontInfo.id)
+        return .none
+
       case .initialize:
         return .merge(
           monitorActiveTag(&state),
@@ -75,6 +91,7 @@ public struct SoundFontsList {
     .forEach(\.rows, action: \.rows) {
       SoundFontButton()
     }
+    .ifLet(\.destination, action: \.destination)
   }
 
   private enum CancelId: CaseIterable {
@@ -84,6 +101,26 @@ public struct SoundFontsList {
 }
 
 extension SoundFontsList {
+
+  private func alertInvalidBookmark(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
+    state.destination = .alert(.invalidBookmark(displayName: soundFontInfo.displayName))
+    return .none
+  }
+
+  private func alertMissingFile(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
+    state.destination = .alert(.missingFile(displayName: soundFontInfo.displayName))
+    return .none
+  }
+
+  private func deleteSoundFont(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
+    state.destination = .alert(
+      .confirmDeleteSoundFont(
+        action: .deleteSoundFontConfirmed(soundFontInfo),
+        displayName: soundFontInfo.displayName
+      )
+    )
+    return .none
+  }
 
   private func edit(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
     if let soundFont = SoundFont.with(id: soundFontId) {
@@ -97,15 +134,20 @@ extension SoundFontsList {
 
     switch action {
 
-    case .deleteSoundFont(let soundFont):
-      SoundFont.delete(id: soundFont.id)
-      return .none
+    case .alertInvalidBookmark(let soundFontInfo):
+      return alertInvalidBookmark(&state, soundFontInfo: soundFontInfo)
 
-    case .editSoundFont(let soundFont):
-      return edit(&state, soundFontId: soundFont.id)
+    case .alertMissingFile(let soundFontInfo):
+      return alertMissingFile(&state, soundFontInfo: soundFontInfo)
 
-    case .selectSoundFont(let soundFont):
-      return select(&state, soundFontId: soundFont.id)
+    case .deleteSoundFont(let soundFontInfo):
+      return deleteSoundFont(&state, soundFontInfo: soundFontInfo)
+
+    case .editSoundFont(let soundFontInfo):
+      return edit(&state, soundFontId: soundFontInfo.id)
+
+    case .selectSoundFont(let soundFontInfo):
+      return select(&state, soundFontId: soundFontInfo.id)
     }
   }
 
@@ -164,6 +206,12 @@ extension SoundFontsList {
   }
 }
 
+extension SoundFontsList.Destination.State: Equatable {}
+extension SoundFontsList.Destination.Action: Equatable {}
+extension SoundFontsList.Destination.State: _EphemeralState {
+  public typealias Action = Alert
+}
+
 public struct SoundFontsListView: View {
   @Bindable private var store: StoreOf<SoundFontsList>
 
@@ -187,6 +235,7 @@ public struct SoundFontsListView: View {
     .task {
       await store.send(.initialize).finish()
     }
+    .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
 }
 
