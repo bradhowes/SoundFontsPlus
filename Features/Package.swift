@@ -59,17 +59,19 @@ let package = Package(
     .package(url: "https://github.com/bradhowes/brh-splitview", from: "1.0.5"),
     .package(url: "https://github.com/bradhowes/morkandmidi", from: "4.0.1"),
     sf2Lib,
-    .package(url: "https://github.com/pointfreeco/sqlite-data", from: "1.0.0"),
+    //
     .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.1"),
+    // NOTE: only used to gain access to `isApproximatelyEqual` in unit tests
+    .package(url: "https://github.com/apple/swift-numerics", from: "1.1.0"),
+    .package(url: "https://github.com/athankefalas/swift-toasts", from: "0.9.2"),
+    //
+    .package(url: "https://github.com/pointfreeco/sqlite-data", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.2"),
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.22.3"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.10.0"),
-    // NOTE: only used to gain access to `isApproximatelyEqual` in unit tests
-    .package(url: "https://github.com/apple/swift-numerics", from: "1.1.0"),
     .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.7.4"),
     .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.7"),
     .package(url: "https://github.com/pointfreeco/swift-tagged", from: "0.10.0"),
-    .package(url: "https://github.com/athankefalas/swift-toasts", from: "0.9.2")
   ],
 
   targets: [
