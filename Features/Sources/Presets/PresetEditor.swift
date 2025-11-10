@@ -192,7 +192,7 @@ extension PresetEditor {
 
     // Map slider +12...-90 to initialAttenuation generator -120...900
     let value: AUValue = AUValue(state.gainSlider * -10.0)
-    parameter?.setValue(value, originator: nil)
+    unsafe parameter?.setValue(value, originator: nil)
     return .none
   }
 
@@ -210,7 +210,7 @@ extension PresetEditor {
 
     // Map slider -100...+100 to pan generator -500...+500
     let value: AUValue = AUValue(state.panSlider * 5.0)
-    parameter?.setValue(value, originator: nil)
+    unsafe parameter?.setValue(value, originator: nil)
     return .none
   }
 

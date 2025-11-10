@@ -275,7 +275,7 @@ extension SF2LibAU {
   public override var canPerformOutput: Bool { true }
 
   /// Provide a block that asks the internal SF2 `engine` to render samples.
-  public override var internalRenderBlock: AUInternalRenderBlock { engine.getRenderBlock() }
+  public override var internalRenderBlock: AUInternalRenderBlock { unsafe engine.getRenderBlock() }
 }
 
 // MARK: - State Management
