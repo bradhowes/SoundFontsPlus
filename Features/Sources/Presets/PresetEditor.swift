@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFoundation
+import Engine
 import FeatureSupport
 import Tuning
 
@@ -105,6 +106,10 @@ public struct PresetEditor {
 
   public init() {}
 
+  @Shared(.activeState) private var activeState
+  @Shared(.confirmPresetHiding) private var confirmPresetHiding
+  @Shared(.synthAudioUnit) private var synthAudioUnit
+
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Scope(state: \.tuning, action: \.tuning) { Tuning() }
@@ -113,6 +118,12 @@ public struct PresetEditor {
       log.info("PresetEditor action: \(action)")
 
       switch action {
+
+      case .binding(\.gainSlider):
+        return gainSliderChanged(&state)
+
+      case .binding(\.panSlider):
+        return panSliderChanged(&state)
 
       case .binding(\.visible):
         if !state.visible {
@@ -150,8 +161,6 @@ public struct PresetEditor {
     }
     .ifLet(\.destination, action: \.destination)
   }
-
-  @Shared(.confirmPresetHiding) private var confirmPresetHiding
 }
 
 extension PresetEditor {
@@ -175,9 +184,33 @@ extension PresetEditor {
     return .run { _ in await dismiss() }
   }
 
+  private func gainSliderChanged(_ state: inout State) -> Effect<Action> {
+    guard activeState.activePresetId == state.preset.id else { return .none }
+    guard let parameterTree = synthAudioUnit?.parameterTree else { return .none }
+    let panAddress = AUParameterAddress(SF2.Entity.Generator.Index.initialAttenuation.rawValue)
+    let parameter = parameterTree.parameter(withAddress: panAddress)
+
+    // Map slider +12...-90 to initialAttenuation generator -120...900
+    let value: AUValue = AUValue(state.gainSlider * -10.0)
+    parameter?.setValue(value, originator: nil)
+    return .none
+  }
+
   private func hidePresetConfirmed(_ state: inout State) -> Effect<Action> {
     $confirmPresetHiding.withLock { $0 = false }
     state.visible = false
+    return .none
+  }
+
+  private func panSliderChanged(_ state: inout State) -> Effect<Action> {
+    guard activeState.activePresetId == state.preset.id else { return .none }
+    guard let parameterTree = synthAudioUnit?.parameterTree else { return .none }
+    let panAddress = AUParameterAddress(SF2.Entity.Generator.Index.pan.rawValue)
+    let parameter = parameterTree.parameter(withAddress: panAddress)
+
+    // Map slider -100...+100 to pan generator -500...+500
+    let value: AUValue = AUValue(state.panSlider * 5.0)
+    parameter?.setValue(value, originator: nil)
     return .none
   }
 
@@ -331,7 +364,12 @@ public struct PresetEditorView: View {
           Text("Reset")
         }
       }
-      Slider(value: $store.gainSlider, in: 0...100)
+      Slider(value: $store.gainSlider, in: -90...12) {
+      } minimumValueLabel: {
+        Text("-90 db")
+      } maximumValueLabel: {
+        Text("+12 db")
+      }
       HStack {
         LabeledContent("Pan", value: "\(formattedLeftPanValue)/\(formattedRightPanValue)")
         Button {
@@ -340,7 +378,12 @@ public struct PresetEditorView: View {
           Text("Reset")
         }
       }
-      Slider(value: $store.panSlider, in: -100...100)
+      Slider(value: $store.panSlider, in: -100...100) {
+      } minimumValueLabel: {
+        Text("L")
+      } maximumValueLabel: {
+        Text("R")
+      }
     }
   }
 

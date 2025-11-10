@@ -2,9 +2,14 @@
 
 import AudioUnit.AUParameters
 
-public enum ParameterAddress: AUParameterAddress, CaseIterable {
+/**
+ Enumeration of the AUParameterAddress values for parameters in the AUParameterTree of the main app. The parameter space
+ is divided into two parts, one for the AUv3 plug-in (addresses \< 2000) and the main app (addreses >= 2000). This is
+ only of concern for the app and not for the AUv3 plug-in.
+ */
+public enum ParameterAddress: AUParameterAddress {
 
-  case delayEnabled = 2000
+  case delayEnabled = 2000 // make sure to no overlap with SF2Lib AUv3 plug-in which uses / reserves 0-1999
   case delayTime
   case delayFeedback
   case delayCutoff
@@ -89,3 +94,5 @@ extension ParameterAddress {
     AUParameterTree.createTree(withChildren: ParameterAddress.allCases.map(\.parameter))
   }
 }
+
+extension ParameterAddress: CaseIterable {}
