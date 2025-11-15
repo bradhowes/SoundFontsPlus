@@ -44,14 +44,12 @@ public struct Keyboard {
     // synth when it becomes 1, and it will only trigger a note OFF when it becomes 0.
     public var noteCounters: [Int] = .init(repeating: 0, count: Note.midiRange.count)
 
-    public var midiInstrument: AVAudioUnitMIDIInstrument? { synthAudioUnit?.midiInstrument }
     public var muted: Bool
     public let settingsDemo: Bool
     public var scrollTo: Note?
 
     @Shared(.keyWidth) public var keyWidth
     @Shared(.keyLabels) public var keyLabels
-    @Shared(.synthAudioUnit) public var synthAudioUnit
 
     public init(
       muted: Bool = false,
@@ -73,6 +71,9 @@ public struct Keyboard {
     case muted
     case unmuted
   }
+
+  public var midiInstrument: AVAudioUnitMIDIInstrument? { synthAudioUnit?.midiInstrument }
+  @Shared(.synthAudioUnit) public var synthAudioUnit
 
   public enum Action {
     case activePresetIdChanged(Preset.ID?)
@@ -205,7 +206,7 @@ extension Keyboard {
 
       // If key is no longer held down, stop the note
       if reduceNoteCount(&state, note: previous) {
-        state.midiInstrument?.stopNote(UInt8(previous.midiNoteValue), onChannel: 0)
+        midiInstrument?.stopNote(UInt8(previous.midiNoteValue), onChannel: 0)
       }
     }
 
@@ -214,7 +215,7 @@ extension Keyboard {
 
     // If first time touching the key, start playing the note for it
     if state.noteCounters[note.midiNoteValue] == 1 {
-      state.midiInstrument?.startNote(UInt8(note.midiNoteValue), withVelocity: 127, onChannel: 0)
+      midiInstrument?.startNote(UInt8(note.midiNoteValue), withVelocity: 127, onChannel: 0)
       return .send(.delegate(.noteOn(note)))
     }
 
@@ -224,7 +225,7 @@ extension Keyboard {
   private func touchEnded(_ state: inout State, event: State.EventId) -> Effect<Action> {
     if let note = state.eventNoteMap.removeValue(forKey: event),
        reduceNoteCount(&state, note: note) {
-      state.midiInstrument?.stopNote(UInt8(note.midiNoteValue), onChannel: 0)
+      midiInstrument?.stopNote(UInt8(note.midiNoteValue), onChannel: 0)
     }
     return .none
   }

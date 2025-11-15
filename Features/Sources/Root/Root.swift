@@ -21,11 +21,15 @@ import Tutorial
 import UniformTypeIdentifiers
 import VolumeMonitor
 
-private let log = Logger(category: "Root")
-
+/**
+ The top-level feature of the application.
+ */
 @Reducer
 public struct Root {
 
+  /**
+   The various editors and presenters that appear in a modal way when created and presented.
+   */
   @Reducer
   public enum Destination {
     case changes(Changes)
@@ -157,11 +161,11 @@ public struct Root {
   public init() {}
 
   @Shared(.activeState) private var activeState
-  @Shared(.effectsPanelVisible) var effectsPanelVisible
+  @Shared(.effectsPanelVisible) private var effectsPanelVisible
   @Shared(.firstVisibleKey) private var firstVisibleKey
-  @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
-  @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
-  @Shared(.tagsListVisible) var tagsListVisible
+  @Shared(.fontsAndPresetsSplitPosition) private var fontsAndPresetsSplitPosition
+  @Shared(.fontsAndTagsSplitPosition) private var fontsAndTagsSplitPosition
+  @Shared(.tagsListVisible) private var tagsListVisible
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -195,7 +199,8 @@ public struct Root {
         return .merge(
           .merge(CancelId.allCases.map { .cancel(id: $0) }),
           reduce(into: &state, action: .synth(.deinitialize)),
-          reduce(into: &state, action: .toolBar(.deinitialize))
+          reduce(into: &state, action: .toolBar(.deinitialize)),
+          reduce(into: &state, action: .volumeMonitor(.deinitialize))
         )
 
       case .destination(.presented(.soundFontEditor(.delegate(.refreshPresets)))):
@@ -234,7 +239,12 @@ public struct Root {
         return .none
 
       case .synth(.delegate(.running)):
-        return reduce(into: &state, action: .toolBar(.monitorActiveVoiceCount))
+        return audioChainActive(&state)
+
+      case .synth(.delegate(.stopped)):
+        return audioChainInactive(&state)
+
+        // return reduce(into: &state, action: .toolBar(.monitorActiveVoiceCount))
 
       case .tagsList(.delegate(.edit(let focused))):
         state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
@@ -243,7 +253,8 @@ public struct Root {
       case .toolBar(.delegate(let action)):
         return processToolBarAction(&state, action: action)
 
-      case .volumeMonitor(.delegate(.mutedVolume(let reason))):
+      case .volumeMonitor(.delegate(.reasonChanged(let reason))):
+        log.info("volumeMonitor reasonChanged: \(reason.debugDescription)")
         return reduce(
           into: &state,
           action: .keyboard(.outputVolumeStateChanged(reason != nil ? .muted : .unmuted))
@@ -262,6 +273,19 @@ public struct Root {
 }
 
 extension Root {
+
+  private func audioChainActive(_ state: inout State) -> Effect<Action> {
+    .merge(
+      reduce(into: &state, action: .volumeMonitor(.initialize)),
+      reduce(into: &state, action: .toolBar(.monitorActiveVoiceCount))
+    )
+  }
+
+  private func audioChainInactive(_ state: inout State) -> Effect<Action> {
+    .merge(
+      reduce(into: &state, action: .volumeMonitor(.deinitialize))
+    )
+  }
 
   fileprivate func createCloudDocumentsDirectory() -> Effect<Action> {
     .run { _ in
@@ -709,3 +733,5 @@ extension RootView {
 #Preview {
   RootView.preview
 }
+
+private let log = Logger(category: "Root")

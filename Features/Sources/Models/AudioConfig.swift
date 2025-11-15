@@ -7,13 +7,22 @@ import Tagged
 
 @Table
 public struct AudioConfig: Hashable, Identifiable, Sendable {
+
+  public static var minGain: Double { -90.0 }
+  public static var defaultGain: Double { 0.0 }
+  public static var maxGain: Double { +12.0 }
+
+  public static var minPan: Double { -100.0 }
+  public static var defaultPan: Double { 0.0 }
+  public static var maxPan: Double { +100.0 }
+
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
   /// Initial attenuation of audio samples for this preset. [-90.0, +12.0]
   public var gain: Double = 0.0
-  /// Initial pan/balance of audio samples for this preset. [-1.0, +1.0]
-  public var pan: Double = 0.5
+  /// Initial pan/balance of audio samples for this preset. [-100.0, +100.0]
+  public var pan: Double = 0.0
 
   public var keyboardLowestNoteEnabled: Bool = false
   public var keyboardLowestNote: Note = .C4
@@ -109,4 +118,11 @@ extension AudioConfig {
       .fetchAll(db)
     }?.first
   }
+}
+
+extension Double {
+  // Map +12...-90 to initialAttenuation generator -120...900
+  public var gainGeneratorValue: AUValue { .init(self * -10.0) }
+  // Map -100...+100 to pan generator -500...+500
+  public var panGeneratorValue: AUValue { .init(self * 5.0) }
 }

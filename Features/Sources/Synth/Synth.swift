@@ -198,7 +198,24 @@ extension Synth {
 
   private func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
     log.info("lastPresetLoadFinished BEGIN - \(state.firstTimePresetLoaded)")
-    guard let synth = synthAudioUnit?.synth else { return .none }
+    guard
+      let synth = synthAudioUnit?.synth,
+      let parameterTree = synthAudioUnit?.parameterTree,
+      let presetId = activeState.activePresetId
+    else {
+      return .none
+    }
+
+    if let audioConfig = AudioConfig.with(presetId: presetId) {
+      let gainAddress = AUParameterAddress(SF2.Entity.Generator.Index.initialAttenuation.rawValue)
+      let gainParameter = parameterTree.parameter(withAddress: gainAddress)
+      gainParameter?.setValue(audioConfig.gain.gainGeneratorValue, originator: nil)
+
+      let panAddress = AUParameterAddress(SF2.Entity.Generator.Index.pan.rawValue)
+      let panParameter = parameterTree.parameter(withAddress: panAddress)
+      panParameter?.setValue(audioConfig.pan.panGeneratorValue, originator: nil)
+    }
+
     let firstTimePresetLoaded = state.firstTimePresetLoaded
     state.firstTimePresetLoaded = false
     return firstTimePresetLoaded ? .none : playNote(state, synth: synth)
@@ -219,7 +236,7 @@ extension Synth {
 
   private func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
     log.info("monitorLastLoadFinished BEGIN")
-    guard let parameterTree = synthAudioUnit?.auAudioUnit.parameterTree else {
+    guard let parameterTree = synthAudioUnit?.parameterTree else {
       fatalError("monitorLastLoadFinished - unexpected nil parameterTree chain")
     }
 

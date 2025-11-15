@@ -3,6 +3,8 @@
 import AVKit
 import Foundation
 
+private let log = Logger(category: "OutputVolumeStream")
+
 /**
  Protocol for Swift/Obj-C entities that provide an `outputVolume` attribute that can be monitored with an
  `AsyncStream`.
@@ -26,17 +28,17 @@ extension OutputVolumeStream {
    - returns: an AsyncStream of observed values
    */
   public func startStreaming() -> AsyncStream<AUValue> where Self: NSObject & Sendable {
-    .init { continuation in
+    log.info("startStreaming")
+    return .init { continuation in
+      log.info("start closure")
       let observerToken = self.observe(\.outputVolume, options: [.new]) { session, change  in
-        var lastSeen: AUValue?
-        if self == session,
-           let newValue = change.newValue,
-           newValue != lastSeen {
-          lastSeen = newValue
+        if let newValue = change.newValue {
+          log.info("new volume value: \(newValue)")
           continuation.yield(newValue)
         }
       }
       continuation.onTermination = { _ in
+        log.info("stream terminated")
         observerToken.invalidate()
       }
     }

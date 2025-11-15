@@ -3,8 +3,10 @@
 import FeatureSupport
 import SwiftToasts
 
-private let log = Logger(category: "VolumeMonitor")
-
+/**
+ Monitor the volume setting for the active audio session. When the volume setting is zero or the active preset ID is
+ nil, show a toast image indicating that there will be no audio output and the reason why.
+ */
 @Reducer
 public struct VolumeMonitor {
 
@@ -32,16 +34,20 @@ public struct VolumeMonitor {
 
   @CasePathable
     public enum Delegate: Equatable {
-      case mutedVolume(Reason?)
+      case reasonChanged(Reason?)
     }
   }
 
   public init() {}
 
+  @Dependency(\.outputVolume) private var outputVolume
+  @Shared(.activeState) private var activeState
+
   public var body: some Reducer<State, Action> {
     BindingReducer()
 
     Reduce { state, action in
+      log.info("reduce \(action)")
       switch action {
 
       case .activePresetIdChanged(let presetId):
@@ -65,9 +71,6 @@ public struct VolumeMonitor {
     }
   }
 
-  @Dependency(\.outputVolume) var outputVolume
-  @Shared(.activeState) private var activeState
-
   private enum CancelId {
     case monitorSessionVolume
   }
@@ -83,7 +86,8 @@ private extension VolumeMonitor {
   }
 
   func monitorOutputVolume(_ state: inout State) -> Effect<Action> {
-    .run { send in
+    log.info("monitorOutputVolume")
+    return .run { send in
       while !Task.isCancelled {
         @Dependency(\.outputVolume) var outputVolume
         for await value in outputVolume.startStreaming() {
@@ -95,7 +99,11 @@ private extension VolumeMonitor {
   }
 
   func presetChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
-    return updateReason(&state, volume: outputVolume.getValue(), presetId: presetId)
+    return updateReason(
+      &state,
+      volume: outputVolume.getValue(),
+      presetId: presetId
+    )
   }
 
   func updateReason(_ state: inout State, volume: Float, presetId: Preset.ID?) -> Effect<Action> {
@@ -106,9 +114,11 @@ private extension VolumeMonitor {
     case (false, false): state.reason
     }
 
+    log.info("newReason: \(newReason.debugDescription)")
+
     if newReason != state.reason {
       state.reason = newReason
-      return .send(.delegate(.mutedVolume(state.reason)))
+      return .send(.delegate(.reasonChanged(state.reason)))
     }
 
     return .none
@@ -116,7 +126,11 @@ private extension VolumeMonitor {
 
   func volumeChanged(_ state: inout State, volume: Float) -> Effect<Action> {
     log.info("volumeChanged \(volume)")
-    return updateReason(&state, volume: volume, presetId: activeState.activePresetId)
+    return updateReason(
+      &state,
+      volume: volume,
+      presetId: activeState.activePresetId
+    )
   }
 }
 
@@ -129,9 +143,6 @@ public struct VolumeMonitorModifier: ViewModifier {
 
   public func body(content: Content) -> some View {
     content
-      .onAppear {
-        store.send(.initialize)
-      }
       .toast(
         item: $store.reason,
         alignment: .top
@@ -165,3 +176,5 @@ extension View {
     modifier(VolumeMonitorModifier(store: store))
   }
 }
+
+private let log = Logger(category: "VolumeMonitor")

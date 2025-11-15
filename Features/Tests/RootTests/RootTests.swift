@@ -5,6 +5,7 @@ import FeatureSupport
 import Models
 import Settings
 import SnapshotTesting
+import SoundFonts
 import Testing
 import TestSupport
 
@@ -35,16 +36,34 @@ struct RootTests {
 
   func initialized(_ test: (TestStoreOf<Root>) async throws -> Void) async throws {
     let store = store()
-    try await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.send(.initialize)
-      await store.receive(\.activePresetIdChanged)
-      await store.receive(\.synth.synthAudioUnitCreated)
-      await store.receive(\.synth.activePresetIdChanged)
-      await store.receive(\.synth.delegate, .running)
-      await store.receive(\.toolBar.activeVoiceCountChanged)
 
-      try await test(store)
+    await store.send(.initialize)
+
+    await store.receive(\.activePresetIdChanged) {
+      $0.toolBar.preset = Preset(
+        id: 1,
+        index: 0,
+        bank: 0,
+        program: 0,
+        originalName: "Original Preset 1",
+        soundFontId: 1,
+        displayName: "Font 1 Preset 1"
+      )
     }
+
+    await store.receive(\.synth.synthAudioUnitCreated) {
+      $0.synth.audioSessionActivated = true
+    }
+
+    await store.receive(\.synth.activePresetIdChanged) {
+      $0.synth.loadedSoundFontId = 1
+      $0.synth.loadedPresetIndex = 0
+    }
+
+    await store.receive(\.synth.delegate, .running)
+    await store.receive(\.toolBar.activeVoiceCountChanged)
+
+    try await test(store)
 
     await store.send(.deinitialize)
     await store.finish()
@@ -68,15 +87,31 @@ struct RootTests {
   func initialize() async throws {
     let store = store()
 
-    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.send(.initialize)
+    await store.send(.initialize)
 
-      await store.receive(\.activePresetIdChanged)
-      await store.receive(\.synth.synthAudioUnitCreated)
-      await store.receive(\.synth.activePresetIdChanged)
-      await store.receive(\.synth.delegate, .running)
-      await store.receive(\.toolBar.activeVoiceCountChanged)
+    await store.receive(\.activePresetIdChanged) {
+      $0.toolBar.preset = Preset(
+        id: 1,
+        index: 0,
+        bank: 0,
+        program: 0,
+        originalName: "Original Preset 1",
+        soundFontId: 1,
+        displayName: "Font 1 Preset 1"
+      )
     }
+
+    await store.receive(\.synth.synthAudioUnitCreated) {
+      $0.synth.audioSessionActivated = true
+    }
+
+    await store.receive(\.synth.activePresetIdChanged) {
+      $0.synth.loadedSoundFontId = 1
+      $0.synth.loadedPresetIndex = 0
+    }
+
+    await store.receive(\.synth.delegate, .running)
+    await store.receive(\.toolBar.activeVoiceCountChanged)
 
     await store.send(.deinitialize)
     await store.finish()
@@ -99,7 +134,9 @@ struct RootTests {
       @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
       #expect(tagsListVisible == false)
       #expect(fontsAndTagsSplitPosition == 0.4)
-      await store.send(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: .both, position: 0.5))
+      await store.send(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: .both, position: 0.5)) {
+        $0.toolBar.tagsListVisible.toggle()
+      }
       #expect(tagsListVisible == true)
       #expect(fontsAndTagsSplitPosition == 0.5)
     }
@@ -109,9 +146,12 @@ struct RootTests {
   func refreshPresets() async throws {
     try await initialized { store in
       let soundFont = SoundFont.with(id: 1)!
-      await store.send(\.soundFontsList.delegate, .edit(soundFont))
-      #expect(store.state.destination != nil)
-      await store.send(\.destination.presented.soundFontEditor.delegate, .refreshPresets)
+      await store.send(\.soundFontsList.delegate, .edit(soundFont)) {
+        $0.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
+      }
+      _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+        await store.send(\.destination.presented.soundFontEditor.delegate, .refreshPresets)
+      }
     }
   }
 
@@ -119,13 +159,15 @@ struct RootTests {
   func showChanges() async throws {
     try await initialized { store in
       @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
-      await store.send(\.toolBar.delegate, .settingsButtonTapped)
-      #expect(store.state.destination != nil)
-      let settings = store.state.destination
-      #expect(lastShowedChangesVersion == "")
-      await store.send(\.destination.settings.delegate, .showChanges)
-      #expect(store.state.destination != settings)
-      #expect(lastShowedChangesVersion != "")
+      _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+        await store.send(\.toolBar.delegate, .settingsButtonTapped)
+        #expect(store.state.destination != nil)
+        let settings = store.state.destination
+        #expect(lastShowedChangesVersion == "")
+        await store.send(\.destination.settings.delegate, .showChanges)
+        #expect(store.state.destination != settings)
+        #expect(lastShowedChangesVersion != "")
+      }
     }
   }
 
@@ -142,29 +184,35 @@ struct RootTests {
   func showSoundFontEditor() async throws {
     try await initialized { store in
       let soundFont = SoundFont.with(id: 1)!
-      await store.send(\.soundFontsList.delegate, .edit(soundFont))
-      #expect(store.state.destination != nil)
+      await store.send(\.soundFontsList.delegate, .edit(soundFont)) {
+        $0.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
+      }
     }
   }
 
   @Test
   func showTagsEditor() async throws {
     try await initialized { store in
-      await store.send(\.tagsList.delegate, .edit(1))
+      _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+        await store.send(\.tagsList.delegate, .edit(1))
+        #expect(store.state.destination != nil)
+      }
     }
   }
 
   @Test
   func showTutorial() async throws {
     try await initialized { store in
-      @Shared(.showedTutorial) var showedTutorial
-      await store.send(\.toolBar.delegate, .settingsButtonTapped)
-      #expect(store.state.destination != nil)
-      let settings = store.state.destination
-      #expect(showedTutorial == false)
-      await store.send(\.destination.settings.delegate, .showTutorial)
-      #expect(store.state.destination != settings)
-      #expect(showedTutorial == true)
+      _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+        @Shared(.showedTutorial) var showedTutorial
+        await store.send(\.toolBar.delegate, .settingsButtonTapped)
+        #expect(store.state.destination != nil)
+        let settings = store.state.destination
+        #expect(showedTutorial == false)
+        await store.send(\.destination.settings.delegate, .showTutorial)
+        #expect(store.state.destination != settings)
+        #expect(showedTutorial == true)
+      }
     }
   }
 

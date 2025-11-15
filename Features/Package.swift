@@ -27,7 +27,6 @@ let package = Package(
   name: "Features",
   platforms: [.iOS(.v18), .macOS(.v15)],
   products: [
-    // TODO: consolidate into fewer libraries
     .lib("AppReview"),
     .lib("BaseSupport"),
     .lib("Changes"),
@@ -205,8 +204,8 @@ let package = Package(
     .testFeature("MIDIControllers"),
     .testFeature("Models"),
     .testFeature("Presets"),
-    .testFeature("Root"),
     .testFeature("ReverbEffect"),
+    .testFeature("Root"),
     .testFeature("Settings"),
     .testFeature("SoundFonts"),
     .testFeature("Tags"),
@@ -250,7 +249,7 @@ extension PackageDescription.Target {
     dependencies: [PackageDescription.Target.Dependency] = [],
     resources: [PackageDescription.Resource] = []
   ) -> PackageDescription.Target {
-    .target(name: name, dependencies: dependencies + ["FeatureSupport"])
+    .target(name: name, dependencies: dependencies + ["FeatureSupport"], resources: resources)
   }
 
   public static func testFeature(
@@ -260,7 +259,7 @@ extension PackageDescription.Target {
     ],
     resources: [PackageDescription.Resource] = []
   ) -> PackageDescription.Target {
-    .testTarget(name: name + "Tests", dependencies: dependencies + [.init(stringLiteral: name)])
+    .testTarget(name: name + "Tests", dependencies: dependencies + [.init(stringLiteral: name)], resources: resources)
   }
 }
 

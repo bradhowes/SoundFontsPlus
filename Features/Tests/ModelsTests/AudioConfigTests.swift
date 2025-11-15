@@ -37,7 +37,7 @@ struct AudioConfigTests {
   func createNew() async throws {
     let (_, audioConfig) = try await setup()
     #expect(audioConfig.gain == 0.0)
-    #expect(audioConfig.pan == 0.5)
+    #expect(audioConfig.pan == 0.0)
     #expect(audioConfig.keyboardLowestNoteEnabled == false)
     #expect(audioConfig.keyboardLowestNote == .C4)
     #expect(audioConfig.pitchBendRange == 2)
@@ -91,7 +91,7 @@ struct AudioConfigTests {
     let cloned = audioConfig.clone(presetId: 2)
     #expect(cloned != nil)
     #expect(cloned?.gain == 0.0)
-    #expect(cloned?.pan == 0.5)
+    #expect(cloned?.pan == 0.0)
     #expect(cloned?.keyboardLowestNoteEnabled == false)
     #expect(cloned?.keyboardLowestNote == .C4)
     #expect(cloned?.pitchBendRange == 2)

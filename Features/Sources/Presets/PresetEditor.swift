@@ -138,11 +138,11 @@ public struct PresetEditor {
         return hidePresetConfirmed(&state)
 
       case .resetGainTapped:
-        state.gainSlider = 0.0
+        state.gainSlider = AudioConfig.defaultGain
         return.none
 
       case .resetPanTapped:
-        state.panSlider = 0.0
+        state.panSlider = AudioConfig.defaultPan
         return.none
 
       case .saveButtonTapped:
@@ -187,12 +187,10 @@ extension PresetEditor {
   private func gainSliderChanged(_ state: inout State) -> Effect<Action> {
     guard activeState.activePresetId == state.preset.id else { return .none }
     guard let parameterTree = synthAudioUnit?.parameterTree else { return .none }
-    let panAddress = AUParameterAddress(SF2.Entity.Generator.Index.initialAttenuation.rawValue)
-    let parameter = parameterTree.parameter(withAddress: panAddress)
-
-    // Map slider +12...-90 to initialAttenuation generator -120...900
-    let value: AUValue = AUValue(state.gainSlider * -10.0)
-    unsafe parameter?.setValue(value, originator: nil)
+    state.pendingAudioConfig.gain = state.gainSlider
+    let gainAddress = AUParameterAddress(SF2.Entity.Generator.Index.initialAttenuation.rawValue)
+    let parameter = parameterTree.parameter(withAddress: gainAddress)
+    parameter?.setValue(state.pendingAudioConfig.gain.gainGeneratorValue, originator: nil)
     return .none
   }
 
@@ -204,13 +202,11 @@ extension PresetEditor {
 
   private func panSliderChanged(_ state: inout State) -> Effect<Action> {
     guard activeState.activePresetId == state.preset.id else { return .none }
+    state.pendingAudioConfig.gain = state.gainSlider
     guard let parameterTree = synthAudioUnit?.parameterTree else { return .none }
     let panAddress = AUParameterAddress(SF2.Entity.Generator.Index.pan.rawValue)
     let parameter = parameterTree.parameter(withAddress: panAddress)
-
-    // Map slider -100...+100 to pan generator -500...+500
-    let value: AUValue = AUValue(state.panSlider * 5.0)
-    unsafe parameter?.setValue(value, originator: nil)
+    parameter?.setValue(state.pendingAudioConfig.pan.panGeneratorValue, originator: nil)
     return .none
   }
 
@@ -252,6 +248,7 @@ public struct PresetEditorView: View {
         ToolbarItem(placement: .cancellationAction) {
           Button("Cancel") {
             store.send(.cancelButtonTapped, animation: .default)
+
           }
           .font(.button)
         }
@@ -334,11 +331,11 @@ public struct PresetEditorView: View {
   }
 
   var formattedLeftPanValue: String {
-    .localizedStringWithFormat("%d", 100 - Int(round((store.panSlider + 100.0) / 200.0 * 100.0)))
+    .localizedStringWithFormat("%d", 100 - Int(round((store.panSlider + 100.0) / 2.0)))
   }
 
   var formattedRightPanValue: String {
-    .localizedStringWithFormat("%d", Int(round((store.panSlider + 100.0) / 200.0 * 100.0)))
+    .localizedStringWithFormat("%d", Int(round((store.panSlider + 100.0) / 2.0)))
   }
 
   var midiSection: some View {
@@ -364,7 +361,7 @@ public struct PresetEditorView: View {
           Text("Reset")
         }
       }
-      Slider(value: $store.gainSlider, in: -90...12) {
+      Slider(value: $store.gainSlider, in: AudioConfig.minGain...AudioConfig.maxGain) {
       } minimumValueLabel: {
         Text("-90 db")
       } maximumValueLabel: {
@@ -378,7 +375,7 @@ public struct PresetEditorView: View {
           Text("Reset")
         }
       }
-      Slider(value: $store.panSlider, in: -100...100) {
+      Slider(value: $store.panSlider, in: AudioConfig.minPan...AudioConfig.maxPan) {
       } minimumValueLabel: {
         Text("L")
       } maximumValueLabel: {

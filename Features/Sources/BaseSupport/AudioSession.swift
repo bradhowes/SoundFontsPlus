@@ -31,8 +31,6 @@ extension AudioSession: DependencyKey {
   }
 }
 
-private let log = Logger(category: "AudioSession")
-
 private func startAudioSession(_ audioFormat: AVAudioFormat) -> Bool {
   log.info("startAudioSession BEGIN")
 
@@ -71,7 +69,7 @@ private func startAudioSession(_ audioFormat: AVAudioFormat) -> Bool {
   let activated: Bool
   do {
     log.info("startAudioSession - making audio session active")
-    try audioSession.setActive(true, options: [])
+    try audioSession.setActive(true, options: [.notifyOthersOnDeactivation])
     activated = true
   } catch {
     let err = error.localizedDescription
@@ -108,3 +106,5 @@ extension AVAudioSessionRouteDescription {
     }
   }
 }
+
+private let log = Logger(category: "AudioSession")
