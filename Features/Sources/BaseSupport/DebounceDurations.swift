@@ -35,8 +35,8 @@ extension DebounceDurations: DependencyKey {
 
   public static var testValue: DebounceDurations {
     .init(
-      effectsConfigurationSaves: .milliseconds(0),
-      effectsDisplayUpdates: .milliseconds(0)
+      effectsConfigurationSaves: .milliseconds(10),
+      effectsDisplayUpdates: .milliseconds(1)
     )
   }
 }

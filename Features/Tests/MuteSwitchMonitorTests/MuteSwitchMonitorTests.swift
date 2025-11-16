@@ -1,4 +1,5 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
+#if false
 
 import DependenciesTestSupport
 import FeatureSupport
@@ -20,3 +21,5 @@ struct MuteSwitchMonitorTests {
     self.store = store
   }
 }
+
+#endif // false

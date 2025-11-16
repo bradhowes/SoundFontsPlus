@@ -441,7 +441,7 @@ extension Root {
 
 extension Root.Destination.State: Equatable {}
 
-public struct RootView: View, KeyboardVisibilityPublisher {
+public struct RootView: View {
   @Environment(\.scenePhase) var scenePhase
   @Bindable private var store: StoreOf<Root>
   private let theme: Theme
@@ -519,6 +519,8 @@ public struct RootView: View, KeyboardVisibilityPublisher {
   }
 }
 
+extension RootView: KeyboardVisibilityPublisher {}
+
 extension RootView {
 
   fileprivate var listViews: some View {
@@ -536,7 +538,7 @@ extension RootView {
     ).splitViewConfiguration(
       .init(
         orientation: .horizontal,
-        draggableRange: horizontalSizeClass == .compact ? 0.35...0.7 : 0.2...0.8
+        draggableRange: 0.35...0.7
       )
     )
   }

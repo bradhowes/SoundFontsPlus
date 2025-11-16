@@ -1,5 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+#if false
+
 import AudioToolbox
 import ComposableArchitecture
 import FeatureSupport
@@ -112,3 +114,5 @@ private extension MuteSwitchMonitor {
 }
 
 private let log = Logger(category: "VolumeMonitor")
+
+#endif // false
