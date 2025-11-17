@@ -327,13 +327,13 @@ public struct ToolBarView: View {
       toggleTagsButton
       toggleEffectsButton
       if horizontalSizeClass == .compact {
-        ZStack {
+        ZStack(alignment: .trailing) {
           status
             .zIndex(0)
           if store.showMoreButtons {
             moreButtons
               .zIndex(1)
-              .transition(.move(edge: .trailing))
+              // .transition(.move(edge: .trailing))
           }
         }
         toggleMoreButton
@@ -430,7 +430,6 @@ public struct ToolBarView: View {
 
   private var moreButtons: some View {
     HStack {
-      Spacer()
       Button {
         store.send(.shiftKeyboardDownButtonTapped)
       } label: {
