@@ -604,7 +604,7 @@ extension RootView {
       .opacity(effectsPanelVisible ? 1.0 : 0.0)
     }
     .frame(height: effectsPanelVisible ? viewHeight : padding)
-    .offset(x: effectsOffset, y: effectsPanelVisible ? 0.0 : viewHeight / 2 - padding - 1)
+    .offset(x: 0, y: effectsPanelVisible ? 0.0 : viewHeight / 2 - padding - 1)
   }
 
   fileprivate var toolbarAndKeyboard: some View {
@@ -725,7 +725,7 @@ extension RootView {
       Color.black
         .ignoresSafeArea(edges: .all)
       RootView(store: Store(initialState: .init()) { Root() })
-        .preferredColorScheme(.dark)
+        // .preferredColorScheme(.dark)
         .environment(\.colorScheme, .dark)
     }
   }
