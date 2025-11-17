@@ -597,15 +597,14 @@ extension RootView {
       }
       .onScrollGeometryChange(for: CGFloat.self) { geometry in
         max(0.0, (geometry.visibleRect.width - geometry.contentSize.width) / 2)
-      } action: { _, newValue in
+      } action: { oldValue, newValue in
         effectsOffset = newValue
       }
       .scrollDisabled(effectsOffset > 0)
-      .offset(x: effectsOffset)
       .opacity(effectsPanelVisible ? 1.0 : 0.0)
     }
     .frame(height: effectsPanelVisible ? viewHeight : padding)
-    .offset(x: 0, y: effectsPanelVisible ? 0.0 : viewHeight / 2 - padding - 1)
+    .offset(x: effectsOffset, y: effectsPanelVisible ? 0.0 : viewHeight / 2 - padding - 1)
   }
 
   fileprivate var toolbarAndKeyboard: some View {
