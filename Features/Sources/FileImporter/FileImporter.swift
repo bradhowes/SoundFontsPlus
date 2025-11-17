@@ -14,8 +14,8 @@ public struct FileImporter {
     case alert(AlertState<Alert>)
 
     @CasePathable
-    public enum Alert {
-      case importDuplicateFileConfirmed
+    public enum Alert: Equatable {
+      case importDuplicateFileConfirmed(displayName: String, url: URL)
     }
   }
 
@@ -48,6 +48,9 @@ public struct FileImporter {
       log.debug("action: \(action)")
 
       switch action {
+
+      case let .destination(.presented(.alert(.importDuplicateFileConfirmed(displayName: displayName, url: url)))):
+        return importFile(&state, displayName: displayName, url: url, allowExisting: true)
 
       case .filePickerCancelled:
         state.showChooser = false
@@ -87,25 +90,44 @@ extension FileImporter {
     }
   }
 
-  private func importFile(_ state: inout State, displayName: String, url: URL) -> Effect<Action> {
+  private func importFile(
+    _ state: inout State,
+    displayName: String,
+    url: URL,
+    allowExisting: Bool = false
+  ) -> Effect<Action> {
     if !validateSoundFont(url: url) {
       log.info("invalid SF2 file")
       state.destination = .alert(.invalidSoundFontFormat(displayName: displayName))
       return .none
     }
 
+    let kind: SoundFontKind
     do {
-      let kind = try placeSoundFont(&state, displayName: displayName, source: url)
-      _ = try SoundFont.add(displayName: displayName, soundFontKind: kind)
-      state.destination = .alert(.addedSummary(displayName: displayName))
-      return .none
+      kind = try placeSoundFont(&state, displayName: displayName, source: url, allowExisting: allowExisting)
     } catch CocoaError.fileWriteFileExists {
-      state.destination = .alert(.fileAlreadyImported(url: url))
+      state.destination = .alert(
+        .confirmAddExisting(
+          action: .importDuplicateFileConfirmed(displayName: displayName, url: url),
+          displayName: displayName
+        )
+      )
       return .none
     } catch {
       state.destination = .alert(.genericFailureToImport(displayName: displayName, error: error))
       return .none
     }
+
+    do {
+      try SoundFont.add(displayName: displayName, soundFontKind: kind)
+    } catch {
+      state.destination = .alert(.genericFailureToImport(displayName: displayName, error: error))
+      return .none
+    }
+
+    state.destination = .alert(.addedSummary(displayName: displayName))
+
+    return .none
   }
 
   private func validateSoundFont(url: URL) -> Bool {
@@ -115,13 +137,23 @@ extension FileImporter {
     } ?? false
   }
 
-  private func placeSoundFont(_ state: inout State, displayName: String, source: URL) throws -> SoundFontKind {
+  private func placeSoundFont(
+    _ state: inout State,
+    displayName: String,
+    source: URL,
+    allowExisting: Bool
+  ) throws -> SoundFontKind {
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
 
     let location: SoundFontKind
     if copyFileWhenInstalling {
       log.info("copying file to app folder")
-      let destination = try copyToSharedFolder(&state, displayName: displayName, source: source)
+      let destination = try copyToSharedFolder(
+        &state,
+        displayName: displayName,
+        source: source,
+        allowExisting: allowExisting
+      )
       location = .installed(file: destination)
     } else {
       log.info("using external file")
@@ -131,14 +163,24 @@ extension FileImporter {
     return location
   }
 
-  private func copyToSharedFolder(_ state: inout State, displayName: String, source: URL) throws -> URL {
+  private func copyToSharedFolder(
+    _ state: inout State,
+    displayName: String,
+    source: URL,
+    allowExisting: Bool
+  ) throws -> URL {
     try source.withSecurityScopingThrows { url in
       log.info("copying \(url) to \(fileManager.sharedDocumentsDirectory())")
       let destination = fileManager.sharedDocumentsDirectory().appendingPathComponent(url.lastPathComponent)
-      try fileManager.copyItem(source, destination)
+      if allowExisting {
+        try? fileManager.copyItem(source, destination)
+      } else {
+        try fileManager.copyItem(source, destination)
+      }
       return destination
     }
   }
+
 }
 
 extension FileImporter.Destination.State: Equatable {}

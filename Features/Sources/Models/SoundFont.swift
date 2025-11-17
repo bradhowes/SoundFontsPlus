@@ -92,6 +92,16 @@ extension SoundFont {
     }
   }
 
+  public static func exists(displayName: String) -> Bool {
+    let found = withDatabaseReader { db in
+      try SoundFont
+        .where { $0.displayName == displayName }
+        .select(\.id)
+        .fetchAll(db)
+    } ?? []
+    return !found.isEmpty
+  }
+
   @discardableResult
   public static func add(displayName: String, soundFontKind: SoundFontKind) throws -> SoundFont {
     let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()

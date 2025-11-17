@@ -183,7 +183,6 @@ extension SF2LibAU {
   }
 
   public var activePresetName: String { String(engine.activePresetName()).trimmedOfWhitespaces }
-  public var activeVoiceCount: Int { engine.activeVoiceCount() }
 
   public var monophonicModeEnabled: Bool { engine.monophonicModeEnabled(); }
   public var polyphonicModeEnabled: Bool { engine.polyphonicModeEnabled(); }

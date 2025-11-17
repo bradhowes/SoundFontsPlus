@@ -18,6 +18,22 @@ extension AlertState {
     }
   }
 
+  static public func confirmAddExisting(action: Action, displayName: String) -> Self {
+    Self {
+      TextState("Add '\(displayName)'?")
+    } actions: {
+      ButtonState(action: action) { TextState("Yes") }
+      ButtonState(role: .cancel) { TextState("Cancel") }
+    } message: {
+      TextState(
+"""
+The SF2 file for \(displayName) exists on the device, but its presets do not appear in the database.
+Do you wish to recreate entries in the database for it?
+"""
+      )
+    }
+  }
+
   static func fileAlreadyImported(url: URL) -> Self {
     Self {
       TextState("Already Imported")
