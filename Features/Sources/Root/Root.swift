@@ -446,7 +446,8 @@ public struct RootView: View {
   @Bindable private var store: StoreOf<Root>
   private let theme: Theme
   private let appPanelBackground = Color.black
-  private let dividerBorderColor: Color = Color.gray.opacity(0.15)
+  private let dividerBorderColor: Color = Color.gray.mix(with: .black, by: 0.7)
+  private let dividerSpan: CGFloat = 4
   @State private var isInputKeyboardVisible = false
   @State private var effectsOffset: CGFloat = 0.0
 
@@ -486,9 +487,7 @@ public struct RootView: View {
     // let _ = Self._printChanges()
     VStack(spacing: 0) {
       listViews
-      effectsView
-        .knobNativeValueEditorHost()
-      toolbarAndKeyboard
+      controlViews
     }
     .padding(0)
     .animation(.smooth, value: effectsPanelVisible)
@@ -576,24 +575,31 @@ extension RootView {
     )
   }
 
+  fileprivate var controlViews: some View {
+    VStack(spacing: 0) {
+      dividerBorderColor
+        .frame(height: dividerSpan)
+      effectsView
+        .knobNativeValueEditorHost()
+      ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
+      dividerBorderColor
+        .frame(height: dividerSpan)
+      keyboardView
+    }
+  }
+
   fileprivate var effectsView: some View {
     let effectsHeight = 110.0
-    let padding = 4.0
-    let viewHeight = effectsHeight + padding * 4
+    let viewHeight = effectsHeight + dividerSpan * 4
 
-    return VStack {
+    return VStack(alignment: .leading, spacing: 0) {
       ScrollView(.horizontal) {
-        HStack {
+        HStack(spacing: 0) {
           ReverbEffectView(store: store.scope(state: \.reverb, action: \.reverb))
           dividerBorderColor
-            .frame(width: padding)
+            .frame(width: dividerSpan)
           DelayEffectView(store: store.scope(state: \.delay, action: \.delay))
         }
-        .frame(height: effectsHeight)
-        .background(Color.black)
-        .padding(.init(top: padding, leading: 0, bottom: padding, trailing: 0))
-        .background(dividerBorderColor)
-        .padding(.init(top: 0, leading: padding, bottom: 0, trailing: padding))
       }
       .onScrollGeometryChange(for: CGFloat.self) { geometry in
         max(0.0, (geometry.visibleRect.width - geometry.contentSize.width) / 2)
@@ -601,17 +607,13 @@ extension RootView {
         effectsOffset = newValue
       }
       .scrollDisabled(effectsOffset > 0)
-      .opacity(effectsPanelVisible ? 1.0 : 0.0)
+      .background(Color.black)
+      dividerBorderColor
+        .frame(height: dividerSpan)
     }
-    .frame(height: effectsPanelVisible ? viewHeight : padding)
-    .offset(x: 0, y: effectsPanelVisible ? 0.0 : viewHeight / 2 - padding - 1)
-  }
-
-  fileprivate var toolbarAndKeyboard: some View {
-    VStack {
-      ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
-      keyboardView
-    }
+    .frame(height: effectsPanelVisible ? viewHeight : 0.0)
+    .frame(maxWidth: .infinity)
+    .offset(y: effectsPanelVisible ? 0.0 : viewHeight / 2 + dividerSpan * 2)
   }
 
   fileprivate var keyboardView: some View {
@@ -718,7 +720,9 @@ extension RootView {
       $0.delayDevice = .init(setConfig: { print("delayDevice.set: ", $0) })
       $0.reverbDevice = .init(setConfig: { print("reverbDevice.set: ", $0) })
       @Shared(.tagsListVisible) var tagsListVisible
-      $tagsListVisible.withLock { $0 = true }
+      $tagsListVisible.withLock { $0 = false }
+      @Shared(.effectsPanelVisible) var effectsPanelVisible
+      $effectsPanelVisible.withLock { $0 = true }
     }
 
     return ZStack {

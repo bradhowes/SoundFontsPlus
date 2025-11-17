@@ -295,6 +295,9 @@ public struct KeyboardView: View {
         await store.send(.initialize).finish()
       }
     }
+    .clipShape(
+      Rectangle()
+    )
   }
 
   private func updateVisibleKeys(visibleRect: CGRect) {
@@ -389,7 +392,7 @@ public struct KeyboardView: View {
       .fill(color)
       .fill((note.isValidMidiNote && store.noteCounters[note.midiNoteValue] > 0) ?
             activeColor.opacity(0.3) : .clear)
-      .frame(width: width, height: height + cornerRadius)
+      .frame(width: width, height: height)
       .offset(y: -cornerRadius)
       .id(note)
   }

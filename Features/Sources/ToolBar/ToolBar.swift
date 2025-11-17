@@ -345,8 +345,8 @@ public struct ToolBarView: View {
       }
     }
     .imageScale(.large)
-    .padding([.top, .bottom, .leading], 4)
     .background(Color.black)
+    .frame(height: 40)
     .frame(maxHeight: 40)
     .animation(.smooth, value: store.showMoreButtons)
     .animation(.smooth, value: store.activeVoiceCount)
