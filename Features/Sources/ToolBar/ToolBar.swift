@@ -333,7 +333,7 @@ public struct ToolBarView: View {
           if store.showMoreButtons {
             moreButtons
               .zIndex(1)
-              // .transition(.move(edge: .trailing))
+              .transition(.opacity)
           }
         }
         toggleMoreButton
@@ -364,7 +364,6 @@ public struct ToolBarView: View {
         if showActiveVoiceCount {
           voiceCount
         }
-        Spacer()
         statusText
         Spacer()
       }
@@ -417,19 +416,17 @@ public struct ToolBarView: View {
   }
 
   private var toggleMoreButton: some View {
-    HStack(spacing: 0) {
-      Button { store.send(.showMoreButtonTapped) } label: {
-        Image(systemName: .moreButtonImageName).imageScale(.large)
-          .tint(if: store.showMoreButtons)
-      }
-      Color.black
-        .frame(width: 4)
+    Button {
+      store.send(.showMoreButtonTapped)
+    } label: {
+      Image(systemName: .moreButtonImageName)
+        .tint(if: store.showMoreButtons)
+        .frame(width: 24)
     }
-    .background(.black)
   }
 
   private var moreButtons: some View {
-    HStack {
+    HStack(alignment: .center, spacing: 12) {
       Button {
         store.send(.shiftKeyboardDownButtonTapped)
       } label: {
