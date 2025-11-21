@@ -20,7 +20,7 @@ let sf2Lib: Package.Dependency = useLocalSF2Lib ? .package(
   path: "/Users/howes/src/Mine/SF2Lib"
 ) : .package(
   url: "https://github.com/bradhowes/SF2Lib",
-  from: "8.3.3"
+  from: "8.4.0"
 )
 
 let package = Package(
