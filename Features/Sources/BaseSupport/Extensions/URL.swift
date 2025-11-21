@@ -46,11 +46,7 @@ extension URL {
     let secured = self.startAccessingSecurityScopedResource()
     defer { if secured { self.stopAccessingSecurityScopedResource() } }
     return withErrorReporting {
-      do {
-        return try closure(self)
-      } catch {
-        throw error
-      }
+      try closure(self)
     }
   }
 
