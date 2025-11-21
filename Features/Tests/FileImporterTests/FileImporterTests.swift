@@ -137,7 +137,12 @@ struct FileImporterTests {
 
     await store.send(.filePicked(.success(tmp))) {
       $0.showChooser = false
-      $0.destination = .alert(.fileAlreadyImported(url: tmp))
+      $0.destination = .alert(
+        .confirmAddExisting(
+          action: .importDuplicateFileConfirmed(displayName: "BlahBlah", url: tmp),
+          displayName: "BlahBlah"
+        )
+      )
     }
   }
 
