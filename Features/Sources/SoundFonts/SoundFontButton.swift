@@ -183,10 +183,6 @@ extension SoundFontButton {
     }
     return .none
   }
-
-  private func postMissingFileAlert(_ state: inout State) -> Effect<Action> {
-    return .none
-  }
 }
 
 struct SoundFontButtonView: View {
