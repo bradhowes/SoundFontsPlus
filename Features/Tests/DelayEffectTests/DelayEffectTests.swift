@@ -3,6 +3,7 @@
 import AUv3Controls
 import DependenciesTestSupport
 import FeatureSupport
+import Numerics
 import SnapshotTesting
 import SQLiteData
 import Testing
@@ -39,10 +40,6 @@ struct DelayEffectTests {
     await store.send(.initialize)
     await store.receive(\.activePresetIdChanged)
 
-    await store.receive(\.applyConfigForPreset) {
-      $0.config.presetId = 1
-    }
-
     await store.receive(\.time)
     await store.receive(\.feedback)
     await store.receive(\.cutoff)
@@ -60,10 +57,6 @@ struct DelayEffectTests {
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
       await store.send(.initialize)
       await store.receive(\.activePresetIdChanged)
-
-      await store.receive(\.applyConfigForPreset) {
-        $0.config.presetId = 1
-      }
 
       #expect(store.state.config.id == nil)
       #expect(store.state.config.enabled == false)
@@ -107,10 +100,6 @@ struct DelayEffectTests {
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
       await store.send(.initialize)
       await store.receive(\.activePresetIdChanged)
-
-      await store.receive(\.applyConfigForPreset) {
-        $0.config.presetId = 1
-      }
 
       #expect(store.state.config.id == nil)
       #expect(store.state.config.enabled == false)
@@ -266,10 +255,6 @@ struct DelayEffectTests {
     await store.send(.initialize)
     await store.receive(\.activePresetIdChanged, 1)
 
-    await store.receive(\.applyConfigForPreset, 1) {
-      $0.config.presetId = 1
-    }
-
     #expect(store.state.config.id == 1)
 
     await store.receive(\.time)
@@ -277,14 +262,11 @@ struct DelayEffectTests {
     await store.receive(\.cutoff)
     await store.receive(\.wetDryMix)
 
-    store.exhaustivity = .on
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.activePresetId = 2 }
 
-    await store.receive(\.activePresetIdChanged, 2)
-
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.receive(\.applyConfigForPreset, 2) {
+    store.exhaustivity = .off
+    await store.receive(\.activePresetIdChanged, 2) {
       $0.config =  .init(
         id: 2,
         time: 1.0,
@@ -296,12 +278,7 @@ struct DelayEffectTests {
       )
     }
 
-    // Disabled due to flaky tests
-//    await store.receive(\.time, timeout: 30)
-//    await store.receive(\.feedback, timeout: 30)
-//    await store.receive(\.cutoff, timeout: 30)
-//    await store.receive(\.wetDryMix, timeout: 30)
-
+    store.exhaustivity = .off(showSkippedAssertions: false)
     await store.send(.deinitialize)
 
     #expect(await device.getTimesChanged() == 2)

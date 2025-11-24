@@ -3,6 +3,7 @@
 import AUv3Controls
 import DependenciesTestSupport
 import FeatureSupport
+import Numerics
 import SnapshotTesting
 import SQLiteData
 import Testing
@@ -39,16 +40,12 @@ struct ReverbEffectTests {
     await store.send(.initialize)
     await store.receive(\.activePresetIdChanged)
 
-    await store.receive(\.applyConfigForPreset) {
-      $0.config.presetId = 1
-    }
-
     await store.receive(\.wetDryMix)
 
-    store.exhaustivity = .on
     await store.send(.deinitialize)
 
     #expect(await device.getTimesChanged() == 1)
+    #expect(store.state.wetDryMix.value.isApproximatelyEqual(to: 25.0))
   }
 
   @Test
@@ -58,10 +55,6 @@ struct ReverbEffectTests {
     store.exhaustivity = .off(showSkippedAssertions: false)
     await store.send(.initialize)
     await store.receive(\.activePresetIdChanged)
-
-    await store.receive(\.applyConfigForPreset) {
-      $0.config.presetId = 1
-    }
 
     #expect(store.state.config.id == nil)
 
@@ -103,10 +96,6 @@ struct ReverbEffectTests {
     await store.send(.initialize)
     await store.receive(\.activePresetIdChanged)
 
-    await store.receive(\.applyConfigForPreset) {
-      $0.config.presetId = 1
-    }
-
     #expect(store.state.config.id == nil)
     #expect(store.state.config.enabled == false)
 
@@ -146,10 +135,6 @@ struct ReverbEffectTests {
     store.exhaustivity = .off(showSkippedAssertions: false)
     await store.send(.initialize)
     await store.receive(\.activePresetIdChanged)
-
-    await store.receive(\.applyConfigForPreset) {
-      $0.config.presetId = 1
-    }
 
     #expect(store.state.config.id == nil)
     #expect(store.state.config.enabled == false)
@@ -296,22 +281,14 @@ struct ReverbEffectTests {
     await store.send(.initialize)
     await store.receive(\.activePresetIdChanged, 1)
 
-    await store.receive(\.applyConfigForPreset, 1) {
-      $0.config.presetId = 1
-    }
-
     #expect(store.state.config.id == 1)
 
     await store.receive(\.wetDryMix)
 
-    store.exhaustivity = .on
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.activePresetId = 2 }
 
-    await store.receive(\.activePresetIdChanged, 2)
-
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.receive(\.applyConfigForPreset, 2) {
+    await store.receive(\.activePresetIdChanged, 2) {
       $0.config =  .init(
         id: 2,
         roomPreset: .cathedral,

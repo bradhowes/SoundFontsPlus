@@ -59,6 +59,7 @@ public struct DelayEffect {
     Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature(parameter: parameterTree[.delayAmount]) }
 
     Reduce { state, action in
+      log.info("reduce \(action)")
       switch action {
 
       case .activePresetIdChanged(let presetId):
@@ -352,6 +353,8 @@ extension DelayEffectView {
     }
   }
 }
+
+private let log = Logger(category: "DelayEffect")
 
 #Preview {
   DelayEffectView.preview(presetId: 2)
