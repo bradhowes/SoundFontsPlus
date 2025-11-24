@@ -21,7 +21,7 @@ import TestSupport
     $0.defaultDatabase = TestSupport.testDatabase()
     $0.mainQueue = .immediate
     $0.outputVolume = mockVolume.makeOutputVolume()
-    $0.synthAUv3ComponentDescription = .testValue
+    $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.testValue
   },
   .snapshots(record: .failed)
 )
