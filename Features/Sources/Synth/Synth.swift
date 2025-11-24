@@ -72,6 +72,7 @@ public struct Synth {
   @Dependency(\.audioGraph) private var audioGraph
   @Dependency(\.audioSession) private var audioSession
   @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.synthAUv3ComponentDescription) private var synthAUv3ComponentDescription
 
   @Shared(.activeState) private var activeState
   @Shared(.backgroundProcessing) private var backgroundProcessing
@@ -160,9 +161,9 @@ extension Synth {
 
   private func createSynthAudioUnit(_ state: inout State) -> Effect<Action> {
     log.info("createSynth")
-    return .run { send in
+    return .run { [synthAUv3ComponentDescription = synthAUv3ComponentDescription] send in
       log.info("createSynth - instantiating audio unit")
-      let sau = try await SF2LibAU.create()
+      let sau = try await SF2LibAU.create(synthAUv3ComponentDescription)
       log.debug("createSynth - synth: \(sau.description)")
       await send(.synthAudioUnitCreated(sau))
     }.cancellable(id: CancelId.createSynth, cancelInFlight: true)

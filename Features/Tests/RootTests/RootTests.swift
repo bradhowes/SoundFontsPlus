@@ -15,12 +15,13 @@ import TestSupport
 @Suite(
   .dependencies {
     let mockVolume = OutputVolumeFlipFlop()
-    $0.outputVolume = mockVolume.makeOutputVolume()
-    $0.defaultDatabase = TestSupport.testDatabase()
-    $0.mainQueue = .immediate
     $0.audioGraph = .previewValue
     $0.audioSession = .liveValue
     $0.date = .constant(.now)
+    $0.defaultDatabase = TestSupport.testDatabase()
+    $0.mainQueue = .immediate
+    $0.outputVolume = mockVolume.makeOutputVolume()
+    $0.synthAUv3ComponentDescription = .testValue
   },
   .snapshots(record: .failed)
 )

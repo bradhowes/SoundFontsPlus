@@ -19,11 +19,12 @@ import TestSupport
 
 @Suite(
   .dependencies {
-    $0.defaultDatabase = TestSupport.testDatabase()
     // TODO: use mock here
     $0.audioGraph = .liveValue
     $0.audioSession = .liveValue
     $0.continuousClock = .immediate
+    $0.defaultDatabase = TestSupport.testDatabase()
+    $0.synthAUv3ComponentDescription = .testValue
   },
   .snapshots(record: .failed),
   .serialized

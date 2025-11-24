@@ -102,24 +102,9 @@ extension SF2LibAU {
    NOTE: do not use for production purposes since it might hide problems with finding an AUv3 extension attached to the
    application. Instead, just create the same AudioComponentDescription value and try to instantiate it.
    */
-  public static func create() async throws -> AVAudioUnit {
-    let bundle = Bundle.main
-    let componentType = FourCharCode(stringLiteral: bundle.string(forKey: "AU_COMPONENT_TYPE"))
-    // NOTE: do not use AU_COMPONENT_SUBTYPE until the AUv3 plugin is ready to use. Until then, need to point to
-    // something that is unique.
-    let componentSubtype = FourCharCode(stringLiteral: "Sf2L") // bundle.string(forKey: "AU_COMPONENT_SUBTYPE"))
-    let componentManufacturer = FourCharCode(stringLiteral: bundle.string(forKey: "AU_COMPONENT_MANUFACTURER"))
-    let acd: AudioComponentDescription = .init(
-      componentType: componentType,
-      componentSubType: componentSubtype,
-      componentManufacturer: componentManufacturer,
-      componentFlags: 0,
-      componentFlagsMask: 0
-    )
-
+  public static func create(_ acd: AudioComponentDescription) async throws -> AVAudioUnit {
     AUAudioUnit.registerSubclass(SF2LibAU.self, as: acd, name: "SoundFontsPlusAU", version: 1)
-    log.info("create - instantiating audio unit for \(componentType.stringValue), \(componentSubtype.stringValue), \(componentManufacturer.stringValue)")
-
+    log.info("create - instantiating audio unit for \(acd.componentType.stringValue), \(acd.componentSubType.stringValue), \(acd.componentManufacturer.stringValue)")
     return try await AVAudioUnit.instantiate(with: acd, options: [])
   }
 }

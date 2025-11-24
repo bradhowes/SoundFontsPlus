@@ -15,6 +15,11 @@ extension DependencyValues {
     set { self[AudioSession.self] = newValue }
   }
 
+  public var debounceDurations: DebounceDurations {
+    get { self[DebounceDurations.self] }
+    set { self[DebounceDurations.self] = newValue }
+  }
+
   public var fileManager: FileManagerClient {
     get { self[FileManagerClient.self] }
     set { self[FileManagerClient.self] = newValue }
@@ -25,8 +30,8 @@ extension DependencyValues {
     set { self[OutputVolume.self] = newValue }
   }
 
-  public var debounceDurations: DebounceDurations {
-    get { self[DebounceDurations.self] }
-    set { self[DebounceDurations.self] = newValue }
+  public var synthAUv3ComponentDescription: AudioComponentDescription {
+    get { self[SynthAUv3ComponentDescription.self] }
+    set { self[SynthAUv3ComponentDescription.self] = newValue }
   }
 }

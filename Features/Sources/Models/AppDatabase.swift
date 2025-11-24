@@ -33,11 +33,12 @@ public func appDatabase(
   if !ProcessInfo.processInfo.isOnGithub {
     print("isOnGithub is false")
 
-    // Automatically handle any SQL access contention as long as it can be handled in `sqlContentionTimeout` seconds.
-    configuration.busyMode = .timeout(sqlContentionTimeout)
-
-    // Enable suspend notification processing.
-    configuration.observesSuspensionNotifications = true
+    if context == .live {
+      // Automatically handle any SQL access contention as long as it can be handled in `sqlContentionTimeout` seconds.
+      configuration.busyMode = .timeout(sqlContentionTimeout)
+      // Enable suspend notification processing.
+      configuration.observesSuspensionNotifications = true
+    }
 
     configuration.prepareDatabase { db in
       db.trace(options: .profile) {
@@ -48,7 +49,7 @@ public func appDatabase(
         }
       }
 
-      if db.configuration.readonly == false {
+      if context == .live && db.configuration.readonly == false {
         var flag: CInt = 1
         let code = unsafe withUnsafeMutablePointer(to: &flag) { flagP in
           unsafe sqlite3_file_control(db.sqliteConnection, nil, SQLITE_FCNTL_PERSIST_WAL, flagP)
