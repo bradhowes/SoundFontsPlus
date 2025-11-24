@@ -27,9 +27,9 @@ public struct VolumeMonitor {
   public enum Action: BindableAction {
     case activePresetIdChanged(Preset.ID?)
     case binding(BindingAction<State>)
-    case deinitialize
     case delegate(Delegate)
-    case initialize
+    case start
+    case stop
     case volumeChanged(Float)
 
   @CasePathable
@@ -56,14 +56,14 @@ public struct VolumeMonitor {
       case .binding:
         return .none
 
-      case .deinitialize:
+      case .stop:
         return .cancel(id: CancelId.monitorSessionVolume)
 
       case .delegate:
         return .none
 
-      case .initialize:
-        return initialize(&state)
+      case .start:
+        return start(&state)
 
       case .volumeChanged(let volume):
         return volumeChanged(&state, volume: volume)
@@ -77,13 +77,6 @@ public struct VolumeMonitor {
 }
 
 private extension VolumeMonitor {
-
-  func initialize(_ state: inout State) -> Effect<Action> {
-    .merge(
-      volumeChanged(&state, volume: outputVolume.getValue()),
-      monitorOutputVolume(&state)
-    )
-  }
 
   func monitorOutputVolume(_ state: inout State) -> Effect<Action> {
     log.info("monitorOutputVolume")
@@ -103,6 +96,13 @@ private extension VolumeMonitor {
       &state,
       volume: outputVolume.getValue(),
       presetId: presetId
+    )
+  }
+
+  func start(_ state: inout State) -> Effect<Action> {
+    .merge(
+      volumeChanged(&state, volume: outputVolume.getValue()),
+      monitorOutputVolume(&state)
     )
   }
 

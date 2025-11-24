@@ -200,7 +200,7 @@ public struct Root {
           .merge(CancelId.allCases.map { .cancel(id: $0) }),
           reduce(into: &state, action: .synth(.deinitialize)),
           reduce(into: &state, action: .toolBar(.deinitialize)),
-          reduce(into: &state, action: .volumeMonitor(.deinitialize))
+          reduce(into: &state, action: .volumeMonitor(.stop))
         )
 
       case .destination(.presented(.soundFontEditor(.delegate(.refreshPresets)))):
@@ -244,8 +244,6 @@ public struct Root {
       case .synth(.delegate(.stopped)):
         return audioChainInactive(&state)
 
-        // return reduce(into: &state, action: .toolBar(.monitorActiveVoiceCount))
-
       case .tagsList(.delegate(.edit(let focused))):
         state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
         return .none
@@ -275,15 +273,17 @@ public struct Root {
 extension Root {
 
   private func audioChainActive(_ state: inout State) -> Effect<Action> {
+    // The synth is up and running with an active audio session. Safe to monitor its state now.
     .merge(
-      reduce(into: &state, action: .volumeMonitor(.initialize)),
+      reduce(into: &state, action: .volumeMonitor(.start)),
       reduce(into: &state, action: .toolBar(.monitorActiveVoiceCount))
     )
   }
 
   private func audioChainInactive(_ state: inout State) -> Effect<Action> {
+    // We do not have the active audio session.
     .merge(
-      reduce(into: &state, action: .volumeMonitor(.deinitialize))
+      reduce(into: &state, action: .volumeMonitor(.stop))
     )
   }
 

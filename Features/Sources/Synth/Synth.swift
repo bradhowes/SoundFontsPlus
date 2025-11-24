@@ -141,16 +141,14 @@ extension Synth {
 
   private func acquireAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("acquireAudioSession - BEGIN")
-    if !state.audioSessionActivated {
-      state.audioSessionActivated = audioSession.start(audioFormat)
-    }
+    startAudioSession(&state)
     log.info("acquireAudioSession - END")
     return .none
   }
 
   private func beginMonitoring(_ state: inout State) -> Effect<Action> {
     log.info("beginMonitoring - BEGIN")
-    // Start up the monitors now that we have a synth
+    // Start up the monitors now that we have a synth and signal Root that it is running
     return .merge(
       monitorActivePresetId(&state),
       monitorMediaServices(&state),
@@ -307,8 +305,8 @@ extension Synth {
 
   private func restartAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("restartAudioSession - BEGIN")
-    audioSession.stop()
-    state.audioSessionActivated = audioSession.start(audioFormat)
+    stopAudioSession(&state)
+    startAudioSession(&state)
     log.info("restartAudioSession - END")
     return .none
   }
@@ -316,20 +314,21 @@ extension Synth {
   private func releaseAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("releaseAudioSession - BEGIN")
     if !backgroundProcessing {
-      audioSession.stop()
-      state.audioSessionActivated = false
+      stopAudioSession(&state)
     }
     log.info("releaseAudioSession - END")
     return .none
   }
 
   private func startAudioSession(_ state: inout State) {
-    log.info("startAudioSession BEGIN")
-    precondition(!state.audioSessionActivated)
-    state.audioSessionActivated = audioSession.start(audioFormat)
-    if state.audioSessionActivated {
-      startEngine(&state)
+    log.info("startAudioSession BEGIN - \(state.audioSessionActivated)")
+    if !state.audioSessionActivated {
+      state.audioSessionActivated = audioSession.start(audioFormat)
+      if state.audioSessionActivated {
+        startEngine(&state)
+      }
     }
+    log.info("startAudioSession END - \(state.audioSessionActivated)")
   }
 
   private func startEngine(_ state: inout State) {
