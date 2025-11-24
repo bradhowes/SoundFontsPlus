@@ -428,9 +428,13 @@ extension Root {
     switch phase {
 
     case .active:
+      log.info("scene becoming active - resuming DB")
+      NotificationCenter.default.post(name: Database.resumeNotification, object: self)
       return reduce(into: &state, action: .synth(.acquireAudioSession))
 
     case .background, .inactive:
+      log.info("scene becoming inactive - suspending DB")
+      NotificationCenter.default.post(name: Database.suspendNotification, object: self)
       return reduce(into: &state, action: .synth(.releaseAudioSession))
 
     @unknown default:

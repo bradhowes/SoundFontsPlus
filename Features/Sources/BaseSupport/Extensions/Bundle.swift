@@ -7,7 +7,7 @@ private class BundleTag: NSObject {}
 extension Bundle {
 
   @inlinable
-  func string(forKey key: String) -> String { infoDictionary?[key] as? String ?? "" }
+  public func string(forKey key: String) -> String { infoDictionary?[key] as? String ?? "" }
 
   /// Obtain the release version number from the bundle info
   public var releaseVersionNumber: String { string(forKey: "CFBundleShortVersionString") }

@@ -3,8 +3,11 @@
 import BaseSupport
 import Dependencies
 import Foundation
+import GRDB
 import OSLog
+import Sharing
 import SF2Resources
+import SQLite3
 import SQLiteData
 
 private let log = Logger(category: "appDatabase")
@@ -16,7 +19,9 @@ public func appDatabase(
   seeder: ((Database) throws -> Void)? = nil
 ) throws -> any DatabaseWriter {
   @Dependency(\.context) var context
-  let database: any DatabaseWriter
+  @Shared(.sqlContentionTimeout) var sqlContentionTimeout
+
+  var database: any DatabaseWriter
   var configuration = GRDB.Configuration()
 
   log.info("appDatabase BEGIN - fonts: \(fonts) loadAllPresets: \(loadAllPresets)")
@@ -27,6 +32,13 @@ public func appDatabase(
 
   if !ProcessInfo.processInfo.isOnGithub {
     print("isOnGithub is false")
+
+    // Automatically handle any SQL access contention as long as it can be handled in `sqlContentionTimeout` seconds.
+    configuration.busyMode = .timeout(sqlContentionTimeout)
+
+    // Enable suspend notification processing.
+    configuration.observesSuspensionNotifications = true
+
     configuration.prepareDatabase { db in
       db.trace(options: .profile) {
         if context == .live {
@@ -35,19 +47,67 @@ public func appDatabase(
           print("\($0.expandedDescription)")
         }
       }
+
+      if db.configuration.readonly == false {
+        var flag: CInt = 1
+        let code = unsafe withUnsafeMutablePointer(to: &flag) { flagP in
+          unsafe sqlite3_file_control(db.sqliteConnection, nil, SQLITE_FCNTL_PERSIST_WAL, flagP)
+        }
+        guard code == SQLITE_OK else {
+          throw DatabaseError(resultCode: ResultCode(rawValue: code))
+        }
+      }
     }
   }
 
 #endif // DEBUG
 
   if context == .live {
-    let path = URL.documentsDirectory.appending(component: "db.sqlite").path()
-    log.info("open \(path)")
-    database = try DatabasePool(path: path, configuration: configuration)
+    let databaseURL: URL = FileManager.default.sharedDocumentsDirectory.appending(component: "db.sqlite")
+    let coordinator = NSFileCoordinator(filePresenter: nil)
+    var dbPool: DatabasePool?
+    var coordinatorError: NSError?
+    var dbError: Error?
+    unsafe coordinator.coordinate(writingItemAt: databaseURL, options: .forMerging, error: &coordinatorError) { url in
+      do {
+        log.info("opening \(url)")
+        dbPool = try DatabasePool(path: url.path(), configuration: configuration)
+      } catch {
+        dbError = error
+      }
+    }
+
+    if let error = dbError ?? coordinatorError {
+      throw error
+    } else if let dbPool {
+      database = dbPool
+    } else {
+      fatalError("Failed to create DatabasePool instance")
+    }
   } else {
+    // In-memory database for testing and previews (no sharing)
     database = try DatabaseQueue(configuration: configuration)
   }
 
+  try performMigrations(
+    database,
+    fonts: fonts,
+    limitedLoading: context == .test && loadAllPresets == false,
+    seeder: seeder
+  )
+
+  return database
+}
+
+private func performMigrations(
+  _ database: DatabaseWriter,
+  fonts: [SF2ResourceTag],
+  limitedLoading: Bool,
+  seeder: (
+    (Database) throws -> Void
+  )?
+) throws {
+  @Dependency(\.context) var context
   var migrator = DatabaseMigrator()
 
 #if DEBUG
@@ -75,7 +135,6 @@ public func appDatabase(
   migrator.registerMigration("Add builtin fonts") { db in
     for sf2 in fonts {
       log.info("add \(sf2)")
-      let limitedLoading: Bool = context == .test && loadAllPresets == false
       try SoundFont.addBuiltIn(db, sf2: sf2, limitedLoading: limitedLoading)
     }
   }
@@ -105,8 +164,6 @@ public func appDatabase(
       try seeder(db)
     }
   }
-
-  return database
 }
 
 public func previewDatabase(

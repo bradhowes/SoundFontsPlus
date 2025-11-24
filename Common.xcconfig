@@ -17,7 +17,7 @@ AU_COMPONENT_NAME = B-Ray: SoundFontsPlus
 AU_COMPONENT_TYPE = aumu
 
 /// The component subtype. This should be unique for effects from the same manufacturer.
-AU_COMPONENT_SUBTYPE = sf22
+AU_COMPONENT_SUBTYPE = Sf2P
 
 /// The unique manufacturer ID. Pick your own, but values with all lowercase letters are reserved
 /// by Apple. There used to be a registry...

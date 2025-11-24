@@ -17,6 +17,7 @@ struct SoundFontsPlusApp: App {
 
   init() {
     prepareDependencies {
+      @Shared(.isAUv3) var isAUv3 = false
 
       $0.audioGraph = .liveValue
       $0.audioSession = .liveValue

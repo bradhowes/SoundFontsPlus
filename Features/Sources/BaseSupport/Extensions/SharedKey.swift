@@ -16,6 +16,10 @@ extension SharedKey where Self == AppStorageKey<Note>.Default {
   public static var firstVisibleKey: Self { Self[.appStorage("firstVisibleKey"), default: .C4] }
 }
 
+extension SharedKey where Self == InMemoryKey<Bool>.Default {
+  public static var isAUv3: Self { Self[.inMemory("isAUv3"), default: false] }
+}
+
 extension SharedKey where Self == InMemoryKey<AVAudioUnit?>.Default {
   public static var synthAudioUnit: Self { Self[.inMemory("synthAudioUnit"), default: nil] }
 }

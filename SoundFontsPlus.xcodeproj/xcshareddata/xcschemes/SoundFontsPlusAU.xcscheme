@@ -16,7 +16,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BD61F0232E11A69800DD8903"
+               BlueprintIdentifier = "BD5AE3832ED0C2910073F3F2"
                BuildableName = "SoundFontsPlusAU.appex"
                BlueprintName = "SoundFontsPlusAU"
                ReferencedContainer = "container:SoundFontsPlus.xcodeproj">

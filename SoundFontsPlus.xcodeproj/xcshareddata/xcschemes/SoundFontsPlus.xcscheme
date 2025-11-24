@@ -32,9 +32,6 @@
             reference = "container:Features.xctestplan"
             default = "YES">
          </TestPlanReference>
-         <TestPlanReference
-            reference = "container:SoundFontsPlus.xctestplan">
-         </TestPlanReference>
       </TestPlans>
       <Testables>
          <TestableReference
