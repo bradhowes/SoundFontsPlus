@@ -1,8 +1,10 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import DelayEffect
 import DependenciesTestSupport
 import FeatureSupport
 import Models
+import ReverbEffect
 import Settings
 import SnapshotTesting
 import SoundFonts
@@ -19,8 +21,10 @@ import TestSupport
     $0.audioSession = .liveValue
     $0.date = .constant(.now)
     $0.defaultDatabase = TestSupport.testDatabase()
+    $0.delayDevice = DelayDevice(setConfig: {_ in} )
     $0.mainQueue = .immediate
     $0.outputVolume = mockVolume.makeOutputVolume()
+    $0.reverbDevice = ReverbDevice(setConfig: {_ in} )
     $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.testValue
   },
   .snapshots(record: .failed)
