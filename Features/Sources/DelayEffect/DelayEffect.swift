@@ -9,7 +9,6 @@ public struct DelayEffect {
   @ObservableState
   public struct State: Equatable {
 
-    @ObservationStateIgnored
     public var config: DelayConfig.Draft
     public var enabled: ToggleFeature.State
     public var locked: ToggleFeature.State
@@ -129,21 +128,15 @@ extension DelayEffect {
       return .none
     }
 
-    if state.dirty {
-      let toSave = state.config
-      return .merge(
-        .run { _ in
-          DelayConfig.save(config: toSave)
-        },
-        .run { send in
-          await send(.applyConfigForPreset(presetId))
-        }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
-      )
+    guard state.dirty else {
+      return applyConfigForPreset(&state, presetId: presetId)
     }
 
-    return .run { send in
-      await send(.applyConfigForPreset(presetId))
-    }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
+    return .merge(
+      .run { [toSave = state.config] _ in DelayConfig.save(config: toSave) },
+      .run { send in await send(.applyConfigForPreset(presetId)) }
+        .cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
+    )
   }
 
   private func applyConfigForPreset(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {

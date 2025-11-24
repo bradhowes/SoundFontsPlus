@@ -10,7 +10,6 @@ public struct ReverbEffect {
   @ObservableState
   public struct State: Equatable {
 
-    @ObservationStateIgnored
     public var config: ReverbConfig.Draft
     public var enabled: ToggleFeature.State
     public var locked: ToggleFeature.State
@@ -24,6 +23,7 @@ public struct ReverbEffect {
       self.locked = .init(isOn: locked, displayName: "Lock")
       self.enabled = .init(isOn: false, displayName: "On")
       self.wetDryMix = .init(parameter: parameterTree[.reverbAmount])
+
       self.dirty = dirty
     }
   }
@@ -50,6 +50,8 @@ public struct ReverbEffect {
     Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature(parameter: parameterTree[.reverbAmount]) }
 
     Reduce { state, action in
+      log.info("reduce \(action)")
+
       switch action {
 
       case .activePresetIdChanged(let presetId):
@@ -115,24 +117,21 @@ extension ReverbEffect {
       return .none
     }
 
-    if state.dirty {
-      let toSave = state.config
-      return .merge(
-        .run { _ in
-          ReverbConfig.save(config: toSave)
-        },
-          .run { send in
-            await send(.applyConfigForPreset(presetId))
-          }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
-      )
+    guard state.dirty else {
+      return applyConfigForPreset(&state, presetId: presetId)
     }
-    return .run { send in
-      await send(.applyConfigForPreset(presetId))
-    }.cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
+
+    return .merge(
+      .run { [toSave = state.config] _ in ReverbConfig.save(config: toSave) },
+      .run { send in await send(.applyConfigForPreset(presetId)) }
+        .cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
+    )
   }
 
   private func applyConfigForPreset(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
+    log.info("applyConfigForPreset - \(presetId)")
     let config = ReverbConfig.draft(for: presetId, cloning: state.config)
+    log.debug("config: \(config)")
     reverbDevice.setConfig(config)
     state.config = config
     state.dirty = false
@@ -282,7 +281,7 @@ extension ReverbEffectView {
     return VStack {
       ScrollView(.horizontal) {
         ReverbEffectView(store: Store(initialState: .init()) { ReverbEffect() })
-        .environment(\.auv3ControlsTheme, theme)
+          .environment(\.auv3ControlsTheme, theme)
       }
       .padding()
       .border(theme.controlBackgroundColor, width: 1)
@@ -299,6 +298,8 @@ extension ReverbEffectView {
     }
   }
 }
+
+private let log = Logger(category: "ReverbEffect")
 
 #Preview {
   ReverbEffectView.preview

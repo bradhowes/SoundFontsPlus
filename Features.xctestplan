@@ -15,57 +15,8 @@
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "FeatureSupportTests",
-        "name" : "FeatureSupportTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "RootTests",
-        "name" : "RootTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "KeyboardTests",
-        "name" : "KeyboardTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "SynthTests",
-        "name" : "SynthTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "MIDITrafficIndicatorTests",
-        "name" : "MIDITrafficIndicatorTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "FileImporterTests",
-        "name" : "FileImporterTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "ToolBarTests",
-        "name" : "ToolBarTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "ChangesTests",
-        "name" : "ChangesTests"
+        "identifier" : "AppReviewTests",
+        "name" : "AppReviewTests"
       }
     },
     {
@@ -78,22 +29,43 @@
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "TagsTests",
-        "name" : "TagsTests"
+        "identifier" : "ChangesTests",
+        "name" : "ChangesTests"
       }
     },
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "ReverbEffectTests",
-        "name" : "ReverbEffectTests"
+        "identifier" : "DelayEffectTests",
+        "name" : "DelayEffectTests"
       }
     },
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "ModelsTests",
-        "name" : "ModelsTests"
+        "identifier" : "FeatureSupportTests",
+        "name" : "FeatureSupportTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "KeyboardTests",
+        "name" : "KeyboardTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "MIDIAssignmentsTests",
+        "name" : "MIDIAssignmentsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "MIDIConnectionsTests",
+        "name" : "MIDIConnectionsTests"
       }
     },
     {
@@ -106,15 +78,36 @@
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "AppReviewTests",
-        "name" : "AppReviewTests"
+        "identifier" : "MIDITrafficIndicatorTests",
+        "name" : "MIDITrafficIndicatorTests"
       }
     },
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "SoundFontsTests",
-        "name" : "SoundFontsTests"
+        "identifier" : "ModelsTests",
+        "name" : "ModelsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "PresetsTests",
+        "name" : "PresetsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "ReverbEffectTests",
+        "name" : "ReverbEffectTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "RootTests",
+        "name" : "RootTests"
       }
     },
     {
@@ -134,22 +127,29 @@
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "MIDIConnectionsTests",
-        "name" : "MIDIConnectionsTests"
+        "identifier" : "SoundFontsTests",
+        "name" : "SoundFontsTests"
       }
     },
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "DelayEffectTests",
-        "name" : "DelayEffectTests"
+        "identifier" : "SynthTests",
+        "name" : "SynthTests"
       }
     },
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "MIDIAssignmentsTests",
-        "name" : "MIDIAssignmentsTests"
+        "identifier" : "TagsTests",
+        "name" : "TagsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "ToolBarTests",
+        "name" : "ToolBarTests"
       }
     },
     {
@@ -164,13 +164,6 @@
         "containerPath" : "container:Features",
         "identifier" : "TutorialTests",
         "name" : "TutorialTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "PresetsTests",
-        "name" : "PresetsTests"
       }
     },
     {
