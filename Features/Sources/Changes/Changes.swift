@@ -48,7 +48,8 @@ public struct Changes {
 #else
     @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
     defer { $lastShowedChangesVersion.withLock { $0 = Bundle.main.releaseVersionNumber } }
-    return lastShowedChangesVersion != Bundle.main.releaseVersionNumber
+    // Only show when the version has changed and this is not an initial install
+    return lastShowedChangesVersion != Bundle.main.releaseVersionNumber && !lastShowedChangesVersion.isEmpty
 #endif
   }
 
