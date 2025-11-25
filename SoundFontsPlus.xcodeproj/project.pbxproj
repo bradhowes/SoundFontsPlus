@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BD22B1C82ED5D73900E72F0E /* AppRoot in Frameworks */ = {isa = PBXBuildFile; productRef = BD22B1C72ED5D73900E72F0E /* AppRoot */; };
 		BD275B262E93EF2A004F0C7A /* Tuning in Frameworks */ = {isa = PBXBuildFile; productRef = BD275B252E93EF2A004F0C7A /* Tuning */; };
 		BD275B282E93F1CE004F0C7A /* FileImporter in Frameworks */ = {isa = PBXBuildFile; productRef = BD275B272E93F1CE004F0C7A /* FileImporter */; };
 		BD4C249D2E77618800F8B3A9 /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249C2E77618800F8B3A9 /* Engine */; };
@@ -32,7 +33,6 @@
 		BDB8CC1F2E9508580035EBEA /* MIDIControllers in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC1E2E9508580035EBEA /* MIDIControllers */; };
 		BDB8CC212E9508580035EBEA /* MIDITrafficIndicator in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC202E9508580035EBEA /* MIDITrafficIndicator */; };
 		BDB8CC232E9508580035EBEA /* Presets in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC222E9508580035EBEA /* Presets */; };
-		BDB8CC252E9508580035EBEA /* Root in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC242E9508580035EBEA /* Root */; };
 		BDB8CC272E9508580035EBEA /* Settings in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC262E9508580035EBEA /* Settings */; };
 		BDB8CC292E9508580035EBEA /* SoundFonts in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC282E9508580035EBEA /* SoundFonts */; };
 		BDB8CC2B2E9508580035EBEA /* Synth in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC2A2E9508580035EBEA /* Synth */; };
@@ -102,10 +102,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD22B1C82ED5D73900E72F0E /* AppRoot in Frameworks */,
 				BDB8CC2F2E9508580035EBEA /* ToolBar in Frameworks */,
 				BDB8CC2D2E9508580035EBEA /* Tags in Frameworks */,
 				BD7217242E93BE270017DB8C /* AppReview in Frameworks */,
-				BDB8CC252E9508580035EBEA /* Root in Frameworks */,
 				BDB8CC1F2E9508580035EBEA /* MIDIControllers in Frameworks */,
 				BD7217322E93BE270017DB8C /* ReverbEffect in Frameworks */,
 				BDB8CC1D2E9508580035EBEA /* MIDIConnections in Frameworks */,
@@ -223,12 +223,12 @@
 				BDB8CC1E2E9508580035EBEA /* MIDIControllers */,
 				BDB8CC202E9508580035EBEA /* MIDITrafficIndicator */,
 				BDB8CC222E9508580035EBEA /* Presets */,
-				BDB8CC242E9508580035EBEA /* Root */,
 				BDB8CC262E9508580035EBEA /* Settings */,
 				BDB8CC282E9508580035EBEA /* SoundFonts */,
 				BDB8CC2A2E9508580035EBEA /* Synth */,
 				BDB8CC2C2E9508580035EBEA /* Tags */,
 				BDB8CC2E2E9508580035EBEA /* ToolBar */,
+				BD22B1C72ED5D73900E72F0E /* AppRoot */,
 			);
 			productName = SoundFontsPlus;
 			productReference = BD1D277F2B6F13DD005C3ED0 /* SoundFontsPlus.app */;
@@ -770,6 +770,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		BD22B1C72ED5D73900E72F0E /* AppRoot */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppRoot;
+		};
 		BD275B252E93EF2A004F0C7A /* Tuning */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Tuning;
@@ -865,10 +869,6 @@
 		BDB8CC222E9508580035EBEA /* Presets */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Presets;
-		};
-		BDB8CC242E9508580035EBEA /* Root */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Root;
 		};
 		BDB8CC262E9508580035EBEA /* Settings */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -1,10 +1,8 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import DelayEffect
 import DependenciesTestSupport
 import FeatureSupport
 import Models
-import ReverbEffect
 import Settings
 import SnapshotTesting
 import SoundFonts
@@ -12,34 +10,28 @@ import Testing
 import TestSupport
 
 @testable import Presets
-@testable import Root
+@testable import AUv3Root
 
 @Suite(
   .dependencies {
-    let mockVolume = OutputVolumeFlipFlop()
-    $0.audioGraph = .previewValue
-    $0.audioSession = .liveValue
     $0.date = .constant(.now)
     $0.defaultDatabase = TestSupport.testDatabase()
-    $0.delayDevice = .init(setConfig: {_ in })
     $0.mainQueue = .immediate
-    $0.outputVolume = mockVolume.makeOutputVolume()
-    $0.reverbDevice = .init(setConfig: {_ in })
     $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.testValue
   },
   .snapshots(record: .failed)
 )
 @MainActor
-struct RootTests {
+struct AUv3RootTests {
 
-  func store() -> TestStoreOf<Root> {
+  func store() -> TestStoreOf<AUv3Root> {
     @Shared(.activeState) var activeState = .default
-    return TestStoreOf<Root>(initialState: .init()) {
+    return .init(initialState: .init()) {
       Root()
     }
   }
 
-  func initialized(_ test: (TestStoreOf<Root>) async throws -> Void) async throws {
+  func initialized(_ test: (TestStoreOf<AppRoot>) async throws -> Void) async throws {
     let store = store()
 
     await store.send(.initialize)
@@ -222,7 +214,7 @@ struct RootTests {
   }
 
   @Test
-  func rootViewPreview() async throws {
-    try TestSupport.assertSnapshot(matching: RootView.preview)
+  func appRootViewPreview() async throws {
+    try TestSupport.assertSnapshot(matching: AppRootView.preview)
   }
 }

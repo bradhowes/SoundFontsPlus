@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AppRoot
 import AVFAudio
 import ComposableArchitecture
 import DelayEffect
@@ -8,7 +9,6 @@ import FeatureSupport
 import Models
 import MorkAndMIDI
 import ReverbEffect
-import Root
 import Sharing
 import SwiftUI
 
@@ -65,7 +65,7 @@ struct ContentView: View {
       Color.black
         .ignoresSafeArea(edges: .all)
 
-      RootView(store: Store(initialState: .init()) { Root() })
+      AppRootView(store: Store(initialState: .init()) { AppRoot() })
         .environment(\.colorScheme, .dark)
       // We don't want to mistake keyboard activity for iOS app switching or other system gestures
         .defersSystemGestures(on: [.bottom, .leading, .trailing])

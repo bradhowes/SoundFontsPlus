@@ -28,6 +28,8 @@ let package = Package(
   platforms: [.iOS(.v18), .macOS(.v15)],
   products: [
     .lib("AppReview"),
+    .lib("AppRoot"),
+    .lib("AUv3Root"),
     .lib("BaseSupport"),
     .lib("Changes"),
     .lib("DelayEffect"),
@@ -41,7 +43,6 @@ let package = Package(
     .lib("Models"),
     .lib("Presets"),
     .lib("ReverbEffect"),
-    .lib("Root"),
     .lib("Settings"),
     .lib("SF2Resources"),
     .lib("SoundFonts"),
@@ -80,18 +81,8 @@ let package = Package(
     // MARK: Feature Targets - features have "FeatureSupport" as a dependency
 
     .feature("AppReview"),
-    .feature("Changes"),
-    .feature("DelayEffect"),
-    .feature("FileImporter"),
-    .feature("Keyboard"),
-    .feature("MIDIAssignments"),
-    .feature("MIDIConnections", dependencies: ["MIDITrafficIndicator"]),
-    .feature("MIDIControllers"),
-    .feature("MIDITrafficIndicator"),
-    .feature("Presets", dependencies: ["Tuning"]),
-    .feature("ReverbEffect"),
     .feature(
-      "Root",
+      "AppRoot",
       dependencies: [
         "AppReview",
         "Changes",
@@ -109,6 +100,27 @@ let package = Package(
         .product(name: "BRHSplitView", package: "brh-splitview"),
       ]
     ),
+    .feature(
+      "AUv3Root",
+      dependencies: [
+        "Presets",
+        "Settings",
+        "SoundFonts",
+        "Tags",
+        "ToolBar",
+        .product(name: "BRHSplitView", package: "brh-splitview"),
+      ]
+    ),
+    .feature("Changes"),
+    .feature("DelayEffect"),
+    .feature("FileImporter"),
+    .feature("Keyboard"),
+    .feature("MIDIAssignments"),
+    .feature("MIDIConnections", dependencies: ["MIDITrafficIndicator"]),
+    .feature("MIDIControllers"),
+    .feature("MIDITrafficIndicator"),
+    .feature("Presets", dependencies: ["Tuning"]),
+    .feature("ReverbEffect"),
     .feature(
       "Settings",
       dependencies: [
@@ -195,6 +207,8 @@ let package = Package(
     // MARK: - Feature Test Targets - name is the feature name from above, and the test name will be that + "Tests"
 
     .testFeature("AppReview"),
+    .testFeature("AppRoot"),
+    .testFeature("AUv3Root"),
     .testFeature("Changes"),
     .testFeature("DelayEffect"),
     .testFeature("FileImporter"),
@@ -205,7 +219,6 @@ let package = Package(
     .testFeature("Models"),
     .testFeature("Presets"),
     .testFeature("ReverbEffect"),
-    .testFeature("Root"),
     .testFeature("Settings"),
     .testFeature("SoundFonts"),
     .testFeature("Tags"),

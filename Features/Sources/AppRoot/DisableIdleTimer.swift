@@ -3,7 +3,7 @@
 import Sharing
 import SwiftUI
 
-extension Root {
+extension AppRoot {
 
   @MainActor
   public static func disableIdleTimer() {

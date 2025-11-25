@@ -25,7 +25,7 @@ import VolumeMonitor
  The top-level feature of the application.
  */
 @Reducer
-public struct Root {
+public struct AppRoot {
 
   /**
    The various editors and presenters that appear in a modal way when created and presented.
@@ -270,7 +270,7 @@ public struct Root {
   }
 }
 
-extension Root {
+extension AppRoot {
 
   private func audioChainActive(_ state: inout State) -> Effect<Action> {
     // The synth is up and running with an active audio session. Safe to monitor its state now.
@@ -443,11 +443,11 @@ extension Root {
   }
 }
 
-extension Root.Destination.State: Equatable {}
+extension AppRoot.Destination.State: Equatable {}
 
-public struct RootView: View {
+public struct AppRootView: View {
   @Environment(\.scenePhase) var scenePhase
-  @Bindable private var store: StoreOf<Root>
+  @Bindable private var store: StoreOf<AppRoot>
   private let theme: Theme
   private let appPanelBackground = Color.black
   private let dividerBorderColor: Color = Color.gray.mix(with: .black, by: 0.7)
@@ -470,7 +470,7 @@ public struct RootView: View {
       : maxKeyboardPanelHeight * (verticalSizeClass == .compact ? 0.5 : 1.0)
   }
 
-  public init(store: StoreOf<Root>) {
+  public init(store: StoreOf<AppRoot>) {
     self.store = store
     var theme = Theme()
     theme.controlForegroundColor = .teal
@@ -522,9 +522,9 @@ public struct RootView: View {
   }
 }
 
-extension RootView: KeyboardVisibilityPublisher {}
+extension AppRootView: KeyboardVisibilityPublisher {}
 
-extension RootView {
+extension AppRootView {
 
   fileprivate var listViews: some View {
     SplitView(
@@ -641,7 +641,7 @@ extension View {
    - returns: modified view
    */
   fileprivate func sheets(
-    store: Bindable<StoreOf<Root>>,
+    store: Bindable<StoreOf<AppRoot>>,
     horizontalSizeClass: UserInterfaceSizeClass?,
     verticalSizeClass: UserInterfaceSizeClass?
   ) -> some View {
@@ -654,7 +654,7 @@ extension View {
       .tutorialSheet(store)
   }
 
-  fileprivate func changesSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
+  fileprivate func changesSheet(_ store: Bindable<StoreOf<AppRoot>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.changes, action: \.destination.changes)) { child in
         NavigationStack {
@@ -665,7 +665,7 @@ extension View {
       }
   }
 
-  fileprivate func presetEditorSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
+  fileprivate func presetEditorSheet(_ store: Bindable<StoreOf<AppRoot>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
         PresetEditorView(store: $0)
@@ -674,7 +674,7 @@ extension View {
       }
   }
 
-  fileprivate func settingsSheet(_ store: Bindable<StoreOf<Root>>, showFakeKeyboard: Bool) -> some View {
+  fileprivate func settingsSheet(_ store: Bindable<StoreOf<AppRoot>>, showFakeKeyboard: Bool) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.settings, action: \.destination.settings)) {
         SettingsView(store: $0, showFakeKeyboard: showFakeKeyboard)
@@ -683,7 +683,7 @@ extension View {
       }
   }
 
-  fileprivate func soundFontEditorSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
+  fileprivate func soundFontEditorSheet(_ store: Bindable<StoreOf<AppRoot>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.soundFontEditor, action: \.destination.soundFontEditor)) {
         SoundFontEditorView(store: $0)
@@ -692,7 +692,7 @@ extension View {
       }
   }
 
-  fileprivate func tagsEditorSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
+  fileprivate func tagsEditorSheet(_ store: Bindable<StoreOf<AppRoot>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor)) { child in
         NavigationStack {
@@ -703,7 +703,7 @@ extension View {
       }
   }
 
-  fileprivate func tutorialSheet(_ store: Bindable<StoreOf<Root>>) -> some View {
+  fileprivate func tutorialSheet(_ store: Bindable<StoreOf<AppRoot>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.tutorial, action: \.destination.tutorial)) { child in
         NavigationStack {
@@ -715,7 +715,7 @@ extension View {
   }
 }
 
-extension RootView {
+extension AppRootView {
 
   static var preview: some View {
     prepareDependencies {
@@ -731,7 +731,7 @@ extension RootView {
     return ZStack {
       Color.black
         .ignoresSafeArea(edges: .all)
-      RootView(store: Store(initialState: .init()) { Root() })
+      AppRootView(store: Store(initialState: .init()) { AppRoot() })
         // .preferredColorScheme(.dark)
         .environment(\.colorScheme, .dark)
     }
@@ -739,7 +739,7 @@ extension RootView {
 }
 
 #Preview {
-  RootView.preview
+  AppRootView.preview
 }
 
-private let log = Logger(category: "Root")
+private let log = Logger(category: "AppRoot")
