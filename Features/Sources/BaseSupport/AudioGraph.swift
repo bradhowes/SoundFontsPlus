@@ -33,12 +33,12 @@ private func startGraph(_ audioFormat: AVAudioFormat) -> Bool {
   @Shared(.audioEngine) var audioEngine
   @Shared(.delayEffect) var delayEffect
   @Shared(.reverbEffect) var reverbEffect
-  @Shared(.synthAudioUnit) var synthAudioUnit
+  @Shared(.avAudioUnit) var synth
 
   log.info("startGraph BEGIN")
   guard
     let audioEngine,
-    let synthAudioUnit,
+    let synth,
     let delayEffect,
     let reverbEffect
   else {
@@ -52,14 +52,14 @@ private func startGraph(_ audioFormat: AVAudioFormat) -> Bool {
   }
 
   log.info("startGraph - attaching audio units to engine")
-  audioEngine.attach(synthAudioUnit)
+  audioEngine.attach(synth)
   audioEngine.attach(delayEffect)
   audioEngine.attach(reverbEffect)
 
   log.info("startGraph - connecting audio units together")
   audioEngine.connect(reverbEffect, to: audioEngine.outputNode, format: audioFormat)
   audioEngine.connect(delayEffect, to: reverbEffect, format: audioFormat)
-  audioEngine.connect(synthAudioUnit, to: delayEffect, format: audioFormat)
+  audioEngine.connect(synth, to: delayEffect, format: audioFormat)
 
   let started: Bool
   do {
@@ -79,12 +79,12 @@ private func stopGraph() {
   @Shared(.audioEngine) var audioEngine
   @Shared(.delayEffect) var delayEffect
   @Shared(.reverbEffect) var reverbEffect
-  @Shared(.synthAudioUnit) var synthAudioUnit
+  @Shared(.avAudioUnit) var synth
 
   log.info("stopGraph BEGIN")
   guard
     let audioEngine,
-    let synthAudioUnit,
+    let synth,
     let delayEffect,
     let reverbEffect
   else {
@@ -93,7 +93,7 @@ private func stopGraph() {
   }
 
   log.info("stopGraph - resetting synth")
-  synthAudioUnit.reset()
+  synth.reset()
 
   guard audioEngine.isRunning else {
     log.info("stopGraph END - already stopped")
@@ -110,7 +110,7 @@ private func stopGraph() {
   audioEngine.detach(reverbEffect)
 
   log.info("stopGraph - detaching synth")
-  audioEngine.detach(synthAudioUnit)
+  audioEngine.detach(synth)
 
   log.info("stopGraph END")
 }

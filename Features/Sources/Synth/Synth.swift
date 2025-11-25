@@ -77,7 +77,7 @@ public struct Synth {
   @Shared(.activeState) private var activeState
   @Shared(.backgroundProcessing) private var backgroundProcessing
   @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
-  @Shared(.synthAudioUnit) private var synthAudioUnit
+  @Shared(.avAudioUnit) private var synth
 
   public var body: some ReducerOf<Self> {
 
@@ -172,7 +172,10 @@ extension Synth {
   private func createSynthAudioUnitDone(_ state: inout State, synth: AVAudioUnit) -> Effect<Action> {
     log.info("createSynthAudioUnitDone BEGIN")
 
-    $synthAudioUnit.withLock { $0 = synth }
+    $synth.withLock { $0 = synth }
+
+    @Shared(.auAudioUnit) var auAudioUnit
+    $auAudioUnit.withLock { $0 = synth.auAudioUnit }
 
     if state.audioSessionActivated {
       startEngine(&state)
@@ -198,8 +201,7 @@ extension Synth {
   private func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
     log.info("lastPresetLoadFinished BEGIN - \(state.firstTimePresetLoaded)")
     guard
-      let synth = synthAudioUnit?.synth,
-      let parameterTree = synthAudioUnit?.parameterTree,
+      let parameterTree = synth?.parameterTree,
       let presetId = activeState.activePresetId
     else {
       return .none
@@ -217,7 +219,7 @@ extension Synth {
 
     let firstTimePresetLoaded = state.firstTimePresetLoaded
     state.firstTimePresetLoaded = false
-    return firstTimePresetLoaded ? .none : playNote(state, synth: synth)
+    return firstTimePresetLoaded ? .none : playNote(state)
   }
 
   private func monitorActivePresetId(_ state: inout State) -> Effect<Action> {
@@ -235,7 +237,7 @@ extension Synth {
 
   private func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
     log.info("monitorLastLoadFinished BEGIN")
-    guard let parameterTree = synthAudioUnit?.parameterTree else {
+    guard let parameterTree = synth?.parameterTree else {
       fatalError("monitorLastLoadFinished - unexpected nil parameterTree chain")
     }
 
@@ -281,10 +283,10 @@ extension Synth {
     }.cancellable(id: CancelId.monitorRouteChanged, cancelInFlight: true)
   }
 
-  private func playNote(_ state: State, synth: SF2LibAU? = nil) -> Effect<Action> {
+  private func playNote(_ state: State) -> Effect<Action> {
     log.debug("playNote BEGIN - \(playSoundOnPresetChange) ")
 
-    guard let synth = (synth ?? synthAudioUnit?.synth) else {
+    guard let synth = synth?.synth else {
       log.debug("playNote END - !synth")
       return .none
     }
@@ -349,7 +351,7 @@ extension Synth {
   private func useActivePreset(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     log.info("useActivePreset BEGIN - presetId: \(presetId ?? -1)")
     guard
-      let synth = synthAudioUnit?.synth,
+      let synth = synth?.synth,
       state.audioSessionActivated
     else {
       log.info("useActivePreset END - nil audioUnit or inactive audio session")
@@ -363,7 +365,7 @@ extension Synth {
 
     guard state.loadedPresetIndex != presetInfo.presetIndex || state.loadedSoundFontId != presetInfo.soundFontId else {
       log.info("useActivePreset END - already loaded")
-      return playNote(state, synth: synth)
+      return playNote(state)
     }
 
     let result: Bool

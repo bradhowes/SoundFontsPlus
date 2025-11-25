@@ -189,10 +189,10 @@ struct ToolBarTests {
     .dependencies { $0.defaultDatabase = TestSupport.testDatabase() }
   )
   func monitorActiveVoiceCount() async throws {
-    @Shared(.synthAudioUnit) var synthAudioUnit
+    @Shared(.auAudioUnit) var audioUnit
     @Dependency(\.synthAUv3ComponentDescription) var synthAUv3ComponentDescription
     let synth = try await SF2LibAU.create(synthAUv3ComponentDescription)
-    $synthAudioUnit.withLock { $0 = synth }
+    $audioUnit.withLock { $0 = synth.auAudioUnit }
 
     let store = try await store()
     await store.send(.initialize)

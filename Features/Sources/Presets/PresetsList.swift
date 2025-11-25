@@ -100,7 +100,6 @@ public struct PresetsList {
   @Shared(.activeState) private var activeState
   @Shared(.confirmPresetHiding) private var confirmPresetHiding
   @Shared(.selectedSoundFontId) private var selectedSoundFontId
-  @Shared(.synthAudioUnit) var synthAudioUnit
 
   public init() {}
 

@@ -72,8 +72,8 @@ public struct Keyboard {
     case unmuted
   }
 
-  public var midiInstrument: AVAudioUnitMIDIInstrument? { synthAudioUnit?.midiInstrument }
-  @Shared(.synthAudioUnit) public var synthAudioUnit
+  public var midiInstrument: AVAudioUnitMIDIInstrument? { synth?.midiInstrument }
+  @Shared(.avAudioUnit) public var synth
 
   public enum Action {
     case activePresetIdChanged(Preset.ID?)

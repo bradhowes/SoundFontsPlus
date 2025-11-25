@@ -99,7 +99,7 @@ public struct ToolBar {
   @Shared(.activeState) private var activeState
   @Shared(.showKeyNotes) private var showKeyNotes
   @Shared(.showSolfegeTags) private var showSolfegeTags
-  @Shared(.synthAudioUnit) private var synthAudioUnit
+  @Shared(.auAudioUnit) private var synth
 
   public init() {}
 
@@ -205,7 +205,7 @@ extension ToolBar {
 
   private func monitorActiveVoiceCount(_ state: inout State) -> Effect<Action> {
     guard
-      let parameterTree = synthAudioUnit?.auAudioUnit.parameterTree,
+      let parameterTree = synth?.parameterTree,
       let node = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.activeVoiceCount.rawValue)
     else {
       return .none
