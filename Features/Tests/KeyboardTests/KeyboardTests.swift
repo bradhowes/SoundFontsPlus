@@ -11,7 +11,7 @@ import TestSupport
 
 struct MockEventId: SpatialEventId, Hashable {
   let id: Int
-  static func ==(a: Self, b: Self) -> Bool { a.id == b.id }
+  static func == (a: Self, b: Self) -> Bool { a.id == b.id }
   func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
@@ -165,7 +165,7 @@ struct KeyboardTests {
 
     await store.send(.touchEnded(event))
 
-    #expect(mau.events.count == 0)
+    #expect(mau.events.isEmpty)
   }
 
   @Test

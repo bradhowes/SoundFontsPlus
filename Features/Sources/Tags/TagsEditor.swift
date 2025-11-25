@@ -291,7 +291,6 @@ extension TagsEditorView {
 
   static var preview: some View {
     prepareDependencies {
-      // swiftlint:disable:next force_try
       $0.defaultDatabase = previewDatabase()
       navigationBarTitleStyle()
     }
@@ -303,7 +302,6 @@ extension TagsEditorView {
   }
 
   static var previewInEditMode: some View {
-    // swiftlint:disable:next force_try
     prepareDependencies { $0.defaultDatabase = previewDatabase() }
     let tags = FontTag.tags
     return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.id, editMode: .active)) {
@@ -312,7 +310,6 @@ extension TagsEditorView {
   }
 
   static var previewWithMemberships: some View {
-    // swiftlint:disable:next force_try
     prepareDependencies { $0.defaultDatabase = previewDatabase() }
     _ = try? FontTag.make(displayName: "New Tag 1")
     _ = try? FontTag.make(displayName: "New Tag 2")

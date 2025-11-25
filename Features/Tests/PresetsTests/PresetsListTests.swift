@@ -15,6 +15,7 @@ import TestSupport
   //  .snapshots(record: .failed)
 )
 @MainActor
+// swiftlint:disable:next type_body_length
 struct PresetsListTests {
   static func makePresets(_ pairs: [(Int, String)]) -> [Preset] {
     pairs.map { index, name in
@@ -35,7 +36,7 @@ struct PresetsListTests {
   let presets: [Preset] = makePresets(
     [
       (0, "Font 1 Preset 1"),
-      (1, "Font 1 Preset 2"),
+      (1, "Font 1 Preset 2")
     ]
   )
 
@@ -69,7 +70,7 @@ struct PresetsListTests {
   @Test
   func initializeWithNoSoundFontId() async throws {
     let store = try setup(activeSoundFontId: nil, selectedSoundFontId: nil)
-    #expect(store.state.sections.count == 0)
+    #expect(store.state.sections.isEmpty)
 
     await store.send(.initialize)
     await store.receive(\.selectedSoundFontIdChanged) {
@@ -85,7 +86,7 @@ struct PresetsListTests {
   @Test
   func initializeWithSoundFontId() async throws {
     let store = try setup()
-    #expect(store.state.sections.count == 0)
+    #expect(store.state.sections.isEmpty)
 
     await store.send(.initialize)
     await store.receive(\.selectedSoundFontIdChanged) {
@@ -136,6 +137,7 @@ struct PresetsListTests {
   )
   func searchPresets() async throws {
     @Dependency(\.continuousClock) var clock
+    // swiftlint:disable:next force_cast
     let testClock = clock as! TestClock<Duration>
     let store = try setup()
 
@@ -188,6 +190,7 @@ struct PresetsListTests {
   )
   func selectFromSearch() async throws {
     @Dependency(\.continuousClock) var clock
+    // swiftlint:disable:next force_cast
     let testClock = clock as! TestClock<Duration>
     let store = try setup()
 
@@ -277,7 +280,7 @@ struct PresetsListTests {
             originalName: "Original Preset 2",
             soundFontId: 2,
             displayName: "Font 2 Preset 2"
-          ),
+          )
         ]
       )]
     }
@@ -328,6 +331,7 @@ struct PresetsListTests {
   }
 
   @Test
+  // swiftlint:disable:next function_body_length
   func deleteFavoriteCancel() async throws {
     let store = try setup()
 
@@ -423,6 +427,7 @@ struct PresetsListTests {
   }
 
   @Test
+  // swiftlint:disable:next function_body_length
   func deleteFavoriteConfirm() async throws {
     let store = try setup()
 
@@ -596,8 +601,7 @@ struct PresetsListTests {
         id: sectionId,
         action: .delegate(.hidePreset(preset))
        )
-    )
-    {
+    ) {
       $0.destination = .alert(
         AlertState.confirmHidePreset(
           action: .hidePresetConfirmed(preset),

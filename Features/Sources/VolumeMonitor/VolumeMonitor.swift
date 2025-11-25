@@ -10,7 +10,7 @@ import SwiftToasts
 @Reducer
 public struct VolumeMonitor {
 
-  public enum Reason : Sendable{
+  public enum Reason: Sendable {
     case volumeLevelIsZero
     case noActivePreset
   }

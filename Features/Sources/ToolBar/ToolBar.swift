@@ -473,7 +473,6 @@ public struct ToolBarView: View {
 extension ToolBarView {
   static var preview: some View {
     prepareDependencies {
-      // swiftlint:disable:next force_try
       $0.defaultDatabase = previewDatabase()
     }
     return VStack {

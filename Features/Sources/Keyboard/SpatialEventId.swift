@@ -10,7 +10,7 @@ import SwiftUI
  */
 public protocol SpatialEventId {
   func hash(into hasher: inout Hasher)
-  static func ==(a: Self, b: Self) -> Bool
+  static func == (a: Self, b: Self) -> Bool
 }
 
 extension SpatialEventGesture.Value.Element.ID: SpatialEventId {}

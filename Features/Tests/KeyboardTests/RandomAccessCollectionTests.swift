@@ -40,7 +40,7 @@ struct OrderedInsertionIndexTests {
       .init(x: 20, y: 0, width: 10, height: 10),
       .init(x: 30, y: 0, width: 10, height: 10),
       .init(x: 40, y: 0, width: 10, height: 10),
-      .init(x: 50, y: 0, width: 10, height: 10),
+      .init(x: 50, y: 0, width: 10, height: 10)
     ]
     #expect(uat.orderedInsertionIndex(for: .zero) == 0)
     #expect(uat.orderedInsertionIndex(for: .init(x: 19, y: 0)) == 1)
@@ -61,7 +61,7 @@ struct OrderedInsertionIndexTests {
       .init(x: 37, y: 0, width: 6, height: 10), // F#
       .init(x: 40, y: 0, width: 10, height: 10), // G
       .init(x: 47, y: 0, width: 6, height: 10), // G#
-      .init(x: 50, y: 0, width: 10, height: 10), // A
+      .init(x: 50, y: 0, width: 10, height: 10) // A
     ]
     #expect(uat.orderedInsertionIndex(for: .zero) == 0)
     #expect(uat.orderedInsertionIndex(for: .init(x: 5, y: 8)) == 0)

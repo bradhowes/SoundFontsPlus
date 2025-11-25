@@ -51,6 +51,7 @@ struct PresetTests {
 
     withDatabaseWriter { db in
       try Preset.delete()
+        // swiftlint:disable:next force_unwrapping
         .where { $0.id.eq(clone1!.id) }
         .execute(db)
     }

@@ -152,6 +152,7 @@ struct NoteTests {
   }
 
   @Test
+  // swiftlint:disable:next function_body_length
   func constants() throws {
     #expect(Note.`C-1`.midiNoteValue == 0)
     #expect(Note.`D-1`.midiNoteValue == 2)

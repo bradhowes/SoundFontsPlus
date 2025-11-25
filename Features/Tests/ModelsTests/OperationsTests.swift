@@ -82,7 +82,7 @@ struct OperationsTests {
     #expect(presets.count == 2)
 
     presets = Operations.presets(for: .rolandNicePiano)
-    #expect(presets.count == 0)
+    #expect(presets.isEmpty)
   }
 
   @Test(
@@ -98,11 +98,11 @@ struct OperationsTests {
     $selectedSoundFontId.withLock { $0 = 2 }
     #expect(Operations.presets(for: nil).count == expectedCount)
     $selectedSoundFontId.withLock { $0 = 3 }
-    #expect(Operations.presets(for: nil).count == 0)
+    #expect(Operations.presets(for: nil).isEmpty)
     $selectedSoundFontId.withLock { $0 = nil }
     #expect(Operations.presets(for: nil).count == expectedCount)
     $activeState.withLock { $0.activeSoundFontId = nil }
-    #expect(Operations.presets(for: nil).count == 0)
+    #expect(Operations.presets(for: nil).isEmpty)
   }
 
   @Test
@@ -113,10 +113,10 @@ struct OperationsTests {
     $selectedSoundFontId.withLock { $0 = 2 }
     #expect(Operations.allPresets(for: nil).count == 2)
     $selectedSoundFontId.withLock { $0 = 3 }
-    #expect(Operations.allPresets(for: nil).count == 0)
+    #expect(Operations.allPresets(for: nil).isEmpty)
     $selectedSoundFontId.withLock { $0 = nil }
     $activeState.withLock { $0.activeSoundFontId = nil }
-    #expect(Operations.allPresets(for: nil).count == 0)
+    #expect(Operations.allPresets(for: nil).isEmpty)
   }
 
   @Test
@@ -131,7 +131,7 @@ struct OperationsTests {
   func tagIdsForSoundFont() async throws {
     #expect(Operations.tagIds(for: 1).count == 2)
     #expect(Operations.tagIds(for: 2).count == 2)
-    #expect(Operations.tagIds(for: 3).count == 0)
+    #expect(Operations.tagIds(for: 3).isEmpty)
   }
 
   @Test

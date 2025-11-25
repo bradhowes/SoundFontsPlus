@@ -607,7 +607,7 @@ extension RootView {
       }
       .onScrollGeometryChange(for: CGFloat.self) { geometry in
         max(0.0, (geometry.visibleRect.width - geometry.contentSize.width) / 2)
-      } action: { oldValue, newValue in
+      } action: { _, newValue in
         effectsOffset = newValue
       }
       .scrollDisabled(effectsOffset > 0)
@@ -719,7 +719,6 @@ extension RootView {
 
   static var preview: some View {
     prepareDependencies {
-      // swiftlint:disable:next force_try
       $0.defaultDatabase = previewDatabase()
       $0.delayDevice = .init(setConfig: { print("delayDevice.set: ", $0) })
       $0.reverbDevice = .init(setConfig: { print("reverbDevice.set: ", $0) })

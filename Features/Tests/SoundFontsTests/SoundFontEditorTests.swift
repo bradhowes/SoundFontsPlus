@@ -20,6 +20,7 @@ struct SoundFontEditorTests {
   let soundFontId: SoundFont.ID = 1
 
   func store() -> TestStoreOf<SoundFontEditor> {
+    // swiftlint:disable:next force_unwrapping
     TestStore(initialState: SoundFontEditor.State(soundFont: .with(id: soundFontId)!)) {
       SoundFontEditor()
     }

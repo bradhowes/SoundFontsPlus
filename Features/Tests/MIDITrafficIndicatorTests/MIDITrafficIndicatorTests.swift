@@ -7,4 +7,3 @@ import Testing
 import TestSupport
 
 @testable import MIDITrafficIndicator
-

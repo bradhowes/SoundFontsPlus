@@ -47,4 +47,3 @@ struct BundleTests {
     #expect(bundle.changeLog == "")
   }
 }
-

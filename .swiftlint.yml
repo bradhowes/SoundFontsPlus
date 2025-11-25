@@ -1,5 +1,3 @@
-# Copyright © 2025 Brad Howes. All rights reserved.
-
 disabled_rules:
   - nesting
 #  - statement_position
@@ -14,11 +12,12 @@ opt_in_rules:
   - empty_count
   - force_unwrapping
 
-# included: # paths to include during linting. `--path` is ignored if present.
-#   - SoundFonts
-#   - SoundFontsFramework
-#   - SoundFontInfoLib
-#   - SF2Files
+included: # paths to include during linting. `--path` is ignored if present.
+  - Features/Sources
+  - Features/Plugins
+  - Features/Tests
+  - SoundFontsPlus
+  - SoundFontsPlusAU
 
 # excluded:
 #  - SoundFontsApp/AppTests
@@ -34,14 +33,12 @@ force_cast:
 force_try:
   severity: error
 
-# Xcode guidepost at 120 but do not warn until 140 and error at 240
 line_length:
   warning: 140
   error: 240
   ignores_comments: true
   ignores_urls: true
 
-# or they can set both explicitly
 file_length:
   warning: 1000
   error: 2000
@@ -61,6 +58,12 @@ type_name:
 identifier_name:
   min_length: 2 # only warning
   excluded: # excluded via string array
+    - a
+    - b
+    - c
+    - x
+    - y
+    - z
     - id
     - URL
     - GlobalAPIKey

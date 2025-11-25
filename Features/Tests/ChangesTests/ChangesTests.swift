@@ -36,6 +36,7 @@ struct ChangesFeatureTests {
   }
 
   @Test
+  // swiftlint:disable:next function_body_length
   func compile() throws {
     var changes: [Changes.Change] = Changes.compile("")
     #expect(changes.isEmpty)

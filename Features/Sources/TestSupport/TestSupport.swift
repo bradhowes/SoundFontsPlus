@@ -13,12 +13,13 @@ public enum TestSupport {
   static let log = Logger(category: "TestSupport")
 
   public static func testDatabase(seeder: ((Database) throws -> Void)? = addMockPresets) -> any DatabaseWriter {
+    // swiftlint:disable:next force_try
     try! appDatabase(fonts: [], loadAllPresets: false, seeder: seeder)
   }
 }
 
 extension TestSupport {
-
+  // swiftlint:disable:next function_body_length
   public static func addMockPresets(_ db: Database) throws {
     let font1 = try SoundFontKind.builtin(resource: SF2ResourceTag.fluidFont.url).data()
     let font2 = try SoundFontKind.builtin(resource: SF2ResourceTag.freeFont.url).data()
@@ -197,7 +198,7 @@ extension TestSupport {
     let colorScheme: ColorScheme
     let background: Color
 
-    public init(size: CGSize, colorScheme: ColorScheme, background: Color?,  @ViewBuilder _ content: () -> Content) {
+    public init(size: CGSize, colorScheme: ColorScheme, background: Color?, @ViewBuilder _ content: () -> Content) {
       self.size = size
       self.content = content()
       self.colorScheme = colorScheme

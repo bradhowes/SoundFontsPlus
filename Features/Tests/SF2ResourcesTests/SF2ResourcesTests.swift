@@ -47,6 +47,7 @@ struct SF2ResourcesTests {
 
   @Test
   func fluidFontFileInfo() throws {
+    // swiftlint:disable:next force_unwrapping
     let fileInfo = SF2ResourceTag.fluidFont.fileInfo!
     #expect(fileInfo.embeddedName() == "Fluid R3 GM")
     #expect(fileInfo.embeddedAuthor() == "Frank Wen")
@@ -57,6 +58,7 @@ struct SF2ResourcesTests {
 
   @Test
   func freeFontFileInfo() throws {
+    // swiftlint:disable:next force_unwrapping
     let fileInfo = SF2ResourceTag.freeFont.fileInfo!
     #expect(fileInfo.embeddedName() == "Free Font GM Ver. 3.2")
     #expect(fileInfo.embeddedAuthor() == "")
@@ -84,6 +86,7 @@ struct SF2ResourcesTests {
 
   @Test
   func rolandNicePianoFileInfo() throws {
+    // swiftlint:disable:next force_unwrapping
     let fileInfo = SF2ResourceTag.rolandNicePiano.fileInfo!
     #expect(fileInfo.embeddedName() == "User Bank")
     #expect(fileInfo.embeddedAuthor() == "Vienna Master")
@@ -99,6 +102,7 @@ struct SF2ResourcesTests {
 
   @Test
   func museScoreFileInfo() throws {
+    // swiftlint:disable:next force_unwrapping
     let fileInfo = SF2ResourceTag.museScore.fileInfo!
     #expect(fileInfo.embeddedName() == "GeneralUser GS MuseScore version 1.442")
     #expect(fileInfo.embeddedAuthor() == "S. Christian Collins")

@@ -146,7 +146,7 @@ public struct Keyboard {
 }
 
 extension Keyboard.State.EventId: Hashable {
-  public static func ==(a: Self, b: Self) -> Bool { a.equals(a.value, b.value) }
+  public static func == (a: Self, b: Self) -> Bool { a.equals(a.value, b.value) }
   public func hash(into hasher: inout Hasher) { value.hash(into: &hasher) }
 }
 
@@ -189,7 +189,7 @@ extension Keyboard {
 
   private func reduceNoteCount(_ state: inout State, note: Note) -> Bool {
     let count = state.noteCounters[note.midiNoteValue]
-    if count > 0 {
+    if count >= 1 {
       state.noteCounters[note.midiNoteValue] = count - 1
     }
     return count == 1
@@ -467,7 +467,6 @@ struct KeyboardPreview: View {
 
 #Preview {
   prepareDependencies {
-    // swiftlint:disable:next force_try
     $0.defaultDatabase = previewDatabase()
     @Shared(.firstVisibleKey) var firstVisibleKey
     $firstVisibleKey.withLock { $0 = .C4 }

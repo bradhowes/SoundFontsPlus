@@ -77,7 +77,7 @@ struct FileImporterTests {
       userInfo: [
         "NSFilePath": tmp.path,
         "NSURL": tmp,
-        "NSUnderlyingError": NSError(domain: "NSPOSIXErrorDomain", code: 20, userInfo: nil),
+        "NSUnderlyingError": NSError(domain: "NSPOSIXErrorDomain", code: 20, userInfo: nil)
       ]
     )
 
@@ -172,6 +172,6 @@ struct FileImporterTests {
   }
 }
 
-fileprivate enum TestError: Error {
+private enum TestError: Error {
   case failedToDoSomething(String)
 }

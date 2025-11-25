@@ -31,7 +31,7 @@ extension OutputVolumeStream {
     log.info("startStreaming")
     return .init { continuation in
       log.info("start closure")
-      let observerToken = self.observe(\.outputVolume, options: [.new]) { session, change  in
+      let observerToken = self.observe(\.outputVolume, options: [.new]) { _, change  in
         if let newValue = change.newValue {
           log.info("new volume value: \(newValue)")
           continuation.yield(newValue)
@@ -44,4 +44,3 @@ extension OutputVolumeStream {
     }
   }
 }
-

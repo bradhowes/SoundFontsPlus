@@ -17,7 +17,7 @@ if arguments.count < 3 {
 }
 
 let first = URL(fileURLWithPath: arguments[1], isDirectory: false)
-let output = URL(fileURLWithPath: arguments.last!, isDirectory: false)
+let output = URL(fileURLWithPath: arguments[arguments.count - 1], isDirectory: false)
 
 if FileManager.default.fileExists(atPath: output.path()) {
   print("BuldFluidFontCmd: skipping -- \(output.path()) already exists")
@@ -29,7 +29,11 @@ print("BuldFluidFontCmd: generating output - \(output)")
 // Copy first part so we can get a `FileHandle` and then use that to append the others.
 try FileManager.default.copyItem(at: first, to: output)
 
-let fileHandle = FileHandle(forWritingAtPath: output.path())!
+guard let fileHandle = FileHandle(forWritingAtPath: output.path()) else {
+  print("BuildFluidFontCmd: failed to open for writing \(output.path())")
+  exit(1)
+}
+
 defer { fileHandle.closeFile() }
 try fileHandle.seekToEnd()
 

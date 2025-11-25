@@ -44,8 +44,8 @@ struct FontTagTests {
 
     #expect(tags[0].soundFonts.count == 2)
     #expect(tags[1].soundFonts.count == 2)
-    #expect(tags[2].soundFonts.count == 0)
-    #expect(tags[3].soundFonts.count == 0)
+    #expect(tags[2].soundFonts.isEmpty)
+    #expect(tags[3].soundFonts.isEmpty)
   }
 
   @Test
@@ -122,6 +122,7 @@ struct FontTagTests {
 
     try tag.rename(new: "another name")
     try await $tags.load()
+    // swiftlint:disable:next force_unwrapping
     #expect(tags.last!.displayName == "another name")
   }
 

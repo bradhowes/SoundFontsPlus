@@ -242,7 +242,6 @@ public struct SoundFontsListView: View {
 extension SoundFontsListView {
   static var preview: some View {
     prepareDependencies {
-      // swiftlint:disable:next force_try
       $0.defaultDatabase = previewDatabase()
     }
 

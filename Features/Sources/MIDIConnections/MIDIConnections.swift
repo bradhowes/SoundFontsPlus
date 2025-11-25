@@ -77,7 +77,7 @@ public struct MIDIConnections {
         return .none
 
       case .deinitialize:
-        return .merge(CancelId.allCases.map{ .cancel(id: $0) })
+        return .merge(CancelId.allCases.map { .cancel(id: $0) })
 
       case .fixedVolumeDecrementTapped(let id):
         if let index = state.rows.index(id: id) {
@@ -244,7 +244,6 @@ extension MIDIConnectionsView {
     prepareDependencies {
       @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
       midi?.start()
-      // swiftlint:disable:next force_try
       $0.defaultDatabase = previewDatabase(fonts: [])
     }
     navigationBarTitleStyle()

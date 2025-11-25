@@ -83,7 +83,6 @@ Deleting a favorite cannot be undone.
   }
 }
 
-
 // MARK: - SoundFont alerts
 
 extension AlertState {

@@ -145,7 +145,7 @@ struct MIDIConnectionsTests {
     await store.send(.midiConnectionsChanged(sourceConnections)) {
       $0.rows = [
         .init(id: 4, displayName: "New 1", fixedVolume: 128, autoConnect: autoConnect),
-        .init(id: 5, displayName: "New 2", fixedVolume: 128, autoConnect: autoConnect),
+        .init(id: 5, displayName: "New 2", fixedVolume: 128, autoConnect: autoConnect)
       ]
     }
   }

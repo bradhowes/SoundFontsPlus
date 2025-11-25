@@ -95,6 +95,7 @@ struct DelayEffectTests {
   }
 
   @Test
+  // swiftlint:disable:next function_body_length
   func wetDryMix() async throws {
     let store = store()
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
@@ -190,7 +191,6 @@ struct DelayEffectTests {
       enabled: true,
       presetId: store.state.config.presetId
     )
-
 
     await store.receive(\.updateDebounced)
 
@@ -303,7 +303,7 @@ struct DelayEffectTests {
       try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 2), config: .landscape)
     }
   }
-  
+
   @Test
   func preview3() throws {
     let device = MockDelayDevice()
@@ -315,7 +315,7 @@ struct DelayEffectTests {
   }
 }
 
-fileprivate actor MockDelayDevice {
+private actor MockDelayDevice {
   private var config: DelayConfig.Draft = .init(presetId: -1)
   private var timesChanged: Int = 0
 
@@ -327,7 +327,7 @@ fileprivate actor MockDelayDevice {
   }
 }
 
-fileprivate func addDelayConfigs(_ db: Database) throws {
+private func addDelayConfigs(_ db: Database) throws {
   try TestSupport.addMockPresets(db)
   try DelayConfig.insert {
     DelayConfig.Draft(

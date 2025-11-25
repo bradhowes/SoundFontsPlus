@@ -271,6 +271,7 @@ public struct DelayEffectView: View {
 }
 
 extension DelayEffectView {
+  // swiftlint:disable:next function_body_length
   static func preview(presetId: Preset.ID) -> some View {
     @Shared(.activeState) var activeState
     $activeState.withLock {

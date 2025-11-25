@@ -4,6 +4,7 @@ import AVFAudio.AVAudioUnit
 import BaseSupport
 
 public final class MockAudioUnit: AVAudioUnitSampler, @unchecked Sendable {
+  // swiftlint:disable:next large_tuple
   public var events: [(MIDICoreEvent, UInt8, UInt8, UInt8)] = []
 
   public override func startNote(_ note: UInt8, withVelocity velocity: UInt8, onChannel channel: UInt8) {

@@ -5,7 +5,7 @@ import Dependencies
 import DependenciesMacros
 import Foundation
 
-public struct DebounceDurations : @unchecked Sendable {
+public struct DebounceDurations: @unchecked Sendable {
   public let effectsConfigurationSaves: DispatchQueue.SchedulerTimeType.Stride
   public let effectsDisplayUpdates: DispatchQueue.SchedulerTimeType.Stride
 

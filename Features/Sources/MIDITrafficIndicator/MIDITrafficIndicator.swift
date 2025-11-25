@@ -128,7 +128,7 @@ extension View {
   }
 }
 
-//public struct MIDITrafficFlasher<T: Publisher>: ViewModifier where T.Output == MIDITraffic, T.Failure == Never {
+// public struct MIDITrafficFlasher<T: Publisher>: ViewModifier where T.Output == MIDITraffic, T.Failure == Never {
 //  private let tag: String
 //  @State private var isAnimating = false
 //  @State private var color: Color = .clear
@@ -159,9 +159,9 @@ extension View {
 //        }
 //      }
 //  }
-//}
+// }
 //
-//extension View {
+// extension View {
 //  public func trafficFlasher<T: Publisher>(
 //    tag: String,
 //    subscribedTo publisher: T,
@@ -169,4 +169,4 @@ extension View {
 //  ) -> some View where T.Output == MIDITraffic, T.Failure == Never {
 //    modifier(MIDITrafficFlasher(tag: tag, subscribedTo: publisher, duration: duration))
 //  }
-//}
+// }

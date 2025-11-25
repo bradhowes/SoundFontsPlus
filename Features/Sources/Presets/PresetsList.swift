@@ -415,7 +415,6 @@ public struct PresetsListView: View {
 extension PresetsListView {
 
   static var preview: some View {
-    // swiftlint:disable:next force_try
     prepareDependencies { $0.defaultDatabase = previewDatabase() }
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     $selectedSoundFontId.withLock { $0 = 1 }
@@ -431,7 +430,6 @@ extension PresetsListView {
   }
 
   static var previewEditing: some View {
-    // swiftlint:disable:next force_try
     prepareDependencies { $0.defaultDatabase = previewDatabase() }
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     $selectedSoundFontId.withLock { $0 = 1 }

@@ -30,6 +30,7 @@ struct AudioConfigTests {
       .fetchAll(db)
     }
 
+    // swiftlint:disable:next force_unwrapping
     return (presets, audioConfigs![0])
   }
 

@@ -144,7 +144,6 @@ extension TagsListView {
 
   static var preview: some View {
     prepareDependencies {
-      // swiftlint:disable:next force_try
       $0.defaultDatabase = previewDatabase()
       // swiftlint:disable:next force_try
       let tag = try! FontTag.make(displayName: "Another Tag")

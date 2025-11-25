@@ -261,7 +261,6 @@ extension SoundFontButtonView {
   static var preview: some View {
     // swiftlint:disable:next force_try
     let soundFontInfos = try! prepareDependencies {
-      // swiftlint:disable:next force_try
       $0.defaultDatabase = previewDatabase()
       return try $0.defaultDatabase.read { db in
         try SoundFontInfo.query().fetchAll(db)

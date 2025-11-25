@@ -172,6 +172,6 @@ public func previewDatabase(
   loadAllPresets: Bool = false,
   seeder: ((Database) throws -> Void)? = nil
 ) -> any DatabaseWriter {
+  // swiftlint:disable:next force_try
   try! appDatabase(fonts: fonts, loadAllPresets: loadAllPresets, seeder: seeder)
 }
-

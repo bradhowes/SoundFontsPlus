@@ -188,4 +188,3 @@ extension FileImporter.Destination.Action: Equatable {}
 extension FileImporter.Destination.State: _EphemeralState {
   public typealias Action = Alert
 }
-

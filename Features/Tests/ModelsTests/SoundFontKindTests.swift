@@ -10,7 +10,7 @@ import Testing
 @Suite
 @MainActor
 struct SoundFontKindTests {
-  
+
   @Test
   func builtin() async throws {
     let sfk = SoundFontKind.builtin(resource: SF2ResourceTag.freeFont.url)

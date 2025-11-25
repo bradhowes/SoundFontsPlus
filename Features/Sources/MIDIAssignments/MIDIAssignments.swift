@@ -112,7 +112,6 @@ public struct MIDIAssignmentsView: View {
 extension MIDIAssignmentsView {
   static var preview: some View {
     prepareDependencies {
-      // swiftlint:disable:next force_try
       $0.defaultDatabase = previewDatabase()
     }
     navigationBarTitleStyle()

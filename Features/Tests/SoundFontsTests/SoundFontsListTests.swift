@@ -186,6 +186,7 @@ struct SoundFontsListTests {
     await store.receive(\.soundFontInfosChanged)
     store.exhaustivity = .on
 
+    // swiftlint:disable:next force_unwrapping
     let row = store.state.rows.first!
     await store.send(.rows(.element(id: row.id, action: .delegate(.editSoundFont(row.soundFontInfo)))))
 
@@ -195,6 +196,7 @@ struct SoundFontsListTests {
       return try SoundFont.all.find(soundFontId).fetchOne(db)
     })
 
+    // swiftlint:disable:next force_unwrapping
     await store.receive(\.delegate, .edit(soundFont!))
 
     await store.send(.deinitialize)

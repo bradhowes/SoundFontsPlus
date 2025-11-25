@@ -188,6 +188,7 @@
 				BD1D277C2B6F13DD005C3ED0 /* Frameworks */,
 				BD1D277D2B6F13DD005C3ED0 /* Resources */,
 				BD0BD8CF2E11E23000772FE5 /* Embed Foundation Extensions */,
+				BD22B1C32ED5A2C200E72F0E /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -240,6 +241,7 @@
 				BD5AE3802ED0C2910073F3F2 /* Sources */,
 				BD5AE3812ED0C2910073F3F2 /* Frameworks */,
 				BD5AE3822ED0C2910073F3F2 /* Resources */,
+				BD22B1C42ED5A2E500E72F0E /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -312,6 +314,45 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		BD22B1C32ED5A2C200E72F0E /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if command -v /opt/homebrew/bin/swiftlint >/dev/null 2>&1\nthen\n    /opt/homebrew/bin/swiftlint\nelse\n    echo \"warning: `swiftlint` command not found - See https://github.com/realm/SwiftLint#installation for installation instructions.\"\nfi\n";
+		};
+		BD22B1C42ED5A2E500E72F0E /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if command -v /opt/homebrew/bin/swiftlint >/dev/null 2>&1\nthen\n    /opt/homebrew/bin/swiftlint\nelse\n    echo \"warning: `swiftlint` command not found - See https://github.com/realm/SwiftLint#installation for installation instructions.\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		BD1D277B2B6F13DD005C3ED0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -379,7 +420,7 @@
 				DEVELOPMENT_TEAM = UP6SS5ES7E;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = c23;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -459,7 +500,7 @@
 				ENABLE_MODULE_VERIFIER = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = c23;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = fast;

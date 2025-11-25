@@ -37,4 +37,3 @@ struct AVAudioUnitReverbPresetTests {
     #expect(AVAudioUnitReverbPreset(rawValue: 12)?.name == "Hall 5")
   }
 }
-

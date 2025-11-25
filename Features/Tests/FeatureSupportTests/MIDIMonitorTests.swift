@@ -2,12 +2,13 @@
 
 import AVFAudio.AVAudioUnit
 import DependenciesTestSupport
-import FeatureSupport
 import SnapshotTesting
 import Testing
 import TestSupport
 
 @testable import FeatureSupport
+
+// swiftlint:disable force_unwrapping
 
 @Suite
 @MainActor
@@ -25,12 +26,12 @@ struct MIDIMonitorTests {
     @Shared(.midiChannel) var midiChannel = -1
 
     let monitor = MIDIMonitor()
-    monitor.noteOn(source: 123, note: 60, velocity: 64, channel:0)
-    monitor.noteOff(source: 123, note: 60, velocity: 64, channel:0)
+    monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
+    monitor.noteOff(source: 123, note: 60, velocity: 64, channel: 0)
 
     $midiChannel.withLock { $0 = 2}
-    monitor.noteOn(source: 123, note: 60, velocity: 64, channel:1)
-    monitor.noteOff(source: 123, note: 60, velocity: 64, channel:1)
+    monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 1)
+    monitor.noteOff(source: 123, note: 60, velocity: 64, channel: 1)
   }
 
   @Test
@@ -40,13 +41,13 @@ struct MIDIMonitorTests {
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
 
     let monitor = MIDIMonitor()
-    monitor.noteOn(source: 123, note: 60, velocity: 64, channel:0)
-    monitor.noteOff(source: 123, note: 60, velocity: 64, channel:0)
+    monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
+    monitor.noteOff(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(mau.events.count == 2)
 
     $midiChannel.withLock { $0 = 2}
-    monitor.noteOn(source: 123, note: 60, velocity: 64, channel:1)
-    monitor.noteOff(source: 123, note: 60, velocity: 64, channel:1)
+    monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 1)
+    monitor.noteOff(source: 123, note: 60, velocity: 64, channel: 1)
     #expect(mau.events.count == 2)
   }
 
@@ -56,13 +57,13 @@ struct MIDIMonitorTests {
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.synthAudioUnit) var synthAudioUnit = mau
     let monitor = MIDIMonitor()
-    monitor.noteOn(source: 123, note: 60, velocity: 64, channel:0)
+    monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(mau.events.last! == (.noteOn, 60, 64, 0))
-    monitor.noteOff(source: 123, note: 60, velocity: 64, channel:0)
+    monitor.noteOff(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(mau.events.last! == (.noteOff, 60, 0, 0))
-    monitor.noteOn(source: 123, note: 72, velocity: 32, channel:1)
+    monitor.noteOn(source: 123, note: 72, velocity: 32, channel: 1)
     #expect(mau.events.last! == (.noteOn, 72, 32, 1))
-    monitor.polyphonicKeyPressure(source: 123, note: 72, pressure: 69, channel:2)
+    monitor.polyphonicKeyPressure(source: 123, note: 72, pressure: 69, channel: 2)
     #expect(mau.events.last! == (.keyPressure, 72, 69, 2))
     monitor.controlChange(source: 123, controller: 31, value: 15, channel: 3)
     #expect(mau.events.last! == (.controlChange, 31, 15, 3))
@@ -138,3 +139,4 @@ struct MIDIMonitorTests {
     }
   }
 }
+// swiftlint:enable force_unwrapping

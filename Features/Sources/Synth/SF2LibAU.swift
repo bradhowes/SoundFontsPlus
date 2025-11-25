@@ -104,7 +104,13 @@ extension SF2LibAU {
    */
   public static func create(_ acd: AudioComponentDescription) async throws -> AVAudioUnit {
     AUAudioUnit.registerSubclass(SF2LibAU.self, as: acd, name: "SoundFontsPlusAU", version: 1)
-    log.info("create - instantiating audio unit for \(acd.componentType.stringValue), \(acd.componentSubType.stringValue), \(acd.componentManufacturer.stringValue)")
+    log.info(
+      """
+      create - instantiating audio unit for \
+      \(acd.componentType.stringValue), \
+      \(acd.componentSubType.stringValue), \
+      \(acd.componentManufacturer.stringValue)
+      """)
     return try await AVAudioUnit.instantiate(with: acd, options: [])
   }
 }

@@ -106,7 +106,7 @@ public struct SoundFontEditor {
       case .destination(.presented(.alert(.showHiddenPresetsConfirmed))):
         return unhidePresets(&state)
 
-      case .path(.popFrom(id: _)):
+      case .path(.popFrom):
         let tags = state.soundFont.tags
         state.tagsList = State.generateTagsList(from: tags)
         return .none
@@ -314,7 +314,6 @@ extension SoundFontEditorView {
   static var preview: some View {
     // swiftlint:disable:next force_try
     var soundFonts = try! prepareDependencies {
-      // swiftlint:disable:next force_try
       $0.defaultDatabase = previewDatabase()
       navigationBarTitleStyle()
       return try $0.defaultDatabase.read { try SoundFont.all.fetchAll($0) }
