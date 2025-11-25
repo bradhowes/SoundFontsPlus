@@ -19,6 +19,16 @@ import UniformTypeIdentifiers
 @Reducer
 public struct AUv3Root {
 
+  public static func prepareDependencies() {
+    Dependencies.prepareDependencies {
+      @Shared(.isAUv3) var isAUv3 = true
+      // swiftlint:disable:next force_try
+      $0.defaultDatabase = try! appDatabase()
+      $0.defaultFileStorage = .fileSystem
+      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.liveValue
+    }
+  }
+
   /**
    The various editors and presenters that appear in a modal way when created and presented.
    */
@@ -91,7 +101,7 @@ public struct AUv3Root {
 
   public init() {}
 
-  @Shared(.activeState) private var activeState
+  @Shared(.auv3ActiveState) private var activeState
   @Shared(.fontsAndPresetsSplitPosition) private var fontsAndPresetsSplitPosition
   @Shared(.fontsAndTagsSplitPosition) private var fontsAndTagsSplitPosition
   @Shared(.tagsListVisible) private var tagsListVisible

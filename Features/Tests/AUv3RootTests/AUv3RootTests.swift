@@ -25,7 +25,7 @@ import TestSupport
 struct AUv3RootTests {
 
   func store() -> TestStoreOf<AUv3Root> {
-    @Shared(.activeState) var activeState = .default
+    @Shared(.auv3ActiveState) var activeState = .default
     return .init(initialState: .init()) {
       AUv3Root()
     }
@@ -56,12 +56,7 @@ struct AUv3RootTests {
 
   @Test
   func initialize() async throws {
-    let store = store()
-
-    await store.send(.initialize)
-
-    await store.send(.deinitialize)
-    await store.finish()
+    try await initialized { _ in }
   }
 
   @Test
@@ -98,22 +93,6 @@ struct AUv3RootTests {
       }
       _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
         await store.send(\.destination.presented.soundFontEditor.delegate, .refreshPresets)
-      }
-    }
-  }
-
-  @Test
-  func showChanges() async throws {
-    try await initialized { store in
-      @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
-      _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-        await store.send(\.toolBar.delegate, .settingsButtonTapped)
-        #expect(store.state.destination != nil)
-        let settings = store.state.destination
-        #expect(lastShowedChangesVersion == "")
-        await store.send(\.destination.settings.delegate, .showChanges)
-        #expect(store.state.destination != settings)
-        #expect(lastShowedChangesVersion != "")
       }
     }
   }

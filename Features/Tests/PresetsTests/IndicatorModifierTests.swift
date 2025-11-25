@@ -45,7 +45,7 @@ struct IndicatorModifierTests {
       presets.append(clone)
     }
 
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     $activeState.activePresetId.withLock { $0 = presets.last?.id }
 
     let view = VStack {
@@ -94,7 +94,7 @@ struct IndicatorModifierTests {
       presets.append(clone)
     }
 
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     $activeState.activePresetId.withLock { $0 = presets.last?.id }
 
     let view = VStack {

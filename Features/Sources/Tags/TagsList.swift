@@ -35,8 +35,6 @@ public struct TagsList {
 
   public init() {}
 
-  @Shared(.activeState) private var activeState
-
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
@@ -63,13 +61,13 @@ public struct TagsList {
 extension TagsList {
 
   private func activateTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
-    $activeState.withLock { $0.activeTagId = tagId }
+    ActiveState.setTagId(tagId)
     return .none
   }
 
   private func deleteTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
-    if activeState.activeTagId == tagId {
-      $activeState.withLock { $0.activeTagId = FontTag.Ubiquitous.all.id }
+    if ActiveState.value.activeTagId == tagId {
+      ActiveState.setTagId(FontTag.Ubiquitous.all.id)
     }
     try? FontTag.delete(id: tagId)
     return .none
@@ -82,7 +80,6 @@ extension TagsList {
 
 public struct TagsListView: View {
   @Bindable private var store: StoreOf<TagsList>
-  @Shared(.activeState) private var activeState
 
   public init(store: StoreOf<TagsList>) {
     self.store = store
@@ -112,7 +109,7 @@ public struct TagsListView: View {
         Text("\(tagInfo.soundFontsCount)")
       }
       .font(.button)
-      .indicator(activeState.activeTagId == tagInfo.id ? .active : .none )
+      .indicator(ActiveState.value.activeTagId == tagInfo.id ? .active : .none )
     }
     .listRowSeparator(.hidden)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {

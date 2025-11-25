@@ -20,7 +20,7 @@ struct PresetTests {
 
   @MainActor
   func setup() async throws -> [Preset] {
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     $activeState.withLock {
       $0.activeSoundFontId = 1
       $0.activePresetId = 1

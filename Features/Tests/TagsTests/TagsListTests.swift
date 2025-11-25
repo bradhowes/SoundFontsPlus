@@ -22,7 +22,7 @@ struct TagsListTests {
 
   @Test
   func deleteButtonTapped() async throws {
-    @Shared(.activeState) var activeState = .default
+    @Shared(.appActiveState) var activeState = .default
     $activeState.withLock { $0.activeTagId = 5 }
 
     let store = try store()
@@ -51,7 +51,7 @@ struct TagsListTests {
 
   @Test
   func tagButtonTapped() async throws {
-    @Shared(.activeState) var activeState = .default
+    @Shared(.appActiveState) var activeState = .default
     #expect(activeState.activeTagId == 1)
 
     let store = try store()

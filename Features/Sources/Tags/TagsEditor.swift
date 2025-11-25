@@ -97,7 +97,6 @@ public struct TagsEditor {
   }
 
   @Dependency(\.defaultDatabase) private var database
-  @Shared(.activeState) private var activeState
 
   public var body: some ReducerOf<Self> {
     BindingReducer()

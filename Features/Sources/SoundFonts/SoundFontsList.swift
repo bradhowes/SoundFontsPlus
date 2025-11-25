@@ -4,8 +4,6 @@ import FeatureSupport
 import SQLiteData
 import Tags
 
-private let log = Logger(category: "SoundFontsList")
-
 @Reducer
 public struct SoundFontsList {
 
@@ -50,7 +48,6 @@ public struct SoundFontsList {
   public init() {}
 
   @Dependency(\.defaultDatabase) private var database
-  @Shared(.activeState) private var activeState
   @Shared(.selectedSoundFontId) private var selectedSoundFontId
 
   public var body: some ReducerOf<Self> {
@@ -152,11 +149,34 @@ extension SoundFontsList {
   }
 
   private func monitorActiveTag(_ state: inout State) -> Effect<Action> {
-    .publisher {
-      $activeState.activeTagId
+    @Shared(.isAUv3) var isAUv3
+    log.info("monitorActiveTag - isAUv3: \(isAUv3)")
+    return isAUv3 ? auv3MonitorActiveTag(&state): appMonitorActiveTag(&state)
+  }
+
+  private func appMonitorActiveTag(_ state: inout State) -> Effect<Action> {
+    @Shared(.appActiveState) var activeState
+    return .publisher {
+      return $activeState.activeTagId
         .publisher
         .removeDuplicates()
-        .map { _ in .activeTagIdChanged }
+        .map { tagId in
+          log.info("activeTagChanged - \(String(describing: tagId))")
+          return .activeTagIdChanged
+        }
+    }.cancellable(id: CancelId.monitorActiveTagId, cancelInFlight: true)
+  }
+
+  private func auv3MonitorActiveTag(_ state: inout State) -> Effect<Action> {
+    @Shared(.auv3ActiveState) var activeState
+    return .publisher {
+      return $activeState.activeTagId
+        .publisher
+        .removeDuplicates()
+        .map { tagId in
+          log.info("activeTagChanged - \(String(describing: tagId))")
+          return .activeTagIdChanged
+        }
     }.cancellable(id: CancelId.monitorActiveTagId, cancelInFlight: true)
   }
 
@@ -185,7 +205,7 @@ extension SoundFontsList {
   }
 
   private func showActiveSoundFont(_ state: inout State) -> Effect<Action> {
-    if let activeSoundFontId = activeState.activeSoundFontId {
+    if let activeSoundFontId = ActiveState.value.activeSoundFontId {
       return select(&state, soundFontId: activeSoundFontId)
     } else {
       return .none
@@ -255,6 +275,8 @@ extension SoundFontsListView {
     }
   }
 }
+
+private let log = Logger(category: "SoundFontsList")
 
 #Preview {
   SoundFontsListView.preview

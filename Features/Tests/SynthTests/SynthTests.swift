@@ -72,7 +72,7 @@ struct SynthTests {
   func activePresetIdChanged() async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
-      @Shared(.activeState) var activeState
+      @Shared(.appActiveState) var activeState
       $activeState.withLock { $0.activePresetId = 2 }
       try await $activeState.load()
 
@@ -92,7 +92,7 @@ struct SynthTests {
       @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
       $playSoundOnPresetChange.withLock { $0 = true }
 
-      @Shared(.activeState) var activeState
+      @Shared(.appActiveState) var activeState
       $activeState.withLock { $0.activePresetId = 2 }
       try await $activeState.load()
 

@@ -33,9 +33,9 @@ import TestSupport
 struct AppRootTests {
 
   func store() -> TestStoreOf<AppRoot> {
-    @Shared(.activeState) var activeState = .default
+    @Shared(.auv3ActiveState) var activeState = .default
     return .init(initialState: .init()) {
-      Root()
+      AppRoot()
     }
   }
 
@@ -79,11 +79,11 @@ struct AppRootTests {
     @Shared(.disableIdleTimer) var disableIdleTimer = false
     #expect(!UIKit.UIApplication.shared.isIdleTimerDisabled)
 
-    Root.disableIdleTimer()
+    AppRoot.disableIdleTimer()
     #expect(!UIKit.UIApplication.shared.isIdleTimerDisabled)
 
     $disableIdleTimer.withLock { $0 = true }
-    Root.disableIdleTimer()
+    AppRoot.disableIdleTimer()
     // NOTE: does not appear to work in test environment
     // #expect(UIKit.UIApplication.shared.isIdleTimerDisabled)
   }

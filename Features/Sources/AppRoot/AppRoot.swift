@@ -7,6 +7,7 @@ import AudioUnit.AUParameters
 import BRHSplitView
 import Changes
 import DelayEffect
+import Dependencies
 import FeatureSupport
 import Keyboard
 import Presets
@@ -26,6 +27,32 @@ import VolumeMonitor
  */
 @Reducer
 public struct AppRoot {
+
+  public static func prepareDependencies() {
+    Dependencies.prepareDependencies {
+      @Shared(.isAUv3) var isAUv3 = false
+
+      $0.audioGraph = .liveValue
+      $0.audioSession = .liveValue
+
+      // swiftlint:disable:next force_try
+      $0.defaultDatabase = try! appDatabase()
+      $0.defaultFileStorage = .fileSystem
+
+      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.liveValue
+
+      let delay = AVAudioUnitDelay()
+      $0.delayDevice = .init(setConfig: { delay.setConfig($0) })
+      @Shared(.delayEffect) var delayEffect = delay
+
+      let reverb = AVAudioUnitReverb()
+      $0.reverbDevice = .init( setConfig: { reverb.setConfig($0) })
+      @Shared(.reverbEffect) var reverbEffect = reverb
+
+      let engine = AVAudioEngine()
+      @Shared(.audioEngine) var audioEngine = engine
+    }
+  }
 
   /**
    The various editors and presenters that appear in a modal way when created and presented.
@@ -160,7 +187,7 @@ public struct AppRoot {
 
   public init() {}
 
-  @Shared(.activeState) private var activeState
+  @Shared(.appActiveState) private var activeState
   @Shared(.effectsPanelVisible) private var effectsPanelVisible
   @Shared(.firstVisibleKey) private var firstVisibleKey
   @Shared(.fontsAndPresetsSplitPosition) private var fontsAndPresetsSplitPosition

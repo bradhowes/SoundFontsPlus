@@ -19,7 +19,7 @@ struct VolumeMonitorTests {
     let store = TestStore(initialState: VolumeMonitor.State()) {
       VolumeMonitor()
     } withDependencies: {
-      @Shared(.activeState) var activeState = .default
+      @Shared(.appActiveState) var activeState = .default
       $0.outputVolume = mockVolume.makeOutputVolume()
     }
 
@@ -30,7 +30,7 @@ struct VolumeMonitorTests {
   func togglePresetId(
     assert updateStateToExpectedResult: ((_ state: inout VolumeMonitor.State) throws -> Void)? = nil,
   ) async {
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     let newValue = activeState.activePresetId == nil ? Preset.ID(rawValue: 1) : nil
     $activeState.activePresetId.withLock { $0 = newValue }
     await store.send(.activePresetIdChanged(newValue), assert: updateStateToExpectedResult)
@@ -75,7 +75,7 @@ struct VolumeMonitorTests {
   @Test
   func ignoreVolumeChangesWhenPresetIsNil() async throws {
     await store.send(.start)
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     await togglePresetId { $0.reason = .noActivePreset }
     await store.receive(\.delegate)
     mockVolume.advance()
@@ -127,7 +127,7 @@ struct VolumeMonitorTests {
   func noPresetPreview() async throws {
     prepareDependencies {
       $0.outputVolume = mockVolume.makeOutputVolume()
-      @Shared(.activeState) var activeState
+      @Shared(.appActiveState) var activeState
       $activeState.activePresetId.withLock { $0 = nil }
     }
     let store: StoreOf<VolumeMonitor> = .init(
@@ -149,7 +149,7 @@ struct VolumeMonitorDemoView: View {
   private let volumes: OutputVolumeFlipFlop
   @State private var volume: Float
   @State private var store: StoreOf<VolumeMonitor>
-  @Shared(.activeState) var activeState
+  @Shared(.appActiveState) var activeState
 
   init(volumes: OutputVolumeFlipFlop, store: StoreOf<VolumeMonitor>) {
     self.volumes = volumes

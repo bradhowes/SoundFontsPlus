@@ -96,7 +96,6 @@ public struct ToolBar {
     }
   }
 
-  @Shared(.activeState) private var activeState
   @Shared(.showKeyNotes) private var showKeyNotes
   @Shared(.showSolfegeTags) private var showSolfegeTags
   @Shared(.auAudioUnit) private var synth

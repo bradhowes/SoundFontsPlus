@@ -92,7 +92,7 @@ public struct ReverbEffect {
     }
   }
 
-  @Shared(.activeState) private var activeState
+  @Shared(.appActiveState) private var activeState
   @Shared(.parameterTree) private var parameterTree
   @Dependency(\.mainQueue) private var mainQueue
   @Dependency(\.reverbDevice) private var reverbDevice
@@ -264,7 +264,7 @@ public struct ReverbEffectView: View {
 
 extension ReverbEffectView {
   static var preview: some View {
-    @Shared(.activeState) var activeState = .default
+    @Shared(.appActiveState) var activeState = .default
 
     var theme = Theme()
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)

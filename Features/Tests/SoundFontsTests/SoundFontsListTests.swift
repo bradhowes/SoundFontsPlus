@@ -18,7 +18,7 @@ import TestSupport
 struct SoundFontsListTests {
 
   func store() -> TestStoreOf<SoundFontsList> {
-    @Shared(.activeState) var activeState = .default
+    @Shared(.appActiveState) var activeState = .default
     return TestStore(initialState: SoundFontsList.State()) {
       SoundFontsList()
     }
@@ -42,6 +42,7 @@ struct SoundFontsListTests {
 
   @Test
   func activeTagIdChanged() async throws {
+    @Shared(.isAUv3) var isAUv3 = false
     let store = store()
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
@@ -50,7 +51,7 @@ struct SoundFontsListTests {
     await store.receive(\.soundFontInfosChanged)
     store.exhaustivity = .on
 
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     $activeState.withLock { $0.activeTagId = nil }
 
     await store.receive(\.activeTagIdChanged)
@@ -79,7 +80,7 @@ struct SoundFontsListTests {
 
     await store.send(.showActiveSoundFont)
 
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     $activeState.withLock { $0.activeSoundFontId = nil }
 
     await store.send(.showActiveSoundFont)

@@ -16,7 +16,7 @@ import TestSupport
 )
 @MainActor
 struct ToolBarTests {
-  @Shared(.activeState) var activeState = .default
+  @Shared(.appActiveState) var activeState = .default
 
   fileprivate func store() async throws -> TestStoreOf<ToolBar> {
     TestStoreOf<ToolBar>(initialState: .init()) {
@@ -41,7 +41,7 @@ struct ToolBarTests {
     .dependencies { $0.defaultDatabase = TestSupport.testDatabase() }
   )
   func activePresetIdChanged() async throws {
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     let store = try await store()
     await store.send(.initialize)
 
@@ -357,7 +357,7 @@ struct ToolBarTests {
     .dependencies { $0.defaultDatabase = TestSupport.testDatabase() }
   )
   func preview() async throws {
-    @Shared(.activeState) var activeState = .default
+    @Shared(.appActiveState) var activeState = .default
     try TestSupport.assertSnapshot(matching: ToolBarView.preview)
   }
 }

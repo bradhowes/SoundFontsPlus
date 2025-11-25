@@ -74,7 +74,7 @@ public struct Synth {
   @Dependency(\.defaultDatabase) private var database
   @Dependency(\.synthAUv3ComponentDescription) private var synthAUv3ComponentDescription
 
-  @Shared(.activeState) private var activeState
+  @Shared(.appActiveState) private var activeState
   @Shared(.backgroundProcessing) private var backgroundProcessing
   @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
   @Shared(.avAudioUnit) private var synth

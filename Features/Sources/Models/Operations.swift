@@ -9,8 +9,7 @@ public enum Operations {
   /// - returns the SoundFont ID to use when querying for presets to show, either the active or the selected font.
   public static func currentPresetsSource() -> SoundFont.ID? {
     @Shared(.selectedSoundFontId) var selectedSoundFontId
-    @Shared(.activeState) var activeState
-    return selectedSoundFontId ?? activeState.activeSoundFontId
+    return selectedSoundFontId ?? ActiveState.value.activeSoundFontId
   }
 
   /**
@@ -102,8 +101,7 @@ public enum Operations {
   }
 
   public static func presetAudioConfig(id: Preset.ID? = nil) -> AudioConfig? {
-    @Shared(.activeState) var activeState
-    return AudioConfig.with(presetId: id ?? activeState.activePresetId)
+    return AudioConfig.with(presetId: id ?? ActiveState.value.activePresetId)
   }
 
   public static func soundFontIds(for tagId: FontTag.ID) -> [SoundFont.ID] {

@@ -89,7 +89,7 @@ struct OperationsTests {
     arguments: [false, true]
   )
   func presets(_ showOnlyFavorites: Bool) async throws {
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     @Shared(.showOnlyFavorites) var showOnlyFavorites = showOnlyFavorites
 
@@ -107,7 +107,7 @@ struct OperationsTests {
 
   @Test
   func allPresets() async throws {
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     #expect(Operations.allPresets(for: nil).count == 2)
     $selectedSoundFontId.withLock { $0 = 2 }
@@ -177,7 +177,7 @@ struct OperationsTests {
   @Test
   func activePresetLoadingInfo() async throws {
     let presets = Operations.presets(for: nil)
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     $activeState.withLock { $0.activePresetId = presets[presets.count - 1].id }
     var apli = Operations.presetLoadingInfo()
     #expect(apli?.soundFontId == presets[presets.count - 1].soundFontId)
@@ -192,7 +192,7 @@ struct OperationsTests {
   func activePresetAudioConfig() async throws {
     let presets = Operations.presets(for: nil)
     @Dependency(\.defaultDatabase) var database
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     $activeState.withLock { $0.activePresetId = presets[presets.count - 1].id }
     let apac = Operations.presetAudioConfig()
     #expect(apac == nil)

@@ -16,8 +16,14 @@ extension SharedKey where Self == AppStorageKey<Double>.Default {
 }
 
 extension SharedKey where Self == FileStorageKey<ActiveState>.Default {
-  public static var activeState: Self {
+  public static var appActiveState: Self {
     Self[.fileStorage(.activeStateURL), default: .default]
+  }
+}
+
+extension SharedKey where Self == InMemoryKey<ActiveState>.Default {
+  public static var auv3ActiveState: Self {
+    Self[.inMemory("auv3ActiveState"), default: .default]
   }
 }
 

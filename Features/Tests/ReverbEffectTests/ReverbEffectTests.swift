@@ -22,7 +22,7 @@ import TestSupport
 @MainActor
 struct ReverbEffectTests {
   fileprivate let device = MockReverbDevice()
-  @Shared(.activeState) var activeState = .default
+  @Shared(.appActiveState) var activeState = .default
 
   fileprivate func store() -> TestStoreOf<ReverbEffect> {
     TestStoreOf<ReverbEffect>(initialState: .init()) {
@@ -259,7 +259,7 @@ struct ReverbEffectTests {
     #expect(store.state.config.id == nil)
     #expect(store.state.locked.isOn == true)
 
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     $activeState.withLock { $0.activePresetId = 2 }
 
     await store.receive(\.activePresetIdChanged, 2)
@@ -285,7 +285,7 @@ struct ReverbEffectTests {
 
     await store.receive(\.wetDryMix)
 
-    @Shared(.activeState) var activeState
+    @Shared(.appActiveState) var activeState
     $activeState.withLock { $0.activePresetId = 2 }
 
     await store.receive(\.activePresetIdChanged, 2) {
