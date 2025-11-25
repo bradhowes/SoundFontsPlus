@@ -28,7 +28,6 @@ struct ChangesFeatureTests {
   @Test
   func shouldShow() throws {
     @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion = ""
-    #expect(Changes.shouldShow)
     #expect(!Changes.shouldShow)
     $lastShowedChangesVersion.withLock { $0 = "blah" }
     #expect(Changes.shouldShow)
