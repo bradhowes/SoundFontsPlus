@@ -27,11 +27,11 @@ struct AUv3RootTests {
   func store() -> TestStoreOf<AUv3Root> {
     @Shared(.activeState) var activeState = .default
     return .init(initialState: .init()) {
-      Root()
+      AUv3Root()
     }
   }
 
-  func initialized(_ test: (TestStoreOf<AppRoot>) async throws -> Void) async throws {
+  func initialized(_ test: (TestStoreOf<AUv3Root>) async throws -> Void) async throws {
     let store = store()
 
     await store.send(.initialize)
@@ -47,18 +47,6 @@ struct AUv3RootTests {
         displayName: "Font 1 Preset 1"
       )
     }
-
-    await store.receive(\.synth.synthAudioUnitCreated) {
-      $0.synth.audioSessionActivated = true
-    }
-
-    await store.receive(\.synth.activePresetIdChanged) {
-      $0.synth.loadedSoundFontId = 1
-      $0.synth.loadedPresetIndex = 0
-    }
-
-    await store.receive(\.synth.delegate, .running)
-    await store.receive(\.toolBar.activeVoiceCountChanged)
 
     try await test(store)
 
@@ -67,48 +55,10 @@ struct AUv3RootTests {
   }
 
   @Test
-  func disableIdleTimer() throws {
-    @Shared(.disableIdleTimer) var disableIdleTimer = false
-    #expect(!UIKit.UIApplication.shared.isIdleTimerDisabled)
-
-    Root.disableIdleTimer()
-    #expect(!UIKit.UIApplication.shared.isIdleTimerDisabled)
-
-    $disableIdleTimer.withLock { $0 = true }
-    Root.disableIdleTimer()
-    // NOTE: does not appear to work in test environment
-    // #expect(UIKit.UIApplication.shared.isIdleTimerDisabled)
-  }
-
-  @Test
   func initialize() async throws {
     let store = store()
 
     await store.send(.initialize)
-
-    await store.receive(\.activePresetIdChanged) {
-      $0.toolBar.preset = Preset(
-        id: 1,
-        index: 0,
-        bank: 0,
-        program: 0,
-        originalName: "Original Preset 1",
-        soundFontId: 1,
-        displayName: "Font 1 Preset 1"
-      )
-    }
-
-    await store.receive(\.synth.synthAudioUnitCreated) {
-      $0.synth.audioSessionActivated = true
-    }
-
-    await store.receive(\.synth.activePresetIdChanged) {
-      $0.synth.loadedSoundFontId = 1
-      $0.synth.loadedPresetIndex = 0
-    }
-
-    await store.receive(\.synth.delegate, .running)
-    await store.receive(\.toolBar.activeVoiceCountChanged)
 
     await store.send(.deinitialize)
     await store.finish()
@@ -198,23 +148,7 @@ struct AUv3RootTests {
   }
 
   @Test
-  func showTutorial() async throws {
-    try await initialized { store in
-      _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-        @Shared(.showedTutorial) var showedTutorial
-        await store.send(\.toolBar.delegate, .settingsButtonTapped)
-        #expect(store.state.destination != nil)
-        let settings = store.state.destination
-        #expect(showedTutorial == false)
-        await store.send(\.destination.settings.delegate, .showTutorial)
-        #expect(store.state.destination != settings)
-        #expect(showedTutorial == true)
-      }
-    }
-  }
-
-  @Test
-  func appRootViewPreview() async throws {
-    try TestSupport.assertSnapshot(matching: AppRootView.preview)
+  func auv3RootViewPreview() async throws {
+    try TestSupport.assertSnapshot(matching: AUv3RootView.preview)
   }
 }

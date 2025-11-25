@@ -332,6 +332,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if command -v /opt/homebrew/bin/swiftlint >/dev/null 2>&1\nthen\n    /opt/homebrew/bin/swiftlint\nelse\n    echo \"warning: `swiftlint` command not found - See https://github.com/realm/SwiftLint#installation for installation instructions.\"\nfi\n";
+			showEnvVarsInLog = 0;
 		};
 		BD22B1C42ED5A2E500E72F0E /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -350,6 +351,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if command -v /opt/homebrew/bin/swiftlint >/dev/null 2>&1\nthen\n    /opt/homebrew/bin/swiftlint\nelse\n    echo \"warning: `swiftlint` command not found - See https://github.com/realm/SwiftLint#installation for installation instructions.\"\nfi\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 

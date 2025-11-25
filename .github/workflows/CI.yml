@@ -22,7 +22,6 @@ jobs:
       run: env
     - name: Build, test, and code coverage
       run: make
-      timeout-minutes: 120
     - name: Archive test snapshot artifacts
       uses: actions/upload-artifact@v4
       with:

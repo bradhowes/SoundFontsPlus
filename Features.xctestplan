@@ -22,6 +22,20 @@
     {
       "target" : {
         "containerPath" : "container:Features",
+        "identifier" : "AppRootTests",
+        "name" : "AppRootTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "AUv3RootTests",
+        "name" : "AUv3RootTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
         "identifier" : "BaseSupportTests",
         "name" : "BaseSupportTests"
       }
@@ -101,13 +115,6 @@
         "containerPath" : "container:Features",
         "identifier" : "ReverbEffectTests",
         "name" : "ReverbEffectTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "RootTests",
-        "name" : "RootTests"
       }
     },
     {
