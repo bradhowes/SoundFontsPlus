@@ -6,10 +6,32 @@ import Testing
 @testable import BaseSupport
 
 @Suite
-struct ProcessInfoTests {
+struct StringTests {
 
   @Test
-  func isOnGithub() {
-    #expect(ProcessInfo.processInfo.isOnGithub == ProcessInfo.processInfo.isOnGithub)
+  func trimmed() {
+    #expect("  Hello, World!  ".trimmed(or: "N/A") == "Hello, World!")
+    #expect("    ".trimmed(or: "N/A") == "N/A")
+    #expect("".trimmed(or: "N/A") == "N/A")
+  }
+
+  @Test
+  func withoutExtension() {
+    #expect("testing.foo.bar".withoutExtension == "testing.foo")
+    #expect("testing".withoutExtension == "testing")
+    #expect("".withoutExtension == "")
+  }
+
+  @Test
+  func isAlphanumeric() {
+    #expect("".isAlphanumeric() == false)
+    #expect("a".isAlphanumeric())
+    #expect("à".isAlphanumeric())
+    #expect("a".isAlphanumeric(ignoreDiacritics: true))
+    #expect("à".isAlphanumeric(ignoreDiacritics: true) == false)
+    #expect("1".isAlphanumeric())
+    #expect("a1".isAlphanumeric())
+    #expect("a b".isAlphanumeric() == false)
+    #expect("a*".isAlphanumeric() == false)
   }
 }

@@ -23,3 +23,18 @@ extension String {
   /// - returns `Substring` that does not have the last extension.
   public var withoutExtension: Substring { self[self.startIndex..<(self.lastIndex(of: ".") ?? self.endIndex)] }
 }
+
+extension String {
+
+  static let asciiAlphanumerics: CharacterSet = {
+    var set = CharacterSet()
+    set.insert(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+    return set
+  }()
+
+  func isAlphanumeric(ignoreDiacritics: Bool = false) -> Bool {
+    !isEmpty && rangeOfCharacter(
+      from: (ignoreDiacritics ? Self.asciiAlphanumerics : CharacterSet.alphanumerics).inverted
+    ) == nil
+  }
+}
