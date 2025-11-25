@@ -150,7 +150,6 @@ struct RootTests {
   @Test
   func refreshPresets() async throws {
     try await initialized { store in
-      // swiftlint:disable:next force_unwrapping
       let soundFont = SoundFont.with(id: 1)!
       await store.send(\.soundFontsList.delegate, .edit(soundFont)) {
         $0.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
@@ -189,7 +188,6 @@ struct RootTests {
   @Test
   func showSoundFontEditor() async throws {
     try await initialized { store in
-      // swiftlint:disable:next force_unwrapping
       let soundFont = SoundFont.with(id: 1)!
       await store.send(\.soundFontsList.delegate, .edit(soundFont)) {
         $0.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))

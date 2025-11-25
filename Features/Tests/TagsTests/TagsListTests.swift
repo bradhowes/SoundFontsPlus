@@ -30,7 +30,6 @@ struct TagsListTests {
     #expect(tagInfos.count == 5)
     #expect(tagInfos.last?.displayName == "My New Tag")
 
-    // swiftlint:disable:next force_unwrapping
     await store.send(.deleteButtonTapped(tagInfos.last!))
 
     let found = withDatabaseReader { db in
@@ -46,9 +45,7 @@ struct TagsListTests {
     let store = try store()
     await store.send(.editButtonTapped(store.state.tagInfos[0]))
     await store.receive(\.delegate, .edit(store.state.tagInfos[0].id))
-    // swiftlint:disable:next force_unwrapping
     await store.send(.editButtonTapped(store.state.tagInfos.last!))
-    // swiftlint:disable:next force_unwrapping
     await store.receive(\.delegate, .edit(store.state.tagInfos.last!.id))
   }
 
@@ -58,9 +55,7 @@ struct TagsListTests {
     #expect(activeState.activeTagId == 1)
 
     let store = try store()
-    // swiftlint:disable:next force_unwrapping
     await store.send(.tagButtonTapped(store.state.tagInfos.last!))
-    // swiftlint:disable:next force_unwrapping
     #expect(activeState.activeTagId == store.state.tagInfos.last!.id)
   }
 

@@ -23,7 +23,6 @@ struct SoundFontTests {
       $0.defaultDatabase = try appDatabase()
     }
   )
-  // swiftlint:disable:next function_body_length
   func migration() async throws {
     @FetchAll(FontTag.all.order(by: \.id)) var tags
     try await $tags.load()
@@ -152,9 +151,7 @@ struct SoundFontTests {
 
   @Test
   func deletingSoundFontUpdatesTags() async throws {
-    // swiftlint:disable:next force_unwrapping
     let allTag = FontTag.with(id: FontTag.Ubiquitous.all.id)!
-    // swiftlint:disable:next force_unwrapping
     let builtInTag = FontTag.with(id: FontTag.Ubiquitous.builtIn.id)!
 
     #expect(allTag.soundFonts.count == 2)

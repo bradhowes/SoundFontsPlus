@@ -1,0 +1,7 @@
+# Allow the following in tests
+disabled_rules:
+  - force_unwrapping
+  - force_try
+  - force_cast
+  - function_body_length
+  - type_body_length

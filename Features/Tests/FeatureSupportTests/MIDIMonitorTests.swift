@@ -8,8 +8,6 @@ import TestSupport
 
 @testable import FeatureSupport
 
-// swiftlint:disable force_unwrapping
-
 @Suite
 @MainActor
 struct MIDIMonitorTests {
@@ -139,4 +137,3 @@ struct MIDIMonitorTests {
     }
   }
 }
-// swiftlint:enable force_unwrapping

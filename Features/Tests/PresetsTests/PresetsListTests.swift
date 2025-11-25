@@ -15,7 +15,6 @@ import TestSupport
   //  .snapshots(record: .failed)
 )
 @MainActor
-// swiftlint:disable:next type_body_length
 struct PresetsListTests {
   static func makePresets(_ pairs: [(Int, String)]) -> [Preset] {
     pairs.map { index, name in
@@ -137,7 +136,6 @@ struct PresetsListTests {
   )
   func searchPresets() async throws {
     @Dependency(\.continuousClock) var clock
-    // swiftlint:disable:next force_cast
     let testClock = clock as! TestClock<Duration>
     let store = try setup()
 
@@ -190,7 +188,6 @@ struct PresetsListTests {
   )
   func selectFromSearch() async throws {
     @Dependency(\.continuousClock) var clock
-    // swiftlint:disable:next force_cast
     let testClock = clock as! TestClock<Duration>
     let store = try setup()
 
@@ -331,7 +328,6 @@ struct PresetsListTests {
   }
 
   @Test
-  // swiftlint:disable:next function_body_length
   func deleteFavoriteCancel() async throws {
     let store = try setup()
 
@@ -427,7 +423,6 @@ struct PresetsListTests {
   }
 
   @Test
-  // swiftlint:disable:next function_body_length
   func deleteFavoriteConfirm() async throws {
     let store = try setup()
 

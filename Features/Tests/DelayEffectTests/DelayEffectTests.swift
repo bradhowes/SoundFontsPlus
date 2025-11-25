@@ -95,7 +95,6 @@ struct DelayEffectTests {
   }
 
   @Test
-  // swiftlint:disable:next function_body_length
   func wetDryMix() async throws {
     let store = store()
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {

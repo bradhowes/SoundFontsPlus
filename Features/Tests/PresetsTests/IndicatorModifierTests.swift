@@ -18,7 +18,6 @@ struct IndicatorModifierTests {
   @Test
   func renderingNormalSelected() async throws {
     var presets = Operations.presets(for: nil)
-    // swiftlint:disable:next force_unwrapping
     if let clone = presets.last!.clone() {
       presets.append(clone)
     }
@@ -27,7 +26,6 @@ struct IndicatorModifierTests {
       List {
         PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0])) { PresetButton() })
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1])) { PresetButton() })
-        // swiftlint:disable:next force_unwrapping
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!)) { PresetButton() })
         Text("ActiveNoIndicator")
           .indicator(.activeNoIndicator)
@@ -43,7 +41,6 @@ struct IndicatorModifierTests {
   @Test
   func renderingFavoriteSelected() async throws {
     var presets = Operations.presets(for: nil)
-    // swiftlint:disable:next force_unwrapping
     if let clone = presets.last!.clone() {
       presets.append(clone)
     }
@@ -55,7 +52,6 @@ struct IndicatorModifierTests {
       List {
         PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0])) { PresetButton() })
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1])) { PresetButton() })
-        // swiftlint:disable:next force_unwrapping
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!)) { PresetButton() })
         Text("Selected")
           .indicator(.selected)
@@ -71,7 +67,6 @@ struct IndicatorModifierTests {
   @Test
   func renderingNormalSelectedEditing() async throws {
     var presets = Operations.presets(for: nil)
-    // swiftlint:disable:next force_unwrapping
     if let clone = presets.last!.clone() {
       presets.append(clone)
     }
@@ -80,7 +75,6 @@ struct IndicatorModifierTests {
       List {
         PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0])) { PresetButton() })
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1])) { PresetButton() })
-        // swiftlint:disable:next force_unwrapping
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!)) { PresetButton() })
         Text("ActiveNoIndicator")
           .indicator(.activeNoIndicator)
@@ -96,7 +90,6 @@ struct IndicatorModifierTests {
   @Test
   func renderingFavoriteSelectedEditing() async throws {
     var presets = Operations.presets(for: nil)
-    // swiftlint:disable:next force_unwrapping
     if let clone = presets.last!.clone() {
       presets.append(clone)
     }
@@ -108,7 +101,6 @@ struct IndicatorModifierTests {
       List {
         PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0])) { PresetButton() })
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1])) { PresetButton() })
-        // swiftlint:disable:next force_unwrapping
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!)) { PresetButton() })
         Text("Selected")
           .indicator(.selected)

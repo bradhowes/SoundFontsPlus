@@ -15,7 +15,6 @@ import TestSupport
   .snapshots(record: .failed)
 )
 @MainActor
-// swiftlint:disable:next type_body_length
 struct ToolBarTests {
   @Shared(.activeState) var activeState = .default
 

@@ -71,13 +71,11 @@ struct PresetEditorTests {
       $0.pendingAudioConfig.customTuningEnabled = true
     }
 
-    // swiftlint:disable:next force_unwrapping
     let changed = Preset.with(id: preset.id)!
     #expect(changed.displayName == "New Name")
     #expect(changed.notes == "Important notes")
     #expect(changed.kind == .hidden)
 
-    // swiftlint:disable:next force_unwrapping
     let audioConfig = changed.audioConfig!
     #expect(audioConfig.gain == 0.5)
     #expect(audioConfig.customTuning == 432.0)
@@ -102,7 +100,6 @@ struct PresetEditorTests {
 
     await store.send(\.cancelButtonTapped)
 
-    // swiftlint:disable:next force_unwrapping
     let changed = Preset.with(id: preset.id)!
     #expect(changed == store.state.preset)
   }

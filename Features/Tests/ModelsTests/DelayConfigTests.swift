@@ -24,7 +24,6 @@ struct DelayConfigTests {
     delayConfigDraft.time = 1.5
     delayConfigDraft.enabled = true
     let delayConfig = DelayConfig.save(config: delayConfigDraft)
-    // swiftlint:disable:next force_unwrapping
     return (presets, delayConfig!)
   }
 
@@ -75,7 +74,6 @@ struct DelayConfigTests {
     draft.wetDryMix = 100.0
     let savedConfig = DelayConfig.save(config: draft)
     #expect(savedConfig != nil)
-    // swiftlint:disable:next force_unwrapping
     #expect(savedConfig!.wetDryMix == 100.0)
   }
 

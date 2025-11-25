@@ -1,6 +1,5 @@
 disabled_rules:
   - nesting
-#  - statement_position
   - todo
 #  - nesting
 #  - opening_brace

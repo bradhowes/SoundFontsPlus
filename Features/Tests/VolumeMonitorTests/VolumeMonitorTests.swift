@@ -105,8 +105,7 @@ struct VolumeMonitorTests {
 
   @Test
   func noVolumePreview() async throws {
-    // swiftlint:disable:next redundant_discardable_let
-    let _ = prepareDependencies {
+    prepareDependencies {
       $0.outputVolume = mockVolume.makeOutputVolume()
       mockVolume.advance()
     }
@@ -126,8 +125,7 @@ struct VolumeMonitorTests {
 
   @Test
   func noPresetPreview() async throws {
-    // swiftlint:disable:next redundant_discardable_let
-    let _ = prepareDependencies {
+    prepareDependencies {
       $0.outputVolume = mockVolume.makeOutputVolume()
       @Shared(.activeState) var activeState
       $activeState.activePresetId.withLock { $0 = nil }

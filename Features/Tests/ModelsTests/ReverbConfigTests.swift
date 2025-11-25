@@ -25,7 +25,6 @@ struct ReverbConfigTests {
     reverbConfigDraft.roomPreset = .plate
     reverbConfigDraft.enabled = true
     let reverbConfig = ReverbConfig.save(config: reverbConfigDraft)
-    // swiftlint:disable:next force_unwrapping
     return (presets, reverbConfig!)
   }
 
@@ -70,7 +69,6 @@ struct ReverbConfigTests {
     draft.wetDryMix = 100.0
     let savedConfig = ReverbConfig.save(config: draft)
     #expect(savedConfig != nil)
-    // swiftlint:disable:next force_unwrapping
     #expect(savedConfig!.wetDryMix == 100.0)
   }
 

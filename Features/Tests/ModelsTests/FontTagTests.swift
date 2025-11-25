@@ -122,7 +122,6 @@ struct FontTagTests {
 
     try tag.rename(new: "another name")
     try await $tags.load()
-    // swiftlint:disable:next force_unwrapping
     #expect(tags.last!.displayName == "another name")
   }
 

@@ -36,7 +36,6 @@ struct FileManagerTests {
   @Test
   func fileSizeOfUrl() async throws {
     #expect(FileManager.default.fileSizeOf(url: Bundle.main.bundleURL) != 0)
-    // swiftlint:disable:next force_unwrapping
     #expect(FileManager.default.fileSizeOf(url: URL(filePath: "blahblahblah")!) == 0)
   }
 
