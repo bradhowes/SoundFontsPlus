@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		BD22B1C82ED5D73900E72F0E /* AppRoot in Frameworks */ = {isa = PBXBuildFile; productRef = BD22B1C72ED5D73900E72F0E /* AppRoot */; };
+		BD22B1E62ED66F1400E72F0E /* FeatureSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BD22B1E52ED66F1400E72F0E /* FeatureSupport */; };
+		BD22B1E82ED66F1800E72F0E /* AUv3Root in Frameworks */ = {isa = PBXBuildFile; productRef = BD22B1E72ED66F1800E72F0E /* AUv3Root */; };
 		BD275B262E93EF2A004F0C7A /* Tuning in Frameworks */ = {isa = PBXBuildFile; productRef = BD275B252E93EF2A004F0C7A /* Tuning */; };
 		BD275B282E93F1CE004F0C7A /* FileImporter in Frameworks */ = {isa = PBXBuildFile; productRef = BD275B272E93F1CE004F0C7A /* FileImporter */; };
 		BD4C249D2E77618800F8B3A9 /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249C2E77618800F8B3A9 /* Engine */; };
@@ -139,6 +141,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				BD5AE3FD2ED0C9070073F3F2 /* Synth in Frameworks */,
+				BD22B1E82ED66F1800E72F0E /* AUv3Root in Frameworks */,
+				BD22B1E62ED66F1400E72F0E /* FeatureSupport in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -253,6 +257,8 @@
 			name = SoundFontsPlusAU;
 			packageProductDependencies = (
 				BD5AE3FC2ED0C9070073F3F2 /* Synth */,
+				BD22B1E52ED66F1400E72F0E /* FeatureSupport */,
+				BD22B1E72ED66F1800E72F0E /* AUv3Root */,
 			);
 			productName = SoundFontsPlusAU;
 			productReference = BD5AE3842ED0C2910073F3F2 /* SoundFontsPlusAU.appex */;
@@ -775,6 +781,14 @@
 		BD22B1C72ED5D73900E72F0E /* AppRoot */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppRoot;
+		};
+		BD22B1E52ED66F1400E72F0E /* FeatureSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FeatureSupport;
+		};
+		BD22B1E72ED66F1800E72F0E /* AUv3Root */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AUv3Root;
 		};
 		BD275B252E93EF2A004F0C7A /* Tuning */ = {
 			isa = XCSwiftPackageProductDependency;

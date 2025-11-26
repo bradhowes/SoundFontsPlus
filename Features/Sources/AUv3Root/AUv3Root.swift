@@ -9,6 +9,7 @@ import Presets
 import SQLiteData
 import Settings
 import SoundFonts
+import SwiftUI
 import Tags
 import ToolBar
 import UniformTypeIdentifiers
