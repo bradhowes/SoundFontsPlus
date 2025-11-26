@@ -254,6 +254,7 @@ extension Settings.Destination.State: _EphemeralState {
 public struct SettingsView: View {
   @Bindable private var store: StoreOf<Settings>
   @State private var changingKeyWidth: Bool = false
+  @Shared(.isAUv3) private var isAUv3
   private let showFakeKeyboard: Bool
   private let bundle = Bundle.main
 
@@ -266,9 +267,11 @@ public struct SettingsView: View {
     NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
       Form {
         presetsSection
-        keyboardSection
-        if store.hasMIDI {
-          midiSection
+        if !isAUv3 {
+          keyboardSection
+          if store.hasMIDI {
+            midiSection
+          }
         }
         tuningSection
         appSection
@@ -434,27 +437,29 @@ extension SettingsView {
           Text("Show active voice counter")
         }
         .circledCheckMarkToggleStyle()
-        Toggle(isOn: $store.backgroundProcessing) {
-          Text("Background processing mode")
-        }
-        .circledCheckMarkToggleStyle()
-        Toggle(isOn: $store.copyFileWhenInstalling) {
-          VStack(alignment: .leading) {
-            Text("Copy SF2 files to app folder on device when adding.")
-            Text(
+        if !isAUv3 {
+          Toggle(isOn: $store.backgroundProcessing) {
+            Text("Background processing mode")
+          }
+          .circledCheckMarkToggleStyle()
+          Toggle(isOn: $store.copyFileWhenInstalling) {
+            VStack(alignment: .leading) {
+              Text("Copy SF2 files to app folder on device when adding.")
+              Text(
 """
 Enabled is the safest option, but it takes up space on your device. \
 Disable to link directly to files in iCloud or on external drives.
 """
-            )
-            .font(.settingsDescription)
+              )
+              .font(.settingsDescription)
+            }
           }
+          .circledCheckMarkToggleStyle()
+          Toggle(isOn: $store.disableIdleTimer) {
+            Text("Disable device locking while active")
+          }
+          .circledCheckMarkToggleStyle()
         }
-        .circledCheckMarkToggleStyle()
-        Toggle(isOn: $store.disableIdleTimer) {
-          Text("Disable device locking while active")
-        }
-        .circledCheckMarkToggleStyle()
         HStack {
           Text("Hide built-in SF2 files")
           Spacer()
@@ -473,22 +478,24 @@ Disable to link directly to files in iCloud or on external drives.
             Text("Show")
           }
         }
-        HStack {
-          Text("Export all internal files to local SoundFonts folder on device.")
-          Spacer()
-          Button {
-            store.send(.exportFilesTapped)
-          } label: {
-            Text("Export")
+        if !isAUv3 {
+          HStack {
+            Text("Export all internal files to local SoundFonts folder on device.")
+            Spacer()
+            Button {
+              store.send(.exportFilesTapped)
+            } label: {
+              Text("Export")
+            }
           }
-        }
-        HStack {
-          Text("Import all SF2 files in local SoundFonts folder on device.")
-          Spacer()
-          Button {
-            store.send(.importFilesTapped)
-          } label: {
-            Text("Import")
+          HStack {
+            Text("Import all SF2 files in local SoundFonts folder on device.")
+            Spacer()
+            Button {
+              store.send(.importFilesTapped)
+            } label: {
+              Text("Import")
+            }
           }
         }
       }
@@ -498,40 +505,46 @@ Disable to link directly to files in iCloud or on external drives.
   private var aboutSection: some View {
     Section("About") {
       Group {
-        HStack {
-          Text("View change history")
-          Spacer()
-          Button {
-            store.send(.viewChangesTapped)
-          } label: {
-            Text("Changes")
+        if !isAUv3 {
+          HStack {
+            Text("View change history")
+            Spacer()
+            Button {
+              store.send(.viewChangesTapped)
+            } label: {
+              Text("Changes")
+            }
           }
-        }
-        HStack {
-          Text("View tutorial screens")
-          Spacer()
-          Button {
-            store.send(.viewTutorialTapped)
-          } label: {
-            Text("Tutorial")
+          HStack {
+            Text("View tutorial screens")
+            Spacer()
+            Button {
+              store.send(.viewTutorialTapped)
+            } label: {
+              Text("Tutorial")
+            }
           }
         }
         HStack {
           Text("Version \(bundle.releaseVersionNumber)")
           Spacer()
-          Button {
-            store.send(.reviewAppTapped)
-          } label: {
-            Text("Review App")
+          if !isAUv3 {
+            Button {
+              store.send(.reviewAppTapped)
+            } label: {
+              Text("Review App")
+            }
           }
         }
-        HStack {
-          Text("Contact developer (bradhowes@mac.com)")
-          Spacer()
-          Button {
-            store.send(.contactDeveloperTapped)
-          } label: {
-            Image(systemName: "paperplane")
+        if !isAUv3 {
+          HStack {
+            Text("Contact developer (bradhowes@mac.com)")
+            Spacer()
+            Button {
+              store.send(.contactDeveloperTapped)
+            } label: {
+              Image(systemName: "paperplane")
+            }
           }
         }
       }

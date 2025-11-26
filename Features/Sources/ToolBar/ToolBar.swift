@@ -193,11 +193,6 @@ extension ToolBar {
     return .send(.delegate(.editingPresetVisibilityChanged(state.editingPresetVisibility)))
   }
 
-//  private func hideMoreButtons(_ state: inout State) -> Effect<Action> {
-//    state.showMoreButtons = false
-//    return .none.animation(.smooth)
-//  }
-
   private func initialize(_ state: inout State) -> Effect<Action> {
     reduce(into: &state, action: .midiTrafficIndicator(.initialize))
   }
@@ -312,6 +307,7 @@ public struct ToolBarView: View {
   private var store: StoreOf<ToolBar>
   @Shared(.showActiveVoiceCount) private var showActiveVoiceCount
   @Shared(.showSolfegeTags) private var showSolfegeTags
+  @Shared(.isAUv3) private var isAUv3
   @Environment(\.appPanelBackground) private var appPanelBackground
   @Environment(\.auv3ControlsTheme) private var auv3ControlsTheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -324,7 +320,9 @@ public struct ToolBarView: View {
     HStack(alignment: .center, spacing: 12) {
       addSoundFontButton
       toggleTagsButton
-      toggleEffectsButton
+      if !isAUv3 {
+        toggleEffectsButton
+      }
       if horizontalSizeClass == .compact {
         ZStack(alignment: .trailing) {
           status
@@ -357,8 +355,10 @@ public struct ToolBarView: View {
 
   private var status: some View {
     ZStack(alignment: .leading) {
-      MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
-        .zIndex(-99)
+      if !isAUv3 {
+        MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
+          .zIndex(-99)
+      }
       HStack {
         if showActiveVoiceCount {
           voiceCount
@@ -426,28 +426,30 @@ public struct ToolBarView: View {
 
   private var moreButtons: some View {
     HStack(alignment: .center, spacing: 12) {
-      Button {
-        store.send(.shiftKeyboardDownButtonTapped)
-      } label: {
-        Text(.shiftKeyboardLeftIndicator + store.lowestKey.label)
+      if !isAUv3 {
+        Button {
+          store.send(.shiftKeyboardDownButtonTapped)
+        } label: {
+          Text(.shiftKeyboardLeftIndicator + store.lowestKey.label)
+        }
+        .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
+        Button {
+          store.send(.slidingKeyboardButtonTapped)
+        } label: {
+          Image(
+            systemName: store.keyboardSlides
+            ? .slidingKeyboardButtonImageName
+            : .fixedKeyboardButtonImageName
+          )
+          .tint(if: store.keyboardSlides)
+        }
+        Button {
+          store.send(.shiftKeyboardUpButtonTapped)
+        } label: {
+          Text(store.highestKey.label + .shiftKeyboardRightIndicator)
+        }
+        .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
       }
-      .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
-      Button {
-        store.send(.slidingKeyboardButtonTapped)
-      } label: {
-        Image(
-          systemName: store.keyboardSlides
-          ? .slidingKeyboardButtonImageName
-          : .fixedKeyboardButtonImageName
-        )
-        .tint(if: store.keyboardSlides)
-      }
-      Button {
-        store.send(.shiftKeyboardUpButtonTapped)
-      } label: {
-        Text(store.highestKey.label + .shiftKeyboardRightIndicator)
-      }
-      .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
       Button {
         store.send(.presetsVisibilityButtonTapped)
       } label: {
