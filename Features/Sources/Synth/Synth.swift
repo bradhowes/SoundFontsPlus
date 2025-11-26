@@ -8,6 +8,7 @@ import Dependencies
 import Engine
 import Models
 import os
+import SF2LibAU
 import Sharing
 import SwiftUI
 

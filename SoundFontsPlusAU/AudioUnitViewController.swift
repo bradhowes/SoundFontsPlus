@@ -7,11 +7,11 @@ import FeatureSupport
 import os
 import Sharing
 import SwiftUI
-import Synth
+import SF2LibAU
 
 @MainActor
 public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
-  public var audioUnit: AUAudioUnit?
+  public var audioUnit: SF2LibAU?
   public var hostingController: AUv3HostingController<AUv3RootView>?
 
   deinit {}

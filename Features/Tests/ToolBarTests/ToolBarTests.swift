@@ -3,6 +3,7 @@
 import DependenciesTestSupport
 import FeatureSupport
 import SnapshotTesting
+import SF2LibAU
 import Testing
 import TestSupport
 

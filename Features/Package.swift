@@ -44,6 +44,7 @@ let package = Package(
     .lib("Presets"),
     .lib("ReverbEffect"),
     .lib("Settings"),
+    .lib("SF2LibAU"),
     .lib("SF2Resources"),
     .lib("SoundFonts"),
     .lib("Synth"),
@@ -185,6 +186,13 @@ let package = Package(
       ]
     ),
     .target(
+      name: "SF2LibAU",
+      dependencies: [
+        "BaseSupport",
+        .product(name: "Engine", package: "SF2Lib")
+      ]
+    ),
+    .target(
       name: "SF2Resources",
       dependencies: [
         .product(name: "Engine", package: "SF2Lib"),
@@ -192,7 +200,7 @@ let package = Package(
       resources: [.process("Resources")],
       plugins: ["BuildFluidFont"]
     ),
-    .target(name: "Synth", dependencies: ["Models"]),
+    .target(name: "Synth", dependencies: ["Models", "SF2LibAU"]),
 
     // Library only used for tests
     .target(
