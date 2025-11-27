@@ -2,6 +2,9 @@
 
 import FeatureSupport
 
+/**
+ A custom button for a given preset. Tapping the button activates the preset in the synth.
+ */
 @Reducer
 public struct PresetButton {
 

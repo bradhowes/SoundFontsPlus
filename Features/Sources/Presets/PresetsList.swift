@@ -3,8 +3,10 @@
 import Algorithms // for `chunks` addition to collections
 import FeatureSupport
 
-private let log = Logger(category: "PresetsList")
-
+/**
+ List of presets for the selected soundfont. Contains a collection of `PresetsListSection` entities that group
+ presets into bundles of N presets.
+ */
 @Reducer
 public struct PresetsList {
   public static var groupingSize: Int { 20 }
@@ -300,7 +302,7 @@ extension PresetsList {
     if changed {
       $activeState.withLock {
         $0.activePresetId = preset.id
-        $0 .activeSoundFontId = preset.soundFontId
+        $0.activeSoundFontId = preset.soundFontId
       }
     }
     return state.isSearchFieldPresented ? dismissSearch(&state) : .none
@@ -435,6 +437,8 @@ extension PresetsListView {
     return PresetsListView(store: Store(initialState: .init(visibilityEditMode: true)) { PresetsList() })
   }
 }
+
+private let log = Logger(category: "PresetsList")
 
 #Preview {
   PresetsListView.preview

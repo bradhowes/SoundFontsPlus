@@ -10,16 +10,11 @@ extension URL {
    - Returns: the URL for the file that persists the `activeState` values. For an AUv3 extension we save to a
    throw-away file that is unique across all instances.
    */
-  static public var activeStateURL: URL {
+  public static let activeStateURL: URL = {
     @Shared(.isAUv3) var isAUv3
-    if isAUv3 {
-      let temporaryFilename = ProcessInfo().globallyUniqueString
-      return URL.temporaryDirectory.appendingPathComponent(temporaryFilename)
-    } else {
-      return URL.applicationSupportDirectory.appendingPathComponent("activeState.json")
-
-    }
-  }
+    return isAUv3 ? .temporaryDirectory.appendingPathComponent(ProcessInfo().globallyUniqueString) :
+      .applicationSupportDirectory.appendingPathComponent("activeState.json")
+  }()
 }
 
 extension URL {

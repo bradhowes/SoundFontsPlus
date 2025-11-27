@@ -23,7 +23,8 @@ public struct AUv3Root {
   public static func prepareDependencies() {
     Dependencies.prepareDependencies {
       @Shared(.isAUv3) var isAUv3 = true
-      @Shared(.activeState) var activeState = .none
+      @Shared(.activeState) var activeState
+      $activeState.withLock { $0 = .none }
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       $0.defaultFileStorage = .fileSystem
