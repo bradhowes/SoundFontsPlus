@@ -20,12 +20,15 @@ struct PresetLoadingInfoTests {
 
   @MainActor
   func setup() async throws -> [Preset] {
-    withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
+    @Shared(.isAUv3) var isAUv3 = true
+    @Shared(.activeState) var activeState
+    $activeState.withLock { $0 = .none }
+    return withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
   }
 
   @Test
   func appActivePresetLoadingInfo() async throws {
-    @Shared(.appActiveState) var activeState
+    @Shared(.activeState) var activeState
 
     $activeState.withLock { $0.activePresetId = nil }
     let presets = try await setup()
@@ -45,8 +48,7 @@ struct PresetLoadingInfoTests {
 
   @Test
   func auv3ActivePresetLoadingInfo() async throws {
-    @Shared(.isAUv3) var isAUv3 = true
-    @Shared(.auv3ActiveState) var activeState
+    @Shared(.activeState) var activeState
 
     $activeState.withLock { $0.activePresetId = nil }
     let presets = try await setup()

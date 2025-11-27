@@ -14,6 +14,9 @@ import SwiftUI
 
 private let log = Logger(category: "Synth")
 
+/**
+ Manages the audio session and synth creation for the app. Not used by the AUv3 extension.
+ */
 @Reducer
 public struct Synth {
 
@@ -75,7 +78,7 @@ public struct Synth {
   @Dependency(\.defaultDatabase) private var database
   @Dependency(\.synthAUv3ComponentDescription) private var synthAUv3ComponentDescription
 
-  @Shared(.appActiveState) private var activeState
+  @Shared(.activeState) private var activeState
   @Shared(.backgroundProcessing) private var backgroundProcessing
   @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
   @Shared(.avAudioUnit) private var synth

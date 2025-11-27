@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import Foundation
+import Sharing
 import SQLiteData
 import Tagged
 
@@ -19,9 +20,10 @@ public struct PresetLoadingInfo: Equatable, Sendable {
   public let pan: Double
 
   static func query(for id: Preset.ID? = nil) -> Select<Self.Columns.QueryValue, Preset, (SoundFont, AudioConfig?)> {
-    Preset
+    @Shared(.activeState) var activeState
+    return Preset
       .where {
-        $0.id.eq(id ?? ActiveState.value.activePresetId ?? -1)
+        $0.id.eq(id ?? activeState.activePresetId ?? -1)
       }
       .join(SoundFont.all) {
         $0.soundFontId.eq($1.id)

@@ -137,7 +137,7 @@ public struct Keyboard {
     }
   }
 
-  @Shared(.appActiveState) private var activeState
+  @Shared(.activeState) private var activeState
 
   private enum CancelId: CaseIterable {
     case activePresetId

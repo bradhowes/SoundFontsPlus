@@ -15,7 +15,7 @@ import ToolBar
 import UniformTypeIdentifiers
 
 /**
- The top-level feature of the application.
+ The top-level feature of the AUv3 extension.
  */
 @Reducer
 public struct AUv3Root {
@@ -23,6 +23,7 @@ public struct AUv3Root {
   public static func prepareDependencies() {
     Dependencies.prepareDependencies {
       @Shared(.isAUv3) var isAUv3 = true
+      @Shared(.activeState) var activeState = .none
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       $0.defaultFileStorage = .fileSystem
@@ -44,6 +45,9 @@ public struct AUv3Root {
   @ObservableState
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
+    public var loadedSoundFontId: SoundFont.ID?
+    public var loadedPresetIndex: Int?
+
     public var fontsAndPresetsSplit: SplitViewReducer.State
     public var fontsAndTagsSplit: SplitViewReducer.State
     public var presetsList: PresetsList.State
@@ -102,10 +106,11 @@ public struct AUv3Root {
 
   public init() {}
 
-  @Shared(.auv3ActiveState) private var activeState
+  @Shared(.activeState) private var activeState
   @Shared(.fontsAndPresetsSplitPosition) private var fontsAndPresetsSplitPosition
   @Shared(.fontsAndTagsSplitPosition) private var fontsAndTagsSplitPosition
   @Shared(.tagsListVisible) private var tagsListVisible
+  @Shared(.auAudioUnit) private var synth
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -123,7 +128,7 @@ public struct AUv3Root {
       switch action {
 
       case .activePresetIdChanged(let presetId):
-        return reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId)))
+        return useActivePreset(&state, presetId: presetId)
 
       case .deinitialize:
         return .merge(
@@ -178,7 +183,7 @@ public struct AUv3Root {
 
 extension AUv3Root {
 
-  fileprivate func destinationDismissed(_ state: inout State) -> Effect<Action> {
+  private func destinationDismissed(_ state: inout State) -> Effect<Action> {
     switch state.destination {
 
     case .presetEditor(let editor):
@@ -192,7 +197,7 @@ extension AUv3Root {
     }
   }
 
-  fileprivate func editorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
+  private func editorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
     if editor.visible {
       state.presetsList.updateSection(editor.sectionId, presetId: editor.preset.id, displayName: editor.displayName)
       return .none
@@ -200,11 +205,11 @@ extension AUv3Root {
     return reduce(into: &state, action: .presetsList(.fetchPresets))
   }
 
-  fileprivate func initialize(_ state: inout State) -> Effect<Action> {
+  private func initialize(_ state: inout State) -> Effect<Action> {
     return monitorActivePresetId()
   }
 
-  fileprivate func monitorActivePresetId() -> Effect<Action> {
+  private func monitorActivePresetId() -> Effect<Action> {
     .publisher {
       $activeState.activePresetId
         .publisher
@@ -213,7 +218,7 @@ extension AUv3Root {
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
-  fileprivate func processFontsAndPresetsSplitAction(
+  private func processFontsAndPresetsSplitAction(
     _ state: inout State,
     action: SplitViewReducer.Action.Delegate
   ) -> Effect<Action> {
@@ -225,7 +230,7 @@ extension AUv3Root {
     return .none
   }
 
-  fileprivate func processFontsAndTagsSplitAction(
+  private func processFontsAndTagsSplitAction(
     _ state: inout State,
     action: SplitViewReducer.Action.Delegate
   ) -> Effect<Action> {
@@ -242,11 +247,11 @@ extension AUv3Root {
     return .none
   }
 
-  fileprivate func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
+  private func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
     return .none
   }
 
-  fileprivate func processToolBarAction(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
+  private func processToolBarAction(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
     switch action {
 
     case .editingPresetVisibilityChanged(let active):
@@ -273,6 +278,57 @@ extension AUv3Root {
     case .visibleKeyRangeChanged:
       fatalError("misconfiguration for AUv3Root")
     }
+  }
+
+  private func useActivePreset(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+    log.info("useActivePreset BEGIN - presetId: \(presetId ?? -1)")
+    guard let synth = synth?.synth else {
+      log.info("useActivePreset END - no synth")
+      return .none
+    }
+
+    guard let presetInfo = Operations.presetLoadingInfo(id: presetId) else {
+      log.info("useActivePreset END - no presetInfo")
+      return .none
+    }
+
+    guard state.loadedPresetIndex != presetInfo.presetIndex || state.loadedSoundFontId != presetInfo.soundFontId else {
+      log.info("useActivePreset END - already loaded")
+      return .none
+    }
+
+    let result: Bool
+    if presetInfo.soundFontId == state.loadedSoundFontId {
+      log.info("useActivePreset - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
+      result = synth.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
+    } else {
+      guard let location = try? SoundFontKind(
+        kind: presetInfo.kind,
+        location: presetInfo.location,
+        displayName: presetInfo.soundFontName
+      )
+      else {
+        log.error("useActivePreset END - unexpected nil location for \(presetInfo)")
+        return .none
+      }
+      let path = location.path.path(percentEncoded: false)
+      log.info("useActivePreset - loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
+      result = synth.sendLoadFileUsePreset(
+        path: path,
+        preset: presetInfo.presetIndex,
+        gain: presetInfo.gain,
+        pan: presetInfo.pan
+      )
+    }
+
+    synth.audioUnitShortName = presetInfo.presetName
+
+    state.loadedPresetIndex = presetInfo.presetIndex
+    state.loadedSoundFontId = presetInfo.soundFontId
+
+    log.info("useActivePreset END - \(result)")
+
+    return reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId)))
   }
 }
 

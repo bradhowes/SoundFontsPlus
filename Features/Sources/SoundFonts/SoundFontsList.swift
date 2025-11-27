@@ -49,6 +49,7 @@ public struct SoundFontsList {
 
   @Dependency(\.defaultDatabase) private var database
   @Shared(.selectedSoundFontId) private var selectedSoundFontId
+  @Shared(.activeState) private var activeState
 
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
@@ -149,26 +150,7 @@ extension SoundFontsList {
   }
 
   private func monitorActiveTag(_ state: inout State) -> Effect<Action> {
-    @Shared(.isAUv3) var isAUv3
-    log.info("monitorActiveTag - isAUv3: \(isAUv3)")
-    return isAUv3 ? auv3MonitorActiveTag(&state): appMonitorActiveTag(&state)
-  }
-
-  private func appMonitorActiveTag(_ state: inout State) -> Effect<Action> {
-    @Shared(.appActiveState) var activeState
-    return .publisher {
-      return $activeState.activeTagId
-        .publisher
-        .removeDuplicates()
-        .map { tagId in
-          log.info("activeTagChanged - \(String(describing: tagId))")
-          return .activeTagIdChanged
-        }
-    }.cancellable(id: CancelId.monitorActiveTagId, cancelInFlight: true)
-  }
-
-  private func auv3MonitorActiveTag(_ state: inout State) -> Effect<Action> {
-    @Shared(.auv3ActiveState) var activeState
+    log.info("monitorActiveTag")
     return .publisher {
       return $activeState.activeTagId
         .publisher
@@ -205,7 +187,7 @@ extension SoundFontsList {
   }
 
   private func showActiveSoundFont(_ state: inout State) -> Effect<Action> {
-    if let activeSoundFontId = ActiveState.value.activeSoundFontId {
+    if let activeSoundFontId = activeState.activeSoundFontId {
       return select(&state, soundFontId: activeSoundFontId)
     } else {
       return .none

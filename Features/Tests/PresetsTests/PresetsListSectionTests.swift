@@ -18,7 +18,7 @@ import TestSupport
 struct PresetsListSectionTests {
 
   func setup() throws -> TestStoreOf<PresetsListSection> {
-    @Shared(.appActiveState) var activeState
+    @Shared(.activeState) var activeState
     $activeState.withLock {
       $0.activeSoundFontId = 1
       $0.activePresetId = 1

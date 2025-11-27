@@ -104,7 +104,7 @@ public struct DelayEffect {
     }
   }
 
-  @Shared(.appActiveState) private var activeState
+  @Shared(.activeState) private var activeState
   @Shared(.parameterTree) private var parameterTree
   @Dependency(\.mainQueue) private var mainQueue
   @Dependency(\.delayDevice) private var delayDevice
@@ -273,7 +273,7 @@ public struct DelayEffectView: View {
 extension DelayEffectView {
   // swiftlint:disable:next function_body_length
   static func preview(presetId: Preset.ID) -> some View {
-    @Shared(.appActiveState) var activeState
+    @Shared(.activeState) var activeState
     $activeState.withLock {
       $0.activePresetId = presetId
     }

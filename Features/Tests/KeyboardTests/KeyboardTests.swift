@@ -30,7 +30,7 @@ struct KeyboardTests {
 
   @Test
   func keyboardPreviewPortrait() async throws {
-    @Shared(.appActiveState) var activeState = .none
+    @Shared(.activeState) var activeState = .none
     try TestSupport.assertSnapshot(
       matching: KeyboardPreview(),
       config: .portrait
@@ -39,7 +39,7 @@ struct KeyboardTests {
 
   @Test
   func keyboardPreviewLandscape() async throws {
-    @Shared(.appActiveState) var activeState = .none
+    @Shared(.activeState) var activeState = .none
     try TestSupport.assertSnapshot(
       matching: KeyboardPreview(),
       config: .landscape
@@ -48,7 +48,7 @@ struct KeyboardTests {
 
   @Test
   func keyboardRenders64NoLabelsC4() async throws {
-    @Shared(.appActiveState) var activeState = .none
+    @Shared(.activeState) var activeState = .none
     @Shared(.keyWidth) var keyWidth = 64.0
     @Shared(.keyLabels) var keyLabels = .none
     @Shared(.firstVisibleKey) var firstVisibleKey = .C4
@@ -58,7 +58,7 @@ struct KeyboardTests {
 
   @Test
   func keyboardRenders48COnlyLabelsA4() async throws {
-    @Shared(.appActiveState) var activeState = .none
+    @Shared(.activeState) var activeState = .none
     @Shared(.keyWidth) var keyWidth = 48.0
     @Shared(.keyLabels) var keyLabels = .cOnly
     @Shared(.firstVisibleKey) var firstVisibleKey = .A4
@@ -68,7 +68,7 @@ struct KeyboardTests {
 
   @Test
   func keyboardRenders72AllLabelsE1() async throws {
-    @Shared(.appActiveState) var activeState = .none
+    @Shared(.activeState) var activeState = .none
     @Shared(.keyWidth) var keyWidth = 72.0
     @Shared(.keyLabels) var keyLabels = .all
     @Shared(.firstVisibleKey) var firstVisibleKey = .E1
@@ -78,7 +78,7 @@ struct KeyboardTests {
 
   @Test
   func keyboardRendersActiveNotes() async throws {
-    @Shared(.appActiveState) var activeState = .none
+    @Shared(.activeState) var activeState = .none
     let store = Store(
       initialState: Keyboard.State(activeNotes: [
         (.wrap(MockEventId(id: 1)), .C4),
@@ -94,7 +94,7 @@ struct KeyboardTests {
 
   @Test
   func keyboardRendersRedActiveNotesWhenMuted() async throws {
-    @Shared(.appActiveState) var activeState = .none
+    @Shared(.activeState) var activeState = .none
     let store = Store(
       initialState: Keyboard.State(
         muted: true,
@@ -113,7 +113,7 @@ struct KeyboardTests {
 
   @Test
   func allOffClearsActiveNotes() async throws {
-    @Shared(.appActiveState) var activeState = .none
+    @Shared(.activeState) var activeState = .none
     let activeNotes: [(Keyboard.State.EventId, Note)] = [
       (.wrap(MockEventId(id: 1)), .C4),
       (.wrap(MockEventId(id: 2)), .E4),
@@ -136,7 +136,7 @@ struct KeyboardTests {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.avAudioUnit) var synth = mau
-    @Shared(.appActiveState) var activeState = .none
+    @Shared(.activeState) var activeState = .none
 
     let store = TestStore(initialState: Keyboard.State()) { Keyboard() }
     let event: Keyboard.State.EventId = .wrap(MockEventId(id: 1))
@@ -158,7 +158,7 @@ struct KeyboardTests {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.avAudioUnit) var synth = mau
-    @Shared(.appActiveState) var activeState = .none
+    @Shared(.activeState) var activeState = .none
 
     let store = TestStore(initialState: Keyboard.State()) { Keyboard() }
     let event: Keyboard.State.EventId = .wrap(MockEventId(id: 1))
@@ -173,7 +173,7 @@ struct KeyboardTests {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
     @Shared(.avAudioUnit) var synth = mau
-    @Shared(.appActiveState) var activeState = .none
+    @Shared(.activeState) var activeState = .none
 
     let store = TestStore(initialState: Keyboard.State()) { Keyboard() }
     let event: Keyboard.State.EventId = .wrap(MockEventId(id: 1))
@@ -197,7 +197,7 @@ struct KeyboardTests {
 
   @Test
   func outputVolumeChanged() async throws {
-    @Shared(.appActiveState) var activeState = .none
+    @Shared(.activeState) var activeState = .none
 
     let store = TestStore(initialState: Keyboard.State()) { Keyboard() }
     await store.send(.outputVolumeStateChanged(.muted)) {
@@ -214,7 +214,7 @@ struct KeyboardTests {
     },
   )
   func activePresetIdChanged() async throws {
-    @Shared(.appActiveState) var activeState = .default
+    @Shared(.activeState) var activeState = .default
     let store = TestStore(initialState: Keyboard.State()) { Keyboard() }
     await store.send(.initialize)
 

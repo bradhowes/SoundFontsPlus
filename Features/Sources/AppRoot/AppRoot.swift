@@ -187,7 +187,7 @@ public struct AppRoot {
 
   public init() {}
 
-  @Shared(.appActiveState) private var activeState
+  @Shared(.activeState) private var activeState
   @Shared(.effectsPanelVisible) private var effectsPanelVisible
   @Shared(.firstVisibleKey) private var firstVisibleKey
   @Shared(.fontsAndPresetsSplitPosition) private var fontsAndPresetsSplitPosition

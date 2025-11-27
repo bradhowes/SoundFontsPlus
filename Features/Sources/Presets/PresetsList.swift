@@ -97,6 +97,7 @@ public struct PresetsList {
   }
 
   @Dependency(\.defaultDatabase) private var database
+  @Shared(.activeState) private var activeState
   @Shared(.confirmPresetHiding) private var confirmPresetHiding
   @Shared(.selectedSoundFontId) private var selectedSoundFontId
 
@@ -125,7 +126,7 @@ public struct PresetsList {
         return hidePresetConfirmed(&state, preset: preset)
 
       case .fetchPresets:
-        state.scrollToPresetId = .init(presetId: ActiveState.value.activePresetId)
+        state.scrollToPresetId = .init(presetId: activeState.activePresetId)
         return generatePresetSections(&state)
 
       case .initialize:
@@ -144,7 +145,7 @@ public struct PresetsList {
         return showActivePreset(&state)
 
       case .showActivePresetNow:
-        state.scrollToPresetId = .init(presetId: ActiveState.value.activePresetId)
+        state.scrollToPresetId = .init(presetId: activeState.activePresetId)
         return .none
 
       case .stop:
@@ -295,18 +296,19 @@ extension PresetsList {
   }
 
   private func selectPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
-    let changed = ActiveState.value.activePresetId != preset.id
+    let changed = activeState.activePresetId != preset.id
     if changed {
-      // TODO: combine in one call
-      ActiveState.setPresetId(preset.id)
-      ActiveState.setSoundFontId(preset.soundFontId)
+      $activeState.withLock {
+        $0.activePresetId = preset.id
+        $0 .activeSoundFontId = preset.soundFontId
+      }
     }
     return state.isSearchFieldPresented ? dismissSearch(&state) : .none
   }
 
   private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {
-    if ActiveState.value.activeSoundFontId == soundFontId {
-      state.scrollToPresetId = .init(presetId: ActiveState.value.activePresetId)
+    if activeState.activeSoundFontId == soundFontId {
+      state.scrollToPresetId = .init(presetId: activeState.activePresetId)
     } else {
       state.scrollToPresetId = nil
     }

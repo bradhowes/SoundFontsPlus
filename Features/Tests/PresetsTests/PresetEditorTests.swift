@@ -18,7 +18,7 @@ import TestSupport
 struct PresetEditorTests {
 
   func setup() throws -> (Preset, TestStoreOf<PresetEditor>) {
-    @Shared(.appActiveState) var activeState
+    @Shared(.activeState) var activeState
     $activeState.withLock {
       $0.activeSoundFontId = 1
       $0.activePresetId = 1

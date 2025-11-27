@@ -45,7 +45,7 @@ struct PresetsListTests {
     searchText: String? = nil,
     visibilityEditMode: Bool = false
   ) throws -> TestStoreOf<PresetsList> {
-    @Shared(.appActiveState) var activeState
+    @Shared(.activeState) var activeState
     $activeState.withLock {
       $0.activeSoundFontId = activeSoundFontId
       $0.activePresetId = 1
@@ -288,7 +288,7 @@ struct PresetsListTests {
 
   @Test
   func buttonTapped() async throws {
-    @Shared(.appActiveState) var activeState
+    @Shared(.activeState) var activeState
     let store = try setup()
 
     await store.send(.fetchPresets) {

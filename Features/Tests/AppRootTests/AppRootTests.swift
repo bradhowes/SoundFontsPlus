@@ -33,7 +33,7 @@ import TestSupport
 struct AppRootTests {
 
   func store() -> TestStoreOf<AppRoot> {
-    @Shared(.auv3ActiveState) var activeState = .default
+    @Shared(.activeState) var activeState = .default
     return .init(initialState: .init()) {
       AppRoot()
     }

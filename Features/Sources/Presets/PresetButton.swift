@@ -72,6 +72,7 @@ public struct PresetButton {
 
 public struct PresetButtonView: View {
   @Bindable private var store: StoreOf<PresetButton>
+  @Shared(.activeState) var activeState
   @Environment(\.editMode) private var editMode
   private var isFavorite: Bool { store.preset.kind == .favorite }
   private var isHidden: Bool { store.preset.kind == .hidden }
@@ -82,8 +83,8 @@ public struct PresetButtonView: View {
   }
 
   var state: IndicatorModifier.State {
-    if ActiveState.value.activeSoundFontId == store.preset.soundFontId,
-       ActiveState.value.activePresetId == store.preset.id {
+    if activeState.activeSoundFontId == store.preset.soundFontId,
+       activeState.activePresetId == store.preset.id {
       return isFavorite ? .activeFavorite : .active
     }
     return isFavorite ? .favorite : .none

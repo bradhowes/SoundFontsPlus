@@ -188,8 +188,9 @@ extension SoundFontButton {
 struct SoundFontButtonView: View {
   @Bindable private var store: StoreOf<SoundFontButton>
   @Shared(.selectedSoundFontId) private var selectedSoundFontId
+  @Shared(.activeState) private var activeState
   private var state: IndicatorModifier.State {
-    ActiveState.value.activeSoundFontId == store.state.soundFontInfo.id ? .active :
+    activeState.activeSoundFontId == store.state.soundFontInfo.id ? .active :
     selectedSoundFontId == store.state.soundFontInfo.id ? .selected : .none
   }
 
@@ -266,7 +267,7 @@ extension SoundFontButtonView {
       }
     }
 
-    @Shared(.appActiveState) var activeState
+    @Shared(.activeState) var activeState
     $activeState.withLock { $0.activeSoundFontId = soundFontInfos[0].id }
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     $selectedSoundFontId.withLock { $0 = soundFontInfos[1].id }

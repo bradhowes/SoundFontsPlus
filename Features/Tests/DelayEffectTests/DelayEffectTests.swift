@@ -22,7 +22,7 @@ import TestSupport
 @MainActor
 struct DelayEffectTests {
   fileprivate let device = MockDelayDevice()
-  @Shared(.appActiveState) var activeState = .default
+  @Shared(.activeState) var activeState = .default
 
   fileprivate func store() -> TestStoreOf<DelayEffect> {
     TestStoreOf<DelayEffect>(initialState: .init()) {
@@ -232,7 +232,7 @@ struct DelayEffectTests {
     #expect(store.state.config.id == nil)
     #expect(store.state.locked.isOn == true)
 
-    @Shared(.appActiveState) var activeState
+    @Shared(.activeState) var activeState
     $activeState.withLock { $0.activePresetId = 2 }
 
     await store.receive(\.activePresetIdChanged, 2)
@@ -261,7 +261,7 @@ struct DelayEffectTests {
     await store.receive(\.cutoff)
     await store.receive(\.wetDryMix)
 
-    @Shared(.appActiveState) var activeState
+    @Shared(.activeState) var activeState
     $activeState.withLock { $0.activePresetId = 2 }
 
     store.exhaustivity = .off

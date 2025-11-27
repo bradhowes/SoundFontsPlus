@@ -41,7 +41,7 @@ public struct VolumeMonitor {
   public init() {}
 
   @Dependency(\.outputVolume) private var outputVolume
-  @Shared(.appActiveState) private var activeState
+  @Shared(.activeState) private var activeState
 
   public var body: some Reducer<State, Action> {
     BindingReducer()

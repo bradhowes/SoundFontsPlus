@@ -106,6 +106,7 @@ public struct PresetEditor {
 
   public init() {}
 
+  @Shared(.activeState) private var activeState
   @Shared(.confirmPresetHiding) private var confirmPresetHiding
   @Shared(.auAudioUnit) private var auAudioUnit
 
@@ -184,7 +185,7 @@ extension PresetEditor {
   }
 
   private func gainSliderChanged(_ state: inout State) -> Effect<Action> {
-    guard ActiveState.value.activePresetId == state.preset.id else { return .none }
+    guard activeState.activePresetId == state.preset.id else { return .none }
     guard let parameterTree = auAudioUnit?.parameterTree else { return .none }
     state.pendingAudioConfig.gain = state.gainSlider
     let gainAddress = AUParameterAddress(SF2.Entity.Generator.Index.initialAttenuation.rawValue)
@@ -200,7 +201,7 @@ extension PresetEditor {
   }
 
   private func panSliderChanged(_ state: inout State) -> Effect<Action> {
-    guard ActiveState.value.activePresetId == state.preset.id else { return .none }
+    guard activeState.activePresetId == state.preset.id else { return .none }
     state.pendingAudioConfig.gain = state.gainSlider
     guard let parameterTree = auAudioUnit?.parameterTree else { return .none }
     let panAddress = AUParameterAddress(SF2.Entity.Generator.Index.pan.rawValue)

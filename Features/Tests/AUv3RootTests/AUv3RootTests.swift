@@ -25,7 +25,7 @@ import TestSupport
 struct AUv3RootTests {
 
   func store() -> TestStoreOf<AUv3Root> {
-    @Shared(.auv3ActiveState) var activeState = .default
+    @Shared(.activeState) var activeState = .default
     return .init(initialState: .init()) {
       AUv3Root()
     }
@@ -36,18 +36,7 @@ struct AUv3RootTests {
 
     await store.send(.initialize)
 
-    await store.receive(\.activePresetIdChanged) {
-      $0.toolBar.preset = Preset(
-        id: 1,
-        index: 0,
-        bank: 0,
-        program: 0,
-        originalName: "Original Preset 1",
-        soundFontId: 1,
-        displayName: "Font 1 Preset 1"
-      )
-    }
-
+    await store.receive(\.activePresetIdChanged)
     try await test(store)
 
     await store.send(.deinitialize)
