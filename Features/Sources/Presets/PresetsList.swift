@@ -329,7 +329,6 @@ extension PresetsList {
 }
 
 extension PresetsList.Destination.State: Equatable {}
-extension PresetsList.Destination.Action: Equatable {}
 extension PresetsList.Destination.State: _EphemeralState {
   public typealias Action = Alert
 }

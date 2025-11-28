@@ -288,7 +288,9 @@ public struct AppRoot {
       default:
         return .none
       }
-    }.ifLet(\.$destination, action: \.destination)
+    }
+    .ifLet(\.$destination, action: \.destination)
+    ._printChanges()
   }
 
   private enum CancelId: CaseIterable {

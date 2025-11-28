@@ -209,7 +209,6 @@ extension SoundFontsList {
 }
 
 extension SoundFontsList.Destination.State: Equatable {}
-extension SoundFontsList.Destination.Action: Equatable {}
 extension SoundFontsList.Destination.State: _EphemeralState {
   public typealias Action = Alert
 }

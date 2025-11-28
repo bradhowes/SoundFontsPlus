@@ -5,8 +5,6 @@ import BaseSupport
 import CoreAudioKit
 import Engine
 
-private let log = Logger(category: "SF2LibAU")
-
 /**
  AUv3 component for SF2Lib engine.
  */
@@ -195,8 +193,11 @@ extension SF2LibAU {
   public var portamentoModeEnabled: Bool { engine.portamentoModeEnabled() }
 
   public func sendMIDI(bytes: [UInt8], when: AUEventSampleTime = 0, cable: UInt8 = 0) -> Bool {
-    guard let block = unsafe scheduleMIDIEventBlock else { return false }
-    log.info("sendMIDI \(bytes.count) bytes")
+    log.info("sendMIDI BEGIN - \(bytes.count) bytes")
+    guard let block = unsafe scheduleMIDIEventBlock else {
+      log.error("sendMIDI - nil scheduleMIDIEventBlock")
+      return false
+    }
     unsafe block(when, cable, bytes.count, bytes)
     return true
   }
@@ -278,7 +279,10 @@ extension SF2LibAU {
   public override var canPerformOutput: Bool { true }
 
   /// Provide a block that asks the internal SF2 `engine` to render samples.
-  public override var internalRenderBlock: AUInternalRenderBlock { engine.getRenderBlock() }
+  public override var internalRenderBlock: AUInternalRenderBlock {
+    log.info("internalRenderBlock BEGIN")
+    return engine.getRenderBlock()
+  }
 }
 
 // MARK: - State Management
@@ -395,3 +399,5 @@ private func getVoiceCount() -> UInt {
   }
   return voiceCount
 }
+
+private let log = Logger(category: "SF2LibAU")

@@ -80,7 +80,7 @@ public struct SoundFontButton {
     }
   }
 
-  public enum Action: Equatable {
+  public enum Action {
     case bookmarkMonitorStart
     case bookmarkMonitorStop
     case buttonTapped

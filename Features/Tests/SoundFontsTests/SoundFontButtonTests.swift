@@ -35,7 +35,7 @@ struct SoundFontButtonTests {
     let store = store(kind: .installed)
 
     await store.send(.deleteButtonTapped)
-    await store.receive(.delegate(.deleteSoundFont(store.state.soundFontInfo)))
+    await store.receive(\.delegate.deleteSoundFont, store.state.soundFontInfo)
 
     await store.finish()
   }
@@ -45,7 +45,7 @@ struct SoundFontButtonTests {
     let store = store(kind: .external)
 
     await store.send(.deleteButtonTapped)
-    await store.receive(.delegate(.deleteSoundFont(store.state.soundFontInfo)))
+    await store.receive(\.delegate.deleteSoundFont, store.state.soundFontInfo)
 
     await store.finish()
   }
@@ -55,7 +55,7 @@ struct SoundFontButtonTests {
     let store = store(kind: .builtin)
 
     await store.send(.deleteButtonTapped)
-    await store.receive(.delegate(.deleteSoundFont(store.state.soundFontInfo)))
+    await store.receive(\.delegate.deleteSoundFont, store.state.soundFontInfo)
 
     await store.finish()
   }

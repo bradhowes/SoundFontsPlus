@@ -173,7 +173,9 @@ public struct AUv3Root {
       default:
         return .none
       }
-    }.ifLet(\.$destination, action: \.destination)
+    }
+    .ifLet(\.$destination, action: \.destination)
+    ._printChanges()
   }
 
   private enum CancelId: CaseIterable {

@@ -98,6 +98,7 @@ public struct PresetButtonView: View {
       store.send(isEditing ? .toggleVisibility : .buttonTapped, animation: .default)
     } label: {
       HStack {
+        // Show indicator when edititing preset visibility
         Image(systemName: isHidden ? "circle" : "inset.filled.circle")
           .foregroundStyle(Color.orange)
           .frame(width: isEditing ? 24 : 0)

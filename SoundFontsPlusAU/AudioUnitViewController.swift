@@ -18,7 +18,8 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
 
   public override func viewDidLoad() {
     super.viewDidLoad()
-    if let audioUnit {
+    if let audioUnit,
+       hostingController == nil {
       installView(audioUnit: audioUnit)
     }
   }
@@ -35,7 +36,6 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
       @Shared(.auAudioUnit) var auAudioUnit
       let audioUnit = try SF2LibAU(componentDescription: componentDescription, options: [])
       $auAudioUnit.withLock { $0 = audioUnit }
-
       self.audioUnit = audioUnit
       DispatchQueue.main.async { [weak self] in
         self?.installView(audioUnit: audioUnit)

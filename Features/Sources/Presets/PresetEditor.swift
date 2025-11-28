@@ -218,7 +218,6 @@ extension PresetEditor {
 }
 
 extension PresetEditor.Destination.State: Equatable {}
-extension PresetEditor.Destination.Action: Equatable {}
 extension PresetEditor.Destination.State: _EphemeralState {
   public typealias Action = Alert
 }

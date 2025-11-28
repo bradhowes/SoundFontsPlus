@@ -36,10 +36,10 @@ struct PresetsListSectionTests {
     let store = try setup()
 
     await store.send(\.headerTapped, 1)
-    await store.receive(\.delegate, .headerTapped(Preset.ID(rawValue: 21)))
+    await store.receive(\.delegate.headerTapped, 21)
 
     await store.send(\.headerTapped, 2)
-    await store.receive(\.delegate, .headerTapped(Preset.ID(rawValue: 1)))
+    await store.receive(\.delegate.headerTapped, 1)
   }
 
   @Test
@@ -47,6 +47,6 @@ struct PresetsListSectionTests {
     let store = try setup()
 
     await store.send(\.searchButtonTapped)
-    await store.receive(\.delegate, .searchButtonTapped)
+    await store.receive(\.delegate.searchButtonTapped)
   }
 }
