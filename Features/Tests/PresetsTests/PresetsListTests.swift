@@ -596,3 +596,12 @@ struct PresetsListTests {
     }
   }
 }
+
+extension PresetsList.Action.Delegate: Equatable {
+  public static func == (lhs: PresetsList.Action.Delegate, rhs: PresetsList.Action.Delegate) -> Bool {
+    switch (lhs, rhs) {
+    case let (.edit(a, b), .edit(c, d)):
+      return (a, b) == (c, d)
+    }
+  }
+}

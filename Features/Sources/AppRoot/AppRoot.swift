@@ -7,7 +7,6 @@ import AudioUnit.AUParameters
 import BRHSplitView
 import Changes
 import DelayEffect
-import Dependencies
 import FeatureSupport
 import Keyboard
 import Presets
@@ -19,7 +18,6 @@ import Synth
 import Tags
 import ToolBar
 import Tutorial
-import UniformTypeIdentifiers
 import VolumeMonitor
 
 /**
@@ -66,6 +64,8 @@ public struct AppRoot {
     case tagsEditor(TagsEditor)
     case tutorial(Tutorial)
   }
+
+  // MARK: -
 
   @ObservableState
   public struct State: Equatable {
@@ -316,7 +316,7 @@ extension AppRoot {
     )
   }
 
-  fileprivate func createCloudDocumentsDirectory() -> Effect<Action> {
+  private func createCloudDocumentsDirectory() -> Effect<Action> {
     .run { _ in
       Task.detached(priority: .medium) {
         if let url = FileManager.default.cloudDocumentsDirectory {
@@ -329,7 +329,7 @@ extension AppRoot {
     }.cancellable(id: CancelId.createCloudDocumentsDirectory, cancelInFlight: true)
   }
 
-  fileprivate func destinationDismissed(_ state: inout State) -> Effect<Action> {
+  private func destinationDismissed(_ state: inout State) -> Effect<Action> {
     switch state.destination {
 
     case .presetEditor(let editor):
@@ -343,7 +343,7 @@ extension AppRoot {
     }
   }
 
-  fileprivate func editorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
+  private func editorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
     if editor.visible {
       state.presetsList.updateSection(editor.sectionId, presetId: editor.preset.id, displayName: editor.displayName)
       return .none
@@ -351,7 +351,7 @@ extension AppRoot {
     return reduce(into: &state, action: .presetsList(.fetchPresets))
   }
 
-  fileprivate func initialize(_ state: inout State) -> Effect<Action> {
+  private func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
       createCloudDocumentsDirectory(),
       monitorActivePresetId(),
@@ -359,7 +359,7 @@ extension AppRoot {
     )
   }
 
-  fileprivate func monitorActivePresetId() -> Effect<Action> {
+  private func monitorActivePresetId() -> Effect<Action> {
     .publisher {
       $activeState.activePresetId
         .publisher
@@ -368,7 +368,7 @@ extension AppRoot {
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 
-  fileprivate func processKeyboardAction(_ state: inout State, action: Keyboard.Action.Delegate) -> Effect<Action> {
+  private func processKeyboardAction(_ state: inout State, action: Keyboard.Action.Delegate) -> Effect<Action> {
     switch action {
     case .noteOn(let key):
       return reduce(into: &state, action: .toolBar(.lastPlayedKeyChanged(key)))
@@ -380,7 +380,7 @@ extension AppRoot {
     }
   }
 
-  fileprivate func processFontsAndPresetsSplitAction(
+  private func processFontsAndPresetsSplitAction(
     _ state: inout State,
     action: SplitViewReducer.Action.Delegate
   ) -> Effect<Action> {
@@ -392,7 +392,7 @@ extension AppRoot {
     return .none
   }
 
-  fileprivate func processFontsAndTagsSplitAction(
+  private func processFontsAndTagsSplitAction(
     _ state: inout State,
     action: SplitViewReducer.Action.Delegate
   ) -> Effect<Action> {
@@ -409,7 +409,7 @@ extension AppRoot {
     return .none
   }
 
-  fileprivate func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
+  private func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
     switch action {
     case .showChanges:
       state.showChanges()
@@ -421,7 +421,7 @@ extension AppRoot {
     return .none
   }
 
-  fileprivate func processToolBarAction(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
+  private func processToolBarAction(_ state: inout State, action: ToolBar.Action.Delegate) -> Effect<Action> {
     switch action {
 
     case .editingPresetVisibilityChanged(let active):
@@ -453,7 +453,7 @@ extension AppRoot {
     }
   }
 
-  fileprivate func scenePhaseChanged(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
+  private func scenePhaseChanged(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
     switch phase {
 
     case .active:
@@ -473,6 +473,8 @@ extension AppRoot {
 }
 
 extension AppRoot.Destination.State: Equatable {}
+
+// MARK: -
 
 public struct AppRootView: View {
   @Environment(\.scenePhase) var scenePhase

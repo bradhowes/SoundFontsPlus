@@ -36,6 +36,7 @@ public struct PresetsList {
     }
   }
 
+  // MARK: -
   @ObservableState
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
@@ -93,7 +94,7 @@ public struct PresetsList {
     case visibilityEditModeChanged(Bool)
 
     @CasePathable
-    public enum Delegate: Equatable {
+    public enum Delegate {
       case edit(sectionId: Int, preset: Preset)
     }
   }
@@ -329,9 +330,9 @@ extension PresetsList {
 }
 
 extension PresetsList.Destination.State: Equatable {}
-extension PresetsList.Destination.State: _EphemeralState {
-  public typealias Action = Alert
-}
+extension PresetsList.Destination.State: _EphemeralState { public typealias Action = Alert }
+
+// MARK: -
 
 public struct PresetsListView: View {
   @Bindable private var store: StoreOf<PresetsList>
