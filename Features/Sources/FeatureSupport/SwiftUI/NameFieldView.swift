@@ -17,20 +17,6 @@ public struct NameFieldView: View {
     self.readOnly = readOnly
   }
 
-//  public var body: some View {
-//    let backgroundColor: Color = readOnly ? .clear : .init(hex: "404040")!
-//    return ZStack {
-//      RoundedRectangle(cornerRadius: 8)
-//        .padding(.init(top: 0, leading: -4, bottom: 0, trailing: 4))
-//        .foregroundStyle(backgroundColor)
-//      TextField("", text: text)
-//        .disabled(readOnly || isEditing)
-//        .deleteDisabled(readOnly)
-//        .foregroundStyle(editable ? .white : .secondary)
-//        .font(Font.custom("Eurostile", size: 20))
-//    }
-//  }
-
   public var body: some View {
     textField
       .disabled(readOnly || isEditing)
