@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AVFAudio
 import DelayEffect
 import DependenciesTestSupport
 import FeatureSupport
@@ -56,8 +57,17 @@ struct AppRootTests {
       )
     }
 
+    store.exhaustivity = .off
     await store.receive(\.synth.synthAudioUnitCreated) {
       $0.synth.audioSessionActivated = true
+    }
+    store.exhaustivity = .on
+
+    let synth = store.state.synth.avAudioUnit!
+
+    await store.receive(\.synth.delegate.audioUnitCreated, synth) {
+      $0.keyboard.midiInstrument = synth.midiInstrument
+      $0.toolBar.audioUnit = synth.auAudioUnit
     }
 
     await store.receive(\.synth.activePresetIdChanged) {
@@ -106,8 +116,17 @@ struct AppRootTests {
       )
     }
 
+    store.exhaustivity = .off
     await store.receive(\.synth.synthAudioUnitCreated) {
       $0.synth.audioSessionActivated = true
+    }
+    store.exhaustivity = .on
+
+    let synth = store.state.synth.avAudioUnit!
+
+    await store.receive(\.synth.delegate.audioUnitCreated, synth) {
+      $0.keyboard.midiInstrument = synth.midiInstrument
+      $0.toolBar.audioUnit = synth.auAudioUnit
     }
 
     await store.receive(\.synth.activePresetIdChanged) {
@@ -115,7 +134,7 @@ struct AppRootTests {
       $0.synth.loadedPresetIndex = 0
     }
 
-    await store.receive(\.synth.delegate, .running)
+    await store.receive(\.synth.delegate.running)
     await store.receive(\.toolBar.activeVoiceCountChanged)
 
     await store.send(.deinitialize)

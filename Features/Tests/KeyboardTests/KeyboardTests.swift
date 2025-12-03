@@ -141,6 +141,10 @@ struct KeyboardTests {
     let event: Keyboard.State.EventId = .wrap(MockEventId(id: 1))
     let note: Note = .C4
 
+    await store.send(.midiInstrumentCreated(mau)) {
+      $0.midiInstrument = mau
+    }
+
     await store.send(.touchBegan(event, note)) {
       $0.eventNoteMap[event] = note
       $0.noteCounters[note.midiNoteValue] = 1
@@ -159,6 +163,11 @@ struct KeyboardTests {
     @Shared(.activeState) var activeState = .none
 
     let store = TestStore(initialState: Keyboard.State()) { Keyboard() }
+
+    await store.send(.midiInstrumentCreated(mau)) {
+      $0.midiInstrument = mau
+    }
+
     let event: Keyboard.State.EventId = .wrap(MockEventId(id: 1))
 
     await store.send(.touchEnded(event))
@@ -175,6 +184,10 @@ struct KeyboardTests {
     let store = TestStore(initialState: Keyboard.State()) { Keyboard() }
     let event: Keyboard.State.EventId = .wrap(MockEventId(id: 1))
     let note: Note = .C4
+
+    await store.send(.midiInstrumentCreated(mau)) {
+      $0.midiInstrument = mau
+    }
 
     await store.send(.touchBegan(event, note)) {
       $0.eventNoteMap[event] = note
@@ -213,32 +226,23 @@ struct KeyboardTests {
   func activePresetIdChanged() async throws {
     @Shared(.activeState) var activeState = .default
     let store = TestStore(initialState: Keyboard.State()) { Keyboard() }
-    await store.send(.initialize)
+    await store.send(\.activePresetIdChanged, 1)
 
-    await store.receive(\.activePresetIdChanged, 1)
     await store.receive(\.scrollTo, .G5) {
       $0.scrollTo = .G5
     }
 
-    $activeState.withLock { $0.activePresetId = 2 }
+    await store.send(\.activePresetIdChanged, 2)
 
-    await store.receive(\.activePresetIdChanged, 2)
-
-    $activeState.withLock { $0.activePresetId = 3 }
-
-    await store.receive(\.activePresetIdChanged, 3)
+    await store.send(\.activePresetIdChanged, 3)
 
     await store.receive(\.scrollTo, .A2) {
       $0.scrollTo = .A2
     }
 
-    $activeState.withLock { $0.activePresetId = 4 }
+    await store.send(\.activePresetIdChanged, 4)
 
-    await store.receive(\.activePresetIdChanged, 4)
-
-    $activeState.withLock { $0.activePresetId = nil }
-
-    await store.receive(\.activePresetIdChanged, nil)
+    await store.send(\.activePresetIdChanged, nil)
 
     await store.send(.deinitialize)
   }

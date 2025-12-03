@@ -217,7 +217,7 @@ extension AUv3Root {
     _ state: inout State,
     action: SplitViewReducer.Action.Delegate
   ) -> Effect<Action> {
-    if case .stateChanged(let panesVisible, let position) = action {
+    if case .stateChanged(let panesVisible, _) = action {
       let visible = panesVisible.contains(.bottom)
       state.toolBar.setTagsListVisible(visible)
     }
@@ -502,13 +502,13 @@ extension AUv3RootView {
   static var preview: some View {
     prepareDependencies {
       $0.defaultDatabase = previewDatabase()
-      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.liveValue
+      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.previewValue
       @Shared(.tagsListVisible) var tagsListVisible
       $tagsListVisible.withLock { $0 = false }
     }
 
     // swiftlint:disable:next force_try
-    let audioUnit = try! SF2LibAU(componentDescription: SynthAUv3ComponentDescription.liveValue)
+    let audioUnit = try! SF2LibAU(componentDescription: SynthAUv3ComponentDescription.previewValue)
 
     return ZStack {
       Color.black

@@ -78,8 +78,7 @@ public struct Keyboard {
     case allOff
     case deinitialize
     case delegate(Delegate)
-    case initialize
-    case midiInstrumentCreated(AVAudioUnitMIDIInstrument)
+    case midiInstrumentCreated(AVAudioUnitMIDIInstrument?)
     case outputVolumeStateChanged(OutputVolumeState)
     case scrollTo(Note?)
     case touchBegan(State.EventId, Note)
@@ -113,9 +112,6 @@ public struct Keyboard {
       case .delegate:
         return .none
 
-      case .initialize:
-        return initialize(&state)
-
       case .midiInstrumentCreated(let audioUnit):
         state.midiInstrument = audioUnit
         return .none
@@ -143,7 +139,6 @@ public struct Keyboard {
   @Shared(.activeState) private var activeState
 
   private enum CancelId: CaseIterable {
-    case activePresetId
     case scrollTo
   }
 }
@@ -177,17 +172,6 @@ extension Keyboard {
     return .run { send in
       await send(.scrollTo(audioConfig.keyboardLowestNote))
     }.cancellable(id: CancelId.scrollTo)
-  }
-
-  private func initialize(_ state: inout State) -> Effect<Action> {
-    .publisher {
-      $activeState.activePresetId
-        .publisher
-        .removeDuplicates()
-        .map {
-          .activePresetIdChanged($0)
-        }
-    }.cancellable(id: CancelId.activePresetId, cancelInFlight: true)
   }
 
   private func reduceNoteCount(_ state: inout State, note: Note) -> Bool {
@@ -293,9 +277,6 @@ public struct KeyboardView: View {
         } else {
           updateVisibleKeys(visibleRect: newValue)
         }
-      }
-      .task {
-        await store.send(.initialize).finish()
       }
     }
     .clipShape(

@@ -220,12 +220,13 @@ public struct AppRoot {
     Scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit) { SplitViewReducer() }
 
     Reduce { state, action in
-      log.info("reduce \(action)")
+      log.info("*** AppRoot reduce \(action)")
       switch action {
 
       case .activePresetIdChanged(let presetId):
         return .merge(
           reduce(into: &state, action: .appReview(.ask)),
+          reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
           reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId))),
           reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId)))
         )
@@ -315,15 +316,15 @@ extension AppRoot {
   private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
     @Shared(.midiMonitor) var midiMonitor
     midiMonitor?.midiInstrument = avAudioUnit.midiInstrument
-    return reduce(into: &state, action: .toolBar(.audioUnitCreated(avAudioUnit.auAudioUnit)))
+    return .merge(
+      reduce(into: &state, action: .toolBar(.audioUnitCreated(avAudioUnit.auAudioUnit))),
+      reduce(into: &state, action: .keyboard(.midiInstrumentCreated(avAudioUnit.midiInstrument)))
+    )
   }
 
   private func audioChainActive(_ state: inout State) -> Effect<Action> {
     // The synth is up and running with an active audio session. Safe to monitor its state now.
-    .merge(
-      reduce(into: &state, action: .volumeMonitor(.start)),
-      reduce(into: &state, action: .toolBar(.monitorActiveVoiceCount))
-    )
+    reduce(into: &state, action: .volumeMonitor(.start))
   }
 
   private func audioChainInactive(_ state: inout State) -> Effect<Action> {

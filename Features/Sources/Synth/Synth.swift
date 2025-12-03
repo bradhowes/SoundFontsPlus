@@ -58,6 +58,7 @@ public struct Synth {
     case releaseAudioSession
     case synthAudioUnitCreated(AVAudioUnit)
 
+    @CasePathable
     public enum Delegate: Equatable {
       case audioUnitCreated(AVAudioUnit)
       case running
@@ -188,9 +189,9 @@ extension Synth {
 
     log.info("createSynthDone END")
 
-    return .concatenate(
-      beginMonitoring(&state),
-      .send(.delegate(.audioUnitCreated(avAudioUnit)))
+    return .merge(
+      .send(.delegate(.audioUnitCreated(avAudioUnit))),
+      beginMonitoring(&state)
     )
   }
 

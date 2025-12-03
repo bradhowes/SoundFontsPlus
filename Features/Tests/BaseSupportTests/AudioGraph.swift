@@ -11,7 +11,7 @@ import Testing
 struct AudioGraphTests {
 
   @Test
-  func liveClientMissingComponents() throws {
+  func liveClientMissingComponents() async throws {
     let audioFormat: AVAudioFormat! = AVAudioFormat(
       commonFormat: .pcmFormatFloat32,
       sampleRate: 48_000.0,
@@ -21,15 +21,15 @@ struct AudioGraphTests {
 
     let uat = AudioGraph.liveValue
     #expect(throws: Never.self) {
-      #expect(uat.start(audioFormat, AVAudioUnitMIDIInstrument()) == false)
+      #expect(uat.start(audioFormat, nil) == false)
     }
     #expect(throws: Never.self) {
-      uat.stop(AVAudioUnitMIDIInstrument())
+      uat.stop(nil)
     }
   }
 
   @Test
-  func liveClientHasComponents() throws {
+  func liveClientHasComponents() async throws {
     @Shared(.audioEngine) var audioEngine = AVAudioEngine()
     @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
@@ -41,12 +41,13 @@ struct AudioGraphTests {
       interleaved: false
     )
 
+    let audioUnit = AVAudioUnitSampler()
     let uat = AudioGraph.liveValue
     #expect(throws: Never.self) {
-      #expect(uat.start(audioFormat, AVAudioUnitMIDIInstrument()) == false)
+      #expect(uat.start(audioFormat, audioUnit) == true)
     }
     #expect(throws: Never.self) {
-      uat.stop(AVAudioUnitMIDIInstrument())
+      uat.stop(audioUnit)
     }
   }
 

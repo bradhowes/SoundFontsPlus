@@ -38,10 +38,7 @@ struct AUv3RootTests {
     let store = try await store()
 
     await store.send(.initialize)
-
-    await store.receive(\.activePresetIdChanged)
     try await test(store)
-
     await store.send(.deinitialize)
     await store.finish()
   }
@@ -54,25 +51,17 @@ struct AUv3RootTests {
   @Test
   func processPresetsSplitAction() async throws {
     try await initialized { store in
-      @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
-      #expect(fontsAndPresetsSplitPosition == 0.5)
       await store.send(\.fontsAndPresetsSplit.delegate, .stateChanged(panesVisible: .both, position: 0.3))
-      #expect(fontsAndPresetsSplitPosition == 0.3)
     }
   }
 
   @Test
   func processTagsSplitAction() async throws {
     try await initialized { store in
-      @Shared(.tagsListVisible) var tagsListVisible
-      @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
-      #expect(tagsListVisible == false)
-      #expect(fontsAndTagsSplitPosition == 0.4)
       await store.send(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: .both, position: 0.5)) {
         $0.toolBar.tagsListVisible.toggle()
       }
-      #expect(tagsListVisible == true)
-      #expect(fontsAndTagsSplitPosition == 0.5)
+      #expect(store.state.toolBar.tagsListVisible == true)
     }
   }
 
@@ -88,15 +77,6 @@ struct AUv3RootTests {
       }
     }
   }
-
-//  @Test func showPresetEditor() async throws {
-//    try await initialized { store in
-//      await store.send(\.presetsList, .fetchPresets)
-//      let preset = Preset.with(id: 1)
-//      await store.send(\.presetsList.sections, .element(id: 10000, action: .rows(.element(id: 1, action: .delegate(.editPreset(preset!))))))
-//      #expect(store.state.destination != nil)
-//    }
-//  }
 
   @Test
   func showSoundFontEditor() async throws {

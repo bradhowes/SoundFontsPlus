@@ -41,9 +41,14 @@ struct SynthTests {
 
     await store.send(.initialize)
 
+    store.exhaustivity = .off
     await store.receive(\.synthAudioUnitCreated) {
       $0.audioSessionActivated = true
     }
+    #expect(store.state.avAudioUnit != nil)
+    store.exhaustivity = .on
+
+    await store.receive(\.delegate.audioUnitCreated, store.state.avAudioUnit!)
 
     await store.receive(\.activePresetIdChanged, timeout: .seconds(5)) {
       $0.loadedSoundFontId = 1

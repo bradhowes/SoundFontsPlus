@@ -9,8 +9,8 @@ private let log = Logger(category: "AudioGraph")
 
 @DependencyClient
 public struct AudioGraph: Sendable {
-  public var start: @Sendable (AVAudioFormat, AVAudioUnitMIDIInstrument) -> Bool = { _, _ in false }
-  public var stop: @Sendable (AVAudioUnitMIDIInstrument) -> Void
+  public var start: @Sendable (AVAudioFormat, AVAudioUnitMIDIInstrument?) -> Bool = { _, _ in false }
+  public var stop: @Sendable (AVAudioUnitMIDIInstrument?) -> Void
 }
 
 extension AudioGraph: DependencyKey {
@@ -29,7 +29,7 @@ extension AudioGraph: DependencyKey {
   }
 }
 
-private func startGraph(_ audioFormat: AVAudioFormat, _ synth: AVAudioUnitMIDIInstrument) -> Bool {
+private func startGraph(_ audioFormat: AVAudioFormat, _ synth: AVAudioUnitMIDIInstrument?) -> Bool {
   @Shared(.audioEngine) var audioEngine
   @Shared(.delayEffect) var delayEffect
   @Shared(.reverbEffect) var reverbEffect
@@ -38,7 +38,8 @@ private func startGraph(_ audioFormat: AVAudioFormat, _ synth: AVAudioUnitMIDIIn
   guard
     let audioEngine,
     let delayEffect,
-    let reverbEffect
+    let reverbEffect,
+    let synth
   else {
     log.info("startGraph END - missing components")
     return false
@@ -73,7 +74,7 @@ private func startGraph(_ audioFormat: AVAudioFormat, _ synth: AVAudioUnitMIDIIn
   return started
 }
 
-private func stopGraph(_ synth: AVAudioUnitMIDIInstrument) {
+private func stopGraph(_ synth: AVAudioUnitMIDIInstrument?) {
   @Shared(.audioEngine) var audioEngine
   @Shared(.delayEffect) var delayEffect
   @Shared(.reverbEffect) var reverbEffect
@@ -82,7 +83,8 @@ private func stopGraph(_ synth: AVAudioUnitMIDIInstrument) {
   guard
     let audioEngine,
     let delayEffect,
-    let reverbEffect
+    let reverbEffect,
+    let synth
   else {
     log.info("stopGraph END - missing components")
     return

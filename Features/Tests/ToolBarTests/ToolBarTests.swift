@@ -195,8 +195,9 @@ struct ToolBarTests {
 
     let store = try await store()
     await store.send(.initialize)
-
-    await store.send(.monitorActiveVoiceCount)
+    await store.send(.audioUnitCreated(synth.auAudioUnit)) {
+      $0.audioUnit = synth.auAudioUnit
+    }
 
     await store.receive(\.activeVoiceCountChanged, 0)
 

@@ -76,7 +76,6 @@ public struct ToolBar {
     case helpButtonTapped
     case initialize
     case midiTrafficIndicator(MIDITrafficIndicator.Action)
-    case monitorActiveVoiceCount
     case presetsVisibilityButtonTapped
     case settingsButtonTapped
     case setVisibleKeyRange(lowest: Note, highest: Note)
@@ -125,7 +124,7 @@ public struct ToolBar {
 
       case .audioUnitCreated(let audioUnit):
         state.audioUnit = audioUnit
-        return .none
+        return monitorActiveVoiceCount(&state)
 
       case .deinitialize:
         return .merge(CancelId.allCases.map({ .cancel(id: $0) }))
@@ -138,9 +137,6 @@ public struct ToolBar {
 
       case .initialize:
         return initialize(&state)
-
-      case .monitorActiveVoiceCount:
-        return monitorActiveVoiceCount(&state)
 
       case .lastPlayedKeyChanged(let key):
         return lastPlayedKeyChanged(&state, key: key)
