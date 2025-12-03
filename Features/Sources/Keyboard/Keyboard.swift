@@ -239,8 +239,12 @@ public struct KeyboardView: View {
   private let blackNotes: [Note] = .init(BlackKeySequenceGenerator().makeIterator())
 
   private var keyboardHeightScaling: Double { verticalSizeClass == .compact ? 0.5 : 1.0 }
+  private var keyboardHeight: Double { maxKeyboardPanelHeight * keyboardHeightScaling }
   private let whiteKeySpacing: Double = 2.0
   private let whiteKeyInset: Double
+  private let coordinateSpace = "keyboard"
+
+  @State private var visibleRect: CGRect = .zero
 
   public init(store: StoreOf<Keyboard>) {
     self.store = store
@@ -252,6 +256,7 @@ public struct KeyboardView: View {
       ScrollView(.horizontal) {
         keys
       }
+      .coordinateSpace(name: coordinateSpace)
       .simultaneousGesture(spatialEventGesture)
       .scrollDisabled(!keyboardSlides)
       .scrollIndicators(.hidden)
@@ -305,7 +310,7 @@ public struct KeyboardView: View {
   }
 
   private var spatialEventGesture: some Gesture {
-    SpatialEventGesture(coordinateSpace: .global)
+    SpatialEventGesture(coordinateSpace: .named(coordinateSpace))
       .onChanged { events in
         for event in events {
           if event.phase == .active {
@@ -333,7 +338,7 @@ public struct KeyboardView: View {
   private func whiteKey(note: Note) -> some View {
     labeledKey(note: note)
       .onGeometryChange(for: CGRect.self) {
-        $0.frame(in: .global)
+        $0.frame(in: .named(coordinateSpace))
       } action: {
         if note.isValidMidiNote {
           frames[note.midiNoteValue] = $0.insetBy(dx: whiteKeyInset, dy: 0)
@@ -358,7 +363,7 @@ public struct KeyboardView: View {
     key(note: note)
       .opacity(note.isValidMidiNote ? 1.0 : 0.0)
       .onGeometryChange(for: CGRect.self) {
-        $0.frame(in: .global)
+        $0.frame(in: .named(coordinateSpace))
       } action: {
         if note.isValidMidiNote {
           frames[note.midiNoteValue] = $0
@@ -393,6 +398,15 @@ public struct KeyboardView: View {
   }
 
   private func touchDown(to event: Event) {
+    print("touchDown:", event.location)
+
+    // NOTE: seems that on iPad OS 26.1 we can get phantom events where X is near 0.0 and Y is just below the bottom of
+    // the screen. Do not see this on iPhone devices.
+    guard isValidTouchLocation(event.location) else {
+      print("*** ignored")
+      return
+    }
+
     let pos = frames.orderedInsertionIndex(for: event.location)
     guard pos < frames.endIndex else { return }
     let note = Note(midiNoteValue: frames.distance(from: frames.startIndex, to: pos))
@@ -400,7 +414,16 @@ public struct KeyboardView: View {
   }
 
   private func touchUp(for event: Event) {
+    print("touchUp:", event.location)
+    guard isValidTouchLocation(event.location) else {
+      print("*** ignored")
+      return
+    }
     store.send(.touchEnded(.wrap(event.id)))
+  }
+
+  private func isValidTouchLocation(_ location: CGPoint) -> Bool {
+    location.x > 1.0e-8 && location.y < keyboardHeight
   }
 }
 

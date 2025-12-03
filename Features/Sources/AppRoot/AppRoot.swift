@@ -220,7 +220,7 @@ public struct AppRoot {
     Scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit) { SplitViewReducer() }
 
     Reduce { state, action in
-      log.info("*** AppRoot reduce \(action)")
+      log.info("AppRoot reduce \(action)")
       switch action {
 
       case .activePresetIdChanged(let presetId):
@@ -302,7 +302,7 @@ public struct AppRoot {
       }
     }
     .ifLet(\.$destination, action: \.destination)
-    ._printChanges()
+    // ._printChanges()
   }
 
   private enum CancelId: CaseIterable {
