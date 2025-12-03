@@ -3,9 +3,9 @@
 import AVFAudio
 
 extension AVAudioUnit {
-  public var synth: SF2LibAU? { self.auAudioUnit.synth }
+  public var sf2LibAU: SF2LibAU? { self.auAudioUnit.sf2LibAU }
 }
 
 extension AUAudioUnit {
-  public var synth: SF2LibAU? { self as? SF2LibAU }
+  public var sf2LibAU: SF2LibAU? { self as? SF2LibAU }
 }

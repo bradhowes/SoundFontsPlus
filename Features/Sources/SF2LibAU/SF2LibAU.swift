@@ -115,6 +115,8 @@ extension SF2LibAU {
 
 extension SF2LibAU {
 
+  // public override var audioUnitMIDIProtocol: MIDIProtocolID { ._1_0 }
+
   @discardableResult
   public func sendLoadFileUsePreset(path: String, preset: Int, gain: Double, pan: Double) -> Bool {
     sendMIDI(bytes: Array(createLoadFileUsePresetPayload(path: path, preset: preset)))

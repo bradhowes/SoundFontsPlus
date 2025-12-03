@@ -47,6 +47,7 @@ public struct Keyboard {
     public var muted: Bool
     public let settingsDemo: Bool
     public var scrollTo: Note?
+    public var midiInstrument: AVAudioUnitMIDIInstrument?
 
     @Shared(.keyWidth) public var keyWidth
     @Shared(.keyLabels) public var keyLabels
@@ -72,15 +73,13 @@ public struct Keyboard {
     case unmuted
   }
 
-  public var midiInstrument: AVAudioUnitMIDIInstrument? { synth?.midiInstrument }
-  @Shared(.avAudioUnit) public var synth
-
   public enum Action {
     case activePresetIdChanged(Preset.ID?)
     case allOff
     case deinitialize
     case delegate(Delegate)
     case initialize
+    case midiInstrumentCreated(AVAudioUnitMIDIInstrument)
     case outputVolumeStateChanged(OutputVolumeState)
     case scrollTo(Note?)
     case touchBegan(State.EventId, Note)
@@ -116,6 +115,10 @@ public struct Keyboard {
 
       case .initialize:
         return initialize(&state)
+
+      case .midiInstrumentCreated(let audioUnit):
+        state.midiInstrument = audioUnit
+        return .none
 
       case .outputVolumeStateChanged(let value):
         state.muted = value == .muted
@@ -206,7 +209,7 @@ extension Keyboard {
 
       // If key is no longer held down, stop the note
       if reduceNoteCount(&state, note: previous) {
-        midiInstrument?.stopNote(UInt8(previous.midiNoteValue), onChannel: 0)
+        state.midiInstrument?.stopNote(UInt8(previous.midiNoteValue), onChannel: 0)
       }
     }
 
@@ -215,7 +218,7 @@ extension Keyboard {
 
     // If first time touching the key, start playing the note for it
     if state.noteCounters[note.midiNoteValue] == 1 {
-      midiInstrument?.startNote(UInt8(note.midiNoteValue), withVelocity: 127, onChannel: 0)
+      state.midiInstrument?.startNote(UInt8(note.midiNoteValue), withVelocity: 127, onChannel: 0)
       return .send(.delegate(.noteOn(note)))
     }
 
@@ -225,7 +228,7 @@ extension Keyboard {
   private func touchEnded(_ state: inout State, event: State.EventId) -> Effect<Action> {
     if let note = state.eventNoteMap.removeValue(forKey: event),
        reduceNoteCount(&state, note: note) {
-      midiInstrument?.stopNote(UInt8(note.midiNoteValue), onChannel: 0)
+      state.midiInstrument?.stopNote(UInt8(note.midiNoteValue), onChannel: 0)
     }
     return .none
   }

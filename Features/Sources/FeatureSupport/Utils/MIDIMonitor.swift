@@ -24,8 +24,7 @@ public struct MIDITraffic: Equatable, Sendable {
 
 public final class MIDIMonitor {
   @Shared(.midiChannel) private var midiChannel
-  @Shared(.avAudioUnit) private var synth
-  var midiInstrument: AVAudioUnitMIDIInstrument? { synth?.midiInstrument }
+  public var midiInstrument: AVAudioUnitMIDIInstrument?
 
   // We want all traffic to appear in the `traffic` tap, regardless of channel. However, we *will* filter
   // traffic ourselvee in the `accepts` method where we use the `midiChannel` shared value to determine if

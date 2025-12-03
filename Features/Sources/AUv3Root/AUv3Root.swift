@@ -6,6 +6,7 @@ import AudioUnit.AUParameters
 import BRHSplitView
 import FeatureSupport
 import Presets
+import SF2LibAU
 import SQLiteData
 import Settings
 import SoundFonts
@@ -25,6 +26,7 @@ public struct AUv3Root {
       @Shared(.isAUv3) var isAUv3 = true
       @Shared(.activeState) var activeState
       $activeState.withLock { $0 = .none }
+
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       $0.defaultFileStorage = .fileSystem
@@ -55,8 +57,10 @@ public struct AUv3Root {
     public var soundFontsList: SoundFontsList.State
     public var tagsList: TagsList.State
     public var toolBar: ToolBar.State
+    public var audioUnit: SF2LibAU
 
     public init(
+      audioUnit: SF2LibAU,
       destination: Destination.State? = nil,
       fontsAndPresetsSplit: SplitViewReducer.State? = nil,
       fontsAndTagsSplit: SplitViewReducer.State? = nil,
@@ -65,6 +69,7 @@ public struct AUv3Root {
       tagsList: TagsList.State? = nil,
       toolBar: ToolBar.State? = nil
     ) {
+      self.audioUnit = audioUnit
       self.fontsAndPresetsSplit = fontsAndPresetsSplit ?? Self.makeFontsAndPresetsSplitState()
       self.fontsAndTagsSplit = fontsAndTagsSplit ?? Self.makeFontsAndTagsSplitState()
       self.presetsList = presetsList ?? .init()
@@ -74,19 +79,16 @@ public struct AUv3Root {
     }
 
     static public func makeFontsAndPresetsSplitState() -> SplitViewReducer.State {
-      @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
       return .init(
         panesVisible: .both,
-        initialPosition: fontsAndPresetsSplitPosition
+        initialPosition: 0.5
       )
     }
 
     static public func makeFontsAndTagsSplitState() -> SplitViewReducer.State {
-      @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
-      @Shared(.tagsListVisible) var tagsListVisible
       return .init(
-        panesVisible: tagsListVisible ? .both : .primary,
-        initialPosition: fontsAndTagsSplitPosition
+        panesVisible: .primary,
+        initialPosition: 0.4
       )
     }
   }
@@ -107,25 +109,19 @@ public struct AUv3Root {
 
   public init() {}
 
-  @Shared(.activeState) private var activeState
-  @Shared(.fontsAndPresetsSplitPosition) private var fontsAndPresetsSplitPosition
-  @Shared(.fontsAndTagsSplitPosition) private var fontsAndTagsSplitPosition
-  @Shared(.tagsListVisible) private var tagsListVisible
-  @Shared(.auAudioUnit) private var synth
-
   public var body: some ReducerOf<Self> {
     BindingReducer()
 
+    Scope(state: \.fontsAndPresetsSplit, action: \.fontsAndPresetsSplit) { SplitViewReducer() }
+    Scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit) { SplitViewReducer() }
     Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
     Scope(state: \.soundFontsList, action: \.soundFontsList) { SoundFontsList() }
     Scope(state: \.tagsList, action: \.tagsList) { TagsList() }
     Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
 
-    Scope(state: \.fontsAndPresetsSplit, action: \.fontsAndPresetsSplit) { SplitViewReducer() }
-    Scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit) { SplitViewReducer() }
-
     Reduce { state, action in
-      log.info("reduce \(action)")
+      log.debug("reduce \(action)")
+
       switch action {
 
       case .activePresetIdChanged(let presetId):
@@ -145,9 +141,6 @@ public struct AUv3Root {
 
       case .destination(.dismiss):
         return destinationDismissed(&state)
-
-      case .fontsAndPresetsSplit(.delegate(let action)):
-        return processFontsAndPresetsSplitAction(&state, action: action)
 
       case .fontsAndTagsSplit(.delegate(let action)):
         return processFontsAndTagsSplitAction(&state, action: action)
@@ -175,7 +168,6 @@ public struct AUv3Root {
       }
     }
     .ifLet(\.$destination, action: \.destination)
-    ._printChanges()
   }
 
   private enum CancelId: CaseIterable {
@@ -209,29 +201,17 @@ extension AUv3Root {
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {
-    return monitorActivePresetId()
+    return .none // monitorActivePresetId()
   }
 
-  private func monitorActivePresetId() -> Effect<Action> {
-    .publisher {
-      $activeState.activePresetId
-        .publisher
-        .removeDuplicates()
-        .map { .activePresetIdChanged($0) }
-    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
-  }
-
-  private func processFontsAndPresetsSplitAction(
-    _ state: inout State,
-    action: SplitViewReducer.Action.Delegate
-  ) -> Effect<Action> {
-    if case .stateChanged(_, let position) = action {
-      if position != fontsAndPresetsSplitPosition {
-        $fontsAndPresetsSplitPosition.withLock { $0 = position }
-      }
-    }
-    return .none
-  }
+//  private func monitorActivePresetId() -> Effect<Action> {
+//    .publisher {
+//      $activeState.activePresetId
+//        .publisher
+//        .removeDuplicates()
+//        .map { .activePresetIdChanged($0) }
+//    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
+//  }
 
   private func processFontsAndTagsSplitAction(
     _ state: inout State,
@@ -239,13 +219,7 @@ extension AUv3Root {
   ) -> Effect<Action> {
     if case .stateChanged(let panesVisible, let position) = action {
       let visible = panesVisible.contains(.bottom)
-      if visible != tagsListVisible {
-        $tagsListVisible.withLock { $0 = visible }
-        state.toolBar.setTagsListVisible(visible)
-      }
-      if position != fontsAndTagsSplitPosition {
-        $fontsAndTagsSplitPosition.withLock { $0 = position }
-      }
+      state.toolBar.setTagsListVisible(visible)
     }
     return .none
   }
@@ -271,7 +245,6 @@ extension AUv3Root {
       return .none
 
     case .tagsListVisibilityChanged(let visible):
-      $tagsListVisible.withLock { $0 = visible }
       let panes: SplitViewPanes = visible ? .both : .primary
       return reduce(into: &state, action: .fontsAndTagsSplit(.updatePanesVisibility(panes)))
 
@@ -285,10 +258,6 @@ extension AUv3Root {
 
   private func useActivePreset(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     log.info("useActivePreset BEGIN - presetId: \(presetId ?? -1)")
-    guard let synth = synth?.synth else {
-      log.info("useActivePreset END - no synth")
-      return .none
-    }
 
     guard let presetInfo = Operations.presetLoadingInfo(id: presetId) else {
       log.info("useActivePreset END - no presetInfo")
@@ -303,7 +272,7 @@ extension AUv3Root {
     let result: Bool
     if presetInfo.soundFontId == state.loadedSoundFontId {
       log.info("useActivePreset - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = synth.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
+      result = state.audioUnit.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
     } else {
       guard let location = try? SoundFontKind(
         kind: presetInfo.kind,
@@ -316,7 +285,7 @@ extension AUv3Root {
       }
       let path = location.path.path(percentEncoded: false)
       log.info("useActivePreset - loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = synth.sendLoadFileUsePreset(
+      result = state.audioUnit.sendLoadFileUsePreset(
         path: path,
         preset: presetInfo.presetIndex,
         gain: presetInfo.gain,
@@ -324,7 +293,7 @@ extension AUv3Root {
       )
     }
 
-    synth.audioUnitShortName = presetInfo.presetName
+    state.audioUnit.audioUnitShortName = presetInfo.presetName
 
     state.loadedPresetIndex = presetInfo.presetIndex
     state.loadedSoundFontId = presetInfo.soundFontId
@@ -533,14 +502,18 @@ extension AUv3RootView {
   static var preview: some View {
     prepareDependencies {
       $0.defaultDatabase = previewDatabase()
+      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.liveValue
       @Shared(.tagsListVisible) var tagsListVisible
       $tagsListVisible.withLock { $0 = false }
     }
 
+    // swiftlint:disable:next force_try
+    let audioUnit = try! SF2LibAU(componentDescription: SynthAUv3ComponentDescription.liveValue)
+
     return ZStack {
       Color.black
         .ignoresSafeArea(edges: .all)
-      AUv3RootView(store: Store(initialState: .init()) { AUv3Root() })
+      AUv3RootView(store: Store(initialState: .init(audioUnit: audioUnit)) { AUv3Root() })
         // .preferredColorScheme(.dark)
         .environment(\.colorScheme, .dark)
     }

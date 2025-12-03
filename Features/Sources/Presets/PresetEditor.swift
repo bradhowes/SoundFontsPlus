@@ -43,7 +43,9 @@ public struct PresetEditor {
 
     public var isFavorite: Bool { preset.kind == .favorite }
 
-    public init(sectionId: Int, preset: Preset) {
+    public let audioUnit: AUAudioUnit?
+
+    public init(sectionId: Int, preset: Preset, audioUnit: AUAudioUnit? = nil) {
       self.sectionId = sectionId
       self.preset = preset
       self.displayName = preset.displayName
@@ -60,6 +62,8 @@ public struct PresetEditor {
 
       self.gainSlider = audioConfig.gain
       self.panSlider = audioConfig.pan
+
+      self.audioUnit = audioUnit
     }
 
     public mutating func save() {
@@ -108,7 +112,6 @@ public struct PresetEditor {
 
   @Shared(.activeState) private var activeState
   @Shared(.confirmPresetHiding) private var confirmPresetHiding
-  @Shared(.auAudioUnit) private var auAudioUnit
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -186,7 +189,7 @@ extension PresetEditor {
 
   private func gainSliderChanged(_ state: inout State) -> Effect<Action> {
     guard activeState.activePresetId == state.preset.id else { return .none }
-    guard let parameterTree = auAudioUnit?.parameterTree else { return .none }
+    guard let parameterTree = state.audioUnit?.parameterTree else { return .none }
     state.pendingAudioConfig.gain = state.gainSlider
     let gainAddress = AUParameterAddress(SF2.Entity.Generator.Index.initialAttenuation.rawValue)
     let parameter = parameterTree.parameter(withAddress: gainAddress)
@@ -203,7 +206,7 @@ extension PresetEditor {
   private func panSliderChanged(_ state: inout State) -> Effect<Action> {
     guard activeState.activePresetId == state.preset.id else { return .none }
     state.pendingAudioConfig.gain = state.gainSlider
-    guard let parameterTree = auAudioUnit?.parameterTree else { return .none }
+    guard let parameterTree = state.audioUnit?.parameterTree else { return .none }
     let panAddress = AUParameterAddress(SF2.Entity.Generator.Index.pan.rawValue)
     let parameter = parameterTree.parameter(withAddress: panAddress)
     parameter?.setValue(state.pendingAudioConfig.pan.panGeneratorValue, originator: nil)

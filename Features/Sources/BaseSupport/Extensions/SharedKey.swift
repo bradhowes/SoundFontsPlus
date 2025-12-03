@@ -20,17 +20,6 @@ extension SharedKey where Self == InMemoryKey<Bool>.Default {
   public static var isAUv3: Self { Self[.inMemory("isAUv3"), default: false] }
 }
 
-extension SharedKey where Self == InMemoryKey<AUAudioUnit?>.Default {
-  /// The auAudioUnit is the low-level `SF2LibAU` instance.
-  public static var auAudioUnit: Self { Self[.inMemory("auAudioUnit"), default: nil] }
-}
-
-extension SharedKey where Self == InMemoryKey<AVAudioUnit?>.Default {
-  /// The avAudioUnit is an `AVAudioUnit` wrapper around an `SF2LibAU` instance. It is only available when running
-  /// the application, not the AUv3 extension.
-  public static var avAudioUnit: Self { Self[.inMemory("avAudioUnit"), default: nil] }
-}
-
 extension SharedKey where Self == InMemoryKey<AVAudioUnitDelay?>.Default {
   public static var delayEffect: Self { Self[.inMemory("delayEffect"), default: nil] }
 }

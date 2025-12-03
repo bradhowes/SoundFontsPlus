@@ -21,8 +21,6 @@ extension SharedKey where Self == FileStorageKey<ActiveState>.Default {
   }
 }
 
-// MARK: - InMemory settings
-
 extension SharedKey where Self == InMemoryKey<SoundFont.ID?>.Default {
   public static var selectedSoundFontId: Self { Self[.inMemory("selectedSoundFont"), default: nil] }
 }

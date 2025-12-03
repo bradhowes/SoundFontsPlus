@@ -9,6 +9,7 @@ import Changes
 import DelayEffect
 import FeatureSupport
 import Keyboard
+import MorkAndMIDI
 import Presets
 import ReverbEffect
 import SQLiteData
@@ -49,6 +50,13 @@ public struct AppRoot {
 
       let engine = AVAudioEngine()
       @Shared(.audioEngine) var audioEngine = engine
+
+      @Shared(.midiInputPortId) var midiInputPortId
+      @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
+      midi?.start()
+
+      @Shared(.midiMonitor) var midiMonitor = .init()
+      midi?.receiver = midiMonitor
     }
   }
 
@@ -265,6 +273,9 @@ public struct AppRoot {
         state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
         return .none
 
+      case .synth(.delegate(.audioUnitCreated(let avAudioUnit))):
+        return audioUnitCreated(&state, avAudioUnit: avAudioUnit)
+
       case .synth(.delegate(.running)):
         return audioChainActive(&state)
 
@@ -300,6 +311,12 @@ public struct AppRoot {
 }
 
 extension AppRoot {
+
+  private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
+    @Shared(.midiMonitor) var midiMonitor
+    midiMonitor?.midiInstrument = avAudioUnit.midiInstrument
+    return reduce(into: &state, action: .toolBar(.audioUnitCreated(avAudioUnit.auAudioUnit)))
+  }
 
   private func audioChainActive(_ state: inout State) -> Effect<Action> {
     // The synth is up and running with an active audio session. Safe to monitor its state now.

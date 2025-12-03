@@ -33,10 +33,7 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
   nonisolated public func createAudioUnit(with componentDescription: AudioComponentDescription) throws -> AUAudioUnit {
     try DispatchQueue.main.sync {
       AUv3Root.prepareDependencies()
-      @Shared(.auAudioUnit) var auAudioUnit
       let audioUnit = try SF2LibAU(componentDescription: componentDescription, options: [])
-      $auAudioUnit.withLock { $0 = audioUnit }
-      self.audioUnit = audioUnit
       DispatchQueue.main.async { [weak self] in
         self?.installView(audioUnit: audioUnit)
       }
@@ -44,19 +41,22 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
     }
   }
 
-  private func installView(audioUnit: AUAudioUnit) {
+  private func installView(audioUnit: SF2LibAU) {
 
     if let host = hostingController {
       host.removeFromParent()
       host.view.removeFromSuperview()
     }
 
-    let content = AUv3RootView(store: Store(initialState: .init()) { AUv3Root() })
+    let content = AUv3RootView(store: Store(initialState: .init(audioUnit: audioUnit)) { AUv3Root() })
     let host = AUv3HostingController(rootView: content)
+
     self.addChild(host)
     host.view.frame = self.view.bounds
     self.view.addSubview(host.view)
-    hostingController = host
+
+    self.audioUnit = audioUnit
+    self.hostingController = host
 
     // Make sure the SwiftUI view fills the full area provided by the view controller
     host.view.translatesAutoresizingMaskIntoConstraints = false

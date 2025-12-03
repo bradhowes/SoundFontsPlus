@@ -27,6 +27,7 @@ public struct ToolBar {
     public var preset: Preset?
     public var showMoreButtons: Bool
     public var tagsListVisible: Bool
+    public var audioUnit: AUAudioUnit?
 
     public init(
       activeVoiceCount: Int = 0,
@@ -67,6 +68,7 @@ public struct ToolBar {
     case activePresetIdChanged(Preset.ID?)
     case activeVoiceCountChanged(Int)
     case addSoundFontButtonTapped
+    case audioUnitCreated(AUAudioUnit)
     case deinitialize
     case delegate(Delegate)
     case effectsVisibilityButtonTapped
@@ -98,7 +100,6 @@ public struct ToolBar {
 
   @Shared(.showKeyNotes) private var showKeyNotes
   @Shared(.showSolfegeTags) private var showSolfegeTags
-  @Shared(.auAudioUnit) private var synth
 
   public init() {}
 
@@ -121,6 +122,10 @@ public struct ToolBar {
 
       case .addSoundFontButtonTapped:
         return reduce(into: &state, action: .fileImporter(.showFileImporter))
+
+      case .audioUnitCreated(let audioUnit):
+        state.audioUnit = audioUnit
+        return .none
 
       case .deinitialize:
         return .merge(CancelId.allCases.map({ .cancel(id: $0) }))
@@ -199,7 +204,7 @@ extension ToolBar {
 
   private func monitorActiveVoiceCount(_ state: inout State) -> Effect<Action> {
     guard
-      let parameterTree = synth?.parameterTree,
+      let parameterTree = state.audioUnit?.parameterTree,
       let node = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.activeVoiceCount.rawValue)
     else {
       return .none

@@ -29,6 +29,8 @@ public struct Synth {
     public var firstTimePresetLoaded: Bool = true
     @ObservationStateIgnored
     public var audioSessionActivated: Bool = false
+    @ObservationStateIgnored
+    public var avAudioUnit: AVAudioUnit?
 
     public init(
       loadedSoundFontId: SoundFont.ID? = nil,
@@ -57,6 +59,7 @@ public struct Synth {
     case synthAudioUnitCreated(AVAudioUnit)
 
     public enum Delegate: Equatable {
+      case audioUnitCreated(AVAudioUnit)
       case running
       case stopped
     }
@@ -81,7 +84,6 @@ public struct Synth {
   @Shared(.activeState) private var activeState
   @Shared(.backgroundProcessing) private var backgroundProcessing
   @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
-  @Shared(.avAudioUnit) private var synth
 
   public var body: some ReducerOf<Self> {
 
@@ -121,8 +123,8 @@ public struct Synth {
       case .releaseAudioSession:
         return releaseAudioSession(&state)
 
-      case .synthAudioUnitCreated(let audioUnit):
-        return createSynthAudioUnitDone(&state, synth: audioUnit)
+      case .synthAudioUnitCreated(let avAudioUnit):
+        return createSynthAudioUnitDone(&state, avAudioUnit: avAudioUnit)
       }
     }
   }
@@ -173,13 +175,10 @@ extension Synth {
     }.cancellable(id: CancelId.createSynth, cancelInFlight: true)
   }
 
-  private func createSynthAudioUnitDone(_ state: inout State, synth: AVAudioUnit) -> Effect<Action> {
+  private func createSynthAudioUnitDone(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
     log.info("createSynthAudioUnitDone BEGIN")
 
-    $synth.withLock { $0 = synth }
-
-    @Shared(.auAudioUnit) var auAudioUnit
-    $auAudioUnit.withLock { $0 = synth.auAudioUnit }
+    state.avAudioUnit = avAudioUnit
 
     if state.audioSessionActivated {
       startEngine(&state)
@@ -188,12 +187,18 @@ extension Synth {
     }
 
     log.info("createSynthDone END")
-    return beginMonitoring(&state)
+
+    return .concatenate(
+      beginMonitoring(&state),
+      .send(.delegate(.audioUnitCreated(avAudioUnit)))
+    )
   }
 
   private func destroyAudioGraph(_ state: inout State) {
     log.info("destroyAudioGraph BEGIN")
-    audioGraph.stop()
+    if let midiInstrument = state.avAudioUnit?.midiInstrument {
+      audioGraph.stop(midiInstrument)
+    }
     log.info("destroyAudioGraph END")
   }
 
@@ -205,7 +210,7 @@ extension Synth {
   private func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
     log.info("lastPresetLoadFinished BEGIN - \(state.firstTimePresetLoaded)")
     guard
-      let parameterTree = synth?.parameterTree,
+      let parameterTree = state.avAudioUnit?.parameterTree,
       let presetId = activeState.activePresetId
     else {
       return .none
@@ -241,7 +246,7 @@ extension Synth {
 
   private func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
     log.info("monitorLastLoadFinished BEGIN")
-    guard let parameterTree = synth?.parameterTree else {
+    guard let parameterTree = state.avAudioUnit?.parameterTree else {
       fatalError("monitorLastLoadFinished - unexpected nil parameterTree chain")
     }
 
@@ -290,8 +295,8 @@ extension Synth {
   private func playNote(_ state: State) -> Effect<Action> {
     log.debug("playNote BEGIN - \(playSoundOnPresetChange) ")
 
-    guard let synth = synth?.synth else {
-      log.debug("playNote END - !synth")
+    guard let sf2LibAU = state.avAudioUnit?.sf2LibAU else {
+      log.debug("playNote END - !sf2LibAU")
       return .none
     }
 
@@ -303,10 +308,10 @@ extension Synth {
     return .run { _ in
       @Dependency(\.continuousClock) var clock
       log.debug("sending note on")
-      synth.sendNoteOn(note: 60)
+      sf2LibAU.sendNoteOn(note: 60)
       try? await clock.sleep(for: Self.playNoteDurationMilliseconds)
       log.debug("sending note off")
-      synth.sendNoteOff(note: 60)
+      sf2LibAU.sendNoteOff(note: 60)
     }.cancellable(id: CancelId.playNote, cancelInFlight: true)
   }
 
@@ -340,7 +345,12 @@ extension Synth {
 
   private func startEngine(_ state: inout State) {
     log.info("startEngine BEGIN")
-    let started = audioGraph.start(audioFormat)
+    guard let midiInstrument = state.avAudioUnit?.midiInstrument else {
+      log.info("startEngine END - no midi instrument")
+      return
+    }
+
+    let started = audioGraph.start(audioFormat, midiInstrument)
     log.info("startEngine END - \(started)")
   }
 
@@ -355,7 +365,7 @@ extension Synth {
   private func useActivePreset(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     log.info("useActivePreset BEGIN - presetId: \(presetId ?? -1)")
     guard
-      let synth = synth?.synth,
+      let sf2LibAU = state.avAudioUnit?.sf2LibAU,
       state.audioSessionActivated
     else {
       log.info("useActivePreset END - nil audioUnit or inactive audio session")
@@ -375,7 +385,7 @@ extension Synth {
     let result: Bool
     if presetInfo.soundFontId == state.loadedSoundFontId {
       log.info("useActivePreset - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = synth.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
+      result = sf2LibAU.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
     } else {
       guard let location = try? SoundFontKind(
         kind: presetInfo.kind,
@@ -388,7 +398,7 @@ extension Synth {
       }
       let path = location.path.path(percentEncoded: false)
       log.info("useActivePreset - loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = synth.sendLoadFileUsePreset(
+      result = sf2LibAU.sendLoadFileUsePreset(
         path: path,
         preset: presetInfo.presetIndex,
         gain: presetInfo.gain,
