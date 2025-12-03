@@ -21,10 +21,10 @@ struct AudioGraphTests {
 
     let uat = AudioGraph.liveValue
     #expect(throws: Never.self) {
-      #expect(uat.start(audioFormat) == false)
+      #expect(uat.start(audioFormat, AVAudioUnitMIDIInstrument()) == false)
     }
     #expect(throws: Never.self) {
-      uat.stop()
+      uat.stop(AVAudioUnitMIDIInstrument())
     }
   }
 
@@ -43,10 +43,10 @@ struct AudioGraphTests {
 
     let uat = AudioGraph.liveValue
     #expect(throws: Never.self) {
-      #expect(uat.start(audioFormat) == false)
+      #expect(uat.start(audioFormat, AVAudioUnitMIDIInstrument()) == false)
     }
     #expect(throws: Never.self) {
-      uat.stop()
+      uat.stop(AVAudioUnitMIDIInstrument())
     }
   }
 
@@ -61,10 +61,10 @@ struct AudioGraphTests {
 
     let uat = AudioGraph.previewValue
     #expect(throws: Never.self) {
-      #expect(uat.start(audioFormat) == true)
+      #expect(uat.start(audioFormat, AVAudioUnitMIDIInstrument()) == true)
     }
     #expect(throws: Never.self) {
-      uat.stop()
+      uat.stop(AVAudioUnitMIDIInstrument())
     }
   }
 }

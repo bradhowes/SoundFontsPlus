@@ -36,9 +36,9 @@ struct MIDIMonitorTests {
   func monitorWithSynth() {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
-    @Shared(.avAudioUnit) var synth = mau
 
     let monitor = MIDIMonitor()
+    monitor.midiInstrument = mau
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     monitor.noteOff(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(mau.events.count == 2)
@@ -53,8 +53,8 @@ struct MIDIMonitorTests {
   func forwarding() {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
-    @Shared(.avAudioUnit) var synth = mau
     let monitor = MIDIMonitor()
+    monitor.midiInstrument = mau
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(mau.events.last! == (.noteOn, 60, 64, 0))
     monitor.noteOff(source: 123, note: 60, velocity: 64, channel: 0)
@@ -81,8 +81,8 @@ struct MIDIMonitorTests {
   func trafficOmni() {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
-    @Shared(.avAudioUnit) var synth = mau
     let monitor = MIDIMonitor()
+    monitor.midiInstrument = mau
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(monitor.traffic != nil)
     #expect(monitor.traffic! == MIDITraffic(id: 123, channel: 0, accepted: true))
@@ -94,8 +94,8 @@ struct MIDIMonitorTests {
   func trafficOneChannel() {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = 1
-    @Shared(.avAudioUnit) var synth = mau
     let monitor = MIDIMonitor()
+    monitor.midiInstrument = mau
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(monitor.traffic != nil)
     #expect(monitor.traffic! == MIDITraffic(id: 123, channel: 0, accepted: false))

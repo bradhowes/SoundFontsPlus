@@ -95,7 +95,6 @@ public struct PresetsList {
 
     @CasePathable
     public enum Delegate {
-      case activatePreset(presetId: Preset.ID, soundFontId: SoundFont.ID)
       case edit(sectionId: Int, preset: Preset)
     }
   }

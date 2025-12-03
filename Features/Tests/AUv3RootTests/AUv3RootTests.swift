@@ -4,6 +4,7 @@ import DependenciesTestSupport
 import FeatureSupport
 import Models
 import Settings
+import SF2LibAU
 import SnapshotTesting
 import SoundFonts
 import Testing
@@ -24,15 +25,17 @@ import TestSupport
 @MainActor
 struct AUv3RootTests {
 
-  func store() -> TestStoreOf<AUv3Root> {
+  func store() async throws -> TestStoreOf<AUv3Root> {
     @Shared(.activeState) var activeState = .default
-    return .init(initialState: .init()) {
+    @Dependency(\.synthAUv3ComponentDescription) var synthAUv3ComponentDescription
+    let audioUnit = try await SF2LibAU.create(synthAUv3ComponentDescription)
+    return .init(initialState: .init(audioUnit: audioUnit.sf2LibAU!)) {
       AUv3Root()
     }
   }
 
   func initialized(_ test: (TestStoreOf<AUv3Root>) async throws -> Void) async throws {
-    let store = store()
+    let store = try await store()
 
     await store.send(.initialize)
 

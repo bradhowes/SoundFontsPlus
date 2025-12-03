@@ -135,7 +135,6 @@ struct KeyboardTests {
   func touchBegan() async throws {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
-    @Shared(.avAudioUnit) var synth = mau
     @Shared(.activeState) var activeState = .none
 
     let store = TestStore(initialState: Keyboard.State()) { Keyboard() }
@@ -157,7 +156,6 @@ struct KeyboardTests {
   func touchEndedWithoutBegan() async throws {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
-    @Shared(.avAudioUnit) var synth = mau
     @Shared(.activeState) var activeState = .none
 
     let store = TestStore(initialState: Keyboard.State()) { Keyboard() }
@@ -172,7 +170,6 @@ struct KeyboardTests {
   func touchEndedAfterBegan() async throws {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
-    @Shared(.avAudioUnit) var synth = mau
     @Shared(.activeState) var activeState = .none
 
     let store = TestStore(initialState: Keyboard.State()) { Keyboard() }
