@@ -100,8 +100,11 @@ extension SF2LibAU {
    NOTE: do not use for production purposes since it might hide problems with finding an AUv3 extension attached to the
    application. Instead, just create the same AudioComponentDescription value and try to instantiate it.
    */
-  public static func create(_ acd: AudioComponentDescription) async throws -> AVAudioUnit {
-    AUAudioUnit.registerSubclass(SF2LibAU.self, as: acd, name: "SoundFontsPlusAU", version: 1)
+  public static func create(_ acd: AudioComponentDescription, register: Bool = false) async throws -> AVAudioUnit {
+    if register {
+      AUAudioUnit.registerSubclass(SF2LibAU.self, as: acd, name: "SoundFontsPlusAU", version: 1)
+    }
+
     log.info(
       """
       create - instantiating audio unit for \
