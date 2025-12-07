@@ -1,7 +1,8 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 /**
- Custom script to create the `FluidR3_GM.sf2` soundfont file from the given N slices
+ Custom script to create the `FluidR3_GM.sf2` soundfont file from 3 smaller parts, just to get out from using
+ git-lfs on this repo.
 
  First argument is the path to this script. Last argument is the output file to generate.
  The remaining arguments are the pieces to concatenate to make the output file.
@@ -11,33 +12,32 @@ import Foundation
 
 let arguments = ProcessInfo().arguments
 if arguments.count < 3 {
-  print("missing arguments - \(arguments)")
+  print("BuldFluidFontCmd: missing arguments - \(arguments)")
   exit(1)
 }
 
-// swiftlint:disable:next force_unwrapping
-let output = URL(fileURLWithPath: arguments.last!)
+let first = URL(fileURLWithPath: arguments[1], isDirectory: false)
+let outputIndex = arguments.count - 1
+let output = URL(fileURLWithPath: arguments[outputIndex], isDirectory: false)
+
 if FileManager.default.fileExists(atPath: output.path()) {
-  print("skipping -- \(output) already exists")
+  print("BuldFluidFontCmd: skipping -- \(output.path()) already exists")
   exit(0)
 }
 
-for input in arguments.dropFirst().dropLast() {
-  // swiftlint:disable:next force_try
-  try! Data(contentsOf: .init(filePath: input, directoryHint: .notDirectory)).appendTo(output)
+print("BuldFluidFontCmd: generating output - \(output)")
+
+// Copy first part so we can get a `FileHandle` and then use that to append the others.
+try FileManager.default.copyItem(at: first, to: output)
+
+guard let fileHandle = FileHandle(forWritingAtPath: output.path()) else {
+  print("BuildFluidFontCmd: failed to open for writing \(output.path())")
+  exit(1)
 }
 
-extension Data {
+defer { fileHandle.closeFile() }
+try fileHandle.seekToEnd()
 
-  func appendTo(_ fileURL: URL) throws {
-    if let fileHandle = FileHandle(forWritingAtPath: fileURL.path) {
-      defer {
-        fileHandle.closeFile()
-      }
-      fileHandle.seekToEndOfFile()
-      fileHandle.write(self)
-    } else {
-      try write(to: fileURL, options: .atomic)
-    }
-  }
+for input in arguments[2..<outputIndex] {
+  try fileHandle.write(contentsOf: Data(contentsOf: .init(filePath: input, directoryHint: .notDirectory)))
 }
