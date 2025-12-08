@@ -156,14 +156,22 @@ extension Synth {
 
   private func beginMonitoring(_ state: inout State) -> Effect<Action> {
     log.info("beginMonitoring - BEGIN")
-    // Start up the monitors now that we have a synth and signal Root that it is running
-    return .merge(
+    var actions = [
       monitorActivePresetId(&state),
+      monitorLastLoadFinished(&state)
+    ]
+
+#if os(iOS)
+    actions.append(contentsOf: [
       monitorMediaServices(&state),
-      monitorRouteChanged(&state),
-      monitorLastLoadFinished(&state),
-      .send(.delegate(.running))
-    )
+      monitorRouteChanged(&state)
+    ])
+#endif
+
+    actions.append(.send(.delegate(.running)))
+
+    // Start up the monitors now that we have a synth and signal Root that it is running
+    return .merge(actions)
   }
 
   private func createSynthAudioUnit(_ state: inout State) -> Effect<Action> {
@@ -269,6 +277,7 @@ extension Synth {
     }.cancellable(id: CancelId.monitorLastLoadFinished)
   }
 
+#if os(iOS)
   private func monitorMediaServices(_ state: inout State) -> Effect<Action> {
     log.info("monitorMediaServices BEGIN")
     return .publisher {
@@ -292,6 +301,7 @@ extension Synth {
         }
     }.cancellable(id: CancelId.monitorRouteChanged, cancelInFlight: true)
   }
+#endif // os(iOS)
 
   private func playNote(_ state: State) -> Effect<Action> {
     log.debug("playNote BEGIN - \(playSoundOnPresetChange) ")
