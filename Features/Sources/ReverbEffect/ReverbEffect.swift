@@ -252,8 +252,10 @@ public struct ReverbEffectView: View {
               .foregroundStyle(theme.textColor)
           }
         }
+#if os(iOS)
         .pickerStyle(.wheel)
         .frame(width: 110)  // !!! Magic size that fits all of the strings without wasted space
+#endif
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
     }

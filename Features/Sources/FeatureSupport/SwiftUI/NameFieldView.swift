@@ -8,9 +8,14 @@ import SwiftUI
 public struct NameFieldView: View {
   private var text: Binding<String>
   private let readOnly: Bool
-  @Environment(\.editMode) private var editMode
   private var editable: Bool { !readOnly }
+  
+#if os(iOS)
+  @Environment(\.editMode) private var editMode
   private var isEditing: Bool { editMode?.wrappedValue.isEditing == true }
+#else
+  private var isEditing: Bool { false }
+#endif
 
   public init(text: Binding<String>, readOnly: Bool) {
     self.text = text

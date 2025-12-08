@@ -34,7 +34,7 @@ public struct TagsEditor {
   public struct State: Equatable, Sendable {
     public var rows: IdentifiedArrayOf<TagNameEditor.State>
     public let mode: Mode
-    public var editMode: EditMode = .inactive
+    public var editModeActive: Bool = false
     public var focused: FontTag.ID?
     public var deleted: Set<FontTag.ID> = []
     public let soundFontId: SoundFont.ID?
@@ -53,7 +53,7 @@ public struct TagsEditor {
       focused: FontTag.ID? = nil,
       soundFontId: SoundFont.ID? = nil,
       memberships: [FontTag.ID: Bool]? = nil,
-      editMode: EditMode = .inactive,
+      editModeActive: Bool = false
     ) {
       self.mode = mode
       self.rows = .init(
@@ -67,7 +67,7 @@ public struct TagsEditor {
           }
       )
       self.focused = focused
-      self.editMode = editMode
+      self.editModeActive = editModeActive
       self.soundFontId = soundFontId
     }
 
@@ -92,8 +92,9 @@ public struct TagsEditor {
     case finalizeDeleteTag(tagId: FontTag.ID)
     case rows(IdentifiedActionOf<TagNameEditor>)
     case saveButtonTapped
+    case editModeActiveChanged(Bool)
     case tagMoved(at: IndexSet, to: Int)
-    case toggleEditMode
+    case toggleEditModeActive
   }
 
   @Dependency(\.defaultDatabase) private var database
@@ -112,6 +113,10 @@ public struct TagsEditor {
       case .deleteButtonTapped(let indices):
         return deleteTag(&state, indices: indices)
 
+      case .editModeActiveChanged(let value):
+        state.editModeActive = value
+        return .none
+
       case .finalizeDeleteTag(let tagId):
         return finalizeDeleteTag(&state, tagId: tagId)
 
@@ -124,8 +129,8 @@ public struct TagsEditor {
       case let .tagMoved(indices, offset):
         return moveTag(&state, at: indices, to: offset)
 
-      case .toggleEditMode:
-        return toggleEditMode(&state)
+      case .toggleEditModeActive:
+        return toggleEditModeActive(&state)
 
       default:
         return .none
@@ -211,9 +216,9 @@ private extension TagsEditor {
     return .none.animation(.smooth)
   }
 
-  func toggleEditMode(_ state: inout State) -> Effect<Action> {
+  func toggleEditModeActive(_ state: inout State) -> Effect<Action> {
     withAnimation {
-      state.editMode = state.editMode.isEditing ? .inactive : .active
+      state.editModeActive.toggle()
     }
     return .none
   }
@@ -249,15 +254,15 @@ public struct TagsEditorView: View {
       if store.mode == .tagEditing {
         ToolbarItem(placement: .cancellationAction) {
           Button("Cancel") { store.send(.cancelButtonTapped, animation: .default) }
-            .disabled(store.editMode == .active)
+            .disabled(store.editModeActive)
             .font(.button)
         }
 
         ToolbarItem(placement: .automatic) {
           Button {
-            store.send(.toggleEditMode, animation: .default)
+            store.send(.toggleEditModeActive, animation: .default)
           } label: {
-            if store.editMode.isEditing {
+            if store.editModeActive {
               Text("Done")
                 .foregroundStyle(.red)
             } else {
@@ -273,16 +278,24 @@ public struct TagsEditorView: View {
         } label: {
           Image(systemName: "plus")
         }
-        .disabled(store.editMode == .active)
+        .disabled(store.editModeActive)
         .font(.button)
       }
       ToolbarItem(placement: .confirmationAction) {
         Button("Save") { store.send(.saveButtonTapped, animation: .default) }
-          .disabled(store.editMode == .active)
+          .disabled(store.editModeActive)
           .font(.button)
       }
     }
-    .environment(\.editMode, $store.editMode)
+#if os(iOS)
+    .environment(
+      \.editMode,
+       Binding(
+        get: { store.editModeActive ? .active : .inactive },
+        set: { store.send(.editModeActiveChanged($0 == .active)) }
+       )
+    )
+#endif // os(iOS)
   }
 }
 
@@ -303,7 +316,7 @@ extension TagsEditorView {
   static var previewInEditMode: some View {
     prepareDependencies { $0.defaultDatabase = previewDatabase() }
     let tags = FontTag.tags
-    return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.id, editMode: .active)) {
+    return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.id, editModeActive: true)) {
       TagsEditor()
     })
   }
