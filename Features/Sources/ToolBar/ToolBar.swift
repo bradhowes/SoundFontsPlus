@@ -310,7 +310,6 @@ public struct ToolBarView: View {
   @Shared(.showSolfegeTags) private var showSolfegeTags
   @Shared(.isAUv3) private var isAUv3
   @Environment(\.appPanelBackground) private var appPanelBackground
-  @Environment(\.auv3ControlsTheme) private var auv3ControlsTheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   public init(store: StoreOf<ToolBar>) {

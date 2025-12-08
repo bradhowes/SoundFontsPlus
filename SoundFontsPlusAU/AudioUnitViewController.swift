@@ -64,7 +64,9 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
     host.view.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
     host.view.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
     host.view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
+#if os(iOS)
     self.view.bringSubviewToFront(host.view)
+#endif
   }
 }
 

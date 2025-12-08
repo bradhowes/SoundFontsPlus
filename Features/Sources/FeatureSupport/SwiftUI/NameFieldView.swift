@@ -9,7 +9,7 @@ public struct NameFieldView: View {
   private var text: Binding<String>
   private let readOnly: Bool
   private var editable: Bool { !readOnly }
-  
+
 #if os(iOS)
   @Environment(\.editMode) private var editMode
   private var isEditing: Bool { editMode?.wrappedValue.isEditing == true }

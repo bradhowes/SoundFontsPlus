@@ -17,8 +17,8 @@ public struct StyledList<Content: View>: View {
     .listSectionSpacing(.compact)
     .listStyle(.plain)
   }
-#endif
-  
+#endif // os(iOS)
+
 #if os(macOS)
   public var body: some View {
     List {
@@ -26,7 +26,7 @@ public struct StyledList<Content: View>: View {
     }
     .listStyle(.plain)
   }
-#endif
+#endif // os(macOS)
 }
 
 public struct StyledEntry<Content: View>: View {

@@ -284,7 +284,10 @@ extension SoundFontButtonView {
       List {
         SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[0])) { SoundFontButton() })
         SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[1])) { SoundFontButton() })
-      }.listStyle(.grouped)
+      }
+#if os(iOS)
+      .listStyle(.grouped)
+#endif
     }
   }
 }

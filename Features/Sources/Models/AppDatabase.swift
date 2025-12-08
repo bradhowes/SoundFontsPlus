@@ -72,7 +72,7 @@ public func appDatabase(
     unsafe coordinator.coordinate(writingItemAt: databaseURL, options: .forMerging, error: &coordinatorError) { url in
       do {
         log.info("opening \(url)")
-        dbPool = try DatabasePool(path: url.path(), configuration: configuration)
+        dbPool = try DatabasePool(path: url.path(percentEncoded: false), configuration: configuration)
       } catch {
         dbError = error
       }

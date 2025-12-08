@@ -81,7 +81,7 @@ private func startAudioSession(_ audioFormat: AVAudioFormat) -> Bool {
   log.info("startAudioSession END - \(activated)")
 
   return activated
-  
+
 #else
   return true
 #endif

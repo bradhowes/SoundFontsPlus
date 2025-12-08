@@ -40,7 +40,7 @@ public struct AUv3Root {
   @Reducer
   public enum Destination {
     case presetEditor(PresetEditor)
-    case settings(Settings)
+    case settings(AppSettings)
     case soundFontEditor(SoundFontEditor)
     case tagsEditor(TagsEditor)
   }
@@ -224,7 +224,7 @@ extension AUv3Root {
     return .none
   }
 
-  private func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
+  private func processSettingsAction(_ state: inout State, action: AppSettings.Action.Delegate) -> Effect<Action> {
     return .none
   }
 
@@ -232,7 +232,7 @@ extension AUv3Root {
     switch action {
 
     case .editingPresetVisibilityChanged(let active):
-      return reduce(into: &state, action: .presetsList(.visibilityEditModeChanged(active)))
+      return reduce(into: &state, action: .presetsList(.editingVisibilityChanged(active)))
 
     case .presetNameTapped:
       return .merge(
@@ -241,7 +241,7 @@ extension AUv3Root {
       )
 
     case .settingsButtonTapped:
-      state.destination = .settings(Settings.State())
+      state.destination = .settings(AppSettings.State())
       return .none
 
     case .tagsListVisibilityChanged(let visible):
@@ -361,11 +361,7 @@ public struct AUv3RootView: View {
     .task {
       await store.send(.initialize).finish()
     }
-    .sheets(
-      store: $store,
-      horizontalSizeClass: horizontalSizeClass,
-      verticalSizeClass: verticalSizeClass
-    )
+    .sheets(store: $store)
   }
 }
 
@@ -446,14 +442,10 @@ extension View {
    - parameter verticalSizeClass: indicator of the vertical size of the view
    - returns: modified view
    */
-  fileprivate func sheets(
-    store: Bindable<StoreOf<AUv3Root>>,
-    horizontalSizeClass: UserInterfaceSizeClass?,
-    verticalSizeClass: UserInterfaceSizeClass?
-  ) -> some View {
+  fileprivate func sheets(store: Bindable<StoreOf<AUv3Root>>) -> some View {
     self
       .presetEditorSheet(store)
-      .settingsSheet(store, showFakeKeyboard: horizontalSizeClass == .compact || verticalSizeClass == .compact)
+      .settingsSheet(store)
       .soundFontEditorSheet(store)
       .tagsEditorSheet(store)
   }
@@ -467,10 +459,10 @@ extension View {
       }
   }
 
-  fileprivate func settingsSheet(_ store: Bindable<StoreOf<AUv3Root>>, showFakeKeyboard: Bool) -> some View {
+  fileprivate func settingsSheet(_ store: Bindable<StoreOf<AUv3Root>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.settings, action: \.destination.settings)) {
-        SettingsView(store: $0, showFakeKeyboard: showFakeKeyboard)
+        AppSettingsView(store: $0, showFakeKeyboard: false)
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }

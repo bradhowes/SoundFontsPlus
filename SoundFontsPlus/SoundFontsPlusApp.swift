@@ -28,8 +28,10 @@ struct ContentView: View {
 
       AppRootView(store: Store(initialState: .init()) { AppRoot() })
         .environment(\.colorScheme, .dark)
+#if os(iOS)
       // We don't want to mistake keyboard activity for iOS app switching or other system gestures
         .defersSystemGestures(on: [.bottom, .leading, .trailing])
+#endif
     }
   }
 }

@@ -2,6 +2,8 @@
 
 import FeatureSupport
 
+#if os(iOS)
+
 @Reducer
 public struct Tutorial {
 
@@ -735,3 +737,5 @@ or globally.
     }
   }
 }
+
+#endif // os(iOS)

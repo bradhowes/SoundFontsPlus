@@ -15,10 +15,12 @@ public struct PresetsListSection {
     public var rows: IdentifiedArrayOf<PresetButton.State>
     // Make sure section IDs do not conflict with preset IDs.
     public var sectionId: Int { (section + 1) * PresetsList.noGroupingSize }
+    public var editingVisibility: Bool
 
-    public init(section: Int, presets: ArraySlice<Preset>) {
+    public init(section: Int, presets: ArraySlice<Preset>, editingVisibility: Bool) {
       self.section = section
-      self.rows = .init(uniqueElements: presets.map { .init(preset: $0) })
+      self.rows = .init(uniqueElements: presets.map { .init(preset: $0, editingVisibility: editingVisibility) })
+      self.editingVisibility = editingVisibility
     }
 
     /**
@@ -109,9 +111,7 @@ public struct PresetsListSection {
 public struct PresetsListSectionView: View {
   private var store: StoreOf<PresetsListSection>
   private let searching: Bool
-
   @State private var showSearchButton: Bool = false
-  @Environment(\.editMode) var editMode
 
   public init(store: StoreOf<PresetsListSection>, searching: Bool) {
     self.store = store
@@ -145,7 +145,7 @@ public struct PresetsListSectionView: View {
           .frame(maxWidth: .infinity, alignment: .leading)
           .contentShape(Rectangle())
         Spacer()
-        if (showSearchButton || store.section == 0) && !(editMode?.wrappedValue.isEditing ?? false) {
+        if (showSearchButton || store.section == 0) && !store.editingVisibility {
           Button {
             store.send(.searchButtonTapped)
           } label: {

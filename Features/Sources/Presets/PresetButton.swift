@@ -12,9 +12,11 @@ public struct PresetButton {
   public struct State: Equatable, Identifiable {
     public var id: Preset.ID { preset.id }
     public var preset: Preset
+    public var editingVisibility: Bool
 
-    public init(preset: Preset) {
+    public init(preset: Preset, editingVisibility: Bool) {
       self.preset = preset
+      self.editingVisibility = editingVisibility
     }
   }
 
@@ -76,10 +78,17 @@ public struct PresetButton {
 public struct PresetButtonView: View {
   @Bindable private var store: StoreOf<PresetButton>
   @Shared(.activeState) var activeState
-  @Environment(\.editMode) private var editMode
   private var isFavorite: Bool { store.preset.kind == .favorite }
   private var isHidden: Bool { store.preset.kind == .hidden }
+
+#if os(iOS)
+  @Environment(\.editMode) private var editMode
   private var isEditing: Bool { editMode?.wrappedValue == .active }
+#endif
+
+#if os(macOS)
+  private var isEditing: Bool { false }
+#endif
 
   public init(store: StoreOf<PresetButton>) {
     self.store = store
@@ -169,22 +178,20 @@ extension PresetButtonView {
     return VStack {
       Text("Normal")
       List {
-        PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets[0], editingVisibility: false)) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets[1], editingVisibility: false)) { PresetButton() })
         // swiftlint:disable:next force_unwrapping
-        PresetButtonView(store: Store(initialState: .init(preset: presets.last!)) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets.last!, editingVisibility: false)) { PresetButton() })
       }
       .listStyle(.plain)
-      .environment(\.editMode, .constant(.inactive))
 
       Text("Edit Mode")
       List {
-        PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: .init(preset: presets[2])) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets[0], editingVisibility: true)) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets[1], editingVisibility: true)) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets[2], editingVisibility: true)) { PresetButton() })
       }
       .listStyle(.plain)
-      .environment(\.editMode, .constant(.active))
     }
   }
 }

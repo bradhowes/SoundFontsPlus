@@ -15,5 +15,4 @@ extension AppRoot {
     print("UIKit.UIApplication.shared.isIdleTimerDisabled: ", UIKit.UIApplication.shared.isIdleTimerDisabled)
 #endif // os(iOS)
   }
-  
 }
