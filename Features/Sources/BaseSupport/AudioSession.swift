@@ -34,6 +34,7 @@ extension AudioSession: DependencyKey {
 private func startAudioSession(_ audioFormat: AVAudioFormat) -> Bool {
   log.info("startAudioSession BEGIN")
 
+#if os(iOS)
   let audioSession = AVAudioSession.sharedInstance()
   let bufferSize: Int = 64
 
@@ -80,11 +81,15 @@ private func startAudioSession(_ audioFormat: AVAudioFormat) -> Bool {
   log.info("startAudioSession END - \(activated)")
 
   return activated
+  
+#else
+  return true
+#endif
 }
 
 private func stopAudioSession() {
   log.info("stopAudioSession BEGIN")
-
+#if os(iOS)
   do {
     log.info("stopAudioSession - deactivating AudioSession")
     try AVAudioSession.sharedInstance().setActive(false, options: [.notifyOthersOnDeactivation])
@@ -92,10 +97,11 @@ private func stopAudioSession() {
   } catch let error as NSError {
     log.error("stopAudioSession - Failed session.setActive(false): \(error.localizedDescription)")
   }
-
+#endif
   log.info("stopAudioSession END")
 }
 
+#if os(iOS)
 extension AVAudioSessionRouteDescription {
   fileprivate func dump() {
     for input in self.inputs {
@@ -106,5 +112,6 @@ extension AVAudioSessionRouteDescription {
     }
   }
 }
+#endif
 
 private let log = Logger(category: "AudioSession")
