@@ -100,11 +100,8 @@ public struct TagNameEditor {
 
 public struct TagNameEditorView: View {
   @Bindable private var store: StoreOf<TagNameEditor>
-  @Environment(\.editMode) private var editMode
-
   private var readOnly: Bool { store.id.isUbiquitous }
   private var editable: Bool { !readOnly }
-  private var isEditing: Bool { editMode?.wrappedValue.isEditing == true }
 
   public init(store: StoreOf<TagNameEditor>) {
     self.store = store

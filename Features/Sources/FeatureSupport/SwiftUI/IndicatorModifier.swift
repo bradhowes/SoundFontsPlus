@@ -55,9 +55,6 @@ public struct IndicatorModifier: ViewModifier {
   private var indicator: Color { state.indicatorColor }
   private var labelColor: Color { state.labelColor }
 
-  @Environment(\.editMode) private var editMode
-  private var isEditing: Bool { editMode?.wrappedValue.isEditing ?? false }
-
   public func body(content: Content) -> some View {
     ZStack(alignment: .leading) {
       Rectangle()
