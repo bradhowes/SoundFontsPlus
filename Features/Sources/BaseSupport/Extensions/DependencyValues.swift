@@ -24,11 +24,13 @@ extension DependencyValues {
     get { self[FileManagerClient.self] }
     set { self[FileManagerClient.self] = newValue }
   }
-
+  
+#if os(iOS)
   public var outputVolume: OutputVolume {
     get { self[OutputVolume.self] }
     set { self[OutputVolume.self] = newValue }
   }
+#endif
 
   public var synthAUv3ComponentDescription: AudioComponentDescription {
     get { self[SynthAUv3ComponentDescription.self] }

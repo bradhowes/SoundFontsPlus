@@ -3,6 +3,8 @@
 import AVKit
 import Foundation
 
+#if os(iOS)
+
 extension AVAudioSession: OutputVolumeStream {
 
   /**
@@ -15,3 +17,5 @@ extension AVAudioSession: OutputVolumeStream {
     startStreaming()
   }
 }
+
+#endif

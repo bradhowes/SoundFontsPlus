@@ -4,6 +4,7 @@ import SwiftUI
 
 @MainActor
 public func navigationBarTitleStyle() {
+#if os(iOS)
   if let big = UIFont(name: "Eurostile", size: 40) {
     UINavigationBar.appearance().largeTitleTextAttributes = [
       .font: big,
@@ -17,4 +18,5 @@ public func navigationBarTitleStyle() {
       .foregroundColor: UIColor.whiteText
     ]
   }
+#endif
 }

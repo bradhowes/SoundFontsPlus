@@ -5,6 +5,8 @@ import Dependencies
 import DependenciesMacros
 import Foundation
 
+#if os(iOS)
+
 @DependencyClient
 public struct OutputVolume: Sendable {
   public let getValue: @Sendable () -> AUValue
@@ -27,3 +29,5 @@ extension OutputVolume: DependencyKey {
     )
   }
 }
+
+#endif
