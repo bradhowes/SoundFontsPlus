@@ -152,7 +152,7 @@ public struct PresetsList {
         return .none
 
       case .stop:
-        return .cancel(id: CancelId.monitorSelectedSoundFontId)
+        return .cancel(id: CancelId.presetsListMonitorSelectedSoundFontId)
 
       case let .editingVisibilityChanged(editing):
         state.editingVisibility = editing
@@ -168,10 +168,9 @@ public struct PresetsList {
     .ifLet(\.destination, action: \.destination)
   }
 
-  private enum CancelId {
-    case monitorSelectedSoundFontId
-    case playNote
-    case showActivePresetNow
+  private enum CancelId: String {
+    case presetsListMonitorSelectedSoundFontId
+    case presetsListShowActivePresetNow
   }
 }
 
@@ -248,7 +247,7 @@ extension PresetsList {
         .publisher
         .removeDuplicates()
         .map { .selectedSoundFontIdChanged($0) }
-    }.cancellable(id: CancelId.monitorSelectedSoundFontId, cancelInFlight: true)
+    }.cancellable(id: CancelId.presetsListMonitorSelectedSoundFontId, cancelInFlight: true)
   }
 
   private func processSectionAction(
@@ -325,7 +324,7 @@ extension PresetsList {
       @Dependency(\.continuousClock) var clock
       try await clock.sleep(for: Self.delayBeforeShowingActivePreset)
       await send(.showActivePresetNow)
-    }.cancellable(id: CancelId.showActivePresetNow, cancelInFlight: true)
+    }.cancellable(id: CancelId.presetsListShowActivePresetNow, cancelInFlight: true)
   }
 }
 

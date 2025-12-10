@@ -119,7 +119,7 @@ public struct SoundFontButton {
         return bookmarkMonitorStart(&state)
 
       case .bookmarkMonitorStop:
-        return .cancel(id: CancelId.bookmarkMonitor)
+        return .cancel(id: CancelId.soundFontButtonBookmarkMonitor)
 
       case .buttonTapped:
         return .send(.delegate(.selectSoundFont(state.soundFontInfo)))
@@ -153,7 +153,7 @@ public struct SoundFontButton {
   }
 
   private enum CancelId {
-    case bookmarkMonitor
+    case soundFontButtonBookmarkMonitor
   }
 }
 
@@ -173,7 +173,7 @@ extension SoundFontButton {
           statusInfoTag = newStatusInfoTag
         }
       }
-    }.cancellable(id: CancelId.bookmarkMonitor)
+    }.cancellable(id: CancelId.soundFontButtonBookmarkMonitor)
   }
 
   private func downloadFile(_ state: inout State) -> Effect<Action> {

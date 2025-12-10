@@ -108,8 +108,8 @@ public struct MIDIConnections {
     }
   }
 
-  private enum CancelId: CaseIterable {
-    case monitorMIDIConnections
+  private enum CancelId: String, CaseIterable {
+    case midiConnectionsMonitorMIDIConnections
   }
 }
 
@@ -128,7 +128,7 @@ extension MIDIConnections {
     return .publisher {
       midi.activeConnectionsPublisher
         .map { _ in .midiConnectionsChanged(midi.sourceConnections) }
-    }.cancellable(id: CancelId.monitorMIDIConnections)
+    }.cancellable(id: CancelId.midiConnectionsMonitorMIDIConnections)
   }
 
   private func updateMIDIChannel(_ state: inout State, traffic: MIDITraffic) -> Effect<Action> {

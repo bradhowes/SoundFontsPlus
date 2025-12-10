@@ -327,9 +327,9 @@ public struct AppRoot {
     // ._printChanges()
   }
 
-  private enum CancelId: CaseIterable {
-    case createCloudDocumentsDirectory
-    case monitorActivePresetId
+  private enum CancelId: String, CaseIterable {
+    case appRootCreateCloudDocumentsDirectory
+    case appRootMonitorActivePresetId
   }
 }
 
@@ -372,7 +372,7 @@ extension AppRoot {
         }
         await Self.disableIdleTimer()
       }
-    }.cancellable(id: CancelId.createCloudDocumentsDirectory, cancelInFlight: true)
+    }.cancellable(id: CancelId.appRootCreateCloudDocumentsDirectory, cancelInFlight: true)
   }
 
   private func destinationDismissed(_ state: inout State) -> Effect<Action> {
@@ -411,7 +411,7 @@ extension AppRoot {
         .publisher
         .removeDuplicates()
         .map { .activePresetIdChanged($0) }
-    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
+    }.cancellable(id: CancelId.appRootMonitorActivePresetId, cancelInFlight: true)
   }
 
   private func processKeyboardAction(_ state: inout State, action: Keyboard.Action.Delegate) -> Effect<Action> {

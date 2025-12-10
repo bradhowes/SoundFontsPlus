@@ -190,8 +190,8 @@ public struct AppSettings {
     .ifLet(\.destination, action: \.destination)
   }
 
-  private enum CancelId {
-    case monitorMIDIConnections
+  private enum CancelId: String {
+    case appSettingsMonitorMIDIConnections
   }
 }
 
@@ -215,7 +215,7 @@ extension AppSettings {
     return .publisher {
       midi.activeConnectionsCountPublisher
         .map { .midiConnectionCountChanged(Int($0)) }
-    }.cancellable(id: CancelId.monitorMIDIConnections)
+    }.cancellable(id: CancelId.appSettingsMonitorMIDIConnections)
   }
 
   private func tuningChanged(_ state: inout State, enabled: Bool, frequency: Double) -> Effect<Action> {

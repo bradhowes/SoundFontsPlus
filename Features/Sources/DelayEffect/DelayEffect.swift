@@ -110,11 +110,11 @@ public struct DelayEffect {
   @Dependency(\.delayDevice) private var delayDevice
   @Dependency(\.debounceDurations) private var debounceDurations
 
-  private enum CancelId: CaseIterable {
-    case applyConfigForPreset
-    case monitorActivePresetId
-    case saveDebouncer
-    case updateDebouncer
+  private enum CancelId: String, CaseIterable {
+    case delayEffectApplyConfigForPreset
+    case delayEffectMonitorActivePresetId
+    case delayEffectSaveDebouncer
+    case delayEffectUpdateDebouncer
   }
 }
 
@@ -136,7 +136,7 @@ extension DelayEffect {
     return .merge(
       .run { [toSave = state.config] _ in DelayConfig.save(config: toSave) },
       .run { send in await send(.applyConfigForPreset(presetId)) }
-        .cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
+        .cancellable(id: CancelId.delayEffectApplyConfigForPreset, cancelInFlight: true)
     )
   }
 
@@ -161,7 +161,7 @@ extension DelayEffect {
         .publisher
         .removeDuplicates()
         .map { .activePresetIdChanged($0) }
-    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
+    }.cancellable(id: CancelId.delayEffectMonitorActivePresetId, cancelInFlight: true)
   }
 
   private func runDebouncers(_ state: inout State) -> Effect<Action> {
@@ -170,14 +170,14 @@ extension DelayEffect {
       .run { send in
         await send(.updateDebounced)
       }.debounce(
-        id: CancelId.updateDebouncer,
+        id: CancelId.delayEffectUpdateDebouncer,
         for: debounceDurations.effectsDisplayUpdates,
         scheduler: mainQueue
       ),
       .run { send in
         await send(.saveDebounced)
       }.debounce(
-        id: CancelId.saveDebouncer,
+        id: CancelId.delayEffectSaveDebouncer,
         for: debounceDurations.effectsConfigurationSaves,
         scheduler: mainQueue
       )

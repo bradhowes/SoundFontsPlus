@@ -59,7 +59,7 @@ public struct VolumeMonitor {
         return .none
 
       case .stop:
-        return .cancel(id: CancelId.monitorSessionVolume)
+        return .cancel(id: CancelId.volumeMonitorMonitorSessionVolume)
 
       case .delegate:
         return .none
@@ -73,8 +73,8 @@ public struct VolumeMonitor {
     }
   }
 
-  private enum CancelId {
-    case monitorSessionVolume
+  private enum CancelId: String {
+    case volumeMonitorMonitorSessionVolume
   }
 }
 
@@ -90,7 +90,7 @@ private extension VolumeMonitor {
         }
         log.info("stopped observing volume")
       }
-    }.cancellable(id: CancelId.monitorSessionVolume, cancelInFlight: true)
+    }.cancellable(id: CancelId.volumeMonitorMonitorSessionVolume, cancelInFlight: true)
   }
 
   func presetChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {

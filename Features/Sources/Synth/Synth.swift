@@ -130,13 +130,13 @@ public struct Synth {
     }
   }
 
-  private enum CancelId: CaseIterable {
-    case createSynth
-    case monitorActivePresetId
-    case monitorLastLoadFinished
-    case monitorMediaServices
-    case monitorRouteChanged
-    case playNote
+  private enum CancelId: String, CaseIterable {
+    case synthCreateSynth
+    case synthMonitorActivePresetId
+    case synthMonitorLastLoadFinished
+    case synthMonitorMediaServices
+    case synthMonitorRouteChanged
+    case synthPlayNote
   }
 }
 
@@ -166,7 +166,7 @@ extension Synth {
       monitorMediaServices(&state),
       monitorRouteChanged(&state)
     ])
-#endif
+#endif // os(iOS)
 
     actions.append(.send(.delegate(.running)))
 
@@ -178,10 +178,14 @@ extension Synth {
     log.info("createSynth")
     return .run { [synthAUv3ComponentDescription = synthAUv3ComponentDescription] send in
       log.info("createSynth - instantiating audio unit")
-      let sau = try await SF2LibAU.create(synthAUv3ComponentDescription)
-      log.debug("createSynth - synth: \(sau.description)")
-      await send(.synthAudioUnitCreated(sau))
-    }.cancellable(id: CancelId.createSynth, cancelInFlight: true)
+      do {
+        let sau = try await SF2LibAU.create(synthAUv3ComponentDescription)
+        log.debug("createSynth - synth: \(sau.description)")
+        await send(.synthAudioUnitCreated(sau))
+      } catch {
+        log.error("failed to create synth - \(error)")
+      }
+    }.cancellable(id: CancelId.synthCreateSynth, cancelInFlight: true)
   }
 
   private func createSynthAudioUnitDone(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
@@ -250,7 +254,7 @@ extension Synth {
           log.debug("monitorActivePresetId activePresetId changed - \(String(describing: value))")
           return .activePresetIdChanged(value)
         }
-    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
+    }.cancellable(id: CancelId.synthMonitorActivePresetId, cancelInFlight: true)
   }
 
   private func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
@@ -274,7 +278,7 @@ extension Synth {
           log.debug("monitorMediaServices lastLoadFinished value changed - \(lastLoadFinished)")
           return .lastPresetLoadFinished
         }
-    }.cancellable(id: CancelId.monitorLastLoadFinished)
+    }.cancellable(id: CancelId.synthMonitorLastLoadFinished)
   }
 
 #if os(iOS)
@@ -287,7 +291,7 @@ extension Synth {
           log.debug("monitorMediaServices - mediaServicesWereResetNotification fired")
           return .mediaServicesWereReset
         }
-    }.cancellable(id: CancelId.monitorMediaServices, cancelInFlight: true)
+    }.cancellable(id: CancelId.synthMonitorMediaServices, cancelInFlight: true)
   }
 
   private func monitorRouteChanged(_ state: inout State) -> Effect<Action> {
@@ -299,7 +303,7 @@ extension Synth {
           log.debug("monitorRouteChanged - routeChangeNotification fired")
           return .audioSessionRouteChanged
         }
-    }.cancellable(id: CancelId.monitorRouteChanged, cancelInFlight: true)
+    }.cancellable(id: CancelId.synthMonitorRouteChanged, cancelInFlight: true)
   }
 #endif // os(iOS)
 
@@ -323,7 +327,7 @@ extension Synth {
       try? await clock.sleep(for: Self.playNoteDurationMilliseconds)
       log.debug("sending note off")
       sf2LibAU.sendNoteOff(note: 60)
-    }.cancellable(id: CancelId.playNote, cancelInFlight: true)
+    }.cancellable(id: CancelId.synthPlayNote, cancelInFlight: true)
   }
 
   private func restartAudioSession(_ state: inout State) -> Effect<Action> {

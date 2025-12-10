@@ -36,8 +36,8 @@ public struct MIDITrafficIndicator {
     }
   }
 
-  private enum CancelId {
-    case monitorMIDITraffic
+  private enum CancelId: String {
+    case midiTrafficIndicatorMonitorMIDITraffic
   }
 }
 
@@ -56,7 +56,7 @@ extension MIDITrafficIndicator {
           guard let event = $0 else { return nil }
           return .showMIDITraffic(event)
         }
-    }.cancellable(id: CancelId.monitorMIDITraffic)
+    }.cancellable(id: CancelId.midiTrafficIndicatorMonitorMIDITraffic)
   }
 
   private func showMIDITraffic(_ state: inout State, value: MIDITraffic) -> Effect<Action> {

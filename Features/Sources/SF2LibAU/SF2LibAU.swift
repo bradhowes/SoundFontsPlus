@@ -112,7 +112,13 @@ extension SF2LibAU {
       \(acd.componentSubType.stringValue), \
       \(acd.componentManufacturer.stringValue)
       """)
-    return try await AVAudioUnit.instantiate(with: acd, options: [])
+#if os(iOS)
+    let options: AudioComponentInstantiationOptions = []
+#endif
+#if os(macOS)
+    let options: AudioComponentInstantiationOptions = [.loadInProcess]
+#endif
+    return try await AVAudioUnit.instantiate(with: acd, options: options)
   }
 }
 

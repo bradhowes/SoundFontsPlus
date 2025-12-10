@@ -138,8 +138,8 @@ public struct Keyboard {
 
   @Shared(.activeState) private var activeState
 
-  private enum CancelId: CaseIterable {
-    case scrollTo
+  private enum CancelId: String, CaseIterable {
+    case keyboardScrollTo
   }
 }
 
@@ -171,7 +171,7 @@ extension Keyboard {
     log.info("activePresetidChanged - scrollTo \(audioConfig.keyboardLowestNote)")
     return .run { send in
       await send(.scrollTo(audioConfig.keyboardLowestNote))
-    }.cancellable(id: CancelId.scrollTo)
+    }.cancellable(id: CancelId.keyboardScrollTo)
   }
 
   private func reduceNoteCount(_ state: inout State, note: Note) -> Bool {

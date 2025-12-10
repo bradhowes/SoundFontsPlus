@@ -92,9 +92,9 @@ public struct SoundFontsList {
     .ifLet(\.destination, action: \.destination)
   }
 
-  private enum CancelId: CaseIterable {
-    case monitorActiveTagId
-    case monitorFetchAll
+  private enum CancelId: String, CaseIterable {
+    case soundFontsListMonitorActiveTagId
+    case soundFontsListMonitorFetchAll
   }
 }
 
@@ -159,7 +159,7 @@ extension SoundFontsList {
           log.info("activeTagChanged - \(String(describing: tagId))")
           return .activeTagIdChanged
         }
-    }.cancellable(id: CancelId.monitorActiveTagId, cancelInFlight: true)
+    }.cancellable(id: CancelId.soundFontsListMonitorActiveTagId, cancelInFlight: true)
   }
 
   private func monitorFetchAll(_ state: inout State) -> Effect<Action> {
@@ -176,7 +176,7 @@ extension SoundFontsList {
       for try await update in $soundFontInfos.publisher.values {
         await send(.soundFontInfosChanged(update))
       }
-    }.cancellable(id: CancelId.monitorFetchAll, cancelInFlight: true)
+    }.cancellable(id: CancelId.soundFontsListMonitorFetchAll, cancelInFlight: true)
   }
 
   private func select(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {

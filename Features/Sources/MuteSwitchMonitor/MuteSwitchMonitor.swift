@@ -66,8 +66,8 @@ public struct MuteSwitchMonitor {
     }
   }
 
-  private enum CancelId {
-    case monitorMuteSwitch
+  private enum CancelId: String {
+    case muteSwitchMonitorMuteSwitch
   }
 }
 

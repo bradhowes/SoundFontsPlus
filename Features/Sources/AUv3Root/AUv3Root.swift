@@ -170,9 +170,9 @@ public struct AUv3Root {
     .ifLet(\.$destination, action: \.destination)
   }
 
-  private enum CancelId: CaseIterable {
-    case createCloudDocumentsDirectory
-    case monitorActivePresetId
+  private enum CancelId: String, CaseIterable {
+    case auV3RootCreateCloudDocumentsDirectory
+    case auV3RootMonitorActivePresetId
   }
 }
 

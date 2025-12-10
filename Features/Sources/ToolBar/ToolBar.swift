@@ -171,9 +171,9 @@ public struct ToolBar {
     }
   }
 
-  private enum CancelId: CaseIterable {
-    case lastPlayedKeyChanged
-    case monitorActiveVoiceCount
+  private enum CancelId: String, CaseIterable {
+    case toolBarLastPlayedKeyChanged
+    case toolBarMonitorActiveVoiceCount
   }
 }
 
@@ -213,7 +213,7 @@ extension ToolBar {
         .map {
           .activeVoiceCountChanged(Int($0))
         }
-    }.cancellable(id: CancelId.monitorActiveVoiceCount)
+    }.cancellable(id: CancelId.toolBarMonitorActiveVoiceCount)
   }
 
   private func settingsButtonTapped(_ state: inout State) -> Effect<Action> {
@@ -273,7 +273,7 @@ extension ToolBar {
       log.info("clearing lastPlayedKey")
       await send(.lastPlayedKeyChanged(nil))
     }
-    .cancellable(id: CancelId.lastPlayedKeyChanged, cancelInFlight: true)
+    .cancellable(id: CancelId.toolBarLastPlayedKeyChanged, cancelInFlight: true)
     .animation(.smooth)
   }
 
