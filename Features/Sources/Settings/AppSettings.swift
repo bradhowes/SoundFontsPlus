@@ -10,10 +10,8 @@ import MIDITrafficIndicator
 import MorkAndMIDI
 import Tuning
 
-private let log = Logger(category: "Settings")
-
 @Reducer
-public struct Settings {
+public struct AppSettings {
 
   @Reducer
   public enum Path {
@@ -192,12 +190,12 @@ public struct Settings {
     .ifLet(\.destination, action: \.destination)
   }
 
-  private enum CancelId {
-    case monitorMIDIConnections
+  private enum CancelId: String {
+    case appSettingsMonitorMIDIConnections
   }
 }
 
-extension Settings {
+extension AppSettings {
 
   private func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
     @Dependency(\.dismiss) var dismiss
@@ -217,7 +215,7 @@ extension Settings {
     return .publisher {
       midi.activeConnectionsCountPublisher
         .map { .midiConnectionCountChanged(Int($0)) }
-    }.cancellable(id: CancelId.monitorMIDIConnections)
+    }.cancellable(id: CancelId.appSettingsMonitorMIDIConnections)
   }
 
   private func tuningChanged(_ state: inout State, enabled: Bool, frequency: Double) -> Effect<Action> {
@@ -245,20 +243,20 @@ extension Settings {
   }
 }
 
-extension Settings.Path.State: Equatable {}
-extension Settings.Destination.State: Equatable {}
-extension Settings.Destination.State: _EphemeralState {
+extension AppSettings.Path.State: Equatable {}
+extension AppSettings.Destination.State: Equatable {}
+extension AppSettings.Destination.State: _EphemeralState {
   public typealias Action = Alert
 }
 
-public struct SettingsView: View {
-  @Bindable private var store: StoreOf<Settings>
+public struct AppSettingsView: View {
+  @Bindable private var store: StoreOf<AppSettings>
   @State private var changingKeyWidth: Bool = false
   @Shared(.isAUv3) private var isAUv3
   private let showFakeKeyboard: Bool
   private let bundle = Bundle.main
 
-  public init(store: StoreOf<Settings>, showFakeKeyboard: Bool) {
+  public init(store: StoreOf<AppSettings>, showFakeKeyboard: Bool) {
     self.store = store
     self.showFakeKeyboard = showFakeKeyboard
   }
@@ -301,7 +299,7 @@ public struct SettingsView: View {
   }
 }
 
-extension SettingsView {
+extension AppSettingsView {
 
   private var presetsSection: some View {
     Section("Presets") {
@@ -552,15 +550,15 @@ Disable to link directly to files in iCloud or on external drives.
   }
 }
 
-extension SettingsView {
+extension AppSettingsView {
   static var preview: some View {
     @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
     midi?.start()
     navigationBarTitleStyle()
     return VStack {
-      SettingsView(
+      AppSettingsView(
         store: Store(initialState: .init()) {
-          Settings()
+          AppSettings()
         },
         showFakeKeyboard: false
       )
@@ -568,6 +566,8 @@ extension SettingsView {
   }
 }
 
+private let log = Logger(category: "AppSettings")
+
 #Preview {
-  SettingsView.preview
+  AppSettingsView.preview
 }

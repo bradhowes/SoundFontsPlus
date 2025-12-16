@@ -3,6 +3,8 @@
 import FeatureSupport
 import SwiftToasts
 
+#if os(iOS)
+
 /**
  Monitor the volume setting for the active audio session. When the volume setting is zero or the active preset ID is
  nil, show a toast image indicating that there will be no audio output and the reason why.
@@ -57,7 +59,7 @@ public struct VolumeMonitor {
         return .none
 
       case .stop:
-        return .cancel(id: CancelId.monitorSessionVolume)
+        return .cancel(id: CancelId.volumeMonitorMonitorSessionVolume)
 
       case .delegate:
         return .none
@@ -71,8 +73,8 @@ public struct VolumeMonitor {
     }
   }
 
-  private enum CancelId {
-    case monitorSessionVolume
+  private enum CancelId: String {
+    case volumeMonitorMonitorSessionVolume
   }
 }
 
@@ -88,7 +90,7 @@ private extension VolumeMonitor {
         }
         log.info("stopped observing volume")
       }
-    }.cancellable(id: CancelId.monitorSessionVolume, cancelInFlight: true)
+    }.cancellable(id: CancelId.volumeMonitorMonitorSessionVolume, cancelInFlight: true)
   }
 
   func presetChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
@@ -178,3 +180,5 @@ extension View {
 }
 
 private let log = Logger(category: "VolumeMonitor")
+
+#endif

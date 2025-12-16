@@ -8,21 +8,6 @@ let alwaysShowTutorial = false
 let alwaysShowChanges = false
 let useLocalSF2Lib = false
 
-let globalSwiftSettings: [SwiftSetting] = [
-  .enableExperimentalFeature("StrictConcurrency"),
-  .interoperabilityMode(.Cxx),
-  .strictMemorySafety(),
-  .swiftLanguageMode(.v6)
-]
-
-let sf2Lib: Package.Dependency = useLocalSF2Lib ? .package(
-  name: "SF2Lib",
-  path: "/Users/howes/src/Mine/SF2Lib"
-) : .package(
-  url: "https://github.com/bradhowes/SF2Lib",
-  from: "8.4.0"
-)
-
 let package = Package(
   name: "Features",
   platforms: [.iOS(.v18), .macOS(.v15)],
@@ -59,7 +44,7 @@ let package = Package(
     .package(url: "https://github.com/bradhowes/AUv3Controls", from: "0.23.1"),
     .package(url: "https://github.com/bradhowes/brh-splitview", from: "1.0.5"),
     .package(url: "https://github.com/bradhowes/morkandmidi", from: "4.0.1"),
-    sf2Lib,
+    .sf2Lib,
     //
     .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.1"),
     // NOTE: only used to gain access to `isApproximatelyEqual` in unit tests
@@ -256,6 +241,18 @@ let package = Package(
 
 setSwiftSettings()
 
+extension Package.Dependency {
+  static var sf2Lib: PackageDescription.Package.Dependency {
+    useLocalSF2Lib ? .package(
+      name: "SF2Lib",
+      path: "/Users/howes/src/Mine/SF2Lib"
+    ) : .package(
+      url: "https://github.com/bradhowes/SF2Lib",
+      from: "8.4.0"
+    )
+  }
+}
+
 extension PackageDescription.Product {
 
   public static func lib(_ name: String) -> PackageDescription.Product {
@@ -286,13 +283,21 @@ extension PackageDescription.Target {
 
 @MainActor
 func setSwiftSettings() {
+
+  let globalSwiftSettings: [SwiftSetting] = [
+    .enableExperimentalFeature("StrictConcurrency"),
+    .interoperabilityMode(.Cxx),
+    .strictMemorySafety(),
+    .swiftLanguageMode(.v6)
+  ] +
+  (alwaysShowChanges ? [.define("ALWAYS_SHOW_CHANGES")] : []) +
+  (alwaysShowTutorial ? [.define("ALWAYS_SHOW_TUTORIAL")] : [])
+
   for target in package.targets {
     switch target.type {
       // normal targets
     case .regular:
-      var settings = globalSwiftSettings + (target.swiftSettings ?? [])
-      if alwaysShowChanges { settings.append(.define("ALWAYS_SHOW_CHANGES")) }
-      if alwaysShowTutorial { settings.append(.define("ALWAYS_SHOW_TUTORIAL")) }
+      let settings = globalSwiftSettings + (target.swiftSettings ?? [])
       target.swiftSettings = settings
       target.dependencies += [
         .product(name: "Algorithms", package: "swift-algorithms"),

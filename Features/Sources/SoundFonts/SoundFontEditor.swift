@@ -291,7 +291,9 @@ public struct SoundFontEditorView: View {
         Text(store.soundFont.sourcePath)
           .font(.footnote)
         Button {
+#if os(iOS)
           UIPasteboard.general.string = store.soundFont.sourcePath
+#endif
           // ProgressHUD.banner("Copied", "Path copied to clipboard")
         } label: {
           Image(systemName: "document.on.document")

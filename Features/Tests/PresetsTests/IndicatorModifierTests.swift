@@ -24,14 +24,20 @@ struct IndicatorModifierTests {
 
     let view = VStack {
       List {
-        PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!)) { PresetButton() })
+        PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0], editingVisibility: false)) {
+          PresetButton()
+        })
+        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1], editingVisibility: false)) {
+          PresetButton()
+        })
+        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!, editingVisibility: false)) {
+          PresetButton()
+        })
         Text("ActiveNoIndicator")
           .indicator(.activeNoIndicator)
       }
       .listStyle(.plain)
-      .environment(\.editMode, .constant(.inactive))
+      // .environment(\.editMode, .constant(.inactive))
       .tint(.teal)
     }
 
@@ -50,20 +56,27 @@ struct IndicatorModifierTests {
 
     let view = VStack {
       List {
-        PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!)) { PresetButton() })
+        PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0], editingVisibility: false)) {
+          PresetButton()
+        })
+        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1], editingVisibility: false)) {
+          PresetButton()
+        })
+        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!, editingVisibility: false)) {
+          PresetButton()
+        })
         Text("Selected")
           .indicator(.selected)
       }
       .listStyle(.plain)
-      .environment(\.editMode, .constant(.inactive))
+      // .environment(\.editMode, .constant(.inactive))
       .tint(.teal)
     }
 
     try TestSupport.assertSnapshot(matching: view)
   }
 
+#if os(iOS)
   @Test
   func renderingNormalSelectedEditing() async throws {
     var presets = Operations.presets(for: nil)
@@ -73,9 +86,15 @@ struct IndicatorModifierTests {
 
     let view = VStack {
       List {
-        PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!)) { PresetButton() })
+        PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0], editingVisibility: true)) {
+          PresetButton()
+        })
+        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1], editingVisibility: true)) {
+          PresetButton()
+        })
+        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!, editingVisibility: true)) {
+          PresetButton()
+        })
         Text("ActiveNoIndicator")
           .indicator(.activeNoIndicator)
       }
@@ -99,9 +118,15 @@ struct IndicatorModifierTests {
 
     let view = VStack {
       List {
-        PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!)) { PresetButton() })
+        PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0], editingVisibility: true)) {
+          PresetButton()
+        })
+        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1], editingVisibility: true)) {
+          PresetButton()
+        })
+        PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!, editingVisibility: true)) {
+          PresetButton()
+        })
         Text("Selected")
           .indicator(.selected)
         Text("True")
@@ -116,4 +141,5 @@ struct IndicatorModifierTests {
 
     try TestSupport.assertSnapshot(matching: view)
   }
+#endif // os(iOS)
 }

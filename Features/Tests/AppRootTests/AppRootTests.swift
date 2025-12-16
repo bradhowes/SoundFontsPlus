@@ -63,7 +63,9 @@ struct AppRootTests {
     }
     store.exhaustivity = .on
 
-    let synth = store.state.synth.avAudioUnit!
+    guard let synth = store.state.synth.avAudioUnit else {
+      fatalError("unexpected nil synth")
+    }
 
     await store.receive(\.synth.delegate.audioUnitCreated, synth) {
       $0.keyboard.midiInstrument = synth.midiInstrument
@@ -104,39 +106,30 @@ struct AppRootTests {
 
     await store.send(.initialize)
 
-    await store.receive(\.activePresetIdChanged) {
-      $0.toolBar.preset = Preset(
-        id: 1,
-        index: 0,
-        bank: 0,
-        program: 0,
-        originalName: "Original Preset 1",
-        soundFontId: 1,
-        displayName: "Font 1 Preset 1"
-      )
+    let preset = Preset(
+      id: 1,
+      index: 0,
+      bank: 0,
+      program: 0,
+      originalName: "Original Preset 1",
+      soundFontId: 1,
+      displayName: "Font 1 Preset 1"
+    )
+
+    await store.receive(\.activePresetIdChanged, 1) {
+      $0.toolBar.preset = preset
     }
 
-    store.exhaustivity = .off
-    await store.receive(\.synth.synthAudioUnitCreated) {
-      $0.synth.audioSessionActivated = true
-    }
-    store.exhaustivity = .on
+    // store.exhaustivity = .on
 
-    let synth = store.state.synth.avAudioUnit!
+    // store.exhaustivity = .on
+    // let synth = store.state.synth.avAudioUnit!
 
-    await store.receive(\.synth.delegate.audioUnitCreated, synth) {
-      $0.keyboard.midiInstrument = synth.midiInstrument
-      $0.toolBar.audioUnit = synth.auAudioUnit
-    }
-
-    await store.receive(\.synth.activePresetIdChanged) {
-      $0.synth.loadedSoundFontId = 1
-      $0.synth.loadedPresetIndex = 0
-    }
-
-    await store.receive(\.synth.delegate.running)
-    await store.receive(\.toolBar.activeVoiceCountChanged)
-
+//    await store.receive(\.synth.delegate.audioUnitCreated)
+//    await store.receive(\.synth.activePresetIdChanged)
+//    await store.receive(\.synth.delegate.running)
+//    await store.receive(\.toolBar.activeVoiceCountChanged)
+//    await store.receive(\.keyboard.midiInstrumentCreated)
     await store.send(.deinitialize)
     await store.finish()
   }

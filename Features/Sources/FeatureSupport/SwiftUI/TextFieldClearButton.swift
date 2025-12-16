@@ -47,7 +47,9 @@ private struct Demo: View {
     Section(header: Text("Name")) {
       TextField("Display Name", text: $text)
         .clearButton { text = "" }
+#if os(iOS)
         .textInputAutocapitalization(.never)
+#endif
         .textFieldStyle(.roundedBorder)
         .focused($displayNameFieldIsFocused)
         .disableAutocorrection(true)

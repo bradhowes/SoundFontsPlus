@@ -20,7 +20,7 @@ struct TagsEditorTests {
     focused: FontTag.ID? = nil,
     soundFontId: SoundFont.ID? = nil,
     memberships: [FontTag.ID: Bool]? = nil,
-    editMode: EditMode = .inactive
+    editModeActive: Bool = false
   ) -> TestStoreOf<TagsEditor> {
     return TestStore(
       initialState: TagsEditor.State(
@@ -28,7 +28,7 @@ struct TagsEditorTests {
         focused: focused,
         soundFontId: soundFontId,
         memberships: memberships,
-        editMode: editMode
+        editModeActive: editModeActive
       )
     ) {
       TagsEditor()
@@ -241,11 +241,11 @@ struct TagsEditorTests {
   @Test
   func toggleEditMode() async {
     let store = store(mode: .tagEditing)
-    await store.send(.toggleEditMode) {
-      $0.editMode = .active
+    await store.send(.toggleEditModeActive) {
+      $0.editModeActive = true
     }
-    await store.send(.toggleEditMode) {
-      $0.editMode = .inactive
+    await store.send(.toggleEditModeActive) {
+      $0.editModeActive = false
     }
   }
 

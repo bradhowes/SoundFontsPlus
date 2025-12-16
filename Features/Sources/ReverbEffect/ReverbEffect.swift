@@ -98,11 +98,11 @@ public struct ReverbEffect {
   @Dependency(\.reverbDevice) private var reverbDevice
   @Dependency(\.debounceDurations) private var debounceDurations
 
-  private enum CancelId: CaseIterable {
-    case applyConfigForPreset
-    case monitorActivePresetId
-    case saveDebouncer
-    case updateDebouncer
+  private enum CancelId: String, CaseIterable {
+    case reverbEffectApplyConfigForPreset
+    case reverbEffectMonitorActivePresetId
+    case reverbEffectSaveDebouncer
+    case reverbEffectUpdateDebouncer
   }
 }
 
@@ -124,7 +124,7 @@ extension ReverbEffect {
     return .merge(
       .run { [toSave = state.config] _ in ReverbConfig.save(config: toSave) },
       .run { send in await send(.applyConfigForPreset(presetId)) }
-        .cancellable(id: CancelId.applyConfigForPreset, cancelInFlight: true)
+        .cancellable(id: CancelId.reverbEffectApplyConfigForPreset, cancelInFlight: true)
     )
   }
 
@@ -148,7 +148,7 @@ extension ReverbEffect {
         .publisher
         .removeDuplicates()
         .map { .activePresetIdChanged($0) }
-    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
+    }.cancellable(id: CancelId.reverbEffectMonitorActivePresetId, cancelInFlight: true)
   }
 
   private func runDebouncers(_ state: inout State) -> Effect<Action> {
@@ -157,14 +157,14 @@ extension ReverbEffect {
       .run { send in
         await send(.updateDebounced)
       }.debounce(
-        id: CancelId.updateDebouncer,
+        id: CancelId.reverbEffectUpdateDebouncer,
         for: debounceDurations.effectsDisplayUpdates,
         scheduler: mainQueue
       ),
       .run { send in
         await send(.saveDebounced)
       }.debounce(
-        id: CancelId.saveDebouncer,
+        id: CancelId.reverbEffectSaveDebouncer,
         for: debounceDurations.effectsConfigurationSaves,
         scheduler: mainQueue
       )
@@ -252,8 +252,10 @@ public struct ReverbEffectView: View {
               .foregroundStyle(theme.textColor)
           }
         }
+#if os(iOS)
         .pickerStyle(.wheel)
         .frame(width: 110)  // !!! Magic size that fits all of the strings without wasted space
+#endif
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
     }

@@ -1,8 +1,10 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+#if os(iOS)
+
 import Combine
-import UIKit
 import SwiftUI
+import UIKit
 
 public protocol KeyboardVisibilityPublisher {
 
@@ -25,3 +27,5 @@ extension KeyboardVisibilityPublisher {
     .eraseToAnyPublisher()
   }
 }
+
+#endif

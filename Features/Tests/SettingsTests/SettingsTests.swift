@@ -13,11 +13,11 @@ import TestSupport
   .snapshots(record: .failed)
 )
 @MainActor
-struct SettingsTests {
+struct AppSettingsTests {
 
   @Test
   func initializeNoMidi() async throws {
-    let store = TestStore(initialState: Settings.State()) { Settings() }
+    let store = TestStore(initialState: AppSettings.State()) { AppSettings() }
     await store.send(.initialize)
     await store.send(.dismissButtonTapped)
   }
@@ -29,7 +29,7 @@ struct SettingsTests {
     @Shared(.midiMonitor) var midiMonitor = MIDIMonitor()
     midi?.receiver = midiMonitor
 
-    let store = TestStore(initialState: Settings.State()) { Settings() }
+    let store = TestStore(initialState: AppSettings.State()) { AppSettings() }
 
     await store.send(.initialize)
     store.exhaustivity = .off
@@ -44,7 +44,7 @@ struct SettingsTests {
 
   @Test
   func updateKeyWidth() async throws {
-    let store = TestStore(initialState: Settings.State()) { Settings() }
+    let store = TestStore(initialState: AppSettings.State()) { AppSettings() }
     await store.send(.initialize)
     await store.send(\.binding.keyWidth, 21.2)
     @Shared(.keyWidth) var keyWidth
@@ -54,7 +54,7 @@ struct SettingsTests {
 
   @Test
   func copyFileWhenInstalling() async throws {
-    let store = TestStore(initialState: Settings.State()) { Settings() }
+    let store = TestStore(initialState: AppSettings.State()) { AppSettings() }
     await store.send(.initialize)
     await store.send(\.binding.copyFileWhenInstalling, false) {
       $0.$copyFileWhenInstalling.withLock { $0 = true }
@@ -75,7 +75,7 @@ struct SettingsTests {
 
   @Test
   func disableIdleTimer() async throws {
-    let store = TestStore(initialState: Settings.State()) { Settings() }
+    let store = TestStore(initialState: AppSettings.State()) { AppSettings() }
     await store.send(.initialize)
     await store.send(\.binding.disableIdleTimer, true) {
       $0.$disableIdleTimer.withLock { $0 = false }
@@ -96,7 +96,7 @@ struct SettingsTests {
 
   @Test
   func midiAssignmentsButtonTapped() async throws {
-    let store = TestStore(initialState: Settings.State()) { Settings() }
+    let store = TestStore(initialState: AppSettings.State()) { AppSettings() }
     await store.send(.initialize)
     _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
       await store.send(\.midiAssignmentsButtonTapped)
@@ -107,7 +107,7 @@ struct SettingsTests {
 
   @Test
   func midiConnectionsButtonTapped() async throws {
-    let store = TestStore(initialState: Settings.State()) { Settings() }
+    let store = TestStore(initialState: AppSettings.State()) { AppSettings() }
     await store.send(.initialize)
     _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
       await store.send(\.midiConnectionsButtonTapped)
@@ -118,7 +118,7 @@ struct SettingsTests {
 
   @Test
   func midiControllersButtonTapped() async throws {
-    let store = TestStore(initialState: Settings.State()) { Settings() }
+    let store = TestStore(initialState: AppSettings.State()) { AppSettings() }
     await store.send(.initialize)
     _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
       await store.send(\.midiControllersButtonTapped)
@@ -129,7 +129,7 @@ struct SettingsTests {
 
   @Test
   func viewChangesTapped() async throws {
-    let store = TestStore(initialState: Settings.State()) { Settings() }
+    let store = TestStore(initialState: AppSettings.State()) { AppSettings() }
     await store.send(.initialize)
     await store.send(\.viewChangesTapped)
     await store.receive(\.delegate, .showChanges)
@@ -138,7 +138,7 @@ struct SettingsTests {
 
   @Test
   func viewTutorialTapped() async throws {
-    let store = TestStore(initialState: Settings.State()) { Settings() }
+    let store = TestStore(initialState: AppSettings.State()) { AppSettings() }
     await store.send(.initialize)
     await store.send(\.viewTutorialTapped)
     await store.receive(\.delegate, .showTutorial)
@@ -147,7 +147,7 @@ struct SettingsTests {
 
   @Test
   func settingsViewPreview() async throws {
-    let view = SettingsView.preview
+    let view = AppSettingsView.preview
     try TestSupport.assertSnapshot(matching: view)
   }
 }

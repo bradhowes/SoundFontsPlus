@@ -171,9 +171,9 @@ public struct ToolBar {
     }
   }
 
-  private enum CancelId: CaseIterable {
-    case lastPlayedKeyChanged
-    case monitorActiveVoiceCount
+  private enum CancelId: String, CaseIterable {
+    case toolBarLastPlayedKeyChanged
+    case toolBarMonitorActiveVoiceCount
   }
 }
 
@@ -201,19 +201,17 @@ extension ToolBar {
   private func monitorActiveVoiceCount(_ state: inout State) -> Effect<Action> {
     guard
       let parameterTree = state.audioUnit?.parameterTree,
-      let node = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.activeVoiceCount.rawValue)
+      let parameter = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.activeVoiceCount.rawValue)
     else {
+      log.info("no parameter tree to monitor")
       return .none
     }
 
-    return .publisher {
-      node.publisher(for: \.value)
-        .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
-        .removeDuplicates()
-        .map {
-          .activeVoiceCountChanged(Int($0))
-        }
-    }.cancellable(id: CancelId.monitorActiveVoiceCount)
+    return .run { send in
+      for await newValue in parameter.observe() {
+        await send(.activeVoiceCountChanged(Int(newValue)))
+      }
+    }.cancellable(id: CancelId.toolBarMonitorActiveVoiceCount, cancelInFlight: true)
   }
 
   private func settingsButtonTapped(_ state: inout State) -> Effect<Action> {
@@ -273,7 +271,7 @@ extension ToolBar {
       log.info("clearing lastPlayedKey")
       await send(.lastPlayedKeyChanged(nil))
     }
-    .cancellable(id: CancelId.lastPlayedKeyChanged, cancelInFlight: true)
+    .cancellable(id: CancelId.toolBarLastPlayedKeyChanged, cancelInFlight: true)
     .animation(.smooth)
   }
 
@@ -310,7 +308,6 @@ public struct ToolBarView: View {
   @Shared(.showSolfegeTags) private var showSolfegeTags
   @Shared(.isAUv3) private var isAUv3
   @Environment(\.appPanelBackground) private var appPanelBackground
-  @Environment(\.auv3ControlsTheme) private var auv3ControlsTheme
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   public init(store: StoreOf<ToolBar>) {

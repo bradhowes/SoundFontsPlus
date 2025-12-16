@@ -9,6 +9,7 @@ public struct StyledList<Content: View>: View {
     self.content = content()
   }
 
+#if os(iOS)
   public var body: some View {
     List {
       content
@@ -16,6 +17,16 @@ public struct StyledList<Content: View>: View {
     .listSectionSpacing(.compact)
     .listStyle(.plain)
   }
+#endif // os(iOS)
+
+#if os(macOS)
+  public var body: some View {
+    List {
+      content
+    }
+    .listStyle(.plain)
+  }
+#endif // os(macOS)
 }
 
 public struct StyledEntry<Content: View>: View {

@@ -4,7 +4,7 @@ import AUv3Controls
 import FeatureSupport
 
 @Reducer
-public struct SimpleGeneratorsEditor {
+public struct GeneratorsEditor {
 
   @ObservableState
   public struct State: Equatable {
@@ -110,15 +110,15 @@ public struct SimpleGeneratorsEditor {
   @Dependency(\.delayDevice) private var delayDevice
   @Dependency(\.debounceDurations) private var debounceDurations
 
-  private enum CancelId: CaseIterable {
-    case applyConfigForPreset
-    case monitorActivePresetId
-    case saveDebouncer
-    case updateDebouncer
+  private enum CancelId: String, CaseIterable {
+    case generatorsEditorApplyConfigForPreset
+    case generatorsEditorMonitorActivePresetId
+    case generatorsEditorSaveDebouncer
+    case generatorsEditorUpdateDebouncer
   }
 }
 
-extension DelayEffect {
+extension GeneratorsEditor {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     guard
@@ -248,10 +248,10 @@ extension DelayEffect {
   }
 }
 
-public struct DelayEffectView: View {
-  @Bindable private var store: StoreOf<DelayEffect>
+public struct GeneratorsEditorView: View {
+  @Bindable private var store: StoreOf<GeneratorsEditor>
 
-  public init(store: StoreOf<DelayEffect>) {
+  public init(store: StoreOf<GeneratorsEditor>) {
     self.store = store
   }
 
@@ -274,93 +274,4 @@ public struct DelayEffectView: View {
       await store.send(.initialize).finish()
     }
   }
-}
-
-extension DelayEffectView {
-  // swiftlint:disable:next function_body_length
-  static func preview(presetId: Preset.ID) -> some View {
-    @Shared(.activeState) var activeState
-    $activeState.withLock {
-      $0.activePresetId = presetId
-    }
-
-    var theme = Theme()
-    theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
-    theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
-    theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
-    theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
-
-    @Shared(.parameterTree) var parameterTree = ParameterAddress.createParameterTree()
-
-    prepareDependencies {
-      // swiftlint:disable:next force_try
-      $0.defaultDatabase = try! appDatabase { db in
-        try DelayConfig.insert {
-          DelayConfig.Draft(
-            time: 0.5,
-            feedback: 80,
-            cutoff: 8000.0,
-            wetDryMix: 50.0,
-            enabled: true,
-            presetId: 1
-          )
-        }
-        .execute(db)
-        try DelayConfig.insert {
-          DelayConfig.Draft(
-            time: 1.0,
-            feedback: -70,
-            cutoff: 12000.0,
-            wetDryMix: 100.0,
-            enabled: true,
-            presetId: 2
-          )
-        }
-        .execute(db)
-        try DelayConfig.insert {
-          DelayConfig.Draft(
-            time: 1.5,
-            feedback: 0,
-            cutoff: 3000.0,
-            wetDryMix: 25.0,
-            enabled: false,
-            presetId: 3
-          )
-        }
-        .execute(db)
-      }
-
-      $0.delayDevice = .init(setConfig: { print("DelayDevice.setConfig:", $0) })
-    }
-
-    return VStack {
-      ScrollView(.horizontal) {
-        DelayEffectView(store: Store(initialState: .init()) {
-          DelayEffect()
-        })
-        .environment(\.auv3ControlsTheme, theme)
-      }
-      .padding()
-      .border(theme.controlBackgroundColor, width: 1)
-      Button("Preset 1") {
-        $activeState.withLock {
-          $0.activePresetId = 1
-        }
-      }
-      Button("Preset 2") {
-        $activeState.withLock {
-          $0.activePresetId = 2
-        }
-      }
-      Button("Preset 3") {
-        $activeState.withLock {
-          $0.activePresetId = 3
-        }
-      }
-    }
-  }
-}
-
-#Preview {
-  DelayEffectView.preview(presetId: 2)
 }

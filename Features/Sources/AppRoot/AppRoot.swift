@@ -27,50 +27,19 @@ import VolumeMonitor
 @Reducer
 public struct AppRoot {
 
-  public static func prepareDependencies() {
-    Dependencies.prepareDependencies {
-      @Shared(.isAUv3) var isAUv3 = false
-
-      $0.audioGraph = .liveValue
-      $0.audioSession = .liveValue
-
-      // swiftlint:disable:next force_try
-      $0.defaultDatabase = try! appDatabase()
-      $0.defaultFileStorage = .fileSystem
-
-      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.liveValue
-
-      let delay = AVAudioUnitDelay()
-      $0.delayDevice = .init(setConfig: { delay.setConfig($0) })
-      @Shared(.delayEffect) var delayEffect = delay
-
-      let reverb = AVAudioUnitReverb()
-      $0.reverbDevice = .init( setConfig: { reverb.setConfig($0) })
-      @Shared(.reverbEffect) var reverbEffect = reverb
-
-      let engine = AVAudioEngine()
-      @Shared(.audioEngine) var audioEngine = engine
-
-      @Shared(.midiInputPortId) var midiInputPortId
-      @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
-      midi?.start()
-
-      @Shared(.midiMonitor) var midiMonitor = .init()
-      midi?.receiver = midiMonitor
-    }
-  }
-
   /**
-   The various editors and presenters that appear in a modal way when created and presented.
+   The various editors and presenters that appear when created and presented.
    */
   @Reducer
   public enum Destination {
     case changes(Changes)
     case presetEditor(PresetEditor)
-    case settings(Settings)
+    case settings(AppSettings)
     case soundFontEditor(SoundFontEditor)
     case tagsEditor(TagsEditor)
+    #if os(iOS)
     case tutorial(Tutorial)
+    #endif
   }
 
   // MARK: -
@@ -89,7 +58,10 @@ public struct AppRoot {
     public var synth: Synth.State
     public var tagsList: TagsList.State
     public var toolBar: ToolBar.State
+    #if os(iOS)
     public var volumeMonitor: VolumeMonitor.State
+    #endif
+    public var audioUnitCrashed: Bool = false
 
     public init(
       appReview: AppReview.State? = nil,
@@ -104,7 +76,6 @@ public struct AppRoot {
       synth: Synth.State? = nil,
       tagsList: TagsList.State? = nil,
       toolBar: ToolBar.State? = nil,
-      volumeMonitor: VolumeMonitor.State? = nil
     ) {
       self.appReview = appReview ?? .init()
       self.delay = delay ?? .init()
@@ -117,25 +88,29 @@ public struct AppRoot {
       self.synth = synth ?? .init()
       self.tagsList = tagsList ?? .init()
       self.toolBar = toolBar ?? .init()
-      self.volumeMonitor = volumeMonitor ?? .init()
+#if os(iOS)
+      self.volumeMonitor = .init()
+#endif
 
-      #if ALWAYS_SHOW_TUTORIAL
+#if ALWAYS_SHOW_TUTORIAL
 
         showTutorial()
 
-      #elseif ALWAYS_SHOW_CHANGES
+#elseif ALWAYS_SHOW_CHANGES
 
         showChanges()
 
-      #elseif !(DEBUG && targetEnvironment(simulator))
+#elseif !(DEBUG && targetEnvironment(simulator))
 
+#if os(iOS)
         if Tutorial.shouldShow {
           showTutorial()
         } else if Changes.shouldShow {
           showChanges()
         }
+#endif // os(iOS)
 
-      #endif
+#endif
 
       // Deep-linking to a destination at start up for dev/testing
       //
@@ -165,16 +140,19 @@ public struct AppRoot {
       $lastShowedChangesVersion.withLock { $0 = Bundle.main.releaseVersionNumber }
     }
 
+#if os(iOS)
     mutating func showTutorial() {
       destination = .tutorial(Tutorial.State())
       @Shared(.showedTutorial) var showedTutorial
       $showedTutorial.withLock { $0 = true }
     }
+#endif // os(iOS)
   }
 
   public enum Action: BindableAction {
     case activePresetIdChanged(Preset.ID?)
     case appReview(AppReview.Action)
+    case audioUnitCrashed
     case binding(BindingAction<State>)
     case deinitialize
     case delay(DelayEffect.Action)
@@ -190,7 +168,9 @@ public struct AppRoot {
     case synth(Synth.Action)
     case tagsList(TagsList.Action)
     case toolBar(ToolBar.Action)
+#if os(iOS)
     case volumeMonitor(VolumeMonitor.Action)
+#endif
   }
 
   public init() {}
@@ -214,7 +194,9 @@ public struct AppRoot {
     Scope(state: \.synth, action: \.synth) { Synth() }
     Scope(state: \.tagsList, action: \.tagsList) { TagsList() }
     Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
+#if os(iOS)
     Scope(state: \.volumeMonitor, action: \.volumeMonitor) { VolumeMonitor() }
+#endif
 
     Scope(state: \.fontsAndPresetsSplit, action: \.fontsAndPresetsSplit) { SplitViewReducer() }
     Scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit) { SplitViewReducer() }
@@ -224,20 +206,36 @@ public struct AppRoot {
       switch action {
 
       case .activePresetIdChanged(let presetId):
-        return .merge(
+        var actions = [
           reduce(into: &state, action: .appReview(.ask)),
           reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
-          reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId))),
-          reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId)))
-        )
+          reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId)))
+        ]
+#if os(iOS)
+        actions.append(reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId))))
+#endif
+        return .merge(actions)
+
+      case .audioUnitCrashed:
+        log.error("*** audioUnit crashed")
+        return .none
 
       case .deinitialize:
-        return .merge(
+        var actions = [
           .merge(CancelId.allCases.map { .cancel(id: $0) }),
+          reduce(into: &state, action: .delay(.deinitialize)),
+          reduce(into: &state, action: .keyboard(.deinitialize)),
+          reduce(into: &state, action: .presetsList(.deinitialize)),
+          reduce(into: &state, action: .reverb(.deinitialize)),
+          reduce(into: &state, action: .soundFontsList(.deinitialize)),
           reduce(into: &state, action: .synth(.deinitialize)),
-          reduce(into: &state, action: .toolBar(.deinitialize)),
-          reduce(into: &state, action: .volumeMonitor(.stop))
-        )
+          reduce(into: &state, action: .toolBar(.deinitialize))
+        ]
+
+#if os(iOS)
+        actions.append(reduce(into: &state, action: .volumeMonitor(.stop)))
+#endif
+        return .merge(actions)
 
       case .destination(.presented(.soundFontEditor(.delegate(.refreshPresets)))):
         return reduce(into: &state, action: .presetsList(.fetchPresets))
@@ -290,12 +288,14 @@ public struct AppRoot {
       case .toolBar(.delegate(let action)):
         return processToolBarAction(&state, action: action)
 
+#if os(iOS)
       case .volumeMonitor(.delegate(.reasonChanged(let reason))):
         log.info("volumeMonitor reasonChanged: \(reason.debugDescription)")
         return reduce(
           into: &state,
           action: .keyboard(.outputVolumeStateChanged(reason != nil ? .muted : .unmuted))
         )
+#endif // os(iOS)
 
       default:
         return .none
@@ -305,13 +305,47 @@ public struct AppRoot {
     // ._printChanges()
   }
 
-  private enum CancelId: CaseIterable {
-    case createCloudDocumentsDirectory
-    case monitorActivePresetId
+  private enum CancelId: String, CaseIterable {
+    case appRootCreateCloudDocumentsDirectory
+    case appRootMonitorActivePresetId
+    case appRootMonitorInvalidationNotification
   }
 }
 
 extension AppRoot {
+
+  public static func prepareDependencies() {
+    Dependencies.prepareDependencies {
+      @Shared(.isAUv3) var isAUv3 = false
+
+      $0.audioGraph = .liveValue
+      $0.audioSession = .liveValue
+
+      // swiftlint:disable:next force_try
+      $0.defaultDatabase = try! appDatabase()
+      $0.defaultFileStorage = .fileSystem
+
+      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.liveValue
+
+      let delay = AVAudioUnitDelay()
+      $0.delayDevice = .init(setConfig: { delay.setConfig($0) })
+      @Shared(.delayEffect) var delayEffect = delay
+
+      let reverb = AVAudioUnitReverb()
+      $0.reverbDevice = .init( setConfig: { reverb.setConfig($0) })
+      @Shared(.reverbEffect) var reverbEffect = reverb
+
+      let engine = AVAudioEngine()
+      @Shared(.audioEngine) var audioEngine = engine
+
+      @Shared(.midiInputPortId) var midiInputPortId
+      @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
+      midi?.start()
+
+      @Shared(.midiMonitor) var midiMonitor = .init()
+      midi?.receiver = midiMonitor
+    }
+  }
 
   private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
     @Shared(.midiMonitor) var midiMonitor
@@ -324,14 +358,20 @@ extension AppRoot {
 
   private func audioChainActive(_ state: inout State) -> Effect<Action> {
     // The synth is up and running with an active audio session. Safe to monitor its state now.
-    reduce(into: &state, action: .volumeMonitor(.start))
+#if os(iOS)
+    return reduce(into: &state, action: .volumeMonitor(.start))
+#else
+    return .none
+#endif
   }
 
   private func audioChainInactive(_ state: inout State) -> Effect<Action> {
     // We do not have the active audio session.
-    .merge(
-      reduce(into: &state, action: .volumeMonitor(.stop))
-    )
+#if os(iOS)
+    return reduce(into: &state, action: .volumeMonitor(.stop))
+#else
+    return .none
+#endif
   }
 
   private func createCloudDocumentsDirectory() -> Effect<Action> {
@@ -344,7 +384,7 @@ extension AppRoot {
         }
         await Self.disableIdleTimer()
       }
-    }.cancellable(id: CancelId.createCloudDocumentsDirectory, cancelInFlight: true)
+    }.cancellable(id: CancelId.appRootCreateCloudDocumentsDirectory, cancelInFlight: true)
   }
 
   private func destinationDismissed(_ state: inout State) -> Effect<Action> {
@@ -373,6 +413,7 @@ extension AppRoot {
     .merge(
       createCloudDocumentsDirectory(),
       monitorActivePresetId(),
+      monitorInvalidationNotification(&state),
       reduce(into: &state, action: .synth(.initialize)),
     )
   }
@@ -383,7 +424,18 @@ extension AppRoot {
         .publisher
         .removeDuplicates()
         .map { .activePresetIdChanged($0) }
-    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
+    }.cancellable(id: CancelId.appRootMonitorActivePresetId, cancelInFlight: true)
+  }
+
+  private func monitorInvalidationNotification(_ state: inout State) -> Effect<Action> {
+    let name = Notification.Name(String(kAudioComponentInstanceInvalidationNotification))
+    return .run { send in
+      while !Task.isCancelled {
+        for await _ in NotificationCenter.default.notifications(named: name) {
+          await send(.audioUnitCrashed)
+        }
+      }
+    }.cancellable(id: CancelId.appRootMonitorInvalidationNotification, cancelInFlight: true)
   }
 
   private func processKeyboardAction(_ state: inout State, action: Keyboard.Action.Delegate) -> Effect<Action> {
@@ -427,13 +479,15 @@ extension AppRoot {
     return .none
   }
 
-  private func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
+  private func processSettingsAction(_ state: inout State, action: AppSettings.Action.Delegate) -> Effect<Action> {
     switch action {
     case .showChanges:
       state.showChanges()
 
     case .showTutorial:
+#if os(iOS)
       state.showTutorial()
+#endif
     }
 
     return .none
@@ -443,7 +497,7 @@ extension AppRoot {
     switch action {
 
     case .editingPresetVisibilityChanged(let active):
-      return reduce(into: &state, action: .presetsList(.visibilityEditModeChanged(active)))
+      return reduce(into: &state, action: .presetsList(.editingVisibilityChanged(active)))
 
     case .effectsVisibilityChanged(let visible):
       $effectsPanelVisible.withLock { $0 = visible }
@@ -457,7 +511,7 @@ extension AppRoot {
       )
 
     case .settingsButtonTapped:
-      state.destination = .settings(Settings.State())
+      state.destination = .settings(AppSettings.State())
       return .none
 
     case .tagsListVisibilityChanged(let visible):
@@ -553,6 +607,7 @@ public struct AppRootView: View {
     .task {
       await store.send(.initialize).finish()
     }
+#if os(iOS)
     .onReceive(keyboardVisibilityPublisher) { state in
       isInputKeyboardVisible = state
       // If restoring display of the virtual music keyboard, scroll to the active preset
@@ -561,17 +616,22 @@ public struct AppRootView: View {
         store.scope(state: \.presetsList, action: \.presetsList).send(.showActivePreset)
       }
     }
+#endif // os(iOS)
     .sheets(
       store: $store,
       horizontalSizeClass: horizontalSizeClass,
       verticalSizeClass: verticalSizeClass
     )
     .appReview(store: store.scope(state: \.appReview, action: \.appReview))
+#if os(iOS)
     .volumeMonitorHUD(store: store.scope(state: \.volumeMonitor, action: \.volumeMonitor))
+#endif
   }
 }
 
+#if os(iOS)
 extension AppRootView: KeyboardVisibilityPublisher {}
+#endif
 
 extension AppRootView {
 
@@ -700,7 +760,9 @@ extension View {
       .settingsSheet(store, showFakeKeyboard: horizontalSizeClass == .compact || verticalSizeClass == .compact)
       .soundFontEditorSheet(store)
       .tagsEditorSheet(store)
+#if os(iOS)
       .tutorialSheet(store)
+#endif
   }
 
   fileprivate func changesSheet(_ store: Bindable<StoreOf<AppRoot>>) -> some View {
@@ -726,7 +788,7 @@ extension View {
   fileprivate func settingsSheet(_ store: Bindable<StoreOf<AppRoot>>, showFakeKeyboard: Bool) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.settings, action: \.destination.settings)) {
-        SettingsView(store: $0, showFakeKeyboard: showFakeKeyboard)
+        AppSettingsView(store: $0, showFakeKeyboard: showFakeKeyboard)
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }
@@ -752,6 +814,7 @@ extension View {
       }
   }
 
+#if os(iOS)
   fileprivate func tutorialSheet(_ store: Bindable<StoreOf<AppRoot>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.tutorial, action: \.destination.tutorial)) { child in
@@ -762,6 +825,7 @@ extension View {
         }
       }
   }
+#endif // os(iOS)
 }
 
 extension AppRootView {
