@@ -22,6 +22,8 @@ Main dependencies:
 
 # Status
 
+The app now uses the AUv3 app extension for audio rendering, something which the original [SoundFonts][0] never did.
+
 The app is getting close to feature-parity with the the original UIKit version:
 
 * generates audio using both onscreen keyboard as well as from MIDI devices
