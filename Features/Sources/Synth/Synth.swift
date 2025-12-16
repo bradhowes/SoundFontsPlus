@@ -30,7 +30,7 @@ public struct Synth {
     @ObservationStateIgnored
     public var audioSessionActivated: Bool = false
     @ObservationStateIgnored
-    public var avAudioUnit: AVAudioUnit?
+    public var avAudioUnit: AVAudioUnitMIDIInstrument?
 
     public init(
       loadedSoundFontId: SoundFont.ID? = nil,
@@ -56,11 +56,12 @@ public struct Synth {
     case mediaServicesWereReset
     case playNote
     case releaseAudioSession
-    case synthAudioUnitCreated(AVAudioUnit)
+    case synthAudioUnitCreated(AVAudioUnitMIDIInstrument)
+    case synthAudioUnitCreationFailed
 
     @CasePathable
     public enum Delegate: Equatable {
-      case audioUnitCreated(AVAudioUnit)
+      case audioUnitCreated(AVAudioUnitMIDIInstrument)
       case running
       case stopped
     }
@@ -126,6 +127,10 @@ public struct Synth {
 
       case .synthAudioUnitCreated(let avAudioUnit):
         return createSynthAudioUnitDone(&state, avAudioUnit: avAudioUnit)
+
+      case .synthAudioUnitCreationFailed:
+        log.error("Failed to create AVAudioUnit")
+        return .none
       }
     }
   }
@@ -176,19 +181,23 @@ extension Synth {
 
   private func createSynthAudioUnit(_ state: inout State) -> Effect<Action> {
     log.info("createSynth")
-    return .run { [synthAUv3ComponentDescription = synthAUv3ComponentDescription] send in
+    return .run { [synthAUv3ComponentDescription] send in
       log.info("createSynth - instantiating audio unit")
       do {
-        let sau = try await SF2LibAU.create(synthAUv3ComponentDescription)
-        log.debug("createSynth - synth: \(sau.description)")
-        await send(.synthAudioUnitCreated(sau))
+        if let sau = try await SF2LibAU.create(synthAUv3ComponentDescription) as? AVAudioUnitMIDIInstrument {
+          log.debug("createSynth - synth: \(sau.description)")
+          await send(.synthAudioUnitCreated(sau))
+        } else {
+          await send(.synthAudioUnitCreationFailed)
+        }
       } catch {
         log.error("failed to create synth - \(error)")
+        await send(.synthAudioUnitCreationFailed)
       }
     }.cancellable(id: CancelId.synthCreateSynth, cancelInFlight: true)
   }
 
-  private func createSynthAudioUnitDone(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
+  private func createSynthAudioUnitDone(_ state: inout State, avAudioUnit: AVAudioUnitMIDIInstrument) -> Effect<Action> {
     log.info("createSynthAudioUnitDone BEGIN")
 
     state.avAudioUnit = avAudioUnit
@@ -226,21 +235,25 @@ extension Synth {
       let parameterTree = state.avAudioUnit?.parameterTree,
       let presetId = activeState.activePresetId
     else {
+      log.info("lastPresetLoadFinished END - parameterTree: \(String(describing: state.avAudioUnit?.parameterTree))")
+      log.info("lastPresetLoadFinished END - presetId: \(String(describing: activeState.activePresetId))")
       return .none
     }
 
     if let audioConfig = AudioConfig.with(presetId: presetId) {
       let gainAddress = AUParameterAddress(SF2.Entity.Generator.Index.initialAttenuation.rawValue)
       let gainParameter = parameterTree.parameter(withAddress: gainAddress)
-      gainParameter?.setValue(audioConfig.gain.gainGeneratorValue, originator: nil)
+      unsafe gainParameter?.setValue(audioConfig.gain.gainGeneratorValue, originator: nil)
 
       let panAddress = AUParameterAddress(SF2.Entity.Generator.Index.pan.rawValue)
       let panParameter = parameterTree.parameter(withAddress: panAddress)
-      panParameter?.setValue(audioConfig.pan.panGeneratorValue, originator: nil)
+      unsafe panParameter?.setValue(audioConfig.pan.panGeneratorValue, originator: nil)
     }
 
     let firstTimePresetLoaded = state.firstTimePresetLoaded
     state.firstTimePresetLoaded = false
+
+    log.info("lastPresetLoadFinished END")
     return firstTimePresetLoaded ? .none : playNote(state)
   }
 
@@ -269,16 +282,12 @@ extension Synth {
       fatalError("monitorLastLoadFinished - did not find lastLoadFinished parameter")
     }
 
-    return .publisher {
-      parameter.publisher(for: \.value)
-        .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
-        .removeDuplicates()
-        .filter { $0 > 0.0 }
-        .map { lastLoadFinished in
-          log.debug("monitorMediaServices lastLoadFinished value changed - \(lastLoadFinished)")
-          return .lastPresetLoadFinished
-        }
-    }.cancellable(id: CancelId.synthMonitorLastLoadFinished)
+    return .run { send in
+      for await newValue in parameter.observe() {
+        print(newValue)
+        await send(.lastPresetLoadFinished)
+      }
+    }.cancellable(id: CancelId.synthMonitorLastLoadFinished, cancelInFlight: true)
   }
 
 #if os(iOS)
@@ -310,8 +319,8 @@ extension Synth {
   private func playNote(_ state: State) -> Effect<Action> {
     log.debug("playNote BEGIN - \(playSoundOnPresetChange) ")
 
-    guard let sf2LibAU = state.avAudioUnit?.sf2LibAU else {
-      log.debug("playNote END - !sf2LibAU")
+    guard let avAudioUnit = state.avAudioUnit else {
+      log.debug("playNote END - !avAudioUnit")
       return .none
     }
 
@@ -323,10 +332,10 @@ extension Synth {
     return .run { _ in
       @Dependency(\.continuousClock) var clock
       log.debug("sending note on")
-      sf2LibAU.sendNoteOn(note: 60)
+      avAudioUnit.startNote(60, withVelocity: 127, onChannel: 0)
       try? await clock.sleep(for: Self.playNoteDurationMilliseconds)
       log.debug("sending note off")
-      sf2LibAU.sendNoteOff(note: 60)
+      avAudioUnit.stopNote(60, onChannel: 0)
     }.cancellable(id: CancelId.synthPlayNote, cancelInFlight: true)
   }
 
@@ -380,7 +389,7 @@ extension Synth {
   private func useActivePreset(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     log.info("useActivePreset BEGIN - presetId: \(presetId ?? -1)")
     guard
-      let sf2LibAU = state.avAudioUnit?.sf2LibAU,
+      let avAudioUnit = state.avAudioUnit,
       state.audioSessionActivated
     else {
       log.info("useActivePreset END - nil audioUnit or inactive audio session")
@@ -400,7 +409,7 @@ extension Synth {
     let result: Bool
     if presetInfo.soundFontId == state.loadedSoundFontId {
       log.info("useActivePreset - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = sf2LibAU.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
+      result = avAudioUnit.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
     } else {
       guard let location = try? SoundFontKind(
         kind: presetInfo.kind,
@@ -413,7 +422,7 @@ extension Synth {
       }
       let path = location.path.path(percentEncoded: false)
       log.info("useActivePreset - loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = sf2LibAU.sendLoadFileUsePreset(
+      result = avAudioUnit.sendLoadFileUsePreset(
         path: path,
         preset: presetInfo.presetIndex,
         gain: presetInfo.gain,
@@ -426,5 +435,26 @@ extension Synth {
 
     log.info("useActivePreset END - \(result)")
     return .none
+  }
+}
+
+extension AVAudioUnitMIDIInstrument {
+
+  public func sendLoadFileUsePreset(path: String, preset: Int, gain: Double, pan: Double) -> Bool {
+    sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload(std.string(path), preset)))
+  }
+
+  public func sendUsePreset(preset: Int, gain: Double, pan: Double) -> Bool {
+    sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload("", preset)))
+  }
+
+  public func sendMIDI(bytes: [UInt8], when: AUEventSampleTime = 0, cable: UInt8 = 0) -> Bool {
+    log.info("sendMIDI BEGIN - \(bytes.count) bytes")
+    guard let block = unsafe auAudioUnit.scheduleMIDIEventBlock else {
+      log.error("sendMIDI - nil scheduleMIDIEventBlock")
+      return false
+    }
+    unsafe block(when, cable, bytes.count, bytes)
+    return true
   }
 }

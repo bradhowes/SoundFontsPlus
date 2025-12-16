@@ -81,6 +81,7 @@ public struct PresetsList {
     case cancelSearchButtonTapped
     case clearScrollToPresetId
     case clearSearchTextField
+    case deinitialize
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case editingVisibilityChanged(Bool)
@@ -121,6 +122,8 @@ public struct PresetsList {
       case .clearScrollToPresetId:
         state.scrollToPresetId = nil
         return .none
+
+      case .deinitialize: return .merge(CancelId.allCases.map { .cancel(id: $0) })
 
       case .destination(.presented(.alert(.deleteFavoriteConfirmed(let preset)))):
         return deleteFavoriteConfirmed(&state, preset: preset)
@@ -168,7 +171,7 @@ public struct PresetsList {
     .ifLet(\.destination, action: \.destination)
   }
 
-  private enum CancelId: String {
+  private enum CancelId: String, CaseIterable {
     case presetsListMonitorSelectedSoundFontId
     case presetsListShowActivePresetNow
   }

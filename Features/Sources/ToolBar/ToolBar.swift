@@ -201,19 +201,17 @@ extension ToolBar {
   private func monitorActiveVoiceCount(_ state: inout State) -> Effect<Action> {
     guard
       let parameterTree = state.audioUnit?.parameterTree,
-      let node = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.activeVoiceCount.rawValue)
+      let parameter = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.activeVoiceCount.rawValue)
     else {
+      log.info("no parameter tree to monitor")
       return .none
     }
 
-    return .publisher {
-      node.publisher(for: \.value)
-        .buffer(size: 1, prefetch: .byRequest, whenFull: .dropOldest)
-        .removeDuplicates()
-        .map {
-          .activeVoiceCountChanged(Int($0))
-        }
-    }.cancellable(id: CancelId.toolBarMonitorActiveVoiceCount)
+    return .run { send in
+      for await newValue in parameter.observe() {
+        await send(.activeVoiceCountChanged(Int(newValue)))
+      }
+    }.cancellable(id: CancelId.toolBarMonitorActiveVoiceCount, cancelInFlight: true)
   }
 
   private func settingsButtonTapped(_ state: inout State) -> Effect<Action> {

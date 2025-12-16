@@ -193,7 +193,7 @@ extension PresetEditor {
     state.pendingAudioConfig.gain = state.gainSlider
     let gainAddress = AUParameterAddress(SF2.Entity.Generator.Index.initialAttenuation.rawValue)
     let parameter = parameterTree.parameter(withAddress: gainAddress)
-    parameter?.setValue(state.pendingAudioConfig.gain.gainGeneratorValue, originator: nil)
+    unsafe parameter?.setValue(state.pendingAudioConfig.gain.gainGeneratorValue, originator: nil)
     return .none
   }
 
@@ -209,7 +209,7 @@ extension PresetEditor {
     guard let parameterTree = state.audioUnit?.parameterTree else { return .none }
     let panAddress = AUParameterAddress(SF2.Entity.Generator.Index.pan.rawValue)
     let parameter = parameterTree.parameter(withAddress: panAddress)
-    parameter?.setValue(state.pendingAudioConfig.pan.panGeneratorValue, originator: nil)
+    unsafe parameter?.setValue(state.pendingAudioConfig.pan.panGeneratorValue, originator: nil)
     return .none
   }
 

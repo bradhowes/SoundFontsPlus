@@ -73,6 +73,9 @@ sub: \(componentDescription.componentSubType)
     chorusSendBus = try Self.createBus(name: "chorusSend", format: format)
 
     try super.init(componentDescription: componentDescription, options: options)
+
+    self.parameterTree = engine.getParameterTree()
+
     log.info("init - done")
   }
 }
@@ -81,24 +84,12 @@ extension SF2LibAU: @unchecked Sendable {}
 
 extension SF2LibAU {
 
-  public override var parameterTree: AUParameterTree? {
-    get {
-      engine.getParameterTree()
-    }
-    set {
-      fatalError("unable to set parameter tree - \(String(describing: newValue))")
-    }
-  }
-}
-
-extension SF2LibAU {
-
   /**
    Convenience function for creating a "dynamic" audio unit by associating a class with a component description and then
    asking CoreAudio to create the audio unit.
 
-   NOTE: do not use for production purposes since it might hide problems with finding an AUv3 extension attached to the
-   application. Instead, just create the same AudioComponentDescription value and try to instantiate it.
+   NOTE: do not use `register` for production purposes since it might hide problems with finding an AUv3 extension attached
+   to the application. Instead, just create the same AudioComponentDescription value and try to instantiate it.
    */
   public static func create(_ acd: AudioComponentDescription, register: Bool = false) async throws -> AVAudioUnit {
     if register {
@@ -123,77 +114,6 @@ extension SF2LibAU {
 }
 
 extension SF2LibAU {
-
-  // public override var audioUnitMIDIProtocol: MIDIProtocolID { ._1_0 }
-
-  @discardableResult
-  public func sendLoadFileUsePreset(path: String, preset: Int, gain: Double, pan: Double) -> Bool {
-    sendMIDI(bytes: Array(createLoadFileUsePresetPayload(path: path, preset: preset)))
-  }
-
-  @discardableResult
-  public func sendUsePreset(preset: Int, gain: Double, pan: Double) -> Bool {
-    sendMIDI(bytes: Array(createLoadFileUsePresetPayload(path: "", preset: preset)))
-  }
-
-  @discardableResult
-  public func sendReset() -> Bool {
-    sendMIDI(bytes: Array(createResetCommandPayload()))
-  }
-
-  @discardableResult
-  public func sendUseBankProgram(bank: UInt16, program: UInt8) -> Bool {
-    sendMIDI(bytes: Array(createUseBankProgramPayload(bank: bank, program: program)))
-  }
-
-  @discardableResult
-  public func sendChannelMessage(message: UInt8, value: UInt8 = 0) -> Bool {
-    sendMIDI(bytes: createChannelMessagePayload(message: message, value: value))
-  }
-
-  @discardableResult
-  public func sendAllNotesOff() -> Bool {
-    sendMIDI(bytes: createAllNotesOffPayload())
-  }
-
-  @discardableResult
-  public func sendAllSoundOff() -> Bool {
-    sendMIDI(bytes: createAllSoundOffPayload())
-  }
-
-  @discardableResult
-  public func sendNoteOn(note: UInt8, velocity: UInt8 = 0x64, when: AUEventSampleTime = 0) -> Bool {
-    sendMIDI(bytes: [0x90, note, velocity], when: when)
-  }
-
-  @discardableResult
-  public func sendNoteOff(note: UInt8, when: AUEventSampleTime = 0) -> Bool {
-    sendMIDI(bytes: [0x80, note, 0x00], when: when)
-  }
-
-  public func createLoadFileUsePresetPayload(path: String, preset: Int) -> [UInt8] {
-    .init(SF2Engine.createLoadFileUsePresetPayload(std.string(path), preset))
-  }
-
-  public func createResetCommandPayload() -> [UInt8] {
-    .init(SF2Engine.createResetCommandPayload())
-  }
-
-  public func createUseBankProgramPayload(bank: UInt16, program: UInt8) -> [UInt8] {
-    .init(SF2Engine.createUseBankProgramPayload(bank, program))
-  }
-
-  public func createChannelMessagePayload(message: UInt8, value: UInt8) -> [UInt8] {
-    .init(SF2Engine.createChannelMessagePayload(message, value))
-  }
-
-  public func createAllNotesOffPayload() -> [UInt8] {
-    .init(SF2Engine.createAllNotesOffPayload())
-  }
-
-  public func createAllSoundOffPayload() -> [UInt8] {
-    .init(SF2Engine.createAllSoundOffPayload())
-  }
 
   public var activePresetName: String { String(engine.activePresetName()).trimmedOfWhitespaces }
 
@@ -220,11 +140,6 @@ extension SF2LibAU {
     let bus = try AUAudioUnitBus(format: format)
     bus.name = name
     return bus
-  }
-
-  private func updateShortName() {
-    let presetName = self.activePresetName
-    self.audioUnitShortName = presetName.isEmpty ? "-NA-" : presetName
   }
 }
 
@@ -292,7 +207,7 @@ extension SF2LibAU {
   /// Provide a block that asks the internal SF2 `engine` to render samples.
   public override var internalRenderBlock: AUInternalRenderBlock {
     log.info("internalRenderBlock BEGIN")
-    return engine.getRenderBlock()
+    return unsafe engine.getRenderBlock()
   }
 }
 

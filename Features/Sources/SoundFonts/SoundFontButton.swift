@@ -63,6 +63,7 @@ public struct SoundFontButton {
   public struct State: Equatable, Identifiable {
 
     public var id: SoundFont.ID { soundFontInfo.id }
+    public let bookmarkMonitorTaskId: String
     public let soundFontInfo: SoundFontInfo
     public var statusInfoTag: StatusInfoTag
 
@@ -70,6 +71,7 @@ public struct SoundFontButton {
       soundFontInfo: SoundFontInfo,
     ) {
       self.soundFontInfo = soundFontInfo
+      self.bookmarkMonitorTaskId = "SoundFontButton.\(soundFontInfo.id).bookMarkMonitorTaskId"
       self.statusInfoTag = Self.statusInfoTag(for: soundFontInfo)
     }
 
@@ -119,7 +121,7 @@ public struct SoundFontButton {
         return bookmarkMonitorStart(&state)
 
       case .bookmarkMonitorStop:
-        return .cancel(id: CancelId.soundFontButtonBookmarkMonitor)
+        return .cancel(id: state.bookmarkMonitorTaskId)
 
       case .buttonTapped:
         return .send(.delegate(.selectSoundFont(state.soundFontInfo)))
@@ -151,10 +153,6 @@ public struct SoundFontButton {
       }
     }
   }
-
-  private enum CancelId {
-    case soundFontButtonBookmarkMonitor
-  }
 }
 
 extension SoundFontButton {
@@ -173,7 +171,7 @@ extension SoundFontButton {
           statusInfoTag = newStatusInfoTag
         }
       }
-    }.cancellable(id: CancelId.soundFontButtonBookmarkMonitor)
+    }.cancellable(id: state.bookmarkMonitorTaskId)
   }
 
   private func downloadFile(_ state: inout State) -> Effect<Action> {

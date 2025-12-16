@@ -58,6 +58,7 @@ public struct AUv3Root {
     public var tagsList: TagsList.State
     public var toolBar: ToolBar.State
     public var audioUnit: SF2LibAU
+    public var crashed: Bool = false
 
     public init(
       audioUnit: SF2LibAU,
@@ -96,6 +97,7 @@ public struct AUv3Root {
   public enum Action: BindableAction {
     case activePresetIdChanged(Preset.ID?)
     case binding(BindingAction<State>)
+    case crashNotificationReceived
     case deinitialize
     case destination(PresentationAction<Destination.Action>)
     case fontsAndPresetsSplit(SplitViewReducer.Action)
@@ -269,10 +271,10 @@ extension AUv3Root {
       return .none
     }
 
-    let result: Bool
+    var result: Bool = false
     if presetInfo.soundFontId == state.loadedSoundFontId {
       log.info("useActivePreset - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = state.audioUnit.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
+      // result = state.audioUnit.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
     } else {
       guard let location = try? SoundFontKind(
         kind: presetInfo.kind,
@@ -285,12 +287,12 @@ extension AUv3Root {
       }
       let path = location.path.path(percentEncoded: false)
       log.info("useActivePreset - loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = state.audioUnit.sendLoadFileUsePreset(
-        path: path,
-        preset: presetInfo.presetIndex,
-        gain: presetInfo.gain,
-        pan: presetInfo.pan
-      )
+//      result = state.audioUnit.sendLoadFileUsePreset(
+//        path: path,
+//        preset: presetInfo.presetIndex,
+//        gain: presetInfo.gain,
+//        pan: presetInfo.pan
+//      )
     }
 
     state.audioUnit.audioUnitShortName = presetInfo.presetName
@@ -312,23 +314,6 @@ public struct AUv3RootView: View {
   private let appPanelBackground = Color.black
   private let dividerBorderColor: Color = Color.gray.mix(with: .black, by: 0.7)
   private let dividerSpan: CGFloat = 4
-  @State private var isInputKeyboardVisible = false
-  @State private var effectsOffset: CGFloat = 0.0
-
-  @Shared(.effectsPanelVisible) private var effectsPanelVisible
-  @Environment(\.maxKeyboardPanelHeight) private var maxKeyboardPanelHeight
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-  @Environment(\.verticalSizeClass) private var verticalSizeClass
-
-  private var showFakeKeyboard: Bool {
-    horizontalSizeClass == .compact || verticalSizeClass == .compact
-  }
-
-  private var keyboardHeight: CGFloat {
-    isInputKeyboardVisible
-      ? 1.0
-      : maxKeyboardPanelHeight * (verticalSizeClass == .compact ? 0.5 : 1.0)
-  }
 
   public init(store: StoreOf<AUv3Root>) {
     self.store = store
@@ -354,8 +339,6 @@ public struct AUv3RootView: View {
       controlViews
     }
     .padding(0)
-    .animation(.smooth, value: effectsPanelVisible)
-    .animation(.smooth, value: isInputKeyboardVisible)
     .environment(\.auv3ControlsTheme, theme)
     .environment(\.appPanelBackground, appPanelBackground)
     .task {
@@ -438,8 +421,6 @@ extension View {
    Custom `View` modifier that generates all of the optional sheets that can be created in the feature.
   
    - parameter store: the `Root` store which will be scoped to a child feature for displaying
-   - parameter horizontalSizeClass: indicator of the horizontal size of the view
-   - parameter verticalSizeClass: indicator of the vertical size of the view
    - returns: modified view
    */
   fileprivate func sheets(store: Bindable<StoreOf<AUv3Root>>) -> some View {

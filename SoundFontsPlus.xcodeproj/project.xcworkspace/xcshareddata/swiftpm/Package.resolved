@@ -1,5 +1,5 @@
 {
-  "originHash" : "6613c499a158b2fe3bb36dc5525d070020f148df05b6c2a679fa3b19d75b3400",
+  "originHash" : "60f57072e9bacba16c37ac9d36d502adc4f2093b38cf5c612788e33c2b299ceb",
   "pins" : [
     {
       "identity" : "auv3controls",
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/DSPHeaders",
       "state" : {
-        "revision" : "6ab85805cc0990817daa63aaa8aeb5541a2a826f",
-        "version" : "1.1.0"
+        "revision" : "1a10d68224940c1aa2ac5e470582f6bfcc7c9b2b",
+        "version" : "1.4.3"
       }
     },
     {
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/groue/GRDB.swift",
       "state" : {
-        "revision" : "18497b68fdbb3a09528d260a0a0e1e7e61c8c53d",
-        "version" : "7.8.0"
+        "revision" : "aa0079aeb82a4bf00324561a40bffe68c6fe1c26",
+        "version" : "7.9.0"
       }
     },
     {
@@ -56,12 +56,21 @@
       }
     },
     {
+      "identity" : "sf2lib",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bradhowes/SF2Lib",
+      "state" : {
+        "revision" : "1f8397432eef5212fdddbe3f41eaf696239b3e5a",
+        "version" : "8.6.0"
+      }
+    },
+    {
       "identity" : "sqlite-data",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sqlite-data",
       "state" : {
-        "revision" : "b66b894b9a5710f1072c8eb6448a7edfc2d743d9",
-        "version" : "1.3.0"
+        "revision" : "90568d3190f6d799229879ed94b622e0c7b21864",
+        "version" : "1.4.0"
       }
     },
     {
@@ -78,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-async-algorithms",
       "state" : {
-        "revision" : "042e1c4d9d19748c9c228f8d4ebc97bb1e339b0b",
-        "version" : "1.0.4"
+        "revision" : "6c050d5ef8e1aa6342528460db614e9770d7f804",
+        "version" : "1.1.1"
       }
     },
     {
@@ -240,8 +249,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "4c27acf5394b645b70d8ba19dc249c0472d5f618",
-        "version" : "1.7.0"
+        "revision" : "31073495cae9caf243c440eac94b3ab067e3d7bc",
+        "version" : "1.8.0"
       }
     }
   ],

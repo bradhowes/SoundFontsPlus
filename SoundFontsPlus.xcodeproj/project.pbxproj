@@ -15,7 +15,7 @@
 		BD4C249D2E77618800F8B3A9 /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249C2E77618800F8B3A9 /* Engine */; };
 		BD4C249F2E77618800F8B3A9 /* SF2File in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249E2E77618800F8B3A9 /* SF2File */; };
 		BD4C24A12E77618800F8B3A9 /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C24A02E77618800F8B3A9 /* SF2Lib */; };
-		BD5AE3AD2ED0C2910073F3F2 /* SoundFontsPlusAU.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BD5AE3842ED0C2910073F3F2 /* SoundFontsPlusAU.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		BD5AE3AD2ED0C2910073F3F2 /* SoundFontsPlusAU.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BD5AE3842ED0C2910073F3F2 /* SoundFontsPlusAU.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BD7217242E93BE270017DB8C /* AppReview in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217232E93BE270017DB8C /* AppReview */; };
 		BD7217262E93BE270017DB8C /* BaseSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217252E93BE270017DB8C /* BaseSupport */; };
 		BD72172A2E93BE270017DB8C /* DelayEffect in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217292E93BE270017DB8C /* DelayEffect */; };
@@ -383,6 +383,7 @@
 /* Begin PBXTargetDependency section */
 		BD5AE3AC2ED0C2910073F3F2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilter = ios;
 			target = BD5AE3832ED0C2910073F3F2 /* SoundFontsPlusAU */;
 			targetProxy = BD5AE3AB2ED0C2910073F3F2 /* PBXContainerItemProxy */;
 		};
@@ -589,8 +590,9 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iOS iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iOS iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -645,8 +647,9 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iOS iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iOS iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -660,6 +663,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 20250629214538;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = UP6SS5ES7E;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -695,8 +699,9 @@
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iOS iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iOS iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -744,8 +749,9 @@
 				SDKROOT = auto;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iOS iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iOS iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

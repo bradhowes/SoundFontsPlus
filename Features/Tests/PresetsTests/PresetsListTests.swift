@@ -43,7 +43,7 @@ struct PresetsListTests {
     activeSoundFontId: SoundFont.ID? = 1,
     selectedSoundFontId: SoundFont.ID? = 1,
     searchText: String? = nil,
-    visibilityEditMode: Bool = false
+    editingVisibility: Bool = false
   ) throws -> TestStoreOf<PresetsList> {
     @Shared(.activeState) var activeState
     $activeState.withLock {
@@ -57,7 +57,7 @@ struct PresetsListTests {
     let store = TestStore(
       initialState: PresetsList.State(
         searchText: searchText,
-        visibilityEditMode: visibilityEditMode
+        editingVisibility: editingVisibility
       )
     ) {
       PresetsList()
@@ -74,7 +74,7 @@ struct PresetsListTests {
     await store.send(.initialize)
     await store.receive(\.selectedSoundFontIdChanged) {
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
-      $0.sections = [.init(section: 0, presets: [])]
+      $0.sections = [.init(section: 0, presets: [], editingVisibility: false)]
     }
     #expect(store.state.sections.count == 1)
 
@@ -89,7 +89,7 @@ struct PresetsListTests {
 
     await store.send(.initialize)
     await store.receive(\.selectedSoundFontIdChanged) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
     }
     #expect(store.state.sections.count == 1)
 
@@ -102,7 +102,7 @@ struct PresetsListTests {
     let store = try setup()
 
     await store.send(.fetchPresets) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
     #expect(store.state.sections.count == 1)
@@ -116,7 +116,7 @@ struct PresetsListTests {
     let store = try setup()
 
     await store.send(.fetchPresets) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
     #expect(store.state.sections.count == 1)
@@ -140,7 +140,7 @@ struct PresetsListTests {
     let store = try setup()
 
     await store.send(.fetchPresets) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
     #expect(store.state.sections.count == 1)
@@ -149,25 +149,25 @@ struct PresetsListTests {
 
     await store.receive(\.sections[id: 10_000].delegate.searchButtonTapped) {
       $0.scrollToPresetId = nil
-      $0.sections = [.init(section: 0, presets: [])]
+      $0.sections = [.init(section: 0, presets: [], editingVisibility: false)]
       $0.isSearchFieldPresented = true
       $0.focusedField = .searchText
     }
 
     await store.send(.searchTextChanged("arp")) {
       $0.searchText = "arp"
-      $0.sections = [.init(section: 0, presets: presets.filter({$0.displayName.contains("arp")})[...])]
+      $0.sections = [.init(section: 0, presets: presets.filter({$0.displayName.contains("arp")})[...], editingVisibility: false)]
     }
 
     await store.send(.clearSearchTextField) {
       $0.searchText = ""
-      $0.sections = [.init(section: 0, presets: [])]
+      $0.sections = [.init(section: 0, presets: [], editingVisibility: false)]
     }
 
     await store.send(.cancelSearchButtonTapped) {
       $0.isSearchFieldPresented = false
       $0.focusedField = nil
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
     }
 
     await store.receive(\.showActivePreset)
@@ -193,14 +193,14 @@ struct PresetsListTests {
     let store = try setup()
 
     await store.send(.fetchPresets) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
     #expect(store.state.sections.count == 1)
 
     await store.send(\.sections, .element(id: PresetsList.noGroupingSize, action: .searchButtonTapped))
     await store.receive(\.sections[id: PresetsList.noGroupingSize].delegate.searchButtonTapped) {
-      $0.sections = [.init(section: 0, presets: [])]
+      $0.sections = [.init(section: 0, presets: [], editingVisibility: false)]
       $0.isSearchFieldPresented = true
       $0.focusedField = .searchText
       $0.scrollToPresetId = nil
@@ -208,7 +208,7 @@ struct PresetsListTests {
 
     await store.send(.searchTextChanged("reset")) {
       $0.searchText = "reset"
-      $0.sections = [.init(section: 0, presets: presets.filter({$0.displayName.contains("reset")})[...])]
+      $0.sections = [.init(section: 0, presets: presets.filter({$0.displayName.contains("reset")})[...], editingVisibility: false)]
     }
 
     await store.send(
@@ -222,7 +222,7 @@ struct PresetsListTests {
     await store.receive(\.sections[id: PresetsList.noGroupingSize].delegate.selectPreset) {
       $0.isSearchFieldPresented = false
       $0.focusedField = nil
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
     }
 
     await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
@@ -243,7 +243,7 @@ struct PresetsListTests {
     await store.send(.initialize)
 
     await store.receive(\.selectedSoundFontIdChanged, nil) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
     }
 
     @Shared(.selectedSoundFontId) var selectedSoundFontId
@@ -273,7 +273,8 @@ struct PresetsListTests {
             soundFontId: 2,
             displayName: "Font 2 Preset 2"
           )
-        ]
+        ],
+        editingVisibility: false
       )]
     }
 
@@ -287,7 +288,7 @@ struct PresetsListTests {
     let store = try setup()
 
     await store.send(.fetchPresets) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
     #expect(activeState.activePresetId == 1)
@@ -314,7 +315,7 @@ struct PresetsListTests {
     let store = try setup()
 
     await store.send(.fetchPresets) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
 
@@ -344,7 +345,7 @@ struct PresetsListTests {
     await store.receive(\.sections[id: store.state.sections[0].id].rows[id: presets[0].id].delegate.createFavorite, presets[0])
 
     await store.receive(\.sections[id: store.state.sections[0].id].delegate.createFavorite, presets[0]) {
-      $0.sections[0] = .init(section: 0, presets: presetsWithFavorite[...])
+      $0.sections[0] = .init(section: 0, presets: presetsWithFavorite[...], editingVisibility: false)
     }
 
     var updated = Operations.presets(for: nil)
@@ -385,7 +386,7 @@ struct PresetsListTests {
     let store = try setup()
 
     await store.send(.fetchPresets) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
 
@@ -415,7 +416,7 @@ struct PresetsListTests {
     await store.receive(\.sections[id: store.state.sections[0].id].rows[id: presets[0].id].delegate.createFavorite, presets[0])
 
     await store.receive(\.sections[id: store.state.sections[0].id].delegate.createFavorite, presets[0]) {
-      $0.sections[0] = .init(section: 0, presets: presetsWithFavorite[...])
+      $0.sections[0] = .init(section: 0, presets: presetsWithFavorite[...], editingVisibility: false)
     }
 
     var updated = Operations.presets(for: nil)
@@ -441,7 +442,7 @@ struct PresetsListTests {
 
     await store.send(.destination(.presented(.alert(.deleteFavoriteConfirmed(updated[1]))))) {
       $0.destination = nil
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
     }
 
     updated = Operations.presets(for: nil)
@@ -456,7 +457,7 @@ struct PresetsListTests {
     let store = try setup()
 
     await store.send(.fetchPresets) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
 
@@ -486,7 +487,7 @@ struct PresetsListTests {
     #expect(confirmPresetHiding == true)
 
     await store.send(.fetchPresets) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
 
@@ -530,7 +531,7 @@ struct PresetsListTests {
     #expect(confirmPresetHiding == true)
 
     await store.send(.fetchPresets) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
+      $0.sections = [.init(section: 0, presets: presets[...], editingVisibility: false)]
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
 
@@ -560,7 +561,7 @@ struct PresetsListTests {
 
     await store.send(.destination(.presented(.alert(.hidePresetConfirmed(presets[1]))))) {
       $0.destination = nil
-      $0.sections = [.init(section: 0, presets: updated[...])]
+      $0.sections = [.init(section: 0, presets: updated[...], editingVisibility: false)]
     }
 
     updated = Operations.presets(for: nil)

@@ -27,39 +27,6 @@ import VolumeMonitor
 @Reducer
 public struct AppRoot {
 
-  public static func prepareDependencies() {
-    Dependencies.prepareDependencies {
-      @Shared(.isAUv3) var isAUv3 = false
-
-      $0.audioGraph = .liveValue
-      $0.audioSession = .liveValue
-
-      // swiftlint:disable:next force_try
-      $0.defaultDatabase = try! appDatabase()
-      $0.defaultFileStorage = .fileSystem
-
-      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.liveValue
-
-      let delay = AVAudioUnitDelay()
-      $0.delayDevice = .init(setConfig: { delay.setConfig($0) })
-      @Shared(.delayEffect) var delayEffect = delay
-
-      let reverb = AVAudioUnitReverb()
-      $0.reverbDevice = .init( setConfig: { reverb.setConfig($0) })
-      @Shared(.reverbEffect) var reverbEffect = reverb
-
-      let engine = AVAudioEngine()
-      @Shared(.audioEngine) var audioEngine = engine
-
-      @Shared(.midiInputPortId) var midiInputPortId
-      @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
-      midi?.start()
-
-      @Shared(.midiMonitor) var midiMonitor = .init()
-      midi?.receiver = midiMonitor
-    }
-  }
-
   /**
    The various editors and presenters that appear when created and presented.
    */
@@ -94,6 +61,7 @@ public struct AppRoot {
     #if os(iOS)
     public var volumeMonitor: VolumeMonitor.State
     #endif
+    public var audioUnitCrashed: Bool = false
 
     public init(
       appReview: AppReview.State? = nil,
@@ -184,6 +152,7 @@ public struct AppRoot {
   public enum Action: BindableAction {
     case activePresetIdChanged(Preset.ID?)
     case appReview(AppReview.Action)
+    case audioUnitCrashed
     case binding(BindingAction<State>)
     case deinitialize
     case delay(DelayEffect.Action)
@@ -247,9 +216,18 @@ public struct AppRoot {
 #endif
         return .merge(actions)
 
+      case .audioUnitCrashed:
+        log.error("*** audioUnit crashed")
+        return .none
+
       case .deinitialize:
         var actions = [
           .merge(CancelId.allCases.map { .cancel(id: $0) }),
+          reduce(into: &state, action: .delay(.deinitialize)),
+          reduce(into: &state, action: .keyboard(.deinitialize)),
+          reduce(into: &state, action: .presetsList(.deinitialize)),
+          reduce(into: &state, action: .reverb(.deinitialize)),
+          reduce(into: &state, action: .soundFontsList(.deinitialize)),
           reduce(into: &state, action: .synth(.deinitialize)),
           reduce(into: &state, action: .toolBar(.deinitialize))
         ]
@@ -330,10 +308,44 @@ public struct AppRoot {
   private enum CancelId: String, CaseIterable {
     case appRootCreateCloudDocumentsDirectory
     case appRootMonitorActivePresetId
+    case appRootMonitorInvalidationNotification
   }
 }
 
 extension AppRoot {
+
+  public static func prepareDependencies() {
+    Dependencies.prepareDependencies {
+      @Shared(.isAUv3) var isAUv3 = false
+
+      $0.audioGraph = .liveValue
+      $0.audioSession = .liveValue
+
+      // swiftlint:disable:next force_try
+      $0.defaultDatabase = try! appDatabase()
+      $0.defaultFileStorage = .fileSystem
+
+      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.liveValue
+
+      let delay = AVAudioUnitDelay()
+      $0.delayDevice = .init(setConfig: { delay.setConfig($0) })
+      @Shared(.delayEffect) var delayEffect = delay
+
+      let reverb = AVAudioUnitReverb()
+      $0.reverbDevice = .init( setConfig: { reverb.setConfig($0) })
+      @Shared(.reverbEffect) var reverbEffect = reverb
+
+      let engine = AVAudioEngine()
+      @Shared(.audioEngine) var audioEngine = engine
+
+      @Shared(.midiInputPortId) var midiInputPortId
+      @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
+      midi?.start()
+
+      @Shared(.midiMonitor) var midiMonitor = .init()
+      midi?.receiver = midiMonitor
+    }
+  }
 
   private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
     @Shared(.midiMonitor) var midiMonitor
@@ -401,6 +413,7 @@ extension AppRoot {
     .merge(
       createCloudDocumentsDirectory(),
       monitorActivePresetId(),
+      monitorInvalidationNotification(&state),
       reduce(into: &state, action: .synth(.initialize)),
     )
   }
@@ -412,6 +425,17 @@ extension AppRoot {
         .removeDuplicates()
         .map { .activePresetIdChanged($0) }
     }.cancellable(id: CancelId.appRootMonitorActivePresetId, cancelInFlight: true)
+  }
+
+  private func monitorInvalidationNotification(_ state: inout State) -> Effect<Action> {
+    let name = Notification.Name(String(kAudioComponentInstanceInvalidationNotification))
+    return .run { send in
+      while !Task.isCancelled {
+        for await _ in NotificationCenter.default.notifications(named: name) {
+          await send(.audioUnitCrashed)
+        }
+      }
+    }.cancellable(id: CancelId.appRootMonitorInvalidationNotification, cancelInFlight: true)
   }
 
   private func processKeyboardAction(_ state: inout State, action: Keyboard.Action.Delegate) -> Effect<Action> {
