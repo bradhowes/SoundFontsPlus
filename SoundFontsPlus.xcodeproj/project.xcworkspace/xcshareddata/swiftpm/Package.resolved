@@ -1,5 +1,5 @@
 {
-  "originHash" : "60f57072e9bacba16c37ac9d36d502adc4f2093b38cf5c612788e33c2b299ceb",
+  "originHash" : "5adabf5c9a46302f46c9c9082540a4e90c8ea2243006e143fe324fe92b1bacff",
   "pins" : [
     {
       "identity" : "auv3controls",
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/DSPHeaders",
       "state" : {
-        "revision" : "1a10d68224940c1aa2ac5e470582f6bfcc7c9b2b",
-        "version" : "1.4.3"
+        "revision" : "e4835b4593c43361b69083e933a20201ec863577",
+        "version" : "1.4.6"
       }
     },
     {
@@ -56,21 +56,12 @@
       }
     },
     {
-      "identity" : "sf2lib",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bradhowes/SF2Lib",
-      "state" : {
-        "revision" : "1f8397432eef5212fdddbe3f41eaf696239b3e5a",
-        "version" : "8.6.0"
-      }
-    },
-    {
       "identity" : "sqlite-data",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sqlite-data",
       "state" : {
-        "revision" : "90568d3190f6d799229879ed94b622e0c7b21864",
-        "version" : "1.4.0"
+        "revision" : "341468a6bba9f6a14ddc44f94fdc79f948eeef6e",
+        "version" : "1.4.1"
       }
     },
     {

@@ -271,7 +271,7 @@ extension AUv3Root {
       return .none
     }
 
-    var result: Bool = false
+    let result: Bool = false
     if presetInfo.soundFontId == state.loadedSoundFontId {
       log.info("useActivePreset - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
       // result = state.audioUnit.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)

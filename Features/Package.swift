@@ -6,7 +6,7 @@ import PackageDescription
 
 let alwaysShowTutorial = false
 let alwaysShowChanges = false
-let useLocalSF2Lib = false
+let useLocalSF2Lib = true
 
 let package = Package(
   name: "Features",
