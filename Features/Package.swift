@@ -50,6 +50,7 @@ let package = Package(
     // NOTE: only used to gain access to `isApproximatelyEqual` in unit tests
     .package(url: "https://github.com/apple/swift-numerics", from: "1.1.0"),
     .package(url: "https://github.com/athankefalas/swift-toasts", from: "0.9.2"),
+    .package(url: "https://github.com/relatedcode/ProgressHUD", from: "15.0.1"),
     //
     .package(url: "https://github.com/pointfreeco/sqlite-data", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.2"),
@@ -84,6 +85,7 @@ let package = Package(
         "Tutorial",
         "VolumeMonitor",
         .product(name: "BRHSplitView", package: "brh-splitview"),
+        .product(name: "ProgressHUD", package: "ProgressHUD"),
       ]
     ),
     .feature(

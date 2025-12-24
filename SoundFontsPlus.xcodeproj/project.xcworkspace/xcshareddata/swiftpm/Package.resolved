@@ -1,5 +1,5 @@
 {
-  "originHash" : "5adabf5c9a46302f46c9c9082540a4e90c8ea2243006e143fe324fe92b1bacff",
+  "originHash" : "3777d121de80e527bb1f0a08dab6bd661f2835033e509de29a475b67f0def16d",
   "pins" : [
     {
       "identity" : "auv3controls",
@@ -53,6 +53,15 @@
       "state" : {
         "revision" : "f80bbbf5a66afa48f3caff57da08cead43955c4f",
         "version" : "4.0.2"
+      }
+    },
+    {
+      "identity" : "progresshud",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/relatedcode/ProgressHUD",
+      "state" : {
+        "revision" : "44e04c79ae75ed5e979df517ab13d8a1aa9b41a5",
+        "version" : "15.0.1"
       }
     },
     {

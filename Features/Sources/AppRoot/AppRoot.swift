@@ -11,6 +11,7 @@ import FeatureSupport
 import Keyboard
 import MorkAndMIDI
 import Presets
+import ProgressHUD
 import ReverbEffect
 import SQLiteData
 import Settings
@@ -61,7 +62,8 @@ public struct AppRoot {
     #if os(iOS)
     public var volumeMonitor: VolumeMonitor.State
     #endif
-    public var audioUnitCrashed: Bool = false
+    public var audioUnitCrashed = false
+    public var audioUnitReady = false
 
     public init(
       appReview: AppReview.State? = nil,
@@ -358,6 +360,7 @@ extension AppRoot {
 
   private func audioChainActive(_ state: inout State) -> Effect<Action> {
     // The synth is up and running with an active audio session. Safe to monitor its state now.
+    state.audioUnitReady = true
 #if os(iOS)
     return reduce(into: &state, action: .volumeMonitor(.start))
 #else
@@ -410,7 +413,7 @@ extension AppRoot {
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {
-    .merge(
+    return .merge(
       createCloudDocumentsDirectory(),
       monitorActivePresetId(),
       monitorInvalidationNotification(&state),
@@ -604,6 +607,14 @@ public struct AppRootView: View {
     .onChange(of: scenePhase) { _, newPhase in
       store.send(.scenePhaseChanged(newPhase))
     }
+    .onChange(of: store.audioUnitReady) { _, newValue in
+      if newValue {
+        ProgressHUD.dismiss()
+      }
+    }
+    .onAppear {
+      ProgressHUD.animate(nil, .horizontalBarScaling)
+    }
     .task {
       await store.send(.initialize).finish()
     }
@@ -626,6 +637,7 @@ public struct AppRootView: View {
 #if os(iOS)
     .volumeMonitorHUD(store: store.scope(state: \.volumeMonitor, action: \.volumeMonitor))
 #endif
+    .progressHUD()
   }
 }
 
