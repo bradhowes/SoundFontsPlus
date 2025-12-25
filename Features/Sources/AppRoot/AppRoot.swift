@@ -211,6 +211,7 @@ public struct AppRoot {
         var actions = [
           reduce(into: &state, action: .appReview(.ask)),
           reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
+          reduce(into: &state, action: .synth(.activePresetIdChanged(presetId))),
           reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId)))
         ]
 #if os(iOS)

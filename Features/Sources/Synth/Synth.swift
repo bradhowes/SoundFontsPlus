@@ -137,7 +137,6 @@ public struct Synth {
 
   private enum CancelId: String, CaseIterable {
     case synthCreateSynth
-    case synthMonitorActivePresetId
     case synthMonitorLastLoadFinished
     case synthMonitorMediaServices
     case synthMonitorRouteChanged
@@ -162,7 +161,6 @@ extension Synth {
   private func beginMonitoring(_ state: inout State) -> Effect<Action> {
     log.info("beginMonitoring - BEGIN")
     var actions = [
-      monitorActivePresetId(&state),
       monitorLastLoadFinished(&state)
     ]
 
@@ -255,19 +253,6 @@ extension Synth {
 
     log.info("lastPresetLoadFinished END")
     return firstTimePresetLoaded ? .none : playNote(state)
-  }
-
-  private func monitorActivePresetId(_ state: inout State) -> Effect<Action> {
-    log.info("monitorActivePresetId BEGIN")
-    return .publisher {
-      $activeState.activePresetId
-        .publisher
-        .removeDuplicates()
-        .map { value in
-          log.debug("monitorActivePresetId activePresetId changed - \(String(describing: value))")
-          return .activePresetIdChanged(value)
-        }
-    }.cancellable(id: CancelId.synthMonitorActivePresetId, cancelInFlight: true)
   }
 
   private func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
