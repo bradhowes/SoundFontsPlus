@@ -64,7 +64,7 @@ public func appDatabase(
 #endif // DEBUG
 
   if context == .live {
-    let databaseURL: URL = FileManager.default.sharedDocumentsDirectory.appending(component: "db.sqlite")
+    let databaseURL: URL = FileManager.default.localDocumentsDirectory.appending(component: "db.sqlite")
     let coordinator = NSFileCoordinator(filePresenter: nil)
     var dbPool: DatabasePool?
     var coordinatorError: NSError?
