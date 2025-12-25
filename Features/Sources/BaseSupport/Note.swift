@@ -216,6 +216,8 @@ extension Note: Strideable {
 }
 
 extension Note {
+
+  // swiftlint:disable identifier_name
   public static var `C-1`: Note { .init(midiNoteValue: 0) }
   public static var `D-1`: Note { .init(midiNoteValue: 2) }
   public static var `E-1`: Note { .init(midiNoteValue: 4) }
@@ -223,6 +225,7 @@ extension Note {
   public static var `G-1`: Note { .init(midiNoteValue: 7) }
   public static var `A-1`: Note { .init(midiNoteValue: 9) }
   public static var `B-1`: Note { .init(midiNoteValue: 11) }
+  // swiftlint:enable identifier_name
 
   public static var C0: Note { .init(midiNoteValue: 12) }
   public static var D0: Note { .init(midiNoteValue: 14) }
