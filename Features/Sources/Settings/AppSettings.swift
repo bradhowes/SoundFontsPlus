@@ -43,6 +43,7 @@ public struct AppSettings {
     @Shared(.backgroundProcessing) public var backgroundProcessing
     @Shared(.copyFileWhenInstalling) public var copyFileWhenInstalling
     @Shared(.disableIdleTimer) public var disableIdleTimer
+    @Shared(.duckOtherApps) public var duckOtherApps
     @Shared(.favoritesOnTop) public var favoritesOnTop
     @Shared(.favoriteSymbolName) public var favoriteSymbolName
     @Shared(.keyboardSlides) public var keyboardSlides
@@ -50,6 +51,7 @@ public struct AppSettings {
     @Shared(.keyWidth) public var keyWidth
     @Shared(.midiAutoConnect) public var midiAutoConnect
     @Shared(.midiChannel) public var midiChannel
+    @Shared(.mixWithOtherApps) public var mixWithOtherApps
     @Shared(.pitchBendRange) public var pitchBendRange
     @Shared(.playSoundOnPresetChange) public var playSoundOnPresetChange
     @Shared(.showActiveVoiceCount) public var showActiveVoiceCount
@@ -436,6 +438,15 @@ extension AppSettingsView {
         }
         .circledCheckMarkToggleStyle()
         if !isAUv3 {
+          Toggle(isOn: $store.mixWithOtherApps) {
+            Text("Mix audio with other apps on device")
+          }
+          .circledCheckMarkToggleStyle()
+          Toggle(isOn: $store.duckOtherApps) {
+            Text("Reduce audio from other apps")
+          }
+          .circledCheckMarkToggleStyle()
+          .disabled(store.mixWithOtherApps == false)
           Toggle(isOn: $store.backgroundProcessing) {
             Text("Background processing mode")
           }

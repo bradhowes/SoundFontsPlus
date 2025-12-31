@@ -5,6 +5,8 @@ import Sharing
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var backgroundProcessing: Self { Self[.appStorage("backgroundProcessing"), default: true] }
+  public static var duckOtherApps: Self { Self[.appStorage("duckOtherApps"), default: false] }
+  public static var mixWithOtherApps: Self { Self[.appStorage("mixWithOtherApps"), default: true] }
   public static var playSoundOnPresetChange: Self { Self[.appStorage("playSoundOnPresetChange"), default: true] }
 }
 

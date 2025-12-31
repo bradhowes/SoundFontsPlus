@@ -3,6 +3,7 @@
 import AVFAudio.AVAudioSession
 import Dependencies
 import DependenciesMacros
+import Sharing
 
 /**
  Collection of AVAudioSession dependencies to allow for mocking and controlling in tests.
@@ -37,10 +38,19 @@ private func startAudioSession(_ audioFormat: AVAudioFormat) -> Bool {
 #if os(iOS)
   let audioSession = AVAudioSession.sharedInstance()
   let bufferSize: Int = 64
+//  @Shared(.duckOthers) var duckOthers
+//  @Shared(.mixWithOthers) var mixWithOthers
 
   do {
     log.info("startAudioSession - setting AudioSession category")
-    try audioSession.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+    try audioSession.setCategory(
+      .playback,
+      mode: .default,
+      options: [
+        .allowAirPlay,
+        .duckOthers
+      ]
+    )
   } catch let error as NSError {
     let err = error.localizedDescription
     log.error("startAudioSession - failed to set the audio session category and mode: \(err)")
