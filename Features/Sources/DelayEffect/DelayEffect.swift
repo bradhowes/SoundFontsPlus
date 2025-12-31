@@ -53,10 +53,10 @@ public struct DelayEffect {
 
     Scope(state: \.enabled, action: \.enabled) { ToggleFeature() }
     Scope(state: \.locked, action: \.locked) { ToggleFeature() }
-    Scope(state: \.time, action: \.time) { KnobFeature(parameter: parameterTree[.delayTime]) }
-    Scope(state: \.feedback, action: \.feedback) { KnobFeature(parameter: parameterTree[.delayFeedback]) }
-    Scope(state: \.cutoff, action: \.cutoff) { KnobFeature(parameter: parameterTree[.delayCutoff]) }
-    Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature(parameter: parameterTree[.delayAmount]) }
+    Scope(state: \.time, action: \.time) { KnobFeature() }
+    Scope(state: \.feedback, action: \.feedback) { KnobFeature() }
+    Scope(state: \.cutoff, action: \.cutoff) { KnobFeature() }
+    Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature() }
 
     Reduce { state, action in
       log.info("reduce \(action)")
@@ -250,7 +250,7 @@ public struct DelayEffectView: View {
   }
 
   public var body: some View {
-    EffectsContainer(
+    NamedKnobCollectionContainer(
       enabled: store.enabled.isOn,
       title: "Delay",
       onOff: ToggleView(store: store.scope(state: \.enabled, action: \.enabled)),

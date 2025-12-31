@@ -47,7 +47,7 @@ public struct ReverbEffect {
 
     Scope(state: \.enabled, action: \.enabled) { ToggleFeature() }
     Scope(state: \.locked, action: \.locked) { ToggleFeature() }
-    Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature(parameter: parameterTree[.reverbAmount]) }
+    Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature() }
 
     Reduce { state, action in
       log.info("reduce \(action)")
@@ -236,7 +236,7 @@ public struct ReverbEffectView: View {
   }
 
   public var body: some View {
-    EffectsContainer(
+    NamedKnobCollectionContainer(
       enabled: store.enabled.isOn,
       title: "Reverb",
       onOff: ToggleView(store: store.scope(state: \.enabled, action: \.enabled)),

@@ -706,7 +706,7 @@ extension AppRootView {
       dividerBorderColor
         .frame(height: dividerSpan)
       effectsView
-        .knobNativeValueEditorHost()
+        .knobValueEditor()
       ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
       dividerBorderColor
         .frame(height: dividerSpan)
