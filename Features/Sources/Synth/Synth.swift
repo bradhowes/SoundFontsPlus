@@ -85,7 +85,7 @@ public struct Synth {
 
   @Shared(.activeState) private var activeState
   @Shared(.backgroundProcessing) private var backgroundProcessing
-  @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
+  @Shared(.playSoundOnPresetChange) private var playSoundOnPresetChange
 
   public var body: some ReducerOf<Self> {
 
