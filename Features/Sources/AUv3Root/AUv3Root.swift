@@ -82,14 +82,14 @@ public struct AUv3Root {
     static public func makeFontsAndPresetsSplitState() -> SplitViewReducer.State {
       return .init(
         panesVisible: .both,
-        initialPosition: 0.5
+        initialPosition: 0.4
       )
     }
 
     static public func makeFontsAndTagsSplitState() -> SplitViewReducer.State {
       return .init(
         panesVisible: .primary,
-        initialPosition: 0.4
+        initialPosition: 0.6
       )
     }
   }
