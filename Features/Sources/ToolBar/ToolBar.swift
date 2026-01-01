@@ -334,14 +334,17 @@ public struct ToolBarView: View {
         ZStack(alignment: .trailing) {
           status
             .zIndex(0)
+            .opacity(store.showMoreButtons ? 0.0 : 1.0)
           if store.showMoreButtons {
             moreButtons
+              .offset(x: 12)
               .zIndex(1)
-              .transition(.opacity)
+              .transition(.move(edge: .trailing))
           }
         }
         toggleMoreButton
           .zIndex(2)
+          .offset(x: 4)
       } else {
         status
         moreButtons
@@ -352,7 +355,7 @@ public struct ToolBarView: View {
     .background(Color.black)
     .frame(height: 40)
     .frame(maxHeight: 40)
-    .animation(.smooth, value: store.showMoreButtons)
+    .animation(.easeInOut, value: store.showMoreButtons)
     .animation(.smooth, value: store.activeVoiceCount)
     .fileImporterFeature(store.scope(state: \.fileImporter, action: \.fileImporter))
     .task {
@@ -369,10 +372,12 @@ public struct ToolBarView: View {
       HStack {
         if showActiveVoiceCount {
           voiceCount
+            .transition(.slide)
         }
         statusText
         Spacer()
       }
+      .animation(.smooth, value: showActiveVoiceCount)
     }
   }
 
@@ -429,6 +434,7 @@ public struct ToolBarView: View {
         .tint(if: store.showMoreButtons)
         .frame(width: 24)
     }
+    .background(.black)
   }
 
   private var moreButtons: some View {
@@ -478,23 +484,49 @@ public struct ToolBarView: View {
   }
 }
 
+#if DEBUG
+
 extension ToolBarView {
   static var preview: some View {
     prepareDependencies {
       $0.defaultDatabase = previewDatabase()
     }
-    return VStack {
-      ToolBarView(store: Store(initialState: .init()) {
-        ToolBar()
-      })
-      KeyboardView(store: Store(initialState: .init()) { Keyboard() })
-      ToolBarView(store: Store(initialState: .init(showMoreButtons: true)) {
-        ToolBar()
-      })
+
+    @Shared(.activeState) var activeState
+    $activeState.withLock {
+      $0.activeSoundFontId = 0
+      $0.activePresetId = 0
     }
+
+    struct Preview: View {
+      @Shared(.showActiveVoiceCount) var showActiveVoiceCount
+      @State var showMoreButtons: Bool = false
+
+      var body: some View {
+        VStack {
+          Toggle(
+            "Show active voice count",
+            isOn: Binding(
+              get: { showActiveVoiceCount },
+              set: { newValue in $showActiveVoiceCount.withLock { $0 = newValue }}
+            )
+          )
+          Toggle("Show more buttons", isOn: $showMoreButtons)
+
+          ToolBarView(store: Store(initialState: .init(showMoreButtons: showMoreButtons)) {
+            ToolBar()
+          })
+          KeyboardView(store: Store(initialState: .init()) { Keyboard() })
+        }
+      }
+    }
+
+    return Preview()
   }
 }
 
 #Preview {
   ToolBarView.preview
 }
+
+#endif // DEBUG
