@@ -37,43 +37,10 @@ private func startAudioSession(_ audioFormat: AVAudioFormat) -> Bool {
 
 #if os(iOS)
   let audioSession = AVAudioSession.sharedInstance()
-  let bufferSize: Int = 64
-//  @Shared(.duckOthers) var duckOthers
-//  @Shared(.mixWithOthers) var mixWithOthers
 
-  do {
-    log.info("startAudioSession - setting AudioSession category")
-    try audioSession.setCategory(
-      .playback,
-      mode: .default,
-      options: [
-        .allowAirPlay,
-        .duckOthers
-      ]
-    )
-  } catch let error as NSError {
-    let err = error.localizedDescription
-    log.error("startAudioSession - failed to set the audio session category and mode: \(err)")
-  }
-
-  log.info("startAudioSession - current sampleRate: \(audioSession.sampleRate)")
-
-  do {
-    log.info("configureAudioSession - setting preferred sample rate")
-    try audioSession.setPreferredSampleRate(audioFormat.sampleRate)
-  } catch let error as NSError {
-    let err = error.localizedDescription
-    log.error("configureAudioSession - failed to set the preferred sample rate to \(audioFormat.sampleRate) - \(err)")
-  }
-
-  let bufferDuration = Double(bufferSize) / audioFormat.sampleRate
-  do {
-    log.info("configureAudioSession - setting IO buffer duration \(bufferDuration)")
-    try audioSession.setPreferredIOBufferDuration(bufferDuration)
-  } catch let error as NSError {
-    let err = error.localizedDescription
-    log.error("configureAudioSession - failed to set the preferred buffer size to \(bufferSize) - \(err)")
-  }
+  setCategory(audioSession)
+  setSampleRate(audioSession, audioFormat: audioFormat)
+  setBufferDuration(audioSession, audioFormat: audioFormat)
 
   audioSession.currentRoute.dump()
 
@@ -107,11 +74,60 @@ private func stopAudioSession() {
   } catch let error as NSError {
     log.error("stopAudioSession - Failed session.setActive(false): \(error.localizedDescription)")
   }
-#endif
+#endif // os(iOS)
   log.info("stopAudioSession END")
 }
 
 #if os(iOS)
+
+private func setBufferDuration(_ audioSession: AVAudioSession, audioFormat: AVAudioFormat) {
+  let bufferSize: Int = 64
+  let bufferDuration = Double(bufferSize) / audioFormat.sampleRate
+  do {
+    log.info("configureAudioSession - setting IO buffer duration \(bufferDuration)")
+    try audioSession.setPreferredIOBufferDuration(bufferDuration)
+  } catch let error as NSError {
+    let err = error.localizedDescription
+    log.error("configureAudioSession - failed to set the preferred buffer size to \(bufferSize) - \(err)")
+  }
+}
+
+private func setSampleRate(_ audioSession: AVAudioSession, audioFormat: AVAudioFormat) {
+  log.info("startAudioSession - current sampleRate: \(audioSession.sampleRate)")
+
+  do {
+    log.info("configureAudioSession - setting preferred sample rate")
+    try audioSession.setPreferredSampleRate(audioFormat.sampleRate)
+  } catch let error as NSError {
+    let err = error.localizedDescription
+    log.error("configureAudioSession - failed to set the preferred sample rate to \(audioFormat.sampleRate) - \(err)")
+  }
+}
+
+private func setCategory(_ audioSession: AVAudioSession) {
+  @Shared(.duckOtherApps) var duckOtherApps
+  @Shared(.mixWithOtherApps) var mixWithOtherApps
+
+  var options: AVAudioSession.CategoryOptions = [.allowAirPlay]
+  if duckOtherApps {
+    options.insert(.duckOthers)
+  } else if mixWithOtherApps {
+    options.insert(.mixWithOthers)
+  }
+
+  do {
+    log.info("startAudioSession - setting AudioSession category")
+    try audioSession.setCategory(
+      .playback,
+      mode: .default,
+      options: options
+    )
+  } catch let error as NSError {
+    let err = error.localizedDescription
+    log.error("startAudioSession - failed to set the audio session category and mode: \(err)")
+  }
+}
+
 extension AVAudioSessionRouteDescription {
   fileprivate func dump() {
     for input in self.inputs {
@@ -122,6 +138,7 @@ extension AVAudioSessionRouteDescription {
     }
   }
 }
-#endif
+
+#endif // os(iOS)
 
 private let log = Logger(category: "AudioSession")
