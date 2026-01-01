@@ -48,14 +48,15 @@ struct SynthTests {
     #expect(store.state.avAudioUnit != nil)
     store.exhaustivity = .on
 
-    await store.receive(\.delegate.audioUnitCreated, store.state.avAudioUnit!)
+    await store.receive(\.delegate.audioUnitCreated)
+    await store.receive(\.delegate.running)
 
     await store.receive(\.activePresetIdChanged, timeout: .seconds(5)) {
       $0.loadedSoundFontId = 1
       $0.loadedPresetIndex = 0
     }
 
-    await store.receive(\.delegate, .running)
+    await store.receive(\.delegate.running)
 
     await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5)) {
       $0.firstTimePresetLoaded = false

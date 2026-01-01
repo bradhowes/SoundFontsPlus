@@ -183,10 +183,11 @@ extension Synth {
     return .run { [synthAUv3ComponentDescription] send in
       log.info("createSynth - instantiating audio unit")
       do {
-        if let sau = try await SF2LibAU.create(synthAUv3ComponentDescription) as? AVAudioUnitMIDIInstrument {
-          log.debug("createSynth - synth: \(sau.description)")
-          await send(.synthAudioUnitCreated(sau))
+        if let avAudioUnit = try await SF2LibAU.create(synthAUv3ComponentDescription) as? AVAudioUnitMIDIInstrument {
+          log.debug("createSynth - synth: \(avAudioUnit.description)")
+          await send(.synthAudioUnitCreated(avAudioUnit))
         } else {
+          log.debug("failed to cast AVAudioUnit to AVAudioUnitMIDIInstrument")
           await send(.synthAudioUnitCreationFailed)
         }
       } catch {
@@ -207,8 +208,7 @@ extension Synth {
       startAudioSession(&state)
     }
 
-    log.info("createSynthDone END")
-
+    log.info("createSynthAudioUnitDone END")
     return .merge(
       .send(.delegate(.audioUnitCreated(avAudioUnit))),
       beginMonitoring(&state)

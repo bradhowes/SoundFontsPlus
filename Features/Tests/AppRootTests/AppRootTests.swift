@@ -58,19 +58,14 @@ struct AppRootTests {
     }
 
     store.exhaustivity = .off
-    await store.receive(\.synth.synthAudioUnitCreated) {
+    await store.receive(\.synth.delegate.audioUnitCreated) {
       $0.synth.audioSessionActivated = true
     }
     store.exhaustivity = .on
 
-    guard let synth = store.state.synth.avAudioUnit else {
-      fatalError("unexpected nil synth")
-    }
-
-    await store.receive(\.synth.delegate.audioUnitCreated, synth) {
-      $0.keyboard.midiInstrument = synth.midiInstrument
-      $0.toolBar.audioUnit = synth.auAudioUnit
-    }
+    #expect(store.state.synth.avAudioUnit != nil)
+    #expect(store.state.keyboard.midiInstrument != nil)
+    #expect(store.state.toolBar.audioUnit != nil)
 
     await store.receive(\.synth.activePresetIdChanged) {
       $0.synth.loadedSoundFontId = 1

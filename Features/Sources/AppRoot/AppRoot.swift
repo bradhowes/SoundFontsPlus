@@ -208,16 +208,7 @@ public struct AppRoot {
       switch action {
 
       case .activePresetIdChanged(let presetId):
-        var actions = [
-          reduce(into: &state, action: .appReview(.ask)),
-          reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
-          reduce(into: &state, action: .synth(.activePresetIdChanged(presetId))),
-          reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId)))
-        ]
-#if os(iOS)
-        actions.append(reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId))))
-#endif
-        return .merge(actions)
+        return activePresetIdChanged(&state, presetId: presetId)
 
       case .audioUnitCrashed:
         log.error("*** audioUnit crashed")
@@ -350,6 +341,19 @@ extension AppRoot {
     }
   }
 
+  private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+    var actions = [
+      reduce(into: &state, action: .appReview(.ask)),
+      reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
+      reduce(into: &state, action: .synth(.activePresetIdChanged(presetId))),
+      reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId)))
+    ]
+#if os(iOS)
+    actions.append(reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId))))
+#endif
+    return .merge(actions)
+  }
+
   private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
     @Shared(.midiMonitor) var midiMonitor
     midiMonitor?.midiInstrument = avAudioUnit.midiInstrument
@@ -362,11 +366,15 @@ extension AppRoot {
   private func audioChainActive(_ state: inout State) -> Effect<Action> {
     // The synth is up and running with an active audio session. Safe to monitor its state now.
     state.audioUnitReady = true
+
+    var actions = [
+      activePresetIdChanged(&state, presetId: activeState.activePresetId)
+    ]
 #if os(iOS)
-    return reduce(into: &state, action: .volumeMonitor(.start))
-#else
-    return .none
+    actions.append(reduce(into: &state, action: .volumeMonitor(.start)))
 #endif
+
+    return .merge(actions)
   }
 
   private func audioChainInactive(_ state: inout State) -> Effect<Action> {
