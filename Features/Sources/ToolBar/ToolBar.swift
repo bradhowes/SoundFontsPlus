@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AUv3Controls
 import Engine
 import FeatureSupport
 import Keyboard
@@ -207,9 +208,17 @@ extension ToolBar {
       return .none
     }
 
+    let stream: AsyncStream<AUValue>
+    let observerToken: AUParameterObserverToken
+    unsafe (observerToken, stream) = parameter.startObserving()
+
     return .run { send in
-      for await newValue in parameter.observe() {
-        await send(.activeVoiceCountChanged(Int(newValue)))
+      defer {
+        unsafe parameter.removeParameterObserver(observerToken)
+      }
+      for await value in stream {
+        if Task.isCancelled { break }
+        await send(.activeVoiceCountChanged(Int(value)))
       }
     }.cancellable(id: CancelId.toolBarMonitorActiveVoiceCount, cancelInFlight: true)
   }

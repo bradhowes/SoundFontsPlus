@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AudioToolbox
+import AUv3Controls
 import BaseSupport
 import ComposableArchitecture
 import CoreAudioKit
@@ -267,9 +268,17 @@ extension Synth {
       fatalError("monitorLastLoadFinished - did not find lastLoadFinished parameter")
     }
 
+    let stream: AsyncStream<AUValue>
+    let observerToken: AUParameterObserverToken
+    unsafe (observerToken, stream) = parameter.startObserving()
+
     return .run { send in
-      for await newValue in parameter.observe() {
-        print(newValue)
+      defer {
+        unsafe parameter.removeParameterObserver(observerToken)
+      }
+      if Task.isCancelled { return }
+      for await _ in stream {
+        if Task.isCancelled { break }
         await send(.lastPresetLoadFinished)
       }
     }.cancellable(id: CancelId.synthMonitorLastLoadFinished, cancelInFlight: true)
