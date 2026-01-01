@@ -438,6 +438,7 @@ extension AppSettingsView {
         }
         .circledCheckMarkToggleStyle()
         if !isAUv3 {
+#if os(iOS)
           Toggle(isOn: $store.mixWithOtherApps) {
             Text("Mix audio with other apps on device")
           }
@@ -451,6 +452,7 @@ extension AppSettingsView {
             Text("Background processing mode")
           }
           .circledCheckMarkToggleStyle()
+#endif
           Toggle(isOn: $store.copyFileWhenInstalling) {
             VStack(alignment: .leading) {
               Text("Copy SF2 files to app folder on device when adding.")
