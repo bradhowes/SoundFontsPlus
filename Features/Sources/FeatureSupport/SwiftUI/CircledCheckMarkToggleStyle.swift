@@ -26,7 +26,8 @@ public struct CircledCheckMarkToggleStyle: ToggleStyle {
     @Environment(\.isEnabled) var isEnabled
     var body: some View {
       configuration.label
-        .fontWeight(isEnabled ? (configuration.isOn ? .regular : .thin) : .ultraLight)
+      // .fontWeight(isEnabled ? (configuration.isOn ? .regular : .thin) : .ultraLight)
+        .foregroundStyle(isEnabled ? (configuration.isOn ? .primary : .secondary) : .tertiary)
         .animation(.smooth, value: configuration.isOn)
         .animation(.smooth, value: isEnabled)
     }
