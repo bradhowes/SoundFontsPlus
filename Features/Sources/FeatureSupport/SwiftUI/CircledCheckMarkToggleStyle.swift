@@ -14,12 +14,21 @@ public struct CircledCheckMarkToggleStyle: ToggleStyle {
       buttonView(configuration: configuration)
     } else {
       HStack {
-        configuration.label
-          .foregroundStyle(configuration.isOn ? .primary : .secondary)
-          .animation(.smooth, value: configuration.isOn)
+        CustomLabel(configuration: configuration)
         Spacer()
         buttonView(configuration: configuration)
       }
+    }
+  }
+
+  private struct CustomLabel: View {
+    let configuration: ToggleStyle.Configuration
+    @Environment(\.isEnabled) var isEnabled
+    var body: some View {
+      configuration.label
+        .fontWeight(isEnabled ? (configuration.isOn ? .regular : .thin) : .ultraLight)
+        .animation(.smooth, value: configuration.isOn)
+        .animation(.smooth, value: isEnabled)
     }
   }
 
@@ -28,7 +37,6 @@ public struct CircledCheckMarkToggleStyle: ToggleStyle {
       configuration.isOn.toggle()
     } label: {
       Image(systemName: configuration.isOn ? "checkmark.circle.fill" : "circle")
-        .foregroundStyle(configuration.isOn ? Color.accentColor : .secondary)
         .accessibility(label: Text(configuration.isOn ? "Checked" : "Unchecked"))
         .imageScale(.large)
         .animation(.smooth, value: configuration.isOn)
@@ -51,23 +59,27 @@ extension View {
 
 #Preview {
   @Previewable @State var helloIsOn = true
-  @Previewable @State var worldIsOn = false
+  @Previewable @State var disabled = false
 
   NavigationStack {
     List {
       HStack {
         Toggle(isOn: $helloIsOn) {
           Text("Hello")
-            .foregroundStyle(helloIsOn ? .primary : .secondary)
         }
         .circledCheckMarkToggleStyle()
+        .disabled(disabled)
       }
       HStack {
-        Toggle(isOn: $worldIsOn) {
-          Text("World")
-            .foregroundStyle(worldIsOn ? .primary : .secondary)
+        Toggle(isOn: $helloIsOn) {
+          Text("Hello")
         }
-        .circledCheckMarkToggleStyle()
+        .disabled(disabled)
+      }
+      HStack {
+        Toggle(isOn: $disabled) {
+          Text("Disabled")
+        }
       }
     }
     .navigationTitle("Toggle Buttons")
