@@ -48,6 +48,7 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
       host.view.removeFromSuperview()
     }
 
+    // Entry point for AUvRoot feature
     let content = AUv3RootView(store: Store(initialState: .init(audioUnit: audioUnit)) { AUv3Root() })
     let host = AUv3HostingController(rootView: content)
 

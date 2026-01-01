@@ -25,11 +25,10 @@ struct ContentView: View {
     ZStack {
       Color.black
         .ignoresSafeArea(edges: .all)
-
       AppRootView(store: Store(initialState: .init()) { AppRoot() })
         .environment(\.colorScheme, .dark)
 #if os(iOS)
-      // We don't want to mistake keyboard activity for iOS app switching or other system gestures
+      // We don't want to mistake music keyboard activity for iOS app switching or other system gestures
         .defersSystemGestures(on: [.bottom, .leading, .trailing])
 #endif
     }
