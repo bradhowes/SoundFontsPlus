@@ -187,7 +187,14 @@ let package = Package(
       resources: [.process("Resources")],
       plugins: ["BuildFluidFont"]
     ),
-    .target(name: "Synth", dependencies: ["Models", "SF2LibAU"]),
+    .target(
+      name: "Synth",
+      dependencies: [
+        "Models",
+        "SF2LibAU",
+        .product(name: "AUv3Controls", package: "AUv3Controls")
+      ]
+    ),
 
     // Library only used for tests
     .target(
