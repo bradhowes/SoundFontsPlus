@@ -11,8 +11,24 @@ import Sharing
  */
 @DependencyClient
 public struct AudioSession: Sendable {
-  public var start: @Sendable (AVAudioFormat) -> Bool = { _ in false }
+
+  public static let audioFormat: AVAudioFormat! = AVAudioFormat(
+    commonFormat: .pcmFormatFloat32,
+    sampleRate: 48_000.0,
+    channels: 2,
+    interleaved: false
+  )
+
+  public var start: @Sendable () -> Bool = { false }
   public var stop: @Sendable () -> Void
+}
+
+extension AudioSession {
+
+  public func restart() -> Bool {
+    stop()
+    return start()
+  }
 }
 
 extension AudioSession: DependencyKey {
@@ -26,21 +42,21 @@ extension AudioSession: DependencyKey {
 
   public static var previewValue: AudioSession {
     .init(
-      start: { _ in false },
+      start: { false },
       stop: { }
     )
   }
 }
 
-private func startAudioSession(_ audioFormat: AVAudioFormat) -> Bool {
+private func startAudioSession() -> Bool {
   log.info("startAudioSession BEGIN")
 
 #if os(iOS)
   let audioSession = AVAudioSession.sharedInstance()
 
   setCategory(audioSession)
-  setSampleRate(audioSession, audioFormat: audioFormat)
-  setBufferDuration(audioSession, audioFormat: audioFormat)
+  setSampleRate(audioSession, audioFormat: AudioSession.audioFormat)
+  setBufferDuration(audioSession, audioFormat: AudioSession.audioFormat)
 
   audioSession.currentRoute.dump()
 

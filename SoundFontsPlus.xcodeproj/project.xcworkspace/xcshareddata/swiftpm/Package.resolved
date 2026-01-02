@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/SF2Lib",
       "state" : {
-        "revision" : "916b8d926302a4d06b5e1e94651c4d8ec8188962",
-        "version" : "8.6.3"
+        "revision" : "f6980acaac4cf2beab894fd01b21553b05eef694",
+        "version" : "8.6.4"
       }
     },
     {

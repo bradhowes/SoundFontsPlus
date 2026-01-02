@@ -9,7 +9,7 @@ private let log = Logger(category: "AudioGraph")
 
 @DependencyClient
 public struct AudioGraph: Sendable {
-  public var start: @Sendable (AVAudioFormat, AVAudioUnitMIDIInstrument?) -> Bool = { _, _ in false }
+  public var start: @Sendable (AVAudioUnitMIDIInstrument?) -> Bool = { _ in false }
   public var stop: @Sendable (AVAudioUnitMIDIInstrument?) -> Void
 }
 
@@ -23,13 +23,13 @@ extension AudioGraph: DependencyKey {
 
   public static var previewValue: AudioGraph {
     .init(
-      start: { _, _ in true },
+      start: { _ in true },
       stop: { _ in }
     )
   }
 }
 
-private func startGraph(_ audioFormat: AVAudioFormat, _ synth: AVAudioUnitMIDIInstrument?) -> Bool {
+private func startGraph(_ synth: AVAudioUnitMIDIInstrument?) -> Bool {
   @Shared(.audioEngine) var audioEngine
   @Shared(.delayEffect) var delayEffect
   @Shared(.reverbEffect) var reverbEffect
@@ -56,9 +56,9 @@ private func startGraph(_ audioFormat: AVAudioFormat, _ synth: AVAudioUnitMIDIIn
   audioEngine.attach(reverbEffect)
 
   log.info("startGraph - connecting audio units together")
-  audioEngine.connect(reverbEffect, to: audioEngine.outputNode, format: audioFormat)
-  audioEngine.connect(delayEffect, to: reverbEffect, format: audioFormat)
-  audioEngine.connect(synth, to: delayEffect, format: audioFormat)
+  audioEngine.connect(reverbEffect, to: audioEngine.outputNode, format: AudioSession.audioFormat)
+  audioEngine.connect(delayEffect, to: reverbEffect, format: AudioSession.audioFormat)
+  audioEngine.connect(synth, to: delayEffect, format: AudioSession.audioFormat)
 
   let started: Bool
   do {

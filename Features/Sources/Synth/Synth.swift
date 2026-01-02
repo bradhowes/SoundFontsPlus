@@ -70,14 +70,7 @@ public struct Synth {
 
   public init() {}
 
-  private let audioFormat: AVAudioFormat! = AVAudioFormat(
-    commonFormat: .pcmFormatFloat32,
-    sampleRate: 48_000.0,
-    channels: 2,
-    interleaved: false
-  )
-
-  static var playNoteDurationMilliseconds: Duration { .milliseconds(500) }
+  public static var playNoteDurationMilliseconds: Duration { .milliseconds(500) }
 
   @Dependency(\.audioGraph) private var audioGraph
   @Dependency(\.audioSession) private var audioSession
@@ -346,7 +339,7 @@ extension Synth {
   private func startAudioSession(_ state: inout State) {
     log.info("startAudioSession BEGIN - \(state.audioSessionActivated)")
     if !state.audioSessionActivated {
-      state.audioSessionActivated = audioSession.start(audioFormat)
+      state.audioSessionActivated = audioSession.start()
       if state.audioSessionActivated {
         startEngine(&state)
       }
@@ -361,7 +354,7 @@ extension Synth {
       return
     }
 
-    let started = audioGraph.start(audioFormat, midiInstrument)
+    let started = audioGraph.start(midiInstrument)
     log.info("startEngine END - \(started)")
   }
 

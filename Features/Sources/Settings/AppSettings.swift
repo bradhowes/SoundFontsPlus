@@ -255,6 +255,8 @@ public struct AppSettingsView: View {
   @Bindable private var store: StoreOf<AppSettings>
   @State private var changingKeyWidth: Bool = false
   @Shared(.isAUv3) private var isAUv3
+  @Dependency(\.audioSession) private var audioSession
+
   private let showFakeKeyboard: Bool
   private let bundle = Bundle.main
 
@@ -443,11 +445,17 @@ extension AppSettingsView {
             Text("Mix audio with other apps on device")
           }
           .circledCheckMarkToggleStyle()
+          .onChange(of: store.mixWithOtherApps) {
+            _ = audioSession.restart()
+          }
           Toggle(isOn: $store.duckOtherApps) {
             Text("Reduce audio from other apps")
           }
           .circledCheckMarkToggleStyle()
           .disabled(store.mixWithOtherApps == false)
+          .onChange(of: store.duckOtherApps) {
+            _ = audioSession.restart()
+          }
           Toggle(isOn: $store.backgroundProcessing) {
             Text("Background processing mode")
           }
