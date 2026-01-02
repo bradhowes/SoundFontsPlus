@@ -34,6 +34,8 @@ import TestSupport
 struct SynthTests {
 
   func initialized(exhaustivity: Exhaustivity = .on, _ closure: (TestStoreOf<Synth>) async throws -> Void) async throws {
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
+
     @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
     let avAudioUnit = await avAudioUnitMIDIInstrumentGenerator.generate()
     @Shared(.audioEngine) var audioEngine = AVAudioEngine()
@@ -63,13 +65,11 @@ struct SynthTests {
 
   @Test
   func initialize() async throws {
-    guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { _ in }
   }
 
   @Test
   func activePresetIdChanged() async throws {
-    guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
 
       await store.send(\.activePresetIdChanged, 2) {
@@ -85,7 +85,6 @@ struct SynthTests {
 
   @Test
   func activePresetIdChangeCanPlayNote() async throws {
-    guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
 
       @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
@@ -117,7 +116,6 @@ struct SynthTests {
 
   @Test
   func audioSessionRouteChanged() async throws {
-    guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
       NotificationCenter.default.post(name: AVAudioSession.routeChangeNotification, object: nil)
       await store.receive(\.audioSessionRouteChanged)
@@ -126,7 +124,6 @@ struct SynthTests {
 
   @Test
   func audioSessionMediaServicesWereReset() async throws {
-    guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
       NotificationCenter.default.post(name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
       await store.receive(\.mediaServicesWereReset)
@@ -135,7 +132,6 @@ struct SynthTests {
 
   @Test
   func audioSessionReleaseAcquire() async throws {
-    guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
       await store.send(\.releaseAudioSession)
       await store.send(\.acquireAudioSession)

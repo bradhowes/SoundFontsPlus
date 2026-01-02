@@ -42,6 +42,8 @@ struct AppRootTests {
   }
 
   func initialized(exhaustivity: Exhaustivity = .on, _ closure: (TestStoreOf<AppRoot>) async throws -> Void) async throws {
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
+
     @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
     let avAudioUnit = try #require(await avAudioUnitMIDIInstrumentGenerator.generate())
 
