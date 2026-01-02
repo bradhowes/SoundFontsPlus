@@ -82,6 +82,7 @@ public struct Synth {
   @Dependency(\.audioGraph) private var audioGraph
   @Dependency(\.audioSession) private var audioSession
   @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.avAudioUnitMIDIInstrumentGenerator) private var avAudioUnitGen
   @Dependency(\.synthAUv3ComponentDescription) private var synthAUv3ComponentDescription
 
   @Shared(.activeState) private var activeState
@@ -92,7 +93,7 @@ public struct Synth {
 
     Reduce { state, action in
 
-      log.info("reduce \(action)")
+      log.info("Synth reduce \(action)")
 
       switch action {
 
@@ -112,7 +113,7 @@ public struct Synth {
         return .none
 
       case .initialize:
-        return initialize(&state)
+        return createSynthAudioUnit(&state)
 
       case .lastPresetLoadFinished:
         return lastPresetLoadFinished(&state)
@@ -162,6 +163,7 @@ extension Synth {
   private func beginMonitoring(_ state: inout State) -> Effect<Action> {
     log.info("beginMonitoring - BEGIN")
     var actions = [
+      .send(.delegate(.running)),
       monitorLastLoadFinished(&state)
     ]
 
@@ -172,26 +174,19 @@ extension Synth {
     ])
 #endif // os(iOS)
 
-    actions.append(.send(.delegate(.running)))
-
     // Start up the monitors now that we have a synth and signal Root that it is running
     return .merge(actions)
   }
 
   private func createSynthAudioUnit(_ state: inout State) -> Effect<Action> {
     log.info("createSynth")
-    return .run { [synthAUv3ComponentDescription] send in
+    return .run { [avAudioUnitGen] send in
       log.info("createSynth - instantiating audio unit")
-      do {
-        if let avAudioUnit = try await SF2LibAU.create(synthAUv3ComponentDescription) as? AVAudioUnitMIDIInstrument {
-          log.debug("createSynth - synth: \(avAudioUnit.description)")
-          await send(.synthAudioUnitCreated(avAudioUnit))
-        } else {
-          log.debug("failed to cast AVAudioUnit to AVAudioUnitMIDIInstrument")
-          await send(.synthAudioUnitCreationFailed)
-        }
-      } catch {
-        log.error("failed to create synth - \(error)")
+      if let avAudioUnit = await avAudioUnitGen.generate() {
+        log.debug("createSynth - synth: \(avAudioUnit.description)")
+        await send(.synthAudioUnitCreated(avAudioUnit))
+      } else {
+        log.debug("failed to cast AVAudioUnit to AVAudioUnitMIDIInstrument")
         await send(.synthAudioUnitCreationFailed)
       }
     }.cancellable(id: CancelId.synthCreateSynth, cancelInFlight: true)
@@ -209,7 +204,7 @@ extension Synth {
     }
 
     log.info("createSynthAudioUnitDone END")
-    return .merge(
+    return .concatenate(
       .send(.delegate(.audioUnitCreated(avAudioUnit))),
       beginMonitoring(&state)
     )
@@ -221,11 +216,6 @@ extension Synth {
       audioGraph.stop(midiInstrument)
     }
     log.info("destroyAudioGraph END")
-  }
-
-  private func initialize(_ state: inout State) -> Effect<Action> {
-    log.info("initialize")
-    return createSynthAudioUnit(&state)
   }
 
   private func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
@@ -253,7 +243,7 @@ extension Synth {
     state.firstTimePresetLoaded = false
 
     log.info("lastPresetLoadFinished END")
-    return firstTimePresetLoaded ? .none : playNote(state)
+    return firstTimePresetLoaded ? .none : .send(.playNote)
   }
 
   private func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
@@ -275,6 +265,7 @@ extension Synth {
     return .run { send in
       defer {
         unsafe parameter.removeParameterObserver(observerToken)
+        log.debug("monitorLastLoadFinished - stopped task")
       }
       if Task.isCancelled { return }
       for await _ in stream {
@@ -285,6 +276,7 @@ extension Synth {
   }
 
 #if os(iOS)
+
   private func monitorMediaServices(_ state: inout State) -> Effect<Action> {
     log.info("monitorMediaServices BEGIN")
     return .publisher {
@@ -308,6 +300,7 @@ extension Synth {
         }
     }.cancellable(id: CancelId.synthMonitorRouteChanged, cancelInFlight: true)
   }
+
 #endif // os(iOS)
 
   private func playNote(_ state: State) -> Effect<Action> {
@@ -374,7 +367,6 @@ extension Synth {
 
   private func stopAudioSession(_ state: inout State) {
     log.info("stopAudioSession BEGIN")
-    destroyAudioGraph(&state)
     audioSession.stop()
     state.audioSessionActivated = false
     log.info("stopAudioSession END")
@@ -429,26 +421,5 @@ extension Synth {
 
     log.info("useActivePreset END - \(result)")
     return .none
-  }
-}
-
-extension AVAudioUnitMIDIInstrument {
-
-  public func sendLoadFileUsePreset(path: String, preset: Int, gain: Double, pan: Double) -> Bool {
-    sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload(std.string(path), preset)))
-  }
-
-  public func sendUsePreset(preset: Int, gain: Double, pan: Double) -> Bool {
-    sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload("", preset)))
-  }
-
-  public func sendMIDI(bytes: [UInt8], when: AUEventSampleTime = 0, cable: UInt8 = 0) -> Bool {
-    log.info("sendMIDI BEGIN - \(bytes.count) bytes")
-    guard let block = unsafe auAudioUnit.scheduleMIDIEventBlock else {
-      log.error("sendMIDI - nil scheduleMIDIEventBlock")
-      return false
-    }
-    unsafe block(when, cable, bytes.count, bytes)
-    return true
   }
 }

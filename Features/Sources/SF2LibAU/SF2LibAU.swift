@@ -3,6 +3,7 @@
 import AudioToolbox
 import BaseSupport
 import CoreAudioKit
+import Dependencies
 import Engine
 
 /**
@@ -84,14 +85,10 @@ extension SF2LibAU: @unchecked Sendable {}
 
 extension SF2LibAU {
 
-  /**
-   Convenience function for creating a "dynamic" audio unit by associating a class with a component description and then
-   asking CoreAudio to create the audio unit.
+  public static func create(register: Bool = false) async -> AVAudioUnitMIDIInstrument? {
+    @Dependency(\.synthAUv3ComponentDescription) var acd
+    precondition(acd.componentType == kAudioUnitType_MusicDevice)
 
-   NOTE: do not use `register` for production purposes since it might hide problems with finding an AUv3 extension attached
-   to the application. Instead, just create the same AudioComponentDescription value and try to instantiate it.
-   */
-  public static func create(_ acd: AudioComponentDescription, register: Bool = false) async throws -> AVAudioUnit {
     if register {
       AUAudioUnit.registerSubclass(SF2LibAU.self, as: acd, name: "SoundFontsPlusAU", version: 1)
     }
@@ -99,7 +96,6 @@ extension SF2LibAU {
     log.info(
       """
       create - instantiating audio unit for \
-      \(acd.componentType.stringValue), \
       \(acd.componentSubType.stringValue), \
       \(acd.componentManufacturer.stringValue)
       """)
@@ -109,7 +105,13 @@ extension SF2LibAU {
 #if os(macOS)
     let options: AudioComponentInstantiationOptions = [.loadInProcess]
 #endif
-    return try await AVAudioUnit.instantiate(with: acd, options: options)
+
+    do {
+      return try await AVAudioUnit.instantiate(with: acd, options: options) as? AVAudioUnitMIDIInstrument
+    } catch {
+      log.error("failed to instantiate audio unit: \(error)")
+      return nil
+    }
   }
 }
 

@@ -492,12 +492,6 @@ extension ToolBarView {
       $0.defaultDatabase = previewDatabase()
     }
 
-    @Shared(.activeState) var activeState
-    $activeState.withLock {
-      $0.activeSoundFontId = 0
-      $0.activePresetId = 0
-    }
-
     struct Preview: View {
       @Shared(.showActiveVoiceCount) var showActiveVoiceCount
       @State var showMoreButtons: Bool = false
@@ -513,7 +507,21 @@ extension ToolBarView {
           )
           Toggle("Show more buttons", isOn: $showMoreButtons)
 
-          ToolBarView(store: Store(initialState: .init(showMoreButtons: showMoreButtons)) {
+          ToolBarView(
+            store: Store(
+              initialState: .init(
+                preset: Preset(
+                  id: 0,
+                  index: 0,
+                  bank: 1,
+                  program: 1,
+                  originalName: "Foo",
+                  soundFontId: 0,
+                  displayName: "Foo"
+                ),
+                showMoreButtons: showMoreButtons
+              )
+            ) {
             ToolBar()
           })
           KeyboardView(store: Store(initialState: .init()) { Keyboard() })

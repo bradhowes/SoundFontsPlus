@@ -26,6 +26,7 @@ import TestSupport
     $0.mainQueue = .immediate
     $0.outputVolume = mockVolume.makeOutputVolume()
     $0.reverbDevice = .init(setConfig: {_ in })
+    $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
     $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.testValue
   },
   .snapshots(record: .failed)
@@ -40,45 +41,40 @@ struct AppRootTests {
     }
   }
 
-  func initialized(_ test: (TestStoreOf<AppRoot>) async throws -> Void) async throws {
+  func initialized(exhaustivity: Exhaustivity = .on, _ closure: (TestStoreOf<AppRoot>) async throws -> Void) async throws {
+    @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
+    let avAudioUnit = try #require(await avAudioUnitMIDIInstrumentGenerator.generate())
+
     let store = store()
 
-    await store.send(.initialize)
+    try await store.withExhaustivity(exhaustivity) {
+      await store.send(.initialize)
+      await store.receive(\.activePresetIdChanged)
+      await store.receive(\.synth.synthAudioUnitCreated) {
+        $0.synth.audioSessionActivated = true
+        $0.synth.avAudioUnit = avAudioUnit
+      }
+      await store.receive(\.synth.delegate.audioUnitCreated) {
+        $0.keyboard.midiInstrument = $0.synth.avAudioUnit
+        $0.toolBar.audioUnit = $0.synth.avAudioUnit?.auAudioUnit
+      }
+      await store.receive(\.synth.delegate.running) {
+        $0.synth.loadedSoundFontId = 1
+        $0.synth.loadedPresetIndex = 0
+        $0.toolBar.preset = Preset.with(id: 1)
+        $0.audioUnitReady = true
+      }
 
-    await store.receive(\.activePresetIdChanged) {
-      $0.toolBar.preset = Preset(
-        id: 1,
-        index: 0,
-        bank: 0,
-        program: 0,
-        originalName: "Original Preset 1",
-        soundFontId: 1,
-        displayName: "Font 1 Preset 1"
-      )
+      try await closure(store)
+
+      await store.send(.deinitialize)
+      await store.finish()
     }
+  }
 
-    store.exhaustivity = .off
-    await store.receive(\.synth.delegate.audioUnitCreated) {
-      $0.synth.audioSessionActivated = true
-    }
-    store.exhaustivity = .on
-
-    #expect(store.state.synth.avAudioUnit != nil)
-    #expect(store.state.keyboard.midiInstrument != nil)
-    #expect(store.state.toolBar.audioUnit != nil)
-
-    await store.receive(\.synth.activePresetIdChanged) {
-      $0.synth.loadedSoundFontId = 1
-      $0.synth.loadedPresetIndex = 0
-    }
-
-    await store.receive(\.synth.delegate, .running)
-    await store.receive(\.toolBar.activeVoiceCountChanged)
-
-    try await test(store)
-
-    await store.send(.deinitialize)
-    await store.finish()
+  @Test
+  func initialize() async throws {
+    try await initialized { _ in }
   }
 
   @Test
@@ -93,40 +89,6 @@ struct AppRootTests {
     AppRoot.disableIdleTimer()
     // NOTE: does not appear to work in test environment
     // #expect(UIKit.UIApplication.shared.isIdleTimerDisabled)
-  }
-
-  @Test
-  func initialize() async throws {
-    let store = store()
-
-    await store.send(.initialize)
-
-    let preset = Preset(
-      id: 1,
-      index: 0,
-      bank: 0,
-      program: 0,
-      originalName: "Original Preset 1",
-      soundFontId: 1,
-      displayName: "Font 1 Preset 1"
-    )
-
-    await store.receive(\.activePresetIdChanged, 1) {
-      $0.toolBar.preset = preset
-    }
-
-    // store.exhaustivity = .on
-
-    // store.exhaustivity = .on
-    // let synth = store.state.synth.avAudioUnit!
-
-//    await store.receive(\.synth.delegate.audioUnitCreated)
-//    await store.receive(\.synth.activePresetIdChanged)
-//    await store.receive(\.synth.delegate.running)
-//    await store.receive(\.toolBar.activeVoiceCountChanged)
-//    await store.receive(\.keyboard.midiInstrumentCreated)
-    await store.send(.deinitialize)
-    await store.finish()
   }
 
   @Test

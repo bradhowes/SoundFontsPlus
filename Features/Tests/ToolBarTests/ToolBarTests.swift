@@ -1,9 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AVFAudio
 import DependenciesTestSupport
 import FeatureSupport
 import SnapshotTesting
 import SF2LibAU
+import SF2Resources
 import Testing
 import TestSupport
 
@@ -187,23 +189,53 @@ struct ToolBarTests {
   }
 
   @Test(
-    .dependencies { $0.defaultDatabase = TestSupport.testDatabase() }
+    .dependencies {
+      $0.audioGraph = .liveValue
+      $0.audioSession = .liveValue
+      $0.continuousClock = .immediate
+      $0.defaultDatabase = TestSupport.testDatabase()
+      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.testValue
+      $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
+    }
   )
   func monitorActiveVoiceCount() async throws {
-    @Dependency(\.synthAUv3ComponentDescription) var synthAUv3ComponentDescription
-    let synth = try await SF2LibAU.create(synthAUv3ComponentDescription)
 
-    let store = try await store()
-    await store.send(.initialize)
-    await store.send(.audioUnitCreated(synth.auAudioUnit)) {
-      $0.audioUnit = synth.auAudioUnit
+    // Uff. Replication here of synth init in order to have an audio unit that will emit a voice count change.
+    @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
+    let avAudioUnit = try #require(await avAudioUnitMIDIInstrumentGenerator.generate())
+
+    @Shared(.audioEngine) var audioEngine = AVAudioEngine()
+    @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
+    @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
+
+    let synth = TestStore(initialState: Synth.State()) { Synth() }
+
+    await synth.send(.initialize)
+    await synth.receive(\.synthAudioUnitCreated) {
+      $0.audioSessionActivated = true
+      $0.avAudioUnit = avAudioUnit
+    }
+    await synth.receive(\.delegate.audioUnitCreated)
+    await synth.receive(\.delegate.running)
+    await synth.send(\.activePresetIdChanged, 2) {
+      $0.loadedSoundFontId = 1
+      $0.loadedPresetIndex = 1
+    }
+    await synth.receive(\.lastPresetLoadFinished, timeout: .seconds(5)) {
+      $0.firstTimePresetLoaded = false
     }
 
-    await store.receive(\.activeVoiceCountChanged, 0)
+    let store = try await store()
 
-    // @Shared(.synthAudioUnit) var synthAudioUnit
-    // synthAudioUnit.synth?.sendNoteOn(note: .C4)
+    await store.send(.initialize)
+    await store.send(.audioUnitCreated(avAudioUnit.auAudioUnit)) {
+      $0.audioUnit = avAudioUnit.auAudioUnit
+    }
 
+    await synth.send(\.playNote)
+    await store.receive(\.activeVoiceCountChanged, timeout: .seconds(10))
+
+    await synth.send(.deinitialize)
     await store.send(.deinitialize)
     await store.finish()
   }

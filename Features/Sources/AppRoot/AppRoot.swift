@@ -342,6 +342,7 @@ extension AppRoot {
   }
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+    guard state.audioUnitReady else { return .none }
     var actions = [
       reduce(into: &state, action: .appReview(.ask)),
       reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
@@ -357,7 +358,7 @@ extension AppRoot {
   private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
     @Shared(.midiMonitor) var midiMonitor
     midiMonitor?.midiInstrument = avAudioUnit.midiInstrument
-    return .merge(
+    return .concatenate(
       reduce(into: &state, action: .toolBar(.audioUnitCreated(avAudioUnit.auAudioUnit))),
       reduce(into: &state, action: .keyboard(.midiInstrumentCreated(avAudioUnit.midiInstrument)))
     )
@@ -370,15 +371,18 @@ extension AppRoot {
     var actions = [
       activePresetIdChanged(&state, presetId: activeState.activePresetId)
     ]
+
 #if os(iOS)
     actions.append(reduce(into: &state, action: .volumeMonitor(.start)))
 #endif
 
-    return .merge(actions)
+    return .concatenate(actions)
   }
 
   private func audioChainInactive(_ state: inout State) -> Effect<Action> {
     // We do not have the active audio session.
+    state.audioUnitReady = false
+
 #if os(iOS)
     return reduce(into: &state, action: .volumeMonitor(.stop))
 #else
@@ -561,9 +565,8 @@ extension AppRoot.Destination.State: Equatable {}
 // MARK: -
 
 public struct AppRootView: View {
-  @Environment(\.scenePhase) var scenePhase
   @Bindable private var store: StoreOf<AppRoot>
-  private let theme: Theme
+
   private let appPanelBackground = Color.black
   private let dividerBorderColor: Color = Color.gray.mix(with: .black, by: 0.7)
   private let dividerSpan: CGFloat = 4
@@ -571,6 +574,9 @@ public struct AppRootView: View {
   @State private var effectsOffset: CGFloat = 0.0
 
   @Shared(.effectsPanelVisible) private var effectsPanelVisible
+
+  @Environment(\.scenePhase) var scenePhase
+  @Environment(\.colorScheme) private var colorScheme
   @Environment(\.maxKeyboardPanelHeight) private var maxKeyboardPanelHeight
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -585,9 +591,8 @@ public struct AppRootView: View {
       : maxKeyboardPanelHeight * (verticalSizeClass == .compact ? 0.5 : 1.0)
   }
 
-  public init(store: StoreOf<AppRoot>) {
-    self.store = store
-    var theme = Theme()
+  private var theme: Theme {
+    var theme = Theme(colorScheme: colorScheme)
     theme.controlForegroundColor = .teal
     theme.textColor = .teal.mix(with: .black, by: 0.2)
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
@@ -595,10 +600,12 @@ public struct AppRootView: View {
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
     theme.font = .effectsControl
+    return theme
+  }
 
+  public init(store: StoreOf<AppRoot>) {
+    self.store = store
     navigationBarTitleStyle()
-
-    self.theme = theme
   }
 
   public var body: some View {
@@ -715,6 +722,7 @@ extension AppRootView {
         .frame(height: dividerSpan)
       effectsView
         .knobValueEditor()
+        .auv3ControlsTheme(theme)
       ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
       dividerBorderColor
         .frame(height: dividerSpan)

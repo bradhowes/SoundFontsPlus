@@ -25,6 +25,7 @@ import TestSupport
     $0.continuousClock = .immediate
     $0.defaultDatabase = TestSupport.testDatabase()
     $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.testValue
+    $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
   },
   .snapshots(record: .failed),
   .serialized
@@ -32,40 +33,32 @@ import TestSupport
 @MainActor
 struct SynthTests {
 
-  func initialized(_ closure: (TestStoreOf<Synth>) async throws -> Void) async throws {
+  func initialized(exhaustivity: Exhaustivity = .on, _ closure: (TestStoreOf<Synth>) async throws -> Void) async throws {
+    @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
+    let avAudioUnit = await avAudioUnitMIDIInstrumentGenerator.generate()
     @Shared(.audioEngine) var audioEngine = AVAudioEngine()
     @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange = false
+
     let store = TestStore(initialState: Synth.State()) { Synth() }
 
-    await store.send(.initialize)
+    try await store.withExhaustivity(exhaustivity) {
+      await store.send(.initialize)
 
-    store.exhaustivity = .off
-    await store.receive(\.synthAudioUnitCreated) {
-      $0.audioSessionActivated = true
+      await store.receive(\.synthAudioUnitCreated) {
+        $0.audioSessionActivated = true
+        $0.avAudioUnit = avAudioUnit
+      }
+
+      await store.receive(\.delegate.audioUnitCreated)
+      await store.receive(\.delegate.running)
+
+      try await closure(store)
+
+      await store.send(.deinitialize)
+      // await store.finish(timeout: .seconds(1))
     }
-    #expect(store.state.avAudioUnit != nil)
-    store.exhaustivity = .on
-
-    await store.receive(\.delegate.audioUnitCreated)
-    await store.receive(\.delegate.running)
-
-    await store.receive(\.activePresetIdChanged, timeout: .seconds(5)) {
-      $0.loadedSoundFontId = 1
-      $0.loadedPresetIndex = 0
-    }
-
-    await store.receive(\.delegate.running)
-
-    await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5)) {
-      $0.firstTimePresetLoaded = false
-    }
-
-    try await closure(store)
-
-    await store.send(.deinitialize)
-    await store.finish(timeout: .seconds(1))
   }
 
   @Test
@@ -78,15 +71,15 @@ struct SynthTests {
   func activePresetIdChanged() async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
     try await initialized { store in
-      @Shared(.activeState) var activeState
-      $activeState.withLock { $0.activePresetId = 2 }
-      try await $activeState.load()
 
-      await store.receive(\.activePresetIdChanged, timeout: .seconds(5)) {
+      await store.send(\.activePresetIdChanged, 2) {
+        $0.loadedSoundFontId = 1
         $0.loadedPresetIndex = 1
       }
 
-      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5)) {
+        $0.firstTimePresetLoaded = false
+      }
     }
   }
 
@@ -102,11 +95,23 @@ struct SynthTests {
       $activeState.withLock { $0.activePresetId = 2 }
       try await $activeState.load()
 
-      await store.receive(\.activePresetIdChanged, timeout: .seconds(5)) {
+      await store.send(\.activePresetIdChanged, 2) {
+        $0.loadedSoundFontId = 1
         $0.loadedPresetIndex = 1
       }
 
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5)) {
+        $0.firstTimePresetLoaded = false
+      }
+
+      await store.send(\.activePresetIdChanged, 3) {
+        $0.loadedSoundFontId = 2
+        $0.loadedPresetIndex = 0
+      }
+
       await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
+
+      await store.receive(\.playNote, timeout: .seconds(5))
     }
   }
 
