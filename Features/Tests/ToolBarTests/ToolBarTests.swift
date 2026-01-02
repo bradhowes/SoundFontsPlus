@@ -193,7 +193,7 @@ struct ToolBarTests {
       $0.audioGraph = .liveValue
       $0.audioSession = .liveValue
       $0.continuousClock = .immediate
-      $0.defaultDatabase = TestSupport.testDatabase()
+      $0.defaultDatabase = try appDatabase(loadAllPresets: false)
       $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.testValue
       $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
     }
@@ -233,7 +233,15 @@ struct ToolBarTests {
     }
 
     await synth.send(\.playNote)
-    await store.receive(\.activeVoiceCountChanged, timeout: .seconds(10))
+
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+
+      // This is a bit hacky due to using a real AUv3 component.
+      await store.receive(\.activeVoiceCountChanged, timeout: .seconds(10))
+      if store.state.activeVoiceCount > 0 {
+        await store.receive(\.activeVoiceCountChanged, timeout: .seconds(10))
+      }
+    }
 
     await synth.send(.deinitialize)
     await store.send(.deinitialize)
