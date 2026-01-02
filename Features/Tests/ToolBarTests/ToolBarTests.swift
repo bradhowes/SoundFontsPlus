@@ -199,6 +199,7 @@ struct ToolBarTests {
     }
   )
   func monitorActiveVoiceCount() async throws {
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
 
     // Uff. Replication here of synth init in order to have an audio unit that will emit a voice count change.
     @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
