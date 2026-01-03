@@ -21,8 +21,8 @@ public enum TestSupport {
 extension TestSupport {
   // swiftlint:disable:next function_body_length
   public static func addMockPresets(_ db: Database) throws {
-    let font1 = try SoundFontKind.builtin(resource: SF2ResourceTag.fluidFont.url).data()
-    let font2 = try SoundFontKind.builtin(resource: SF2ResourceTag.freeFont.url).data()
+    let font1 = try SoundFontKind.builtin(tag: SF2ResourceTag.fluidFont).data()
+    let font2 = try SoundFontKind.builtin(tag: SF2ResourceTag.freeFont).data()
 
     try SoundFont.insert {
       SoundFont.Draft(

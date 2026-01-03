@@ -79,7 +79,7 @@ extension SoundFont {
    - parameter limitedLoading: if true, limit number of presets added to soundFontPresetLoadLimit (testing only)
    */
   public static func addBuiltIn(_ db: Database, sf2: SF2ResourceTag, limitedLoading: Bool) throws {
-    let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
+    let soundFontKind: SoundFontKind = .builtin(tag: sf2)
     let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()
     withErrorReporting {
       _ = try insertWithAssociations(

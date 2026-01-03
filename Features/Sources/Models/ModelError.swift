@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import Foundation
+import SF2Resources
 
 public enum ModelError: Error, Equatable {
   case duplicateTag(name: String)
@@ -10,6 +11,7 @@ public enum ModelError: Error, Equatable {
   case failedToInsertSoundFont(name: String)
   case loadFailure(url: URL)
   case dataIsNotValidURL(data: Data, displayName: String)
+  case dataIsNotValidTag(data: Data, displayName: String)
   case urlIsNotValidData(url: URL)
 }
 
@@ -28,10 +30,12 @@ extension ModelError: CustomStringConvertible {
       return "Failed to add SoundFont \(name) to database -- internal database conflict."
     case .loadFailure(url: let url):
       return "Failed to load SF2 '\(url.lastPathComponent)' due to corrupt or missing file. Try deleting and adding back."
-    case let .dataIsNotValidURL(_, displayName):
+    case let .dataIsNotValidURL(data: _, displayName: displayName):
       return "Location value for SF2 '\(displayName) is corrupted. Unable to load."
     case .urlIsNotValidData(url: let url):
       return "Internal error - invalid URL '\(url)'. Unable to save to database."
+    case .dataIsNotValidTag(data: _, displayName: let displayName):
+      return "Location value for SF2 \(displayName) is corrupted. Unable to load."
     }
   }
 }

@@ -5,16 +5,17 @@ import Dependencies
 import Engine
 import Foundation
 import os
+import SF2Resources
 
 /// Indicators for the various types of SoundFont installs
 public enum SoundFontKind {
 
   /// Built-in sound font file that is comes with the app. Holds a URL to a bundle resource
-  case builtin(resource: URL)
+  case builtin(tag: SF2ResourceTag)
 
   /// Sound font file that was installed by the user into the app's working directory on the device where the app is
   /// running. Holds the URL to the SF2 file.
-  case installed(file: URL)
+  case installed(url: URL)
 
   /// Sound font file that was installed by the user but that was *not* copied into the app's working
   /// directory. This could reside on an external disk for instance, or on the iCloud Drive. As such it is possible it
@@ -23,8 +24,8 @@ public enum SoundFontKind {
 
   public init(kind: SoundFont.Kind, location: Data, displayName: String) throws {
     switch kind {
-    case .builtin: self = try .builtin(resource: dataToUrl(location, displayName: displayName))
-    case .installed: self = try .installed(file: dataToUrl(location, displayName: displayName))
+    case .builtin: self = try .builtin(tag: dataToTag(location, displayName: displayName))
+    case .installed: self = try .installed(url: dataToUrl(location, displayName: displayName))
     case .external: self = try .external(bookmark: Bookmark.from(data: location))
     }
   }
@@ -36,9 +37,9 @@ extension SoundFontKind {
 
   public func data() throws -> (SoundFont.Kind, Data) {
     switch self {
-    case .builtin(let url): return (.builtin, try urlToData(url))
-    case .installed(let url): return (.installed, try urlToData(url))
-    case .external(let bookmark): return (.external, try bookmark.toData())
+    case .builtin(tag: let tag): return (.builtin, try tagToData(tag))
+    case .installed(url: let url): return (.installed, try urlToData(url))
+    case .external(bookmark: let bookmark): return (.external, try bookmark.toData())
     }
   }
 
@@ -52,9 +53,9 @@ extension SoundFontKind {
 
   public var path: URL {
     switch self {
-    case .builtin(let url): return url
-    case .installed(let url): return url
-    case .external(let bookmark): return bookmark.url
+    case .builtin(tag: let tag): return tag.url
+    case .installed(url: let url): return url
+    case .external(bookmark: let bookmark): return bookmark.url
     }
   }
 
@@ -95,9 +96,9 @@ extension SoundFontKind {
 
   public func fileInfo() throws -> SF2FileInfo {
     switch self {
-    case .builtin(let url): return try fileInfo(from: url)
-    case .installed(let url): return try fileInfo(from: url)
-    case .external(let bookmark): return try fileInfo(from: bookmark.url)
+    case .builtin(tag: let tag): return try fileInfo(from: tag.url)
+    case .installed(url: let url): return try fileInfo(from: url)
+    case .external(bookmark: let bookmark): return try fileInfo(from: bookmark.url)
     }
   }
 
@@ -119,8 +120,19 @@ private func dataToUrl(_ data: Data, displayName: String) throws -> URL {
 }
 
 private func urlToData(_ url: URL) throws -> Data {
-  guard let data = url.absoluteString.data(using: .utf8) else {
-    throw ModelError.urlIsNotValidData(url: url)
+  .init(url.absoluteString.utf8)
+}
+
+private func dataToTag(_ data: Data, displayName: String) throws -> SF2ResourceTag {
+  guard let tagStr = String(data: data, encoding: .utf8),
+        let tagInt = Int(tagStr),
+        let tag = SF2ResourceTag(rawValue: tagInt)
+  else {
+    throw ModelError.dataIsNotValidTag(data: data, displayName: displayName)
   }
-  return data
+  return tag
+}
+
+private func tagToData(_ tag: SF2ResourceTag) throws -> Data {
+  .init("\(tag.rawValue)".utf8)
 }

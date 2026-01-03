@@ -142,24 +142,6 @@ private func performMigrations(
 
   try migrator.migrate(database)
 
-  if !fonts.isEmpty {
-    // Update locations of builtin SF2 files everytime we startup since app container location could change.
-    try database.write { db in
-      for sf2 in SF2ResourceTag.allCases {
-        withErrorReporting {
-          let soundFontKind: SoundFontKind = .builtin(resource: sf2.url)
-          let (kind, location) = try soundFontKind.data()
-          try SoundFont
-            .where { $0.id.eq(sf2.id) }
-            .update {
-              $0.kind = kind
-              $0.location = location
-            }.execute(db)
-        }
-      }
-    }
-  }
-
   if let seeder {
     try database.write { db in
       try seeder(db)

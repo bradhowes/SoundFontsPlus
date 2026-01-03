@@ -123,7 +123,7 @@ struct SoundFontTests {
     try await $soundFonts.load()
     #expect(soundFonts.count == 1)
 
-    let kind: SoundFontKind = .installed(file: SF2Resource.resources[3])
+    let kind: SoundFontKind = .installed(url: SF2Resource.resources[3])
     try SoundFont.add(displayName: "Hubba", soundFontKind: kind)
 
     try await $soundFonts.load()
