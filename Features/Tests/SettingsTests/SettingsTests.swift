@@ -32,14 +32,13 @@ struct AppSettingsTests {
     let store = TestStore(initialState: AppSettings.State()) { AppSettings() }
 
     await store.send(.initialize)
-    store.exhaustivity = .off
-    await store.receive(\.midiConnectionCountChanged)
-
-    // await store.skipReceivedActions(strict: false)
-    midiMonitor?.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
-    let traffic = MIDITraffic(id: 123, channel: 0, accepted: true)
-    await store.receive(\.midiTrafficIndicator.showMIDITraffic, traffic)
-    await store.send(.dismissButtonTapped)
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.receive(\.midiConnectionCountChanged)
+      midiMonitor?.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
+      let traffic = MIDITraffic(id: 123, channel: 0, accepted: true)
+      await store.receive(\.midiTrafficIndicator.showMIDITraffic, traffic)
+      await store.send(.dismissButtonTapped)
+    }
   }
 
   @Test

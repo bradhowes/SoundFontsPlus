@@ -35,34 +35,28 @@ struct ReverbEffectTests {
   @Test
   func initialization() async throws {
     let store = store()
-
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.send(.initialize)
-    await store.receive(\.activePresetIdChanged)
-
-    await store.receive(\.wetDryMix)
-
-    await store.send(.deinitialize)
-
-    #expect(await device.getTimesChanged() == 1)
-    #expect(store.state.wetDryMix.value.isApproximatelyEqual(to: 25.0))
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.send(.initialize)
+      await store.receive(\.activePresetIdChanged)
+      await store.receive(\.wetDryMix)
+      await store.send(.deinitialize)
+      #expect(await device.getTimesChanged() == 1)
+      #expect(store.state.wetDryMix.value.isApproximatelyEqual(to: 25.0))
+    }
   }
 
   @Test
   func roomPresetChanged() async throws {
     let store = store()
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.send(.initialize)
-    await store.receive(\.activePresetIdChanged)
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.send(.initialize)
+      await store.receive(\.activePresetIdChanged)
+      #expect(store.state.config.id == nil)
+      await store.receive(\.wetDryMix)
+      #expect(store.state.config.id == nil)
+    }
 
-    #expect(store.state.config.id == nil)
-
-    await store.receive(\.wetDryMix)
-
-    #expect(store.state.config.id == nil)
-
-    store.exhaustivity = .on
     await store.send(.roomPresetChanged(.plate)) {
       $0.config.roomPreset = .plate
       $0.dirty = true
@@ -92,16 +86,16 @@ struct ReverbEffectTests {
   func enabledToggled() async throws {
     let store = store()
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.send(.initialize)
-    await store.receive(\.activePresetIdChanged)
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.send(.initialize)
+      await store.receive(\.activePresetIdChanged)
 
-    #expect(store.state.config.id == nil)
-    #expect(store.state.config.enabled == false)
+      #expect(store.state.config.id == nil)
+      #expect(store.state.config.enabled == false)
 
-    await store.receive(\.wetDryMix)
+      await store.receive(\.wetDryMix)
+    }
 
-    store.exhaustivity = .on
     await store.send(.enabled(.toggleTapped(true))) {
       $0.config.enabled = true
       $0.enabled.isOn = true
@@ -132,46 +126,44 @@ struct ReverbEffectTests {
   func wetDryMix() async throws {
     let store = store()
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.send(.initialize)
-    await store.receive(\.activePresetIdChanged)
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.send(.initialize)
+      await store.receive(\.activePresetIdChanged)
 
-    #expect(store.state.config.id == nil)
-    #expect(store.state.config.enabled == false)
+      #expect(store.state.config.id == nil)
+      #expect(store.state.config.enabled == false)
 
-    await store.receive(\.wetDryMix)
+      await store.receive(\.wetDryMix)
 
-    await store.send(.enabled(.toggleTapped(true))) {
-      $0.config.enabled = true
-      $0.enabled.isOn = true
-      $0.dirty = true
+      await store.send(.enabled(.toggleTapped(true))) {
+        $0.config.enabled = true
+        $0.enabled.isOn = true
+        $0.dirty = true
+      }
+
+      await store.receive(\.updateDebounced)
+
+      let config = ReverbConfig.Draft(
+        id: 1,
+        roomPreset: store.state.config.roomPreset,
+        wetDryMix: store.state.config.wetDryMix,
+        enabled: store.state.config.enabled,
+        presetId: store.state.config.presetId
+      )
+
+      await store.receive(\.saveDebounced, timeout: .seconds(10)) {
+        $0.config = config
+        $0.dirty = false
+      }
+
+      await store.send(.wetDryMix(.setValue(50))) {
+        $0.config.wetDryMix = 50.0
+      }
+
+      await store.receive(\.wetDryMix)
     }
 
-    await store.receive(\.updateDebounced)
-
-    let config = ReverbConfig.Draft(
-      id: 1,
-      roomPreset: store.state.config.roomPreset,
-      wetDryMix: store.state.config.wetDryMix,
-      enabled: store.state.config.enabled,
-      presetId: store.state.config.presetId
-    )
-
-    await store.receive(\.saveDebounced, timeout: .seconds(10)) {
-      $0.config = config
-      $0.dirty = false
-    }
-
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.send(.wetDryMix(.setValue(50))) {
-      $0.config.wetDryMix = 50.0
-    }
-
-    await store.receive(\.wetDryMix) // (.control(.title(.valueDisplayTimerFired))))
-
-    store.exhaustivity = .on
-
-    await store.receive(\.updateDebounced)
+    await store.receive(\.updateDebounced, timeout: .seconds(10))
 
     let config2 = ReverbConfig.Draft(
       id: 1,
@@ -181,7 +173,7 @@ struct ReverbEffectTests {
       presetId: store.state.config.presetId
     )
 
-    await store.receive(\.saveDebounced) {
+    await store.receive(\.saveDebounced, timeout: .seconds(10)) {
       $0.config = config2
       $0.dirty = false
     }
@@ -196,21 +188,19 @@ struct ReverbEffectTests {
     @Shared(.reverbLockEnabled) var locked = true
     let store = store()
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.send(.initialize)
-    await store.receive(\.activePresetIdChanged)
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.send(.initialize)
+      await store.receive(\.activePresetIdChanged)
 
-    #expect(store.state.config.enabled == false)
-    #expect(store.state.locked.isOn == true)
+      #expect(store.state.config.enabled == false)
+      #expect(store.state.locked.isOn == true)
+    }
 
-    store.exhaustivity = .on
     await store.send(.enabled(.toggleTapped(true))) {
       $0.config.enabled = true
       $0.enabled.isOn = true
       $0.dirty = true
     }
-
-    store.exhaustivity = .on
 
     let config1 = ReverbConfig.Draft(
       id: nil,
@@ -277,32 +267,31 @@ struct ReverbEffectTests {
   func presetIdChanged() async throws {
     let store = store()
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.send(.initialize)
-    await store.receive(\.activePresetIdChanged, 1)
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.send(.initialize)
+      await store.receive(\.activePresetIdChanged, 1)
 
-    #expect(store.state.config.id == 1)
+      #expect(store.state.config.id == 1)
 
-    await store.receive(\.wetDryMix)
+      await store.receive(\.wetDryMix)
 
-    @Shared(.activeState) var activeState
-    $activeState.withLock { $0.activePresetId = 2 }
+      @Shared(.activeState) var activeState
+      $activeState.withLock { $0.activePresetId = 2 }
 
-    await store.receive(\.activePresetIdChanged, 2) {
-      $0.config =  .init(
-        id: 2,
-        roomPreset: .cathedral,
-        wetDryMix: 81.0,
-        enabled: true,
-        presetId: 2
-      )
+      await store.receive(\.activePresetIdChanged, 2) {
+        $0.config =  .init(
+          id: 2,
+          roomPreset: .cathedral,
+          wetDryMix: 81.0,
+          enabled: true,
+          presetId: 2
+        )
+      }
+
+      await store.receive(\.wetDryMix)
+      await store.send(.deinitialize)
+      #expect(await device.getTimesChanged() == 2)
     }
-
-    await store.receive(\.wetDryMix)
-
-    await store.send(.deinitialize)
-
-    #expect(await device.getTimesChanged() == 2)
   }
 
   @Test

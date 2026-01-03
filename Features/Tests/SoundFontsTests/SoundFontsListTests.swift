@@ -30,9 +30,9 @@ struct SoundFontsListTests {
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.receive(\.soundFontInfosChanged)
-    store.exhaustivity = .on
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.receive(\.soundFontInfosChanged)
+    }
 
     #expect(store.state.rows.count == 2)
 
@@ -47,9 +47,9 @@ struct SoundFontsListTests {
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.receive(\.soundFontInfosChanged)
-    store.exhaustivity = .on
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.receive(\.soundFontInfosChanged)
+    }
 
     @Shared(.activeState) var activeState
     $activeState.withLock { $0.activeTagId = nil }
@@ -74,9 +74,9 @@ struct SoundFontsListTests {
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.receive(\.soundFontInfosChanged)
-    store.exhaustivity = .on
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.receive(\.soundFontInfosChanged)
+    }
 
     await store.send(.showActiveSoundFont)
 
@@ -98,9 +98,9 @@ struct SoundFontsListTests {
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.receive(\.soundFontInfosChanged)
-    store.exhaustivity = .on
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.receive(\.soundFontInfosChanged)
+    }
 
     let row = store.state.rows[1]
     await store.send(.rows(.element(id: row.id, action: .delegate(.selectSoundFont(row.soundFontInfo)))))
@@ -117,11 +117,10 @@ struct SoundFontsListTests {
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.receive(\.soundFontInfosChanged)
-    store.exhaustivity = .on
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.receive(\.soundFontInfosChanged)
+    }
 
-    // let oldRows = store.state.rows
     let row = store.state.rows[1]
     await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo))))) {
       $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(row.soundFontInfo),
@@ -131,14 +130,6 @@ struct SoundFontsListTests {
     await store.send(.destination(.dismiss)) {
       $0.destination = nil
     }
-
-//    let deleted = oldRows.remove(id: row.id)
-//    #expect(deleted != nil)
-//    #expect(deleted?.soundFontInfo.displayName == "Font 2")
-//
-//    await store.receive(\.soundFontInfosChanged) {
-//      $0.rows = oldRows
-//    }
 
     await store.send(.deinitialize)
     await store.finish()
@@ -150,9 +141,9 @@ struct SoundFontsListTests {
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.receive(\.soundFontInfosChanged)
-    store.exhaustivity = .on
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.receive(\.soundFontInfosChanged)
+    }
 
     var oldRows = store.state.rows
     let row = oldRows[1]
@@ -183,9 +174,9 @@ struct SoundFontsListTests {
     await store.send(.initialize)
     await store.receive(\.activeTagIdChanged)
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.receive(\.soundFontInfosChanged)
-    store.exhaustivity = .on
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.receive(\.soundFontInfosChanged)
+    }
 
     let row = store.state.rows.first!
     await store.send(.rows(.element(id: row.id, action: .delegate(.editSoundFont(row.soundFontInfo)))))

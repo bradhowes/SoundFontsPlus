@@ -36,19 +36,17 @@ struct DelayEffectTests {
   func initialization() async throws {
     let store = store()
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.send(.initialize)
-    await store.receive(\.activePresetIdChanged)
-
-    await store.receive(\.time)
-    await store.receive(\.feedback)
-    await store.receive(\.cutoff)
-    await store.receive(\.wetDryMix)
-
-    await store.send(.deinitialize)
-
-    #expect(await device.getTimesChanged() == 1)
-    #expect(store.state.time.value.isApproximatelyEqual(to: 0.5))
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.send(.initialize)
+      await store.receive(\.activePresetIdChanged)
+      await store.receive(\.time)
+      await store.receive(\.feedback)
+      await store.receive(\.cutoff)
+      await store.receive(\.wetDryMix)
+      await store.send(.deinitialize)
+      #expect(await device.getTimesChanged() == 1)
+      #expect(store.state.time.value.isApproximatelyEqual(to: 0.5))
+    }
   }
 
   @Test
@@ -132,32 +130,33 @@ struct DelayEffectTests {
         $0.dirty = false
       }
 
-      store.exhaustivity = .off(showSkippedAssertions: false)
-      await store.send(.wetDryMix(.setValue(100))) {
-        $0.config.wetDryMix = 100
+      await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+        await store.send(.wetDryMix(.setValue(100))) {
+          $0.config.wetDryMix = 100
+        }
+
+        await store.receive(\.wetDryMix, timeout: .seconds(10))
+        await store.receive(\.updateDebounced, timeout: .seconds(10))
+
+        let config2 = DelayConfig.Draft(
+          id: 1,
+          time: store.state.config.time,
+          feedback: store.state.config.feedback,
+          cutoff: store.state.config.cutoff,
+          wetDryMix: store.state.config.wetDryMix,
+          enabled: true,
+          presetId: store.state.config.presetId
+        )
+
+        await store.receive(\.saveDebounced, timeout: .seconds(10)) {
+          $0.config = config2
+          $0.dirty = false
+        }
+
+        await store.send(.deinitialize)
       }
-
-      await store.receive(\.wetDryMix, timeout: .seconds(10))
-      await store.receive(\.updateDebounced, timeout: .seconds(10))
-
-      let config2 = DelayConfig.Draft(
-        id: 1,
-        time: store.state.config.time,
-        feedback: store.state.config.feedback,
-        cutoff: store.state.config.cutoff,
-        wetDryMix: store.state.config.wetDryMix,
-        enabled: true,
-        presetId: store.state.config.presetId
-      )
-
-      await store.receive(\.saveDebounced, timeout: .seconds(10)) {
-        $0.config = config2
-        $0.dirty = false
-      }
-
-      await store.send(.deinitialize)
+      #expect(await device.getTimesChanged() == 3)
     }
-    #expect(await device.getTimesChanged() == 3)
   }
 
   @Test
@@ -165,21 +164,18 @@ struct DelayEffectTests {
     @Shared(.delayLockEnabled) var locked = true
     let store = store()
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.send(.initialize)
-    await store.receive(\.activePresetIdChanged)
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.send(.initialize)
+      await store.receive(\.activePresetIdChanged)
+      #expect(store.state.config.enabled == false)
+      #expect(store.state.locked.isOn == true)
+    }
 
-    #expect(store.state.config.enabled == false)
-    #expect(store.state.locked.isOn == true)
-
-    store.exhaustivity = .on
     await store.send(.enabled(.toggleTapped(true))) {
       $0.config.enabled = true
       $0.enabled.isOn = true
       $0.dirty = true
     }
-
-    store.exhaustivity = .on
 
     let config1 = DelayConfig.Draft(
       id: nil,
@@ -250,37 +246,36 @@ struct DelayEffectTests {
   func presetIdChanged() async throws {
     let store = store()
 
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.send(.initialize)
-    await store.receive(\.activePresetIdChanged, 1)
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.send(.initialize)
+      await store.receive(\.activePresetIdChanged, 1)
 
-    #expect(store.state.config.id == 1)
+      #expect(store.state.config.id == 1)
 
-    await store.receive(\.time)
-    await store.receive(\.feedback)
-    await store.receive(\.cutoff)
-    await store.receive(\.wetDryMix)
+      await store.receive(\.time)
+      await store.receive(\.feedback)
+      await store.receive(\.cutoff)
+      await store.receive(\.wetDryMix)
 
-    @Shared(.activeState) var activeState
-    $activeState.withLock { $0.activePresetId = 2 }
+      @Shared(.activeState) var activeState
+      $activeState.withLock { $0.activePresetId = 2 }
 
-    store.exhaustivity = .off
-    await store.receive(\.activePresetIdChanged, 2) {
-      $0.config =  .init(
-        id: 2,
-        time: 1.0,
-        feedback: -70,
-        cutoff: 12000.0,
-        wetDryMix: 100.0,
-        enabled: true,
-        presetId: 2
-      )
+      await store.receive(\.activePresetIdChanged, 2) {
+        $0.config =  .init(
+          id: 2,
+          time: 1.0,
+          feedback: -70,
+          cutoff: 12000.0,
+          wetDryMix: 100.0,
+          enabled: true,
+          presetId: 2
+        )
+      }
+
+      await store.send(.deinitialize)
+
+      #expect(await device.getTimesChanged() == 2)
     }
-
-    store.exhaustivity = .off(showSkippedAssertions: false)
-    await store.send(.deinitialize)
-
-    #expect(await device.getTimesChanged() == 2)
   }
 
   @Test
