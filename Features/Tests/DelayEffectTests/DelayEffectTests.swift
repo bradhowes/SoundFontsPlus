@@ -72,7 +72,7 @@ struct DelayEffectTests {
         $0.dirty = true
       }
 
-      await store.receive(\.updateDebounced, timeout: 90)
+      await store.receive(\.updateDebounced, timeout: .seconds(10))
 
       let config = DelayConfig.Draft(
         id: 1,
@@ -84,7 +84,7 @@ struct DelayEffectTests {
         presetId: 1
       )
 
-      await store.receive(\.saveDebounced, timeout: 90) {
+      await store.receive(\.saveDebounced, timeout: .seconds(10)) {
         $0.config = config
         $0.dirty = false
       }
@@ -137,8 +137,8 @@ struct DelayEffectTests {
         $0.config.wetDryMix = 100
       }
 
-      await store.receive(\.wetDryMix, timeout: 90)
-      await store.receive(\.updateDebounced, timeout: 90)
+      await store.receive(\.wetDryMix, timeout: .seconds(10))
+      await store.receive(\.updateDebounced, timeout: .seconds(10))
 
       let config2 = DelayConfig.Draft(
         id: 1,
@@ -150,7 +150,7 @@ struct DelayEffectTests {
         presetId: store.state.config.presetId
       )
 
-      await store.receive(\.saveDebounced, timeout: 90) {
+      await store.receive(\.saveDebounced, timeout: .seconds(10)) {
         $0.config = config2
         $0.dirty = false
       }

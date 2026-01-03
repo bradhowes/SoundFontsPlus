@@ -68,7 +68,7 @@ struct ReverbEffectTests {
       $0.dirty = true
     }
 
-    await store.receive(\.updateDebounced, timeout: 30)
+    await store.receive(\.updateDebounced, timeout: .seconds(10))
 
     let config = ReverbConfig.Draft(
       id: 1,
@@ -78,7 +78,7 @@ struct ReverbEffectTests {
       presetId: store.state.config.presetId
     )
 
-    await store.receive(\.saveDebounced, timeout: 30) {
+    await store.receive(\.saveDebounced, timeout: .seconds(10)) {
       $0.config = config
       $0.dirty = false
     }
@@ -108,7 +108,7 @@ struct ReverbEffectTests {
       $0.dirty = true
     }
 
-    await store.receive(\.updateDebounced, timeout: 30)
+    await store.receive(\.updateDebounced, timeout: .seconds(10))
 
     let config = ReverbConfig.Draft(
       id: 1,
@@ -118,7 +118,7 @@ struct ReverbEffectTests {
       presetId: store.state.config.presetId
     )
 
-    await store.receive(\.saveDebounced, timeout: 30) {
+    await store.receive(\.saveDebounced, timeout: .seconds(10)) {
       $0.config = config
       $0.dirty = false
     }
@@ -157,7 +157,7 @@ struct ReverbEffectTests {
       presetId: store.state.config.presetId
     )
 
-    await store.receive(\.saveDebounced, timeout: 30) {
+    await store.receive(\.saveDebounced, timeout: .seconds(10)) {
       $0.config = config
       $0.dirty = false
     }

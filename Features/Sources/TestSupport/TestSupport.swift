@@ -160,7 +160,6 @@ extension TestSupport {
       named: uniqueTestName,
       record: nil,
       snapshotDirectory: nil,
-      timeout: 5,
       fileID: fileID,
       file: file,
       testName: "\(testName)",
