@@ -21,7 +21,8 @@ public struct SoundFontButton {
     let color: Color
   }
 
-  public enum StatusInfoTag: Equatable, Sendable {
+  @frozen
+  public enum StatusInfoTag: Equatable {
     case internalFile
     case invalidBookmark
     case localIsAvailable

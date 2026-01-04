@@ -32,6 +32,7 @@ public struct AppRoot {
    The various editors and presenters that appear when created and presented.
    */
   @Reducer
+  @frozen
   public enum Destination {
     case changes(Changes)
     case presetEditor(PresetEditor)
@@ -151,6 +152,7 @@ public struct AppRoot {
 #endif // os(iOS)
   }
 
+  @frozen
   public enum Action: BindableAction {
     case activePresetIdChanged(Preset.ID?)
     case appReview(AppReview.Action)

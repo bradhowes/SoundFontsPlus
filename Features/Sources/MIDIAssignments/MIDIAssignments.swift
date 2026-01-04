@@ -11,7 +11,8 @@ public struct MIDIAssignments {
     public init() {}
   }
 
-  public enum Action: Sendable {
+  @frozen
+  public enum Action {
     case initialize
   }
 

@@ -18,7 +18,8 @@ private let log = Logger(category: "TagsEditor")
 @Reducer
 public struct TagsEditor {
 
-  public enum Mode: Sendable, Equatable {
+  @frozen
+  public enum Mode: Equatable {
     case tagEditing
     case fontEditing
 

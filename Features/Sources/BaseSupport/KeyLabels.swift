@@ -2,7 +2,8 @@
 
 import Foundation
 
-public enum KeyLabels: String, CaseIterable, Identifiable, Sendable {
+@frozen
+public enum KeyLabels: String, CaseIterable, Identifiable {
   case none = "Off"
   case cOnly = "C"
   case all = "All"

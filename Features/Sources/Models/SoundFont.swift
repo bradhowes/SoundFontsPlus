@@ -19,7 +19,8 @@ public struct SoundFont: Hashable, Identifiable, Sendable {
 
   public let id: ID
 
-  public enum Kind: String, CaseIterable, Sendable, QueryBindable {
+  @frozen
+  public enum Kind: String, CaseIterable, QueryBindable {
     case builtin
     case installed
     case external

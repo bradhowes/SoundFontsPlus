@@ -19,7 +19,8 @@ public struct Preset: Hashable, Identifiable, Sendable {
   public var displayName: String
   public var notes: String = ""
 
-  public enum Kind: Int, CaseIterable, Sendable, QueryBindable {
+  @frozen
+  public enum Kind: Int, CaseIterable, QueryBindable {
     case preset = 0
     case favorite = 1
     case hidden = 2

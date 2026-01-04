@@ -40,6 +40,7 @@ public struct AppReview {
     }
   }
 
+  @frozen
   public enum Action {
     case ask
     case reviewAsked
