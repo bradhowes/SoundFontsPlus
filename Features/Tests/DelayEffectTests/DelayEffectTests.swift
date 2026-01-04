@@ -28,7 +28,7 @@ struct DelayEffectTests {
     TestStoreOf<DelayEffect>(initialState: .init()) {
       DelayEffect()
     } withDependencies: {
-      $0.delayDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })
+      $0.delayDevice.setConfig = { config in Task { await device.setConfig(config) } }
     }
   }
 
@@ -280,32 +280,17 @@ struct DelayEffectTests {
 
   @Test
   func preview1() throws {
-    let device = MockDelayDevice()
-    try withDependencies {
-      $0.delayDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })
-    } operation: {
-      try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 1), config: .landscape)
-    }
+    try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 1), config: .landscape)
   }
 
   @Test
   func preview2() throws {
-    let device = MockDelayDevice()
-    try withDependencies {
-      $0.delayDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })
-    } operation: {
-      try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 2), config: .landscape)
-    }
+    try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 2), config: .landscape)
   }
 
   @Test
   func preview3() throws {
-    let device = MockDelayDevice()
-    try withDependencies {
-      $0.delayDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })
-    } operation: {
-      try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 3), config: .landscape)
-    }
+    try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 3), config: .landscape)
   }
 }
 

@@ -30,7 +30,6 @@ struct ToolBarTests {
   @Test
   func activeVoiceCountChanged() async throws {
     let store = try await store()
-    await store.send(.initialize)
 
     await store.send(.activeVoiceCountChanged(3)) {
       $0.activeVoiceCount = 3
@@ -46,7 +45,6 @@ struct ToolBarTests {
   func activePresetIdChanged() async throws {
     @Shared(.activeState) var activeState
     let store = try await store()
-    await store.send(.initialize)
 
     await store.send(.activePresetIdChanged(2)) {
       $0.preset = .init(
@@ -73,7 +71,6 @@ struct ToolBarTests {
   @Test
   func editPresetVisibility() async throws {
     let store = try await store()
-    await store.send(.initialize)
 
     await store.send(.presetsVisibilityButtonTapped) {
       $0.editingPresetVisibility = true
@@ -96,7 +93,6 @@ struct ToolBarTests {
     let store = try await store()
     #expect(store.state.effectsPanelVisible == initValue)
 
-    await store.send(.initialize)
     await store.send(.effectsVisibilityButtonTapped) {
       $0.effectsPanelVisible.toggle()
     }
@@ -123,7 +119,6 @@ struct ToolBarTests {
   @Test
   func helpButtonTapped() async throws {
     let store = try await store()
-    await store.send(.initialize)
 
     await store.send(.helpButtonTapped)
 
@@ -132,9 +127,8 @@ struct ToolBarTests {
   }
 
   @Test
-  func initialize() async throws {
+  func deinitialize() async throws {
     let store = try await store()
-    await store.send(.initialize)
     await store.send(.deinitialize)
     await store.finish()
   }
@@ -142,7 +136,6 @@ struct ToolBarTests {
   @Test
   func lastPlayedKeyChangedIgnore() async throws {
     let store = try await store()
-    await store.send(.initialize)
 
     await store.send(.lastPlayedKeyChanged(.A6)) {
       $0.lastPlayedKey = .A6
@@ -162,7 +155,6 @@ struct ToolBarTests {
     $showKeyNotes.withLock { $0 = true }
 
     let store = try await store()
-    await store.send(.initialize)
 
     await store.send(.lastPlayedKeyChanged(.A6)) {
       $0.lastPlayedKey = .A6
@@ -178,7 +170,6 @@ struct ToolBarTests {
     $showSolfegeTags.withLock { $0 = true }
 
     let store = try await store()
-    await store.send(.initialize)
 
     await store.send(.lastPlayedKeyChanged(.A6)) {
       $0.lastPlayedKey = .A6
@@ -192,9 +183,11 @@ struct ToolBarTests {
     .dependencies {
       $0.audioGraph = .liveValue
       $0.audioSession = .liveValue
+      $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
       $0.continuousClock = .immediate
       $0.defaultDatabase = try appDatabase(loadAllPresets: false)
-      $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
+      $0.delayDevice = .liveValue
+      $0.reverbDevice = .liveValue
     }
   )
   func monitorActiveVoiceCount() async throws {
@@ -204,12 +197,9 @@ struct ToolBarTests {
     @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
     let avAudioUnit = try #require(await avAudioUnitMIDIInstrumentGenerator.generate())
 
-    @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
-    @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
-
     let synth = TestStore(initialState: Synth.State()) { Synth() }
-
     await synth.send(.initialize)
+
     await synth.receive(\.synthAudioUnitCreated) {
       $0.audioSessionActivated = true
       $0.avAudioUnit = avAudioUnit
@@ -226,7 +216,6 @@ struct ToolBarTests {
 
     let store = try await store()
 
-    await store.send(.initialize)
     await store.send(.audioUnitCreated(avAudioUnit.auAudioUnit)) {
       $0.audioUnit = avAudioUnit.auAudioUnit
     }
@@ -250,7 +239,6 @@ struct ToolBarTests {
   @Test
   func settingsButtonTapped() async throws {
     let store = try await store()
-    await store.send(.initialize)
 
     await store.send(.showMoreButtonTapped) {
       $0.showMoreButtons = true
@@ -269,7 +257,6 @@ struct ToolBarTests {
   @Test
   func setVisibleKeyRange() async throws {
     let store = try await store()
-    await store.send(.initialize)
 
     await store.send(.setVisibleKeyRange(lowest: .A1, highest: .B3)) {
       $0.lowestKey = .A1
@@ -283,7 +270,6 @@ struct ToolBarTests {
   @Test
   func shiftKeyboardDownButtonTapped() async throws {
     let store = try await store()
-    await store.send(.initialize)
 
     await store.send(.setVisibleKeyRange(lowest: .C5, highest: .B5)) {
       $0.lowestKey = .C5
@@ -304,7 +290,6 @@ struct ToolBarTests {
   @Test
   func shiftKeyboardUpButtonTapped() async throws {
     let store = try await store()
-    await store.send(.initialize)
 
     await store.send(.setVisibleKeyRange(lowest: .A2, highest: .C4)) {
       $0.lowestKey = .A2
@@ -325,7 +310,6 @@ struct ToolBarTests {
   @Test
   func showMoreButtonTapped() async throws {
     let store = try await store()
-    await store.send(.initialize)
 
     await store.send(.showMoreButtonTapped) {
       $0.showMoreButtons = true
@@ -352,7 +336,6 @@ struct ToolBarTests {
     @Shared(.keyboardSlides) var keyboardSlides = initValue
 
     let store = try await store()
-    await store.send(.initialize)
     #expect(store.state.keyboardSlides == initValue)
 
     await store.send(.slidingKeyboardButtonTapped) {
@@ -373,7 +356,6 @@ struct ToolBarTests {
     @Shared(.tagsListVisible) var tagsListVisible = initValue
 
     let store = try await store()
-    await store.send(.initialize)
     #expect(store.state.tagsListVisible == initValue)
 
     await store.send(.tagsListVisibilityButtonTapped) {

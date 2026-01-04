@@ -53,7 +53,7 @@ public struct SoundFontsList {
 
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
-      log.info("reduce \(action)")
+      log.info("SoundFontsList reduce \(action)")
 
       switch action {
 

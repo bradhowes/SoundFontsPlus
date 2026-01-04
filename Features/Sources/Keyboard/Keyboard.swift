@@ -96,6 +96,7 @@ public struct Keyboard {
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
+      log.info("Keyboard reduce \(action)")
       switch action {
 
       case let .activePresetIdChanged(presetId):

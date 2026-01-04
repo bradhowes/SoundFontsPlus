@@ -28,7 +28,7 @@ struct ReverbEffectTests {
     TestStoreOf<ReverbEffect>(initialState: .init()) {
       ReverbEffect()
     } withDependencies: {
-      $0.reverbDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })
+      $0.reverbDevice.setConfig = { config in Task { await device.setConfig(config) } }
     }
   }
 
@@ -296,12 +296,7 @@ struct ReverbEffectTests {
 
   @Test
   func preview() throws {
-    let device = MockReverbDevice()
-    try withDependencies {
-      $0.reverbDevice = .init(setConfig: { config in Task { await device.setConfig(config) } })
-    } operation: {
-      try TestSupport.assertSnapshot(matching: ReverbEffectView.preview)
-    }
+    try TestSupport.assertSnapshot(matching: ReverbEffectView.preview)
   }
 }
 

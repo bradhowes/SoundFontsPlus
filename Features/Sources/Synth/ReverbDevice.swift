@@ -24,4 +24,5 @@ extension ReverbDevice: DependencyKey {
   }
 
   public static let previewValue: ReverbDevice = Self.liveValue
+  public static let testValue: ReverbDevice = Self.liveValue
 }

@@ -22,9 +22,11 @@ import TestSupport
     // TODO: use mock here
     $0.audioGraph = .liveValue
     $0.audioSession = .liveValue
+    $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
     $0.continuousClock = .immediate
     $0.defaultDatabase = TestSupport.testDatabase()
-    $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
+    $0.delayDevice = .liveValue
+    $0.reverbDevice = .liveValue
   },
   .snapshots(record: .failed),
   .serialized
@@ -37,8 +39,6 @@ struct SynthTests {
 
     @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
     let avAudioUnit = await avAudioUnitMIDIInstrumentGenerator.generate()
-    @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
-    @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange = false
 
     let store = TestStore(initialState: Synth.State()) { Synth() }

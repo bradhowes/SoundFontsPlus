@@ -5,7 +5,7 @@ import Foundation
 import Sharing
 import Testing
 
-@testable import BaseSupport
+@testable import Synth
 
 @Suite
 struct AudioGraphTests {
@@ -23,8 +23,6 @@ struct AudioGraphTests {
 
   @Test
   func liveClientHasComponents() async throws {
-    @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
-    @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
 
     let audioUnit = AVAudioUnitSampler()
     let uat = AudioGraph.liveValue

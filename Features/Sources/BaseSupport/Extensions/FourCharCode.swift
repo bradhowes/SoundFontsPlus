@@ -11,14 +11,15 @@ extension Character {
 
 extension FourCharCode {
 
-  static var invalidFourCharCode: Self { 0x3F3F3F3F } // "????"
+  public static var invalidFourCharCode: Self { 0x3F3F3F3F } // "????"
 
   public init(stringLiteral value: StringLiteralType) {
-    self = FourCharCode.validate(value: value)
+    self.init(value, Self.invalidFourCharCode)
   }
 
-  public init(_ value: String) {
-    self = FourCharCode.validate(value: value)
+  public init(_ value: String, _ whenInvalid: FourCharCode = Self.invalidFourCharCode) {
+    let tmp = FourCharCode.validate(value: value)
+    self = tmp.isValid ? tmp : whenInvalid
   }
 
   private static func validate(value: StringLiteralType) -> Self {
@@ -30,6 +31,8 @@ extension FourCharCode {
     }
     return value.utf8.reduce(into: 0) { $0 = $0 << 8 + FourCharCode($1) }
   }
+
+  public var isValid: Bool { self != Self.invalidFourCharCode }
 }
 
 extension FourCharCode {

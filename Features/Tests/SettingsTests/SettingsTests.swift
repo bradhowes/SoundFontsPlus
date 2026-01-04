@@ -26,7 +26,7 @@ struct AppSettingsTests {
   func initializeWithMidi() async throws {
     @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
     midi?.start()
-    @Shared(.midiMonitor) var midiMonitor = MIDIMonitor()
+    @Shared(.midiMonitor) var midiMonitor = MIDIMonitor(instrument: MockAudioUnit())
     midi?.receiver = midiMonitor
 
     let store = TestStore(initialState: AppSettings.State()) { AppSettings() }

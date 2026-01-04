@@ -78,7 +78,7 @@ struct PresetsListTests {
     }
     #expect(store.state.sections.count == 1)
 
-    await store.send(.stop)
+    await store.send(.deinitialize)
     await store.finish()
   }
 
@@ -93,7 +93,7 @@ struct PresetsListTests {
     }
     #expect(store.state.sections.count == 1)
 
-    await store.send(.stop)
+    await store.send(.deinitialize)
     await store.finish()
   }
 
@@ -107,7 +107,7 @@ struct PresetsListTests {
     }
     #expect(store.state.sections.count == 1)
 
-    await store.send(.stop)
+    await store.send(.deinitialize)
     await store.finish()
   }
 
@@ -125,7 +125,7 @@ struct PresetsListTests {
       $0.scrollToPresetId = nil
     }
 
-    await store.send(.stop)
+    await store.send(.deinitialize)
     await store.finish()
   }
 
@@ -178,7 +178,7 @@ struct PresetsListTests {
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
     }
 
-    await store.send(.stop)
+    await store.send(.deinitialize)
     await store.finish()
   }
 
@@ -233,7 +233,7 @@ struct PresetsListTests {
       $0.scrollToPresetId = .init(presetId: 1, anchor: .center)
     }
 
-    await store.send(.stop)
+    await store.send(.deinitialize)
     await store.finish()
   }
 
@@ -278,7 +278,7 @@ struct PresetsListTests {
       )]
     }
 
-    await store.send(.stop)
+    await store.send(.deinitialize)
     await store.finish()
   }
 
@@ -306,7 +306,7 @@ struct PresetsListTests {
 
     #expect(activeState.activePresetId == presets[1].id)
 
-    await store.send(.stop)
+    await store.send(.deinitialize)
     await store.finish()
   }
 
@@ -377,7 +377,7 @@ struct PresetsListTests {
     updated = Operations.presets(for: nil)
     #expect(updated[1].kind == .favorite)
 
-    await store.send(.stop)
+    await store.send(.deinitialize)
     await store.finish()
   }
 
@@ -448,7 +448,7 @@ struct PresetsListTests {
     updated = Operations.presets(for: nil)
     #expect(updated[1].kind == .preset)
 
-    await store.send(.stop)
+    await store.send(.deinitialize)
     await store.finish()
   }
 
@@ -476,7 +476,7 @@ struct PresetsListTests {
     await store.receive(\.sections[id: sectionId].delegate.editPreset, preset)
     await store.receive(\.delegate, .edit(sectionId: store.state.sections[0].id, preset: presets[0]))
 
-    await store.send(.stop)
+    await store.send(.deinitialize)
     await store.finish()
   }
 
@@ -520,7 +520,7 @@ struct PresetsListTests {
     #expect(updated[1] == presets[1])
     #expect(confirmPresetHiding == true)
 
-    await store.send(.stop)
+    await store.send(.deinitialize)
     await store.finish()
   }
 
@@ -568,7 +568,7 @@ struct PresetsListTests {
     #expect(updated.count == 1)
     #expect(confirmPresetHiding == false)
 
-    await store.send(.stop)
+    await store.send(.deinitialize)
     await store.finish()
   }
 

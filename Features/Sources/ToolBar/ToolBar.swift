@@ -108,7 +108,7 @@ public struct ToolBar {
     Scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator) { MIDITrafficIndicator() }
 
     Reduce<State, Action> { state, action in
-      log.info("action: \(action)")
+      log.info("ToolBar action: \(action)")
 
       switch action {
 
@@ -126,7 +126,10 @@ public struct ToolBar {
         return audioUnitCreated(&state, audioUnit: audioUnit)
 
       case .deinitialize:
-        return .merge(CancelId.allCases.map({ .cancel(id: $0) }))
+        return .merge(
+          reduce(into: &state, action: .midiTrafficIndicator(.deinitialize)),
+          .merge(CancelId.allCases.map({ .cancel(id: $0) }))
+        )
 
       case .effectsVisibilityButtonTapped:
         return toggleEffectsVisibility(&state)
@@ -214,6 +217,7 @@ extension ToolBar {
     return .run(priority: .utility, name: "monitorActiveVoiceCount") { send in
       defer {
         unsafe parameter.removeParameterObserver(observerToken)
+        log.info("monitorActiveVoiceCount - END")
       }
       for await value in stream {
         if Task.isCancelled { break }
@@ -274,6 +278,7 @@ extension ToolBar {
     log.info("lastPlayedKey - \(key.label)")
 
     return .run { send in
+      defer { log.info("lastPlayedKeyChanged - END") }
       @Dependency(\.continuousClock) var clock
       try await clock.sleep(for: .seconds(1.8))
       log.info("clearing lastPlayedKey")

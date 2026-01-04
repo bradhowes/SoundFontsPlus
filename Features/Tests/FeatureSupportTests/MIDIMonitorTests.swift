@@ -14,22 +14,9 @@ struct MIDIMonitorTests {
 
   @Test
   func misc() {
-    let monitor = MIDIMonitor()
+    let monitor = MIDIMonitor(instrument: MockAudioUnit())
     #expect(monitor.channel == -1)
     #expect(monitor.group == -1)
-  }
-
-  @Test
-  func monitorNoSynth() {
-    @Shared(.midiChannel) var midiChannel = -1
-
-    let monitor = MIDIMonitor()
-    monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
-    monitor.noteOff(source: 123, note: 60, velocity: 64, channel: 0)
-
-    $midiChannel.withLock { $0 = 2}
-    monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 1)
-    monitor.noteOff(source: 123, note: 60, velocity: 64, channel: 1)
   }
 
   @Test
@@ -37,8 +24,7 @@ struct MIDIMonitorTests {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
 
-    let monitor = MIDIMonitor()
-    monitor.midiInstrument = mau
+    let monitor = MIDIMonitor(instrument: mau)
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     monitor.noteOff(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(mau.events.count == 2)
@@ -53,8 +39,7 @@ struct MIDIMonitorTests {
   func forwarding() {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
-    let monitor = MIDIMonitor()
-    monitor.midiInstrument = mau
+    let monitor = MIDIMonitor(instrument: mau)
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(mau.events.last! == (.noteOn, 60, 64, 0))
     monitor.noteOff(source: 123, note: 60, velocity: 64, channel: 0)
@@ -81,8 +66,7 @@ struct MIDIMonitorTests {
   func trafficOmni() {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = -1
-    let monitor = MIDIMonitor()
-    monitor.midiInstrument = mau
+    let monitor = MIDIMonitor(instrument: mau)
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(monitor.traffic != nil)
     #expect(monitor.traffic! == MIDITraffic(id: 123, channel: 0, accepted: true))
@@ -94,8 +78,7 @@ struct MIDIMonitorTests {
   func trafficOneChannel() {
     let mau = MockAudioUnit()
     @Shared(.midiChannel) var midiChannel = 1
-    let monitor = MIDIMonitor()
-    monitor.midiInstrument = mau
+    let monitor = MIDIMonitor(instrument: mau)
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(monitor.traffic != nil)
     #expect(monitor.traffic! == MIDITraffic(id: 123, channel: 0, accepted: false))
@@ -107,7 +90,7 @@ struct MIDIMonitorTests {
 
   @Test
   func unusedMethods() {
-    let monitor = MIDIMonitor()
+    let monitor = MIDIMonitor(instrument: MockAudioUnit())
     #expect(throws: Never.self) {
       monitor.noteOff2(source: 123, note: 84, velocity: 12345, channel: 0, attributeType: 0, attributeData: 0)
       monitor.noteOn2(source: 123, note: 84, velocity: 12345, channel: 1, attributeType: 0, attributeData: 0)

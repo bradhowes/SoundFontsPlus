@@ -59,7 +59,7 @@ public struct DelayEffect {
     Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature() }
 
     Reduce { state, action in
-      log.info("reduce \(action)")
+      log.info("DelayEffect reduce \(action)")
       switch action {
 
       case .activePresetIdChanged(let presetId):

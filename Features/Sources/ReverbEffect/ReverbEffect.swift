@@ -50,7 +50,7 @@ public struct ReverbEffect {
     Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature() }
 
     Reduce { state, action in
-      log.info("reduce \(action)")
+      log.info("ReverbEffect reduce \(action)")
 
       switch action {
 

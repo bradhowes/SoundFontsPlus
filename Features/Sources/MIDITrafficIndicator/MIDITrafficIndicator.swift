@@ -21,6 +21,7 @@ public struct MIDITrafficIndicator {
   }
 
   public enum Action {
+    case deinitialize
     case initialize
     case showMIDITraffic(MIDITraffic)
   }
@@ -30,13 +31,14 @@ public struct MIDITrafficIndicator {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
+      case .deinitialize: return .merge(CancelId.allCases.map { .cancel(id: $0) })
       case .initialize: return initialize(&state)
       case .showMIDITraffic(let traffic): return showMIDITraffic(&state, value: traffic)
       }
     }
   }
 
-  private enum CancelId: String {
+  private enum CancelId: String, CaseIterable {
     case midiTrafficIndicatorMonitorMIDITraffic
   }
 }

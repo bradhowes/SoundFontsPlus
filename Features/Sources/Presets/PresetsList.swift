@@ -92,7 +92,6 @@ public struct PresetsList {
     case selectedSoundFontIdChanged(SoundFont.ID?)
     case showActivePreset
     case showActivePresetNow
-    case stop // only used for testing
 
     @CasePathable
     public enum Delegate {
@@ -110,7 +109,7 @@ public struct PresetsList {
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce<State, Action> { state, action in
-      log.info("reduce \(action)")
+      log.info("PresetsList reduce \(action)")
       switch action {
 
       case .cancelSearchButtonTapped:
@@ -123,7 +122,8 @@ public struct PresetsList {
         state.scrollToPresetId = nil
         return .none
 
-      case .deinitialize: return .merge(CancelId.allCases.map { .cancel(id: $0) })
+      case .deinitialize:
+        return .merge(CancelId.allCases.map { .cancel(id: $0) })
 
       case .destination(.presented(.alert(.deleteFavoriteConfirmed(let preset)))):
         return deleteFavoriteConfirmed(&state, preset: preset)
@@ -153,9 +153,6 @@ public struct PresetsList {
       case .showActivePresetNow:
         state.scrollToPresetId = .init(presetId: activeState.activePresetId)
         return .none
-
-      case .stop:
-        return .cancel(id: CancelId.presetsListMonitorSelectedSoundFontId)
 
       case let .editingVisibilityChanged(editing):
         state.editingVisibility = editing

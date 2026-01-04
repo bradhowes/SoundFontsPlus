@@ -31,9 +31,12 @@ extension Bundle {
 
   // Obtain the component description for the SF2LibAU app extension. This relies on the `main` bundle for values.
   public var audioComponentDescription: AudioComponentDescription {
-    let componentType = FourCharCode(stringLiteral: self.string(forKey: "AU_COMPONENT_TYPE"))
-    let componentSubtype = FourCharCode(stringLiteral: self.string(forKey: "AU_COMPONENT_SUBTYPE"))
-    let componentManufacturer = FourCharCode(stringLiteral: self.string(forKey: "AU_COMPONENT_MANUFACTURER"))
+
+    // Tests do not have a 'main' bundle that matches the app one.
+    // TODO: change this to only use the fallback when testing
+    let componentType = FourCharCode(self.string(forKey: "AU_COMPONENT_TYPE"), kAudioUnitType_MusicDevice)
+    let componentSubtype = FourCharCode(self.string(forKey: "AU_COMPONENT_SUBTYPE"), FourCharCode("Sf2P"))
+    let componentManufacturer = FourCharCode(self.string(forKey: "AU_COMPONENT_MANUFACTURER"), FourCharCode("BRay"))
     precondition(
       componentType != .invalidFourCharCode &&
       componentSubtype != .invalidFourCharCode &&

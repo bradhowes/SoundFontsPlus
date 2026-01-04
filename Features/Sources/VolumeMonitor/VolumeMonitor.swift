@@ -50,7 +50,7 @@ public struct VolumeMonitor {
     BindingReducer()
 
     Reduce { state, action in
-      log.info("reduce \(action)")
+      log.info("VolumeMonitor reduce \(action)")
       switch action {
 
       case .activePresetIdChanged(let presetId):
@@ -60,6 +60,7 @@ public struct VolumeMonitor {
         return .none
 
       case .stop:
+        log.info("stop")
         return .cancel(id: CancelId.volumeMonitorMonitorSessionVolume)
 
       case .delegate:
@@ -84,6 +85,7 @@ private extension VolumeMonitor {
   func monitorOutputVolume(_ state: inout State) -> Effect<Action> {
     log.info("monitorOutputVolume")
     return .run(priority: .utility, name: "monitorOutputVolume") { send in
+      defer { log.info("monitorOuptutVolume stopped") }
       while !Task.isCancelled {
         @Dependency(\.outputVolume) var outputVolume
         for await value in outputVolume.startStreaming() {
@@ -104,7 +106,8 @@ private extension VolumeMonitor {
   }
 
   func start(_ state: inout State) -> Effect<Action> {
-    .merge(
+    log.info("start")
+    return .merge(
       volumeChanged(&state, volume: outputVolume.getValue()),
       monitorOutputVolume(&state)
     )

@@ -20,13 +20,13 @@ import TestSupport
     let mockVolume = OutputVolumeFlipFlop()
     $0.audioGraph = .previewValue
     $0.audioSession = .liveValue
+    $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
+    $0.delayDevice = .liveValue
     $0.date = .constant(.now)
     $0.defaultDatabase = TestSupport.testDatabase()
-    $0.delayDevice = .init(setConfig: {_ in })
     $0.mainQueue = .immediate
     $0.outputVolume = mockVolume.makeOutputVolume()
-    $0.reverbDevice = .init(setConfig: {_ in })
-    $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
+    $0.reverbDevice = .liveValue
   },
   .snapshots(record: .failed)
 )

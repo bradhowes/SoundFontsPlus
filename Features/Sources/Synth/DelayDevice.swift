@@ -21,4 +21,5 @@ extension DelayDevice: DependencyKey {
   }
 
   public static let previewValue: DelayDevice = Self.liveValue
+  public static let testValue: DelayDevice = Self.liveValue
 }
