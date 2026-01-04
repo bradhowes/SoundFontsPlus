@@ -75,7 +75,6 @@ public struct ToolBar {
     case effectsVisibilityButtonTapped
     case fileImporter(FileImporter.Action)
     case helpButtonTapped
-    case initialize
     case midiTrafficIndicator(MIDITrafficIndicator.Action)
     case presetsVisibilityButtonTapped
     case settingsButtonTapped
@@ -124,8 +123,7 @@ public struct ToolBar {
         return reduce(into: &state, action: .fileImporter(.showFileImporter))
 
       case .audioUnitCreated(let audioUnit):
-        state.audioUnit = audioUnit
-        return monitorActiveVoiceCount(&state)
+        return audioUnitCreated(&state, audioUnit: audioUnit)
 
       case .deinitialize:
         return .merge(CancelId.allCases.map({ .cancel(id: $0) }))
@@ -135,9 +133,6 @@ public struct ToolBar {
 
       case .helpButtonTapped:
         return showHelp(&state)
-
-      case .initialize:
-        return initialize(&state)
 
       case .lastPlayedKeyChanged(let key):
         return lastPlayedKeyChanged(&state, key: key)
@@ -190,13 +185,17 @@ extension ToolBar {
     return .none
   }
 
+  private func audioUnitCreated(_ state: inout State, audioUnit: AUAudioUnit) -> Effect<Action> {
+    state.audioUnit = audioUnit
+    return .merge(
+      monitorActiveVoiceCount(&state),
+      reduce(into: &state, action: .midiTrafficIndicator(.initialize))
+    )
+  }
+
   private func editPresetVisibility(_ state: inout State) -> Effect<Action> {
     state.editingPresetVisibility.toggle()
     return .send(.delegate(.editingPresetVisibilityChanged(state.editingPresetVisibility)))
-  }
-
-  private func initialize(_ state: inout State) -> Effect<Action> {
-    reduce(into: &state, action: .midiTrafficIndicator(.initialize))
   }
 
   private func monitorActiveVoiceCount(_ state: inout State) -> Effect<Action> {
@@ -358,9 +357,6 @@ public struct ToolBarView: View {
     .animation(.easeInOut, value: store.showMoreButtons)
     .animation(.smooth, value: store.activeVoiceCount)
     .fileImporterFeature(store.scope(state: \.fileImporter, action: \.fileImporter))
-    .task {
-      await store.send(.initialize).finish()
-    }
   }
 
   private var status: some View {

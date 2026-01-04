@@ -337,8 +337,6 @@ extension AppRoot {
       // MIDI support
       @Shared(.midiInputPortId) var midiInputPortId
       @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
-      @Shared(.midiMonitor) var midiMonitor = .init()
-      midi?.receiver = midiMonitor
 
       // Starting MIDI is expensive, and currently MorkAndMIDI does everything in the main thread for simplicity. At least,
       // postpone it a bit to reduce impact app UI appearing.
@@ -363,8 +361,11 @@ extension AppRoot {
   }
 
   private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
-    @Shared(.midiMonitor) var midiMonitor
-    midiMonitor?.midiInstrument = avAudioUnit.midiInstrument
+
+    if let midiInstrument = avAudioUnit.midiInstrument {
+      installMIDIMonitor(midiInstrument: midiInstrument)
+    }
+
     return .concatenate(
       reduce(into: &state, action: .toolBar(.audioUnitCreated(avAudioUnit.auAudioUnit))),
       reduce(into: &state, action: .keyboard(.midiInstrumentCreated(avAudioUnit.midiInstrument)))
@@ -437,6 +438,16 @@ extension AppRoot {
       monitorInvalidationNotification(&state),
       reduce(into: &state, action: .synth(.initialize)),
     )
+  }
+
+  private func installMIDIMonitor(midiInstrument: AVAudioUnitMIDIInstrument) {
+    log.info("creating MIDIMonitor")
+    @Shared(.midiMonitor) var midiMonitor
+    $midiMonitor.withLock {
+      $0 = MIDIMonitor(instrument: midiInstrument)
+    }
+    @Shared(.midi) var midi
+    midi?.receiver = midiMonitor
   }
 
   private func monitorActivePresetId() -> Effect<Action> {
