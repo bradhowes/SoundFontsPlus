@@ -161,7 +161,7 @@ extension ReverbEffect {
         for: debounceDurations.effectsDisplayUpdates,
         scheduler: mainQueue
       ),
-      .run { send in
+      .run(priority: .utility) { send in
         await send(.saveDebounced)
       }.debounce(
         id: CancelId.reverbEffectSaveDebouncer,

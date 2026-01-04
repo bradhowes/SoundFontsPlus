@@ -94,7 +94,7 @@ private extension MuteSwitchMonitor {
       return .none
     }
 
-    return .run { [soundId = soundId ] send in
+    return .run(priority: .utility, name: "monitorMuteSwitch") { [soundId = soundId ] send in
       log.info("running monitor task")
       while !Task.isCancelled {
         let result = await withCheckedContinuation { continuation in

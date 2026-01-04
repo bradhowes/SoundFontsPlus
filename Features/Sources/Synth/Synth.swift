@@ -173,7 +173,7 @@ extension Synth {
 
   private func createSynthAudioUnit(_ state: inout State) -> Effect<Action> {
     log.info("createSynth")
-    return .run { [avAudioUnitGen] send in
+    return .run(priority: .utility, name: "createSynthAudioUnit") { [avAudioUnitGen] send in
       log.info("createSynth - instantiating audio unit")
       if let avAudioUnit = await avAudioUnitGen.generate() {
         log.debug("createSynth - synth: \(avAudioUnit.description)")
@@ -255,7 +255,7 @@ extension Synth {
     let observerToken: AUParameterObserverToken
     unsafe (observerToken, stream) = parameter.startObserving()
 
-    return .run { send in
+    return .run(priority: .utility, name: "monitorLastLoadFinished") { send in
       defer {
         unsafe parameter.removeParameterObserver(observerToken)
         log.debug("monitorLastLoadFinished - stopped task")
@@ -309,7 +309,7 @@ extension Synth {
       return .none
     }
 
-    return .run { _ in
+    return .run(priority: .utility, name: "playNote") { _ in
       @Dependency(\.continuousClock) var clock
       log.debug("sending note on")
       avAudioUnit.startNote(60, withVelocity: 127, onChannel: 0)

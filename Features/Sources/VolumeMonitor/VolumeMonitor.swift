@@ -82,10 +82,11 @@ private extension VolumeMonitor {
 
   func monitorOutputVolume(_ state: inout State) -> Effect<Action> {
     log.info("monitorOutputVolume")
-    return .run { send in
+    return .run(priority: .utility, name: "monitorOutputVolume") { send in
       while !Task.isCancelled {
         @Dependency(\.outputVolume) var outputVolume
         for await value in outputVolume.startStreaming() {
+          if Task.isCancelled { break }
           await send(.volumeChanged(value))
         }
         log.info("stopped observing volume")

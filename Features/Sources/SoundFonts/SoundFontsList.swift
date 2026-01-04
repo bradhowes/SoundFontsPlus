@@ -163,7 +163,7 @@ extension SoundFontsList {
   }
 
   private func monitorFetchAll(_ state: inout State) -> Effect<Action> {
-    .run { send in
+    .run(priority: .utility, name: "monitorFetchAll") { send in
       // Update a query for the SoundFont list view. When the DB changes, this will emit a `soundFontInfoChanged` action
       // causing the rows to change. The query depends on the value of `activeState.activeTagId` so when that changes,
       // `monitorFetchAll` reruns which cancels the old query and installs a new one.

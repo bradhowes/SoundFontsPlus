@@ -160,9 +160,13 @@ extension SoundFontButton {
   private func bookmarkMonitorStart(_ state: inout State) -> Effect<Action> {
     guard state.soundFontInfo.kind == .external else { return .none }
     @Dependency(\.continuousClock) var clock
-    let soundFontInfo = state.soundFontInfo
-    return .run { [_statusInfoTag = state.statusInfoTag] send in
-      var statusInfoTag = _statusInfoTag
+    // swiftlint:disable closure_parameter_position
+    return .run(priority: .utility, name: "bookmarkMonitor") { [
+      currentStatusInfoTag = state.statusInfoTag,
+      soundFontInfo = state.soundFontInfo
+    ] send in
+      // swiftlint:enable closure_parameter_position
+      var statusInfoTag = currentStatusInfoTag
       while !Task.isCancelled {
         try await clock.sleep(for: .seconds(2))
         let newStatusInfoTag = State.statusInfoTag(for: soundFontInfo)

@@ -396,15 +396,13 @@ extension AppRoot {
   }
 
   private func createCloudDocumentsDirectory() -> Effect<Action> {
-    .run { _ in
-      Task.detached(priority: .medium) {
-        if let url = FileManager.default.cloudDocumentsDirectory {
-          log.info("iCloud documents directory: \(url)")
-        } else {
-          log.error("iCloud documents directory is not available")
-        }
-        await Self.disableIdleTimer()
+    .run(priority: .utility, name: "createCloudDocumentsDirectory") { _ in
+      if let url = FileManager.default.cloudDocumentsDirectory {
+        log.info("iCloud documents directory: \(url)")
+      } else {
+        log.error("iCloud documents directory is not available")
       }
+      await Self.disableIdleTimer()
     }.cancellable(id: CancelId.appRootCreateCloudDocumentsDirectory, cancelInFlight: true)
   }
 
@@ -450,7 +448,7 @@ extension AppRoot {
 
   private func monitorInvalidationNotification(_ state: inout State) -> Effect<Action> {
     let name = Notification.Name(String(kAudioComponentInstanceInvalidationNotification))
-    return .run { send in
+    return .run(priority: .utility, name: "monitorInvalidationNotification") { send in
       while !Task.isCancelled {
         for await _ in NotificationCenter.default.notifications(named: name) {
           await send(.audioUnitCrashed)

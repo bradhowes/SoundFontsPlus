@@ -212,7 +212,7 @@ extension ToolBar {
     let observerToken: AUParameterObserverToken
     unsafe (observerToken, stream) = parameter.startObserving()
 
-    return .run { send in
+    return .run(priority: .utility, name: "monitorActiveVoiceCount") { send in
       defer {
         unsafe parameter.removeParameterObserver(observerToken)
       }
