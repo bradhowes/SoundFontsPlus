@@ -332,12 +332,17 @@ extension AppRoot {
       let engine = AVAudioEngine()
       @Shared(.audioEngine) var audioEngine = engine
 
+      // MIDI support
       @Shared(.midiInputPortId) var midiInputPortId
       @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
-      midi?.start()
-
       @Shared(.midiMonitor) var midiMonitor = .init()
       midi?.receiver = midiMonitor
+
+      // Starting MIDI is expensive, and currently MorkAndMIDI does everything in the main thread for simplicity. At least,
+      // postpone it a bit to reduce impact app UI appearing.
+      DispatchQueue.main.async {
+        midi?.start()
+      }
     }
   }
 
