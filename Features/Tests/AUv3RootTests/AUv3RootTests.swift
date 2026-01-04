@@ -20,7 +20,6 @@ import TestSupport
     $0.date = .constant(.now)
     $0.defaultDatabase = TestSupport.testDatabase()
     $0.mainQueue = .immediate
-    $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.testValue
   },
   .snapshots(record: .failed)
 )
@@ -29,8 +28,7 @@ struct AUv3RootTests {
 
   func store() async throws -> TestStoreOf<AUv3Root> {
     @Shared(.activeState) var activeState = .default
-    @Dependency(\.synthAUv3ComponentDescription) var synthAUv3ComponentDescription
-    let audioUnit = try await SF2LibAU.create(synthAUv3ComponentDescription)
+    let audioUnit = try await SF2LibAU.create()
     return .init(initialState: .init(audioUnit: audioUnit.auAudioUnit as! SF2LibAU)) {
       AUv3Root()
     }

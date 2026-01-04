@@ -31,9 +31,4 @@ extension DependencyValues {
     set { self[OutputVolume.self] = newValue }
   }
 #endif // os(iOS)
-
-  public var synthAUv3ComponentDescription: AudioComponentDescription {
-    get { self[SynthAUv3ComponentDescription.self] }
-    set { self[SynthAUv3ComponentDescription.self] = newValue }
-  }
 }

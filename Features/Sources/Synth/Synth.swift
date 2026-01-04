@@ -76,7 +76,6 @@ public struct Synth {
   @Dependency(\.audioSession) private var audioSession
   @Dependency(\.defaultDatabase) private var database
   @Dependency(\.avAudioUnitMIDIInstrumentGenerator) private var avAudioUnitGen
-  @Dependency(\.synthAUv3ComponentDescription) private var synthAUv3ComponentDescription
 
   @Shared(.activeState) private var activeState
   @Shared(.backgroundProcessing) private var backgroundProcessing

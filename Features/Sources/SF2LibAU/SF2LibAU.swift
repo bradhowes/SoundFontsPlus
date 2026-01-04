@@ -86,9 +86,7 @@ extension SF2LibAU: @unchecked Sendable {}
 extension SF2LibAU {
 
   public static func create(register: Bool = false) async -> AVAudioUnitMIDIInstrument? {
-    @Dependency(\.synthAUv3ComponentDescription) var acd
-    precondition(acd.componentType == kAudioUnitType_MusicDevice)
-
+    let acd = Bundle.main.audioComponentDescription
     if register {
       AUAudioUnit.registerSubclass(SF2LibAU.self, as: acd, name: "SoundFontsPlusAU", version: 1)
     }

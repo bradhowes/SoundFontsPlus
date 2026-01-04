@@ -194,7 +194,6 @@ struct ToolBarTests {
       $0.audioSession = .liveValue
       $0.continuousClock = .immediate
       $0.defaultDatabase = try appDatabase(loadAllPresets: false)
-      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.testValue
       $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
     }
   )

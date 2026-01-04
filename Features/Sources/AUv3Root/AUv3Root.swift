@@ -30,7 +30,6 @@ public struct AUv3Root {
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       $0.defaultFileStorage = .fileSystem
-      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.liveValue
     }
   }
 
@@ -475,13 +474,12 @@ extension AUv3RootView {
   static var preview: some View {
     prepareDependencies {
       $0.defaultDatabase = previewDatabase()
-      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.previewValue
       @Shared(.tagsListVisible) var tagsListVisible
       $tagsListVisible.withLock { $0 = false }
     }
 
     // swiftlint:disable:next force_try
-    let audioUnit = try! SF2LibAU(componentDescription: SynthAUv3ComponentDescription.previewValue)
+    let audioUnit = try! SF2LibAU(componentDescription: Bundle.main.audioComponentDescription)
 
     return ZStack {
       Color.black

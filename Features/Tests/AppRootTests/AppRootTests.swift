@@ -27,7 +27,6 @@ import TestSupport
     $0.outputVolume = mockVolume.makeOutputVolume()
     $0.reverbDevice = .init(setConfig: {_ in })
     $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
-    $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.testValue
   },
   .snapshots(record: .failed)
 )

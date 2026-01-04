@@ -18,7 +18,6 @@ import TestSupport
     $0.audioSession = .liveValue
     $0.continuousClock = .immediate
     $0.defaultDatabase = TestSupport.testDatabase()
-    $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.testValue
   },
   .snapshots(record: .failed),
   .serialized

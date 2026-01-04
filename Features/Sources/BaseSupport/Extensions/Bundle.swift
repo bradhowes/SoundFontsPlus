@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AudioToolbox.AudioComponent
 import Foundation
 
 private class BundleTag: NSObject {}
@@ -26,5 +27,24 @@ extension Bundle {
       return ""
     }
     return data
+  }
+
+  // Obtain the component description for the SF2LibAU app extension. This relies on the `main` bundle for values.
+  public var audioComponentDescription: AudioComponentDescription {
+    let componentType = FourCharCode(stringLiteral: self.string(forKey: "AU_COMPONENT_TYPE"))
+    let componentSubtype = FourCharCode(stringLiteral: self.string(forKey: "AU_COMPONENT_SUBTYPE"))
+    let componentManufacturer = FourCharCode(stringLiteral: self.string(forKey: "AU_COMPONENT_MANUFACTURER"))
+    precondition(
+      componentType != .invalidFourCharCode &&
+      componentSubtype != .invalidFourCharCode &&
+      componentManufacturer != .invalidFourCharCode
+    )
+    return .init(
+      componentType: componentType,
+      componentSubType: componentSubtype,
+      componentManufacturer: componentManufacturer,
+      componentFlags: 0,
+      componentFlagsMask: 0
+    )
   }
 }

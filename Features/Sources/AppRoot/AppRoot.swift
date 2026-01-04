@@ -321,8 +321,6 @@ extension AppRoot {
       $0.defaultDatabase = try! appDatabase()
       $0.defaultFileStorage = .fileSystem
 
-      $0.synthAUv3ComponentDescription = SynthAUv3ComponentDescription.liveValue
-
       let delay = AVAudioUnitDelay()
       $0.delayDevice = .init(setConfig: { delay.setConfig($0) })
       @Shared(.delayEffect) var delayEffect = delay
