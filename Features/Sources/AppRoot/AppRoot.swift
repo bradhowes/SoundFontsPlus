@@ -321,16 +321,8 @@ extension AppRoot {
       $0.defaultDatabase = try! appDatabase()
       $0.defaultFileStorage = .fileSystem
 
-      let delay = AVAudioUnitDelay()
-      $0.delayDevice = .init(setConfig: { delay.setConfig($0) })
-      @Shared(.delayEffect) var delayEffect = delay
-
-      let reverb = AVAudioUnitReverb()
-      $0.reverbDevice = .init( setConfig: { reverb.setConfig($0) })
-      @Shared(.reverbEffect) var reverbEffect = reverb
-
-      let engine = AVAudioEngine()
-      @Shared(.audioEngine) var audioEngine = engine
+      $0.delayDevice = DelayDevice.liveValue
+      $0.reverbDevice = ReverbDevice.liveValue
 
       // MIDI support
       @Shared(.midiInputPortId) var midiInputPortId
@@ -876,8 +868,8 @@ extension AppRootView {
   static var preview: some View {
     prepareDependencies {
       $0.defaultDatabase = previewDatabase()
-      $0.delayDevice = .init(setConfig: { print("delayDevice.set: ", $0) })
-      $0.reverbDevice = .init(setConfig: { print("reverbDevice.set: ", $0) })
+      $0.delayDevice = DelayDevice.liveValue
+      $0.reverbDevice = ReverbDevice.liveValue
       @Shared(.tagsListVisible) var tagsListVisible
       $tagsListVisible.withLock { $0 = false }
       @Shared(.effectsPanelVisible) var effectsPanelVisible

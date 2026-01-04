@@ -276,7 +276,9 @@ extension ReverbEffectView {
 
     prepareDependencies {
       $0.defaultDatabase = previewDatabase()
-      $0.reverbDevice = .init(setConfig: { print("ReverbDevice.setConfig:", $0) })
+      var testValue = ReverbDevice.testValue
+      testValue.setConfig = { print("ReverbDevice.setConfig:", $0) }
+      $0.reverbDevice = testValue
     }
 
     return VStack {

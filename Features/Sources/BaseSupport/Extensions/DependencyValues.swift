@@ -5,16 +5,6 @@ import Dependencies
 
 extension DependencyValues {
 
-  public var audioGraph: AudioGraph {
-    get { self[AudioGraph.self] }
-    set { self[AudioGraph.self] = newValue }
-  }
-
-  public var audioSession: AudioSession {
-    get { self[AudioSession.self] }
-    set { self[AudioSession.self] = newValue }
-  }
-
   public var debounceDurations: DebounceDurations {
     get { self[DebounceDurations.self] }
     set { self[DebounceDurations.self] = newValue }
@@ -31,4 +21,5 @@ extension DependencyValues {
     set { self[OutputVolume.self] = newValue }
   }
 #endif // os(iOS)
+
 }

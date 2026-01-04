@@ -204,7 +204,6 @@ struct ToolBarTests {
     @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
     let avAudioUnit = try #require(await avAudioUnitMIDIInstrumentGenerator.generate())
 
-    @Shared(.audioEngine) var audioEngine = AVAudioEngine()
     @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
 

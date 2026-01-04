@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFAudio.AVAudioSession
+import BaseSupport
 import Dependencies
 import DependenciesMacros
 import Sharing

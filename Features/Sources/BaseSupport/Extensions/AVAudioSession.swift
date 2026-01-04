@@ -18,4 +18,4 @@ extension AVAudioSession: OutputVolumeStream {
   }
 }
 
-#endif
+#endif // os(iOS)

@@ -23,7 +23,6 @@ struct AudioGraphTests {
 
   @Test
   func liveClientHasComponents() async throws {
-    @Shared(.audioEngine) var audioEngine = AVAudioEngine()
     @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
 

@@ -324,7 +324,9 @@ extension DelayEffectView {
         .execute(db)
       }
 
-      $0.delayDevice = .init(setConfig: { print("DelayDevice.setConfig:", $0) })
+      var testValue = DelayDevice.testValue
+      testValue.setConfig = { print("DelayDevice.setConfig:", $0) }
+      $0.delayDevice = testValue
     }
 
     return VStack {

@@ -37,7 +37,6 @@ struct SynthTests {
 
     @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
     let avAudioUnit = await avAudioUnitMIDIInstrumentGenerator.generate()
-    @Shared(.audioEngine) var audioEngine = AVAudioEngine()
     @Shared(.delayEffect) var delayEffect = AVAudioUnitDelay()
     @Shared(.reverbEffect) var reverbEffect = AVAudioUnitReverb()
     @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange = false
