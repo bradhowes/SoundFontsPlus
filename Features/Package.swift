@@ -4,8 +4,7 @@
 import Foundation
 import PackageDescription
 
-let alwaysShowTutorial = false
-let alwaysShowChanges = false
+let useLocalMorkAndMIDI = false
 let useLocalSF2Lib = false
 
 let package = Package(
@@ -43,7 +42,7 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/bradhowes/AUv3Controls", from: "0.23.1"),
     .package(url: "https://github.com/bradhowes/brh-splitview", from: "1.0.5"),
-    .package(url: "https://github.com/bradhowes/morkandmidi", from: "4.0.1"),
+    .morkAndMIDI,
     .sf2Lib,
     //
     .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.1"),
@@ -262,6 +261,18 @@ extension Package.Dependency {
   }
 }
 
+extension Package.Dependency {
+  static var morkAndMIDI: PackageDescription.Package.Dependency {
+    useLocalMorkAndMIDI ? .package(
+      name: "MorkAndMIDI",
+      path: "/Users/howes/src/Mine/morkandmidi"
+    ) : .package(
+      url: "https://github.com/bradhowes/morkandmidi",
+      from: "4.0.2"
+    )
+  }
+}
+
 extension PackageDescription.Product {
 
   public static func lib(_ name: String) -> PackageDescription.Product {
@@ -298,9 +309,7 @@ func setSwiftSettings() {
     .interoperabilityMode(.Cxx),
     .strictMemorySafety(),
     .swiftLanguageMode(.v6)
-  ] +
-  (alwaysShowChanges ? [.define("ALWAYS_SHOW_CHANGES")] : []) +
-  (alwaysShowTutorial ? [.define("ALWAYS_SHOW_TUTORIAL")] : [])
+  ]
 
   for target in package.targets {
     switch target.type {
