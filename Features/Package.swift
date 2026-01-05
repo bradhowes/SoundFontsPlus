@@ -4,7 +4,7 @@
 import Foundation
 import PackageDescription
 
-let useLocalMorkAndMIDI = true
+let useLocalMorkAndMIDI = false
 let useLocalSF2Lib = false
 
 let package = Package(
