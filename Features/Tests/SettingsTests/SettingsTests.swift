@@ -33,7 +33,7 @@ struct AppSettingsTests {
 
     await store.send(.initialize)
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.receive(\.midiConnectionCountChanged)
+      await store.receive(\.midiConnectionsChanged)
       midiMonitor?.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
       let traffic = MIDITraffic(id: 123, channel: 0, accepted: true)
       await store.receive(\.midiTrafficIndicator.showMIDITraffic, traffic)

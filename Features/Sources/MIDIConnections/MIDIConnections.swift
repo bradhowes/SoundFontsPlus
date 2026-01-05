@@ -391,7 +391,7 @@ extension MIDIConnectionsView {
                 channel: 1,
                 fixedVolume: 126,
                 autoConnect: true
-              ),
+              )
             ]
           )
         ) {
