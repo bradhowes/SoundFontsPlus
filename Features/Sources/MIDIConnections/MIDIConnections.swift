@@ -1,11 +1,15 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AVFAudio.AVAudioUnitSampler
 import Combine
 import CoreMIDI
 import FeatureSupport
 import MIDITrafficIndicator
 @preconcurrency @unsafe import MorkAndMIDI
 
+/**
+ Manages MIDI connections between external devices and the MIDI input port for the app.
+ */
 @Reducer
 public struct MIDIConnections {
 
@@ -16,31 +20,21 @@ public struct MIDIConnections {
     @ObservationStateIgnored
     public var midiChannelsCache: [MIDIUniqueID: UInt8] = [:]
 
-    public init() {
-      self.rows = .init()
-      @Shared(.midi) var midi
-      if let midi {
-        self.rows = makeRows(from: midi.sourceConnections)
-      }
-    }
-
-    public init(rows: [MIDIConnectionRow]) {
+    public init(rows: [MIDIConnectionRow] = []) {
       self.rows = .init(uniqueElements: rows)
     }
 
-    public func makeRows(
-      from sourceConnections: [MIDI.SourceConnectionState]
-    ) -> IdentifiedArrayOf<MIDIConnectionRow> {
-      @Shared(.midiAutoConnect) var midiAutoConnect
+    public func makeRows(from sourceConnections: [MIDI.SourceConnectionState]) -> IdentifiedArrayOf<MIDIConnectionRow> {
+      log.info("makeRows: \(sourceConnections.count)")
       return .init(
         uniqueElements: sourceConnections.map { sourceConnection in
           let channel = midiChannelsCache[sourceConnection.uniqueId] ?? MIDIConnectionRow.unknownChannel
+          log.info("row: \(sourceConnection), \(channel)")
           return MIDIConnectionRow(
             id: sourceConnection.uniqueId,
             displayName: sourceConnection.displayName,
             channel: channel,
-            fixedVolume: MIDIConnectionRow.disabledFixedVolume,
-            autoConnect: midiAutoConnect
+            connected: sourceConnection.connected
           )
         }
       )
@@ -53,14 +47,16 @@ public struct MIDIConnections {
     case fixedVolumeDecrementTapped(MIDIUniqueID)
     case fixedVolumeIncrementTapped(MIDIUniqueID)
     case initialize
-    case midiConnectionsChanged([MIDI.SourceConnectionState])
+    case midiConnectionsChanged
     case midiTrafficIndicator(MIDITrafficIndicator.Action)
     case sawMIDITraffic(MIDITraffic)
+    case toggleConnected(MIDIUniqueID)
   }
 
   public init() {}
 
   @Shared(.midi) var midi
+  @Shared(.midiMonitor) var midiMonitor
 
   public var body: some ReducerOf<Self> {
 
@@ -94,16 +90,22 @@ public struct MIDIConnections {
         return .none
 
       case .initialize:
-        return initialize(&state)
+        return .merge(
+          reduce(into: &state, action: .midiTrafficIndicator(.initialize)),
+          monitorMIDIConnections(&state)
+        )
 
-      case .midiConnectionsChanged(let sourceConnections):
-        return updateMidiConnections(&state, sourceConnections: sourceConnections)
+      case .midiConnectionsChanged:
+        return updateMIDIConnections(&state)
 
       case .midiTrafficIndicator:
         return .none
 
       case .sawMIDITraffic(let traffic):
         return updateMIDIChannel(&state, traffic: traffic)
+
+      case .toggleConnected(let id):
+        return toggleConnected(&state, id: id)
       }
     }
   }
@@ -115,20 +117,28 @@ public struct MIDIConnections {
 
 extension MIDIConnections {
 
-  private func initialize(_ state: inout State) -> Effect<Action> {
-    _ = updateMidiConnections(&state, sourceConnections: midi?.sourceConnections ?? [])
-    return .merge(
-      reduce(into: &state, action: .midiTrafficIndicator(.initialize)),
-      monitorMIDIConnections(&state)
-    )
+  private func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
+    guard let midiMonitor else { return .none }
+
+    // NOTE: the view expects the publisher to fire once after starting in order to fill the rows. If this is not guaranteed then
+    // add a call to updateMIDIConnections()
+    return .publisher {
+      midiMonitor.$connectivity
+        .map { _ in .midiConnectionsChanged }
+    }.cancellable(id: CancelId.midiConnectionsMonitorMIDIConnections)
   }
 
-  private func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
+  private func toggleConnected(_ state: inout State, id: MIDIUniqueID) -> Effect<Action> {
     guard let midi else { return .none }
-    return .publisher {
-      midi.activeConnectionsPublisher
-        .map { _ in .midiConnectionsChanged(midi.sourceConnections) }
-    }.cancellable(id: CancelId.midiConnectionsMonitorMIDIConnections)
+    if let index = state.rows.index(id: id) {
+      if state.rows[index].connected {
+        state.rows[index].connected = false
+        midi.disconnect(from: id)
+      } else {
+        state.rows[index].connected = midi.connect(to: id, unchecked: true)
+      }
+    }
+    return .none
   }
 
   private func updateMIDIChannel(_ state: inout State, traffic: MIDITraffic) -> Effect<Action> {
@@ -139,11 +149,11 @@ extension MIDIConnections {
     return .none
   }
 
-  private func updateMidiConnections(
-    _ state: inout State,
-    sourceConnections: [MIDI.SourceConnectionState]
-  ) -> Effect<Action> {
-    state.rows = state.makeRows(from: sourceConnections)
+  private func updateMIDIConnections(_ state: inout State) -> Effect<Action> {
+    // Hack to allow preview data to exist
+    if let midi {
+      state.rows = state.makeRows(from: midi.sourceConnections)
+    }
     return .none
   }
 }
@@ -157,70 +167,59 @@ public struct MIDIConnectionsView: View {
   }
 
   public var body: some View {
-    ScrollView {
-      LazyVGrid(columns: [
-        GridItem(.flexible(minimum: 20, maximum: .infinity)),
-        GridItem(.fixed(40)),
-        GridItem(.fixed(120)),
-        GridItem(.fixed(40))
-      ], spacing: 0) {
-        Text("Name")
-          .frame(maxWidth: .infinity)
-          .font(.footnote)
-          .foregroundStyle(.secondary)
-        Text("Ch")
-          .font(.footnote)
-          .foregroundStyle(.gray)
-        Text("Fixed Velocity")
-          .font(.footnote)
-          .foregroundStyle(.gray)
-        Text("Active")
-          .font(.footnote)
-          .foregroundStyle(.gray)
-
-        ForEach(store.rows) { row in
-          Text("\(row.displayName)")
-            .frame(maxWidth: .infinity)
-            .foregroundStyle(animating == row.id ? Color.accentColor : .primary)
-            .scaleEffect(animating == row.id ? 1.25 : 1.0)
-
-          Text(row.channel == 255 ? "-" : "\(row.channel)")
-            .frame(maxWidth: .infinity)
-
-          HStack(spacing: 0) {
-            Text(row.fixedVolume == 128 ? "Off" : "\(row.fixedVolume)")
-              .padding([.leading], 8)
-            Button {
-              store.send(.fixedVolumeDecrementTapped(row.id))
-            } label: {
-              Image(systemName: "arrowtriangle.down")
-                .frame(width: 30, height: 40)
+    let columns = [
+      GridItem(.flexible(minimum: 20, maximum: .infinity)),
+      GridItem(.fixed(40)),
+      GridItem(.fixed(120)),
+      GridItem(.fixed(40)),
+      GridItem(.fixed(40))
+    ]
+    return VStack {
+      ScrollView {
+        LazyVGrid(
+          columns: columns,
+          spacing: 0,
+          pinnedViews: [.sectionHeaders]
+        ) {
+          Section {
+            ForEach(store.rows) { row in
+              rowContent(row)
             }
-            .disabled(row.fixedVolume == 1)
-            .buttonRepeatBehavior(.enabled)
-
-            Button {
-              store.send(.fixedVolumeIncrementTapped(row.id))
-            } label: {
-              Image(systemName: "arrowtriangle.up")
-                .frame(width: 30, height: 40)
+          } header: {
+            LazyVGrid(columns: columns, spacing: 0) {
+              Text("Name")
+                .frame(maxWidth: .infinity)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+              Text("Chan")
+                .font(.footnote)
+                .foregroundStyle(.gray)
+              Text("Fixed Velocity")
+                .font(.footnote)
+                .foregroundStyle(.gray)
+              Image(systemName: "app.connected.to.app.below.fill")
+                .foregroundStyle(.gray)
+              Image(systemName: "bolt.fill")
+                .foregroundStyle(.gray)
             }
-            .disabled(row.fixedVolume == 128)
-            .buttonRepeatBehavior(.enabled)
+            .padding([.top, .bottom], 4)
+            .background(.background)
           }
-          .frame(maxWidth: .infinity)
-
-          Button {
-            store.send(.autoConnectToggleTapped(row.id))
-          } label: {
-            Image(systemName: row.autoConnect ? "checkmark.circle.fill" : "circle")
-              .frame(width: 40, height: 40)
-          }
-          .frame(maxWidth: .infinity)
         }
       }
+      .padding([.leading, .trailing], 16.0)
+      Text(
+        """
+        Chan — last reported MIDI channel of the device
+        Fixed Velocity — velocity for note events from device
+        \(Image(systemName: "app.connected.to.app.below.fill")) — auto-connect device when it appears
+        \(Image(systemName: "bolt.fill")) — current connection state (tap to change)
+        """
+      )
+      .font(.footer)
+      // .foregroundStyle(.gray)
     }
-    .padding([.leading, .trailing], 16.0)
+    .padding(16)
     .navigationTitle(Text("MIDI Connections"))
     .task {
       await store.send(.initialize).finish()
@@ -229,27 +228,173 @@ public struct MIDIConnectionsView: View {
       store.send(.sawMIDITraffic(traffic))
       withAnimation(.smooth(duration: 0.5)) {
         animating = traffic.id
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-          withAnimation(.smooth(duration: 0.25)) {
-            animating = nil
-          }
+      } completion: {
+        withAnimation(.smooth(duration: 0.25)) {
+          animating = nil
         }
       }
     }
   }
+
+  @ViewBuilder
+  private func rowContent(_ row: MIDIConnectionRow) -> some View {
+    Text("\(row.displayName)")
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .foregroundStyle(animating == row.id ? Color.accentColor : .primary)
+
+    Text(row.channel == 255 ? "-" : "\(row.channel + 1)")
+      .frame(maxWidth: .infinity)
+
+    HStack(spacing: 0) {
+      Text(row.fixedVolume == 128 ? "Off" : "\(row.fixedVolume)")
+        .padding([.leading], 8)
+      Button {
+        store.send(.fixedVolumeDecrementTapped(row.id))
+      } label: {
+        Image(systemName: "arrowtriangle.down")
+          .frame(width: 30, height: 40)
+      }
+      .disabled(row.fixedVolume == 1)
+      .buttonRepeatBehavior(.enabled)
+
+      Button {
+        store.send(.fixedVolumeIncrementTapped(row.id))
+      } label: {
+        Image(systemName: "arrowtriangle.up")
+          .frame(width: 30, height: 40)
+      }
+      .disabled(row.fixedVolume == 128)
+      .buttonRepeatBehavior(.enabled)
+    }
+    .frame(maxWidth: .infinity)
+
+    Button {
+      store.send(.autoConnectToggleTapped(row.id))
+    } label: {
+      Image(systemName: row.autoConnect ? "checkmark.circle.fill" : "circle")
+        .frame(width: 40, height: 40)
+    }
+    .frame(maxWidth: .infinity)
+
+    Button {
+      store.send(.toggleConnected(row.id))
+    } label: {
+      Image(systemName: row.connected ? "bolt.circle.fill" : "circle")
+        .frame(width: 40, height: 40)
+    }
+    .frame(maxWidth: .infinity)
+  }
 }
+
+private let log = Logger(category: "MIDIConnections")
+
+#if DEBUG
 
 extension MIDIConnectionsView {
   static var preview: some View {
     prepareDependencies {
-      @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
-      midi?.start()
       $0.defaultDatabase = previewDatabase(fonts: [])
     }
     navigationBarTitleStyle()
     return VStack {
       MIDIConnectionsView(
-        store: Store(initialState: .init()) {
+        store: Store(
+          initialState: .init(
+            rows: [
+              MIDIConnectionRow(
+                id: 1,
+                displayName: "No channel",
+                channel: MIDIConnectionRow.unknownChannel,
+                fixedVolume: MIDIConnectionRow.disabledFixedVolume,
+                autoConnect: true
+              ),
+              MIDIConnectionRow(
+                id: 2,
+                displayName: "Channel 1",
+                channel: 0,
+                fixedVolume: 127,
+                autoConnect: false
+              ),
+              MIDIConnectionRow(
+                id: 3,
+                displayName: "This is a really long name",
+                channel: 1,
+                fixedVolume: 126,
+                autoConnect: true
+              ),
+              MIDIConnectionRow(
+                id: 4,
+                displayName: "Device 4",
+                channel: 1,
+                fixedVolume: 126,
+                autoConnect: false
+              ),
+              MIDIConnectionRow(
+                id: 5,
+                displayName: "Device 5",
+                channel: 1,
+                fixedVolume: 126,
+                autoConnect: true
+              ),
+              MIDIConnectionRow(
+                id: 6,
+                displayName: "Device 6",
+                channel: 1,
+                fixedVolume: 126,
+                autoConnect: true
+              ),
+              MIDIConnectionRow(
+                id: 7,
+                displayName: "Device 7",
+                channel: 1,
+                fixedVolume: 126,
+                autoConnect: true
+              ),
+              MIDIConnectionRow(
+                id: 8,
+                displayName: "Device 8",
+                channel: 1,
+                fixedVolume: 126,
+                autoConnect: true
+              ),
+              MIDIConnectionRow(
+                id: 9,
+                displayName: "Device 9",
+                channel: 1,
+                fixedVolume: 126,
+                autoConnect: true
+              ),
+              MIDIConnectionRow(
+                id: 10,
+                displayName: "Device 10",
+                channel: 1,
+                fixedVolume: 126,
+                autoConnect: true
+              ),
+              MIDIConnectionRow(
+                id: 11,
+                displayName: "Device 11",
+                channel: 1,
+                fixedVolume: 126,
+                autoConnect: true
+              ),
+              MIDIConnectionRow(
+                id: 12,
+                displayName: "Device 12",
+                channel: 1,
+                fixedVolume: 126,
+                autoConnect: true
+              ),
+              MIDIConnectionRow(
+                id: 13,
+                displayName: "Device 13",
+                channel: 1,
+                fixedVolume: 126,
+                autoConnect: true
+              ),
+            ]
+          )
+        ) {
           MIDIConnections()
         }
       )
@@ -260,3 +405,5 @@ extension MIDIConnectionsView {
 #Preview {
   MIDIConnectionsView.preview
 }
+
+#endif // DEBUG

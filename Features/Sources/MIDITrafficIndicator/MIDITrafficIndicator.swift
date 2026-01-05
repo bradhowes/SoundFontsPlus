@@ -104,15 +104,12 @@ public struct MIDITrafficBlinker<T: Publisher>: ViewModifier where T.Output == M
       .frame(width: 24, height: 24)
       .scaleEffect(isAnimating ? 1.0 : 0.01)
       .opacity(isAnimating ? 0.0 : 1.0)
-      .animation(
-        .smooth(duration: duration),
-        value: isAnimating
-      )
       .onReceive(publisher) { traffic in
         self.color = traffic.accepted ? .green : .orange
-        withAnimation(.linear(duration: self.duration / 2)) {
+        withAnimation(.smooth(duration: self.duration / 2)) {
           self.isAnimating = true
-          DispatchQueue.main.asyncAfter(deadline: .now() + self.duration / 2) {
+        } completion: {
+          withAnimation(.smooth(duration: self.duration / 2)) {
             self.isAnimating = false
           }
         }
@@ -129,46 +126,3 @@ extension View {
     modifier(MIDITrafficBlinker(tag: tag, subscribedTo: publisher, duration: duration))
   }
 }
-
-// public struct MIDITrafficFlasher<T: Publisher>: ViewModifier where T.Output == MIDITraffic, T.Failure == Never {
-//  private let tag: String
-//  @State private var isAnimating = false
-//  @State private var color: Color = .clear
-//
-//  var publisher: T
-//  var duration: Double
-//
-//  public init(tag: String, subscribedTo publisher: T, duration: Double = 1) {
-//    self.tag = tag
-//    self.publisher = publisher
-//    self.duration = duration
-//  }
-//
-//  public func body(content: Content) -> some View {
-//    content
-//      .background(color)
-//      .animation(
-//        .smooth(duration: duration),
-//        value: isAnimating
-//      )
-//      .onReceive(publisher) { traffic in
-//        self.color = traffic.accepted ? .accentColor : .orange
-//        withAnimation(.linear(duration: self.duration / 2)) {
-//          self.isAnimating = true
-//          DispatchQueue.main.asyncAfter(deadline: .now() + self.duration / 2) {
-//            self.isAnimating = false
-//          }
-//        }
-//      }
-//  }
-// }
-//
-// extension View {
-//  public func trafficFlasher<T: Publisher>(
-//    tag: String,
-//    subscribedTo publisher: T,
-//    duration: Double = 1
-//  ) -> some View where T.Output == MIDITraffic, T.Failure == Never {
-//    modifier(MIDITrafficFlasher(tag: tag, subscribedTo: publisher, duration: duration))
-//  }
-// }

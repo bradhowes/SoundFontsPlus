@@ -3,6 +3,7 @@
 import AVFAudio
 import BaseSupport
 import Combine
+import Models
 import MorkAndMIDI
 import os
 import Sharing
@@ -23,6 +24,7 @@ public struct MIDITraffic: Equatable, Sendable {
 }
 
 public final class MIDIMonitor: @unchecked Sendable {
+
   let midiInstrument: AVAudioUnitMIDIInstrument
 
   // We want all traffic to appear in the `traffic` tap, regardless of channel. However, we *will* filter
@@ -31,14 +33,54 @@ public final class MIDIMonitor: @unchecked Sendable {
   public var channel: Int { -1 }
   public var group: Int { -1 }
 
+  @Published public var connectivity: [MIDI.SourceConnectionState]
   @Published public var traffic: MIDITraffic?
 
   public init(instrument: AVAudioUnitMIDIInstrument) {
     self.midiInstrument = instrument
+    self.connectivity = []
   }
 }
 
-// extension MIDIMonitor: Sendable {}
+extension MIDIMonitor: Monitor {
+
+  public func shouldConnect(to uniqueId: MIDIUniqueID) -> Bool {
+    @Dependency(\.defaultDatabase) var database
+    let midiConfig = withDatabaseReader {
+      try MIDIConfig.all.find(uniqueId).fetchOne($0)
+    } ?? nil
+
+    if let midiConfig {
+      return midiConfig.autoConnect
+    }
+
+    @Shared(.midiAutoConnect) var midiAutoConnect
+    return midiAutoConnect
+  }
+
+  public func didConnect(to uniqueId: MIDIUniqueID) {
+    log.info("didConnect: \(uniqueId)")
+  }
+
+  public func didUpdateConnections(connected: any Sequence<MIDIEndpointRef>, disappeared: any Sequence<MIDIUniqueID>) {
+    log.info("didUpdateConnections: \(connected) - \(disappeared)")
+    @Shared(.midi) var midi
+    if let midi {
+      self.connectivity = midi.sourceConnections
+    }
+  }
+}
+
+extension MIDIMonitor {
+  public func didInitialize() {}
+  public func willUninitialize() {}
+  public func didCreate(inputPort: MIDIPortRef) {}
+  public func willDelete(inputPort: MIDIPortRef) {}
+  public func didStart() {}
+  public func didStop() {}
+  public func willUpdateConnections() {}
+  public func didSee(uniqueId: MIDIUniqueID, group: Int, channel: Int) {}
+}
 
 extension MIDIMonitor: Receiver {
 

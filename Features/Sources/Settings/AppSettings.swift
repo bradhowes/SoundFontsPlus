@@ -35,7 +35,8 @@ public struct AppSettings {
   public struct State: Equatable {
     public var path = StackState<Path.State>()
     @Presents public var destination: Destination.State?
-    public var midiConnectCount: Int = 0
+    public var midiDevicesCount: Int = 0
+    public var midiConnectedCount: Int = 0
     public var midiTrafficIndicator: MIDITrafficIndicator.State
     public var tuning: Tuning.State
     public let hasMIDI: Bool
@@ -64,7 +65,8 @@ public struct AppSettings {
     public init(
       path: StackState<Path.State> = .init(),
       destination: Destination.State? = nil,
-      midiConnectCount: Int = 0,
+      midiDevicesCount: Int = 0,
+      midiConnectedCount: Int = 0,
       midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "Settings"),
       tuning: Tuning.State = Self.makeTuningState()
     ) {
@@ -72,7 +74,8 @@ public struct AppSettings {
       hasMIDI = midi != nil
       self.path = path
       self.destination = destination
-      self.midiConnectCount = midi?.sourceConnections.count ?? midiConnectCount
+      self.midiDevicesCount = midi?.sourceConnections.count ?? midiDevicesCount
+      self.midiConnectedCount = midi?.sourceConnections.filter { $0.connected }.count ?? midiConnectedCount
       self.midiTrafficIndicator = midiTrafficIndicator
       self.tuning = tuning
     }
@@ -97,12 +100,12 @@ public struct AppSettings {
     case initialize
     case midiAssignmentsButtonTapped
     case midiConnectionsButtonTapped
+    case midiConnectionsChanged
     case midiControllersButtonTapped
-    case path(StackActionOf<Path>)
-    case tuning(Tuning.Action)
-    case midiConnectionCountChanged(Int)
     case midiTrafficIndicator(MIDITrafficIndicator.Action)
+    case path(StackActionOf<Path>)
     case reviewAppTapped
+    case tuning(Tuning.Action)
     case unhideBuiltInFilesTapped
     case viewChangesTapped
     case viewTutorialTapped
@@ -115,6 +118,9 @@ public struct AppSettings {
   }
 
   public init() {}
+
+  @Shared(.midi) var midi
+  @Shared(.midiMonitor) var midiMonitor
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -167,12 +173,24 @@ public struct AppSettings {
         state.path.append(.midiConnections(MIDIConnections.State()))
         return .none
 
-      case .midiConnectionCountChanged(let count):
-        state.midiConnectCount = count
+      case .midiConnectionsChanged:
+        if let midi {
+          state.midiDevicesCount = midi.sourceConnections.count
+          state.midiConnectedCount = midi.sourceConnections.filter { $0.connected }.count
+          log.info("midiConnectionsChanged: \(state.midiDevicesCount), \(state.midiConnectedCount)")
+        }
         return .none
 
       case .midiControllersButtonTapped:
         state.path.append(.midiControllers(MIDIControllers.State()))
+        return .none
+
+      case .path(.popFrom(let id)):
+        if case .midiConnections = state.path[id: id],
+           let midi {
+          state.midiDevicesCount = midi.sourceConnections.count
+          state.midiConnectedCount = midi.sourceConnections.filter { $0.connected }.count
+        }
         return .none
 
       case let .tuning(.delegate(.tuningChanged(enabled, frequency))):
@@ -212,11 +230,10 @@ extension AppSettings {
   }
 
   private func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
-    @Shared(.midi) var midi
-    guard let midi else { return .none }
+    guard let midiMonitor else { return .none }
     return .publisher {
-      midi.activeConnectionsCountPublisher
-        .map { .midiConnectionCountChanged(Int($0)) }
+      midiMonitor.$connectivity
+        .map { _ in .midiConnectionsChanged }
     }.cancellable(id: CancelId.appSettingsMonitorMIDIConnections)
   }
 
@@ -375,10 +392,21 @@ extension AppSettingsView {
 
   private var midiSection: some View {
     Section("MIDI") {
-      HStack {
-        Text("Channel:")
-        Spacer()
-        Stepper(store.midiChannel == -1 ? "Any" : "\(store.midiChannel + 1)", value: $store.midiChannel, in: -1...15)
+      VStack(alignment: .leading, spacing: 8) {
+        HStack {
+          Text("Channel")
+          Spacer()
+          Text(store.midiChannel == -1 ? "Any" : "\(store.midiChannel + 1)")
+          Spacer()
+          Stepper("", value: $store.midiChannel, in: -1...15)
+            .labelsHidden()
+        }
+        Text(
+          store.midiChannel == -1
+          ? "Process any traffic regardless of MIDI channel."
+          : "Only process traffic on MIDI channel \(store.midiChannel + 1)."
+        )
+        .font(.settingsDescription)
       }
       HStack {
         Spacer()
@@ -386,12 +414,12 @@ extension AppSettingsView {
         Button {
           store.send(.midiConnectionsButtonTapped)
         } label: {
-          Text("^[\(store.midiConnectCount) connection](inflect: true)")
+          Text("^[\(store.midiDevicesCount) device](inflect: true) / ^[\(store.midiConnectedCount) connected](inflect: true)")
         }
         Spacer()
       }
       Toggle(isOn: $store.midiAutoConnect) {
-        Text("New device auto-connect")
+        Text("New devices will auto-connect")
       }
       .circledCheckMarkToggleStyle()
       HStack {
@@ -403,11 +431,14 @@ extension AppSettingsView {
           Text("Locate")
         }
       }
-      Stepper(
-        "Pitch bend range (semitones): \(store.pitchBendRange)",
-        value: $store.pitchBendRange,
-        in: 1...24
-      )
+      HStack {
+        Text("Pitch bend range (semitones)")
+        Spacer()
+        Text("\(store.pitchBendRange)")
+        Spacer()
+        Stepper("", value: $store.pitchBendRange, in: 1...24)
+          .labelsHidden()
+      }
       HStack {
         Spacer()
         Button {
@@ -461,17 +492,17 @@ extension AppSettingsView {
           }
           .circledCheckMarkToggleStyle()
 #endif
-          Toggle(isOn: $store.copyFileWhenInstalling) {
-            VStack(alignment: .leading) {
+          VStack(alignment: .leading, spacing: 8) {
+            Toggle(isOn: $store.copyFileWhenInstalling) {
               Text("Copy SF2 files to app folder on device when adding.")
-              Text(
+            }
+            Text(
 """
 Enabled is the safest option, but it takes up space on your device. \
 Disable to link directly to files in iCloud or on external drives.
 """
-              )
-              .font(.settingsDescription)
-            }
+            )
+            .font(.settingsDescription)
           }
           .circledCheckMarkToggleStyle()
           Toggle(isOn: $store.disableIdleTimer) {

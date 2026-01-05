@@ -324,15 +324,9 @@ extension AppRoot {
       $0.delayDevice = DelayDevice.liveValue
       $0.reverbDevice = ReverbDevice.liveValue
 
-      // MIDI support
+      // MIDI support. Create the MIDI client but do not start until we can install a monitor on it
       @Shared(.midiInputPortId) var midiInputPortId
       @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
-
-      // Starting MIDI is expensive, and currently MorkAndMIDI does everything in the main thread for simplicity. At least,
-      // postpone it a bit to reduce impact app UI appearing.
-      DispatchQueue.main.async {
-        midi?.start()
-      }
     }
   }
 
@@ -432,12 +426,17 @@ extension AppRoot {
 
   private func installMIDIMonitor(midiInstrument: AVAudioUnitMIDIInstrument) {
     log.info("creating MIDIMonitor")
-    @Shared(.midiMonitor) var midiMonitor
-    $midiMonitor.withLock {
-      $0 = MIDIMonitor(instrument: midiInstrument)
-    }
     @Shared(.midi) var midi
-    midi?.receiver = midiMonitor
+    if let midi {
+      @Shared(.midiMonitor) var midiMonitor
+      $midiMonitor.withLock {
+        $0 = MIDIMonitor(instrument: midiInstrument)
+      }
+      midi.receiver = midiMonitor
+      midi.monitor = midiMonitor
+
+      midi.start()
+    }
   }
 
   private func monitorActivePresetId() -> Effect<Action> {
