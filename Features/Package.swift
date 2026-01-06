@@ -306,6 +306,8 @@ func setSwiftSettings() {
 
   let globalSwiftSettings: [SwiftSetting] = [
     .enableExperimentalFeature("StrictConcurrency"),
+    .enableExperimentalFeature("NonisolatedNonsendingByDefault"),
+    .defaultIsolation(nil),
     .interoperabilityMode(.Cxx),
     .strictMemorySafety(),
     .swiftLanguageMode(.v6)

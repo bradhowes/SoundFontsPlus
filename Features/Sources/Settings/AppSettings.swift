@@ -183,6 +183,10 @@ public struct AppSettings {
         state.path.append(.midiControllers(MIDIControllers.State()))
         return .none
 
+//      case let .path(.element(id: id, action: action)):
+//        print("id: \(id), action: \(action)")
+//        return .none
+
       case .path(.popFrom(let id)):
         if case .midiConnections = state.path[id: id],
            let midi {
