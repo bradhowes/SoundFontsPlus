@@ -130,8 +130,7 @@ struct AppSettingsTests {
   func viewChangesTapped() async throws {
     let store = TestStore(initialState: AppSettings.State()) { AppSettings() }
     await store.send(.initialize)
-    await store.send(\.viewChangesTapped)
-    await store.receive(\.delegate, .showChanges)
+    await store.send(.delegate(.showChanges))
     await store.send(.dismissButtonTapped)
   }
 
@@ -139,8 +138,7 @@ struct AppSettingsTests {
   func viewTutorialTapped() async throws {
     let store = TestStore(initialState: AppSettings.State()) { AppSettings() }
     await store.send(.initialize)
-    await store.send(\.viewTutorialTapped)
-    await store.receive(\.delegate, .showTutorial)
+    await store.send(.delegate(.showTutorial))
     await store.send(.dismissButtonTapped)
   }
 

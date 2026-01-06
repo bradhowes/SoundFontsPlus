@@ -107,8 +107,6 @@ public struct AppSettings {
     case reviewAppTapped
     case tuning(Tuning.Action)
     case unhideBuiltInFilesTapped
-    case viewChangesTapped
-    case viewTutorialTapped
 
     @CasePathable
     public enum Delegate {
@@ -195,12 +193,6 @@ public struct AppSettings {
 
       case let .tuning(.delegate(.tuningChanged(enabled, frequency))):
         return tuningChanged(&state, enabled: enabled, frequency: frequency)
-
-      case .viewChangesTapped:
-        return .send(.delegate(.showChanges))
-
-      case .viewTutorialTapped:
-        return .send(.delegate(.showTutorial))
 
       default:
         return .none
@@ -560,7 +552,7 @@ Disable to link directly to files in iCloud or on external drives.
             Text("View change history")
             Spacer()
             Button {
-              store.send(.viewChangesTapped)
+              store.send(.delegate(.showChanges))
             } label: {
               Text("Changes")
             }
@@ -569,7 +561,7 @@ Disable to link directly to files in iCloud or on external drives.
             Text("View tutorial screens")
             Spacer()
             Button {
-              store.send(.viewTutorialTapped)
+              store.send(.delegate(.showTutorial))
             } label: {
               Text("Tutorial")
             }

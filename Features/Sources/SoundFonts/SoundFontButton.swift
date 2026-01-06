@@ -42,18 +42,18 @@ public struct SoundFontButton {
       }
     }
 
-    var statusInfo: StatusInfo {
+    func statusInfo(_ info: SoundFontInfo) -> StatusInfo {
       switch self {
       case .internalFile:
-        return .init(action: .buttonTapped, imageName: "circle.fill", color: .black)
+        return .init(action: .delegate(.selectSoundFont(info)), imageName: "circle.fill", color: .black)
       case .invalidBookmark:
-        return .init(action: .invalidBookmarkButtonTapped, imageName: "exclamationmark.circle", color: .red)
+        return .init(action: .delegate(.alertInvalidBookmark(info)), imageName: "exclamationmark.circle", color: .red)
       case .localIsAvailable:
-        return .init(action: .buttonTapped, imageName: "link", color: .accentColor)
+        return .init(action: .delegate(.selectSoundFont(info)), imageName: "link", color: .accentColor)
       case .localIsMissing:
-        return .init(action: .missingFileButtonTapped, imageName: "exclamationmark.circle", color: .yellow)
+        return .init(action: .delegate(.alertMissingFile(info)), imageName: "exclamationmark.circle", color: .yellow)
       case .cloudIsDownloaded:
-        return .init(action: .buttonTapped, imageName: "icloud", color: .accentColor)
+        return .init(action: .delegate(.selectSoundFont(info)), imageName: "icloud", color: .accentColor)
       case .cloudIsMissing:
         return .init(action: .downloadFileButtonTapped, imageName: "icloud.and.arrow.down", color: .yellow)
       }
@@ -86,14 +86,8 @@ public struct SoundFontButton {
   public enum Action {
     case bookmarkMonitorStart
     case bookmarkMonitorStop
-    case buttonTapped
     case delegate(Delegate)
-    case deleteButtonTapped
     case downloadFileButtonTapped
-    case editButtonTapped
-    case invalidBookmarkButtonTapped
-    case longPressGestureFired
-    case missingFileButtonTapped
     case statusInfoChanged(StatusInfoTag)
 
     @CasePathable
@@ -124,32 +118,14 @@ public struct SoundFontButton {
       case .bookmarkMonitorStop:
         return .cancel(id: state.bookmarkMonitorTaskId)
 
-      case .buttonTapped:
-        return .send(.delegate(.selectSoundFont(state.soundFontInfo)))
-
-      case .deleteButtonTapped:
-        return .send(.delegate(.deleteSoundFont(state.soundFontInfo))).animation(.default)
+      case .delegate:
+        return .none
 
       case .downloadFileButtonTapped:
         return downloadFile(&state)
 
-      case .editButtonTapped:
-        return .send(.delegate(.editSoundFont(state.soundFontInfo)))
-
-      case .invalidBookmarkButtonTapped:
-        return .send(.delegate(.alertInvalidBookmark(state.soundFontInfo)))
-
-      case .longPressGestureFired:
-        return .send(.delegate(.editSoundFont(state.soundFontInfo)))
-
-      case .missingFileButtonTapped:
-        return .send(.delegate(.alertMissingFile(state.soundFontInfo)))
-
       case .statusInfoChanged(let statusInfoTag):
         state.statusInfoTag = statusInfoTag
-        return .none
-
-      default:
         return .none
       }
     }
@@ -204,7 +180,7 @@ struct SoundFontButtonView: View {
   public var body: some View {
     HStack {
       Button {
-        store.send(.buttonTapped, animation: .default)
+        store.send(.delegate(.selectSoundFont(store.soundFontInfo)), animation: .default)
       } label: {
         Text(store.soundFontInfo.displayName)
           .font(.button)
@@ -216,7 +192,7 @@ struct SoundFontButtonView: View {
     .listRowSeparator(.hidden)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
-        store.send(.editButtonTapped, animation: .default)
+        store.send(.delegate(.editSoundFont(store.soundFontInfo)), animation: .default)
       } label: {
         Image(systemName: "pencil")
           .tint(.cyan)
@@ -225,7 +201,7 @@ struct SoundFontButtonView: View {
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
       if !store.soundFontInfo.isBuiltin {
         Button {
-          store.send(.deleteButtonTapped, animation: .default)
+          store.send(.delegate(.deleteSoundFont(store.soundFontInfo)), animation: .default)
         } label: {
           Image(systemName: "trash")
             .tint(.red)
@@ -234,7 +210,7 @@ struct SoundFontButtonView: View {
     }
     .simultaneousGesture(
       LongPressGesture(minimumDuration: 1.0)
-        .onEnded { _ in store.send(.longPressGestureFired) }
+        .onEnded { _ in store.send(.delegate(.editSoundFont(store.soundFontInfo))) }
     )
     .task {
       await store.send(.bookmarkMonitorStart).finish()
@@ -245,7 +221,7 @@ struct SoundFontButtonView: View {
 extension SoundFontButtonView {
 
   public var statusIndicator: some View {
-    let statusInfo = store.statusInfoTag.statusInfo
+    let statusInfo = store.statusInfoTag.statusInfo(store.soundFontInfo)
     let isDisabled = store.statusInfoTag == .internalFile
 
     return Button {
