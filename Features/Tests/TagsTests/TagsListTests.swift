@@ -41,15 +41,6 @@ struct TagsListTests {
   }
 
   @Test
-  func editButtonTapped() async throws {
-    let store = try store()
-    await store.send(.editButtonTapped(store.state.tagInfos[0]))
-    await store.receive(\.delegate, .edit(store.state.tagInfos[0].id))
-    await store.send(.editButtonTapped(store.state.tagInfos.last!))
-    await store.receive(\.delegate, .edit(store.state.tagInfos.last!.id))
-  }
-
-  @Test
   func tagButtonTapped() async throws {
     @Shared(.activeState) var activeState = .default
     #expect(activeState.activeTagId == 1)
@@ -57,13 +48,6 @@ struct TagsListTests {
     let store = try store()
     await store.send(.tagButtonTapped(store.state.tagInfos.last!))
     #expect(activeState.activeTagId == store.state.tagInfos.last!.id)
-  }
-
-  @Test
-  func longPressGestureFired() async throws {
-    let store = try store()
-    await store.send(.longPressGestureFired)
-    await store.receive(\.delegate, .edit(nil))
   }
 
   @Test

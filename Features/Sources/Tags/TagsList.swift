@@ -23,8 +23,6 @@ public struct TagsList {
   public enum Action {
     case delegate(Delegate)
     case deleteButtonTapped(TagInfo)
-    case editButtonTapped(TagInfo)
-    case longPressGestureFired
     case tagButtonTapped(TagInfo)
 
     @CasePathable
@@ -47,14 +45,8 @@ public struct TagsList {
       case let .deleteButtonTapped(tagInfo):
         return deleteTag(&state, tagId: tagInfo.id)
 
-      case let .editButtonTapped(tagInfo):
-        return editTags(&state, focused: tagInfo)
-
       case let .tagButtonTapped(tagInfo):
         return activateTag(&state, tagId: tagInfo.id)
-
-      case .longPressGestureFired:
-        return editTags(&state, focused: nil)
       }
     }
   }
@@ -73,10 +65,6 @@ extension TagsList {
     }
     try? FontTag.delete(id: tagId)
     return .none
-  }
-
-  private func editTags(_ state: inout State, focused: TagInfo? = nil) -> Effect<Action> {
-    return .send(.delegate(.edit(focused?.id)))
   }
 }
 
@@ -117,7 +105,7 @@ public struct TagsListView: View {
     .listRowSeparator(.hidden)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
-        store.send(.editButtonTapped(tagInfo), animation: .smooth)
+        store.send(.delegate(.edit(tagInfo.id)), animation: .smooth)
       } label: {
         Image(systemName: "pencil")
           .tint(.cyan)
@@ -135,7 +123,7 @@ public struct TagsListView: View {
     }
     .simultaneousGesture(
       LongPressGesture(minimumDuration: 1.0)
-        .onEnded { _ in store.send(.longPressGestureFired) }
+        .onEnded { _ in store.send(.delegate(.edit(nil))) }
     )
   }
 }
