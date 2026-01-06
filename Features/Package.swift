@@ -305,9 +305,9 @@ extension PackageDescription.Target {
 func setSwiftSettings() {
 
   let globalSwiftSettings: [SwiftSetting] = [
-    .enableExperimentalFeature("StrictConcurrency"),
-    .enableExperimentalFeature("NonisolatedNonsendingByDefault"),
     .defaultIsolation(nil),
+    .enableExperimentalFeature("NonisolatedNonsendingByDefault"),
+    .enableExperimentalFeature("StrictConcurrency"),
     .interoperabilityMode(.Cxx),
     .strictMemorySafety(),
     .swiftLanguageMode(.v6)
