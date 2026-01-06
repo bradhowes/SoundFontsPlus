@@ -425,16 +425,14 @@ extension AppRoot {
   private func installMIDIMonitor(midiInstrument: AVAudioUnitMIDIInstrument) {
     log.info("creating MIDIMonitor")
     @Shared(.midi) var midi
-    if let midi {
-      @Shared(.midiMonitor) var midiMonitor
-      $midiMonitor.withLock {
-        $0 = MIDIMonitor(instrument: midiInstrument)
-      }
-      midi.receiver = midiMonitor
-      midi.monitor = midiMonitor
-
-      midi.start()
+    guard let midi else { return }
+    @Shared(.midiMonitor) var midiMonitor
+    $midiMonitor.withLock {
+      $0 = MIDIMonitor(instrument: midiInstrument)
     }
+    midi.receiver = midiMonitor
+    midi.monitor = midiMonitor
+    midi.start()
   }
 
   private func monitorActivePresetId() -> Effect<Action> {
