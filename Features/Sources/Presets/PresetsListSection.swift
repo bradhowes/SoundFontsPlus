@@ -38,9 +38,7 @@ public struct PresetsListSection {
 
   public enum Action {
     case delegate(Delegate)
-    case headerTapped(Int)
     case rows(IdentifiedActionOf<PresetButton>)
-    case searchButtonTapped
 
     @CasePathable
     public enum Delegate {
@@ -60,14 +58,8 @@ public struct PresetsListSection {
     Reduce<State, Action> { state, action in
       switch action {
 
-      case let .headerTapped(count):
-        return headerTapped(&state, count: count)
-
       case let .rows(.element(id: _, action: .delegate(action))):
         return processRowAction(&state, action: action)
-
-      case .searchButtonTapped:
-        return .send(.delegate(.searchButtonTapped))
 
       default:
         return .none
@@ -78,32 +70,13 @@ public struct PresetsListSection {
     }
   }
 
-  private func headerTapped(_ state: inout State, count: Int) -> Effect<Action> {
-    // For a 1-tap, jump to first item in previous section
-    // For a 2-tap, jump to first item in first section
-    let target = count == 1 ? state.section - (PresetsList.groupingSize - 1) : 1
-    print("headerTapped - target: \(target)")
-    return .send(.delegate(.headerTapped(Preset.ID(rawValue: Int64(target)))))
-  }
-
   private func processRowAction(_ state: inout State, action: PresetButton.Action.Delegate) -> Effect<Action> {
     switch action {
-
-      // Remap 
-    case let .createFavorite(preset):
-      return .send(.delegate(.createFavorite(preset)))
-
-    case let .deleteFavorite(preset):
-      return .send(.delegate(.deleteFavorite(preset)))
-
-    case let .editPreset(preset):
-      return .send(.delegate(.editPreset(preset)))
-
-    case let .hidePreset(preset):
-      return .send(.delegate(.hidePreset(preset)))
-
-    case let .selectPreset(preset):
-      return .send(.delegate(.selectPreset(preset)))
+    case let .createFavorite(preset): return .send(.delegate(.createFavorite(preset)))
+    case let .deleteFavorite(preset): return .send(.delegate(.deleteFavorite(preset)))
+    case let .editPreset(preset): return .send(.delegate(.editPreset(preset)))
+    case let .hidePreset(preset): return .send(.delegate(.hidePreset(preset)))
+    case let .selectPreset(preset): return .send(.delegate(.selectPreset(preset)))
     }
   }
 }
@@ -127,10 +100,10 @@ public struct PresetsListSectionView: View {
           .id(store.sectionId)
       }
       .onTapGesture(count: 2) {
-        store.send(.headerTapped(2))
+        store.send(.delegate(.headerTapped(1)))
       }
       .onTapGesture(count: 1) {
-        store.send(.headerTapped(1))
+        store.send(.delegate(.headerTapped(Preset.ID(rawValue: Int64(store.section - (PresetsList.groupingSize - 1))))))
       }
     }
   }
@@ -147,7 +120,7 @@ public struct PresetsListSectionView: View {
         Spacer()
         if (showSearchButton || store.section == 0) && !store.editingVisibility {
           Button {
-            store.send(.searchButtonTapped)
+            store.send(.delegate(.searchButtonTapped))
           } label: {
             Image(systemName: "magnifyingglass")
               .imageScale(.small)

@@ -99,6 +99,7 @@ struct SoundFontEditorTests {
 
     await store.send(.destination(.presented(.alert(.showHiddenPresetsConfirmed)))) {
       $0.destination = nil
+      $0.hiddenCount = 0
     }
 
     await store.receive(\.delegate.refreshPresets)

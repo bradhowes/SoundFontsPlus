@@ -21,13 +21,7 @@ public struct PresetButton {
   }
 
   public enum Action: Equatable {
-    case buttonTapped
     case delegate(Delegate)
-    case deleteFavoriteButtonTapped
-    case editButtonTapped
-    case favoriteButtonTapped
-    case hidePresetButtonTapped
-    case longPressGestureFired
     case toggleVisibility
 
     @CasePathable
@@ -46,29 +40,11 @@ public struct PresetButton {
     Reduce<State, Action> { state, action in
       switch action {
 
-      case .buttonTapped:
-        return .send(.delegate(.selectPreset(state.preset)))
-
-      case .delegate:
-        return .none
-
-      case .deleteFavoriteButtonTapped:
-        return .send(.delegate(.deleteFavorite(state.preset)))
-
-      case .editButtonTapped:
-        return .send(.delegate(.editPreset(state.preset)))
-
-      case .favoriteButtonTapped:
-        return .send(.delegate(.createFavorite(state.preset)))
-
-      case .hidePresetButtonTapped:
-        return .send(.delegate(.hidePreset(state.preset)))
-
-      case .longPressGestureFired:
-        return .send(.delegate(.editPreset(state.preset)))
-
       case .toggleVisibility:
         state.preset.toggleVisibility()
+        return .none
+
+      default:
         return .none
       }
     }
@@ -104,7 +80,7 @@ public struct PresetButtonView: View {
 
   public var body: some View {
     Button {
-      store.send(isEditing ? .toggleVisibility : .buttonTapped, animation: .default)
+      store.send(isEditing ? .toggleVisibility : .delegate(.selectPreset(store.preset)), animation: .default)
     } label: {
       HStack {
         // Show indicator when edititing preset visibility
@@ -122,19 +98,19 @@ public struct PresetButtonView: View {
     .id(store.preset.id) // !!! For proper scrollTo behavior
     .simultaneousGesture(
       LongPressGesture(minimumDuration: 1.0)
-        .onEnded { _ in store.send(.longPressGestureFired) }
+        .onEnded { _ in store.send(.delegate(.editPreset(store.preset))) }
     )
     .listRowSeparator(.hidden)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       if !isEditing {
         Button {
-          store.send(.editButtonTapped, animation: .default)
+          store.send(.delegate(.editPreset(store.preset)), animation: .default)
         } label: {
           Image(systemName: "pencil")
             .tint(.cyan)
         }
         Button {
-          store.send(.favoriteButtonTapped, animation: .default)
+          store.send(.delegate(.createFavorite(store.preset)), animation: .default)
         } label: {
           Image(systemName: store.preset.isFavorite ? "document.on.document.fill" : "star")
             .tint(.orange)
@@ -145,14 +121,14 @@ public struct PresetButtonView: View {
       if !isEditing {
         if store.preset.isFavorite {
           Button {
-            store.send(.deleteFavoriteButtonTapped, animation: .default)
+            store.send(.delegate(.deleteFavorite(store.preset)), animation: .default)
           } label: {
             Image(systemName: "trash")
               .tint(.red)
           }
         } else {
           Button {
-            store.send(.hidePresetButtonTapped, animation: .default)
+            store.send(.delegate(.hidePreset(store.preset)), animation: .default)
           } label: {
             Image(systemName: "eye.slash")
               .tint(.purple)

@@ -109,11 +109,11 @@ struct OperationsTests {
   func allPresets() async throws {
     @Shared(.activeState) var activeState
     @Shared(.selectedSoundFontId) var selectedSoundFontId
-    #expect(Operations.allPresets(for: nil).count == 2)
+    #expect(Operations.allPresets(for: nil).count == 3)
     $selectedSoundFontId.withLock { $0 = 2 }
-    #expect(Operations.allPresets(for: nil).count == 2)
+    #expect(Operations.allPresets(for: nil).count == 3)
     $selectedSoundFontId.withLock { $0 = 3 }
-    #expect(Operations.allPresets(for: nil).isEmpty)
+    #expect(Operations.allPresets(for: nil).count == 1)
     $selectedSoundFontId.withLock { $0 = nil }
     $activeState.withLock { $0.activeSoundFontId = nil }
     #expect(Operations.allPresets(for: nil).isEmpty)

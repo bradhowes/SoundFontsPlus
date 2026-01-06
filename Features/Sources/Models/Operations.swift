@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import BaseSupport
 import Dependencies
 import Sharing
 import SQLiteData
@@ -86,7 +87,9 @@ public enum Operations {
       .where { $0.soundFontId.eq(soundFontId) }
       .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.hidden) }
       .order(by: \.index)
-    return withDatabaseReader { try query.fetchAll($0) } ?? []
+    let results = withDatabaseReader { try query.fetchAll($0) } ?? []
+    log.info("soundFontId: \(soundFontId) results: \(results)")
+    return results
   }
 
   /**
@@ -141,3 +144,5 @@ public enum Operations {
     }
   }
 }
+
+private let log = Logger(category: "Operations")

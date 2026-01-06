@@ -19,6 +19,7 @@ public enum TestSupport {
 }
 
 extension TestSupport {
+
   // swiftlint:disable:next function_body_length
   public static func addMockPresets(_ db: Database) throws {
     let font1 = try SoundFontKind.builtin(tag: SF2ResourceTag.fluidFont).data()
@@ -68,6 +69,16 @@ extension TestSupport {
         displayName: "Font 1 Preset 2",
         notes: "",
         kind: .preset
+      )
+      Preset.Draft(
+        index: 2,
+        bank: 0,
+        program: 2,
+        originalName: "Original Preset 3",
+        soundFontId: 1,
+        displayName: "Font 1 Preset 3 Hidden",
+        notes: "",
+        kind: .hidden
       )
       Preset.Draft(
         index: 0,

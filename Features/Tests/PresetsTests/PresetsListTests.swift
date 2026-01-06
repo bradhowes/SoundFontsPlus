@@ -16,6 +16,7 @@ import TestSupport
 )
 @MainActor
 struct PresetsListTests {
+
   static func makePresets(_ pairs: [(Int, String)]) -> [Preset] {
     pairs.map { index, name in
       Preset(
@@ -27,17 +28,12 @@ struct PresetsListTests {
         soundFontId: 1,
         displayName: name,
         notes: "",
-        kind: .preset
+        kind: index == 2 ? .hidden : .preset
       )
     }
   }
 
-  let presets: [Preset] = makePresets(
-    [
-      (0, "Font 1 Preset 1"),
-      (1, "Font 1 Preset 2")
-    ]
-  )
+  var presets: [Preset] { Operations.presets(for: 1) }
 
   func setup(
     activeSoundFontId: SoundFont.ID? = 1,
@@ -145,9 +141,7 @@ struct PresetsListTests {
     }
     #expect(store.state.sections.count == 1)
 
-    await store.send(\.sections, .element(id: 10_000, action: .searchButtonTapped))
-
-    await store.receive(\.sections[id: 10_000].delegate.searchButtonTapped) {
+    await store.send(\.sections, .element(id: 10_000, action: .delegate(.searchButtonTapped))) {
       $0.scrollToPresetId = nil
       $0.sections = [.init(section: 0, presets: [], editingVisibility: false)]
       $0.isSearchFieldPresented = true
@@ -198,8 +192,7 @@ struct PresetsListTests {
     }
     #expect(store.state.sections.count == 1)
 
-    await store.send(\.sections, .element(id: PresetsList.noGroupingSize, action: .searchButtonTapped))
-    await store.receive(\.sections[id: PresetsList.noGroupingSize].delegate.searchButtonTapped) {
+    await store.send(\.sections, .element(id: PresetsList.noGroupingSize, action: .delegate(.searchButtonTapped))) {
       $0.sections = [.init(section: 0, presets: [], editingVisibility: false)]
       $0.isSearchFieldPresented = true
       $0.focusedField = .searchText
@@ -208,7 +201,13 @@ struct PresetsListTests {
 
     await store.send(.searchTextChanged("reset")) {
       $0.searchText = "reset"
-      $0.sections = [.init(section: 0, presets: presets.filter({$0.displayName.contains("reset")})[...], editingVisibility: false)]
+      $0.sections = [
+        .init(
+          section: 0,
+          presets: presets.filter({$0.displayName.contains("reset")})[...],
+          editingVisibility: false
+        )
+      ]
     }
 
     await store.send(
@@ -254,26 +253,7 @@ struct PresetsListTests {
       $0.scrollToPresetId = nil
       $0.sections = [.init(
         section: 0,
-        presets: [
-          .init(
-            id: 3,
-            index: 0,
-            bank: 0,
-            program: 0,
-            originalName: "Original Preset 1",
-            soundFontId: 2,
-            displayName: "Font 2 Preset 1"
-          ),
-          .init(
-            id: 4,
-            index: 1,
-            bank: 0,
-            program: 1,
-            originalName: "Original Preset 2",
-            soundFontId: 2,
-            displayName: "Font 2 Preset 2"
-          )
-        ],
+        presets: Operations.presets(for: 2)[...],
         editingVisibility: false
       )]
     }
@@ -297,15 +277,12 @@ struct PresetsListTests {
       \.sections,
        .element(
         id: store.state.sections[0].id,
-        action: .rows(.element(id: presets[1].id, action: .buttonTapped))
+        action: .rows(.element(id: presets[1].id, action: .delegate(.selectPreset(presets[1]))))
        )
     )
 
-    await store.receive(\.sections[id: store.state.sections[0].id].rows[id: presets[1].id].delegate.selectPreset, presets[1])
     await store.receive(\.sections[id: store.state.sections[0].id].delegate.selectPreset, presets[1])
-
     #expect(activeState.activePresetId == presets[1].id)
-
     await store.send(.deinitialize)
     await store.finish()
   }
@@ -323,29 +300,12 @@ struct PresetsListTests {
       \.sections,
        .element(
         id: store.state.sections[0].id,
-        action: .rows(.element(id: presets[0].id, action: .favoriteButtonTapped))
+        action: .rows(.element(id: presets[0].id, action: .delegate(.createFavorite(presets[0]))))
        )
     )
 
-    var presetsWithFavorite = presets
-    presetsWithFavorite.insert(
-      .init(
-        id: 5,
-        index: 0,
-        bank: 0,
-        program: 0,
-        originalName: "Original Preset 1",
-        soundFontId: 1,
-        displayName: "Font 1 Preset 1 copy"
-      ),
-      at: 1
-    )
-    presetsWithFavorite[1].kind = .favorite
-
-    await store.receive(\.sections[id: store.state.sections[0].id].rows[id: presets[0].id].delegate.createFavorite, presets[0])
-
     await store.receive(\.sections[id: store.state.sections[0].id].delegate.createFavorite, presets[0]) {
-      $0.sections[0] = .init(section: 0, presets: presetsWithFavorite[...], editingVisibility: false)
+      $0.sections[0] = .init(section: 0, presets: presets[...], editingVisibility: false)
     }
 
     var updated = Operations.presets(for: nil)
@@ -355,11 +315,9 @@ struct PresetsListTests {
       \.sections,
        .element(
         id: store.state.sections[0].id,
-        action: .rows(.element(id: updated[1].id, action: .deleteFavoriteButtonTapped))
+        action: .rows(.element(id: updated[1].id, action: .delegate(.deleteFavorite(updated[1]))))
        )
     )
-
-    await store.receive(\.sections[id: store.state.sections[0].id].rows[id: updated[1].id].delegate.deleteFavorite, updated[1])
 
     await store.receive(\.sections[id: store.state.sections[0].id].delegate.deleteFavorite, updated[1]) {
       $0.destination = .alert(
@@ -394,29 +352,12 @@ struct PresetsListTests {
       \.sections,
        .element(
         id: store.state.sections[0].id,
-        action: .rows(.element(id: presets[0].id, action: .favoriteButtonTapped))
+        action: .rows(.element(id: presets[0].id, action: .delegate(.createFavorite(presets[0]))))
        )
     )
 
-    var presetsWithFavorite = presets
-    presetsWithFavorite.insert(
-      .init(
-        id: 5,
-        index: 0,
-        bank: 0,
-        program: 0,
-        originalName: "Original Preset 1",
-        soundFontId: 1,
-        displayName: "Font 1 Preset 1 copy"
-      ),
-      at: 1
-    )
-    presetsWithFavorite[1].kind = .favorite
-
-    await store.receive(\.sections[id: store.state.sections[0].id].rows[id: presets[0].id].delegate.createFavorite, presets[0])
-
     await store.receive(\.sections[id: store.state.sections[0].id].delegate.createFavorite, presets[0]) {
-      $0.sections[0] = .init(section: 0, presets: presetsWithFavorite[...], editingVisibility: false)
+      $0.sections[0] = .init(section: 0, presets: presets[...], editingVisibility: false)
     }
 
     var updated = Operations.presets(for: nil)
@@ -426,11 +367,10 @@ struct PresetsListTests {
       \.sections,
        .element(
         id: store.state.sections[0].id,
-        action: .rows(.element(id: updated[1].id, action: .deleteFavoriteButtonTapped))
+        action: .rows(.element(id: updated[1].id, action: .delegate(.deleteFavorite(updated[1]))))
        )
     )
 
-    await store.receive(\.sections[id: store.state.sections[0].id].rows[id: updated[1].id].delegate.deleteFavorite, updated[1])
     await store.receive(\.sections[id: store.state.sections[0].id].delegate.deleteFavorite, updated[1]) {
       $0.destination = .alert(
         AlertState.confirmDeleteFavorite(
@@ -468,11 +408,10 @@ struct PresetsListTests {
       \.sections,
        .element(
         id: sectionId,
-        action: .rows(.element(id: preset.id, action: .editButtonTapped))
+        action: .rows(.element(id: preset.id, action: .delegate(.editPreset(preset))))
        )
     )
 
-    await store.receive(\.sections[id: sectionId].rows[id: preset.id].delegate.editPreset, preset)
     await store.receive(\.sections[id: sectionId].delegate.editPreset, preset)
     await store.receive(\.delegate, .edit(sectionId: store.state.sections[0].id, preset: presets[0]))
 
@@ -498,11 +437,10 @@ struct PresetsListTests {
       \.sections,
        .element(
         id: sectionId,
-        action: .rows(.element(id: preset.id, action: .hidePresetButtonTapped))
+        action: .rows(.element(id: preset.id, action: .delegate(.hidePreset(preset))))
        )
     )
 
-    await store.receive(\.sections[id: sectionId].rows[id: preset.id].delegate.hidePreset, preset)
     await store.receive(\.sections[id: sectionId].delegate.hidePreset, preset) {
       $0.destination = .alert(
         AlertState.confirmHidePreset(
@@ -542,11 +480,10 @@ struct PresetsListTests {
       \.sections,
        .element(
         id: sectionId,
-        action: .rows(.element(id: preset.id, action: .hidePresetButtonTapped))
+        action: .rows(.element(id: preset.id, action: .delegate(.hidePreset(preset))))
        )
     )
 
-    await store.receive(\.sections[id: sectionId].rows[id: preset.id].delegate.hidePreset, preset)
     await store.receive(\.sections[id: sectionId].delegate.hidePreset, preset) {
       $0.destination = .alert(
         AlertState.confirmHidePreset(
@@ -556,7 +493,7 @@ struct PresetsListTests {
       )
     }
 
-    var updated = presets
+    var updated: [Preset] = .init(presets.dropLast())
     updated.remove(atOffsets: [1])
 
     await store.send(.destination(.presented(.alert(.hidePresetConfirmed(presets[1]))))) {
@@ -567,6 +504,26 @@ struct PresetsListTests {
     updated = Operations.presets(for: nil)
     #expect(updated.count == 1)
     #expect(confirmPresetHiding == false)
+
+    await store.send(.deinitialize)
+    await store.finish()
+  }
+
+  @Test
+  func editVisbility() async throws {
+    let store = try setup()
+
+    await store.send(.editingVisibilityChanged(true)) {
+      $0.sections = [.init(section: 0, presets: Operations.allPresets(for: 1)[...], editingVisibility: true)]
+      $0.scrollToPresetId = nil
+      $0.editingVisibility = true
+    }
+
+    await store.send(.editingVisibilityChanged(false)) {
+      $0.sections = [.init(section: 0, presets: Operations.presets(for: 1)[...], editingVisibility: false)]
+      $0.scrollToPresetId = nil
+      $0.editingVisibility = false
+    }
 
     await store.send(.deinitialize)
     await store.finish()
@@ -591,6 +548,7 @@ struct PresetsListTests {
     }
   }
 
+  @Test
   func presetsListViewPreview() async throws {
     try withSnapshotTesting(record: .failed) {
       try TestSupport.assertSnapshot(matching: PresetsListView.preview)

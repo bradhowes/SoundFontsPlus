@@ -34,7 +34,7 @@ struct FontTagTests {
 
     @FetchAll(Preset.all) var presets
     try await $presets.load()
-    #expect(presets.count == 4)
+    #expect(presets.count == 5)
   }
 
   @Test

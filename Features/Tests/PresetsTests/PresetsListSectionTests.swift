@@ -30,23 +30,4 @@ struct PresetsListSectionTests {
     }
     return store
   }
-
-  @Test
-  func headerTapped() async throws {
-    let store = try setup()
-
-    await store.send(\.headerTapped, 1)
-    await store.receive(\.delegate.headerTapped, 21)
-
-    await store.send(\.headerTapped, 2)
-    await store.receive(\.delegate.headerTapped, 1)
-  }
-
-  @Test
-  func searchButtonTapped() async throws {
-    let store = try setup()
-
-    await store.send(\.searchButtonTapped)
-    await store.receive(\.delegate.searchButtonTapped)
-  }
 }

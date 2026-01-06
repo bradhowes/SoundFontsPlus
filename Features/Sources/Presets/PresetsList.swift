@@ -351,7 +351,6 @@ public struct PresetsListView: View {
           ForEach(store.scope(state: \.sections, action: \.sections)) { rowStore in
             PresetsListSectionView(store: rowStore, searching: store.isSearchFieldPresented)
           }
-          // .environment(\.editMode, $store.editingVisibility)
         }
         .onChange(of: store.scrollToPresetId) {
           doScrollTo(proxy: proxy, oldValue: $0, newValue: $1)

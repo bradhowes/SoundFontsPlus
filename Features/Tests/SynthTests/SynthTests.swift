@@ -101,8 +101,8 @@ struct SynthTests {
         $0.firstTimePresetLoaded = false
       }
 
-      await store.send(\.activePresetIdChanged, 3) {
-        $0.loadedSoundFontId = 2
+      await store.send(\.activePresetIdChanged, 1) {
+        $0.loadedSoundFontId = 1
         $0.loadedPresetIndex = 0
       }
 
