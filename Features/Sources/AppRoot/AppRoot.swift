@@ -44,8 +44,6 @@ public struct AppRoot {
     #endif
   }
 
-  // MARK: -
-
   @ObservableState
   public struct State: Equatable {
     public var appReview: AppReview.State

@@ -59,7 +59,7 @@ struct OperationsTests {
     $sortPresetsByName.withLock { $0 = false }
     $favoritesOnTop.withLock { $0 = true }
     presets = Operations.presets(for: .fluidFont)
-    #expect(presets.count == SoundFont.soundFontPresetLoadLimit + 2)
+    #expect(presets.count == SoundFont.testSoundFontPresetLoadLimit + 2)
     #expect(presets[0].displayName == clone3?.displayName)
     #expect(presets[1].displayName == clone5?.displayName)
     #expect(presets[5].displayName == preset3Name)
@@ -70,7 +70,7 @@ struct OperationsTests {
 
     $sortPresetsByName.withLock { $0 = true }
     presets = Operations.presets(for: .fluidFont)
-    #expect(presets.count == SoundFont.soundFontPresetLoadLimit + 2)
+    #expect(presets.count == SoundFont.testSoundFontPresetLoadLimit + 2)
     #expect(presets[0].displayName == "Honky Tonk copy")
     #expect(presets[1].displayName == "Legend EP 2 copy")
     #expect(presets[2].displayName == "Bright Yamaha Grand")

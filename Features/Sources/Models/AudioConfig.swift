@@ -6,7 +6,7 @@ import SQLiteData
 import Tagged
 
 @Table
-public struct AudioConfig: Hashable, Identifiable, Sendable {
+public struct AudioConfig {
 
   public static var minGain: Double { -90.0 }
   public static var defaultGain: Double { 0.0 }
@@ -60,25 +60,29 @@ extension AudioConfig {
   }
 }
 
-extension AudioConfig.Draft: Equatable, Sendable {}
-
 extension AudioConfig {
 
+  /**
+   Fetch the row for a given ID.
+
+   - parameter id: the preset ID to look for
+   - returns: the value found or `nil`.
+   */
   public static func with(presetId: Preset.ID?) -> AudioConfig? {
     guard let presetId else { return nil }
     return withDatabaseReader { db in
       try Self.all
         .where {
           $0.presetId.eq(presetId)
-        }.fetchAll(db)
-    }?.first
+        }.fetchOne(db)
+    } ?? nil
   }
 
   /**
    Save the given config.
 
    - parameter config: the draft to apply
-   - returns the AudioConfig from the database
+   - returns: the AudioConfig from the database
    */
   @discardableResult
   public static func save(config: Draft) -> Self? {
@@ -88,8 +92,8 @@ extension AudioConfig {
         config
       }
       .returning(\.self)
-      .fetchAll(db)
-    }?.first
+      .fetchOne(db)
+    } ?? nil
   }
 
   /**
@@ -115,10 +119,14 @@ extension AudioConfig {
         dupe
       }
       .returning(\.self)
-      .fetchAll(db)
-    }?.first
+      .fetchOne(db)
+    } ?? nil
   }
 }
+
+extension AudioConfig: Hashable, Identifiable, Sendable {}
+
+extension AudioConfig.Draft: Equatable, Sendable {}
 
 extension Double {
   // Map +12...-90 to initialAttenuation generator -120...900

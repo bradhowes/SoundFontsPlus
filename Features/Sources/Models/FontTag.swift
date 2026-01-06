@@ -18,7 +18,7 @@ import Tagged
  deleting SF2 files.
  */
 @Table
-public struct FontTag: Hashable, Identifiable, Sendable {
+public struct FontTag {
   public typealias ID = Tagged<Self, Int64>
 
   /**
@@ -86,13 +86,19 @@ extension FontTag {
 
 extension FontTag {
 
+  /**
+   Fetch the row for a given ID.
+
+   - parameter id: the tag ID to look for
+   - returns: the value found or `nil`.
+   */
   public static func with(id: FontTag.ID?) -> FontTag? {
     guard let id else { return nil }
     return withDatabaseReader { db in
       try Self.all
         .find(id)
-        .fetchAll(db)
-    }?.first
+        .fetchOne(db)
+    } ?? nil
   }
 
   public static func make(displayName: String) throws -> FontTag {
@@ -205,6 +211,8 @@ extension FontTag.ID {
     return nil
   }
 }
+
+extension FontTag: Hashable, Identifiable, Sendable {}
 
 extension FontTag.Draft: Equatable, Sendable {}
 

@@ -6,8 +6,10 @@ import Sharing
 import SQLiteData
 import Tagged
 
-private let log = Logger(category: "ReverbConfig")
-
+/**
+ Configurations for the reverb effect. A ``Preset`` may have one associated with it such that when the preset is active, the
+ reverb device receives the associated reverb config settings.
+ */
 @Table
 public struct ReverbConfig {
   public typealias ID = Tagged<Self, Int64>
@@ -43,21 +45,27 @@ extension ReverbConfig {
 
 extension ReverbConfig {
 
+  /**
+   Fetch the configuration for the given preset ID.
+
+   - parameter presetId: the preset ID to look for
+   - returns: the value found or `nil`.
+   */
   public static func with(presetId: Preset.ID?) -> Self? {
     guard let presetId else { return nil }
     return withDatabaseReader { db in
       try Self.all
         .where {
           $0.presetId.eq(presetId)
-        }.fetchAll(db)
-    }?.first
+        }.fetchOne(db)
+    } ?? nil
   }
 
   /**
    Create or update delay configuration for a preset.
 
    - parameter config: the draft to apply
-   - returns the ReverbConfig from the database
+   - returns: the ReverbConfig from the database
    */
   @discardableResult
   public static func save(config: Draft) -> Self? {
@@ -68,15 +76,15 @@ extension ReverbConfig {
         config
       }
       .returning(\.self)
-      .fetchAll(db)
-    }?.first
+      .fetchOne(db)
+    } ?? nil
   }
 
   /**
    Create a clone of our settings for a new preset/favorite.
 
    - parameter presetId: the ID of the favorite to assign to the clone
-   - returns cloned config or nil if unable to clone
+   - returns: cloned config or nil if unable to clone
    */
   public func clone(presetId: Preset.ID) -> Self? {
     var draft = Self.draft(for: presetId, cloning: .init(self))
@@ -89,7 +97,7 @@ extension ReverbConfig {
 
    - parameter presetId: the Preset that owns the reverb config
    - parameter cloning: an existing draft to clone for values
-   - returns new Draft instance
+   - returns: new Draft instance
    */
   public static func draft(for presetId: Preset.ID, cloning: Draft? = nil) -> Draft {
     fetchDraft(
@@ -120,13 +128,10 @@ extension ReverbConfig {
   }
 }
 
-// extension ReverbConfig.Draft: CustomStringConvertible {
-//
-//  public var description: String {
-//    "ReverbConfig(\(id ?? -1), roomPreset: \(roomPreset.name), wetDryMix: \(wetDryMix), enabled: \(enabled), presetId: \(presetId))"
-//  }
-// }
-
 extension ReverbConfig: Hashable, Identifiable, Sendable {}
+
 extension ReverbConfig.Draft: Equatable, Sendable {}
+
 extension AVAudioUnitReverbPreset: @retroactive QueryBindable {}
+
+private let log = Logger(category: "ReverbConfig")

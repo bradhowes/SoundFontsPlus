@@ -6,10 +6,10 @@ import SQLiteData
 import Tagged
 
 /**
- Attributes from Preset and SoundFont columns used to load the preset
+ Attributes from Preset and SoundFont columns used to load the preset into the synth.
  */
 @Selection
-public struct PresetLoadingInfo: Equatable, Sendable {
+public struct PresetLoadingInfo {
   public let soundFontId: SoundFont.ID
   public let presetIndex: Int
   public let kind: SoundFont.Kind
@@ -45,3 +45,5 @@ public struct PresetLoadingInfo: Equatable, Sendable {
       }
   }
 }
+
+extension PresetLoadingInfo: Equatable, Sendable {}

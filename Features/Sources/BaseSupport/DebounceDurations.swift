@@ -5,7 +5,7 @@ import Dependencies
 import DependenciesMacros
 import Foundation
 
-public struct DebounceDurations: Sendable {
+public struct DebounceDurations {
   public let effectsConfigurationSaves: DispatchQueue.SchedulerTimeType.Stride
   public let effectsDisplayUpdates: DispatchQueue.SchedulerTimeType.Stride
 
@@ -18,7 +18,7 @@ public struct DebounceDurations: Sendable {
   }
 }
 
-extension DebounceDurations: DependencyKey {
+extension DebounceDurations: Sendable, DependencyKey {
   public static var liveValue: DebounceDurations {
     .init(
       effectsConfigurationSaves: .milliseconds(1000),

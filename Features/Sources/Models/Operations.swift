@@ -6,7 +6,7 @@ import SQLiteData
 
 public enum Operations {
 
-  /// - returns the SoundFont ID to use when querying for presets to show, either the active or the selected font.
+  /// - returns: the SoundFont ID to use when querying for presets to show, either the active or the selected font.
   public static func currentPresetsSource() -> SoundFont.ID? {
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     @Shared(.activeState) var activeState
@@ -97,8 +97,8 @@ public enum Operations {
    */
   public static func presetLoadingInfo(id: Preset.ID? = nil) -> PresetLoadingInfo? {
     withDatabaseReader {
-      try PresetLoadingInfo.query(for: id).fetchAll($0)
-    }?.first
+      try PresetLoadingInfo.query(for: id).fetchOne($0)
+    } ?? nil
   }
 
   public static func presetAudioConfig(id: Preset.ID? = nil) -> AudioConfig? {

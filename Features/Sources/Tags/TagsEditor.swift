@@ -32,7 +32,7 @@ public struct TagsEditor {
   }
 
   @ObservableState
-  public struct State: Equatable, Sendable {
+  public struct State: Equatable {
     public var rows: IdentifiedArrayOf<TagNameEditor.State>
     public let mode: Mode
     public var editModeActive: Bool = false

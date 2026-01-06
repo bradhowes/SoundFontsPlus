@@ -5,8 +5,13 @@ import Sharing
 import SQLiteData
 import Tagged
 
+/**
+ Defines a sound font preset. Most of the read-only attributes come from the SF2 loaded into the application. A preset
+ can be duplicated into a `favorite` which can have its own audio settings, or a preset can be hidden from view. Only an `favorite`
+ row can be deleted by the user; otherwise the rows are removed only when the owning ``SoundFont`` entry is removed.
+ */
 @Table
-public struct Preset: Hashable, Identifiable, Sendable {
+public struct Preset {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
@@ -78,62 +83,65 @@ extension Preset {
 
 extension Preset {
 
+  /// Determine if row represents a `favorite` or copy of a ``Preset``.
   public var isFavorite: Bool { kind == .favorite }
 
+  /// Obtain the display name for the preset's owning sound font. This is only used when editing the preset meta data, so no
+  /// need to optimize this query.
   public var soundFontName: String {
-    withDatabaseReader { db in
+    (withDatabaseReader { db in
       try SoundFont
         .find(self.soundFontId)
         .select { $0.displayName }
-        .fetchAll(db)
-    }?.first ?? "???"
+        .fetchOne(db)
+    } ?? nil) ?? "???"
   }
 
-  /// Obtain the `AudioConfig` value associated with this preset. If one does not exist, then
-  /// returns nil.
+  /// Obtain the `AudioConfig` value associated with this preset. If one does not exist, returns nil.
   public var audioConfig: AudioConfig? {
     withDatabaseReader { db in
-      try AudioConfig
-        .all
+      try AudioConfig.all
         .where { $0.presetId.eq(self.id) }
-        .fetchAll(db)
-    }?.first
+        .fetchOne(db)
+    } ?? nil
   }
 
-  /// Obtain an `AudioConfig.Draft` for the preset.
+  /// Obtain an `AudioConfig.Draft` for the preset, creating one if necessary.
   public var audioConfigDraft: AudioConfig.Draft {
     guard let audioConfig = self.audioConfig else { return .init(presetId: self.id) }
     return .init(audioConfig)
   }
 
-  /// Obtain the `DelayConfig.Draft` value associated with this config/preset. If one does not exist, then
-  /// return one with default values. Goal is to only save an entry when there is a deviation from
-  /// the default values.
+  /// Obtain the `DelayConfig` value associated with this config/preset. If one does not exist, returns `nil`.
   public var delayConfig: DelayConfig? {
     withDatabaseReader { db in
       try DelayConfig
         .all
         .where { $0.presetId.eq(self.id) }
-        .fetchAll(db)
-    }?.first
+        .fetchOne(db)
+    } ?? nil
   }
 
+  /// Obtain the `DelayConfig.Draft` value associated with this config/preset. If one does not exist, then
+  /// return one with default values. Goal is to only save an entry when there is a deviation from
+  /// the default values.
   public var delayConfigDraft: DelayConfig.Draft {
     guard let delayConfig = self.delayConfig else { return .init(presetId: self.id) }
     return .init(delayConfig)
   }
 
-  /// Obtain the `ReverbConfig.Draft` value associated with this config/preset. If one does not exist, then
-  /// return one with default values. Goal is to only save an entry when there is a deviation from
-  /// the default values.
+  /// Obtain the `ReverbConfig` value associated with this config/preset. If one does not exist, returns `nil`.
   public var reverbConfig: ReverbConfig? {
     withDatabaseReader { db in
       try ReverbConfig.all
         .where { $0.presetId.eq(self.id) }
-        .fetchAll(db)
-    }?.first
+        .fetchOne(db)
+    } ?? nil
   }
 
+  /// Obtain the `ReverbConfig.Draft` value associated with this config/preset. If one does not exist, then
+  /// return one with default values. Goal is to only save an entry when there is a deviation from
+  /// the default values.
   public var reverbConfigDraft: ReverbConfig.Draft {
     guard let reverbConfig = self.reverbConfig else { return .init(presetId: self.id) }
     return .init(reverbConfig)
@@ -219,11 +227,19 @@ extension Preset {
     return candidate
   }
 
+  /**
+   Fetch the row for a given ID.
+
+   - parameter id: the preset ID to look for
+   - returns: the value found or `nil`.
+   */
   public static func with(id: Preset.ID) -> Preset? {
     withDatabaseReader { db in
       try Self.all
         .find(id)
-        .fetchAll(db)
-    }?.first
+        .fetchOne(db)
+    } ?? nil
   }
 }
+
+extension Preset: Hashable, Identifiable, Sendable {}

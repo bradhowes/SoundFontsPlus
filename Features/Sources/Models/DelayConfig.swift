@@ -6,8 +6,10 @@ import Sharing
 import SQLiteData
 import Tagged
 
-private let log = Logger(category: "DelayConfig")
-
+/**
+ Configurations for the delay effect. A ``Preset`` may have one associated with it such that when the preset is active, the
+ delay device receives the associated delay config settings.
+ */
 @Table
 public struct DelayConfig {
   public typealias ID = Tagged<Self, Int64>
@@ -48,10 +50,10 @@ extension DelayConfig {
 extension DelayConfig {
 
   /**
-   Fetch the ReverbConfig for a given preset.
+   Fetch the configuration for the given preset ID.
 
    - parameter presetId: the preset ID to look for
-   - returns: ReverbConfig or nil
+   - returns: the value found or `nil`
    */
   public static func with(presetId: Preset.ID?) -> Self? {
     guard let presetId else { return nil }
@@ -59,15 +61,15 @@ extension DelayConfig {
       try Self.all
         .where {
           $0.presetId.eq(presetId)
-        }.fetchAll(db)
-    }?.first
+        }.fetchOne(db)
+    } ?? nil
   }
 
   /**
    Create or update delay configuration for a preset.
 
    - parameter config: the draft to apply
-   - returns the DelayConfig from the database
+   - returns: the DelayConfig from the database
    */
   @discardableResult
   public static func save(config: Draft) -> Self? {
@@ -78,15 +80,15 @@ extension DelayConfig {
         config
       }
       .returning(\.self)
-      .fetchAll(db)
-    }?.first
+      .fetchOne(db)
+    } ?? nil
   }
 
   /**
    Create a clone of our settings for a new preset/favorite.
 
    - parameter presetId: the ID of the favorite to assign to the clone
-   - returns cloned config or nil if unable to clone
+   - returns: cloned config or nil if unable to clone
    */
   public func clone(presetId: Preset.ID) -> Self? {
     var draft = Self.draft(for: presetId, cloning: .init(self))
@@ -99,7 +101,7 @@ extension DelayConfig {
 
    - parameter presetId: the Preset that owns the delay config
    - parameter cloning: an existing draft to clone for values
-   - returns new Draft instance
+   - returns: new Draft instance
    */
   public static func draft(for presetId: Preset.ID, cloning: Draft? = nil) -> Draft {
     fetchDraft(
@@ -135,3 +137,5 @@ extension DelayConfig {
 extension DelayConfig: Hashable, Identifiable, Sendable {}
 
 extension DelayConfig.Draft: Equatable, Sendable {}
+
+private let log = Logger(category: "DelayConfig")

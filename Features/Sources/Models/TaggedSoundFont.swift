@@ -5,10 +5,10 @@ import Tagged
 
 /**
  The mapping of tags to SoundFont ids. If a SoundFont is a member of a tag, then there will be a `TaggedSoundFont`
- entry for it.
+ entry for it. As such, this is a many to many association.
  */
 @Table
-public struct TaggedSoundFont: Hashable, Sendable {
+public struct TaggedSoundFont {
   public let soundFontId: SoundFont.ID
   public let tagId: FontTag.ID
 
@@ -41,3 +41,5 @@ extension TaggedSoundFont {
     }
   }
 }
+
+extension TaggedSoundFont: Hashable, Sendable {}

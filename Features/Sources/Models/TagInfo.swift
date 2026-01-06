@@ -8,7 +8,7 @@ import Tagged
  number of SoundFont instances that are members of the tag.
  */
 @Selection
-public struct TagInfo: Equatable, Identifiable, Sendable {
+public struct TagInfo {
   public let id: FontTag.ID
   public let displayName: String
   public let soundFontsCount: Int
@@ -30,3 +30,5 @@ extension TagInfo {
       }
   }
 }
+
+extension TagInfo: Equatable, Identifiable, Sendable {}

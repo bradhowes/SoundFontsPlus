@@ -14,7 +14,7 @@ import Tagged
  works with `SoundFontInfo` rows which is a slimmer view into the SoundFont table.
  */
 @Table
-public struct SoundFont: Hashable, Identifiable, Sendable {
+public struct SoundFont {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
@@ -70,7 +70,9 @@ extension SoundFont {
 }
 
 extension SoundFont {
-  public static var soundFontPresetLoadLimit: Int { 10 }
+
+  /// Max number of presets to load during testing in order to reduce load times.
+  public static var testSoundFontPresetLoadLimit: Int { 10 }
 
   /**
    Add a builtin soundfont to the database
@@ -93,6 +95,8 @@ extension SoundFont {
     }
   }
 
+  /// Search for a row with the given display name.
+  /// - returns: `true` if a row exists.
   public static func exists(displayName: String) -> Bool {
     let found = withDatabaseReader { db in
       try SoundFont
@@ -103,13 +107,25 @@ extension SoundFont {
     return !found.isEmpty
   }
 
+  /**
+   Import an SF2 file, creating a new ``SoundFont`` entry, associated ``Preset`` entries, and ``TaggedSoundFont`` entries.
+
+   - parameter displayName: the name to show in the views
+   - parameter soundFontKind: the type and location of the file to import
+   - returns: new ``SoundFont`` record
+   */
   @discardableResult
   public static func add(displayName: String, soundFontKind: SoundFontKind) throws -> SoundFont {
     let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()
-    guard let value = withDatabaseWriter({ db in
-      guard let value = try insertWithAssociations(
-        db: db,
-        insertion: try makeInsertion(soundFontKind: soundFontKind, name: displayName, fileInfo: fileInfo),
+    guard let value = withDatabaseWriter(
+      { db in
+        guard let value = try insertWithAssociations(
+          db: db,
+          insertion: try makeInsertion(
+            soundFontKind: soundFontKind,
+            name: displayName,
+            fileInfo: fileInfo
+          ),
         fileInfo: fileInfo,
         tagIds: soundFontKind.tagIds,
         limitedLoading: false
@@ -123,6 +139,11 @@ extension SoundFont {
     return value
   }
 
+  /**
+   Delete a row with the give sound font ID.
+
+   - parameter id: the ID of the row to delete
+   */
   public static func delete(id: SoundFont.ID) {
     withDatabaseWriter { db in
       try Self.delete()
@@ -152,7 +173,7 @@ extension SoundFont {
       makePresets(
         soundFontId: soundFont.id,
         fileInfo: fileInfo,
-        limit: limitedLoading ? Swift.min(soundFontPresetLoadLimit, fileInfo.size()) : fileInfo.size()
+        limit: limitedLoading ? Swift.min(testSoundFontPresetLoadLimit, fileInfo.size()) : fileInfo.size()
       )
     }.execute(db)
 
@@ -210,58 +231,70 @@ extension SoundFont {
 
 extension SoundFont {
 
+  /// - returns: ``SoundFontKind`` value from the attributes of this row.
   public func source() throws -> SoundFontKind {
     try SoundFontKind(kind: kind, location: location, displayName: self.displayName)
   }
 
+  /// - returns: a description of the source
   public var sourceKind: String { (try? source())?.description ?? "N/A" }
 
+  /// - returns: a path tothe source file
   public var sourcePath: String { (try? source())?.path.absoluteString ?? "N/A" }
 
+  /**
+   Fetch the row for a given ID.
+
+   - parameter id: the sound font ID to look for
+   - returns: the value found or `nil`.
+   */
   public static func with(id: SoundFont.ID) -> SoundFont? {
     withDatabaseReader { db in
       try SoundFont.all
         .find(id)
-        .fetchAll(db)
-    }?.first
+        .fetchOne(db)
+    } ?? nil
   }
 
+  /// - returns: the collection of ``FontTag`` rows associated with the sound font
   public var tags: [FontTag] {
-    let query = TaggedSoundFont
-      .join(FontTag.all) {
-        $0.tagId.eq($1.id) && $0.soundFontId.eq(self.id)
-      }
-      .select {
-        $1
-      }
-
-    return withDatabaseReader { db in
-      try query.fetchAll(db)
+    withDatabaseReader { db in
+      try TaggedSoundFont
+        .join(FontTag.all) {
+          $0.tagId.eq($1.id) && $0.soundFontId.eq(self.id)
+        }
+        .select {
+          $1
+        }
+        .fetchAll(db)
     } ?? []
   }
 
+  /// - returns: the collection of ``Preset`` rows associated with the sound font.
   public var presets: [Preset] {
-    let query = Preset.all
-      .order(by: \.index)
-      .where { $0.soundFontId.eq(self.id) }
-      .where { $0.kind.neq(Preset.Kind.hidden) }
-    return withDatabaseReader { db in
-      try query.fetchAll(db)
+    withDatabaseReader { db in
+      try Preset.all
+        .order(by: \.index)
+        .where { $0.soundFontId.eq(self.id) }
+        .where { $0.kind.neq(Preset.Kind.hidden) }
+        .fetchAll(db)
     } ?? []
   }
 
+  /// - returns: the collection of ``Preset`` rows associated with the sound font
   public var allPresets: [Preset] {
-    let query = Preset.all
-      .order(by: \.index)
-      .where { $0.soundFontId.eq(self.id) }
-      .where { $0.kind.neq(Preset.Kind.favorite) }
-    return withDatabaseReader { db in
-      try query.fetchAll(db)
+    withDatabaseReader { db in
+      try Preset.all
+        .order(by: \.index)
+        .where { $0.soundFontId.eq(self.id) }
+        .where { $0.kind.neq(Preset.Kind.favorite) }
+        .fetchAll(db)
     } ?? []
   }
 
-  // swiftlint:disable:next large_tuple
+  /// - returns: various counters for the sound font row
   public var elementCounts: (presetCount: Int, favoriteCount: Int, hiddenCount: Int) {
+    // swiftlint:disable:previous large_tuple
     let found = withDatabaseReader { db in
       try Preset.select {
         (
@@ -283,3 +316,5 @@ extension SoundFont.ID {
   public static var museScore: SoundFont.ID { SF2ResourceTag.museScore.soundFontId }
   public static var rolandNicePiano: SoundFont.ID { SF2ResourceTag.rolandNicePiano.soundFontId }
 }
+
+extension SoundFont: Hashable, Identifiable, Sendable {}

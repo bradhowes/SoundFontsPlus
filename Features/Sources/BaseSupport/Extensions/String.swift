@@ -9,7 +9,7 @@ extension String {
    the given value.
 
    - parameter default: the value to use if our trimmed value results in an empty string
-   - returns trimmed content or given value
+   - returns: trimmed content or given value
    */
   public func trimmed(or default: String) -> String {
     let trimmed = self.trimmedOfWhitespaces
@@ -20,7 +20,7 @@ extension String {
   @inlinable
   public var trimmedOfWhitespaces: String { trimmingCharacters(in: .whitespaces) }
 
-  /// - returns `Substring` that does not have the last extension.
+  /// - returns: `Substring` that does not have the last extension.
   public var withoutExtension: Substring { self[self.startIndex..<(self.lastIndex(of: ".") ?? self.endIndex)] }
 }
 

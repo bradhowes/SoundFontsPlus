@@ -12,7 +12,7 @@ private let log = Logger(category: "TagNameEditor")
 public struct TagNameEditor {
 
   @ObservableState
-  public struct State: Equatable, Identifiable, Sendable {
+  public struct State: Equatable, Identifiable {
     public var id: FontTag.ID { tagId }
 
     public var draft: FontTag.Draft

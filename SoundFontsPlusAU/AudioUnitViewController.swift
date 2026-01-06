@@ -28,7 +28,7 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
    Implementation of `AUAudioUnitFactory` method that creates a new `AUAudioUnit` for the view controller to manage.
 
    - parameter componentDescription: what AUv3 component to instantiate
-   - returns new AUAudioUnit instance
+   - returns: new AUAudioUnit instance
    */
   nonisolated public func createAudioUnit(with componentDescription: AudioComponentDescription) throws -> AUAudioUnit {
     try DispatchQueue.main.sync {

@@ -39,8 +39,10 @@ extension MIDIConfig {
 
   public static func with(id: MIDIUniqueID) -> MIDIConfig? {
     withDatabaseReader { db in
-      try Self.all.find(id).fetchAll(db)
-    }?.first
+      try Self.all
+        .find(id)
+        .fetchOne(db)
+    } ?? nil
   }
 }
 

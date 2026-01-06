@@ -39,7 +39,7 @@ extension DSP {
    NOTE: attenuation greater than 96 dB is in the noise floor for 16-bit samples.
 
    - parameter value: value in centibels to convert
-   - returns attenuation value
+   - returns: attenuation value
    */
   static func centibelsToAttenuation(value: Double) -> Double {
     guard value > 0 && value < maximumAttenuationCentiBels else { return 0.0 }

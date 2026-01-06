@@ -7,7 +7,7 @@ import FeatureSupport
 public struct MIDIAssignments {
 
   @ObservableState
-  public struct State: Equatable, Sendable {
+  public struct State: Equatable {
     public init() {}
   }
 

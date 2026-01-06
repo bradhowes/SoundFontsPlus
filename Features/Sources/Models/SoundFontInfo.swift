@@ -6,7 +6,8 @@ import SQLiteData
 import Tagged
 
 /**
- Subset of SoundFont table columns used to show the list of available soundfont files.
+ Subset of SoundFont table columns used to show the list of available soundfont files and the kind of font file so that the view
+ can display availability info for the file.
  */
 @Selection
 public struct SoundFontInfo {
