@@ -36,6 +36,8 @@ public final class MIDIMonitor: @unchecked Sendable {
   @Published public var connectivity: [MIDI.SourceConnectionState]
   @Published public var traffic: MIDITraffic?
 
+  @Shared(.midi) private var midi
+
   public init(instrument: AVAudioUnitMIDIInstrument) {
     self.midiInstrument = instrument
     self.connectivity = []
@@ -51,20 +53,21 @@ extension MIDIMonitor: Monitor {
     } ?? nil
 
     if let midiConfig {
+      log.info("shouldConnect - uniqueId: \(uniqueId.asHex) result: \(midiConfig.autoConnect)")
       return midiConfig.autoConnect
     }
 
     @Shared(.midiAutoConnect) var midiAutoConnect
+    log.info("shouldConnect - uniqueId: \(uniqueId.asHex) result: \(midiAutoConnect)")
     return midiAutoConnect
   }
 
   public func didConnect(to uniqueId: MIDIUniqueID) {
-    log.info("didConnect: \(uniqueId)")
+    log.info("didConnect: \(uniqueId.asHex)")
   }
 
   public func didUpdateConnections(connected: any Sequence<MIDIEndpointRef>, disappeared: any Sequence<MIDIUniqueID>) {
-    log.info("didUpdateConnections: \(connected) - \(disappeared)")
-    @Shared(.midi) var midi
+    log.info("didUpdateConnections: \(connected.map(\.uniqueId.asHex)) - \(disappeared)")
     if let midi {
       self.connectivity = midi.sourceConnections
     }
