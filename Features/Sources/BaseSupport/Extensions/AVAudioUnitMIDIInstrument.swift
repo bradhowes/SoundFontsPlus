@@ -13,6 +13,13 @@ extension AVAudioUnitMIDIInstrument {
     sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload("", preset)))
   }
 
+  public func sendReset() -> Bool {
+    [
+      sendMIDI(bytes: Array(SF2Engine.createAllNotesOffPayload())),
+      sendMIDI(bytes: Array(SF2Engine.createResetCommandPayload()))
+    ].allSatisfy { $0 }
+  }
+
   public func sendMIDI(bytes: [UInt8], when: AUEventSampleTime = 0, cable: UInt8 = 0) -> Bool {
     guard let block = unsafe auAudioUnit.scheduleMIDIEventBlock else {
       return false

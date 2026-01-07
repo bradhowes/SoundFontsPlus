@@ -7,6 +7,7 @@ import AudioUnit.AUParameters
 import BRHSplitView
 import Changes
 import DelayEffect
+import Engine
 import FeatureSupport
 import Keyboard
 import MorkAndMIDI
@@ -44,6 +45,13 @@ public struct AppRoot {
     #endif
   }
 
+  public enum HUD {
+    case dismissed // signal ProgressHUD to dismiss any active HUD
+    case initializing // show the startup HUD until audio is ready
+    case none // nothiing to show
+    case panic // show the MIDI panic HUD
+  }
+
   @ObservableState
   public struct State: Equatable {
     public var appReview: AppReview.State
@@ -62,7 +70,7 @@ public struct AppRoot {
     public var volumeMonitor: VolumeMonitor.State
     #endif
     public var audioUnitCrashed = false
-    public var audioUnitReady = false
+    public var hud: HUD = .none
 
     public init(
       appReview: AppReview.State? = nil,
@@ -156,6 +164,7 @@ public struct AppRoot {
     case appReview(AppReview.Action)
     case audioUnitCrashed
     case binding(BindingAction<State>)
+    case clearHUD
     case deinitialize
     case delay(DelayEffect.Action)
     case destination(PresentationAction<Destination.Action>)
@@ -212,6 +221,10 @@ public struct AppRoot {
 
       case .audioUnitCrashed:
         log.error("*** audioUnit crashed")
+        return .none
+
+      case .clearHUD:
+        state.hud = .none
         return .none
 
       case .deinitialize:
@@ -329,7 +342,7 @@ extension AppRoot {
   }
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
-    guard state.audioUnitReady else { return .none }
+    guard state.hud != .initializing else { return .none }
     var actions = [
       reduce(into: &state, action: .appReview(.ask)),
       reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
@@ -343,21 +356,19 @@ extension AppRoot {
   }
 
   private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
-
     if let midiInstrument = avAudioUnit.midiInstrument {
       installMIDIMonitor(midiInstrument: midiInstrument)
     }
 
-    return .concatenate(
-      reduce(into: &state, action: .toolBar(.audioUnitCreated(avAudioUnit.auAudioUnit))),
-      reduce(into: &state, action: .keyboard(.midiInstrumentCreated(avAudioUnit.midiInstrument)))
+    return .merge(
+      reduce(into: &state, action: .toolBar(.audioUnitCreated(avAudioUnit))),
+      reduce(into: &state, action: .keyboard(.midiInstrumentCreated(avAudioUnit)))
     )
   }
 
   private func audioChainActive(_ state: inout State) -> Effect<Action> {
     // The synth is up and running with an active audio session. Safe to monitor its state now.
-    state.audioUnitReady = true
-
+    state.hud = .dismissed
     var actions = [
       activePresetIdChanged(&state, presetId: activeState.activePresetId)
     ]
@@ -366,13 +377,10 @@ extension AppRoot {
     actions.append(reduce(into: &state, action: .volumeMonitor(.start)))
 #endif
 
-    return .concatenate(actions)
+    return .merge(actions)
   }
 
   private func audioChainInactive(_ state: inout State) -> Effect<Action> {
-    // We do not have the active audio session.
-    state.audioUnitReady = false
-
 #if os(iOS)
     return reduce(into: &state, action: .volumeMonitor(.stop))
 #else
@@ -520,7 +528,13 @@ extension AppRoot {
       $effectsPanelVisible.withLock { $0 = visible }
       return .none.animation(.smooth)
 
-    case .presetNameTapped:
+    case .presetNameTapped(let count):
+      if count == 2 {
+        if state.synth.avAudioUnit?.sendReset() ?? false {
+          state.hud = .panic
+        }
+        return .none
+      }
       return .merge(
         reduce(into: &state, action: .appReview(.ask)),
         reduce(into: &state, action: .presetsList(.showActivePreset)),
@@ -624,13 +638,17 @@ public struct AppRootView: View {
     .onChange(of: scenePhase) { _, newPhase in
       store.send(.scenePhaseChanged(newPhase))
     }
-    .onChange(of: store.audioUnitReady) { _, newValue in
-      if newValue {
-        ProgressHUD.dismiss()
+    .onChange(of: store.hud) { _, newValue in
+      switch newValue {
+      case .dismissed: ProgressHUD.dismiss()
+      case .initializing: return // Handled in `onAppear` below
+      case .none: return
+      case .panic: ProgressHUD.liveIcon("Panic!", icon: .succeed)
       }
+      store.send(.clearHUD)
     }
     .onAppear {
-      ProgressHUD.animate(nil, .horizontalBarScaling)
+      ProgressHUD.animate("Loading…", .horizontalBarScaling)
     }
     .task {
       await store.send(.initialize).finish()

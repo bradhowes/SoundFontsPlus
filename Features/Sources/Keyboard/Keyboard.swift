@@ -78,7 +78,7 @@ public struct Keyboard {
     case allOff
     case deinitialize
     case delegate(Delegate)
-    case midiInstrumentCreated(AVAudioUnitMIDIInstrument?)
+    case midiInstrumentCreated(AVAudioUnit)
     case outputVolumeStateChanged(OutputVolumeState)
     case scrollTo(Note?)
     case touchBegan(State.EventId, Note)
@@ -114,7 +114,8 @@ public struct Keyboard {
         return .none
 
       case .midiInstrumentCreated(let audioUnit):
-        state.midiInstrument = audioUnit
+        state.midiInstrument = audioUnit.midiInstrument
+        // TODO: watch traffic from MIDIMonitor and show keyboard changes
         return .none
 
       case .outputVolumeStateChanged(let value):

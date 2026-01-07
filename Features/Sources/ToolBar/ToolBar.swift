@@ -10,8 +10,22 @@ import Settings
 
 private let log = Logger(category: "ToolBar")
 
+/**
+ The ToolBar feature provides a strip above the keyboard that hosts controls and a text display. It supports 
+ */
 @Reducer
 public struct ToolBar {
+
+  public enum TemporaryStatus: Equatable {
+
+    case lastPlayedKey(String)
+
+    var text: String {
+      switch self {
+      case .lastPlayedKey(let status): return status
+      }
+    }
+  }
 
   @ObservableState
   public struct State: Equatable {
@@ -22,13 +36,12 @@ public struct ToolBar {
     public var highestKey: Note
     @ObservationStateIgnored
     @Shared(.keyboardSlides) public var keyboardSlides
-    public var lastPlayedKey: Note?
+    public var temporaryStatus: TemporaryStatus?
     public var lowestKey: Note
     public var midiTrafficIndicator: MIDITrafficIndicator.State
     public var preset: Preset?
     public var showMoreButtons: Bool
     public var tagsListVisible: Bool
-    public var audioUnit: AUAudioUnit?
 
     public init(
       activeVoiceCount: Int = 0,
@@ -36,7 +49,7 @@ public struct ToolBar {
       effectsPanelVisible: Bool? = nil,
       fileImporter: FileImporter.State? = nil,
       highestKey: Note? = nil,
-      lastPlayedKey: Note? = nil,
+      temporaryStatus: TemporaryStatus? = nil,
       lowestKey: Note? = nil,
       midiTrafficIndicator: MIDITrafficIndicator.State? = nil,
       preset: Preset? = nil,
@@ -52,7 +65,7 @@ public struct ToolBar {
       self.effectsPanelVisible = effectsPanelVisible ?? savedEffectsPanelVisible
       self.fileImporter = fileImporter ?? .init()
       self.highestKey = highestKey ?? .C4
-      self.lastPlayedKey = lastPlayedKey
+      self.temporaryStatus = temporaryStatus
       self.lowestKey = lowestKey ?? savedLowestKey
       self.midiTrafficIndicator = midiTrafficIndicator ?? .init(tag: "ToolBar")
       self.preset = preset
@@ -69,7 +82,8 @@ public struct ToolBar {
     case activePresetIdChanged(Preset.ID?)
     case activeVoiceCountChanged(Int)
     case addSoundFontButtonTapped
-    case audioUnitCreated(AUAudioUnit)
+    case audioUnitCreated(AVAudioUnit)
+    case clearTemporaryStatus
     case deinitialize
     case delegate(Delegate)
     case effectsVisibilityButtonTapped
@@ -81,7 +95,7 @@ public struct ToolBar {
     case setVisibleKeyRange(lowest: Note, highest: Note)
     case shiftKeyboardUpButtonTapped
     case shiftKeyboardDownButtonTapped
-    case lastPlayedKeyChanged(Note?)
+    case lastPlayedKeyChanged(Note)
     case showMoreButtonTapped
     case slidingKeyboardButtonTapped
     case tagsListVisibilityButtonTapped
@@ -90,7 +104,7 @@ public struct ToolBar {
     public enum Delegate: Equatable {
       case editingPresetVisibilityChanged(Bool)
       case effectsVisibilityChanged(Bool)
-      case presetNameTapped
+      case presetNameTapped(count: Int)
       case tagsListVisibilityChanged(Bool)
       case settingsButtonTapped
       case visibleKeyRangeChanged(lowest: Note, highest: Note)
@@ -124,6 +138,10 @@ public struct ToolBar {
 
       case .audioUnitCreated(let audioUnit):
         return audioUnitCreated(&state, audioUnit: audioUnit)
+
+      case .clearTemporaryStatus:
+        state.temporaryStatus = nil
+        return .none.animation(.smooth)
 
       case .deinitialize:
         return .merge(
@@ -171,7 +189,7 @@ public struct ToolBar {
   }
 
   private enum CancelId: String, CaseIterable {
-    case toolBarLastPlayedKeyChanged
+    case toolBarClearTemporaryStatus
     case toolBarMonitorActiveVoiceCount
   }
 }
@@ -188,10 +206,9 @@ extension ToolBar {
     return .none
   }
 
-  private func audioUnitCreated(_ state: inout State, audioUnit: AUAudioUnit) -> Effect<Action> {
-    state.audioUnit = audioUnit
-    return .merge(
-      monitorActiveVoiceCount(&state),
+  private func audioUnitCreated(_ state: inout State, audioUnit: AVAudioUnit) -> Effect<Action> {
+    .merge(
+      monitorActiveVoiceCount(&state, audioUnit: audioUnit),
       reduce(into: &state, action: .midiTrafficIndicator(.initialize))
     )
   }
@@ -201,9 +218,9 @@ extension ToolBar {
     return .send(.delegate(.editingPresetVisibilityChanged(state.editingPresetVisibility)))
   }
 
-  private func monitorActiveVoiceCount(_ state: inout State) -> Effect<Action> {
+  private func monitorActiveVoiceCount(_ state: inout State, audioUnit: AVAudioUnit) -> Effect<Action> {
     guard
-      let parameterTree = state.audioUnit?.parameterTree,
+      let parameterTree = audioUnit.parameterTree,
       let parameter = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.activeVoiceCount.rawValue)
     else {
       log.info("no parameter tree to monitor")
@@ -265,26 +282,19 @@ extension ToolBar {
     return .none
   }
 
-  private func lastPlayedKeyChanged(_ state: inout State, key: Note?) -> Effect<Action> {
+  private func lastPlayedKeyChanged(_ state: inout State, key: Note) -> Effect<Action> {
     guard showKeyNotes || showSolfegeTags else { return .none }
+    state.temporaryStatus = .lastPlayedKey(key.fullLabel(withSolfege: showSolfegeTags))
+    return clearTemporaryStatusTask(&state)
+  }
 
-    guard let key else {
-      log.info("cleared lastPlayedKey")
-      state.lastPlayedKey = nil
-      return .none.animation(.smooth)
-    }
-
-    state.lastPlayedKey = key
-    log.info("lastPlayedKey - \(key.label)")
-
-    return .run { send in
-      defer { log.info("lastPlayedKeyChanged - END") }
+  private func clearTemporaryStatusTask(_ state: inout State) -> Effect<Action> {
+    .run { send in
       @Dependency(\.continuousClock) var clock
       try await clock.sleep(for: .seconds(1.8))
-      log.info("clearing lastPlayedKey")
-      await send(.lastPlayedKeyChanged(nil))
+      await send(.clearTemporaryStatus)
     }
-    .cancellable(id: CancelId.toolBarLastPlayedKeyChanged, cancelInFlight: true)
+    .cancellable(id: CancelId.toolBarClearTemporaryStatus, cancelInFlight: true)
     .animation(.smooth)
   }
 
@@ -318,7 +328,6 @@ extension ToolBar {
 public struct ToolBarView: View {
   private var store: StoreOf<ToolBar>
   @Shared(.showActiveVoiceCount) private var showActiveVoiceCount
-  @Shared(.showSolfegeTags) private var showSolfegeTags
   @Shared(.isAUv3) private var isAUv3
   @Environment(\.appPanelBackground) private var appPanelBackground
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -339,6 +348,7 @@ public struct ToolBarView: View {
           status
             .zIndex(0)
             .opacity(store.showMoreButtons ? 0.0 : 1.0)
+
           if store.showMoreButtons {
             moreButtons
               .offset(x: 12)
@@ -379,6 +389,9 @@ public struct ToolBarView: View {
         Spacer()
       }
       .animation(.smooth, value: showActiveVoiceCount)
+      .contentShape(Rectangle())
+      .onTapGesture(count: 2) { store.send(.delegate(.presetNameTapped(count: 2))) }
+      .onTapGesture(count: 1) { store.send(.delegate(.presetNameTapped(count: 1))) }
     }
   }
 
@@ -391,14 +404,11 @@ public struct ToolBarView: View {
   }
 
   private var statusText: some View {
-    Text(store.lastPlayedKey?.fullLabel(withSolfege: showSolfegeTags) ?? store.preset?.displayName ?? "—")
+    Text(store.temporaryStatus?.text ?? store.preset?.displayName ?? "—")
       .font(.status)
       .foregroundStyle(store.preset?.kind == .favorite ? Color.orange : Color.accentColor)
       .indicator(.activeNoIndicator)
       .contentTransition(.interpolate)
-      .onTapGesture {
-        store.send(.delegate(.presetNameTapped))
-      }
   }
 
   private var addSoundFontButton: some View {
