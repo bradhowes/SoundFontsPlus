@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import BaseSupport
 import Combine
 import FeatureSupport
 
@@ -56,6 +57,7 @@ extension MIDITrafficIndicator {
       midiMonitor.$traffic
         .compactMap {
           guard let event = $0 else { return nil }
+          log.debug("traffic: \(event)")
           return .showMIDITraffic(event)
         }
     }.cancellable(id: CancelId.midiTrafficIndicatorMonitorMIDITraffic)
@@ -88,6 +90,7 @@ public struct MIDITrafficBlinker<T: Publisher>: ViewModifier where T.Output == M
   private let tag: String
   @State private var isAnimating = false
   @State private var color: Color = .clear
+  @Dependency(\.mainQueue) var mainQueue
 
   var publisher: T
   var duration: Double
@@ -104,7 +107,7 @@ public struct MIDITrafficBlinker<T: Publisher>: ViewModifier where T.Output == M
       .frame(width: 24, height: 24)
       .scaleEffect(isAnimating ? 1.0 : 0.01)
       .opacity(isAnimating ? 0.0 : 1.0)
-      .onReceive(publisher) { traffic in
+      .onReceive(publisher.throttle(for: .seconds(0.25), scheduler: mainQueue, latest: false)) { traffic in
         self.color = traffic.accepted ? .green : .orange
         withAnimation(.smooth(duration: self.duration / 2)) {
           self.isAnimating = true
@@ -126,3 +129,5 @@ extension View {
     modifier(MIDITrafficBlinker(tag: tag, subscribedTo: publisher, duration: duration))
   }
 }
+
+private let log: Logger = .init(category: "MIDITrafficIndicator")
