@@ -213,9 +213,25 @@ extension ToolBar {
     )
   }
 
+  private func clearTemporaryStatusTask(_ state: inout State) -> Effect<Action> {
+    .run { send in
+      @Dependency(\.continuousClock) var clock
+      try await clock.sleep(for: .seconds(1.8))
+      await send(.clearTemporaryStatus)
+    }
+    .cancellable(id: CancelId.toolBarClearTemporaryStatus, cancelInFlight: true)
+    .animation(.smooth)
+  }
+
   private func editPresetVisibility(_ state: inout State) -> Effect<Action> {
     state.editingPresetVisibility.toggle()
     return .send(.delegate(.editingPresetVisibilityChanged(state.editingPresetVisibility)))
+  }
+
+  private func lastPlayedKeyChanged(_ state: inout State, key: Note) -> Effect<Action> {
+    guard showKeyNotes || showSolfegeTags else { return .none }
+    state.temporaryStatus = .lastPlayedKey(key.fullLabel(withSolfege: showSolfegeTags))
+    return clearTemporaryStatusTask(&state)
   }
 
   private func monitorActiveVoiceCount(_ state: inout State, audioUnit: AVAudioUnit) -> Effect<Action> {
@@ -236,7 +252,7 @@ extension ToolBar {
         unsafe parameter.removeParameterObserver(observerToken)
         log.info("monitorActiveVoiceCount - END")
       }
-      for await value in stream {
+      for await value in stream.removeDuplicates() {
         if Task.isCancelled { break }
         await send(.activeVoiceCountChanged(Int(value)))
       }
@@ -280,22 +296,6 @@ extension ToolBar {
 
   private func showHelp(_ state: inout State) -> Effect<Action> {
     return .none
-  }
-
-  private func lastPlayedKeyChanged(_ state: inout State, key: Note) -> Effect<Action> {
-    guard showKeyNotes || showSolfegeTags else { return .none }
-    state.temporaryStatus = .lastPlayedKey(key.fullLabel(withSolfege: showSolfegeTags))
-    return clearTemporaryStatusTask(&state)
-  }
-
-  private func clearTemporaryStatusTask(_ state: inout State) -> Effect<Action> {
-    .run { send in
-      @Dependency(\.continuousClock) var clock
-      try await clock.sleep(for: .seconds(1.8))
-      await send(.clearTemporaryStatus)
-    }
-    .cancellable(id: CancelId.toolBarClearTemporaryStatus, cancelInFlight: true)
-    .animation(.smooth)
   }
 
   private func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
