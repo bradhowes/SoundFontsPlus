@@ -94,7 +94,7 @@ struct MIDIConnectionsTests {
     let store = store()
     #expect(store.state.rows.count == 3)
 
-    let traffic = MIDITraffic(id: 1, channel: 8, accepted: true)
+    let traffic = MIDITrafficStat(id: 1, channel: 8, accepted: true)
     await store.send(.sawMIDITraffic(traffic)) {
       $0.rows[0].channel = 8
       $0.midiChannelsCache[1] = 8

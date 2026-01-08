@@ -49,7 +49,7 @@ public struct MIDIConnections {
     case initialize
     case midiConnectionsChanged
     case midiTrafficIndicator(MIDITrafficIndicator.Action)
-    case sawMIDITraffic(MIDITraffic)
+    case sawMIDITraffic(MIDITrafficStat)
     case toggleConnected(MIDIUniqueID)
   }
 
@@ -141,7 +141,7 @@ extension MIDIConnections {
     return .none
   }
 
-  private func updateMIDIChannel(_ state: inout State, traffic: MIDITraffic) -> Effect<Action> {
+  private func updateMIDIChannel(_ state: inout State, traffic: MIDITrafficStat) -> Effect<Action> {
     state.midiChannelsCache[traffic.id] = traffic.channel
     if let index = state.rows.index(id: traffic.id) {
       state.rows[index].channel = traffic.channel

@@ -84,6 +84,7 @@ public struct Keyboard {
     case touchBegan(State.EventId, Note)
     case touchEnded(State.EventId)
     case updateVisibleKeys(lowest: Note, highest: Note)
+    case visualizeMIDINote(MIDINote)
 
     @CasePathable
     public enum Delegate {
@@ -115,8 +116,7 @@ public struct Keyboard {
 
       case .midiInstrumentCreated(let audioUnit):
         state.midiInstrument = audioUnit.midiInstrument
-        // TODO: watch traffic from MIDIMonitor and show keyboard changes
-        return .none
+        return monitorMIDINotes(&state)
 
       case .outputVolumeStateChanged(let value):
         state.muted = value == .muted
@@ -134,6 +134,9 @@ public struct Keyboard {
 
       case let .updateVisibleKeys(lowest, highest):
         return updateVisibleKeys(&state, lowest: lowest, highest: highest)
+
+      case let .visualizeMIDINote(note):
+        return visualizeMIDINote(&state, note: note)
       }
     }
   }
@@ -141,6 +144,7 @@ public struct Keyboard {
   @Shared(.activeState) private var activeState
 
   private enum CancelId: String, CaseIterable {
+    case keyboardMonitorMIDINotes
     case keyboardScrollTo
   }
 }
@@ -174,6 +178,19 @@ extension Keyboard {
     return .run { send in
       await send(.scrollTo(audioConfig.keyboardLowestNote))
     }.cancellable(id: CancelId.keyboardScrollTo)
+  }
+
+  private func monitorMIDINotes(_ state: inout State) -> Effect<Action> {
+    @Shared(.midiMonitor) var midiMonitor
+    guard let midiMonitor else { return .none }
+    return .publisher {
+      midiMonitor.$notes
+        .compactMap {
+          guard let note = $0 else { return nil }
+          log.debug("note: \(note)")
+          return .visualizeMIDINote(note)
+        }
+    }.cancellable(id: CancelId.keyboardMonitorMIDINotes)
   }
 
   private func reduceNoteCount(_ state: inout State, note: Note) -> Bool {
@@ -223,6 +240,16 @@ extension Keyboard {
     return .run { send in
       await send(.delegate(.visibleKeyRangeChanged(lowest: lowest, highest: highest)))
     }
+  }
+
+  private func visualizeMIDINote(_ state: inout State, note: MIDINote) -> Effect<Action> {
+    switch note {
+    case let .on(note):
+      state.noteCounters[note.midiNoteValue] += 1
+    case let .off(note):
+      state.noteCounters[note.midiNoteValue] = max(state.noteCounters[note.midiNoteValue] - 1, 0)
+    }
+    return .none
   }
 }
 

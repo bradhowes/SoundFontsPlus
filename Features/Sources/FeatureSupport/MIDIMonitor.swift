@@ -11,7 +11,7 @@ import SQLiteData
 
 private let log = Logger(category: "MIDIMonitor")
 
-public struct MIDITraffic: Equatable, Sendable {
+public struct MIDITrafficStat: Equatable, Sendable {
   public let id: MIDIUniqueID
   public let channel: UInt8
   public let accepted: Bool
@@ -21,6 +21,11 @@ public struct MIDITraffic: Equatable, Sendable {
     self.channel = channel
     self.accepted = accepted
   }
+}
+
+public enum MIDINote: Equatable, Sendable {
+  case on(Note)
+  case off(Note)
 }
 
 public final class MIDIMonitor: @unchecked Sendable {
@@ -34,7 +39,8 @@ public final class MIDIMonitor: @unchecked Sendable {
   public var group: Int { -1 }
 
   @Published public var connectivity: [MIDI.SourceConnectionState]
-  @Published public var traffic: MIDITraffic?
+  @Published public var traffic: MIDITrafficStat?
+  @Published public var notes: MIDINote?
 
   @Shared(.midi) private var midi
 
@@ -115,6 +121,7 @@ extension MIDIMonitor: Receiver {
   public func noteOff(source: MIDIUniqueID, note: UInt8, velocity: UInt8, channel: UInt8) {
     if accepts(source: source, channel: channel) {
       midiInstrument.stopNote(note, onChannel: channel)
+      notes = .off(Note(midi: note))
     }
   }
 
@@ -134,6 +141,7 @@ extension MIDIMonitor: Receiver {
   public func noteOn(source: MIDIUniqueID, note: UInt8, velocity: UInt8, channel: UInt8) {
     if accepts(source: source, channel: channel) {
       midiInstrument.startNote(note, withVelocity: velocity, onChannel: channel)
+      notes = .on(Note(midi: note))
     }
     // (note, velocity: connectionState.fixedVelocity ?? velocity)
     // keyboard.noteIsOn(note: note)

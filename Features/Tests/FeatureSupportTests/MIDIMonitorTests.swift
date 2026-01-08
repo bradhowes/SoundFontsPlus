@@ -69,9 +69,9 @@ struct MIDIMonitorTests {
     let monitor = MIDIMonitor(instrument: mau)
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(monitor.traffic != nil)
-    #expect(monitor.traffic! == MIDITraffic(id: 123, channel: 0, accepted: true))
+    #expect(monitor.traffic! == MIDITrafficStat(id: 123, channel: 0, accepted: true))
     monitor.noteOff(source: 124, note: 60, velocity: 64, channel: 1)
-    #expect(monitor.traffic! == MIDITraffic(id: 124, channel: 1, accepted: true))
+    #expect(monitor.traffic! == MIDITrafficStat(id: 124, channel: 1, accepted: true))
   }
 
   @Test
@@ -81,11 +81,11 @@ struct MIDIMonitorTests {
     let monitor = MIDIMonitor(instrument: mau)
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(monitor.traffic != nil)
-    #expect(monitor.traffic! == MIDITraffic(id: 123, channel: 0, accepted: false))
+    #expect(monitor.traffic! == MIDITrafficStat(id: 123, channel: 0, accepted: false))
     monitor.noteOff(source: 124, note: 60, velocity: 64, channel: 1)
-    #expect(monitor.traffic! == MIDITraffic(id: 124, channel: 1, accepted: true))
+    #expect(monitor.traffic! == MIDITrafficStat(id: 124, channel: 1, accepted: true))
     monitor.noteOff(source: 124, note: 60, velocity: 64, channel: 2)
-    #expect(monitor.traffic! == MIDITraffic(id: 124, channel: 2, accepted: false))
+    #expect(monitor.traffic! == MIDITrafficStat(id: 124, channel: 2, accepted: false))
   }
 
   @Test

@@ -533,13 +533,14 @@ extension AppRoot {
         if state.synth.avAudioUnit?.sendReset() ?? false {
           state.hud = .panic
         }
-        return .none
+        return reduce(into: &state, action: .keyboard(.allOff))
+      } else {
+        return .merge(
+          reduce(into: &state, action: .appReview(.ask)),
+          reduce(into: &state, action: .presetsList(.showActivePreset)),
+          reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
+        )
       }
-      return .merge(
-        reduce(into: &state, action: .appReview(.ask)),
-        reduce(into: &state, action: .presetsList(.showActivePreset)),
-        reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
-      )
 
     case .settingsButtonTapped:
       state.destination = .settings(AppSettings.State())

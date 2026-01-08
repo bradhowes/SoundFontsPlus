@@ -14,7 +14,7 @@ public struct MIDITrafficIndicator {
     }
 
     public let tag: String
-    public let midiTrafficPublisher: PassthroughSubject<MIDITraffic, Never> = .init()
+    public let midiTrafficPublisher: PassthroughSubject<MIDITrafficStat, Never> = .init()
 
     public init(tag: String) {
       self.tag = tag
@@ -24,7 +24,7 @@ public struct MIDITrafficIndicator {
   public enum Action {
     case deinitialize
     case initialize
-    case showMIDITraffic(MIDITraffic)
+    case showMIDITraffic(MIDITrafficStat)
   }
 
   public init() {}
@@ -63,7 +63,7 @@ extension MIDITrafficIndicator {
     }.cancellable(id: CancelId.midiTrafficIndicatorMonitorMIDITraffic)
   }
 
-  private func showMIDITraffic(_ state: inout State, value: MIDITraffic) -> Effect<Action> {
+  private func showMIDITraffic(_ state: inout State, value: MIDITrafficStat) -> Effect<Action> {
     state.midiTrafficPublisher.send(value)
     return .none
   }
@@ -86,7 +86,7 @@ public struct MIDITrafficIndicatorView: View {
  Blink a dot to show MIDI traffic. If the channel of the MIDI source is accepted, then show in the accent color
  Otherwise, show in orange/red.
  */
-public struct MIDITrafficBlinker<T: Publisher>: ViewModifier where T.Output == MIDITraffic, T.Failure == Never {
+public struct MIDITrafficBlinker<T: Publisher>: ViewModifier where T.Output == MIDITrafficStat, T.Failure == Never {
   private let tag: String
   @State private var isAnimating = false
   @State private var color: Color = .clear
@@ -125,7 +125,7 @@ extension View {
     tag: String,
     subscribedTo publisher: T,
     duration: Double = 1
-  ) -> some View where T.Output == MIDITraffic, T.Failure == Never {
+  ) -> some View where T.Output == MIDITrafficStat, T.Failure == Never {
     modifier(MIDITrafficBlinker(tag: tag, subscribedTo: publisher, duration: duration))
   }
 }

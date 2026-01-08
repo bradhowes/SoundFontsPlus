@@ -123,6 +123,10 @@ public struct Note: CustomStringConvertible, Sendable {
     guard Self.midiRange.contains(midiNoteValue) else { fatalError("invalid MIDI note value") }
     self.init(rawValue: midiNoteValue)
   }
+
+  public init(midi: UInt8) {
+    self.init(rawValue: Int(midi))
+  }
 }
 
 extension Note {
