@@ -12,11 +12,11 @@ import FeatureSupport
 import Keyboard
 import MorkAndMIDI
 import Presets
-import ProgressHUD
 import ReverbEffect
 import SQLiteData
 import Settings
 import SoundFonts
+import SwiftToasts
 import Synth
 import Tags
 import ToolBar
@@ -45,11 +45,10 @@ public struct AppRoot {
     #endif
   }
 
-  public enum HUD {
-    case dismissed // signal ProgressHUD to dismiss any active HUD
+  public enum ToastState: Equatable {
     case initializing // show the startup HUD until audio is ready
-    case none // nothiing to show
-    case panic // show the MIDI panic HUD
+    case panic        // show the MIDI panic HUD
+    case volumeMonitor(reason: VolumeMonitor.Reason)
   }
 
   @ObservableState
@@ -70,7 +69,7 @@ public struct AppRoot {
     public var volumeMonitor: VolumeMonitor.State
     #endif
     public var audioUnitCrashed = false
-    public var hud: HUD = .initializing
+    public var toastState: ToastState? = .initializing
 
     public init(
       appReview: AppReview.State? = nil,
@@ -164,7 +163,7 @@ public struct AppRoot {
     case appReview(AppReview.Action)
     case audioUnitCrashed
     case binding(BindingAction<State>)
-    case clearHUD
+    case clearToast
     case deinitialize
     case delay(DelayEffect.Action)
     case destination(PresentationAction<Destination.Action>)
@@ -173,6 +172,7 @@ public struct AppRoot {
     case initialize
     case keyboard(Keyboard.Action)
     case presetsList(PresetsList.Action)
+    case reevaluateToastState
     case reverb(ReverbEffect.Action)
     case scenePhaseChanged(ScenePhase)
     case soundFontsList(SoundFontsList.Action)
@@ -223,8 +223,8 @@ public struct AppRoot {
         log.error("*** audioUnit crashed")
         return .none
 
-      case .clearHUD:
-        state.hud = .none
+      case .clearToast:
+        state.toastState = .none
         return .none
 
       case .deinitialize:
@@ -272,6 +272,9 @@ public struct AppRoot {
         state.destination = .presetEditor(PresetEditor.State(sectionId: sectionId, preset: preset))
         return .none
 
+      case .reevaluateToastState:
+        return reevaluateToastState(&state)
+
       case .scenePhaseChanged(let phase):
         return scenePhaseChanged(&state, phase: phase)
 
@@ -295,14 +298,8 @@ public struct AppRoot {
       case .toolBar(.delegate(let action)):
         return processToolBarAction(&state, action: action)
 
-#if os(iOS)
       case .volumeMonitor(.delegate(.reasonChanged(let reason))):
-        log.info("volumeMonitor reasonChanged: \(reason.debugDescription)")
-        return reduce(
-          into: &state,
-          action: .keyboard(.outputVolumeStateChanged(reason != nil ? .muted : .unmuted))
-        )
-#endif // os(iOS)
+        return volumeMonitorReasonChanged(&state, reason: reason)
 
       default:
         return .none
@@ -342,7 +339,7 @@ extension AppRoot {
   }
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
-    guard state.hud != .initializing else { return .none }
+    guard state.toastState != .initializing else { return .none }
     var actions = [
       reduce(into: &state, action: .appReview(.ask)),
       reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
@@ -368,7 +365,7 @@ extension AppRoot {
 
   private func audioChainActive(_ state: inout State) -> Effect<Action> {
     // The synth is up and running with an active audio session. Safe to monitor its state now.
-    state.hud = .dismissed
+    state.toastState = nil
     var actions = [
       activePresetIdChanged(&state, presetId: activeState.activePresetId)
     ]
@@ -531,7 +528,7 @@ extension AppRoot {
     case .presetNameTapped(let count):
       if count == 2 {
         if state.synth.avAudioUnit?.sendReset() ?? false {
-          state.hud = .panic
+          state.toastState = .panic
         }
         return reduce(into: &state, action: .keyboard(.allOff))
       } else {
@@ -557,6 +554,18 @@ extension AppRoot {
     }
   }
 
+  private func reevaluateToastState(_ state: inout State) -> Effect<Action> {
+    guard
+      state.toastState == nil,
+      let reason = state.volumeMonitor.reason
+    else {
+      return .none
+    }
+
+    state.toastState = .volumeMonitor(reason: reason)
+    return .none
+  }
+
   private func scenePhaseChanged(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
     switch phase {
 
@@ -573,6 +582,26 @@ extension AppRoot {
     @unknown default:
       fatalError("Unhandled ScenePhase \(phase):")
     }
+  }
+
+  private func volumeMonitorReasonChanged(_ state: inout State, reason: VolumeMonitor.Reason?) -> Effect<Action> {
+#if os(iOS)
+    log.info("volumeMonitor reasonChanged: \(reason.debugDescription)")
+    if let reason {
+      if state.toastState == nil {
+        state.toastState = .volumeMonitor(reason: reason)
+      }
+    } else if case .volumeMonitor = state.toastState {
+      state.toastState = nil
+    }
+
+    return reduce(
+      into: &state,
+      action: .keyboard(.outputVolumeStateChanged(reason != nil ? .muted : .unmuted))
+    )
+#else
+    return .none
+#endif
   }
 }
 
@@ -639,18 +668,6 @@ public struct AppRootView: View {
     .onChange(of: scenePhase) { _, newPhase in
       store.send(.scenePhaseChanged(newPhase))
     }
-    .onChange(of: store.hud) { _, newValue in
-      switch newValue {
-      case .dismissed: ProgressHUD.dismiss()
-      case .initializing: return // Handled in `onAppear` below
-      case .none: return
-      case .panic: ProgressHUD.liveIcon("Panic!", icon: .succeed)
-      }
-      store.send(.clearHUD)
-    }
-    .onAppear {
-      ProgressHUD.animate("Loading…", .horizontalBarScaling)
-    }
     .task {
       await store.send(.initialize).finish()
     }
@@ -670,10 +687,62 @@ public struct AppRootView: View {
       verticalSizeClass: verticalSizeClass
     )
     .appReview(store: store.scope(state: \.appReview, action: \.appReview))
-#if os(iOS)
-    .volumeMonitorHUD(store: store.scope(state: \.volumeMonitor, action: \.volumeMonitor))
-#endif
-    .progressHUD()
+    .onChange(of: store.toastState) { _, newValue in
+      if newValue == nil {
+        store.send(.reevaluateToastState)
+      }
+    }
+    .toast(item: $store.toastState, alignment: .top) { reason in
+      switch reason {
+      case .initializing: initializeToast
+      case .panic: panicToast
+      case .volumeMonitor(reason: let reason): volumeMonitorToast(reason)
+      }
+    }
+    .toastStyle(.plain)
+    .toastPresentationInvalidation(.all)
+    .toastInteractiveDismissDisabled(true)
+  }
+
+  private var initializeToast: Toast {
+    Toast(role: .informational, duration: .indefinite) {
+      Label {
+        Text("Loading…")
+      } icon: {
+        ProgressView()
+      }
+    }
+  }
+
+  private var panicToast: Toast {
+    Toast(role: .warning, duration: .seconds(3)) {
+      Label {
+        Text("Panic!")
+      } icon: {
+        Image(systemName: "exclamationmark.octagon.fill")
+      }
+    }
+  }
+
+  private func volumeMonitorToast(_ reason: VolumeMonitor.Reason) -> Toast {
+    switch reason {
+    case .volumeLevelIsZero:
+      Toast(role: .failure, duration: .indefinite) {
+        Label {
+          Text("Volume is muted.")
+        } icon: {
+          Image(systemName: "speaker.slash")
+        }
+      }
+    case .noActivePreset:
+      Toast(role: .failure, duration: .indefinite) {
+        Label {
+          Text("No preset selected.")
+        } icon: {
+          Image(systemName: "speaker.slash")
+        }
+      }
+    }
   }
 }
 

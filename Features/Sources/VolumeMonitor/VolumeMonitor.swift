@@ -13,7 +13,7 @@ import SwiftToasts
 public struct VolumeMonitor {
 
   @frozen
-  public enum Reason {
+  public enum Reason: Equatable {
     case volumeLevelIsZero
     case noActivePreset
   }
@@ -27,9 +27,8 @@ public struct VolumeMonitor {
     }
   }
 
-  public enum Action: BindableAction {
+  public enum Action {
     case activePresetIdChanged(Preset.ID?)
-    case binding(BindingAction<State>)
     case delegate(Delegate)
     case start
     case stop
@@ -47,7 +46,6 @@ public struct VolumeMonitor {
   @Shared(.activeState) private var activeState
 
   public var body: some Reducer<State, Action> {
-    BindingReducer()
 
     Reduce { state, action in
       log.info("VolumeMonitor reduce \(action)")
@@ -55,9 +53,6 @@ public struct VolumeMonitor {
 
       case .activePresetIdChanged(let presetId):
         return presetChanged(&state, presetId: presetId)
-
-      case .binding:
-        return .none
 
       case .stop:
         log.info("stop")
@@ -84,10 +79,9 @@ private extension VolumeMonitor {
 
   func monitorOutputVolume(_ state: inout State) -> Effect<Action> {
     log.info("monitorOutputVolume")
-    return .run(priority: .utility, name: "monitorOutputVolume") { send in
+    return .run(priority: .utility, name: "monitorOutputVolume") { [outputVolume] send in
       defer { log.info("monitorOuptutVolume stopped") }
       while !Task.isCancelled {
-        @Dependency(\.outputVolume) var outputVolume
         for await value in outputVolume.startStreaming() {
           if Task.isCancelled { break }
           await send(.volumeChanged(value))
@@ -138,49 +132,6 @@ private extension VolumeMonitor {
       volume: volume,
       presetId: activeState.activePresetId
     )
-  }
-}
-
-public struct VolumeMonitorModifier: ViewModifier {
-  @Bindable private var store: StoreOf<VolumeMonitor>
-
-  public init(store: StoreOf<VolumeMonitor>) {
-    self.store = store
-  }
-
-  public func body(content: Content) -> some View {
-    content
-      .toast(
-        item: $store.reason,
-        alignment: .top
-      ) { reason in
-        if reason == .volumeLevelIsZero {
-          Toast(role: .failure, duration: .indefinite) {
-            Label {
-              Text("Volume is muted.")
-            } icon: {
-              Image(systemName: "speaker.slash")
-            }
-          }
-        } else if reason == .noActivePreset {
-          Toast(role: .failure, duration: .indefinite) {
-            Label {
-              Text("No preset selected.")
-            } icon: {
-              Image(systemName: "speaker.slash")
-            }
-          }
-        }
-      }
-      .toastStyle(.plain)
-      .toastPresentationInvalidation(.all)
-      .toastInteractiveDismissDisabled(false)
-  }
-}
-
-extension View {
-  public func volumeMonitorHUD(store: StoreOf<VolumeMonitor>) -> some View {
-    modifier(VolumeMonitorModifier(store: store))
   }
 }
 

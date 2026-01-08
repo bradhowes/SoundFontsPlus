@@ -7,6 +7,17 @@ import PackageDescription
 let useLocalMorkAndMIDI = false
 let useLocalSF2Lib = false
 
+extension Package.Dependency {
+  static var morkAndMIDI: PackageDescription.Package.Dependency {
+    useLocalMorkAndMIDI ? .package(name: "MorkAndMIDI", path: "/Users/howes/src/Mine/morkandmidi") :
+      .package(url: "https://github.com/bradhowes/morkandmidi", from: "5.0.0")
+  }
+  static var sf2Lib: PackageDescription.Package.Dependency {
+    useLocalSF2Lib ? .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib") :
+      .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.4.0")
+  }
+}
+
 let package = Package(
   name: "Features",
   platforms: [.iOS(.v18), .macOS(.v15)],
@@ -49,7 +60,6 @@ let package = Package(
     // NOTE: only used to gain access to `isApproximatelyEqual` in unit tests
     .package(url: "https://github.com/apple/swift-numerics", from: "1.1.0"),
     .package(url: "https://github.com/athankefalas/swift-toasts", from: "0.9.2"),
-    .package(url: "https://github.com/relatedcode/ProgressHUD", from: "15.0.1"),
     //
     .package(url: "https://github.com/pointfreeco/sqlite-data", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.2"),
@@ -84,7 +94,6 @@ let package = Package(
         "Tutorial",
         "VolumeMonitor",
         .product(name: "BRHSplitView", package: "brh-splitview"),
-        .product(name: "ProgressHUD", package: "ProgressHUD"),
       ]
     ),
     .feature(
@@ -248,30 +257,6 @@ let package = Package(
 )
 
 setSwiftSettings()
-
-extension Package.Dependency {
-  static var sf2Lib: PackageDescription.Package.Dependency {
-    useLocalSF2Lib ? .package(
-      name: "SF2Lib",
-      path: "/Users/howes/src/Mine/SF2Lib"
-    ) : .package(
-      url: "https://github.com/bradhowes/SF2Lib",
-      from: "8.4.0"
-    )
-  }
-}
-
-extension Package.Dependency {
-  static var morkAndMIDI: PackageDescription.Package.Dependency {
-    useLocalMorkAndMIDI ? .package(
-      name: "MorkAndMIDI",
-      path: "/Users/howes/src/Mine/morkandmidi"
-    ) : .package(
-      url: "https://github.com/bradhowes/morkandmidi",
-      from: "4.0.2"
-    )
-  }
-}
 
 extension PackageDescription.Product {
 

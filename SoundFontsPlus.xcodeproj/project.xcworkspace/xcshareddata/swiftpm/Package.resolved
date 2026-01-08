@@ -1,5 +1,5 @@
 {
-  "originHash" : "321bf1ecc401f331893dc5d32e3c29893a1388363c56ca2c1a0d0c727eb96b84",
+  "originHash" : "f67c1d1e2de4e3a51d519126bc7b1402be6e5ff638fd570f9cccb8e30bba568d",
   "pins" : [
     {
       "identity" : "auv3controls",
@@ -60,17 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/morkandmidi",
       "state" : {
-        "revision" : "86ff73b5c533e58eca4816cdd5f8d2a25113851d",
-        "version" : "4.0.3"
-      }
-    },
-    {
-      "identity" : "progresshud",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/relatedcode/ProgressHUD",
-      "state" : {
-        "revision" : "44e04c79ae75ed5e979df517ab13d8a1aa9b41a5",
-        "version" : "15.0.1"
+        "revision" : "07cdd56620f6948a9e30aa3519b30268daea4b6f",
+        "version" : "5.1.0"
       }
     },
     {
@@ -87,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sqlite-data",
       "state" : {
-        "revision" : "45a7a199b7547a1c80ae064fb05ff866625585ea",
-        "version" : "1.4.2"
+        "revision" : "8af16d5303372ecd01962ae59b2ad2f921d36fac",
+        "version" : "1.4.3"
       }
     },
     {
@@ -294,8 +285,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "31073495cae9caf243c440eac94b3ab067e3d7bc",
-        "version" : "1.8.0"
+        "revision" : "34e463e98ab8541c604af706c99bed7160f5ec70",
+        "version" : "1.8.1"
       }
     }
   ],

@@ -38,12 +38,20 @@ public final class MIDIMonitor: @unchecked Sendable {
   public var channel: Int { -1 }
   public var group: Int { -1 }
 
+  /// Publisher of the state of the current connections established between the app and external MIDI devices.
   @Published public var connectivity: [MIDI.SourceConnectionState]
+  /// Publisher of traffic info received from the MIDI system
   @Published public var traffic: MIDITrafficStat?
+  /// Publisher of note ON/OFF commands that were sent to the synth
   @Published public var notes: MIDINote?
 
   @Shared(.midi) private var midi
 
+  /**
+   Create new instance that sends MIDI traffic to the given MIDI instrument (SF2LibAU).
+
+   - parameter instrument: the SF2LibAU audio unit to communicate with
+   */
   public init(instrument: AVAudioUnitMIDIInstrument) {
     self.midiInstrument = instrument
     self.connectivity = []
@@ -52,6 +60,9 @@ public final class MIDIMonitor: @unchecked Sendable {
 
 extension MIDIMonitor: Monitor {
 
+  /**
+   Determine if the given MIDI i
+   */
   public func shouldConnect(to uniqueId: MIDIUniqueID) -> Bool {
     @Dependency(\.defaultDatabase) var database
     let midiConfig = withDatabaseReader {
@@ -59,21 +70,17 @@ extension MIDIMonitor: Monitor {
     } ?? nil
 
     if let midiConfig {
-      log.info("shouldConnect - uniqueId: \(uniqueId.asHex) result: \(midiConfig.autoConnect)")
+      log.debug("shouldConnect - uniqueId: \(uniqueId.asHex) result: \(midiConfig.autoConnect)")
       return midiConfig.autoConnect
     }
 
     @Shared(.midiAutoConnect) var midiAutoConnect
-    log.info("shouldConnect - uniqueId: \(uniqueId.asHex) result: \(midiAutoConnect)")
+    log.debug("shouldConnect - uniqueId: \(uniqueId.asHex) result: \(midiAutoConnect)")
     return midiAutoConnect
   }
 
-  public func didConnect(to uniqueId: MIDIUniqueID) {
-    log.info("didConnect: \(uniqueId.asHex)")
-  }
-
   public func didUpdateConnections(connected: any Sequence<MIDIEndpointRef>, disappeared: any Sequence<MIDIUniqueID>) {
-    log.info("didUpdateConnections: \(connected.map(\.uniqueId.asHex)) - \(disappeared)")
+    log.debug("didUpdateConnections: \(connected.map(\.uniqueId.asHex)) - \(disappeared)")
     if let midi {
       self.connectivity = midi.sourceConnections
     }
@@ -81,13 +88,14 @@ extension MIDIMonitor: Monitor {
 }
 
 extension MIDIMonitor {
+  public func didConnect(to uniqueId: MIDIUniqueID) {}
+  public func willUpdateConnections() {}
   public func didInitialize() {}
   public func willUninitialize() {}
   public func didCreate(inputPort: MIDIPortRef) {}
   public func willDelete(inputPort: MIDIPortRef) {}
   public func didStart() {}
   public func didStop() {}
-  public func willUpdateConnections() {}
   public func didSee(uniqueId: MIDIUniqueID, group: Int, channel: Int) {}
 }
 
@@ -196,6 +204,7 @@ extension MIDIMonitor: Receiver {
     //
     // Hand the controller value change to the synth
     if acceptsTraffic(source: source, channel: channel, notify: true) {
+      log.debug("controlChange - \(source.asHex) - controller: \(controller) value: \(value)")
       midiInstrument.sendController(controller, withValue: value, onChannel: channel)
     }
   }
@@ -206,6 +215,7 @@ extension MIDIMonitor: Receiver {
 
   public func programChange(source: MIDIUniqueID, program: UInt8, channel: UInt8) {
     if acceptsTraffic(source: source, channel: channel) {
+      log.debug("programChange - \(source.asHex) - program: \(program)")
       midiInstrument.sendProgramChange(program, onChannel: channel)
     }
   }
@@ -217,6 +227,7 @@ extension MIDIMonitor: Receiver {
 
   public func channelPressure(source: MIDIUniqueID, pressure: UInt8, channel: UInt8) {
     if acceptsTraffic(source: source, channel: channel) {
+      log.debug("channelPressure - \(source.asHex) - pressure: \(pressure)")
       midiInstrument.sendPressure(pressure, onChannel: channel)
     }
   }
@@ -227,6 +238,7 @@ extension MIDIMonitor: Receiver {
 
   public func pitchBendChange(source: MIDIUniqueID, value: UInt16, channel: UInt8) {
     if acceptsTraffic(source: source, channel: channel, notify: true) {
+      log.debug("pitchBendChange - \(source.asHex) - value: \(value)")
       midiInstrument.sendPitchBend(value, onChannel: channel)
     }
   }
