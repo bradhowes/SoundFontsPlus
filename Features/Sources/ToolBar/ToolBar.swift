@@ -328,6 +328,7 @@ extension ToolBar {
 public struct ToolBarView: View {
   private var store: StoreOf<ToolBar>
   @Shared(.showActiveVoiceCount) private var showActiveVoiceCount
+  @Shared(.showMIDITrafficIndicator) private var showMIDITrafficIndicator
   @Shared(.isAUv3) private var isAUv3
   @Environment(\.appPanelBackground) private var appPanelBackground
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -377,25 +378,27 @@ public struct ToolBarView: View {
   private var status: some View {
     ZStack(alignment: .leading) {
       if !isAUv3 {
-        MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
-          .zIndex(-99)
+        if showMIDITrafficIndicator {
+          MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
+            .zIndex(-99)
+        }
       }
       HStack {
-        if showActiveVoiceCount {
-          voiceCount
+        if showActiveVoiceCount || showMIDITrafficIndicator {
+          voiceCountAndTrafficIndicator
             .transition(.slide)
         }
         statusText
         Spacer()
       }
-      .animation(.smooth, value: showActiveVoiceCount)
+      .animation(.smooth, value: showActiveVoiceCount || showMIDITrafficIndicator)
       .contentShape(Rectangle())
       .onTapGesture(count: 2) { store.send(.delegate(.presetNameTapped(count: 2))) }
       .onTapGesture(count: 1) { store.send(.delegate(.presetNameTapped(count: 1))) }
     }
   }
 
-  private var voiceCount: some View {
+  private var voiceCountAndTrafficIndicator: some View {
     Text(store.activeVoiceCount > 0 ? "\(store.activeVoiceCount)" : "")
       .font(.activeVoiceCount)
       .indicator(.activeNoIndicator)

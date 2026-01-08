@@ -57,6 +57,8 @@ public struct AppSettings {
     @Shared(.playSoundOnPresetChange) public var playSoundOnPresetChange
     @Shared(.showActiveVoiceCount) public var showActiveVoiceCount
     @Shared(.showKeyNotes) public var showKeyNotes
+    @Shared(.showMIDINotesOnKeyboard) public var showMIDINotesOnKeyboard
+    @Shared(.showMIDITrafficIndicator) public var showMIDITrafficIndicator
     @Shared(.showOnlyFavorites) public var showOnlyFavorites
     @Shared(.showSolfegeTags) public var showSolfegeTags
     @Shared(.sortPresetsByName) public var sortPresetsByName
@@ -416,6 +418,14 @@ extension AppSettingsView {
       }
       Toggle(isOn: $store.midiAutoConnect) {
         Text("New devices will auto-connect")
+      }
+      .circledCheckMarkToggleStyle()
+      Toggle(isOn: $store.showMIDITrafficIndicator) {
+        Text("Show MIDI activity indicator in toolbar")
+      }
+      .circledCheckMarkToggleStyle()
+      Toggle(isOn: $store.showMIDINotesOnKeyboard) {
+        Text("Show MIDI note activity on keyboard")
       }
       .circledCheckMarkToggleStyle()
       HStack {

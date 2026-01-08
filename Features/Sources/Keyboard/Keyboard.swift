@@ -142,6 +142,7 @@ public struct Keyboard {
   }
 
   @Shared(.activeState) private var activeState
+  @Shared(.showMIDINotesOnKeyboard) private var showMIDINotesOnKeyboard
 
   private enum CancelId: String, CaseIterable {
     case keyboardMonitorMIDINotes
@@ -187,7 +188,6 @@ extension Keyboard {
       midiMonitor.$notes
         .compactMap {
           guard let note = $0 else { return nil }
-          log.debug("note: \(note)")
           return .visualizeMIDINote(note)
         }
     }.cancellable(id: CancelId.keyboardMonitorMIDINotes)
@@ -243,6 +243,7 @@ extension Keyboard {
   }
 
   private func visualizeMIDINote(_ state: inout State, note: MIDINote) -> Effect<Action> {
+    guard showMIDINotesOnKeyboard else { return .none }
     switch note {
     case let .on(note):
       state.noteCounters[note.midiNoteValue] += 1

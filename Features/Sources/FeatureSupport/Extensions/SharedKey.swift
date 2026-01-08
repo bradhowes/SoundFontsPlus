@@ -21,6 +21,8 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var reverbLockEnabled: Self { Self[.appStorage("reverbLockEnabled"), default: false] }
   public static var showKeyNotes: Self { Self[.appStorage("showKeyNotes"), default: true] }
   public static var showActiveVoiceCount: Self { Self[.appStorage("showActiveVoiceCount"), default: true]}
+  public static var showMIDINotesOnKeyboard: Self { Self[.appStorage("showMIDINotesOnKeyboard"), default: true]}
+  public static var showMIDITrafficIndicator: Self { Self[.appStorage("showMIDITrafficIndicator"), default: true]}
   public static var showOnlyFavorites: Self { Self[.appStorage("showOnlyFavorites"), default: false] }
   public static var showSolfegeTags: Self { Self[.appStorage("showSolfegeTags"), default: false] }
   public static var sortPresetsByName: Self { Self[.appStorage("sortPresetsByName"), default: false] }

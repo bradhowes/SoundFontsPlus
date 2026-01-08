@@ -106,7 +106,7 @@ public struct MIDITrafficBlinker<T: Publisher>: ViewModifier where T.Output == M
       .foregroundStyle(color)
       .frame(width: 24, height: 24)
       .scaleEffect(isAnimating ? 1.0 : 0.1)
-      .opacity(isAnimating ? 0.7 : 0.0)
+      .opacity(isAnimating ? 0.5 : 0.0)
       .onReceive(publisher.throttle(for: .seconds(self.duration), scheduler: mainQueue, latest: false)) { traffic in
         self.color = traffic.accepted ? .green : .orange
         withAnimation(.smooth(duration: self.duration / 2)) {

@@ -70,8 +70,9 @@ struct MIDIMonitorTests {
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(monitor.traffic != nil)
     #expect(monitor.traffic! == MIDITrafficStat(id: 123, channel: 0, accepted: true))
+    // Ignore note OFF
     monitor.noteOff(source: 124, note: 60, velocity: 64, channel: 1)
-    #expect(monitor.traffic! == MIDITrafficStat(id: 124, channel: 1, accepted: true))
+    #expect(monitor.traffic! == MIDITrafficStat(id: 123, channel: 0, accepted: true))
   }
 
   @Test
@@ -82,10 +83,35 @@ struct MIDIMonitorTests {
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(monitor.traffic != nil)
     #expect(monitor.traffic! == MIDITrafficStat(id: 123, channel: 0, accepted: false))
+    monitor.noteOff(source: 124, note: 60, velocity: 64, channel: 0)
+    #expect(monitor.traffic! == MIDITrafficStat(id: 123, channel: 0, accepted: false))
+  }
+
+  @Test
+  func notesOmni() {
+    let mau = MockAudioUnit()
+    @Shared(.midiChannel) var midiChannel = -1
+    let monitor = MIDIMonitor(instrument: mau)
+    monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
+    #expect(monitor.notes != nil)
+    #expect(monitor.notes! == .on(Note(midi: 60)))
     monitor.noteOff(source: 124, note: 60, velocity: 64, channel: 1)
-    #expect(monitor.traffic! == MIDITrafficStat(id: 124, channel: 1, accepted: true))
-    monitor.noteOff(source: 124, note: 60, velocity: 64, channel: 2)
-    #expect(monitor.traffic! == MIDITrafficStat(id: 124, channel: 2, accepted: false))
+    #expect(monitor.notes! == .off(Note(midi: 60)))
+  }
+
+  @Test
+  func notesOneChannel() {
+    let mau = MockAudioUnit()
+    @Shared(.midiChannel) var midiChannel = 1
+    let monitor = MIDIMonitor(instrument: mau)
+    monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
+    #expect(monitor.notes == nil)
+    monitor.noteOff(source: 124, note: 60, velocity: 64, channel: 0)
+    #expect(monitor.notes == nil)
+    monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 1)
+    #expect(monitor.notes! == .on(.init(midi: 60)))
+    monitor.noteOff(source: 124, note: 60, velocity: 64, channel: 1)
+    #expect(monitor.notes! == .off(.init(midi: 60)))
   }
 
   @Test
