@@ -499,10 +499,10 @@ public struct ToolBarView: View {
 
 extension ToolBarView {
   static var preview: some View {
-    prepareDependencies {
-      $0.defaultDatabase = previewDatabase()
-    }
-
+//    prepareDependencies {
+//      $0.defaultDatabase = previewDatabase()
+//    }
+//
     struct Preview: View {
       @Shared(.showActiveVoiceCount) var showActiveVoiceCount
       @State var showMoreButtons: Bool = false

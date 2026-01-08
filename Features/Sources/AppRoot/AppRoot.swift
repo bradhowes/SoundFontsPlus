@@ -70,7 +70,7 @@ public struct AppRoot {
     public var volumeMonitor: VolumeMonitor.State
     #endif
     public var audioUnitCrashed = false
-    public var hud: HUD = .none
+    public var hud: HUD = .initializing
 
     public init(
       appReview: AppReview.State? = nil,

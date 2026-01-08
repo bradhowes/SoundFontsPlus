@@ -57,13 +57,12 @@ struct AppRootTests {
       }
       await store.receive(\.synth.delegate.audioUnitCreated) {
         $0.keyboard.midiInstrument = $0.synth.avAudioUnit
-        $0.toolBar.audioUnit = $0.synth.avAudioUnit?.auAudioUnit
       }
       await store.receive(\.synth.delegate.running) {
         $0.synth.loadedSoundFontId = 1
         $0.synth.loadedPresetIndex = 0
         $0.toolBar.preset = Preset.with(id: 1)
-        $0.audioUnitReady = true
+        $0.hud = .dismissed
       }
 
       try await closure(store)

@@ -14,6 +14,7 @@ import TestSupport
 @Suite(
   .dependencies {
     $0.continuousClock = TestClock()
+    $0.mainQueue = .immediate
   },
   .snapshots(record: .failed)
 )
@@ -135,16 +136,12 @@ struct ToolBarTests {
 
   @Test
   func lastPlayedKeyChangedIgnore() async throws {
+    @Shared(.showKeyNotes) var showKeyNotes
+    $showKeyNotes.withLock { $0 = false }
+
     let store = try await store()
 
-    await store.send(.lastPlayedKeyChanged(.A6)) {
-      $0.lastPlayedKey = .A6
-    }
-
-    await store.send(.lastPlayedKeyChanged(nil)) {
-      $0.lastPlayedKey = nil
-    }
-
+    await store.send(.lastPlayedKeyChanged(.A6))
     await store.send(.deinitialize)
     await store.finish()
   }
@@ -157,7 +154,7 @@ struct ToolBarTests {
     let store = try await store()
 
     await store.send(.lastPlayedKeyChanged(.A6)) {
-      $0.lastPlayedKey = .A6
+      $0.temporaryStatus = .lastPlayedKey(Note.A6.fullLabel(withSolfege: false))
     }
 
     await store.send(.deinitialize)
@@ -172,7 +169,7 @@ struct ToolBarTests {
     let store = try await store()
 
     await store.send(.lastPlayedKeyChanged(.A6)) {
-      $0.lastPlayedKey = .A6
+      $0.temporaryStatus = .lastPlayedKey(Note.A6.fullLabel(withSolfege: true))
     }
 
     await store.send(.deinitialize)
@@ -216,9 +213,7 @@ struct ToolBarTests {
 
     let store = try await store()
 
-    await store.send(.audioUnitCreated(avAudioUnit.auAudioUnit)) {
-      $0.audioUnit = avAudioUnit.auAudioUnit
-    }
+    await store.send(.audioUnitCreated(avAudioUnit))
 
     await synth.send(\.playNote)
 
@@ -374,11 +369,10 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test(
-    .dependencies { $0.defaultDatabase = TestSupport.testDatabase() }
-  )
+  @Test
   func preview() async throws {
-    @Shared(.activeState) var activeState = .default
-    try TestSupport.assertSnapshot(matching: ToolBarView.preview)
+    try withSnapshotTesting(record: .failed) {
+      try TestSupport.assertSnapshot(matching: ToolBarView.preview)
+    }
   }
 }
