@@ -946,6 +946,8 @@ extension View {
 #endif // os(iOS)
 }
 
+#if DEBUG
+
 extension AppRootView {
 
   static var preview: some View {
@@ -972,5 +974,7 @@ extension AppRootView {
 #Preview {
   AppRootView.preview
 }
+
+#endif
 
 private let log = Logger(category: "AppRoot")

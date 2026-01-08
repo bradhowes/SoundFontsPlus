@@ -62,7 +62,7 @@ struct AppRootTests {
         $0.synth.loadedSoundFontId = 1
         $0.synth.loadedPresetIndex = 0
         $0.toolBar.preset = Preset.with(id: 1)
-        $0.hud = .dismissed
+        $0.toastState = nil
       }
 
       try await closure(store)
@@ -192,6 +192,11 @@ struct AppRootTests {
 
   @Test
   func appRootViewPreview() async throws {
+    try TestSupport.assertSnapshot(matching: AppRootView.preview)
+  }
+
+  @Test
+  func appRootViewLoadingPreview() async throws {
     try TestSupport.assertSnapshot(matching: AppRootView.preview)
   }
 }
