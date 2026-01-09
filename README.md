@@ -23,10 +23,9 @@ Main dependencies:
 # Status
 
 The app now uses the AUv3 app extension for audio rendering, something which the original [SoundFonts][0] never did.
-
 The app is getting close to feature-parity with the the original UIKit version:
 
-* generates audio using both onscreen keyboard as well as from MIDI devices
+* generates audio using both onscreen keyboard as well as from MIDI devices (MIDI support from my [MorkAndMIDI](https://github.com/bradhowes/morkandmidi) library)
 * reverb and delay effects
 * imports SF2 files
 * supports cloning of presets (aka "favorites")
