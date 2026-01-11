@@ -717,9 +717,12 @@ public struct AppRootView: View {
   private var initializeToast: Toast {
     Toast(role: .informational, duration: .indefinite) {
       Label {
-        Text("Loading…")
+        Text(" Loading…")
+          .font(.toastLabel)
+          .foregroundStyle(.teal)
       } icon: {
         ProgressView()
+          .tint(.teal)
       }
     }
   }
@@ -728,6 +731,8 @@ public struct AppRootView: View {
     Toast(role: .warning, duration: .seconds(3)) {
       Label {
         Text("Panic!")
+          .font(.toastLabel)
+          .foregroundStyle(.teal)
       } icon: {
         Image(systemName: "exclamationmark.octagon.fill")
       }
@@ -740,6 +745,8 @@ public struct AppRootView: View {
       Toast(role: .failure, duration: .indefinite) {
         Label {
           Text("Volume is muted.")
+            .font(.toastLabel)
+            .foregroundStyle(.teal)
         } icon: {
           Image(systemName: "speaker.slash")
         }
@@ -748,6 +755,8 @@ public struct AppRootView: View {
       Toast(role: .failure, duration: .indefinite) {
         Label {
           Text("No preset selected.")
+            .font(.toastLabel)
+            .foregroundStyle(.teal)
         } icon: {
           Image(systemName: "speaker.slash")
         }

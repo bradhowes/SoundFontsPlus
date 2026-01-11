@@ -23,6 +23,7 @@ extension CGFloat {
   public static var tutorialGistFontSize: Self { 22 }
   public static var tutorialTitleFontSize: Self { 48 }
   public static var versionFontSize: Self { 18 }
+  public static var toastLabelFontSize: Self { 20 }
 
   public var appFont: Font { Font.custom("EurostileRegular", size: self) }
 }
@@ -46,6 +47,7 @@ extension Font {
   public static var tutorialGist: Font { CGFloat.tutorialGistFontSize.appFont }
   public static var tutorialTitle: Font { CGFloat.tutorialTitleFontSize.appFont }
   public static var version: Font { CGFloat.versionFontSize.appFont }
+  public static var toastLabel: Font { CGFloat.toastLabelFontSize.appFont }
 }
 
 extension Color {
