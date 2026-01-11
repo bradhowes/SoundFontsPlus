@@ -19,6 +19,7 @@ public func appDatabase(
   seeder: ((Database) throws -> Void)? = nil
 ) throws -> any DatabaseWriter {
   @Dependency(\.context) var context
+  @Dependency(\.fileManager) var fileManager
   @Shared(.sqlContentionTimeout) var sqlContentionTimeout
 
   var database: any DatabaseWriter
@@ -64,11 +65,18 @@ public func appDatabase(
 #endif // DEBUG
 
   if context == .live {
-    let databaseURL: URL = FileManager.default.localDocumentsDirectory.appending(component: "db.sqlite")
+    let databaseURL: URL = fileManager.sharedDocumentsDirectory().appending(component: "db.sqlite")
     let coordinator = NSFileCoordinator(filePresenter: nil)
     var dbPool: DatabasePool?
     var coordinatorError: NSError?
     var dbError: Error?
+
+    if false {
+      try? fileManager.removeItem(databaseURL) // FIXME: remove
+      try? fileManager.removeItem(fileManager.fontFilesDirectory())
+      _ = fileManager.fontFilesDirectory()
+    }
+
     unsafe coordinator.coordinate(writingItemAt: databaseURL, options: .forMerging, error: &coordinatorError) { url in
       do {
         log.info("opening \(url)")

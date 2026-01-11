@@ -190,6 +190,14 @@ extension SF2LibAU {
 
     // Per doc, we must invoke the original method we are overriding.
     try super.allocateRenderResources()
+
+    // FIXME: debugging code
+    log.info("sharedDocumentsDirectory dump: \(FileManager.default.sharedDocumentsDirectory.path())")
+    let found = try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.sharedDocumentsDirectory.path())
+    for each in (found ?? []) {
+      log.info("found: \(each)")
+    }
+
     log.info("allocateRenderResources END")
   }
 

@@ -320,6 +320,11 @@ extension AppRoot {
 
   public static func prepareDependencies() {
     Dependencies.prepareDependencies {
+
+      FileManager.default.createDirectories([
+        FileManager.default.fontFilesDirectory
+      ])
+
       @Shared(.isAUv3) var isAUv3 = false
 
       $0.audioGraph = .liveValue
@@ -419,6 +424,11 @@ extension AppRoot {
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {
+    log.info("sharedDocumentsDirectory dump: \(FileManager.default.sharedDocumentsDirectory.path())")
+    let found = try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.sharedDocumentsDirectory.path())
+    for each in (found ?? []) {
+      log.info("found: \(each)")
+    }
     return .merge(
       createCloudDocumentsDirectory(),
       monitorActivePresetId(),

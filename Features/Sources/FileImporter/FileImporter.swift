@@ -81,7 +81,7 @@ extension FileImporter {
     case .success(let url):
       let displayName = String(url.lastPathComponent.withoutExtension)
       log.info("picked \(displayName) - \(url)")
-      return importFile(&state, displayName: displayName, url: url)
+      return importFile(&state, displayName: displayName, url: url, allowExisting: true) // FIXME: remove
 
     case .failure(let error):
       log.info("failed to pick - \(error.localizedDescription)")
@@ -170,8 +170,8 @@ extension FileImporter {
     allowExisting: Bool
   ) throws -> URL {
     try source.withSecurityScopingThrows { url in
-      log.info("copying \(url) to \(fileManager.sharedDocumentsDirectory())")
-      let destination = fileManager.sharedDocumentsDirectory().appendingPathComponent(url.lastPathComponent)
+      log.info("copying \(url) to \(fileManager.fontFilesDirectory())")
+      let destination = fileManager.fontFilesDirectory().appendingPathComponent(url.lastPathComponent)
       if allowExisting {
         try? fileManager.copyItem(source, destination)
       } else {

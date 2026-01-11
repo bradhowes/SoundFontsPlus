@@ -64,8 +64,7 @@ public struct SoundFontsList {
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
 
       case .destination(.presented(.alert(.deleteSoundFontConfirmed(let soundFontInfo)))):
-        SoundFont.delete(id: soundFontInfo.id)
-        return .none
+        return deleteSoundFontConfirmed(&state, soundFontInfo: soundFontInfo)
 
       case .initialize:
         return .merge(
@@ -117,6 +116,37 @@ extension SoundFontsList {
         displayName: soundFontInfo.displayName
       )
     )
+    return .none
+  }
+
+  private func deleteSoundFontConfirmed(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
+    @Dependency(\.fileManager) var fileManager
+    guard let soundFont = SoundFont.with(id: soundFontInfo.id ) else {
+      log.error("unexpected missing soundfont ID \(soundFontInfo.id)")
+      return .none
+    }
+
+    guard
+      let kind = try? SoundFontKind(kind: soundFont.kind, location: soundFont.location, displayName: soundFontInfo.displayName)
+    else {
+      log.error("unexpected nil kind value for soundfont ID \(soundFontInfo.id)")
+      return .none
+    }
+
+    guard kind.isExternal || kind.isInstalled else {
+      log.error("unexpected kind value for soundfont ID \(soundFontInfo.id) - \(kind))")
+      return .none
+    }
+
+    do {
+      log.info("removing file \(kind.path)")
+      try fileManager.removeItem(kind.path)
+    } catch {
+      log.error("failed to remove item \(kind.path)")
+    }
+
+    log.info("removing db entry for \(soundFont.displayName)")
+    SoundFont.delete(id: soundFontInfo.id)
     return .none
   }
 

@@ -1,46 +1,43 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import Dependencies
 import Foundation
 import os
-import Dependencies
 
 extension FileManager {
 
-  public var groupIdentifier: String { "group.com.braysoftware.SoundFontsShare" }
+  /// - returns: The app group identifier.
+  public var applicationGroupIdentifier: String { "group.com.braysoftware.SoundFontsShare" }
 
-  /// Location of shared documents between app and extension
+  /// - returns: Location of shared documents between app and extension
   public var sharedDocumentsDirectory: URL {
-    guard let url = self.containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier) else {
-      return localDocumentsDirectory
-    }
-
-    if !self.fileExists(atPath: url.path()) {
-      try? self.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
-    }
-
-    return url
+    containerURL(forSecurityApplicationGroupIdentifier: applicationGroupIdentifier) ?? localDocumentsDirectory
   }
 
-  /// True if the user has an iCloud container available to use
-  public var hasCloudDirectory: Bool { self.ubiquityIdentityToken != nil }
+  /// - returns: The directory containing SoundFontsPlus font files
+  public var fontFilesDirectory: URL { sharedDocumentsDirectory.appendingPathComponent("FontFiles") }
 
-  /// Location of documents on device that can be backed-up to iCloud if enabled.
-  public var localDocumentsDirectory: URL {
-    // swiftlint:disable:next force_unwrapping
-    self.urls(for: .documentDirectory, in: .userDomainMask).last!
-  }
+  /// - returns: True if the user has an iCloud container available to use
+  public var hasCloudDirectory: Bool { ubiquityIdentityToken != nil }
 
-  /// Location of app documents in iCloud (if enabled).
-  public var cloudDocumentsDirectory: URL? { self.url(forUbiquityContainerIdentifier: nil) }
+  /// - returns: Location of documents on device that can be backed-up to iCloud if enabled.
+  public var localDocumentsDirectory: URL { urls(for: .documentDirectory, in: .userDomainMask)[0] }
+
+  /// - returns: Location of app documents in iCloud (if enabled).
+  public var cloudDocumentsDirectory: URL? { url(forUbiquityContainerIdentifier: nil) }
 
   /**
    Try to obtain the size of a given file.
 
-   - parameter url: the location of the file to measure
-   - returns: size in bytes or 0 if there was a problem getting the size
+   - parameter url: The location of the file to measure
+   - returns: Size in bytes or 0 if there was a problem getting the size
    */
-  public func fileSizeOf(url: URL) -> UInt64 {
-    (try? (self.attributesOfItem(atPath: url.path) as NSDictionary).fileSize()) ?? 0
+  public func fileSizeOf(url: URL) -> UInt64 { (try? (attributesOfItem(atPath: url.path) as NSDictionary).fileSize()) ?? 0 }
+
+  public func createDirectories(_ urls: [URL]) {
+    for url in urls {
+      try? self.createDirectory(at: url, withIntermediateDirectories: true)
+    }
   }
 }
 
@@ -79,3 +76,5 @@ actor CloudDocumentsHandler {
 }
 
 #endif
+
+private let log: Logger = .init(category: "FileManager")
