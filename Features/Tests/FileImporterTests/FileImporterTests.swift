@@ -112,9 +112,10 @@ struct FileImporterTests {
       let path = FileManager.default.temporaryDirectory.appendingPathComponent(uuid.uuidString)
       try? FileManager.default.createDirectory(at: path, withIntermediateDirectories: true)
       $0.fileManager = .liveValue
-      $0.fileManager.sharedDocumentsDirectory = {
+      $0.fileManager.fontFilesDirectory = {
         path
       }
+      $0.fileManager.fontFilePath = { path.appendingPathComponent($0, isDirectory: false) }
       $0.defaultDatabase = TestSupport.testDatabase()
     }
 
@@ -123,7 +124,7 @@ struct FileImporterTests {
     let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(lastPathComponent)
     try? FileManager.default.copyItem(at: url, to: tmp)
 
-    let dst = FileManager.default.sharedDocumentsDirectory.appendingPathComponent(lastPathComponent)
+    let dst = FileManager.default.fontFilesDirectory.appendingPathComponent(lastPathComponent)
     try? FileManager.default.removeItem(at: dst)
 
     await store.send(.filePicked(.success(tmp))) {

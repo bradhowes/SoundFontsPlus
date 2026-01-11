@@ -7,7 +7,11 @@ import Testing
 
 @testable import Models
 
-@Suite
+@Suite(
+  .dependencies {
+    $0.fileManager.fontFilePath = { SF2ResourceTag.freeFont.url.deletingLastPathComponent().appendingPathComponent($0, isDirectory: false) }
+  }
+)
 @MainActor
 struct SoundFontKindTests {
 

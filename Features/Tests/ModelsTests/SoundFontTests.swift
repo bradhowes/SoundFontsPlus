@@ -113,7 +113,9 @@ struct SoundFontTests {
 
   @Test(
     .dependencies {
-      $0.fileManager.fontFilePath = { FileManager.default.fontFilesDirectory.appendingPathComponent($0) }
+      // Trick `SoundFont.add` to read from the bundle directory where the built-in files are
+      $0.fileManager.fontFilesDirectory = { SF2Resource.resources[3].deletingLastPathComponent() }
+      $0.fileManager.fontFilePath = { SF2Resource.resources[3].deletingLastPathComponent().appendingPathComponent($0) }
     }
   )
   func add() async throws {
@@ -127,7 +129,7 @@ struct SoundFontTests {
     try await $soundFonts.load()
     #expect(soundFonts.count == 1)
 
-    try FileManager.default.copyItem(at: SF2Resource.resources[3], to: FileManager.default.fontFilesDirectory.appendingPathComponent("Hubba.sf2"))
+    // Do a fake install by referring to the file name of the built-in resource
     let kind: SoundFontKind = .installed(filename: SF2Resource.resources[3].lastPathComponent)
     try SoundFont.add(displayName: "Hubba", soundFontKind: kind)
 

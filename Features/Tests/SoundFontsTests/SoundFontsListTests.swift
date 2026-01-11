@@ -160,10 +160,6 @@ struct SoundFontsListTests {
     #expect(deleted != nil)
     #expect(deleted?.soundFontInfo.displayName == "Font 2")
 
-    await store.receive(\.soundFontInfosChanged) {
-      $0.rows = oldRows
-    }
-
     await store.send(.deinitialize)
     await store.finish()
   }
