@@ -6,6 +6,9 @@ import UniformTypeIdentifiers
 
 private let log = Logger(category: "FileImporter")
 
+/**
+ Feature that imports a SF2 file for use in the synth.
+ */
 @Reducer
 public struct FileImporter {
 
@@ -81,7 +84,7 @@ extension FileImporter {
     case .success(let url):
       let displayName = String(url.lastPathComponent.withoutExtension)
       log.info("picked \(displayName) - \(url)")
-      return importFile(&state, displayName: displayName, url: url, allowExisting: true) // FIXME: remove
+      return importFile(&state, displayName: displayName, url: url, allowExisting: false)
 
     case .failure(let error):
       log.info("failed to pick - \(error.localizedDescription)")
@@ -94,7 +97,7 @@ extension FileImporter {
     _ state: inout State,
     displayName: String,
     url: URL,
-    allowExisting: Bool = false
+    allowExisting: Bool
   ) -> Effect<Action> {
     if !validateSoundFont(url: url) {
       log.info("invalid SF2 file")
@@ -148,7 +151,7 @@ extension FileImporter {
     let location: SoundFontKind
     if copyFileWhenInstalling {
       log.info("copying file to app folder")
-      let destination = try copyToSharedFolder(
+      let destination = try copyToFontFilesFolder(
         &state,
         displayName: displayName,
         source: source,
@@ -163,7 +166,7 @@ extension FileImporter {
     return location
   }
 
-  private func copyToSharedFolder(
+  private func copyToFontFilesFolder(
     _ state: inout State,
     displayName: String,
     source: URL,
