@@ -376,6 +376,10 @@ extension Synth {
 
     guard let presetInfo = Operations.presetLoadingInfo(id: presetId) else {
       log.info("useActivePreset END - no presetInfo")
+      $activeState.withLock {
+        $0.activePresetId = nil
+        $0.activeSoundFontId = nil
+      }
       return .none
     }
 

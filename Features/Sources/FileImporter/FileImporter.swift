@@ -157,7 +157,7 @@ extension FileImporter {
         source: source,
         allowExisting: allowExisting
       )
-      location = .installed(url: destination)
+      location = .installed(filename: destination.lastPathComponent)
     } else {
       log.info("using external file")
       let bookmark = Bookmark(url: source, name: displayName)

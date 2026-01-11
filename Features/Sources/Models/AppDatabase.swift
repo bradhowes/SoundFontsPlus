@@ -71,8 +71,8 @@ public func appDatabase(
     var coordinatorError: NSError?
     var dbError: Error?
 
-    if false {
-      try? fileManager.removeItem(databaseURL) // FIXME: remove
+    if false { // FIXME: remove
+      try? fileManager.removeItem(databaseURL)
       try? fileManager.removeItem(fileManager.fontFilesDirectory())
       _ = fileManager.fontFilesDirectory()
     }

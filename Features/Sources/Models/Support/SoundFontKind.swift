@@ -15,7 +15,7 @@ public enum SoundFontKind {
 
   /// Sound font file that was installed by the user into the app's working directory on the device where the app is
   /// running. Holds the URL to the SF2 file.
-  case installed(url: URL)
+  case installed(filename: String)
 
   /// Sound font file that was installed by the user but that was *not* copied into the app's working
   /// directory. This could reside on an external disk for instance, or on the iCloud Drive. As such it is possible it
@@ -25,7 +25,7 @@ public enum SoundFontKind {
   public init(kind: SoundFont.Kind, location: Data, displayName: String) throws {
     switch kind {
     case .builtin: self = try .builtin(tag: dataToTag(location, displayName: displayName))
-    case .installed: self = try .installed(url: dataToUrl(location, displayName: displayName))
+    case .installed: self = try .installed(filename: dataToFilename(location, displayName: displayName))
     case .external: self = try .external(bookmark: Bookmark.from(data: location))
     }
   }
@@ -38,7 +38,7 @@ extension SoundFontKind {
   public func data() throws -> (SoundFont.Kind, Data) {
     switch self {
     case .builtin(tag: let tag): return (.builtin, try tagToData(tag))
-    case .installed(url: let url): return (.installed, try urlToData(url))
+    case .installed(filename: let filename): return (.installed, try filenameToData(filename))
     case .external(bookmark: let bookmark): return (.external, try bookmark.toData())
     }
   }
@@ -52,9 +52,10 @@ extension SoundFontKind {
   }
 
   public var path: URL {
+    @Dependency(\.fileManager) var fileManager
     switch self {
     case .builtin(tag: let tag): return tag.url
-    case .installed(url: let url): return url
+    case .installed(filename: let filename): return fileManager.fontFilePath(filename)
     case .external(bookmark: let bookmark): return bookmark.url
     }
   }
@@ -95,9 +96,10 @@ extension SoundFontKind {
   public var deleteWhenRemoved: Bool { isInstalled }
 
   public func fileInfo() throws -> SF2FileInfo {
+    @Dependency(\.fileManager) var fileManager
     switch self {
     case .builtin(tag: let tag): return try fileInfo(from: tag.url)
-    case .installed(url: let url): return try fileInfo(from: url)
+    case .installed(filename: let filename): return try fileInfo(from: fileManager.fontFilePath(filename))
     case .external(bookmark: let bookmark): return try fileInfo(from: bookmark.url)
     }
   }
@@ -121,6 +123,17 @@ private func dataToUrl(_ data: Data, displayName: String) throws -> URL {
 
 private func urlToData(_ url: URL) throws -> Data {
   .init(url.absoluteString.utf8)
+}
+
+private func dataToFilename(_ data: Data, displayName: String) throws -> String {
+  guard let name = String(data: data, encoding: .utf8) else {
+    throw ModelError.dataIsNotValidString(data: data, displayName: displayName)
+  }
+  return name
+}
+
+private func filenameToData(_ name: String) throws -> Data {
+  .init(name.utf8)
 }
 
 private func dataToTag(_ data: Data, displayName: String) throws -> SF2ResourceTag {

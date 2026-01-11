@@ -147,6 +147,15 @@ extension SoundFontsList {
 
     log.info("removing db entry for \(soundFont.displayName)")
     SoundFont.delete(id: soundFontInfo.id)
+
+    if activeState.activeSoundFontId == soundFontInfo.id {
+      $activeState.withLock {
+        $0.activeSoundFontId = SF2ResourceTag.fluidFont.id
+        $0.activePresetId = 1
+      }
+      return showActiveSoundFont(&state)
+    }
+
     return .none
   }
 

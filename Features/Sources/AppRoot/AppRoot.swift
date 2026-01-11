@@ -321,9 +321,7 @@ extension AppRoot {
   public static func prepareDependencies() {
     Dependencies.prepareDependencies {
 
-      FileManager.default.createDirectories([
-        FileManager.default.fontFilesDirectory
-      ])
+      try? FileManager.default.createDirectory(at: FileManager.default.fontFilesDirectory, withIntermediateDirectories: true)
 
       @Shared(.isAUv3) var isAUv3 = false
 
@@ -711,7 +709,7 @@ public struct AppRootView: View {
     }
     .toastStyle(.plain)
     .toastPresentationInvalidation(.all)
-    .toastInteractiveDismissDisabled(true)
+    .toastInteractiveDismissDisabled(store.toastState == .initializing ? true : false)
   }
 
   private var initializeToast: Toast {

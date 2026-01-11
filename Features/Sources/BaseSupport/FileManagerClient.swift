@@ -12,7 +12,7 @@ public struct FileManagerClient: Sendable {
   public var sharedDocumentsDirectory: @Sendable () -> URL
   public var cloudDocumentsDirectory: @Sendable () -> URL?
   public var fontFilesDirectory: @Sendable () -> URL
-
+  public var fontFilePath: @Sendable (_ filename: String) -> URL
   public var fileSizeOf: @Sendable (_ url: URL) -> UInt64
   public var isUbiquitousItem: @Sendable (_ url: URL) -> Bool
   public var copyItem: @Sendable (_ src: URL, _ dst: URL) throws -> Void
@@ -30,7 +30,7 @@ extension FileManagerClient: DependencyKey {
       sharedDocumentsDirectory: { FileManager.default.sharedDocumentsDirectory },
       cloudDocumentsDirectory: { FileManager.default.cloudDocumentsDirectory },
       fontFilesDirectory: { FileManager.default.fontFilesDirectory },
-
+      fontFilePath: { FileManager.default.fontFilesDirectory.appendingPathComponent($0, isDirectory: false) },
       fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
       isUbiquitousItem: { FileManager.default.isUbiquitousItem(at: $0) },
       copyItem: { try FileManager.default.copyItem(at: $0, to: $1) },
@@ -46,6 +46,7 @@ extension FileManagerClient: DependencyKey {
       sharedDocumentsDirectory: { FileManager.default.sharedDocumentsDirectory },
       cloudDocumentsDirectory: { nil },
       fontFilesDirectory: { FileManager.default.fontFilesDirectory },
+      fontFilePath: { FileManager.default.fontFilesDirectory.appendingPathComponent($0, isDirectory: false) },
       fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
       isUbiquitousItem: { _ in false },
       copyItem: { _, _ in },
@@ -63,7 +64,7 @@ extension FileManagerClient: DependencyKey {
       sharedDocumentsDirectory: { unimplemented("sharedDocumentsDirectory", placeholder: bogus) },
       cloudDocumentsDirectory: { unimplemented("cloudDocumentsDirectory", placeholder: nil) },
       fontFilesDirectory: { unimplemented("fontFilesDirectory", placeholder: bogus) },
-
+      fontFilePath: { _ in unimplemented("fontFilePath", placeholder: bogus) },
       fileSizeOf: { _ in unimplemented("fileSizeOf", placeholder: 0) },
       isUbiquitousItem: { _ in unimplemented("isUbiquitousItem", placeholder: false) },
       copyItem: { _, _ in unimplemented("copyItem", placeholder: ()) },
