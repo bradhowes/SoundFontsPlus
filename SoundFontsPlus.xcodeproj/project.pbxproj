@@ -567,7 +567,8 @@
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "When allowed, SoundFonts can scan for and connect to Blutetooth LE MIDI devices in order to receive MIDI commands from the device.";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "When allowed, SoundFontsPlus can scan for and connect to Blutetooth LE MIDI devices in order to receive MIDI commands from the device.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright (C) 2026 Brad Howes";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "SoundFonts uses local networking to communicate with Audiobus and other music apps.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -631,7 +632,8 @@
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "When allowed, SoundFonts can scan for and connect to Blutetooth LE MIDI devices in order to receive MIDI commands from the device.";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "When allowed, SoundFontsPlus can scan for and connect to Blutetooth LE MIDI devices in order to receive MIDI commands from the device.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright (C) 2026 Brad Howes";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "SoundFonts uses local networking to communicate with Audiobus and other music apps.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -698,7 +700,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SoundFontsPlusAU/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SoundFontsPlusAU;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright (C) 2026 Brad Howes";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -749,7 +752,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SoundFontsPlusAU/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SoundFontsPlusAU;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright (C) 2026 Brad Howes";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
