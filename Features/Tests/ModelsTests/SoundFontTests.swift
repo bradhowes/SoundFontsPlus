@@ -111,7 +111,11 @@ struct SoundFontTests {
     ])
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.fileManager.fontFilePath = { FileManager.default.fontFilesDirectory.appendingPathComponent($0) }
+    }
+  )
   func add() async throws {
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
@@ -123,7 +127,8 @@ struct SoundFontTests {
     try await $soundFonts.load()
     #expect(soundFonts.count == 1)
 
-    let kind: SoundFontKind = .installed(url: SF2Resource.resources[3])
+    try FileManager.default.copyItem(at: SF2Resource.resources[3], to: FileManager.default.fontFilesDirectory.appendingPathComponent("Hubba.sf2"))
+    let kind: SoundFontKind = .installed(filename: SF2Resource.resources[3].lastPathComponent)
     try SoundFont.add(displayName: "Hubba", soundFontKind: kind)
 
     try await $soundFonts.load()

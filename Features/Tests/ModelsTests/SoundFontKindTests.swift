@@ -33,12 +33,12 @@ struct SoundFontKindTests {
 
   @Test
   func installed() async throws {
-    let sfk = SoundFontKind.installed(url: SF2ResourceTag.freeFont.url)
+    let sfk = SoundFontKind.installed(filename: SF2ResourceTag.freeFont.url.lastPathComponent)
     #expect(!sfk.isBuiltin)
     #expect(sfk.isInstalled)
     #expect(!sfk.isExternal)
     #expect(sfk.description == "installed")
-    #expect(try sfk.data() == (.installed, Data(SF2ResourceTag.freeFont.url.absoluteString.utf8)))
+    #expect(try sfk.data() == (.installed, Data(SF2ResourceTag.freeFont.url.lastPathComponent.utf8)))
     #expect(sfk.path == SF2ResourceTag.freeFont.url)
 
     let fileInfo = try sfk.fileInfo()
