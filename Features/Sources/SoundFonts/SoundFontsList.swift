@@ -183,8 +183,8 @@ extension SoundFontsList {
     case .editSoundFont(let soundFontInfo):
       return edit(&state, soundFontId: soundFontInfo.id)
 
-    case .selectSoundFont(let soundFontInfo):
-      return select(&state, soundFontId: soundFontInfo.id)
+    case .selectSoundFont(let soundFontInfo, let available):
+      return select(&state, soundFontId: soundFontInfo.id, available: available)
     }
   }
 
@@ -218,16 +218,17 @@ extension SoundFontsList {
     }.cancellable(id: CancelId.soundFontsListMonitorFetchAll, cancelInFlight: true)
   }
 
-  private func select(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
-    if selectedSoundFontId != soundFontId {
+  private func select(_ state: inout State, soundFontId: SoundFont.ID, available: Bool) -> Effect<Action> {
+    if selectedSoundFontId != soundFontId && available {
       $selectedSoundFontId.withLock { $0 = soundFontId }
     }
     return .none
   }
 
   private func showActiveSoundFont(_ state: inout State) -> Effect<Action> {
-    if let activeSoundFontId = activeState.activeSoundFontId {
-      return select(&state, soundFontId: activeSoundFontId)
+    if let activeSoundFontId = activeState.activeSoundFontId,
+       let index = state.rows.index(id: activeSoundFontId) {
+      return select(&state, soundFontId: activeSoundFontId, available: state.rows[index].statusInfoTag.available)
     } else {
       return .none
     }

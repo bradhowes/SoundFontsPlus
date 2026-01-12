@@ -10,7 +10,6 @@ import FeatureSupport
  */
 @Reducer
 public struct SoundFontButton {
-  let log = Logger(category: "SoundFontButton")
 
   /**
    Attributes that affect the "accessory" button.
@@ -42,18 +41,25 @@ public struct SoundFontButton {
       }
     }
 
+    var available: Bool {
+      switch self {
+      case .invalidBookmark, .localIsMissing, .cloudIsMissing: return false
+      default: return true
+      }
+    }
+
     func statusInfo(_ info: SoundFontInfo) -> StatusInfo {
       switch self {
       case .internalFile:
-        return .init(action: .delegate(.selectSoundFont(info)), imageName: "circle.fill", color: .black)
+        return .init(action: .delegate(.selectSoundFont(info, available: true)), imageName: "circle.fill", color: .black)
       case .invalidBookmark:
         return .init(action: .delegate(.alertInvalidBookmark(info)), imageName: "exclamationmark.circle", color: .red)
       case .localIsAvailable:
-        return .init(action: .delegate(.selectSoundFont(info)), imageName: "link", color: .accentColor)
+        return .init(action: .delegate(.selectSoundFont(info, available: true)), imageName: "link", color: .accentColor)
       case .localIsMissing:
         return .init(action: .delegate(.alertMissingFile(info)), imageName: "exclamationmark.circle", color: .yellow)
       case .cloudIsDownloaded:
-        return .init(action: .delegate(.selectSoundFont(info)), imageName: "icloud", color: .accentColor)
+        return .init(action: .delegate(.selectSoundFont(info, available: true)), imageName: "icloud", color: .accentColor)
       case .cloudIsMissing:
         return .init(action: .downloadFileButtonTapped, imageName: "icloud.and.arrow.down", color: .yellow)
       }
@@ -103,7 +109,7 @@ public struct SoundFontButton {
     case alertMissingFile(SoundFontInfo)
     case deleteSoundFont(SoundFontInfo)
     case editSoundFont(SoundFontInfo)
-    case selectSoundFont(SoundFontInfo)
+    case selectSoundFont(SoundFontInfo, available: Bool)
   }
 
   public init() {}
@@ -137,12 +143,10 @@ extension SoundFontButton {
   private func bookmarkMonitorStart(_ state: inout State) -> Effect<Action> {
     guard state.soundFontInfo.kind == .external else { return .none }
     @Dependency(\.continuousClock) var clock
-    // swiftlint:disable closure_parameter_position
-    return .run(priority: .utility, name: "bookmarkMonitor") { [
-      currentStatusInfoTag = state.statusInfoTag,
-      soundFontInfo = state.soundFontInfo
-    ] send in
-      // swiftlint:enable closure_parameter_position
+    return .run(
+      priority: .utility,
+      name: "bookmarkMonitor"
+    ) { [currentStatusInfoTag = state.statusInfoTag, soundFontInfo = state.soundFontInfo] send in
       var statusInfoTag = currentStatusInfoTag
       while !Task.isCancelled {
         try await clock.sleep(for: .seconds(2))
@@ -180,7 +184,7 @@ struct SoundFontButtonView: View {
   public var body: some View {
     HStack {
       Button {
-        store.send(.delegate(.selectSoundFont(store.soundFontInfo)), animation: .default)
+        store.send(.delegate(.selectSoundFont(store.soundFontInfo, available: store.statusInfoTag.available)), animation: .default)
       } label: {
         Text(store.soundFontInfo.displayName)
           .font(.button)
@@ -236,6 +240,10 @@ extension SoundFontButtonView {
   }
 }
 
+private let log: Logger = .init(category: "SoundFontButton")
+
+#if DEBUG
+
 extension SoundFontButtonView {
   static var preview: some View {
     // swiftlint:disable:next force_try
@@ -274,3 +282,5 @@ extension SoundFontButtonView {
 #Preview {
   SoundFontButtonView.preview
 }
+
+#endif

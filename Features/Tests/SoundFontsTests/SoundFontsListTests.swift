@@ -102,8 +102,13 @@ struct SoundFontsListTests {
       await store.receive(\.soundFontInfosChanged)
     }
 
-    let row = store.state.rows[1]
-    await store.send(.rows(.element(id: row.id, action: .delegate(.selectSoundFont(row.soundFontInfo)))))
+    var row = store.state.rows[1]
+    await store.send(.rows(.element(id: row.id, action: .delegate(.selectSoundFont(row.soundFontInfo, available: true)))))
+
+    #expect(selectedSoundFontId == 2)
+
+    row = store.state.rows[0]
+    await store.send(.rows(.element(id: row.id, action: .delegate(.selectSoundFont(row.soundFontInfo, available: false)))))
 
     #expect(selectedSoundFontId == 2)
 
