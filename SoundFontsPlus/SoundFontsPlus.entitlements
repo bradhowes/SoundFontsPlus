@@ -20,7 +20,7 @@
 	<string>$(TeamIdentifierPrefix)$(CFBundleIdentifier)</string>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.braysoftware.SoundFontsPlus</string>
+		<string>group.com.braysoftware.SFP</string>
 	</array>
 	<key>inter-app-audio</key>
 	<true/>

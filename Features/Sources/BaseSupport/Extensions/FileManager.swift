@@ -7,11 +7,14 @@ import os
 extension FileManager {
 
   /// - returns: The app group identifier.
-  public var applicationGroupIdentifier: String { "group.com.braysoftware.SoundFontsShare" }
+  public var applicationGroupIdentifier: String { "group.com.braysoftware.SFP" }
 
   /// - returns: Location of shared documents between app and extension
   public var sharedDocumentsDirectory: URL {
-    containerURL(forSecurityApplicationGroupIdentifier: applicationGroupIdentifier) ?? localDocumentsDirectory
+    guard let url = containerURL(forSecurityApplicationGroupIdentifier: applicationGroupIdentifier) else {
+      fatalError("mismatch app group identifier")
+    }
+    return url
   }
 
   /// - returns: The directory containing SoundFontsPlus font files
@@ -33,12 +36,6 @@ extension FileManager {
    - returns: Size in bytes or 0 if there was a problem getting the size
    */
   public func fileSizeOf(url: URL) -> UInt64 { (try? (attributesOfItem(atPath: url.path) as NSDictionary).fileSize()) ?? 0 }
-
-  public func createDirectories(_ urls: [URL]) {
-    for url in urls {
-      try? self.createDirectory(at: url, withIntermediateDirectories: true)
-    }
-  }
 }
 
 // From https://fatbobman.com/en/posts/in-depth-guide-to-icloud-documents/
