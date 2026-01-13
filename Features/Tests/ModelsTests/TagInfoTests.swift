@@ -20,7 +20,7 @@ struct TagInfoTests {
   @Test
   func testQuery() async throws {
     let found = withDatabaseReader { try TagInfo.query.fetchAll($0) } ?? []
-    #expect(found.count == 4)
+    #expect(found.count == 5)
     #expect(found[0].soundFontsCount == 2)
     #expect(found[1].soundFontsCount == 2)
     #expect(found[2].soundFontsCount == 0)
@@ -44,7 +44,7 @@ struct TagInfoTests {
   )
   func liveQuery() async throws {
     let found = withDatabaseReader { try TagInfo.query.fetchAll($0) } ?? []
-    #expect(found.count == 4)
+    #expect(found.count == 5)
     #expect(found[0].soundFontsCount == 4)
     #expect(found[1].soundFontsCount == 4)
     #expect(found[2].soundFontsCount == 0)

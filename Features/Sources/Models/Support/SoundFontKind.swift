@@ -82,7 +82,7 @@ extension SoundFontKind {
     var ubiTags: [FontTag.Ubiquitous] = [.all]
     switch self {
     case .builtin: ubiTags.append(.builtIn)
-    case .installed: ubiTags.append(.added)
+    case .installed: ubiTags += [.added, .device]
     case .external: ubiTags += [.added, .external]
     }
     // TODO: also add active tag?

@@ -139,7 +139,7 @@ struct SoundFontTests {
     #expect(soundFonts[1].sourceKind ==  "installed")
 
     let tags = soundFonts[1].tags
-    #expect(tags.count == 2)
+    #expect(tags.count == 3)
   }
 
   @Test

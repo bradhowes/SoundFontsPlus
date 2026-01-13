@@ -27,7 +27,7 @@ struct TagsListTests {
 
     let store = try store()
     let tagInfos = store.state.tagInfos
-    #expect(tagInfos.count == 5)
+    #expect(tagInfos.count == 6)
     #expect(tagInfos.last?.displayName == "My New Tag")
 
     await store.send(.deleteButtonTapped(tagInfos.last!))
@@ -36,8 +36,8 @@ struct TagsListTests {
       try TagInfo.query.fetchAll(db)
     }
 
-    #expect(found?.count == 4)
-    #expect(activeState.activeTagId == FontTag.Ubiquitous.all.id)
+    #expect(found?.count == 5)
+    #expect(activeState.activeTagId == FontTag.Ubiquitous.external.id)
   }
 
   @Test

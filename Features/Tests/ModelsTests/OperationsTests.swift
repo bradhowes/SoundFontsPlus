@@ -138,20 +138,20 @@ struct OperationsTests {
   func tagSoundFont() async throws {
     let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 5])
+    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 5])
+    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
     Operations.tagSoundFont(FontTag.Ubiquitous.external.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 5])
+    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
   }
 
   @Test
   func tagSoundFontIgnoresUbiquitousTags() async throws {
     let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 5])
+    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
     Operations.tagSoundFont(FontTag.Ubiquitous.external.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 5])
+    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
   }
 
   @Test
@@ -159,7 +159,7 @@ struct OperationsTests {
     @Dependency(\.defaultDatabase) var database
     let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 5])
+    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
     Operations.untagSoundFont(newTag.id, soundFontId: 1)
     #expect(Operations.tagIds(for: 1) == [1, 2])
   }
@@ -169,9 +169,9 @@ struct OperationsTests {
     @Dependency(\.defaultDatabase) var database
     let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 5])
+    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
     Operations.untagSoundFont(FontTag.Ubiquitous.all.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 5])
+    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
   }
 
   @Test

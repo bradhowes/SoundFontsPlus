@@ -42,6 +42,10 @@ extension Logger {
     block()
   }
 
+  public func action<T>(_ label: String, _ action: T) where T: CustomStringConvertible {
+    self.debug("\(label) action: \(action), privacy: .public)")
+  }
+
   public func action<T>(_ label: String, _ action: T) {
     self.debug("\(label) action: \(String(describing: action), privacy: .public)")
   }

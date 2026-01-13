@@ -48,7 +48,7 @@ struct SoundFontKindTests {
     let fileInfo = try sfk.fileInfo()
     #expect(fileInfo.size() == 235)
 
-    #expect(sfk.tagIds == [1, 3]) // all, added
+    #expect(sfk.tagIds == [1, 3, 4]) // all, added, device
     #expect(sfk.addedByUser == true)
     #expect(sfk.deleteWhenRemoved == true)
   }
@@ -69,7 +69,7 @@ struct SoundFontKindTests {
     let fileInfo = try sfk.fileInfo()
     #expect(fileInfo.size() == 235)
 
-    #expect(sfk.tagIds == [1, 3, 4]) // all, added, external
+    #expect(sfk.tagIds == [1, 3, 5]) // all, added, external
     #expect(sfk.addedByUser == true)
     #expect(sfk.deleteWhenRemoved == false)
   }

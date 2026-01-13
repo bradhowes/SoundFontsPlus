@@ -26,30 +26,41 @@ public struct FontTag {
    created first before any user tags.
    */
   public enum Ubiquitous: CaseIterable {
+    /// All soundfonts
     case all
+    /// Soundfonts delivered with the application
     case builtIn
+    /// All soundfonts added by the user
     case added
+    /// Soundfonts added to the shared documents directory on the device
+    case device
+    /// Soundfonts added but not copied to shared documents directory (iCloud or external drive)
     case external
 
+    /// - returns: display name for the ubiquitous tag
     public var displayName: String {
       switch self {
       case .all: return "All"
       case .builtIn: return "Built-in"
       case .added: return "Added"
+      case .device: return "Device"
       case .external: return "External"
       }
     }
 
-    public var allTagsIndex: Int {
+    /// - returns: the zero-based index value for the ubiquitous tag
+    private var tagIndex: Int {
       switch self {
       case .all: return 0
       case .builtIn: return 1
       case .added: return 2
-      case .external: return 3
+      case .device: return 3
+      case .external: return 4
       }
     }
 
-    public var id: ID { .init(rawValue: .init(allTagsIndex + 1)) }
+    /// - returns: unique ID for the ubiquitous tag
+    public var id: ID { .init(rawValue: .init(tagIndex + 1)) }
   }
 
   public let id: ID

@@ -39,7 +39,7 @@ struct TagsEditorTests {
   func addButtonTapped() async {
     let store = store(mode: .tagEditing)
     var rows = store.state.rows
-    #expect(rows.count == 4)
+    #expect(rows.count == 5)
     rows.append(
       .init(
         tagId: -1,
@@ -71,7 +71,7 @@ struct TagsEditorTests {
   func addButtonTappedForFont() async {
     let store = store(mode: .fontEditing, soundFontId: 1, memberships: [:])
     var rows = store.state.rows
-    #expect(rows.count == 4)
+    #expect(rows.count == 5)
 
     rows.append(
       .init(
@@ -104,7 +104,7 @@ struct TagsEditorTests {
   func cancelButtonTapped() async {
     let store = store(mode: .tagEditing, soundFontId: 1, memberships: [:])
     var rows = store.state.rows
-    #expect(rows.count == 4)
+    #expect(rows.count == 5)
 
     rows.append(
       .init(
@@ -125,14 +125,14 @@ struct TagsEditorTests {
       try FontTag.all.fetchAll(db)
     } ?? []
 
-    #expect(found.count == 4)
+    #expect(found.count == 5)
   }
 
   @Test
   func deleteButtonTappedOnNew() async {
     let store = store(mode: .tagEditing, soundFontId: 1, memberships: [:])
     var rows = store.state.rows
-    #expect(rows.count == 4)
+    #expect(rows.count == 5)
 
     rows.append(
       .init(
@@ -196,7 +196,7 @@ struct TagsEditorTests {
   func saveButtonTapped() async {
     let store = store(mode: .tagEditing, soundFontId: 1, memberships: [:])
     var rows = store.state.rows
-    #expect(rows.count == 4)
+    #expect(rows.count == 5)
 
     rows.append(
       .init(
@@ -224,7 +224,7 @@ struct TagsEditorTests {
       try FontTag.all.fetchAll(db)
     } ?? []
 
-    #expect(found.count == 4)
+    #expect(found.count == 5)
     #expect(found.first(where: { $0.displayName == "New Tag" }) != nil)
   }
 

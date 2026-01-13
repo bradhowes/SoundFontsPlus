@@ -153,13 +153,14 @@ struct FontTagTests {
   func reorder() async throws {
     @FetchAll(FontTag.tagsQuery) var tags
     try await $tags.load()
-    try FontTag.reorder(tagIds: [tags[1], tags[0], tags[3], tags[2]].map(\.id))
+    try FontTag.reorder(tagIds: [tags[4], tags[1], tags[0], tags[3], tags[2]].map(\.id))
     try await $tags.load()
-    #expect(tags.count == 4)
+    #expect(tags.count == 5)
     #expect(tags.map(\.displayName) == [
+      FontTag.Ubiquitous.external.displayName,
       FontTag.Ubiquitous.builtIn.displayName,
       FontTag.Ubiquitous.all.displayName,
-      FontTag.Ubiquitous.external.displayName,
+      FontTag.Ubiquitous.device.displayName,
       FontTag.Ubiquitous.added.displayName
     ])
   }
