@@ -57,7 +57,7 @@ extension MIDITrafficIndicator {
       midiMonitor.$traffic
         .compactMap {
           guard let event = $0 else { return nil }
-          log.debug("traffic: \(event)")
+          log.debug("traffic: \(String(describing: event), privacy: .public)")
           return .showMIDITraffic(event)
         }
     }.cancellable(id: CancelId.midiTrafficIndicatorMonitorMIDITraffic)

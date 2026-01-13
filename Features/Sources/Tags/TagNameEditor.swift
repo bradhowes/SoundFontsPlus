@@ -3,7 +3,7 @@
 import FeatureSupport
 import SQLiteData
 
-private let log = Logger(category: "TagNameEditor")
+private let log: Logger = .init(category: "TagNameEditor")
 
 /**
  Feature that allows for editing of a tag name and optionally the association of a soundFont with the tag.

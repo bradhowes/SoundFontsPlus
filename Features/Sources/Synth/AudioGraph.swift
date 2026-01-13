@@ -6,7 +6,7 @@ import Dependencies
 import DependenciesMacros
 import Sharing
 
-private let log = Logger(category: "AudioGraph")
+private let log: Logger = .init(category: "AudioGraph")
 
 @DependencyClient
 public struct AudioGraph: Sendable {

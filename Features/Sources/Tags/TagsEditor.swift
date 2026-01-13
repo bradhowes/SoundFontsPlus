@@ -2,7 +2,7 @@
 
 import FeatureSupport
 
-private let log = Logger(category: "TagsEditor")
+private let log: Logger = .init(category: "TagsEditor")
 
 /**
  Editor for the collection of tags. The tag editing takes place in two areas: one for the tags shown in

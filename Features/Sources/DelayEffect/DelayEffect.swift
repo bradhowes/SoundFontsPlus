@@ -59,7 +59,9 @@ public struct DelayEffect {
     Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature() }
 
     Reduce { state, action in
-      log.info("DelayEffect reduce \(action)")
+
+      log.action("DelayEffect", action)
+
       switch action {
 
       case .activePresetIdChanged(let presetId):
@@ -141,7 +143,9 @@ extension DelayEffect {
   }
 
   private func applyConfigForPreset(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
+    log.info("applyConfigForPreset - \(presetId)")
     let config = DelayConfig.draft(for: presetId, cloning: state.config)
+    log.debug("config: \(String(describing: config), privacy: .public)")
     delayDevice.setConfig(config)
     state.config = config
     state.dirty = false
@@ -357,7 +361,7 @@ extension DelayEffectView {
   }
 }
 
-private let log = Logger(category: "DelayEffect")
+private let log: Logger = .init(category: "DelayEffect")
 
 #Preview {
   DelayEffectView.preview(presetId: 2)

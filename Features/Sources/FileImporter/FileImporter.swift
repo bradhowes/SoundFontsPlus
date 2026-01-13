@@ -4,7 +4,7 @@ import Engine
 import FeatureSupport
 import UniformTypeIdentifiers
 
-private let log = Logger(category: "FileImporter")
+private let log: Logger = .init(category: "FileImporter")
 
 /**
  Feature that imports a SF2 file for use in the synth.
@@ -48,7 +48,8 @@ public struct FileImporter {
 
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
-      log.debug("action: \(action)")
+
+      log.action("FileImporter", action)
 
       switch action {
 

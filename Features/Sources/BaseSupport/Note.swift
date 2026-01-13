@@ -14,7 +14,7 @@ import StructuredQueries
  We are using the second one below in the RawRepresentable decoding, but the app in general supports both for display
  purposes.
  */
-public struct Note: CustomStringConvertible, Sendable {
+public struct Note: Sendable {
 
   public static var sharpTag: String { "♯" }
   public static var flatTag: String { "♭" }
@@ -92,9 +92,6 @@ public struct Note: CustomStringConvertible, Sendable {
   /// Obtain the octave this note is a part of
   public var octave: Int { midiNoteValue / 12 - 1 }
 
-  /// Custom string representation for a Note instance
-  public var description: String { label }
-
   /// Range of valid MIDI v1 notes
   public static let midiRange: ClosedRange<Int> = 0...127
 
@@ -141,6 +138,10 @@ extension Note {
   public func offset(_ semitones: Int) -> Note {
     return Note(midiNoteValue: self.midiNoteValue + semitones)
   }
+}
+
+extension Note: CustomStringConvertible {
+  public var description: String { label }
 }
 
 extension Note: Identifiable {

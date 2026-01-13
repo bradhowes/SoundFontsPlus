@@ -8,7 +8,7 @@ import FileImporter
 import MIDITrafficIndicator
 import Settings
 
-private let log = Logger(category: "ToolBar")
+private let log: Logger = .init(category: "ToolBar")
 
 /**
  The ToolBar feature provides a strip above the keyboard that hosts controls and a text display. It supports 
@@ -122,7 +122,8 @@ public struct ToolBar {
     Scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator) { MIDITrafficIndicator() }
 
     Reduce<State, Action> { state, action in
-      log.info("ToolBar action: \(action)")
+
+      log.action("ToolBar", action)
 
       switch action {
 

@@ -1,18 +1,55 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Dependencies
 import Foundation
 import os
 
-extension FileManager {
+extension FileManager: @unchecked @retroactive Sendable {
 
   /// - returns: The app group identifier.
   public var applicationGroupIdentifier: String { "group.com.braysoftware.SFP" }
 
+  /**
+   Obtain the URL for a new, temporary file. The file will exist on the system but will be empty.
+
+   - returns: the location of the temporary file.
+   - throws: exceptions encountered by FileManager while locating location for temporary file
+   */
+  public func newTemporaryFile() throws -> URL {
+    let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+    let temporaryFileURL = temporaryDirectoryURL.appendingPathComponent(
+      ProcessInfo().globallyUniqueString)
+    precondition(self.createFile(atPath: temporaryFileURL.path, contents: nil))
+    log.debug("newTemporaryFile - \(temporaryFileURL.absoluteString, privacy: .public)")
+    return temporaryFileURL
+  }
+
+  /// Location of app documents that we want to keep private but backed-up. We need to create it if it does not
+  /// exist, so this could be a high latency call.
+  public var privateDocumentsDirectory: URL {
+    let url = urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+    if !self.fileExists(atPath: url.path) {
+      do {
+        try self.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+      } catch {
+        log.error("Failed to create directory \(url, privacy: .public) - \(error, privacy: .public)")
+      }
+    }
+    return url
+  }
+
   /// - returns: Location of shared documents between app and extension
   public var sharedDocumentsDirectory: URL {
-    guard let url = containerURL(forSecurityApplicationGroupIdentifier: applicationGroupIdentifier) else {
-      fatalError("mismatch app group identifier")
+    guard let url = self.containerURL(forSecurityApplicationGroupIdentifier: applicationGroupIdentifier) else {
+      log.error("unable to obtain container URL for '\(self.applicationGroupIdentifier, privacy: .public)")
+      return localDocumentsDirectory
+    }
+
+    if !self.fileExists(atPath: url.path) {
+      do {
+        try self.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+      } catch {
+        log.error("Failed to create directory \(url, privacy: .public) - \(error, privacy: .public)")
+      }
     }
     return url
   }
@@ -37,41 +74,5 @@ extension FileManager {
    */
   public func fileSizeOf(url: URL) -> UInt64 { (try? (attributesOfItem(atPath: url.path) as NSDictionary).fileSize()) ?? 0 }
 }
-
-// From https://fatbobman.com/en/posts/in-depth-guide-to-icloud-documents/
-
-#if false
-
-actor CloudDocumentsHandler {
-  let coordinator = NSFileCoordinator()
-
-  func write(targetURL: URL, data: Data) throws {
-    var coordinationError: NSError?
-    var writeError: Error?
-
-    // Use the coordinationError variable to capture the error information of the coordinate method.
-    // If an NSError pointer is not provided, errors occurring during the coordination process will not be caught
-    // and handled.
-    coordinator.coordinate(writingItemAt: targetURL, options: [.forDeleting], error: &coordinationError) { url in
-      do {
-        try data.write(to: url, options: .atomic)
-      } catch {
-        writeError = error
-      }
-    }
-
-    // Check outside the closure to see if an error occurred
-    if let error = writeError {
-      throw error
-    }
-
-    // Check if an error occurred during reconciliation
-    if let coordinationError = coordinationError {
-      throw coordinationError
-    }
-  }
-}
-
-#endif
 
 private let log: Logger = .init(category: "FileManager")

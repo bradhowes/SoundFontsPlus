@@ -109,7 +109,7 @@ public struct PresetsList {
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce<State, Action> { state, action in
-      log.info("PresetsList reduce \(action)")
+      log.action("PresetsList", action)
       switch action {
 
       case .cancelSearchButtonTapped:
@@ -438,7 +438,7 @@ extension PresetsListView {
   }
 }
 
-private let log = Logger(category: "PresetsList")
+private let log: Logger = .init(category: "PresetsList")
 
 #Preview {
   PresetsListView.preview

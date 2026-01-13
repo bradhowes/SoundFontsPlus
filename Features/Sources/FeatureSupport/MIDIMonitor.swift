@@ -9,7 +9,7 @@ import os
 import Sharing
 import SQLiteData
 
-private let log = Logger(category: "MIDIMonitor")
+private let log: Logger = .init(category: "MIDIMonitor")
 
 public struct MIDITrafficStat: Equatable, Sendable {
   public let id: MIDIUniqueID
@@ -80,7 +80,7 @@ extension MIDIMonitor: Monitor {
   }
 
   public func didUpdateConnections(connected: any Sequence<MIDIEndpointRef>, disappeared: any Sequence<MIDIUniqueID>) {
-    log.debug("didUpdateConnections: \(connected.map(\.uniqueId.asHex)) - \(disappeared)")
+    log.debug("didUpdateConnections: \(connected.map(\.uniqueId.asHex)) - \(String(describing: disappeared), privacy: .public)")
     if let midi {
       self.connectivity = midi.sourceConnections
     }

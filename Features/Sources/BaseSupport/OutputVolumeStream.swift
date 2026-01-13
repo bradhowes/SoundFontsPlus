@@ -3,7 +3,7 @@
 import AVKit
 import Foundation
 
-private let log = Logger(category: "OutputVolumeStream")
+private let log: Logger = .init(category: "OutputVolumeStream")
 
 /**
  Protocol for Swift/Obj-C entities that provide an `outputVolume` attribute that can be monitored with an

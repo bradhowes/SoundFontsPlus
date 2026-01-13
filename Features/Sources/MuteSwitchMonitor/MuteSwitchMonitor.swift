@@ -113,6 +113,6 @@ private extension MuteSwitchMonitor {
   }
 }
 
-private let log = Logger(category: "VolumeMonitor")
+private let log: Logger = .init(category: "VolumeMonitor")
 
 #endif // false

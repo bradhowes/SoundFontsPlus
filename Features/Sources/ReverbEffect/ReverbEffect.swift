@@ -50,7 +50,7 @@ public struct ReverbEffect {
     Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature() }
 
     Reduce { state, action in
-      log.info("ReverbEffect reduce \(action)")
+      log.action("ReverbEffect", action)
 
       switch action {
 
@@ -131,7 +131,7 @@ extension ReverbEffect {
   private func applyConfigForPreset(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
     log.info("applyConfigForPreset - \(presetId)")
     let config = ReverbConfig.draft(for: presetId, cloning: state.config)
-    log.debug("config: \(config)")
+    log.debug("config: \(String(describing: config), privacy: .public)")
     reverbDevice.setConfig(config)
     state.config = config
     state.dirty = false
@@ -302,7 +302,7 @@ extension ReverbEffectView {
   }
 }
 
-private let log = Logger(category: "ReverbEffect")
+private let log: Logger = .init(category: "ReverbEffect")
 
 #Preview {
   ReverbEffectView.preview

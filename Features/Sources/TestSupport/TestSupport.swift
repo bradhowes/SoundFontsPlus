@@ -10,7 +10,7 @@ import SwiftUI
 import Testing
 
 public enum TestSupport {
-  static let log = Logger(category: "TestSupport")
+  static let log: Logger = .init(category: "TestSupport")
 
   public static func testDatabase(seeder: ((Database) throws -> Void)? = addMockPresets) -> any DatabaseWriter {
     // swiftlint:disable:next force_try

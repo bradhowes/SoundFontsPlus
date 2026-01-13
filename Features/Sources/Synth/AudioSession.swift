@@ -158,4 +158,4 @@ extension AVAudioSessionRouteDescription {
 
 #endif // os(iOS)
 
-private let log = Logger(category: "AudioSession")
+private let log: Logger = .init(category: "AudioSession")

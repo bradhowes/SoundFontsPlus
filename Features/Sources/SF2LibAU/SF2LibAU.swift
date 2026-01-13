@@ -173,7 +173,7 @@ extension SF2LibAU {
   }
 
   public override func allocateRenderResources() throws {
-    log.info("allocateRenderResources BEGIN - outputBusses: \(outputBusses.count)")
+    log.info("allocateRenderResources BEGIN - outputBusses: \(self.outputBusses.count)")
 
     // We assume that someone is using the `dryBus` and has it connected so we can query it to get the proper audio
     // processing format to use for the best performance and quality.
@@ -191,7 +191,7 @@ extension SF2LibAU {
     // Per doc, we must invoke the original method we are overriding.
     try super.allocateRenderResources()
 
-//    // FIXME: debugging code
+    // FIXME: debugging code
 //    log.info("sharedDocumentsDirectory dump: \(FileManager.default.sharedDocumentsDirectory.path())")
 //    let found = try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.sharedDocumentsDirectory.path())
 //    for each in (found ?? []) {
@@ -334,4 +334,4 @@ private func getVoiceCount() -> UInt {
   return voiceCount
 }
 
-private let log = Logger(category: "SF2LibAU")
+private let log: Logger = .init(category: "SF2LibAU")

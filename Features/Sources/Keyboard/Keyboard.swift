@@ -4,7 +4,7 @@ import AVFAudio.AVAudioUnit
 import FeatureSupport
 import SwiftUI
 
-private let log = Logger(category: "Keyboard")
+private let log: Logger = .init(category: "Keyboard")
 
 /**
  Representation of a virtual piano keyboard. Touching a key triggers the note assigned to the key. Handles multiple
@@ -97,7 +97,9 @@ public struct Keyboard {
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
-      log.info("Keyboard reduce \(action)")
+
+      log.action("Keyboard", action)
+
       switch action {
 
       case let .activePresetIdChanged(presetId):

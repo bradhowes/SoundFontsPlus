@@ -145,4 +145,4 @@ public enum Operations {
   }
 }
 
-private let log = Logger(category: "Operations")
+private let log: Logger = .init(category: "Operations")

@@ -69,7 +69,7 @@ extension ReverbConfig {
    */
   @discardableResult
   public static func save(config: Draft) -> Self? {
-    log.info("saving \(config)")
+    log.debug("saving \(String(describing: config), privacy: .public)")
     return withDatabaseWriter { db in
       precondition(config.presetId != -1)
       return try Self.upsert {
@@ -134,4 +134,4 @@ extension ReverbConfig.Draft: Equatable, Sendable {}
 
 extension AVAudioUnitReverbPreset: @retroactive QueryBindable {}
 
-private let log = Logger(category: "ReverbConfig")
+private let log: Logger = .init(category: "ReverbConfig")

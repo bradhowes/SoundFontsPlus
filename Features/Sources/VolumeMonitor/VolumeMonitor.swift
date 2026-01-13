@@ -48,7 +48,9 @@ public struct VolumeMonitor {
   public var body: some Reducer<State, Action> {
 
     Reduce { state, action in
-      log.info("VolumeMonitor reduce \(action)")
+
+      log.action("VolumeMonitor", action)
+
       switch action {
 
       case .activePresetIdChanged(let presetId):
@@ -135,6 +137,6 @@ private extension VolumeMonitor {
   }
 }
 
-private let log = Logger(category: "VolumeMonitor")
+private let log: Logger = .init(category: "VolumeMonitor")
 
 #endif

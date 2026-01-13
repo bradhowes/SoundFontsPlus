@@ -121,7 +121,8 @@ public struct AUv3Root {
     Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
 
     Reduce { state, action in
-      log.debug("reduce \(action)")
+
+      log.action("AUv3Root", action)
 
       switch action {
 
@@ -205,15 +206,6 @@ extension AUv3Root {
     return .none // monitorActivePresetId()
   }
 
-//  private func monitorActivePresetId() -> Effect<Action> {
-//    .publisher {
-//      $activeState.activePresetId
-//        .publisher
-//        .removeDuplicates()
-//        .map { .activePresetIdChanged($0) }
-//    }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
-//  }
-
   private func processFontsAndTagsSplitAction(
     _ state: inout State,
     action: SplitViewReducer.Action.Delegate
@@ -272,7 +264,7 @@ extension AUv3Root {
 
     let result: Bool = false
     if presetInfo.soundFontId == state.loadedSoundFontId {
-      log.info("useActivePreset - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
+      log.info("useActivePreset - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName, privacy: .public)")
       // result = state.audioUnit.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
     } else {
       guard let location = try? SoundFontKind(
@@ -281,17 +273,11 @@ extension AUv3Root {
         displayName: presetInfo.soundFontName
       )
       else {
-        log.error("useActivePreset END - unexpected nil location for \(presetInfo)")
+        log.error("useActivePreset END - unexpected nil location for \(String(describing: presetInfo), privacy: .public)")
         return .none
       }
       let path = location.path.path(percentEncoded: false)
-      log.info("useActivePreset - loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-//      result = state.audioUnit.sendLoadFileUsePreset(
-//        path: path,
-//        preset: presetInfo.presetIndex,
-//        gain: presetInfo.gain,
-//        pan: presetInfo.pan
-//      )
+      log.info("useActivePreset - loading \(path) preset \(presetInfo.presetIndex) \(presetInfo.presetName, privacy: .public)")
     }
 
     state.audioUnit.audioUnitShortName = presetInfo.presetName
@@ -469,6 +455,8 @@ extension View {
   }
 }
 
+#if DEBUG
+
 extension AUv3RootView {
 
   static var preview: some View {
@@ -495,4 +483,6 @@ extension AUv3RootView {
   AUv3RootView.preview
 }
 
-private let log = Logger(category: "AUv3Root")
+#endif // DEBUG
+
+private let log: Logger = .init(category: "AUv3Root")

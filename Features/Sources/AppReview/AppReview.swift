@@ -3,7 +3,7 @@
 import FeatureSupport
 import StoreKit
 
-private let log = Logger(category: "AppReview")
+private let log: Logger = .init(category: "AppReview")
 
 /**
  Provides an app review prompt at appropriate times.

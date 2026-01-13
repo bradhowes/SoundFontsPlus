@@ -213,7 +213,9 @@ public struct AppRoot {
     Scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit) { SplitViewReducer() }
 
     Reduce { state, action in
-      log.info("AppRoot reduce \(action)")
+
+      log.action("AppRoot", action)
+
       switch action {
 
       case .activePresetIdChanged(let presetId):
@@ -994,4 +996,4 @@ extension AppRootView {
 
 #endif
 
-private let log = Logger(category: "AppRoot")
+private let log: Logger = .init(category: "AppRoot")

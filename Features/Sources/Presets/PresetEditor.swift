@@ -5,7 +5,7 @@ import Engine
 import FeatureSupport
 import Tuning
 
-private let log = Logger(category: "PresetEditor")
+private let log: Logger = .init(category: "PresetEditor")
 
 @Reducer
 public struct PresetEditor {
@@ -118,7 +118,8 @@ public struct PresetEditor {
     Scope(state: \.tuning, action: \.tuning) { Tuning() }
 
     Reduce { state, action in
-      log.info("PresetEditor action: \(action)")
+
+      log.action("PresetEditor", action)
 
       switch action {
 

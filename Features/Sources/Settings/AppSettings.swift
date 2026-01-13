@@ -129,14 +129,15 @@ public struct AppSettings {
     Scope(state: \.tuning, action: \.tuning) { Tuning() }
 
     Reduce { state, action in
-      log.info("state action: \(action)")
+
+      log.action("Settiings", action)
+
       switch action {
 
       case .binding(\.keyWidth):
         return updateKeyWidth(&state)
 
       case .binding(\.copyFileWhenInstalling):
-        log.info("copyFileWhenInstalling value: \(state.copyFileWhenInstalling)")
         if !state.copyFileWhenInstalling {
           state.$copyFileWhenInstalling.withLock { $0 = true }
           state.destination = .alert(.confirmDisableCopyFile(action: .disableCopyFileConfirmed))
@@ -144,7 +145,6 @@ public struct AppSettings {
         return .none
 
       case .binding(\.disableIdleTimer):
-        log.info("disableIdleTimer value: \(state.disableIdleTimer)")
         if state.disableIdleTimer {
           state.$disableIdleTimer.withLock { $0 = false }
           state.destination = .alert(.confirmDisableIdleTimer(action: .disableIdleTimerConfirmed))
@@ -177,17 +177,12 @@ public struct AppSettings {
         if let midi {
           state.midiDevicesCount = midi.sourceConnections.count
           state.midiConnectedCount = midi.sourceConnections.filter { $0.connected }.count
-          log.info("midiConnectionsChanged: \(state.midiDevicesCount), \(state.midiConnectedCount)")
         }
         return .none
 
       case .midiControllersButtonTapped:
         state.path.append(.midiControllers(MIDIControllers.State()))
         return .none
-
-//      case let .path(.element(id: id, action: action)):
-//        print("id: \(id), action: \(action)")
-//        return .none
 
       case .path(.popFrom(let id)):
         if case .midiConnections = state.path[id: id],
@@ -624,7 +619,7 @@ extension AppSettingsView {
   }
 }
 
-private let log = Logger(category: "AppSettings")
+private let log: Logger = .init(category: "AppSettings")
 
 #Preview {
   AppSettingsView.preview

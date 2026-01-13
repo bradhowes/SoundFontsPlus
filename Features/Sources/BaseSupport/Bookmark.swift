@@ -4,8 +4,6 @@ import Clocks
 import Dependencies
 import Foundation
 
-private let log = Logger(category: "Bookmark")
-
 /**
  A bookmark represents a file located outside of the app's own storage space. It is used to reference sound font files
  without making a copy of them. However there are risks involved, namely that the bookmark may not resolve to a real
@@ -108,7 +106,7 @@ extension Bookmark {
   }
 
   /// The various iCloud states a bookmark item may be in.
-  public enum CloudState {
+  public enum CloudState: String {
     /// Item is local and not synced to iCloud.
     case local
     /// Item is on iCloud but not available locally.
@@ -161,7 +159,7 @@ extension Bookmark {
         }
       }
 
-      log.debug("cloudState: \(state)")
+      log.debug("cloudState: \(state, privacy: .public)")
       return state
     } ?? .unknown
   }
@@ -216,3 +214,9 @@ extension Bookmark: Equatable {
    */
   public static func == (lhs: Bookmark, rhs: Bookmark) -> Bool { lhs.bookmark == rhs.bookmark }
 }
+
+extension Bookmark.CloudState: CustomStringConvertible {
+  public var description: String { rawValue }
+}
+
+private let log: Logger = .init(category: "Bookmark")

@@ -83,7 +83,7 @@ public typealias AUv3HostingController = NSHostingController
 
 #endif
 
-private let log = Logger(
+private let log: Logger = .init(
   subsystem: "com.braysoftware.SoundFontsPlus.SoundFontsPlusAU",
   category: "AudioUnitViewController"
 )

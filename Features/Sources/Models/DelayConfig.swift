@@ -73,7 +73,7 @@ extension DelayConfig {
    */
   @discardableResult
   public static func save(config: Draft) -> Self? {
-    log.info("saving \(config)")
+    log.debug("saving \(String(describing: config), privacy: .public)")
     return withDatabaseWriter { db in
       precondition(config.presetId != -1)
       return try Self.upsert {
@@ -138,4 +138,4 @@ extension DelayConfig: Hashable, Identifiable, Sendable {}
 
 extension DelayConfig.Draft: Equatable, Sendable {}
 
-private let log = Logger(category: "DelayConfig")
+private let log: Logger = .init(category: "DelayConfig")

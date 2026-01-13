@@ -53,7 +53,7 @@ public struct SoundFontsList {
 
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
-      log.info("SoundFontsList reduce \(action)")
+      log.action("SoundFontsList", action)
 
       switch action {
 
@@ -134,7 +134,7 @@ extension SoundFontsList {
     }
 
     guard kind.isExternal || kind.isInstalled else {
-      log.error("unexpected kind value for soundfont ID \(soundFontInfo.id) - \(kind))")
+      log.error("unexpected kind value for soundfont ID \(soundFontInfo.id) - \(String(describing: kind), privacy: .public)")
       return .none
     }
 
@@ -167,7 +167,7 @@ extension SoundFontsList {
   }
 
   private func processRowAction(_ state: inout State, action: SoundFontButton.Delegate) -> Effect<Action> {
-    log.info("processRowAction: \(action)")
+    log.action("processRowAction", action)
 
     switch action {
 
@@ -297,7 +297,7 @@ extension SoundFontsListView {
   }
 }
 
-private let log = Logger(category: "SoundFontsList")
+private let log: Logger = .init(category: "SoundFontsList")
 
 #Preview {
   SoundFontsListView.preview

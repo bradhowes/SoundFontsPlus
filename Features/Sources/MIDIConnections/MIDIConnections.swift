@@ -29,7 +29,7 @@ public struct MIDIConnections {
       return .init(
         uniqueElements: sourceConnections.map { sourceConnection in
           let channel = midiChannelsCache[sourceConnection.uniqueId] ?? MIDIConnectionRow.unknownChannel
-          log.info("row: \(sourceConnection), \(channel)")
+          log.info("row: \(String(describing: sourceConnection), privacy: .public), \(channel)")
           return MIDIConnectionRow(
             id: sourceConnection.uniqueId,
             displayName: sourceConnection.displayName,
@@ -286,7 +286,7 @@ public struct MIDIConnectionsView: View {
   }
 }
 
-private let log = Logger(category: "MIDIConnections")
+private let log: Logger = .init(category: "MIDIConnections")
 
 #if DEBUG
 

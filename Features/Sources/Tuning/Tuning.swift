@@ -3,7 +3,7 @@
 import FeatureSupport
 import Numerics
 
-private let log = Logger(category: "Tuning")
+private let log: Logger = .init(category: "Tuning")
 
 /**
  Feature that handles custom tuning settings. A global tuning setting can be configured in the Settings view

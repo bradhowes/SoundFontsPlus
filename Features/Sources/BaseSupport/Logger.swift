@@ -4,51 +4,47 @@ import OSLog
 
 private class BundleTag {}
 
-public struct Logger: Sendable {
-
-  /// The top-level identifier for the app.
-  public static let subsystem = Bundle(for: BundleTag.self).bundleIdentifier?.lowercased() ?? "?"
-
-  public let category: String
-  public let logger: os.Logger
+extension Logger {
 
   public init(category: String) {
-    self.category = category
-    self.logger = os.Logger(subsystem: Self.subsystem, category: category)
+    let subsystem = Bundle(for: BundleTag.self).bundleIdentifier?.lowercased() ?? "?"
+    self.init(subsystem: subsystem, category: category)
+  }
+}
+
+extension Logger {
+
+  public func measure<T>(_ label: String, _ block: () throws -> T) throws -> T {
+    let start = Date()
+    defer { self.info("\(label, privacy: .public) END - duration: \(Date().timeIntervalSince(start))s") }
+    self.info("\(label, privacy: .public) BEGIN")
+    return try block()
   }
 
-#if DEBUG
-
-  public func log(level: OSLogType = .default, _ string: @autoclosure () -> String) {
-    let string = string()
-    if isRunningForPreviews {
-      print("\(category) - \(string)")
-    } else {
-      if #available(iOS 14, macOS 11, tvOS 14, watchOS 7, *) {
-        self.logger.log(level: level, "\(string)")
-      }
-    }
+  public func measure<T>(_ label: String, _ block: () -> T) -> T {
+    let start = Date()
+    defer { self.info("\(label, privacy: .public) END - duration: \(Date().timeIntervalSince(start))s") }
+    self.info("\(label, privacy: .public) BEGIN")
+    return block()
   }
 
-#else
+  public func measure(_ label: String, _ block: () throws -> Void) throws {
+    let start = Date()
+    defer { self.info("\(label, privacy: .public) END - duration: \(Date().timeIntervalSince(start))s") }
+    self.info("\(label, privacy: .public) BEGIN")
+    try block()
+  }
 
-  @inlinable @inline(__always)
-  public func log(level: OSLogType = .default, _ string: @autoclosure () -> String) {}
+  public func measure(_ label: String, _ block: () -> Void) {
+    let start = Date()
+    defer { self.info("\(label, privacy: .public) END - duration: \(Date().timeIntervalSince(start))s") }
+    self.info("\(label, privacy: .public) BEGIN")
+    block()
+  }
 
-#endif
-
-  @inlinable @inline(__always)
-  public func debug(_ string: @autoclosure () -> String) { self.log(level: .debug, string()) }
-
-  @inlinable @inline(__always)
-  public func info(_ string: @autoclosure () -> String) { self.log(level: .info, string()) }
-
-  @inlinable @inline(__always)
-  public func error(_ string: @autoclosure () -> String) { self.log(level: .error, string()) }
-
-  @inlinable @inline(__always)
-  public func fault(_ string: @autoclosure () -> String) { self.log(level: .fault, string()) }
-
+  public func action<T>(_ label: String, _ action: T) {
+    self.debug("\(label) action: \(String(describing: action), privacy: .public)")
+  }
 }
 
 private let isRunningForPreviews = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"

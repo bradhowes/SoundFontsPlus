@@ -54,11 +54,10 @@ extension FileManagerClient: DependencyKey {
     )
   }
 
-  private static var bogus: URL { URL(fileURLWithPath: "bogus") }
-
   /// Mapping of FileManager functinality to use in unit tests.
   public static var testValue: FileManagerClient {
-    .init(
+    let bogus: URL = .init(fileURLWithPath: "bogus")
+    return .init(
       hasCloudDirectory: { unimplemented("hasCloudDirectory", placeholder: false) },
       localDocumentsDirectory: { unimplemented("localDocumentsDirectory", placeholder: bogus) },
       sharedDocumentsDirectory: { unimplemented("sharedDocumentsDirectory", placeholder: bogus) },

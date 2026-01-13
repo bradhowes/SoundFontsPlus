@@ -13,7 +13,7 @@ import SF2LibAU
 import Sharing
 import SwiftUI
 
-private let log = Logger(category: "Synth")
+private let log: Logger = .init(category: "Synth")
 
 /**
  Manages the audio session and synth creation for the app. Not used by the AUv3 extension.
@@ -85,7 +85,7 @@ public struct Synth {
 
     Reduce { state, action in
 
-      log.info("Synth reduce \(action)")
+      log.action("Synth", action)
 
       switch action {
 
@@ -211,13 +211,13 @@ extension Synth {
   }
 
   private func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
-    log.info("lastPresetLoadFinished BEGIN - \(state.firstTimePresetLoaded)")
+    let firstTimePresetLoaded = state.firstTimePresetLoaded
+    log.info("lastPresetLoadFinished BEGIN - \(firstTimePresetLoaded)")
     guard
       let parameterTree = state.avAudioUnit?.parameterTree,
       let presetId = activeState.activePresetId
     else {
-      log.info("lastPresetLoadFinished END - parameterTree: \(String(describing: state.avAudioUnit?.parameterTree))")
-      log.info("lastPresetLoadFinished END - presetId: \(String(describing: activeState.activePresetId))")
+      log.info("lastPresetLoadFinished END - nil parameterTree or presetId")
       return .none
     }
 
@@ -231,7 +231,6 @@ extension Synth {
       unsafe panParameter?.setValue(audioConfig.pan.panGeneratorValue, originator: nil)
     }
 
-    let firstTimePresetLoaded = state.firstTimePresetLoaded
     state.firstTimePresetLoaded = false
 
     log.info("lastPresetLoadFinished END")
@@ -336,14 +335,16 @@ extension Synth {
   }
 
   private func startAudioSession(_ state: inout State) {
-    log.info("startAudioSession BEGIN - \(state.audioSessionActivated)")
-    if !state.audioSessionActivated {
-      state.audioSessionActivated = audioSession.start()
-      if state.audioSessionActivated {
+    var audioSessionActivated = state.audioSessionActivated
+    log.info("startAudioSession BEGIN - \(audioSessionActivated)")
+    if !audioSessionActivated {
+      audioSessionActivated = audioSession.start()
+      state.audioSessionActivated = audioSessionActivated
+      if audioSessionActivated {
         startEngine(&state)
       }
     }
-    log.info("startAudioSession END - \(state.audioSessionActivated)")
+    log.info("startAudioSession END - \(audioSessionActivated)")
   }
 
   private func startEngine(_ state: inout State) {
@@ -399,7 +400,7 @@ extension Synth {
         displayName: presetInfo.soundFontName
       )
       else {
-        log.error("useActivePreset END - unexpected nil location for \(presetInfo)")
+        log.error("useActivePreset END - unexpected nil location for \(String(describing: presetInfo), privacy: .public)")
         return .none
       }
       let path = location.path.path(percentEncoded: false)

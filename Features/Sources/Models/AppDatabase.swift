@@ -10,7 +10,7 @@ import SF2Resources
 import SQLite3
 import SQLiteData
 
-private let log = Logger(category: "appDatabase")
+private let log: Logger = .init(category: "appDatabase")
 
 // swiftlint:disable:next function_body_length
 public func appDatabase(
@@ -143,7 +143,7 @@ private func performMigrations(
 
   migrator.registerMigration("Add builtin fonts") { db in
     for sf2 in fonts {
-      log.info("add \(sf2)")
+      log.debug("adding \(String(describing: sf2), privacy: .public)")
       try SoundFont.addBuiltIn(db, sf2: sf2, limitedLoading: limitedLoading)
     }
   }
