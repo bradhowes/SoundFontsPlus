@@ -325,6 +325,14 @@ extension AppRoot {
 
       try? FileManager.default.createDirectory(at: FileManager.default.fontFilesDirectory, withIntermediateDirectories: true)
 
+#if false
+      @Shared(.activeState) var activeState
+      $activeState.withLock {
+        $0.activePresetId = nil
+        $0.activeSoundFontId = nil
+      }
+#endif // false
+
       @Shared(.isAUv3) var isAUv3 = false
 
       $0.audioGraph = .liveValue

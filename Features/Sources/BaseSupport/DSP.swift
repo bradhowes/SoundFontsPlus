@@ -30,7 +30,7 @@ extension DSP {
    Convert centibels [0-1440] into an attenuation value from [1.0-0.0].
 
    - Zero indicates no attenuation (1.0)
-   - 20 centibels (-2 dB) gives 0.1 attenuation (10% reduction of original signal)
+   - 20 centibels (-2 dB) gives 0.79 attenuation (20% reduction of original signal)
    - 60 centibels (-6 dB) gives 0.5 attenuation (50% reduction)
    - 120 centibels (-12 dB) gives 0.25 attenuation (75% reduction)
    - 200 centibels (-20 db) gives 0.1 attenuation
@@ -42,8 +42,8 @@ extension DSP {
    - returns: attenuation value
    */
   static func centibelsToAttenuation(value: Double) -> Double {
-    guard value > 0 && value < maximumAttenuationCentiBels else { return 0.0 }
-    return pow(10.0, value / -200.0)
+    guard value > 0 && value < maximumAttenuationCentiBels else { return 1.0 }
+    return pow(10.0, -value / 200.0)
   }
 
   /**

@@ -27,11 +27,11 @@ struct SoundFontInfoTests {
 
     $activeState.withLock { $0.activeTagId = nil }
     found = withDatabaseReader { try SoundFontInfo.query().fetchAll($0) } ?? []
-    #expect(found.count == 2)
+    #expect(found.count == 4)
 
     $activeState.withLock { $0.activeTagId = FontTag.Ubiquitous.all.id }
     found = withDatabaseReader { try SoundFontInfo.query().fetchAll($0) } ?? []
-    #expect(found.count == 2)
+    #expect(found.count == 4)
     #expect(found[0].id == 1)
     #expect(found[1].id == 2)
 

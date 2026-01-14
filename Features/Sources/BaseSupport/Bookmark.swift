@@ -5,11 +5,9 @@ import Dependencies
 import Foundation
 
 /**
- A bookmark represents a file located outside of the app's own storage space. It is used to reference sound font files
- without making a copy of them. However there are risks involved, namely that the bookmark may not resolve to a real
- file.
-
- TODO: reevaluate approach. Not convinced this is the best way to handle bookmarks.
+ A bookmark represents a file located outside of the app's sandboxed storage space or that of an app group. It is used to reference
+ sound font files without making a copy of them. However there are risks involved, namely that the bookmark may not resolve to a
+ real file.
  */
 public final class Bookmark: Codable {
 
@@ -39,6 +37,7 @@ public final class Bookmark: Codable {
    - parameter name: the name to associate with the bookmark
    */
   public init(url: URL, name: String) {
+    log.info("init - url: \(url, privacy: .public), name: \(name, privacy: .public)")
     self.name = name
     original = url
     bookmark = url.secureBookmarkData
@@ -91,7 +90,7 @@ extension Bookmark {
       do {
         return try url.checkResourceIsReachable()
       } catch CocoaError.fileReadNoSuchFile {
-        log.debug("file does not exist")
+        log.error("file does not exist")
         return false
       }
     } ?? false
@@ -141,8 +140,9 @@ extension Bookmark {
         return .unknown
       }
 
-      let isUbiquitous = (values.isUbiquitousItem ?? false)
+      log.debug("cloudState: \(String(describing: values), privacy: .public)")
 
+      let isUbiquitous = (values.isUbiquitousItem ?? false)
       let state: CloudState
       if !isUbiquitous {
         log.debug("bookmark cloudState: .local")

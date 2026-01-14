@@ -502,14 +502,14 @@ public struct ToolBarView: View {
 #if DEBUG
 
 extension ToolBarView {
-  static var preview: some View {
-//    prepareDependencies {
-//      $0.defaultDatabase = previewDatabase()
-//    }
-//
+  static func preview(showMoreButtons: Bool) -> some View {
     struct Preview: View {
       @Shared(.showActiveVoiceCount) var showActiveVoiceCount
-      @State var showMoreButtons: Bool = false
+      @State var showMoreButtons: Bool
+
+      init(showMoreButtons: Bool) {
+        self.showMoreButtons = showMoreButtons
+      }
 
       var body: some View {
         VStack {
@@ -544,12 +544,12 @@ extension ToolBarView {
       }
     }
 
-    return Preview()
+    return Preview(showMoreButtons: showMoreButtons)
   }
 }
 
 #Preview {
-  ToolBarView.preview
+  ToolBarView.preview(showMoreButtons: true)
 }
 
 #endif // DEBUG

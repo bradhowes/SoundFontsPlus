@@ -372,7 +372,7 @@ struct ToolBarTests {
   @Test
   func preview() async throws {
     try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: ToolBarView.preview)
+      try TestSupport.assertSnapshot(matching: ToolBarView.preview(showMoreButtons: true))
     }
   }
 }

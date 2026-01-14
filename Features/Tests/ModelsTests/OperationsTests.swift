@@ -98,7 +98,7 @@ struct OperationsTests {
     $selectedSoundFontId.withLock { $0 = 2 }
     #expect(Operations.presets(for: nil).count == expectedCount)
     $selectedSoundFontId.withLock { $0 = 3 }
-    #expect(Operations.presets(for: nil).isEmpty)
+    #expect(Operations.presets(for: nil).count == expectedCount)
     $selectedSoundFontId.withLock { $0 = nil }
     #expect(Operations.presets(for: nil).count == expectedCount)
     $activeState.withLock { $0.activeSoundFontId = nil }
@@ -109,11 +109,11 @@ struct OperationsTests {
   func allPresets() async throws {
     @Shared(.activeState) var activeState
     @Shared(.selectedSoundFontId) var selectedSoundFontId
-    #expect(Operations.allPresets(for: nil).count == 3)
+    #expect(Operations.allPresets(for: nil).count == 6)
     $selectedSoundFontId.withLock { $0 = 2 }
-    #expect(Operations.allPresets(for: nil).count == 3)
+    #expect(Operations.allPresets(for: nil).count == 6)
     $selectedSoundFontId.withLock { $0 = 3 }
-    #expect(Operations.allPresets(for: nil).count == 1)
+    #expect(Operations.allPresets(for: nil).count == 6)
     $selectedSoundFontId.withLock { $0 = nil }
     $activeState.withLock { $0.activeSoundFontId = nil }
     #expect(Operations.allPresets(for: nil).isEmpty)
@@ -121,17 +121,17 @@ struct OperationsTests {
 
   @Test
   func soundFontIdsForTag() async throws {
-    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.all.id) == [1, 2])
+    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.all.id) == [1, 2, 3, 4])
     #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.builtIn.id) == [1, 2])
-    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.added.id) == [])
-    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.external.id) == [])
+    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.added.id) == [3, 4])
+    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.external.id) == [4])
   }
 
   @Test
   func tagIdsForSoundFont() async throws {
     #expect(Operations.tagIds(for: 1).count == 2)
     #expect(Operations.tagIds(for: 2).count == 2)
-    #expect(Operations.tagIds(for: 3).isEmpty)
+    #expect(Operations.tagIds(for: 3) == [1, 3, 4])
   }
 
   @Test

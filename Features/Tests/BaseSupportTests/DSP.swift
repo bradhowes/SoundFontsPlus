@@ -8,6 +8,25 @@ import Numerics
 @Suite
 struct DSPTests {
 
+  @Test func constants() async throws {
+    #expect(DSP.maximumAbsoluteCents != 0)
+    #expect(DSP.centsPerOctave != 0)
+    #expect(DSP.noiseFloor != 0.0)
+    #expect(DSP.noiseFloorCentiBels != 0)
+    #expect(DSP.maximumAttenuationCentiBels != 0)
+  }
+
+  @Test func centibelsToAttenuation() throws {
+    #expect(DSP.centibelsToAttenuation(value: 0.0) == 1.0)
+    #expect(DSP.centibelsToAttenuation(value: 60) == 0.5011872336272722)
+    #expect(DSP.centibelsToAttenuation(value: 200) == 0.1)
+  }
+
+  @Test func centsPartialLookup() async throws {
+    #expect(DSP.centsPartialLookup(value: 0) == 6.875)
+    #expect(DSP.centsPartialLookup(value: 1200) == 6.875 * 2)
+  }
+
   @Test
   func panToCCValue() throws {
     #expect(DSP.panToCCValue(-1.0) == UInt8(0))

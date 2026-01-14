@@ -22,101 +22,74 @@ extension TestSupport {
 
   // swiftlint:disable:next function_body_length
   public static func addMockPresets(_ db: Database) throws {
-    let font1 = try SoundFontKind.builtin(tag: SF2ResourceTag.fluidFont).data()
-    let font2 = try SoundFontKind.builtin(tag: SF2ResourceTag.freeFont).data()
+    let fonts = [
+      try SoundFontKind.builtin(tag: SF2ResourceTag.fluidFont).data(),
+      try SoundFontKind.builtin(tag: SF2ResourceTag.freeFont).data(),
+      try SoundFontKind.installed(filename: SF2ResourceTag.museScore.url.lastPathComponent).data(),
+      try SoundFontKind.external(bookmark: Bookmark(url: SF2ResourceTag.rolandNicePiano.url, name: "Font4")).data()
+    ]
 
     try SoundFont.insert {
-      SoundFont.Draft(
-        displayName: "Font 1",
-        kind: font1.0,
-        location: font1.1,
-        originalName: "Original Font 1",
-        embeddedName: "Embedded Font 1",
-        embeddedComment: "",
-        embeddedAuthor: "",
-        embeddedCopyright: "",
-        notes: "",
-      )
-      SoundFont.Draft(
-        displayName: "Font 2",
-        kind: font2.0,
-        location: font2.1,
-        originalName: "Original Font 1",
-        embeddedName: "Embedded Font 1",
-        embeddedComment: "",
-        embeddedAuthor: "",
-        embeddedCopyright: "",
-        notes: "",
-      )
+      for (index, font) in fonts.enumerated() {
+        SoundFont.Draft(
+          displayName: "Font \(index + 1)",
+          kind: font.0,
+          location: font.1,
+          originalName: "Original Font \(index + 1)",
+          embeddedName: "Embedded Font \(index + 1)",
+          embeddedComment: "",
+          embeddedAuthor: "",
+          embeddedCopyright: "",
+          notes: ""
+        )
+      }
     }.execute(db)
+
+    let kinds: [Preset.Kind] = [.preset, .preset, .hidden]
+
     try Preset.insert {
-      Preset.Draft(
-        index: 0,
-        bank: 0,
-        program: 0,
-        originalName: "Original Preset 1",
-        soundFontId: 1,
-        displayName: "Font 1 Preset 1",
-        notes: "",
-        kind: .preset
-      )
-      Preset.Draft(
-        index: 1,
-        bank: 0,
-        program: 1,
-        originalName: "Original Preset 2",
-        soundFontId: 1,
-        displayName: "Font 1 Preset 2",
-        notes: "",
-        kind: .preset
-      )
-      Preset.Draft(
-        index: 2,
-        bank: 0,
-        program: 2,
-        originalName: "Original Preset 3",
-        soundFontId: 1,
-        displayName: "Font 1 Preset 3 Hidden",
-        notes: "",
-        kind: .hidden
-      )
-      Preset.Draft(
-        index: 0,
-        bank: 0,
-        program: 0,
-        originalName: "Original Preset 1",
-        soundFontId: 2,
-        displayName: "Font 2 Preset 1",
-        notes: "",
-        kind: .preset
-      )
-      Preset.Draft(
-        index: 1,
-        bank: 0,
-        program: 1,
-        originalName: "Original Preset 2",
-        soundFontId: 2,
-        displayName: "Font 2 Preset 2",
-        notes: "",
-        kind: .preset
-      )
+      for fontIndex in fonts.indices {
+        for (presetIndex, kind) in kinds.enumerated() {
+          Preset.Draft(
+            index: presetIndex,
+            bank: 0,
+            program: presetIndex,
+            originalName: "Original Preset \(presetIndex + 1)",
+            soundFontId: .init(Int64(fontIndex + 1)),
+            displayName: "Font \(fontIndex + 1) Preset \(presetIndex + 1)",
+            notes: "",
+            kind: kind
+          )
+        }
+      }
     }.execute(db)
+
     try TaggedSoundFont.insert {
+      for fontId in 1...4 {
+        TaggedSoundFont(
+          soundFontId: .init(Int64(fontId)),
+          tagId: FontTag.Ubiquitous.all.id
+        )
+      }
+      for fontId in 1...2 {
+        TaggedSoundFont(
+          soundFontId: .init(Int64(fontId)),
+          tagId: FontTag.Ubiquitous.builtIn.id
+        )
+      }
+      for fontId in 3...4 {
+        TaggedSoundFont(
+          soundFontId: .init(Int64(fontId)),
+          tagId: FontTag.Ubiquitous.added.id
+        )
+      }
       TaggedSoundFont(
-        soundFontId: 1,
-        tagId: 1
+        soundFontId: 3,
+        tagId: FontTag.Ubiquitous.device.id
       )
       TaggedSoundFont(
-        soundFontId: 2,
-        tagId: 1
-      )
-      TaggedSoundFont(
-        soundFontId: 1,
-        tagId: 2
-      )
-      TaggedSoundFont(
-        soundFontId: 2,
-        tagId: 2
+        soundFontId: 4,
+        tagId: FontTag.Ubiquitous.external.id
       )
     }.execute(db)
   }

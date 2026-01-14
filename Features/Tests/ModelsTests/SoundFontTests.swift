@@ -104,10 +104,12 @@ struct SoundFontTests {
   func active() async throws {
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
-    #expect(soundFonts.count == 2)
+    #expect(soundFonts.count == 4)
     #expect(soundFonts.map(\.displayName) == [
       "Font 1",
-      "Font 2"
+      "Font 2",
+      "Font 3",
+      "Font 4"
     ])
   }
 
@@ -122,21 +124,21 @@ struct SoundFontTests {
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
 
-    #expect(soundFonts.count == 2)
+    #expect(soundFonts.count == 4)
 
     SoundFont.delete(id: soundFonts[0].id)
 
     try await $soundFonts.load()
-    #expect(soundFonts.count == 1)
+    #expect(soundFonts.count == 3)
 
     // Do a fake install by referring to the file name of the built-in resource
     let kind: SoundFontKind = .installed(filename: SF2Resource.resources[3].lastPathComponent)
     try SoundFont.add(displayName: "Hubba", soundFontKind: kind)
 
     try await $soundFonts.load()
-    #expect(soundFonts.count == 2)
-    #expect(soundFonts[1].displayName == "Hubba")
-    #expect(soundFonts[1].sourceKind ==  "installed")
+    #expect(soundFonts.count == 4)
+    #expect(soundFonts[3].displayName == "Hubba")
+    #expect(soundFonts[3].sourceKind ==  "installed")
 
     let tags = soundFonts[1].tags
     #expect(tags.count == 3)
@@ -146,13 +148,13 @@ struct SoundFontTests {
   func deletingSoundFontDeletesPresets() async throws {
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
     try await $soundFonts.load()
-    #expect(soundFonts.count == 2)
+    #expect(soundFonts.count == 4)
 
     let sf = soundFonts[1]
     SoundFont.delete(id: sf.id)
 
     try await $soundFonts.load()
-    #expect(soundFonts.count == 1)
+    #expect(soundFonts.count == 3)
     #expect(sf.allPresets.isEmpty)
   }
 
@@ -161,12 +163,12 @@ struct SoundFontTests {
     let allTag = FontTag.with(id: FontTag.Ubiquitous.all.id)!
     let builtInTag = FontTag.with(id: FontTag.Ubiquitous.builtIn.id)!
 
-    #expect(allTag.soundFonts.count == 2)
+    #expect(allTag.soundFonts.count == 4)
     #expect(builtInTag.soundFonts.count == 2)
 
     SoundFont.delete(id: 1)
 
-    #expect(allTag.soundFonts.count == 1)
+    #expect(allTag.soundFonts.count == 3)
     #expect(builtInTag.soundFonts.count == 1)
   }
 }

@@ -26,15 +26,15 @@ struct FontTagTests {
 
     @FetchAll(SoundFont.all) var soundFonts
     try await $soundFonts.load()
-    #expect(soundFonts.count == 2)
+    #expect(soundFonts.count == 4)
 
     @FetchAll(TaggedSoundFont.all) var taggedSoundFonts
     try await $taggedSoundFonts.load()
-    #expect(taggedSoundFonts.count == 4)
+    #expect(taggedSoundFonts.count == 10)
 
     @FetchAll(Preset.all) var presets
     try await $presets.load()
-    #expect(presets.count == 5)
+    #expect(presets.count == 12)
   }
 
   @Test
@@ -42,10 +42,11 @@ struct FontTagTests {
     @FetchAll(FontTag.tagsQuery) var tags
     try await $tags.load()
 
-    #expect(tags[0].soundFonts.count == 2)
+    #expect(tags[0].soundFonts.count == 4)
     #expect(tags[1].soundFonts.count == 2)
-    #expect(tags[2].soundFonts.isEmpty)
-    #expect(tags[3].soundFonts.isEmpty)
+    #expect(tags[2].soundFonts.count == 2)
+    #expect(tags[3].soundFonts.count == 1)
+    #expect(tags[4].soundFonts.count == 1)
   }
 
   @Test
