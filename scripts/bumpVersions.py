@@ -100,7 +100,7 @@ def locateFiles(cond: PathPredicate) -> PathList:
     '''
     found = []
     for root, dirs, files in os.walk('.'):
-        for exclude in ['DerivedData', '.build']:
+        for exclude in ['DerivedData', '.build', '.workspace']:
             drops = [d for d in dirs if exclude in d]
             for drop in drops:
                 dirs.remove(drop)
@@ -111,7 +111,9 @@ def locateFiles(cond: PathPredicate) -> PathList:
 
 
 def locateConfigFiles() -> PathList:
-    return locateFiles(lambda path: os.path.splitext(path)[-1] == '.xcconfig')
+    def cond(path: Path) -> bool:
+        return os.path.splitext(path)[-1] == '.xcconfig'
+    return locateFiles(cond)
 
 
 def getCurrentMarketingVersion(projectFiles: PathList) -> MarketingVersion:
@@ -160,7 +162,7 @@ def updateConfigFiles(configFiles: PathList, marketingVersion: MarketingVersion,
 
 
 def locateUIFiles() -> PathList:
-    def cond(path):
+    def cond(path: str) -> bool:
         return os.path.splitext(path)[-1] in ['.storyboard', '.xib']
     return locateFiles(cond)
 
@@ -209,7 +211,6 @@ def main(args):
         marketingVersion = marketingVersion.bumpPatch()
 
     log(f"new marketingVersion: {marketingVersion}")
-    log(f"new projectVersion: {projectVersion}")
 
     updateConfigFiles(configFiles, marketingVersion, projectVersion)
     updateUIFiles(locateUIFiles(), marketingVersion)
