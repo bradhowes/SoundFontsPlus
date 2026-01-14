@@ -69,7 +69,7 @@ public struct AppRoot {
     public var volumeMonitor: VolumeMonitor.State
     #endif
     public var audioUnitCrashed = false
-    public var toastState: ToastState? = .initializing
+    public var toastState: ToastState?
 
     public init(
       appReview: AppReview.State? = nil,
@@ -108,13 +108,15 @@ public struct AppRoot {
 
         showChanges()
 
-#elseif !(DEBUG && targetEnvironment(simulator))
+#else
 
 #if os(iOS)
         if Tutorial.shouldShow {
           showTutorial()
         } else if Changes.shouldShow {
           showChanges()
+        } else {
+          toastState = .initializing
         }
 #endif // os(iOS)
 
@@ -413,7 +415,7 @@ extension AppRoot {
     switch state.destination {
 
     case .presetEditor(let editor):
-      return editorDismissed(&state, editor: editor)
+      return presetEditorDismissed(&state, editor: editor)
 
     case .settings:
       return reduce(into: &state, action: .presetsList(.fetchPresets))
@@ -423,7 +425,7 @@ extension AppRoot {
     }
   }
 
-  private func editorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
+  private func presetEditorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
     if editor.visible {
       state.presetsList.updateSection(editor.sectionId, presetId: editor.preset.id, displayName: editor.displayName)
       return .none
@@ -521,6 +523,7 @@ extension AppRoot {
 
   private func processSettingsAction(_ state: inout State, action: AppSettings.Action.Delegate) -> Effect<Action> {
     switch action {
+
     case .showChanges:
       state.showChanges()
 
