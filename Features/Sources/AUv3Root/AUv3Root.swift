@@ -227,6 +227,9 @@ extension AUv3Root {
     case .editingPresetVisibilityChanged(let active):
       return reduce(into: &state, action: .presetsList(.editingVisibilityChanged(active)))
 
+    case .effectsVisibilityChanged:
+      fatalError("misconfiguration for AUv3Root")
+
     case .presetNameTapped:
       return .merge(
         reduce(into: &state, action: .presetsList(.showActivePreset)),
@@ -241,8 +244,8 @@ extension AUv3Root {
       let panes: SplitViewPanes = visible ? .both : .primary
       return reduce(into: &state, action: .fontsAndTagsSplit(.updatePanesVisibility(panes)))
 
-    case .effectsVisibilityChanged:
-      fatalError("misconfiguration for AUv3Root")
+    case .panic:
+      return .none
 
     case .visibleKeyRangeChanged:
       fatalError("misconfiguration for AUv3Root")
@@ -455,6 +458,8 @@ extension View {
   }
 }
 
+private let log: Logger = .init(category: "AUv3Root")
+
 #if DEBUG
 
 extension AUv3RootView {
@@ -484,5 +489,3 @@ extension AUv3RootView {
 }
 
 #endif // DEBUG
-
-private let log: Logger = .init(category: "AUv3Root")

@@ -129,6 +129,8 @@ extension View {
   }
 }
 
+#if DEBUG
+
 struct AppReviewDemoView: View {
   @State var store: StoreOf<AppReview>
 
@@ -166,3 +168,5 @@ struct AppReviewDemoView: View {
 
   AppReviewDemoView(store: store)
 }
+
+#endif // DEBUG

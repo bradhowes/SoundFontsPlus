@@ -123,6 +123,8 @@ public struct MIDIControllersView: View {
   }
 }
 
+#if DEBUG
+
 extension MIDIControllersView {
   static var preview: some View {
     prepareDependencies {
@@ -142,3 +144,5 @@ extension MIDIControllersView {
 #Preview {
   MIDIControllersView.preview
 }
+
+#endif // DEBUG

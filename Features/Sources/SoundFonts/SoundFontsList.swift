@@ -277,6 +277,10 @@ public struct SoundFontsListView: View {
   }
 }
 
+private let log: Logger = .init(category: "SoundFontsList")
+
+#if DEBUG
+
 extension SoundFontsListView {
   static var preview: some View {
     prepareDependencies {
@@ -294,8 +298,8 @@ extension SoundFontsListView {
   }
 }
 
-private let log: Logger = .init(category: "SoundFontsList")
-
 #Preview {
   SoundFontsListView.preview
 }
+
+#endif // DEBUG

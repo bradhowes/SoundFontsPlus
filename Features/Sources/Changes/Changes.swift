@@ -122,6 +122,8 @@ public struct ChangesView: View {
   }
 }
 
+#if DEBUG
+
 extension ChangesView {
 
   static var preview: some View {
@@ -150,3 +152,5 @@ extension ChangesView {
 #Preview {
   ChangesView.preview
 }
+
+#endif // DEBUG

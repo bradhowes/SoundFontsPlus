@@ -134,6 +134,8 @@ public struct TagNameEditorView: View {
   }
 }
 
+#if DEBUG
+
 extension TagNameEditorView {
 
   static var preview: some View {
@@ -178,3 +180,5 @@ extension TagNameEditorView {
 #Preview {
   TagNameEditorView.preview
 }
+
+#endif // DEBUG

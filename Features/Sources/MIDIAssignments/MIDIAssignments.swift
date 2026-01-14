@@ -110,6 +110,8 @@ public struct MIDIAssignmentsView: View {
   }
 }
 
+#if DEBUG
+
 extension MIDIAssignmentsView {
   static var preview: some View {
     prepareDependencies {
@@ -129,3 +131,5 @@ extension MIDIAssignmentsView {
 #Preview {
   MIDIAssignmentsView.preview
 }
+
+#endif // DEBUG

@@ -300,6 +300,8 @@ public struct TagsEditorView: View {
   }
 }
 
+#if DEBUG
+
 extension TagsEditorView {
 
   static var preview: some View {
@@ -337,11 +339,13 @@ extension TagsEditorView {
       focused: tags.last?.id,
       soundFontId: SoundFont.ID(rawValue: 1),
       memberships: memberships)) {
-      TagsEditor()
-    })
+        TagsEditor()
+      })
   }
 }
 
 #Preview {
   TagsEditorView.previewWithMemberships
 }
+
+#endif // DEBUG

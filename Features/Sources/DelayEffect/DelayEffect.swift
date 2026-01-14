@@ -274,6 +274,10 @@ public struct DelayEffectView: View {
   }
 }
 
+private let log: Logger = .init(category: "DelayEffect")
+
+#if DEBUG
+
 extension DelayEffectView {
   // swiftlint:disable:next function_body_length
   static func preview(presetId: Preset.ID) -> some View {
@@ -361,8 +365,8 @@ extension DelayEffectView {
   }
 }
 
-private let log: Logger = .init(category: "DelayEffect")
-
 #Preview {
   DelayEffectView.preview(presetId: 2)
 }
+
+#endif // DEBUG

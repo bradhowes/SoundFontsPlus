@@ -58,6 +58,8 @@ extension View {
   public func circledCheckMarkToggleStyle() -> some View { toggleStyle(.circledCheckMark) }
 }
 
+#if DEBUG
+
 #Preview {
   @Previewable @State var helloIsOn = true
   @Previewable @State var disabled = false
@@ -87,3 +89,5 @@ extension View {
   }
 
 }
+
+#endif // DEBUG

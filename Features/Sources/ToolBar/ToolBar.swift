@@ -19,10 +19,12 @@ public struct ToolBar {
   public enum TemporaryStatus: Equatable {
 
     case lastPlayedKey(String)
+    case panic
 
     var text: String {
       switch self {
       case .lastPlayedKey(let status): return status
+      case .panic: return "😱 PANIC - all notes off"
       }
     }
   }
@@ -95,6 +97,7 @@ public struct ToolBar {
     case setVisibleKeyRange(lowest: Note, highest: Note)
     case shiftKeyboardUpButtonTapped
     case shiftKeyboardDownButtonTapped
+    case statusTextTapped(count: Int)
     case lastPlayedKeyChanged(Note)
     case showMoreButtonTapped
     case slidingKeyboardButtonTapped
@@ -104,7 +107,8 @@ public struct ToolBar {
     public enum Delegate: Equatable {
       case editingPresetVisibilityChanged(Bool)
       case effectsVisibilityChanged(Bool)
-      case presetNameTapped(count: Int)
+      case panic
+      case presetNameTapped
       case tagsListVisibilityChanged(Bool)
       case settingsButtonTapped
       case visibleKeyRangeChanged(lowest: Note, highest: Note)
@@ -176,6 +180,9 @@ public struct ToolBar {
 
       case .showMoreButtonTapped:
         return toggleShowMoreButtons(&state)
+
+      case .statusTextTapped(let count):
+        return statusTextTapped(&state, count: count)
 
       case .slidingKeyboardButtonTapped:
         return slidingKeyboardButtonTapped(&state)
@@ -299,8 +306,25 @@ extension ToolBar {
     return .none
   }
 
+  private func showPanicStatus(_ state: inout State) -> Effect<Action> {
+    state.temporaryStatus = .panic
+    return clearTemporaryStatusTask(&state)
+  }
+
   private func slidingKeyboardButtonTapped(_ state: inout State) -> Effect<Action> {
     state.$keyboardSlides.withLock { $0 = !state.keyboardSlides }
+    return .none
+  }
+
+  private func statusTextTapped(_ state: inout State, count: Int) -> Effect<Action> {
+    if count == 2 {
+      return .merge(
+        showPanicStatus(&state),
+        .send(.delegate(.panic))
+      )
+    } else if count == 1 {
+      return .send(.delegate(.presetNameTapped))
+    }
     return .none
   }
 
@@ -394,8 +418,8 @@ public struct ToolBarView: View {
       }
       .animation(.smooth, value: showActiveVoiceCount || showMIDITrafficIndicator)
       .contentShape(Rectangle())
-      .onTapGesture(count: 2) { store.send(.delegate(.presetNameTapped(count: 2))) }
-      .onTapGesture(count: 1) { store.send(.delegate(.presetNameTapped(count: 1))) }
+      .onTapGesture(count: 2) { store.send(.statusTextTapped(count: 2)) }
+      .onTapGesture(count: 1) { store.send(.statusTextTapped(count: 1)) }
     }
   }
 

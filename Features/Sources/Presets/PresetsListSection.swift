@@ -165,6 +165,10 @@ public struct ViewOffsetKey: PreferenceKey {
   }
 }
 
+#if DEBUG
+
 #Preview {
   PresetsListView.previewEditing
 }
+
+#endif // DEBUG

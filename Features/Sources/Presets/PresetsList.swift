@@ -413,6 +413,10 @@ public struct PresetsListView: View {
   }
 }
 
+private let log: Logger = .init(category: "PresetsList")
+
+#if DEBUG
+
 extension PresetsListView {
 
   static var preview: some View {
@@ -438,8 +442,8 @@ extension PresetsListView {
   }
 }
 
-private let log: Logger = .init(category: "PresetsList")
-
 #Preview {
   PresetsListView.preview
 }
+
+#endif // DEBUG

@@ -603,6 +603,10 @@ Disable to link directly to files in iCloud or on external drives.
   }
 }
 
+private let log: Logger = .init(category: "AppSettings")
+
+#if DEBUG
+
 extension AppSettingsView {
   static var preview: some View {
     @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
@@ -619,8 +623,8 @@ extension AppSettingsView {
   }
 }
 
-private let log: Logger = .init(category: "AppSettings")
-
 #Preview {
   AppSettingsView.preview
 }
+
+#endif // DEBUG

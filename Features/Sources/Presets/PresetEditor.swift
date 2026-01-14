@@ -405,6 +405,8 @@ extension AVAudioUnitReverbPreset: @retroactive Strideable {
   public typealias Stride = Int
 }
 
+#if DEBUG
+
 extension PresetEditorView {
   static var preview: some View {
     prepareDependencies {
@@ -420,3 +422,5 @@ extension PresetEditorView {
 #Preview {
   PresetEditorView.preview
 }
+
+#endif // DEBUG

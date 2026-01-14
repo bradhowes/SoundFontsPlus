@@ -264,6 +264,10 @@ public struct ReverbEffectView: View {
   }
 }
 
+private let log: Logger = .init(category: "ReverbEffect")
+
+#if DEBUG
+
 extension ReverbEffectView {
   static var preview: some View {
     @Shared(.activeState) var activeState = .default
@@ -302,8 +306,8 @@ extension ReverbEffectView {
   }
 }
 
-private let log: Logger = .init(category: "ReverbEffect")
-
 #Preview {
   ReverbEffectView.preview
 }
+
+#endif // DEBUG

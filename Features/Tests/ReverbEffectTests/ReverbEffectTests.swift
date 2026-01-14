@@ -45,7 +45,11 @@ struct ReverbEffectTests {
     }
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.continuousClock = ImmediateClock()
+    }
+  )
   func roomPresetChanged() async throws {
     let store = store()
 
@@ -62,7 +66,7 @@ struct ReverbEffectTests {
       $0.dirty = true
     }
 
-    await store.receive(\.updateDebounced, timeout: .seconds(10))
+    await store.receive(\.updateDebounced)
 
     let config = ReverbConfig.Draft(
       id: 1,
@@ -72,7 +76,7 @@ struct ReverbEffectTests {
       presetId: store.state.config.presetId
     )
 
-    await store.receive(\.saveDebounced, timeout: .seconds(10)) {
+    await store.receive(\.saveDebounced) {
       $0.config = config
       $0.dirty = false
     }
@@ -82,7 +86,11 @@ struct ReverbEffectTests {
     #expect(await device.getTimesChanged() == 2)
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.continuousClock = ImmediateClock()
+    }
+  )
   func enabledToggled() async throws {
     let store = store()
 
@@ -102,7 +110,7 @@ struct ReverbEffectTests {
       $0.dirty = true
     }
 
-    await store.receive(\.updateDebounced, timeout: .seconds(10))
+    await store.receive(\.updateDebounced)
 
     let config = ReverbConfig.Draft(
       id: 1,
@@ -112,7 +120,7 @@ struct ReverbEffectTests {
       presetId: store.state.config.presetId
     )
 
-    await store.receive(\.saveDebounced, timeout: .seconds(10)) {
+    await store.receive(\.saveDebounced) {
       $0.config = config
       $0.dirty = false
     }
@@ -122,7 +130,11 @@ struct ReverbEffectTests {
     #expect(await device.getTimesChanged() == 2)
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.continuousClock = ImmediateClock()
+    }
+  )
   func wetDryMix() async throws {
     await withKnownIssue(
       "Apparant race issue with debouncing - not seen in Github CI",
@@ -155,7 +167,7 @@ struct ReverbEffectTests {
           presetId: store.state.config.presetId
         )
 
-        await store.receive(\.saveDebounced, timeout: .seconds(10)) {
+        await store.receive(\.saveDebounced) {
           $0.config = config
           $0.dirty = false
         }
@@ -167,7 +179,7 @@ struct ReverbEffectTests {
         await store.receive(\.wetDryMix)
       }
 
-      await store.receive(\.updateDebounced, timeout: .seconds(10))
+      await store.receive(\.updateDebounced)
 
       let config2 = ReverbConfig.Draft(
         id: 1,
@@ -177,7 +189,7 @@ struct ReverbEffectTests {
         presetId: store.state.config.presetId
       )
 
-      await store.receive(\.saveDebounced, timeout: .seconds(10)) {
+      await store.receive(\.saveDebounced) {
         $0.config = config2
         $0.dirty = false
       }

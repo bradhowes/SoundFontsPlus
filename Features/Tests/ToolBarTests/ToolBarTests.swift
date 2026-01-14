@@ -327,6 +327,42 @@ struct ToolBarTests {
     await store.finish()
   }
 
+  @Test(
+    .dependencies {
+      $0.continuousClock = ImmediateClock()
+    }
+  )
+  func statusTextTappedTwice() async throws {
+    let store = try await store()
+
+    await store.send(.statusTextTapped(count: 2)) {
+      $0.temporaryStatus = .panic
+    }
+
+    await store.receive(\.delegate.panic)
+    await store.receive(\.clearTemporaryStatus) {
+      $0.temporaryStatus = nil
+    }
+
+    await store.send(.deinitialize)
+    await store.finish()
+  }
+
+  @Test(
+    .dependencies {
+      $0.continuousClock = ImmediateClock()
+    }
+  )
+  func statusTextTappedOnce() async throws {
+    let store = try await store()
+
+    await store.send(.statusTextTapped(count: 1))
+    await store.receive(\.delegate.presetNameTapped)
+
+    await store.send(.deinitialize)
+    await store.finish()
+  }
+
   @Test(arguments: [false, true]) func slidingKeyboardButtonTappedInitFalse(_ initValue: Bool) async throws {
     @Shared(.keyboardSlides) var keyboardSlides = initValue
 

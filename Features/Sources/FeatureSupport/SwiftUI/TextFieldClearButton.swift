@@ -34,6 +34,8 @@ extension View {
   }
 }
 
+#if DEBUG
+
 private struct Demo: View {
   @State var text: String
   @FocusState var displayNameFieldIsFocused: Bool
@@ -65,3 +67,5 @@ struct TextFieldClearButton_Previews: PreviewProvider {
     }
   }
 }
+
+#endif // DEBUG

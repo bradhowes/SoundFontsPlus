@@ -18,6 +18,8 @@ extension View {
   }
 }
 
+#if DEBUG
+
 struct LongPressGestureModifierPreview: View {
   @State var msg: String = ""
 
@@ -42,3 +44,5 @@ struct LongPressGestureModifierPreview: View {
 #Preview {
   LongPressGestureModifierPreview()
 }
+
+#endif // DEBUG

@@ -45,6 +45,9 @@ public struct AppRoot {
     #endif
   }
 
+  /**
+   The various toasts that can appear.
+   */
   public enum ToastState: Equatable {
     case initializing // show the startup HUD until audio is ready
     case panic        // show the MIDI panic HUD
@@ -68,6 +71,8 @@ public struct AppRoot {
     #if os(iOS)
     public var volumeMonitor: VolumeMonitor.State
     #endif
+    // Set to true when synth is created and audio state is active. Once set, does not change.
+    public var readyForUse = false
     public var audioUnitCrashed = false
     public var toastState: ToastState?
 
@@ -341,7 +346,7 @@ extension AppRoot {
   }
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
-    guard state.toastState != .initializing else { return .none }
+    guard state.readyForUse else { return .none }
     var actions = [
       reduce(into: &state, action: .appReview(.ask)),
       reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
@@ -367,14 +372,17 @@ extension AppRoot {
 
   private func audioChainActive(_ state: inout State) -> Effect<Action> {
     // The synth is up and running with an active audio session. Safe to monitor its state now.
-    state.toastState = nil
-    var actions = [
-      activePresetIdChanged(&state, presetId: activeState.activePresetId)
-    ]
+    var actions = [Effect<Action>]()
 
 #if os(iOS)
     actions.append(reduce(into: &state, action: .volumeMonitor(.start)))
 #endif
+
+    if !state.readyForUse {
+      state.readyForUse = true
+      state.toastState = nil
+      actions.append(activePresetIdChanged(&state, presetId: activeState.activePresetId))
+    }
 
     return .merge(actions)
   }
@@ -533,19 +541,16 @@ extension AppRoot {
       $effectsPanelVisible.withLock { $0 = visible }
       return .none.animation(.smooth)
 
-    case .presetNameTapped(let count):
-      if count == 2 {
-        if state.synth.avAudioUnit?.sendReset() ?? false {
-          state.toastState = .panic
-        }
-        return reduce(into: &state, action: .keyboard(.allOff))
-      } else {
-        return .merge(
-          reduce(into: &state, action: .appReview(.ask)),
-          reduce(into: &state, action: .presetsList(.showActivePreset)),
-          reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
-        )
-      }
+    case .presetNameTapped:
+      return .merge(
+        reduce(into: &state, action: .appReview(.ask)),
+        reduce(into: &state, action: .presetsList(.showActivePreset)),
+        reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
+      )
+
+    case .panic:
+      _ = state.synth.avAudioUnit?.sendReset()
+      return reduce(into: &state, action: .keyboard(.allOff))
 
     case .settingsButtonTapped:
       state.destination = .settings(AppSettings.State())
@@ -564,13 +569,13 @@ extension AppRoot {
 
   private func reevaluateToastState(_ state: inout State) -> Effect<Action> {
     guard
-      state.toastState == nil,
+      state.readyForUse,
       let reason = state.volumeMonitor.reason
     else {
       return .none
     }
 
-    state.toastState = .volumeMonitor(reason: reason)
+    state.toastState = state.readyForUse ? .volumeMonitor(reason: reason) : .initializing
     return .none
   }
 
@@ -963,6 +968,8 @@ extension View {
 #endif // os(iOS)
 }
 
+private let log: Logger = .init(category: "AppRoot")
+
 #if DEBUG
 
 extension AppRootView {
@@ -993,5 +1000,3 @@ extension AppRootView {
 }
 
 #endif
-
-private let log: Logger = .init(category: "AppRoot")

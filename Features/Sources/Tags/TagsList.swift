@@ -128,6 +128,8 @@ public struct TagsListView: View {
   }
 }
 
+#if DEBUG
+
 extension TagsListView {
 
   static var preview: some View {
@@ -145,3 +147,5 @@ extension TagsListView {
 #Preview {
   TagsListView.preview
 }
+
+#endif // DEBUG

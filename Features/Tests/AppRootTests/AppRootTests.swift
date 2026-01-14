@@ -70,6 +70,7 @@ struct AppRootTests {
         $0.synth.loadedPresetIndex = 0
         $0.toolBar.preset = Preset.with(id: 1)
         $0.toastState = nil
+        $0.readyForUse = true
       }
 
       try await closure(store)
@@ -136,14 +137,18 @@ struct AppRootTests {
     }
   }
 
-  @Test
+  @Test(
+    .dependencies { _ in
+      @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion = ""
+    }
+  )
   func showChanges() async throws {
     try await initialized(exhaustivity: .off(showSkippedAssertions: false)) { store in
       @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
       await store.send(\.toolBar.delegate, .settingsButtonTapped)
       #expect(store.state.destination != nil)
       let settings = store.state.destination
-      #expect(lastShowedChangesVersion == "")
+      #expect(lastShowedChangesVersion == "16.0")
       await store.send(\.destination.settings.delegate, .showChanges)
       #expect(store.state.destination != settings)
       #expect(lastShowedChangesVersion != "")

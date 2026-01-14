@@ -715,6 +715,8 @@ or globally.
   }
 }
 
+#if DEBUG
+
 #Preview {
   @Previewable @State var showTutorial: Bool = true
   VStack {
@@ -733,5 +735,7 @@ or globally.
     }
   }
 }
+
+#endif // DEBUG
 
 #endif // os(iOS)

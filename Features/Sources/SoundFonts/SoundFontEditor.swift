@@ -312,6 +312,8 @@ public struct SoundFontEditorView: View {
   }
 }
 
+#if DEBUG
+
 extension SoundFontEditorView {
   static var preview: some View {
     // swiftlint:disable:next force_try
@@ -329,3 +331,5 @@ extension SoundFontEditorView {
 #Preview {
   SoundFontEditorView.preview
 }
+
+#endif // DEBUG

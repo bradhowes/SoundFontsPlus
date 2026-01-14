@@ -49,7 +49,11 @@ struct DelayEffectTests {
     }
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.continuousClock = ImmediateClock()
+    }
+  )
   func enabledToggled() async throws {
     let store = store()
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
@@ -70,7 +74,7 @@ struct DelayEffectTests {
         $0.dirty = true
       }
 
-      await store.receive(\.updateDebounced, timeout: .seconds(10))
+      await store.receive(\.updateDebounced)
 
       let config = DelayConfig.Draft(
         id: 1,
@@ -82,7 +86,7 @@ struct DelayEffectTests {
         presetId: 1
       )
 
-      await store.receive(\.saveDebounced, timeout: .seconds(10)) {
+      await store.receive(\.saveDebounced) {
         $0.config = config
         $0.dirty = false
       }
@@ -92,7 +96,11 @@ struct DelayEffectTests {
     #expect(await device.getTimesChanged() == 2)
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.continuousClock = ImmediateClock()
+    }
+  )
   func wetDryMix() async throws {
     let store = store()
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
@@ -135,8 +143,8 @@ struct DelayEffectTests {
           $0.config.wetDryMix = 100
         }
 
-        await store.receive(\.wetDryMix, timeout: .seconds(10))
-        await store.receive(\.updateDebounced, timeout: .seconds(10))
+        await store.receive(\.wetDryMix)
+        await store.receive(\.updateDebounced)
 
         let config2 = DelayConfig.Draft(
           id: 1,
@@ -148,7 +156,7 @@ struct DelayEffectTests {
           presetId: store.state.config.presetId
         )
 
-        await store.receive(\.saveDebounced, timeout: .seconds(10)) {
+        await store.receive(\.saveDebounced) {
           $0.config = config2
           $0.dirty = false
         }
@@ -159,7 +167,11 @@ struct DelayEffectTests {
     }
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.continuousClock = ImmediateClock()
+    }
+  )
   func globalLockDisabled() async throws {
     @Shared(.delayLockEnabled) var locked = true
     let store = store()

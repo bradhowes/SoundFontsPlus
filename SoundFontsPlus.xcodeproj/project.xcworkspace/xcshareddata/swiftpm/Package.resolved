@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/AUv3Controls",
       "state" : {
-        "revision" : "14b94cfaac47439c1086032b95bd4ed50559b8a3",
-        "version" : "1.0.1"
+        "revision" : "66720b1004f64a062318e136ff4b7bac9b233c27",
+        "version" : "1.0.2"
       }
     },
     {
@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/sqlite-data",
       "state" : {
-        "revision" : "8af16d5303372ecd01962ae59b2ad2f921d36fac",
-        "version" : "1.4.3"
+        "revision" : "57274d587b564a0b420bd4fa2bec479aac5323a2",
+        "version" : "1.5.0"
       }
     },
     {
@@ -150,8 +150,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-custom-dump",
       "state" : {
-        "revision" : "82645ec760917961cfa08c9c0c7104a57a0fa4b1",
-        "version" : "1.3.3"
+        "revision" : "93a8aa4937030b606de42f44b17870249f49af0b",
+        "version" : "1.3.4"
       }
     },
     {
@@ -222,8 +222,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "907cd2c4a31f6e45e0632e29bdac06977985faca",
-        "version" : "0.26.0"
+        "revision" : "862802b5a66aec04219b7c2a10e06a5681da86ee",
+        "version" : "0.27.0"
       }
     },
     {

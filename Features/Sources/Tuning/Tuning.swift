@@ -242,6 +242,8 @@ public struct TuningView: View {
 private func centsToFrequency(_ cents: Int) -> Double { pow(2.0, (Double(cents) / 1200.0)) * 440.0 }
 private func frequencyToCents(_ frequency: Double) -> Double { log2(frequency / 440.0) * 1200.0 }
 
+#if DEBUG
+
 extension TuningView {
   static var preview: some View {
     Form {
@@ -253,3 +255,5 @@ extension TuningView {
 #Preview {
   TuningView.preview
 }
+
+#endif // DEBUG

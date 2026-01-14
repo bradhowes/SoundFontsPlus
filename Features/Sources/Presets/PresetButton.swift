@@ -139,6 +139,8 @@ public struct PresetButtonView: View {
   }
 }
 
+#if DEBUG
+
 extension PresetButtonView {
   static var preview: some View {
     var presets = prepareDependencies {
@@ -175,3 +177,5 @@ extension PresetButtonView {
 #Preview {
   PresetButtonView.preview
 }
+
+#endif // DEBUG
