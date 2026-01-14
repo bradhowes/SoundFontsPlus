@@ -27,23 +27,34 @@ public struct SoundFontButton {
     case localIsAvailable
     case localIsMissing
     case cloudIsDownloaded
+    case cloudIsDownloading
     case cloudIsMissing
 
     static func value(for bookmark: Bookmark?) -> Self {
-      guard let bookmark else {
-        return .invalidBookmark
-      }
+      guard let bookmark else { return .invalidBookmark }
       let cloudState = bookmark.cloudState
-      if cloudState == .local {
+      switch cloudState {
+      case .local:
         return bookmark.isAvailable ? .localIsAvailable : .localIsMissing
-      } else {
-        return cloudState == .downloaded ? .cloudIsDownloaded : .cloudIsMissing
+        /// Item is on iCloud but not available locally.
+      case .inCloud:
+        return .cloudIsMissing
+      case .downloadRequested:
+        return .cloudIsDownloading
+      case .downloading:
+        return .cloudIsDownloading
+      case .downloaded:
+        return .cloudIsDownloaded
+      case .downloadError:
+        return .invalidBookmark
+      case .unknown:
+        return .invalidBookmark
       }
     }
 
     var available: Bool {
       switch self {
-      case .invalidBookmark, .localIsMissing, .cloudIsMissing: return false
+      case .invalidBookmark, .localIsMissing, .cloudIsMissing, .cloudIsDownloading: return false
       default: return true
       }
     }
@@ -78,6 +89,12 @@ public struct SoundFontButton {
         return .init(
           action: .delegate(.selectSoundFont(info, available: true)),
           imageName: "icloud",
+          color: .accentColor.opacity(0.5)
+        )
+      case .cloudIsDownloading:
+        return .init(
+          action: .statusInfoChanged(.cloudIsDownloading),
+          imageName: "icloud.and.arrow.down.fill",
           color: .accentColor.opacity(0.5)
         )
       case .cloudIsMissing:
@@ -185,6 +202,7 @@ extension SoundFontButton {
 
   private func downloadFile(_ state: inout State) -> Effect<Action> {
     guard let bookmark = try? Bookmark.from(data: state.soundFontInfo.location) else { return .none }
+    state.statusInfoTag = .cloudIsDownloading
     bookmark.url.withSecurityScoping { url in
       try FileManager.default.startDownloadingUbiquitousItem(at: url)
     }
