@@ -51,17 +51,41 @@ public struct SoundFontButton {
     func statusInfo(_ info: SoundFontInfo) -> StatusInfo {
       switch self {
       case .internalFile:
-        return .init(action: .delegate(.selectSoundFont(info, available: true)), imageName: "circle.fill", color: .black)
+        return .init(
+          action: .delegate(.selectSoundFont(info, available: true)),
+          imageName: "circle.fill",
+          color: .black
+        )
       case .invalidBookmark:
-        return .init(action: .delegate(.alertInvalidBookmark(info)), imageName: "exclamationmark.circle", color: .red)
+        return .init(
+          action: .delegate(.alertInvalidBookmark(info)),
+          imageName: "exclamationmark.circle",
+          color: .red
+        )
       case .localIsAvailable:
-        return .init(action: .delegate(.selectSoundFont(info, available: true)), imageName: "link", color: .accentColor)
+        return .init(
+          action: .delegate(.selectSoundFont(info, available: true)),
+          imageName: "link",
+          color: .accentColor.opacity(0.5)
+        )
       case .localIsMissing:
-        return .init(action: .delegate(.alertMissingFile(info)), imageName: "exclamationmark.circle", color: .yellow)
+        return .init(
+          action: .delegate(.alertMissingFile(info)),
+          imageName: "exclamationmark.circle",
+          color: .yellow
+        )
       case .cloudIsDownloaded:
-        return .init(action: .delegate(.selectSoundFont(info, available: true)), imageName: "icloud", color: .accentColor)
+        return .init(
+          action: .delegate(.selectSoundFont(info, available: true)),
+          imageName: "icloud",
+          color: .accentColor.opacity(0.5)
+        )
       case .cloudIsMissing:
-        return .init(action: .downloadFileButtonTapped, imageName: "icloud.and.arrow.down", color: .yellow)
+        return .init(
+          action: .downloadFileButtonTapped,
+          imageName: "icloud.and.arrow.down",
+          color: .yellow
+        )
       }
     }
   }
