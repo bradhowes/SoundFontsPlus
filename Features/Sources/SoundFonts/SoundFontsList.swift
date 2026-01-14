@@ -138,11 +138,13 @@ extension SoundFontsList {
       return .none
     }
 
-    do {
-      log.info("removing file \(kind.path)")
-      try fileManager.removeItem(kind.path)
-    } catch {
-      log.error("failed to remove item \(kind.path)")
+    if kind.isInstalled {
+      do {
+        log.info("removing file \(kind.path)")
+        try fileManager.removeItem(kind.path)
+      } catch {
+        log.error("failed to remove item \(kind.path)")
+      }
     }
 
     log.info("removing db entry for \(soundFont.displayName)")
@@ -235,13 +237,8 @@ extension SoundFontsList {
   }
 
   private func soundFontInfosChanged(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
-    let update = IdentifiedArrayOf<SoundFontButton.State>(
-      uncheckedUniqueElements: soundFontInfos.map {
-        .init(soundFontInfo: $0)
-      }
-    )
+    let update = IdentifiedArrayOf<SoundFontButton.State>(uncheckedUniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
     if state.rows != update {
-      log.info("replacing rows with changes")
       state.rows = update
     }
     return .none
