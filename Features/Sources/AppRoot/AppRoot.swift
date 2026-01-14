@@ -108,7 +108,7 @@ public struct AppRoot {
 
         showChanges()
 
-#else
+#elseif !(DEBUG && targetEnvironment(simulator))
 
 #if os(iOS)
         if Tutorial.shouldShow {
@@ -119,6 +119,10 @@ public struct AppRoot {
           toastState = .initializing
         }
 #endif // os(iOS)
+
+#else
+
+      toastState = .initializing
 
 #endif
 
