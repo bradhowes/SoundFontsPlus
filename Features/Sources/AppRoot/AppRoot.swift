@@ -49,8 +49,6 @@ public struct AppRoot {
    The various toasts that can appear.
    */
   public enum ToastState: Equatable {
-    case initializing // show the startup HUD until audio is ready
-    case panic        // show the MIDI panic HUD
     case volumeMonitor(reason: VolumeMonitor.Reason)
   }
 
@@ -110,8 +108,6 @@ public struct AppRoot {
         showTutorial()
       } else if Changes.shouldShow {
         showChanges()
-      } else {
-        toastState = .initializing
       }
 
 #endif // os(iOS)
@@ -575,7 +571,8 @@ extension AppRoot {
       return .none
     }
 
-    state.toastState = state.readyForUse ? .volumeMonitor(reason: reason) : .initializing
+    state.toastState = .volumeMonitor(reason: reason)
+
     return .none
   }
 
@@ -707,14 +704,10 @@ public struct AppRootView: View {
     }
     .toast(item: $store.toastState, alignment: .top) { reason in
       switch reason {
-      case .initializing: initializeToast
-      case .panic: panicToast
       case .volumeMonitor(reason: let reason): volumeMonitorToast(reason)
       }
     }
     .toastStyle(.plain)
-    .toastPresentationInvalidation(.all)
-    .toastInteractiveDismissDisabled(store.toastState == .initializing ? true : false)
   }
 
   private var initializeToast: Toast {
