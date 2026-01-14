@@ -42,12 +42,8 @@ public struct Tutorial {
   }
 
   public static var shouldShow: Bool {
-#if ALWAYS_SHOW_TUTORIAL
-    return true
-#else
     @Shared(.showedTutorial) var showedTutorial
     return !showedTutorial
-#endif
   }
 
   public init() {}

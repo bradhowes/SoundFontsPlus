@@ -7,10 +7,12 @@ import FeatureSupport
 import Models
 import ReverbEffect
 import Settings
+import Sharing
 import SnapshotTesting
 import SoundFonts
 import Testing
 import TestSupport
+import Tutorial
 
 @testable import Presets
 @testable import AppRoot
@@ -33,20 +35,25 @@ import TestSupport
 @MainActor
 struct AppRootTests {
 
-  func store() -> TestStoreOf<AppRoot> {
+  func store(showedTutorial: Bool = true) -> TestStoreOf<AppRoot> {
     @Shared(.activeState) var activeState = .default
+    @Shared(.showedTutorial) var showedTutorial = showedTutorial
     return .init(initialState: .init()) {
       AppRoot()
     }
   }
 
-  func initialized(exhaustivity: Exhaustivity = .on, _ closure: (TestStoreOf<AppRoot>) async throws -> Void) async throws {
+  func initialized(
+    exhaustivity: Exhaustivity = .on,
+    showedTutorial: Bool = true,
+    _ closure: (TestStoreOf<AppRoot>) async throws -> Void
+  ) async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
 
     @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
     let avAudioUnit = try #require(await avAudioUnitMIDIInstrumentGenerator.generate())
 
-    let store = store()
+    let store = store(showedTutorial: showedTutorial)
 
     try await store.withExhaustivity(exhaustivity) {
       await store.send(.initialize)
@@ -131,28 +138,17 @@ struct AppRootTests {
 
   @Test
   func showChanges() async throws {
-    try await initialized { store in
+    try await initialized(exhaustivity: .off(showSkippedAssertions: false)) { store in
       @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
-      _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-        await store.send(\.toolBar.delegate, .settingsButtonTapped)
-        #expect(store.state.destination != nil)
-        let settings = store.state.destination
-        #expect(lastShowedChangesVersion == "")
-        await store.send(\.destination.settings.delegate, .showChanges)
-        #expect(store.state.destination != settings)
-        #expect(lastShowedChangesVersion != "")
-      }
+      await store.send(\.toolBar.delegate, .settingsButtonTapped)
+      #expect(store.state.destination != nil)
+      let settings = store.state.destination
+      #expect(lastShowedChangesVersion == "")
+      await store.send(\.destination.settings.delegate, .showChanges)
+      #expect(store.state.destination != settings)
+      #expect(lastShowedChangesVersion != "")
     }
   }
-
-//  @Test func showPresetEditor() async throws {
-//    try await initialized { store in
-//      await store.send(\.presetsList, .fetchPresets)
-//      let preset = Preset.with(id: 1)
-//      await store.send(\.presetsList.sections, .element(id: 10000, action: .rows(.element(id: 1, action: .delegate(.editPreset(preset!))))))
-//      #expect(store.state.destination != nil)
-//    }
-//  }
 
   @Test
   func showSoundFontEditor() async throws {
@@ -176,17 +172,15 @@ struct AppRootTests {
 
   @Test
   func showTutorial() async throws {
-    try await initialized { store in
-      _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-        @Shared(.showedTutorial) var showedTutorial
-        await store.send(\.toolBar.delegate, .settingsButtonTapped)
-        #expect(store.state.destination != nil)
-        let settings = store.state.destination
-        #expect(showedTutorial == false)
-        await store.send(\.destination.settings.delegate, .showTutorial)
-        #expect(store.state.destination != settings)
-        #expect(showedTutorial == true)
-      }
+    @Shared(.showedTutorial) var showedTutorial
+    try await initialized(exhaustivity: .off(showSkippedAssertions: false)) { store in
+      await store.send(\.toolBar.delegate, .settingsButtonTapped)
+      #expect(store.state.destination != nil)
+      let settings = store.state.destination
+      $showedTutorial.withLock { $0 = false }
+      await store.send(\.destination.settings.delegate, .showTutorial)
+      #expect(store.state.destination != settings)
+      #expect(showedTutorial == true)
     }
   }
 

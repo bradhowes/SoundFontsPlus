@@ -96,35 +96,20 @@ public struct AppRoot {
       self.synth = synth ?? .init()
       self.tagsList = tagsList ?? .init()
       self.toolBar = toolBar ?? .init()
+
 #if os(iOS)
+
       self.volumeMonitor = .init()
-#endif
 
-#if ALWAYS_SHOW_TUTORIAL
-
+      if Tutorial.shouldShow {
         showTutorial()
-
-#elseif ALWAYS_SHOW_CHANGES
-
+      } else if Changes.shouldShow {
         showChanges()
+      } else {
+        toastState = .initializing
+      }
 
-#elseif !(DEBUG && targetEnvironment(simulator))
-
-#if os(iOS)
-        if Tutorial.shouldShow {
-          showTutorial()
-        } else if Changes.shouldShow {
-          showChanges()
-        } else {
-          toastState = .initializing
-        }
 #endif // os(iOS)
-
-#else
-
-      toastState = .initializing
-
-#endif
 
       // Deep-linking to a destination at start up for dev/testing
       //
@@ -154,13 +139,11 @@ public struct AppRoot {
       $lastShowedChangesVersion.withLock { $0 = Bundle.main.releaseVersionNumber }
     }
 
-#if os(iOS)
     mutating func showTutorial() {
       destination = .tutorial(Tutorial.State())
       @Shared(.showedTutorial) var showedTutorial
       $showedTutorial.withLock { $0 = true }
     }
-#endif // os(iOS)
   }
 
   @frozen
