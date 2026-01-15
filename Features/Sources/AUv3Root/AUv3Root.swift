@@ -39,7 +39,7 @@ public struct AUv3Root {
   @Reducer
   public enum Destination {
     case presetEditor(PresetEditor)
-    case settings(AppSettings)
+    case settings(Settings)
     case soundFontEditor(SoundFontEditor)
     case tagsEditor(TagsEditor)
   }
@@ -217,7 +217,7 @@ extension AUv3Root {
     return .none
   }
 
-  private func processSettingsAction(_ state: inout State, action: AppSettings.Action.Delegate) -> Effect<Action> {
+  private func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
     return .none
   }
 
@@ -237,7 +237,7 @@ extension AUv3Root {
       )
 
     case .settingsButtonTapped:
-      state.destination = .settings(AppSettings.State())
+      state.destination = .settings(Settings.State())
       return .none
 
     case .tagsListVisibilityChanged(let visible):
@@ -431,7 +431,7 @@ extension View {
   fileprivate func settingsSheet(_ store: Bindable<StoreOf<AUv3Root>>) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.settings, action: \.destination.settings)) {
-        AppSettingsView(store: $0, showFakeKeyboard: false)
+        SettingsView(store: $0, showFakeKeyboard: false)
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }

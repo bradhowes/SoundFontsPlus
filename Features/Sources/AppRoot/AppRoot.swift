@@ -37,7 +37,7 @@ public struct AppRoot {
   public enum Destination {
     case changes(Changes)
     case presetEditor(PresetEditor)
-    case settings(AppSettings)
+    case settings(Settings)
     case soundFontEditor(SoundFontEditor)
     case tagsEditor(TagsEditor)
     #if os(iOS)
@@ -513,7 +513,7 @@ extension AppRoot {
     return .none
   }
 
-  private func processSettingsAction(_ state: inout State, action: AppSettings.Action.Delegate) -> Effect<Action> {
+  private func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
     switch action {
 
     case .showChanges:
@@ -550,7 +550,7 @@ extension AppRoot {
       return reduce(into: &state, action: .keyboard(.allOff))
 
     case .settingsButtonTapped:
-      state.destination = .settings(AppSettings.State())
+      state.destination = .settings(Settings.State())
       return .none
 
     case .tagsListVisibilityChanged(let visible):
@@ -922,7 +922,7 @@ extension View {
   fileprivate func settingsSheet(_ store: Bindable<StoreOf<AppRoot>>, showFakeKeyboard: Bool) -> some View {
     self
       .sheet(item: store.scope(state: \.destination?.settings, action: \.destination.settings)) {
-        AppSettingsView(store: $0, showFakeKeyboard: showFakeKeyboard)
+        SettingsView(store: $0, showFakeKeyboard: showFakeKeyboard)
           .preferredColorScheme(.dark)
           .environment(\.colorScheme, .dark)
       }

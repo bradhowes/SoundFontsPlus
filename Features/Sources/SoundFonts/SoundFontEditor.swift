@@ -189,17 +189,9 @@ public struct SoundFontEditorView: View {
         nameSection
         tagsSection
         notesSection
+        contentsSection
         infoSection
-        Section(header: Text("Author")) {
-          Text(store.soundFont.embeddedAuthor)
-        }
-        Section(header: Text("Copyright")) {
-          Text(store.soundFont.embeddedCopyright)
-        }
-        Section(header: Text("Comment")) {
-          Text(store.soundFont.embeddedComment)
-        }
-        pathSection
+        fileSection
       }
       .font(.soundFontEditor)
       .navigationTitle("SoundFont")
@@ -226,7 +218,7 @@ public struct SoundFontEditorView: View {
   }
 
   var nameSection: some View {
-    Section {
+    Section(header: Text("Name")) {
       NameFieldView(text: $store.displayName, readOnly: false)
       HStack {
         Text(store.soundFont.originalName)
@@ -247,14 +239,6 @@ public struct SoundFontEditorView: View {
     }
   }
 
-  var notesSection: some View {
-    Section(header: Text("Notes")) {
-      TextEditor(text: $store.notes)
-        .textEditorStyle(.automatic)
-        .lineLimit(1...5)
-    }
-  }
-
   var tagsSection: some View {
     Section(header: Text("Tags")) {
       HStack {
@@ -269,45 +253,55 @@ public struct SoundFontEditorView: View {
     }
   }
 
-  var infoSection: some View {
+  var notesSection: some View {
+    Section(header: Text("Notes")) {
+      TextEditor(text: $store.notes)
+        .textEditorStyle(.automatic)
+        .lineLimit(1...5)
+    }
+  }
+
+  var contentsSection: some View {
     Section(header: Text("Contents")) {
       LabeledContent("Presets", value: "\(store.presetCount + store.hiddenCount)")
-      LabeledContent {
-        Button {
-          store.send(.unhideAllButtonTapped)
+      if store.hiddenCount > 0 {
+        LabeledContent {
+          HStack {
+            Text("\(store.hiddenCount)")
+            Button {
+              store.send(.unhideAllButtonTapped)
+            } label: {
+              Text("Unhide")
+            }
+          }
         } label: {
-          Text("\(store.hiddenCount)")
+          Text("Hidden presets")
         }
-      } label: {
-        Text("Hidden presets")
       }
       LabeledContent("Favorites/Copies", value: "\(store.favoriteCount)")
     }
   }
 
-  var pathSection: some View {
-    Section(header: Text("Path")) {
-      HStack {
-        Text(store.soundFont.sourcePath)
-          .font(.footnote)
-        Button {
-#if os(iOS)
-          UIPasteboard.general.string = store.soundFont.sourcePath
-#endif
-          // ProgressHUD.banner("Copied", "Path copied to clipboard")
-        } label: {
-          Image(systemName: "document.on.document")
-        }
-      }
+  var infoSection: some View {
+    Section(header: Text("Info")) {
+      LabeledContent("Author", value: store.soundFont.embeddedAuthor)
+      LabeledContent("Copyright", value: store.soundFont.embeddedCopyright)
+      LabeledContent("Comment", value: store.soundFont.embeddedComment)
     }
   }
 
-  var presetCountLabel: String {
-    let total = store.presetCount + store.hiddenCount
-    if store.hiddenCount > 0 {
-      return "\(total) (\(store.hiddenCount) hidden)"
-    } else {
-      return "\(total)"
+  var fileSection: some View {
+    Section(header: Text("File")) {
+      LabeledContent("Kind", value: store.soundFont.sourceKind)
+      LabeledContent {
+        Button {
+          UIPasteboard.general.string = store.soundFont.sourcePath
+        } label: {
+          Text("\(store.soundFont.sourcePath)")
+        }
+      } label: {
+        Text("Path")
+      }
     }
   }
 }
@@ -318,7 +312,15 @@ extension SoundFontEditorView {
   static var preview: some View {
     // swiftlint:disable:next force_try
     var soundFonts = try! prepareDependencies {
-      $0.defaultDatabase = previewDatabase()
+      $0.defaultDatabase = previewDatabase { db in
+        try Preset
+          .all
+          .where { $0.id.eq(Preset.ID(4)) || $0.id.eq(Preset.ID(3)) }
+          .update {
+            $0.kind = .hidden
+          }
+          .execute(db)
+      }
       navigationBarTitleStyle()
       return try $0.defaultDatabase.read { try SoundFont.all.fetchAll($0) }
     }

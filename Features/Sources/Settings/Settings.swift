@@ -11,7 +11,7 @@ import MorkAndMIDI
 import Tuning
 
 @Reducer
-public struct AppSettings {
+public struct Settings {
 
   @Reducer
   public enum Path {
@@ -208,7 +208,7 @@ public struct AppSettings {
   }
 }
 
-extension AppSettings {
+extension Settings {
 
   private func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
     @Dependency(\.dismiss) var dismiss
@@ -255,14 +255,14 @@ extension AppSettings {
   }
 }
 
-extension AppSettings.Path.State: Equatable {}
-extension AppSettings.Destination.State: Equatable {}
-extension AppSettings.Destination.State: _EphemeralState {
+extension Settings.Path.State: Equatable {}
+extension Settings.Destination.State: Equatable {}
+extension Settings.Destination.State: _EphemeralState {
   public typealias Action = Alert
 }
 
-public struct AppSettingsView: View {
-  @Bindable private var store: StoreOf<AppSettings>
+public struct SettingsView: View {
+  @Bindable private var store: StoreOf<Settings>
   @State private var changingKeyWidth: Bool = false
   @Shared(.isAUv3) private var isAUv3
   @Dependency(\.audioSession) private var audioSession
@@ -270,7 +270,7 @@ public struct AppSettingsView: View {
   private let showFakeKeyboard: Bool
   private let bundle = Bundle.main
 
-  public init(store: StoreOf<AppSettings>, showFakeKeyboard: Bool) {
+  public init(store: StoreOf<Settings>, showFakeKeyboard: Bool) {
     self.store = store
     self.showFakeKeyboard = showFakeKeyboard
   }
@@ -313,7 +313,7 @@ public struct AppSettingsView: View {
   }
 }
 
-extension AppSettingsView {
+extension SettingsView {
 
   private var presetsSection: some View {
     Section("Presets") {
@@ -607,15 +607,15 @@ private let log: Logger = .init(category: "AppSettings")
 
 #if DEBUG
 
-extension AppSettingsView {
+extension SettingsView {
   static var preview: some View {
     @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
     midi?.start()
     navigationBarTitleStyle()
     return VStack {
-      AppSettingsView(
+      SettingsView(
         store: Store(initialState: .init()) {
-          AppSettings()
+          Settings()
         },
         showFakeKeyboard: false
       )
@@ -624,7 +624,7 @@ extension AppSettingsView {
 }
 
 #Preview {
-  AppSettingsView.preview
+  SettingsView.preview
 }
 
 #endif // DEBUG
