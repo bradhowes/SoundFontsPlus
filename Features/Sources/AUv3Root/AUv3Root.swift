@@ -158,8 +158,8 @@ public struct AUv3Root {
         state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
         return .none
 
-      case .tagsList(.delegate(.edit(let focused))):
-        state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
+      case .tagsList(.delegate(.edit(focus: let focus))):
+        state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focus))
         return .none
 
       case .toolBar(.delegate(let action)):
@@ -279,7 +279,7 @@ extension AUv3Root {
         log.error("useActivePreset END - unexpected nil location for \(String(describing: presetInfo), privacy: .public)")
         return .none
       }
-      let path = location.path.path(percentEncoded: false)
+      let path = location.url.path(percentEncoded: false)
       log.info("useActivePreset - loading \(path) preset \(presetInfo.presetIndex) \(presetInfo.presetName, privacy: .public)")
     }
 

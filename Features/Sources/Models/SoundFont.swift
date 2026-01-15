@@ -19,11 +19,27 @@ public struct SoundFont {
 
   public let id: ID
 
-  @frozen
-  public enum Kind: String, CaseIterable, QueryBindable {
-    case builtin
-    case installed
-    case external
+  /**
+   Indication of where the sound font file is located.
+
+   - builtin -- the file resides in the application bundle
+   - installed -- the file resides in an app group folder
+   - external -- the file resides elsewhere and requires special effort to access
+   */
+  public struct Kind {
+    public let rawValue: Int
+
+    public init(rawValue: Int) {
+      self.rawValue = rawValue
+    }
+
+    public static let builtin = Self(rawValue: 1)
+    public static let installed = Self(rawValue: 2)
+    public static let external = Self(rawValue: 3)
+
+    public static let allCases: [Self] = [.builtin, .installed, .external]
+
+    public var unknown: Bool { !Self.allCases.contains(self) }
   }
 
   public var displayName: String
@@ -39,9 +55,9 @@ public struct SoundFont {
 
   public var notes: String
 
+  public var isBuiltin: Bool { kind == .builtin }
   public var isInstalled: Bool { kind == .installed }
   public var isExternal: Bool { kind == .external }
-  public var isBuiltin: Bool { kind == .builtin }
 }
 
 extension SoundFont {
@@ -240,7 +256,7 @@ extension SoundFont {
   public var sourceKind: String { (try? source())?.description ?? "N/A" }
 
   /// - returns: a path tothe source file
-  public var sourcePath: String { (try? source())?.path.absoluteString ?? "N/A" }
+  public var sourcePath: String { (try? source())?.url.absoluteString ?? "N/A" }
 
   /**
    Fetch the row for a given ID.
@@ -316,5 +332,7 @@ extension SoundFont.ID {
   public static var museScore: SoundFont.ID { SF2ResourceTag.museScore.soundFontId }
   public static var rolandNicePiano: SoundFont.ID { SF2ResourceTag.rolandNicePiano.soundFontId }
 }
+
+extension SoundFont.Kind: Equatable, Hashable, QueryBindable, RawRepresentable, Sendable {}
 
 extension SoundFont: Hashable, Identifiable, Sendable {}

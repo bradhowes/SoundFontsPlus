@@ -138,12 +138,12 @@ extension SoundFontsList {
       return .none
     }
 
-    if kind.isInstalled {
+    if kind.deleteWhenRemoved {
       do {
-        log.info("removing file \(kind.path)")
-        try fileManager.removeItem(kind.path)
+        log.info("removing file \(kind.url)")
+        try fileManager.removeItem(kind.url)
       } catch {
-        log.error("failed to remove item \(kind.path)")
+        log.error("failed to remove item \(kind.url)")
       }
     }
 

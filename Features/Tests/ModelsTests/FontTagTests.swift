@@ -66,8 +66,8 @@ struct FontTagTests {
     @FetchAll(FontTag.tagsQuery) var tags
     try await $tags.load()
     for each in FontTag.Ubiquitous.allCases {
-      #expect(throws: ModelError.deleteUbiquitous(name: each.displayName)) {
-        try tags[Int(each.id.rawValue - Int64(1))].delete()
+      #expect(throws: ModelError.deleteUbiquitous(name: each.displayName!)) {
+        try tags[Int(each.id.rawValue * -1) - 1].delete()
       }
     }
   }
@@ -90,8 +90,8 @@ struct FontTagTests {
     @FetchAll(FontTag.tagsQuery) var tags
     try await $tags.load()
     for each in FontTag.Ubiquitous.allCases {
-      #expect(throws: ModelError.renameUbiquitous(name: each.displayName)) {
-        try tags[Int(each.id.rawValue - Int64(1))].rename(new: "nope")
+      #expect(throws: ModelError.renameUbiquitous(name: each.displayName!)) {
+        try tags[Int(each.id.rawValue * -1) - 1].rename(new: "nope")
       }
     }
   }
@@ -140,13 +140,13 @@ struct FontTagTests {
   @Test
   func createWithExistingName() async throws {
     for each in FontTag.Ubiquitous.allCases {
-      let newTag = try FontTag.make(displayName: each.displayName)
-      #expect(newTag.displayName == each.displayName + " 1")
+      let newTag = try FontTag.make(displayName: each.displayName!)
+      #expect(newTag.displayName == each.displayName! + " 1")
     }
 
     for each in FontTag.Ubiquitous.allCases {
-      let newTag = try FontTag.make(displayName: each.displayName)
-      #expect(newTag.displayName == each.displayName + " 2")
+      let newTag = try FontTag.make(displayName: each.displayName!)
+      #expect(newTag.displayName == each.displayName! + " 2")
     }
   }
 

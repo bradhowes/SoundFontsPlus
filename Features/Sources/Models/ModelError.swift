@@ -14,6 +14,7 @@ public enum ModelError: Error, Equatable {
   case dataIsNotValidString(data: Data, displayName: String)
   case dataIsNotValidTag(data: Data, displayName: String)
   case urlIsNotValidData(url: URL)
+  case unknownSoundFontKind(value: Int)
 }
 
 extension ModelError: CustomStringConvertible {
@@ -39,6 +40,8 @@ extension ModelError: CustomStringConvertible {
       return "Internal error - invalid URL '\(url)'. Unable to save to database."
     case .dataIsNotValidTag(data: _, displayName: let displayName):
       return "Location value for SF2 \(displayName) is corrupted. Unable to load."
+    case .unknownSoundFontKind(let kind):
+      return "Unknown SoundFont kind: \(kind)"
     }
   }
 }

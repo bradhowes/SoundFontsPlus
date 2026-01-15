@@ -17,7 +17,7 @@ struct TagsEditorTests {
 
   func store(
     mode: TagsEditor.Mode,
-    focused: FontTag.ID? = nil,
+    focused: Int? = nil,
     soundFontId: SoundFont.ID? = nil,
     memberships: [FontTag.ID: Bool]? = nil,
     editModeActive: Bool = false
@@ -42,7 +42,7 @@ struct TagsEditorTests {
     #expect(rows.count == 5)
     rows.append(
       .init(
-        tagId: -1,
+        tagId: nil,
         draft: .init(displayName: "New Tag", ordering: rows.count),
         membership: nil
       )
@@ -50,12 +50,12 @@ struct TagsEditorTests {
 
     await store.send(.addButtonTapped) {
       $0.rows = rows
-      $0.focused = -1
+      $0.focused = 5
     }
 
     rows.append(
       .init(
-        tagId: -2,
+        tagId: nil,
         draft: .init(displayName: "New Tag 1", ordering: rows.count),
         membership: nil
       )
@@ -63,7 +63,7 @@ struct TagsEditorTests {
 
     await store.send(.addButtonTapped) {
       $0.rows = rows
-      $0.focused = -2
+      $0.focused = 6
     }
   }
 
@@ -75,7 +75,7 @@ struct TagsEditorTests {
 
     rows.append(
       .init(
-        tagId: -1,
+        tagId: nil,
         draft: .init(displayName: "New Tag", ordering: rows.count),
         membership: false
       )
@@ -83,12 +83,12 @@ struct TagsEditorTests {
 
     await store.send(.addButtonTapped) {
       $0.rows = rows
-      $0.focused = -1
+      $0.focused = 5
     }
 
     rows.append(
       .init(
-        tagId: -2,
+        tagId: nil,
         draft: .init(displayName: "New Tag 1", ordering: rows.count),
         membership: false
       )
@@ -96,7 +96,7 @@ struct TagsEditorTests {
 
     await store.send(.addButtonTapped) {
       $0.rows = rows
-      $0.focused = -2
+      $0.focused = 6
     }
   }
 
@@ -108,7 +108,7 @@ struct TagsEditorTests {
 
     rows.append(
       .init(
-        tagId: -1,
+        tagId: nil,
         draft: .init(displayName: "New Tag", ordering: rows.count),
         membership: false
       )
@@ -116,7 +116,7 @@ struct TagsEditorTests {
 
     await store.send(.addButtonTapped) {
       $0.rows = rows
-      $0.focused = -1
+      $0.focused = 5
     }
 
     await store.send(.cancelButtonTapped)
@@ -134,9 +134,10 @@ struct TagsEditorTests {
     var rows = store.state.rows
     #expect(rows.count == 5)
 
+    let rowId = rows.count
     rows.append(
       .init(
-        tagId: -1,
+        tagId: nil,
         draft: .init(displayName: "New Tag", ordering: rows.count),
         membership: false
       )
@@ -144,13 +145,13 @@ struct TagsEditorTests {
 
     await store.send(.addButtonTapped) {
       $0.rows = rows
-      $0.focused = -1
+      $0.focused = rowId
     }
 
     rows.removeLast()
 
-    await store.send(.deleteButtonTapped(at: IndexSet([-1])))
-    await store.receive(\.finalizeDeleteTag, -1) {
+    await store.send(.deleteButtonTapped(at: IndexSet([rowId])))
+    await store.receive(\.finalizeDeleteTag, rowId) {
       $0.rows = rows
       $0.focused = nil
     }
@@ -160,14 +161,14 @@ struct TagsEditorTests {
   func deleteButtonTappedOnOld() async {
     let store = store(mode: .tagEditing, soundFontId: 1, memberships: [:])
     var rows = store.state.rows
+    let rowId = 0
+    await store.send(.deleteButtonTapped(at: IndexSet([rowId])))
 
-    await store.send(.deleteButtonTapped(at: IndexSet([1])))
-
-    rows.remove(at: 0)
-    await store.receive(\.finalizeDeleteTag, 1) {
+    let removed = rows.remove(at: rowId)
+    await store.receive(\.finalizeDeleteTag, rowId) {
       $0.rows = rows
       $0.focused = nil
-      $0.deleted = Set([1])
+      $0.deleting = Set([removed.tagId!])
     }
   }
 
@@ -176,20 +177,22 @@ struct TagsEditorTests {
     let store = store(mode: .tagEditing)
     var rows = store.state.rows
 
-    await store.send(.rows(.element(id: 1, action: .delegate(.tagSwipedToDelete(1)))))
+    let rowId = 1
+    await store.send(.rows(.element(id: rowId, action: .delegate(.tagSwipedToDelete(rowId)))))
 
-    rows.remove(at: 0)
-    await store.receive(\.finalizeDeleteTag, 1) {
+    let removed = rows.remove(at: rowId)
+    await store.receive(\.finalizeDeleteTag, rowId) {
       $0.rows = rows
       $0.focused = nil
-      $0.deleted = Set([1])
+      $0.deleting = Set([removed.tagId!])
     }
   }
 
   @Test
   func deleteButtonTappedInvalidIndex() async {
     let store = store(mode: .fontEditing, soundFontId: 1, memberships: [:])
-    await store.send(.deleteButtonTapped(at: IndexSet([-1])))
+    await store.send(.deleteButtonTapped(at: IndexSet([99_999])))
+    await store.receive(\.finalizeDeleteTag, 99_999)
   }
 
   @Test
@@ -200,7 +203,7 @@ struct TagsEditorTests {
 
     rows.append(
       .init(
-        tagId: -1,
+        tagId: nil,
         draft: .init(displayName: "New Tag", ordering: rows.count),
         membership: false
       )
@@ -208,14 +211,16 @@ struct TagsEditorTests {
 
     await store.send(.addButtonTapped) {
       $0.rows = rows
-      $0.focused = -1
+      $0.focused = rows.count - 1
     }
 
-    await store.send(.deleteButtonTapped(at: IndexSet([1])))
-    rows.remove(at: 0)
-    await store.receive(\.finalizeDeleteTag, 1) {
+    let rowId = 1
+    await store.send(.deleteButtonTapped(at: IndexSet([rowId])))
+    let removed = rows.remove(at: rowId)
+
+    await store.receive(\.finalizeDeleteTag, rowId) {
       $0.rows = rows
-      $0.deleted = Set([1])
+      $0.deleting = Set([removed.tagId!])
     }
 
     await store.send(.saveButtonTapped)

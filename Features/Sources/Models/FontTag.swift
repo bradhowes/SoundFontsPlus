@@ -5,62 +5,60 @@ import SF2Resources
 import SQLiteData
 import Tagged
 
-/**
- A tag is used to group or categorize a collection of SoundFont entries. There are four predefined (ubiquitous) tags:
-
- - `all` -- every SoundFont is a member of this collection
- - `builtIn` -- the four SoundFont files embedded with the app is a member of this collection
- - `added` -- every SoundFont added by the user is a member of this collection (initially empty)
- - `external` -- every SoundFont added but not copied to the app's document storage is a member of this collection
-
- A user can create additional tags via the app UI, and SoundFont membership with these custom tags is under their
- control. The four tags above are managed by the app -- the user cannot affect their membership outside of adding and
- deleting SF2 files.
- */
+/// A tag is used to group or categorize a collection of SoundFont entries. There are four predefined (ubiquitous) tags:
+///
+/// - `all` -- every SoundFont is a member of this collection
+/// - `builtIn` -- the four SoundFont files embedded with the app is a member of this collection
+/// - `added` -- every SoundFont added by the user is a member of this collection (initially empty)
+/// - `external` -- every SoundFont added but not copied to the app's document storage is a member of this collection
+///
+/// A user can create additional tags via the app UI, and SoundFont membership with these custom tags is under their
+/// control. The four tags above are managed by the app -- the user cannot affect their membership outside of adding and
+/// deleting SF2 files.
 @Table
 public struct FontTag {
   public typealias ID = Tagged<Self, Int64>
 
   /**
-   The tags that exist in the app from the start. They also have predefined IDs so it is important that they are
-   created first before any user tags.
+   The tags that exist in the app from the start. They also have predefined IDs that are negative so they never will collide with
+   user IDs which autoincrement from 1.
    */
-  public enum Ubiquitous: CaseIterable {
+  public struct Ubiquitous {
+    public let rawValue: Int64
     /// All soundfonts
-    case all
+    public static let all = Self(rawValue: -1)
     /// Soundfonts delivered with the application
-    case builtIn
+    public static let builtIn = Self(rawValue: -2)
     /// All soundfonts added by the user
-    case added
+    public static let added = Self(rawValue: -3)
     /// Soundfonts added to the shared documents directory on the device
-    case device
+    public static let device = Self(rawValue: -4)
     /// Soundfonts added but not copied to shared documents directory (iCloud or external drive)
-    case external
+    public static let external = Self(rawValue: -5)
+
+    public static let allCases: [Self] = [.all, .builtIn, .added, .device, .external]
+
+    public init(rawValue: Int64) {
+      self.rawValue = rawValue
+    }
 
     /// - returns: display name for the ubiquitous tag
-    public var displayName: String {
-      switch self {
-      case .all: return "All"
-      case .builtIn: return "Built-in"
-      case .added: return "Added"
-      case .device: return "Device"
-      case .external: return "External"
+    public var displayName: String? {
+      switch rawValue {
+      case Self.all.rawValue: return "All"
+      case Self.builtIn.rawValue: return "Built-in"
+      case Self.added.rawValue: return "Added"
+      case Self.device.rawValue: return "Device"
+      case Self.external.rawValue: return "External"
+      default: return nil
       }
     }
 
     /// - returns: the zero-based index value for the ubiquitous tag
-    private var tagIndex: Int {
-      switch self {
-      case .all: return 0
-      case .builtIn: return 1
-      case .added: return 2
-      case .device: return 3
-      case .external: return 4
-      }
-    }
+    private var tagIndex: Int64 { rawValue }
 
     /// - returns: unique ID for the ubiquitous tag
-    public var id: ID { .init(rawValue: .init(tagIndex + 1)) }
+    public var id: ID { .init(rawValue: rawValue) }
   }
 
   public let id: ID
@@ -82,13 +80,13 @@ extension FontTag {
   static func migrate(_ migrator: inout DatabaseMigrator) {
     migrator.registerMigration(Self.tableName) { db in
       try #sql(
-      """
-      CREATE TABLE "\(raw: Self.tableName)" (
-        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "displayName" TEXT NOT NULL,
-        "ordering" INTEGER NOT NULL
-      ) STRICT
-      """
+        """
+        CREATE TABLE "\(raw: Self.tableName)" (
+          "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+          "displayName" TEXT NOT NULL,
+          "ordering" INTEGER NOT NULL
+        ) STRICT
+        """
       )
       .execute(db)
     }
@@ -99,7 +97,7 @@ extension FontTag {
 
   /**
    Fetch the row for a given ID.
-
+  
    - parameter id: the tag ID to look for
    - returns: the value found or `nil`.
    */
@@ -176,20 +174,21 @@ extension FontTag {
 
     @Dependency(\.defaultDatabase) var database
     let existing = try database.read {
-      try Self.select(\.displayName).where({$0.displayName == displayName}).fetchAll($0)
+      try Self.select(\.displayName).where({ $0.displayName == displayName }).fetchAll($0)
     }
     guard existing.isEmpty else { throw ModelError.duplicateTag(name: displayName) }
 
     try database.write { db in
       try FontTag
-        .update {$0.displayName = displayName}
+        .update { $0.displayName = displayName }
         .where({ $0.id == id })
         .execute(db)
     }
   }
 
   var soundFonts: [SoundFont] {
-    let query = TaggedSoundFont
+    let query =
+      TaggedSoundFont
       .join(SoundFont.all) {
         $0.soundFontId.eq($1.id) && $0.tagId.eq(self.id)
       }
@@ -198,9 +197,10 @@ extension FontTag {
       }
 
     @Dependency(\.defaultDatabase) var database
-    let found = (try? database.read { db in
-      try query.fetchAll(db)
-    }) ?? []
+    let found =
+      (try? database.read { db in
+        try query.fetchAll(db)
+      }) ?? []
 
     return found
   }
@@ -208,20 +208,14 @@ extension FontTag {
 
 extension FontTag.ID {
 
-  public var isUbiquitous: Bool {
-    guard let last = Tag.Ubiquitous.allCases.last else { fatalError() }
-    return self > 0 && self <= last.id
-  }
+  public var isUbiquitous: Bool { self.rawValue < 0 }
 
   public var isUserDefined: Bool { !self.isUbiquitous }
 
-  public var displayName: String? {
-    for each in Tag.Ubiquitous.allCases where each.id == self {
-      return each.displayName
-    }
-    return nil
-  }
+  public var displayName: String? { FontTag.Ubiquitous(rawValue: self.rawValue).displayName }
 }
+
+extension FontTag.Ubiquitous: RawRepresentable, QueryBindable, Sendable {}
 
 extension FontTag: Hashable, Identifiable, Sendable {}
 

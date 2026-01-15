@@ -133,11 +133,11 @@ private func performMigrations(
   MIDIConfig.migrate(&migrator)
 
   migrator.registerMigration("Add ubiquitous tags") { db in
-    let drafts: [FontTag.Draft] = FontTag.Ubiquitous.allCases.enumerated().map {
-      .init(displayName: $0.1.displayName, ordering: $0.0)
+    let tags: [FontTag] = FontTag.Ubiquitous.allCases.enumerated().map {
+      .init(id: FontTag.ID(rawValue: $0.1.rawValue), displayName: $0.1.displayName ?? "???", ordering: $0.0)
     }
     try FontTag.insert {
-      drafts
+      tags
     }.execute(db)
   }
 

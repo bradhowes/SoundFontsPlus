@@ -9,7 +9,9 @@ import Testing
 
 @Suite(
   .dependencies {
-    $0.fileManager.fontFilePath = { SF2ResourceTag.freeFont.url.deletingLastPathComponent().appendingPathComponent($0, isDirectory: false) }
+    $0.fileManager.fontFilePath = {
+      SF2ResourceTag.freeFont.url.deletingLastPathComponent().appendingPathComponent($0, isDirectory: false)
+    }
   }
 )
 @MainActor
@@ -23,14 +25,14 @@ struct SoundFontKindTests {
     #expect(!sfk.isExternal)
     let (kind, data) = try sfk.data()
     #expect(sfk.description == "built-in")
-    #expect(sfk.path == SF2ResourceTag.freeFont.url)
+    #expect(sfk.url == SF2ResourceTag.freeFont.url)
     let back = try SoundFontKind(kind: kind, location: data, displayName: "blah")
     #expect(sfk == back)
 
     let fileInfo = try back.fileInfo()
     #expect(fileInfo.size() == 235)
 
-    #expect(sfk.tagIds == [1, 2]) // all, builtIn
+    #expect(sfk.tagIds == [-1, -2]) // all, builtIn
     #expect(sfk.addedByUser == false)
     #expect(sfk.deleteWhenRemoved == false)
   }
@@ -43,12 +45,12 @@ struct SoundFontKindTests {
     #expect(!sfk.isExternal)
     #expect(sfk.description == "installed")
     #expect(try sfk.data() == (.installed, Data(SF2ResourceTag.freeFont.url.lastPathComponent.utf8)))
-    #expect(sfk.path == SF2ResourceTag.freeFont.url)
+    #expect(sfk.url == SF2ResourceTag.freeFont.url)
 
     let fileInfo = try sfk.fileInfo()
     #expect(fileInfo.size() == 235)
 
-    #expect(sfk.tagIds == [1, 3, 4]) // all, added, device
+    #expect(sfk.tagIds == [-1, -3, -4]) // all, added, device
     #expect(sfk.addedByUser == true)
     #expect(sfk.deleteWhenRemoved == true)
   }
@@ -64,12 +66,12 @@ struct SoundFontKindTests {
     #expect(sfk.isExternal)
     #expect(sfk.description == "external link")
     #expect(try sfk.data() == (.external, data))
-    #expect(sfk.path == SF2ResourceTag.freeFont.url)
+    #expect(sfk.url == SF2ResourceTag.freeFont.url)
 
     let fileInfo = try sfk.fileInfo()
     #expect(fileInfo.size() == 235)
 
-    #expect(sfk.tagIds == [1, 3, 5]) // all, added, external
+    #expect(sfk.tagIds == [-1, -3, -5]) // all, added, external
     #expect(sfk.addedByUser == true)
     #expect(sfk.deleteWhenRemoved == false)
   }

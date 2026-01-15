@@ -131,27 +131,27 @@ struct OperationsTests {
   func tagIdsForSoundFont() async throws {
     #expect(Operations.tagIds(for: 1).count == 2)
     #expect(Operations.tagIds(for: 2).count == 2)
-    #expect(Operations.tagIds(for: 3) == [1, 3, 4])
+    #expect(Operations.tagIds(for: 3) == [-4, -3, -1])
   }
 
   @Test
   func tagSoundFont() async throws {
     let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
+    #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
+    #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
     Operations.tagSoundFont(FontTag.Ubiquitous.external.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
+    #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
   }
 
   @Test
   func tagSoundFontIgnoresUbiquitousTags() async throws {
     let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
+    #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
     Operations.tagSoundFont(FontTag.Ubiquitous.external.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
+    #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
   }
 
   @Test
@@ -159,9 +159,9 @@ struct OperationsTests {
     @Dependency(\.defaultDatabase) var database
     let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
+    #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
     Operations.untagSoundFont(newTag.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2])
+    #expect(Operations.tagIds(for: 1) == [-2, -1])
   }
 
   @Test
@@ -169,9 +169,9 @@ struct OperationsTests {
     @Dependency(\.defaultDatabase) var database
     let newTag = try FontTag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
+    #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
     Operations.untagSoundFont(FontTag.Ubiquitous.all.id, soundFontId: 1)
-    #expect(Operations.tagIds(for: 1) == [1, 2, 6])
+    #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
   }
 
   @Test

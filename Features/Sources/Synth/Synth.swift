@@ -403,7 +403,7 @@ extension Synth {
         log.error("useActivePreset END - unexpected nil location for \(String(describing: presetInfo), privacy: .public)")
         return .none
       }
-      let path = location.path.path(percentEncoded: false)
+      let path = location.url.path(percentEncoded: false)
       log.info("useActivePreset - loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
       result = avAudioUnit.sendLoadFileUsePreset(
         path: path,

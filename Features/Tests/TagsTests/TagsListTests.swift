@@ -23,7 +23,7 @@ struct TagsListTests {
   @Test
   func deleteButtonTapped() async throws {
     @Shared(.activeState) var activeState = .default
-    $activeState.withLock { $0.activeTagId = 5 }
+    $activeState.withLock { $0.activeTagId = FontTag.Ubiquitous.external.id }
 
     let store = try store()
     let tagInfos = store.state.tagInfos
@@ -43,7 +43,7 @@ struct TagsListTests {
   @Test
   func tagButtonTapped() async throws {
     @Shared(.activeState) var activeState = .default
-    #expect(activeState.activeTagId == 1)
+    #expect(activeState.activeTagId == FontTag.Ubiquitous.all.id)
 
     let store = try store()
     await store.send(.tagButtonTapped(store.state.tagInfos.last!))

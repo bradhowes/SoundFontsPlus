@@ -99,10 +99,10 @@ public struct AppRoot {
       self.synth = synth ?? .init()
       self.tagsList = tagsList ?? .init()
       self.toolBar = toolBar ?? .init()
-
 #if os(iOS)
-
       self.volumeMonitor = .init()
+
+#if !DEBUG || !targetEnvironment(simulator)
 
       if Tutorial.shouldShow {
         showTutorial()
@@ -110,6 +110,7 @@ public struct AppRoot {
         showChanges()
       }
 
+#endif // !DEBUG || !targetEnvironment(simulator)
 #endif // os(iOS)
 
       // Deep-linking to a destination at start up for dev/testing
@@ -283,8 +284,8 @@ public struct AppRoot {
       case .synth(.delegate(.stopped)):
         return audioChainInactive(&state)
 
-      case .tagsList(.delegate(.edit(let focused))):
-        state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focused))
+      case .tagsList(.delegate(.edit(let ordering))):
+        state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: ordering))
         return .none
 
       case .toolBar(.delegate(let action)):

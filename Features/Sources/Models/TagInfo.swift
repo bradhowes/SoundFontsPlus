@@ -12,6 +12,7 @@ public struct TagInfo {
   public let id: FontTag.ID
   public let displayName: String
   public let soundFontsCount: Int
+  public let ordering: Int
 
   public var isUbiquitous: Bool { id.isUbiquitous }
   public var isUserDefined: Bool { id.isUserDefined }
@@ -26,7 +27,7 @@ extension TagInfo {
       .leftJoin(TaggedSoundFont.all) {
         $0.id.eq($1.tagId)
       }.select {
-        TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count())
+        TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count(), ordering: $0.ordering)
       }
   }
 }

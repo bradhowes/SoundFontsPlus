@@ -148,7 +148,7 @@ struct AppRootTests {
       await store.send(\.toolBar.delegate, .settingsButtonTapped)
       #expect(store.state.destination != nil)
       let settings = store.state.destination
-      #expect(lastShowedChangesVersion == "16.0")
+      #expect(lastShowedChangesVersion == "")
       await store.send(\.destination.settings.delegate, .showChanges)
       #expect(store.state.destination != settings)
       #expect(lastShowedChangesVersion != "")
@@ -169,7 +169,7 @@ struct AppRootTests {
   func showTagsEditor() async throws {
     try await initialized { store in
       _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-        await store.send(\.tagsList.delegate, .edit(1))
+        await store.send(\.tagsList.delegate, .edit(focus: 1))
         #expect(store.state.destination != nil)
       }
     }

@@ -36,8 +36,8 @@ public struct TagsEditor {
     public var rows: IdentifiedArrayOf<TagNameEditor.State>
     public let mode: Mode
     public var editModeActive: Bool = false
-    public var focused: FontTag.ID?
-    public var deleted: Set<FontTag.ID> = []
+    public var focused: Int?
+    public var deleting: Set<FontTag.ID> = []
     public let soundFontId: SoundFont.ID?
 
     /**
@@ -51,7 +51,7 @@ public struct TagsEditor {
      */
     public init(
       mode: Mode,
-      focused: FontTag.ID? = nil,
+      focused: Int? = nil,
       soundFontId: SoundFont.ID? = nil,
       memberships: [FontTag.ID: Bool]? = nil,
       editModeActive: Bool = false
@@ -75,7 +75,7 @@ public struct TagsEditor {
     public mutating func save() {
       log.debug("saving state")
       withDatabaseWriter { db in
-        for id in deleted {
+        for id in deleting {
           try FontTag.find(id).delete().execute(db)
         }
         for (index, var row) in rows.enumerated() {
@@ -90,7 +90,7 @@ public struct TagsEditor {
     case binding(BindingAction<State>)
     case cancelButtonTapped
     case deleteButtonTapped(at: IndexSet)
-    case finalizeDeleteTag(tagId: FontTag.ID)
+    case finalizeDeleteTag(rowId: Int)
     case rows(IdentifiedActionOf<TagNameEditor>)
     case saveButtonTapped
     case editModeActiveChanged(Bool)
@@ -118,11 +118,11 @@ public struct TagsEditor {
         state.editModeActive = value
         return .none
 
-      case .finalizeDeleteTag(let tagId):
-        return finalizeDeleteTag(&state, tagId: tagId)
+      case .finalizeDeleteTag(let rowId):
+        return finalizeDeleteTag(&state, rowId: rowId)
 
       case let .rows(.element(id: id, action: .delegate(.tagSwipedToDelete))):
-        return deleteTag(&state, tagId: id)
+        return deleteTag(&state, rowId: id)
 
       case .saveButtonTapped:
         return dismiss(&state, save: true)
@@ -158,32 +158,27 @@ private extension TagsEditor {
       newName = base + " \(counter)"
     }
 
-    // Added tags always have negative Tag.ID values so we can properly handle them when we save.
-    var tagId = FontTag.ID(rawValue: -1)
-    while state.rows.index(id: tagId) != nil {
-      tagId -= 1
-    }
-
+    let rowId: Int = state.rows.count
     state.rows.append(.init(
-      tagId: tagId,
-      draft: .init(displayName: newName, ordering: state.rows.count),
+      tagId: nil,
+      draft: .init(displayName: newName, ordering: rowId),
       membership: state.soundFontId != nil ? false : nil
     ))
 
-    state.focused = tagId
+    state.focused = rowId
 
     return .none
   }
 
-  func deleteTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
+  func deleteTag(_ state: inout State, rowId: Int) -> Effect<Action> {
     return .run { send in
-      await send(.finalizeDeleteTag(tagId: tagId))
+      await send(.finalizeDeleteTag(rowId: rowId))
     }
   }
 
   func deleteTag(_ state: inout State, indices: IndexSet) -> Effect<Action> {
-    if let tagId = indices.first, state.rows.first(where: { $0.id.rawValue == tagId }) != nil {
-      return deleteTag(&state, tagId: FontTag.ID(rawValue: Int64(tagId)))
+    if let rowId = indices.first {
+      return deleteTag(&state, rowId: rowId)
     }
     return .none
   }
@@ -196,17 +191,15 @@ private extension TagsEditor {
     return .run { _ in await dismiss() }
   }
 
-  func finalizeDeleteTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
-    withAnimation(.smooth) {
-      state.rows = state.rows.filter { $0.id != tagId }
-    }
-
-    if tagId > 0 {
-      state.deleted.insert(tagId)
-    }
-
-    if state.focused == tagId {
+  func finalizeDeleteTag(_ state: inout State, rowId: Int) -> Effect<Action> {
+    if state.focused == rowId {
       state.focused = nil
+    }
+
+    if let row = state.rows.remove(id: rowId) {
+      if let tagId = row.tagId {
+        state.deleting.insert(tagId)
+      }
     }
 
     return .none
@@ -227,7 +220,7 @@ private extension TagsEditor {
 
 public struct TagsEditorView: View {
   @Bindable private var store: StoreOf<TagsEditor>
-  @FocusState private var focused: FontTag.ID?
+  @FocusState private var focused: Int?
 
   public init(store: StoreOf<TagsEditor>) {
     self.store = store
@@ -237,14 +230,13 @@ public struct TagsEditorView: View {
     List {
       ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
         TagNameEditorView(store: rowStore)
-          .deleteDisabled(rowStore.id.isUbiquitous)
+          .deleteDisabled(rowStore.isUbiquitous)
           .focused($focused, equals: rowStore.id)
       }
       .onMove { indices, destination in
         store.send(.tagMoved(at: indices, to: destination), animation: .default)
       }
       .onDelete {
-        print("onDelete: at: \($0)")
         store.send(.deleteButtonTapped(at: $0), animation: .default)
       }
       .bind($store.focused, to: self.$focused)
@@ -313,13 +305,13 @@ extension TagsEditorView {
     @Dependency(\.defaultDatabase) var db
     _ = try? FontTag.make(displayName: "New Tag")
     let tags = FontTag.tags
-    return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.id)) { TagsEditor() })
+    return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.ordering)) { TagsEditor() })
   }
 
   static var previewInEditMode: some View {
     prepareDependencies { $0.defaultDatabase = previewDatabase() }
     let tags = FontTag.tags
-    return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.id, editModeActive: true)) {
+    return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.ordering, editModeActive: true)) {
       TagsEditor()
     })
   }
@@ -336,7 +328,7 @@ extension TagsEditorView {
 
     return TagsEditorView(store: Store(initialState: .init(
       mode: .fontEditing,
-      focused: tags.last?.id,
+      focused: tags.last?.ordering,
       soundFontId: SoundFont.ID(rawValue: 1),
       memberships: memberships)) {
         TagsEditor()

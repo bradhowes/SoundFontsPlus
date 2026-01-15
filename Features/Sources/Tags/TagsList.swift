@@ -27,7 +27,7 @@ public struct TagsList {
 
     @CasePathable
     public enum Delegate: Equatable {
-      case edit(TagInfo.ID?)
+      case edit(focus: Int?)
     }
   }
 
@@ -105,7 +105,7 @@ public struct TagsListView: View {
     .listRowSeparator(.hidden)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
-        store.send(.delegate(.edit(tagInfo.id)), animation: .smooth)
+        store.send(.delegate(.edit(focus: tagInfo.ordering)), animation: .smooth)
       } label: {
         Image(systemName: "pencil")
           .tint(.cyan)
@@ -123,7 +123,7 @@ public struct TagsListView: View {
     }
     .simultaneousGesture(
       LongPressGesture(minimumDuration: 1.0)
-        .onEnded { _ in store.send(.delegate(.edit(nil))) }
+        .onEnded { _ in store.send(.delegate(.edit(focus: nil))) }
     )
   }
 }

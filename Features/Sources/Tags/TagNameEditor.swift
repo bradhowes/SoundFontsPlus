@@ -13,15 +13,19 @@ public struct TagNameEditor {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    public var id: FontTag.ID { tagId }
 
+    /// The unique ID to use -- since new tags do not have a FontTag.ID, use ``FontTag.Draft.ordering`` to provide a unique value.
+    public var id: Int { draft.ordering }
     public var draft: FontTag.Draft
-    public let tagId: FontTag.ID
-    public let originalMembership: Bool?
-    public let originalDisplayName: String
+    public var tagId: FontTag.ID?
     public var membership: Bool
 
-    public init(tagId: FontTag.ID, draft: FontTag.Draft, membership: Bool? = nil) {
+    public let originalMembership: Bool?
+    public let originalDisplayName: String
+
+    public var isUbiquitous: Bool { tagId?.isUbiquitous ?? false }
+
+    public init(tagId: FontTag.ID?, draft: FontTag.Draft, membership: Bool? = nil) {
       self.tagId = tagId
       self.draft = draft
       self.originalDisplayName = draft.displayName
@@ -34,34 +38,31 @@ public struct TagNameEditor {
         let newName = draft.displayName.trimmed(or: originalDisplayName)
 
         // Only update DB if there is a change to record. Be sure to capture the ID any new Tag
-        var id = self.id
-        if id < 0 || newName != originalDisplayName || ordering != draft.ordering {
-          log.debug("saving changes - \(id) \(newName) \(ordering)")
+        if tagId == nil || newName != originalDisplayName || ordering != draft.ordering {
           draft.displayName = newName
           draft.ordering = ordering
           let query = FontTag.upsert {
             draft
           }.returning(\.id)
           if let tagId = try query.fetchOne(db) {
-            id = tagId
+            self.tagId = tagId
           }
         }
 
-        precondition(id > 0)
         guard let soundFontId else { return }
 
-        if membership != originalMembership {
+        if let tagId, membership != originalMembership {
           if membership {
             log.debug("tagging font with \(newName)")
             try TaggedSoundFont.insert {
-              .init(soundFontId: soundFontId, tagId: id)
+              .init(soundFontId: soundFontId, tagId: tagId)
             }
             .execute(db)
           } else {
             log.debug("untagging font")
             try TaggedSoundFont.delete()
               .where {
-                $0.soundFontId.eq(soundFontId) && $0.tagId.eq(id)
+                $0.soundFontId.eq(soundFontId) && $0.tagId.eq(tagId)
               }
               .execute(db)
           }
@@ -77,7 +78,7 @@ public struct TagNameEditor {
 
     @CasePathable
     public enum Delegate: Equatable {
-      case tagSwipedToDelete(FontTag.ID)
+      case tagSwipedToDelete(Int)
     }
   }
 
@@ -100,7 +101,7 @@ public struct TagNameEditor {
 
 public struct TagNameEditorView: View {
   @Bindable private var store: StoreOf<TagNameEditor>
-  private var readOnly: Bool { store.id.isUbiquitous }
+  private var readOnly: Bool { store.isUbiquitous }
   private var editable: Bool { !readOnly }
 
   public init(store: StoreOf<TagNameEditor>) {
@@ -116,7 +117,7 @@ public struct TagNameEditorView: View {
       if store.originalMembership != nil {
         Toggle("", isOn: $store.membership)
           .toggleStyle(.circledCheckMarkNoLabel)
-          .disabled(store.id.isUbiquitous)
+          .disabled(store.isUbiquitous)
           .buttonStyle(.plain)
       }
       NameFieldView(text: $store.draft.displayName, readOnly: readOnly)

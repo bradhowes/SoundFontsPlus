@@ -47,8 +47,7 @@ public final class SF2LibAU: AUAudioUnit {
 
    - parameter componentDescription: the definition used when locating the component to create
    */
-  public override init(componentDescription: AudioComponentDescription,
-                       options: AudioComponentInstantiationOptions = []) throws {
+  public override init(componentDescription: AudioComponentDescription, options: AudioComponentInstantiationOptions = []) throws {
     log.info(
 """
 init - flags: \(componentDescription.componentFlags) \
@@ -63,8 +62,7 @@ sub: \(componentDescription.componentSubType)
     // to initialize everything else. However, early testing indicated that the busses need to be present before this
     // call, so we do this dance of creating them with an "expected" format, and then we will adjust our beliefs within
     // the `allocateRenderResources` call.
-    guard let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 48_000, channels: 2,
-                                     interleaved: false) else {
+    guard let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 48_000, channels: 2, interleaved: false) else {
       throw Failure.invalidFormat
     }
 
@@ -75,6 +73,7 @@ sub: \(componentDescription.componentSubType)
 
     try super.init(componentDescription: componentDescription, options: options)
 
+    log.info("init - creating parameterTree")
     self.parameterTree = engine.getParameterTree()
 
     log.info("init - done")
@@ -116,7 +115,6 @@ extension SF2LibAU {
 extension SF2LibAU {
 
   public var activePresetName: String { String(engine.activePresetName()).trimmedOfWhitespaces }
-
   public var monophonicModeEnabled: Bool { engine.monophonicModeEnabled(); }
   public var polyphonicModeEnabled: Bool { engine.polyphonicModeEnabled(); }
   public var oneVoicePerKeyModeEnabled: Bool { engine.oneVoicePerKeyModeEnabled(); }

@@ -24,11 +24,24 @@ public struct Preset {
   public var displayName: String
   public var notes: String = ""
 
-  @frozen
-  public enum Kind: Int, CaseIterable, QueryBindable {
-    case preset = 0
-    case favorite = 1
-    case hidden = 2
+  /**
+   Indicates the kind of preset a row represents. Be careful adding new values since the app should always work properly even if it
+   sees a value that it does not understand.
+   */
+  public struct Kind {
+    public let rawValue: Int
+
+    public init(rawValue: Int) {
+      self.rawValue = rawValue
+    }
+
+    public static let preset = Self(rawValue: 1)
+    public static let favorite = Self(rawValue: 2)
+    public static let hidden = Self(rawValue: 3)
+
+    public static let allCases: [Self] = [.preset, .favorite, .hidden]
+
+    public var unknown: Bool { !Self.allCases.contains(self) }
   }
 
   public var kind: Kind = .preset
@@ -70,7 +83,7 @@ extension Preset {
         "originalName" TEXT NOT NULL,
         "soundFontId" INTEGER NOT NULL,
         "displayName" TEXT NOT NULL COLLATE NOCASE,
-        "kind" INTEGER NOT NULL CHECK ("kind" in (0, 1, 2)),
+        "kind" INTEGER NOT NULL,
         "notes" TEXT NOT NULL,
         FOREIGN KEY("soundFontId") REFERENCES "soundFonts"("id") ON DELETE CASCADE
       ) STRICT
@@ -241,5 +254,7 @@ extension Preset {
     } ?? nil
   }
 }
+
+extension Preset.Kind: Hashable, QueryBindable, RawRepresentable, Sendable {}
 
 extension Preset: Hashable, Identifiable, Sendable {}
