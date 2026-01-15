@@ -193,9 +193,4 @@ struct AppRootTests {
   func appRootViewPreview() async throws {
     try TestSupport.assertSnapshot(matching: AppRootView.preview)
   }
-
-  @Test
-  func appRootViewLoadingPreview() async throws {
-    try TestSupport.assertSnapshot(matching: AppRootView.preview)
-  }
 }

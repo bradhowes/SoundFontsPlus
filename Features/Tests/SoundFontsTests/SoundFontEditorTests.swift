@@ -146,6 +146,6 @@ struct SoundFontEditorTests {
 
   @Test
   func soundFontEditorViewPreview() async throws {
-    try TestSupport.assertSnapshot(matching: SoundFontEditorView.preview)
+    try TestSupport.assertSnapshot(matching: SoundFontEditorView.preview, size: .init(width: 400, height: 1500))
   }
 }
