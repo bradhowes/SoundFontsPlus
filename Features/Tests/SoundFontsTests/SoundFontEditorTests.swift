@@ -146,6 +146,7 @@ struct SoundFontEditorTests {
 
   @Test
   func soundFontEditorViewPreview() async throws {
-    try TestSupport.assertSnapshot(matching: SoundFontEditorView.preview, size: .init(width: 400, height: 1500))
+    // NOTE: this size intentionally cuts off before the file path is shown.
+    try TestSupport.assertSnapshot(matching: SoundFontEditorView.preview, size: .init(width: 400, height: 1200))
   }
 }
