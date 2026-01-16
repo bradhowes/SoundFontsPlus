@@ -57,15 +57,6 @@ public struct PresetButtonView: View {
   private var isFavorite: Bool { store.preset.kind == .favorite }
   private var isHidden: Bool { store.preset.kind == .hidden }
 
-#if os(iOS)
-  @Environment(\.editMode) private var editMode
-  private var isEditing: Bool { editMode?.wrappedValue == .active }
-#endif
-
-#if os(macOS)
-  private var isEditing: Bool { false }
-#endif
-
   public init(store: StoreOf<PresetButton>) {
     self.store = store
   }
@@ -80,19 +71,19 @@ public struct PresetButtonView: View {
 
   public var body: some View {
     Button {
-      store.send(isEditing ? .toggleVisibility : .delegate(.selectPreset(store.preset)), animation: .default)
+      store.send(store.editingVisibility ? .toggleVisibility : .delegate(.selectPreset(store.preset)), animation: .default)
     } label: {
       HStack {
         // Show indicator when edititing preset visibility
         Image(systemName: isHidden ? "circle" : "inset.filled.circle")
           .foregroundStyle(Color.orange)
-          .frame(width: isEditing ? 24 : 0)
-          .opacity(isEditing ? 1.0 : 0.0)
-          .disabled(!isEditing)
+          .frame(width: store.editingVisibility ? 24 : 0)
+          .opacity(store.editingVisibility ? 1.0 : 0.0)
+          .disabled(!store.editingVisibility)
           .animation(.smooth, value: store.preset.kind) // animate the visibiliity toggle image
-          .animation(.smooth, value: isEditing) // animate the transition to/from visibility editing
+          .animation(.smooth, value: store.editingVisibility) // animate the transition to/from visibility editing
         PresetNameView(preset: store.preset)
-          .indicator(isEditing ? .favorite : state)
+          .indicator(store.editingVisibility ? .favorite : state)
       }
     }
     .id(store.preset.id) // !!! For proper scrollTo behavior
@@ -102,7 +93,7 @@ public struct PresetButtonView: View {
     )
     .listRowSeparator(.hidden)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
-      if !isEditing {
+      if !store.editingVisibility {
         Button {
           store.send(.delegate(.editPreset(store.preset)), animation: .default)
         } label: {
@@ -118,7 +109,7 @@ public struct PresetButtonView: View {
       }
     }
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-      if !isEditing {
+      if !store.editingVisibility {
         if store.preset.isFavorite {
           Button {
             store.send(.delegate(.deleteFavorite(store.preset)), animation: .default)
