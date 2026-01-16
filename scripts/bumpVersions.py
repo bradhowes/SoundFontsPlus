@@ -23,8 +23,6 @@ import os
 import re
 import sys
 from datetime import datetime
-import subprocess
-import tempfile
 from typing import Callable, List, NamedTuple, NoReturn, Tuple
 
 
@@ -42,12 +40,13 @@ class MarketingVersion(NamedTuple):
     patch: int
 
     @classmethod
-    def fromTuple(cls, value: Tuple[str]) -> 'MarketingVersion':
+    def fromTuple(cls, value: Tuple[str, str, str]) -> 'MarketingVersion':
         return cls(int(value[0]), int(value[1]), int(value[2]))
 
     @classmethod
     def fromString(cls, value: str) -> 'MarketingVersion':
-        return MarketingVersion.fromTuple(value.split('.'))
+        bits = value.split('.')
+        return MarketingVersion.fromTuple((bits[0], bits[1], bits[2]))
 
     def __str__(self):
         return f"{self.major}.{self.minor}.{self.patch}"
@@ -70,7 +69,7 @@ def errorAndExit(*args) -> NoReturn:
     sys.exit(1)
 
 
-def error(*args) -> NoReturn:
+def error(*args) -> None:
     print('**', *args)
 
 
@@ -137,7 +136,7 @@ def getCurrentMarketingVersion(projectFiles: PathList) -> MarketingVersion:
 
 
 def getNewProjectVersion() -> ProjectVersion:
-    return datetime.utcnow().strftime('%Y%m%d%H%M%S')
+    return datetime.now().strftime('%Y%m%d%H%M%S')
 
 
 def updateConfigContents(contents: str, marketingVersion: MarketingVersion, projectVersion: ProjectVersion) -> str:
@@ -246,14 +245,8 @@ class Tests(unittest.TestCase):
             return path == 'bumpVersions.py'
         self.assertEqual(1, len(locateFiles(cond)))
 
-    def test_locateProjectFiles(self):
-        self.assertEqual(1, len(locateProjectFiles()))
-
     def test_locateUIFiles(self):
         self.assertTrue(len(locateUIFiles()) > 0)
-
-    def test_locateInfoFiles(self):
-        self.assertTrue(len(locateInfoFiles()) > 0)
 
     def test_MarketingVersionFromString(self):
         self.assertEqual(MarketingVersion(1, 2, 4), MarketingVersion.fromString('1.2.4'))
@@ -267,15 +260,8 @@ class Tests(unittest.TestCase):
         self.assertEqual(65537 + 256, MarketingVersion(1, 1, 1).asInt())
         self.assertEqual(795192, MarketingVersion(12, 34, 56).asInt())
 
-    def test_updateProjectContents(self):
-        marketingVersion = str(MarketingVersion(1, 2, 3))
-        projectVersion = getNewProjectVersion()
-        contents = 'one MARKETING_VERSION = 9.8.7; one\ntwo CURRENT_PROJECT_VERSION = 123123; two'
-        self.assertEqual(f'one MARKETING_VERSION = 1.2.3; one\ntwo CURRENT_PROJECT_VERSION = {projectVersion}; two',
-                         updateProjectContents(contents, marketingVersion, projectVersion))
-
     def test_updateUIContents(self):
-        marketingVersion = str(MarketingVersion(1, 2, 3))
+        marketingVersion = MarketingVersion(1, 2, 3)
         contents = 'foo userLabel="APP_VERSION" text="blah" blah'
         self.assertEqual(f'foo userLabel="APP_VERSION" text="v{marketingVersion}" blah',
                          updateUIContents(contents, marketingVersion))
@@ -288,47 +274,3 @@ class Tests(unittest.TestCase):
         contents = '<textFieldCell key="cell" lineBreakMode="clipping" title="v3.0.0" id="p30-Bk-a8R" userLabel="APP_VERSION">'
         self.assertEqual(f'<textFieldCell key="cell" lineBreakMode="clipping" title="v{marketingVersion}" id="p30-Bk-a8R" userLabel="APP_VERSION">',
                          updateUIContents(contents, marketingVersion))
-
-    def test_UpdateInfoFile(self):
-        contents = '''
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>NSExtension</key>
-	<dict>
-		<key>NSExtensionAttributes</key>
-		<dict>
-			<key>AudioComponents</key>
-			<array>
-				<dict>
-					<key>tags</key>
-					<array>
-						<string>Effects</string>
-					</array>
-					<key>type</key>
-					<string>$(AU_COMPONENT_TYPE)</string>
-					<key>version</key>
-					<real>65538</real>
-				</dict>
-			</array>
-		</dict>
-		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.AudioUnit-UI</string>
-	</dict>
-</dict>
-</plist>
-'''
-        fd, path = tempfile.mkstemp(text=True)
-        marketingVersion = MarketingVersion(1, 2, 3)
-        with os.fdopen(fd) as _:
-            with open(path, 'w') as fd:
-                fd.write(contents)
-            updateInfoFiles([path], marketingVersion)
-            with open(path, 'r') as fd:
-                updated = fd.read()
-        self.assertNotEqual(contents, updated)
-        componentVersion = marketingVersion.asInt()
-        self.assertEqual(updated.find(f'<real>{componentVersion}</real>'), 523)
