@@ -66,3 +66,7 @@ extension URL {
     return try closure(self)
   }
 }
+
+extension URL {
+  public var displayName: Substring { self.lastPathComponent.withoutExtension }
+}

@@ -107,6 +107,7 @@ public struct ToolBar {
     public enum Delegate: Equatable {
       case editingPresetVisibilityChanged(Bool)
       case effectsVisibilityChanged(Bool)
+      case importFinished
       case panic
       case presetNameTapped
       case tagsListVisibilityChanged(Bool)
@@ -156,6 +157,9 @@ public struct ToolBar {
 
       case .effectsVisibilityButtonTapped:
         return toggleEffectsVisibility(&state)
+
+      case .fileImporter(.delegate(.importFinished)):
+        return .send(.delegate(.importFinished))
 
       case .helpButtonTapped:
         return showHelp(&state)

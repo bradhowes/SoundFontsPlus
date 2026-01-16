@@ -538,6 +538,9 @@ extension AppRoot {
       $effectsPanelVisible.withLock { $0 = visible }
       return .none.animation(.smooth)
 
+    case .importFinished:
+      return reduce(into: &state, action: .soundFontsList(.activeTagIdChanged))
+
     case .presetNameTapped:
       return .merge(
         reduce(into: &state, action: .appReview(.ask)),

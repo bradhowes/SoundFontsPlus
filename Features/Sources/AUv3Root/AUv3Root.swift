@@ -230,6 +230,9 @@ extension AUv3Root {
     case .effectsVisibilityChanged:
       fatalError("misconfiguration for AUv3Root")
 
+    case .importFinished:
+      return reduce(into: &state, action: .soundFontsList(.activeTagIdChanged))
+
     case .presetNameTapped:
       return .merge(
         reduce(into: &state, action: .presetsList(.showActivePreset)),

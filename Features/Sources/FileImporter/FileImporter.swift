@@ -4,8 +4,6 @@ import Engine
 import FeatureSupport
 import UniformTypeIdentifiers
 
-private let log: Logger = .init(category: "FileImporter")
-
 /**
  Feature that imports a SF2 file for use in the synth.
  */
@@ -18,15 +16,19 @@ public struct FileImporter {
 
     @CasePathable
     public enum Alert: Equatable {
-      case importDuplicateFileConfirmed(displayName: String, url: URL)
+      case addExistingConfirmed(url: URL)
     }
   }
 
   @ObservableState
   public struct State: Equatable {
-    public let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
+    public let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) } + [.folder]
     public var showChooser: Bool
     @Presents public var destination: Destination.State?
+
+    public var filesPicked: [URL] = []
+    public var successes: [URL] = []
+    public var failures: [FileImportFailure] = []
 
     public init(showChooser: Bool = false, destination: Destination.State? = nil) {
       self.showChooser = showChooser
@@ -35,10 +37,18 @@ public struct FileImporter {
   }
 
   public enum Action {
+    case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
-    case filePickerCancelled
-    case filePicked(Result<URL, Error>)
+    case fileImporterDismissed
+    case filesPicked(Result<[URL], Error>)
+    case importDupiicateConfirmed(URL)
+    case importDuplicateDenied(URL)
+    case importNextFile
     case showFileImporter
+
+    public enum Delegate {
+      case importFinished
+    }
   }
 
   public init() {}
@@ -53,16 +63,22 @@ public struct FileImporter {
 
       switch action {
 
-      case let .destination(.presented(.alert(.importDuplicateFileConfirmed(displayName: displayName, url: url)))):
-        return importFile(&state, displayName: displayName, url: url, allowExisting: true)
+      case .delegate:
+        return .none
 
-      case .filePickerCancelled:
+      case let .destination(.presented(.alert(.addExistingConfirmed(url: url)))):
+        return importFile(&state, url: url, allowExisting: true)
+
+      case .fileImporterDismissed:
         state.showChooser = false
         return .none
 
-      case let .filePicked(result):
+      case .filesPicked(let result):
         state.showChooser = false
         return filePicked(&state, result: result)
+
+      case .importNextFile:
+        return importNextFile(&state)
 
       case .showFileImporter:
         state.showChooser = true
@@ -78,60 +94,123 @@ public struct FileImporter {
 
 extension FileImporter {
 
-  private func filePicked(_ state: inout State, result: Result<URL, Error>) -> Effect<Action> {
-
+  private func filePicked(_ state: inout State, result: Result<[URL], Error>) -> Effect<Action> {
+    log.debug("filePicked - \(String(describing: result), privacy: .public)")
     switch result {
 
-    case .success(let url):
-      let displayName = String(url.lastPathComponent.withoutExtension)
-      log.info("picked \(displayName) - \(url)")
-      return importFile(&state, displayName: displayName, url: url, allowExisting: false)
+    case .success(let urls):
+      return collectFiles(&state, urls: urls)
 
     case .failure(let error):
-      log.info("failed to pick - \(error.localizedDescription)")
+      log.info("failed to pick - \(error.localizedDescription, privacy: .public)")
       state.destination = .alert(.failedToPick(error: error))
       return .none
     }
   }
 
-  private func importFile(
-    _ state: inout State,
-    displayName: String,
-    url: URL,
-    allowExisting: Bool
-  ) -> Effect<Action> {
+  private func collectFiles(_ state: inout State, urls: [URL]) -> Effect<Action> {
+    log.debug("collectFiles - \(urls)")
+
+    var dirs: [URL] = []
+
+    func addFiles(_ url: [URL]) {
+      for url in urls {
+        do {
+          if url.hasDirectoryPath {
+            log.debug("adding directory - \(url)")
+            dirs.append(url)
+          } else {
+            do {
+              log.debug("adding file - \(url)")
+              let rawTypeId = try url.resourceValues(forKeys: [.typeIdentifierKey]).typeIdentifier
+              if let rawTypeId {
+                log.debug("rawTypeId: \(rawTypeId, privacy: .public)")
+                let typeId = UTType(rawTypeId)
+                if let typeId {
+                  log.debug("typeId: \(typeId, privacy: .public)")
+                  if state.types.contains(typeId) {
+                    state.filesPicked.append(url)
+                    continue
+                  }
+                }
+              }
+              state.failures.append(.init(url, reason: .unknownFileType))
+            } catch {
+              state.failures.append(.init(url, reason: .unknownFileType))
+            }
+          }
+        }
+      }
+    }
+
+    addFiles(urls)
+
+    while let url = dirs.popLast() {
+      do {
+        let urls = try FileManager.default.contentsOfDirectory(
+          at: url,
+          includingPropertiesForKeys: [.typeIdentifierKey],
+          options: [.skipsHiddenFiles]
+        )
+        addFiles(urls)
+      } catch {
+        state.failures.append(.init(url, reason: .failedToReadDirectory))
+      }
+    }
+
+    return importNextFile(&state)
+  }
+
+  private func importNextFile(_ state: inout State) -> Effect<Action> {
+    if let url = state.filesPicked.popLast() {
+      return importFile(&state, url: url, allowExisting: false)
+    } else {
+      return importFinished(&state)
+    }
+  }
+
+  private func importFile(_ state: inout State, url: URL, allowExisting: Bool) -> Effect<Action> {
+
     if !validateSoundFont(url: url) {
       log.info("invalid SF2 file")
-      state.destination = .alert(.invalidSoundFontFormat(displayName: displayName))
-      return .none
+      state.failures.append(.init(url, reason: .invalidFile))
+      return .send(.importNextFile)
     }
 
     let kind: SoundFontKind
     do {
-      kind = try placeSoundFont(&state, displayName: displayName, source: url, allowExisting: allowExisting)
+      kind = try placeSoundFont(url: url, allowExisting: allowExisting)
     } catch CocoaError.fileWriteFileExists {
-      state.destination = .alert(
-        .confirmAddExisting(
-          action: .importDuplicateFileConfirmed(displayName: displayName, url: url),
-          displayName: displayName
-        )
-      )
+      state.destination = .alert(.confirmAddExisting(action: .addExistingConfirmed(url: url), displayName: url.displayName))
       return .none
     } catch {
-      state.destination = .alert(.genericFailureToImport(displayName: displayName, error: error))
-      return .none
+      state.failures.append(.init(url, reason: .unknownError(error.localizedDescription)))
+      return .send(.importNextFile)
     }
 
     do {
-      try SoundFont.add(displayName: displayName, soundFontKind: kind)
+      try SoundFont.add(displayName: String(url.displayName), soundFontKind: kind)
     } catch {
-      state.destination = .alert(.genericFailureToImport(displayName: displayName, error: error))
-      return .none
+      state.failures.append(.init(url, reason: .invalidFile))
+      return .send(.importNextFile)
     }
 
-    state.destination = .alert(.addedSummary(displayName: displayName))
+    state.successes.append(url)
+    return .send(.importNextFile)
+  }
 
-    return .none
+  private func importFinished(_ state: inout State) -> Effect<Action> {
+    let message: String
+    switch (state.successes.count, state.failures.count) {
+    case (0, 1): message = "Failed to add sound font file."
+    case (0, _): message = "Unable to add any sound font files."
+    case (1, 0): message = "Added 1 sound font file."
+    case (_, 0): message = "Added \(state.successes.count) sound font files."
+    case (_, _): message = "Added \(state.successes.count) out of \(state.successes.count + state.failures.count) sound font files."
+    }
+
+    state.destination = .alert(.importResults(message: message))
+    return .send(.delegate(.importFinished))
   }
 
   private func validateSoundFont(url: URL) -> Bool {
@@ -141,45 +220,30 @@ extension FileImporter {
     } ?? false
   }
 
-  private func placeSoundFont(
-    _ state: inout State,
-    displayName: String,
-    source: URL,
-    allowExisting: Bool
-  ) throws -> SoundFontKind {
+  private func placeSoundFont(url: URL, allowExisting: Bool) throws -> SoundFontKind {
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
 
     let location: SoundFontKind
     if copyFileWhenInstalling {
       log.info("copying file to app folder")
-      let destination = try copyToFontFilesFolder(
-        &state,
-        displayName: displayName,
-        source: source,
-        allowExisting: allowExisting
-      )
+      let destination = try copyToFontFilesFolder(url: url, allowExisting: allowExisting)
       location = .installed(filename: destination.lastPathComponent)
     } else {
       log.info("using external file")
-      let bookmark = Bookmark(url: source, name: displayName)
+      let bookmark = Bookmark(url: url, name: String(url.displayName))
       location = .external(bookmark: bookmark)
     }
     return location
   }
 
-  private func copyToFontFilesFolder(
-    _ state: inout State,
-    displayName: String,
-    source: URL,
-    allowExisting: Bool
-  ) throws -> URL {
-    try source.withSecurityScopingThrows { url in
+  private func copyToFontFilesFolder(url: URL, allowExisting: Bool) throws -> URL {
+    try url.withSecurityScopingThrows { url in
       log.info("copying \(url) to \(fileManager.fontFilesDirectory())")
       let destination = fileManager.fontFilesDirectory().appendingPathComponent(url.lastPathComponent)
       if allowExisting {
-        try? fileManager.copyItem(source, destination)
+        try? fileManager.copyItem(url, destination)
       } else {
-        try fileManager.copyItem(source, destination)
+        try fileManager.copyItem(url, destination)
       }
       return destination
     }
@@ -191,3 +255,5 @@ extension FileImporter.Destination.State: Equatable {}
 extension FileImporter.Destination.State: _EphemeralState {
   public typealias Action = Alert
 }
+
+private let log: Logger = .init(category: "FileImporter")

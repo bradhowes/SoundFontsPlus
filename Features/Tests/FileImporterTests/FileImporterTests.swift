@@ -29,7 +29,7 @@ struct FileImporterTests {
     await store.send(.showFileImporter) {
       $0.showChooser = true
     }
-    await store.send(.filePickerCancelled) {
+    await store.send(.fileImporterDismissed) {
       $0.showChooser = false
     }
   }

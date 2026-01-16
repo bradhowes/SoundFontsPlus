@@ -18,7 +18,7 @@ extension AlertState {
     }
   }
 
-  static public func confirmAddExisting(action: Action, displayName: String) -> Self {
+  static public func confirmAddExisting(action: Action, displayName: Substring) -> Self {
     Self {
       TextState("Add '\(displayName)'?")
     } actions: {
@@ -84,6 +84,16 @@ Do you wish to recreate entries in the database for it?
       }
     } message: {
       TextState("'\(displayName)' does not appear to be a valid sound font file.")
+    }
+  }
+
+  static public func importResults(message: String) -> Self {
+    Self {
+      TextState("Finished Importing")
+    } actions: {
+      ButtonState(role: .cancel) { TextState("OK") }
+    } message: {
+      TextState(message)
     }
   }
 }

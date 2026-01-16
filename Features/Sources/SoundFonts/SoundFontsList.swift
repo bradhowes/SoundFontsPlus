@@ -58,7 +58,7 @@ public struct SoundFontsList {
       switch action {
 
       case .activeTagIdChanged:
-        return monitorFetchAll(&state)
+        return updateFetchAll(&state)
 
       case .deinitialize:
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
@@ -69,7 +69,7 @@ public struct SoundFontsList {
       case .initialize:
         return .merge(
           monitorActiveTag(&state),
-          monitorFetchAll(&state)
+          updateFetchAll(&state)
         )
 
       case .rows(.element(_, .delegate(let action))):
@@ -93,7 +93,7 @@ public struct SoundFontsList {
 
   private enum CancelId: String, CaseIterable {
     case soundFontsListMonitorActiveTagId
-    case soundFontsListMonitorFetchAll
+    case soundFontsListUpdateFetchAll
   }
 }
 
@@ -203,7 +203,7 @@ extension SoundFontsList {
     }.cancellable(id: CancelId.soundFontsListMonitorActiveTagId, cancelInFlight: true)
   }
 
-  private func monitorFetchAll(_ state: inout State) -> Effect<Action> {
+  private func updateFetchAll(_ state: inout State) -> Effect<Action> {
     .run(priority: .utility, name: "monitorFetchAll") { send in
       // Update a query for the SoundFont list view. When the DB changes, this will emit a `soundFontInfoChanged` action
       // causing the rows to change. The query depends on the value of `activeState.activeTagId` so when that changes,
@@ -217,7 +217,7 @@ extension SoundFontsList {
       for try await update in $soundFontInfos.publisher.values {
         await send(.soundFontInfosChanged(update))
       }
-    }.cancellable(id: CancelId.soundFontsListMonitorFetchAll, cancelInFlight: true)
+    }.cancellable(id: CancelId.soundFontsListUpdateFetchAll, cancelInFlight: true)
   }
 
   private func select(_ state: inout State, soundFontId: SoundFont.ID, available: Bool) -> Effect<Action> {

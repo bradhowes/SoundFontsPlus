@@ -15,11 +15,12 @@ public struct FileImporterViewModifier: ViewModifier {
       .fileImporter(
         isPresented: Binding(
           get: { store.showChooser },
-          set: { _ in store.send(.filePickerCancelled) }
+          set: { _ in store.send(.fileImporterDismissed) }
         ),
-        allowedContentTypes: store.types
+        allowedContentTypes: store.types,
+        allowsMultipleSelection: true
       ) { result in
-        store.send(.filePicked(result))
+        store.send(.filesPicked(result))
       }
       .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
