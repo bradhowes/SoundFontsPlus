@@ -114,13 +114,15 @@ public struct SoundFontButton {
     public let bookmarkMonitorTaskId: String
     public let soundFontInfo: SoundFontInfo
     public var statusInfoTag: StatusInfoTag
+    public var deleting: Bool
 
     public init(
-      soundFontInfo: SoundFontInfo,
+      soundFontInfo: SoundFontInfo
     ) {
       self.soundFontInfo = soundFontInfo
       self.bookmarkMonitorTaskId = "SoundFontButton.\(soundFontInfo.id).bookMarkMonitorTaskId"
       self.statusInfoTag = Self.statusInfoTag(for: soundFontInfo)
+      self.deleting = false
     }
 
     static public func statusInfoTag(for soundFontInfo: SoundFontInfo) -> StatusInfoTag {
@@ -135,7 +137,9 @@ public struct SoundFontButton {
     case bookmarkMonitorStop
     case delegate(Delegate)
     case downloadFileButtonTapped
+    case resetDeleting
     case statusInfoChanged(StatusInfoTag)
+    case toggleDeleting
 
     @CasePathable
     public enum ConfirmationDialog {
@@ -171,8 +175,16 @@ public struct SoundFontButton {
       case .downloadFileButtonTapped:
         return downloadFile(&state)
 
+      case .resetDeleting:
+        state.deleting = false
+        return .none
+
       case .statusInfoChanged(let statusInfoTag):
         state.statusInfoTag = statusInfoTag
+        return .none
+
+      case .toggleDeleting:
+        state.deleting.toggle()
         return .none
       }
     }
@@ -210,10 +222,15 @@ extension SoundFontButton {
   }
 }
 
+// MARK: - View
+
 struct SoundFontButtonView: View {
   @Bindable private var store: StoreOf<SoundFontButton>
   @Shared(.selectedSoundFontId) private var selectedSoundFontId
   @Shared(.activeState) private var activeState
+  @Environment(\.editMode) private var deletingMode
+  private var inDeletingMode: Bool { (deletingMode?.wrappedValue ?? .inactive) == .active }
+
   private var state: IndicatorModifier.State {
     activeState.activeSoundFontId == store.state.soundFontInfo.id ? .active :
     selectedSoundFontId == store.state.soundFontInfo.id ? .selected : .none
@@ -226,11 +243,30 @@ struct SoundFontButtonView: View {
   public var body: some View {
     HStack {
       Button {
-        store.send(.delegate(.selectSoundFont(store.soundFontInfo, available: store.statusInfoTag.available)), animation: .default)
+        if inDeletingMode {
+          store.send(.toggleDeleting)
+        } else {
+          store.send(.delegate(.selectSoundFont(store.soundFontInfo, available: store.statusInfoTag.available)), animation: .default)
+        }
       } label: {
-        Text(store.soundFontInfo.displayName)
-          .font(.button)
-          .indicator(state)
+        HStack {
+          // Show indicator when edititing preset visibility
+          Image(systemName: store.deleting ? "inset.filled.circle" : "circle")
+            .foregroundStyle(Color.red)
+            .frame(width: inDeletingMode ? 24 : 0)
+            .opacity(inDeletingMode ? 1.0 : 0.0)
+            .disabled(!inDeletingMode)
+            .animation(.smooth, value: store.deleting) // animate the visibiliity toggle image
+          Text(store.soundFontInfo.displayName)
+            .font(.button)
+            .indicator(inDeletingMode ? .none : state)
+        }
+        .animation(.smooth, value: inDeletingMode) // animate the transition to/from visibility editing
+        .onChange(of: inDeletingMode) {
+          if inDeletingMode && store.deleting {
+            store.send(.resetDeleting)
+          }
+        }
       }
       Spacer()
       statusIndicator

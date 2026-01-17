@@ -136,16 +136,16 @@ extension Bookmark {
           ]
         )
       else {
-        log.debug("bookmark cloudState: .unknown")
+        // log.debug("bookmark cloudState: .unknown")
         return .unknown
       }
 
-      log.debug("cloudState: \(String(describing: values), privacy: .public)")
+      // log.debug("cloudState: \(String(describing: values), privacy: .public)")
 
       let isUbiquitous = (values.isUbiquitousItem ?? false)
       let state: CloudState
       if !isUbiquitous {
-        log.debug("bookmark cloudState: .local")
+        // log.debug("bookmark cloudState: .local")
         state = .local
       } else if values.ubiquitousItemDownloadingError != nil {
         state = .downloadError
@@ -159,7 +159,7 @@ extension Bookmark {
         }
       }
 
-      log.debug("cloudState: \(state, privacy: .public)")
+      // log.debug("cloudState: \(state, privacy: .public)")
       return state
     } ?? .unknown
   }

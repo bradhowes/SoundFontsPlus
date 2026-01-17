@@ -32,6 +32,7 @@ public struct SoundFontsList {
   public enum Action {
     case activeTagIdChanged
     case delegate(Delegate)
+    case deletingModeEnded(delete: Bool)
     case deinitialize
     case destination(PresentationAction<Destination.Action>)
     case initialize
@@ -62,6 +63,10 @@ public struct SoundFontsList {
 
       case .deinitialize:
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
+
+      case .deletingModeEnded(let confirmed):
+        print(confirmed)
+        return .none
 
       case .destination(.presented(.alert(.deleteSoundFontConfirmed(let soundFontInfo)))):
         return deleteSoundFontConfirmed(&state, soundFontInfo: soundFontInfo)
@@ -203,23 +208,6 @@ extension SoundFontsList {
     }.cancellable(id: CancelId.soundFontsListMonitorActiveTagId, cancelInFlight: true)
   }
 
-  private func updateFetchAll(_ state: inout State) -> Effect<Action> {
-    .run(priority: .utility, name: "monitorFetchAll") { send in
-      // Update a query for the SoundFont list view. When the DB changes, this will emit a `soundFontInfoChanged` action
-      // causing the rows to change. The query depends on the value of `activeState.activeTagId` so when that changes,
-      // `monitorFetchAll` reruns which cancels the old query and installs a new one.
-      @FetchAll(SoundFontInfo.query()) var soundFontInfos
-
-      // Make sure we are reading from the latest value of `activeState.activeTagId` before processing
-      try await $soundFontInfos.load(SoundFontInfo.query())
-
-      // When the query results change, send them into the reducer to create a new collection of rows
-      for try await update in $soundFontInfos.publisher.values {
-        await send(.soundFontInfosChanged(update))
-      }
-    }.cancellable(id: CancelId.soundFontsListUpdateFetchAll, cancelInFlight: true)
-  }
-
   private func select(_ state: inout State, soundFontId: SoundFont.ID, available: Bool) -> Effect<Action> {
     if selectedSoundFontId != soundFontId && available {
       $selectedSoundFontId.withLock { $0 = soundFontId }
@@ -243,6 +231,23 @@ extension SoundFontsList {
     }
     return .none
   }
+
+  private func updateFetchAll(_ state: inout State) -> Effect<Action> {
+    .run(priority: .utility, name: "monitorFetchAll") { send in
+      // Update a query for the SoundFont list view. When the DB changes, this will emit a `soundFontInfoChanged` action
+      // causing the rows to change. The query depends on the value of `activeState.activeTagId` so when that changes,
+      // `monitorFetchAll` reruns which cancels the old query and installs a new one.
+      @FetchAll var soundFontInfos: [SoundFontInfo]
+
+      // Make sure we are reading from the latest value of `activeState.activeTagId` before processing
+      try await $soundFontInfos.load(SoundFontInfo.query())
+
+      for try await update in $soundFontInfos.publisher.values {
+        await send(.soundFontInfosChanged(update))
+      }
+
+    }.cancellable(id: CancelId.soundFontsListUpdateFetchAll, cancelInFlight: true)
+  }
 }
 
 extension SoundFontsList.Destination.State: Equatable {}
@@ -250,8 +255,11 @@ extension SoundFontsList.Destination.State: _EphemeralState {
   public typealias Action = Alert
 }
 
+// MARK: - View
+
 public struct SoundFontsListView: View {
   @Bindable private var store: StoreOf<SoundFontsList>
+  @State private var editing: EditMode = .inactive
 
   public init(store: StoreOf<SoundFontsList>) {
     self.store = store
@@ -266,9 +274,34 @@ public struct SoundFontsListView: View {
           }
         }
       } header: {
-        StyledHeader { Text("Files") }
+        StyledHeader {
+          if editing == .active {
+            HStack(spacing: 16) {
+              Button {
+                store.send(.deletingModeEnded(delete: false))
+                editing = .inactive
+              } label: {
+                Text("Cancel")
+              }
+              Button {
+                store.send(.deletingModeEnded(delete: false))
+                editing = .inactive
+              } label: {
+                Text("Delete")
+                  .foregroundStyle(.red)
+              }
+            }
+          } else {
+            Text("Files")
+          }
+        }
+        .onTapGesture(count: 2) {
+          editing = editing == .inactive ? .active : .inactive
+          print(editing)
+        }
       }
     }
+    .environment(\.editMode, $editing)
     .animation(.smooth, value: store.rows)
     .task {
       await store.send(.initialize).finish()
