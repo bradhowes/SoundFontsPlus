@@ -31,14 +31,25 @@ public struct TagsEditor {
     }
   }
 
+  @Reducer
+  public enum Destination {
+    case alert(AlertState<Alert>)
+
+    @CasePathable
+    public enum Alert {
+      case showedHideEmptyTagsNotice
+    }
+  }
+
   @ObservableState
   public struct State: Equatable {
     public var rows: IdentifiedArrayOf<TagNameEditor.State>
     public let mode: Mode
     public var editModeActive: Bool = false
     public var focused: Int?
-    public var deleting: Set<FontTag.ID> = []
+    public var deleting: Set<Tag.ID> = []
     public let soundFontId: SoundFont.ID?
+    @Presents public var destination: Destination.State?
 
     /**
      Define intial state of the feature.
@@ -53,12 +64,12 @@ public struct TagsEditor {
       mode: Mode,
       focused: Int? = nil,
       soundFontId: SoundFont.ID? = nil,
-      memberships: [FontTag.ID: Bool]? = nil,
+      memberships: [Tag.ID: Bool]? = nil,
       editModeActive: Bool = false
     ) {
       self.mode = mode
       self.rows = .init(
-        uniqueElements: FontTag.tags
+        uniqueElements: Tag.tags
           .map {
             .init(
               tagId: $0.id,
@@ -70,13 +81,14 @@ public struct TagsEditor {
       self.focused = focused
       self.editModeActive = editModeActive
       self.soundFontId = soundFontId
+      self.destination = nil
     }
 
     public mutating func save() {
       log.debug("saving state")
       withDatabaseWriter { db in
         for id in deleting {
-          try FontTag.find(id).delete().execute(db)
+          try Tag.find(id).delete().execute(db)
         }
         for (index, var row) in rows.enumerated() {
           row.save(db, ordering: index, soundFontId: soundFontId)
@@ -90,6 +102,7 @@ public struct TagsEditor {
     case binding(BindingAction<State>)
     case cancelButtonTapped
     case deleteButtonTapped(at: IndexSet)
+    case destination(PresentationAction<Destination.Action>)
     case finalizeDeleteTag(rowId: Int)
     case rows(IdentifiedActionOf<TagNameEditor>)
     case saveButtonTapped
@@ -99,6 +112,8 @@ public struct TagsEditor {
   }
 
   @Dependency(\.defaultDatabase) private var database
+  @Shared(.hideEmptyTags) private var hideEmptyTags
+  @Shared(.showedHideEmptyTagsNotice) private var showedHideEmptyTagsNotice
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -140,6 +155,7 @@ public struct TagsEditor {
     .forEach(\.rows, action: \.rows) {
       TagNameEditor()
     }
+    .ifLet(\.destination, action: \.destination)
   }
 
   public init() {}
@@ -159,13 +175,22 @@ private extension TagsEditor {
     }
 
     let rowId: Int = state.rows.count
-    state.rows.append(.init(
-      tagId: nil,
-      draft: .init(displayName: newName, ordering: rowId),
-      membership: state.soundFontId != nil ? false : nil
-    ))
+    state.rows.append(
+      .init(
+        tagId: nil,
+        draft: .init(displayName: newName, ordering: rowId),
+        membership: state.soundFontId != nil ? true : nil
+      )
+    )
 
     state.focused = rowId
+
+    if hideEmptyTags && state.mode == .tagEditing,
+       hideEmptyTags,
+       !showedHideEmptyTagsNotice {
+      state.destination = .alert(.newTagWillBeHidden())
+      $showedHideEmptyTagsNotice.withLock { $0 = true }
+    }
 
     return .none
   }
@@ -216,6 +241,11 @@ private extension TagsEditor {
     }
     return .none
   }
+}
+
+extension TagsEditor.Destination.State: Equatable {}
+extension TagsEditor.Destination.State: _EphemeralState {
+  public typealias Action = Alert
 }
 
 public struct TagsEditorView: View {
@@ -280,6 +310,8 @@ public struct TagsEditorView: View {
           .font(.button)
       }
     }
+    .animation(.smooth, value: store.rows)
+    .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
 #if os(iOS)
     .environment(
       \.editMode,
@@ -303,14 +335,14 @@ extension TagsEditorView {
     }
 
     @Dependency(\.defaultDatabase) var db
-    _ = try? FontTag.make(displayName: "New Tag")
-    let tags = FontTag.tags
+    _ = try? Tag.make(displayName: "New Tag")
+    let tags = Tag.tags
     return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.ordering)) { TagsEditor() })
   }
 
   static var previewInEditMode: some View {
     prepareDependencies { $0.defaultDatabase = previewDatabase() }
-    let tags = FontTag.tags
+    let tags = Tag.tags
     return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.ordering, editModeActive: true)) {
       TagsEditor()
     })
@@ -318,10 +350,10 @@ extension TagsEditorView {
 
   static var previewWithMemberships: some View {
     prepareDependencies { $0.defaultDatabase = previewDatabase() }
-    _ = try? FontTag.make(displayName: "New Tag 1")
-    _ = try? FontTag.make(displayName: "New Tag 2")
-    let tags = FontTag.tags
-    var memberships = [FontTag.ID: Bool]()
+    _ = try? Tag.make(displayName: "New Tag 1")
+    _ = try? Tag.make(displayName: "New Tag 2")
+    let tags = Tag.tags
+    var memberships = [Tag.ID: Bool]()
     memberships[tags[0].id] = true
     memberships[tags[1].id] = true
     memberships[tags[4].id] = true

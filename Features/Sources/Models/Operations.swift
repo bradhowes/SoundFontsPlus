@@ -109,12 +109,12 @@ public enum Operations {
     return AudioConfig.with(presetId: id ?? activeState.activePresetId)
   }
 
-  public static func soundFontIds(for tagId: FontTag.ID) -> [SoundFont.ID] {
+  public static func soundFontIds(for tagId: Tag.ID) -> [SoundFont.ID] {
     let query = TaggedSoundFont.select { $0.soundFontId }.where { $0.tagId.eq(tagId) }
     return withDatabaseReader { try query.fetchAll($0) } ?? []
   }
 
-  public static func tagIds(for soundFontId: SoundFont.ID) -> [FontTag.ID] {
+  public static func tagIds(for soundFontId: SoundFont.ID) -> [Tag.ID] {
     withDatabaseReader {
       try TaggedSoundFont.select { $0.tagId }
         .where { $0.soundFontId.eq(soundFontId) }
@@ -122,7 +122,7 @@ public enum Operations {
     } ?? []
   }
 
-  public static func tagSoundFont(_ tagId: FontTag.ID, soundFontId: SoundFont.ID) {
+  public static func tagSoundFont(_ tagId: Tag.ID, soundFontId: SoundFont.ID) {
     guard !tagId.isUbiquitous else { return }
     let existing = tagIds(for: soundFontId)
     guard existing.first(where: {$0 == tagId}) == nil else { return }
@@ -134,7 +134,7 @@ public enum Operations {
     }
   }
 
-  public static func untagSoundFont(_ tagId: FontTag.ID, soundFontId: SoundFont.ID) {
+  public static func untagSoundFont(_ tagId: Tag.ID, soundFontId: SoundFont.ID) {
     guard !tagId.isUbiquitous else { return }
     withDatabaseWriter { db in
       try TaggedSoundFont.all

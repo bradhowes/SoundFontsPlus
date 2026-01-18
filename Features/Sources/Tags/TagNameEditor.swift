@@ -14,10 +14,10 @@ public struct TagNameEditor {
   @ObservableState
   public struct State: Equatable, Identifiable {
 
-    /// The unique ID to use -- since new tags do not have a FontTag.ID, use ``FontTag.Draft.ordering`` to provide a unique value.
+    /// The unique ID to use -- since new tags do not have a Tag.ID, use ``Tag.Draft.ordering`` to provide a unique value.
     public var id: Int { draft.ordering }
-    public var draft: FontTag.Draft
-    public var tagId: FontTag.ID?
+    public var draft: Tag.Draft
+    public var tagId: Tag.ID?
     public var membership: Bool
 
     public let originalMembership: Bool?
@@ -25,7 +25,7 @@ public struct TagNameEditor {
 
     public var isUbiquitous: Bool { tagId?.isUbiquitous ?? false }
 
-    public init(tagId: FontTag.ID?, draft: FontTag.Draft, membership: Bool? = nil) {
+    public init(tagId: Tag.ID?, draft: Tag.Draft, membership: Bool? = nil) {
       self.tagId = tagId
       self.draft = draft
       self.originalDisplayName = draft.displayName
@@ -41,7 +41,7 @@ public struct TagNameEditor {
         if tagId == nil || newName != originalDisplayName || ordering != draft.ordering {
           draft.displayName = newName
           draft.ordering = ordering
-          let query = FontTag.upsert {
+          let query = Tag.upsert {
             draft
           }.returning(\.id)
           if let tagId = try query.fetchOne(db) {
@@ -141,9 +141,9 @@ extension TagNameEditorView {
 
   static var preview: some View {
     prepareDependencies { $0.defaultDatabase = previewDatabase() }
-    _ = try? FontTag.make(displayName: "New Tag")
-    _ = try? FontTag.make(displayName: "Another Tag")
-    let tags = FontTag.tags
+    _ = try? Tag.make(displayName: "New Tag")
+    _ = try? Tag.make(displayName: "Another Tag")
+    let tags = Tag.tags
     return VStack {
       Form {
         ForEach(tags) { tag in

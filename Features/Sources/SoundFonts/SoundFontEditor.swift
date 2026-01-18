@@ -38,8 +38,8 @@ public struct SoundFontEditor {
     public var displayName: String
     public var notes: String
 
-    public var memberships: [FontTag.ID: Bool] {
-      let tags = FontTag.tags
+    public var memberships: [Tag.ID: Bool] {
+      let tags = Tag.tags
       return tags.reduce(into: [:]) { $0[$1.id] = soundFont.tags.contains($1) }
     }
 
@@ -65,7 +65,7 @@ public struct SoundFontEditor {
       }
     }
 
-    static public func generateTagsList(from tags: [FontTag]) -> String {
+    static public func generateTagsList(from tags: [Tag]) -> String {
       tags.map(\.displayName).sorted().joined(separator: ", ")
     }
   }

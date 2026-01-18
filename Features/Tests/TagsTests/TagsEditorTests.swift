@@ -19,7 +19,7 @@ struct TagsEditorTests {
     mode: TagsEditor.Mode,
     focused: Int? = nil,
     soundFontId: SoundFont.ID? = nil,
-    memberships: [FontTag.ID: Bool]? = nil,
+    memberships: [Tag.ID: Bool]? = nil,
     editModeActive: Bool = false
   ) -> TestStoreOf<TagsEditor> {
     return TestStore(
@@ -122,7 +122,7 @@ struct TagsEditorTests {
     await store.send(.cancelButtonTapped)
 
     let found = withDatabaseReader { db in
-      try FontTag.all.fetchAll(db)
+      try Tag.all.fetchAll(db)
     } ?? []
 
     #expect(found.count == 5)
@@ -226,7 +226,7 @@ struct TagsEditorTests {
     await store.send(.saveButtonTapped)
 
     let found = withDatabaseReader { db in
-      try FontTag.all.fetchAll(db)
+      try Tag.all.fetchAll(db)
     } ?? []
 
     #expect(found.count == 5)

@@ -16,7 +16,7 @@ import Tagged
 /// control. The four tags above are managed by the app -- the user cannot affect their membership outside of adding and
 /// deleting SF2 files.
 @Table
-public struct FontTag {
+public struct Tag {
   public typealias ID = Tagged<Self, Int64>
 
   /**
@@ -75,7 +75,7 @@ public struct FontTag {
   }
 }
 
-extension FontTag {
+extension Tag {
 
   static func migrate(_ migrator: inout DatabaseMigrator) {
     migrator.registerMigration(Self.tableName) { db in
@@ -93,7 +93,7 @@ extension FontTag {
   }
 }
 
-extension FontTag {
+extension Tag {
 
   /**
    Fetch the row for a given ID.
@@ -101,7 +101,7 @@ extension FontTag {
    - parameter id: the tag ID to look for
    - returns: the value found or `nil`.
    */
-  public static func with(id: FontTag.ID?) -> FontTag? {
+  public static func with(id: Tag.ID?) -> Tag? {
     guard let id else { return nil }
     return withDatabaseReader { db in
       try Self.all
@@ -110,7 +110,7 @@ extension FontTag {
     } ?? nil
   }
 
-  public static func make(displayName: String) throws -> FontTag {
+  public static func make(displayName: String) throws -> Tag {
     let base = displayName.trimmedOfWhitespaces
     if base.isEmpty {
       throw ModelError.emptyTagName
@@ -133,7 +133,7 @@ extension FontTag {
     return result[0]
   }
 
-  public static var tagsQuery: Select<(), FontTag, ()> {
+  public static var tagsQuery: Select<(), Tag, ()> {
     Self.all
       .order(by: \.ordering)
   }
@@ -146,7 +146,7 @@ extension FontTag {
     try Self.delete(id: self.id)
   }
 
-  public static func delete(id: FontTag.ID) throws {
+  public static func delete(id: Tag.ID) throws {
     guard id.isUserDefined else { throw ModelError.deleteUbiquitous(name: id.displayName ?? "???") }
     withDatabaseWriter {
       try Self.delete()
@@ -155,11 +155,11 @@ extension FontTag {
     }
   }
 
-  static func reorder(tagIds: [FontTag.ID]) throws {
+  static func reorder(tagIds: [Tag.ID]) throws {
     @Dependency(\.defaultDatabase) var database
     try database.write { db in
       for tagId in tagIds.enumerated() {
-        try FontTag
+        try Tag
           .find(tagId.1)
           .update { $0.ordering = tagId.0 }
           .execute(db)
@@ -179,7 +179,7 @@ extension FontTag {
     guard existing.isEmpty else { throw ModelError.duplicateTag(name: displayName) }
 
     try database.write { db in
-      try FontTag
+      try Tag
         .update { $0.displayName = displayName }
         .where({ $0.id == id })
         .execute(db)
@@ -206,20 +206,20 @@ extension FontTag {
   }
 }
 
-extension FontTag.ID {
+extension Tag.ID {
 
   public var isUbiquitous: Bool { self.rawValue < 0 }
 
   public var isUserDefined: Bool { !self.isUbiquitous }
 
-  public var displayName: String? { FontTag.Ubiquitous(rawValue: self.rawValue).displayName }
+  public var displayName: String? { Tag.Ubiquitous(rawValue: self.rawValue).displayName }
 }
 
-extension FontTag.Ubiquitous: RawRepresentable, QueryBindable, Sendable {}
+extension Tag.Ubiquitous: RawRepresentable, QueryBindable, Sendable {}
 
-extension FontTag: Hashable, Identifiable, Sendable {}
+extension Tag: Hashable, Identifiable, Sendable {}
 
-extension FontTag.Draft: Equatable, Sendable {}
+extension Tag.Draft: Equatable, Sendable {}
 
 extension SF2ResourceTag: Identifiable {
   public var id: SoundFont.ID { .init(rawValue: Int64(self.rawValue)) }

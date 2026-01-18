@@ -172,7 +172,7 @@ extension SoundFont {
     db: Database,
     insertion: Insert<SoundFont, SoundFont>,
     fileInfo: SF2FileInfo,
-    tagIds: [FontTag.ID],
+    tagIds: [Tag.ID],
     limitedLoading: Bool
   ) throws -> SoundFont? {
     guard
@@ -272,11 +272,11 @@ extension SoundFont {
     } ?? nil
   }
 
-  /// - returns: the collection of ``FontTag`` rows associated with the sound font
-  public var tags: [FontTag] {
+  /// - returns: the collection of ``Tag`` rows associated with the sound font
+  public var tags: [Tag] {
     withDatabaseReader { db in
       try TaggedSoundFont
-        .join(FontTag.all) {
+        .join(Tag.all) {
           $0.tagId.eq($1.id) && $0.soundFontId.eq(self.id)
         }
         .select {

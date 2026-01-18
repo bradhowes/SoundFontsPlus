@@ -64,7 +64,7 @@ struct SoundFontsListTests {
       await store.receive(\.activeTagIdChanged)
       await store.receive(\.soundFontInfosChanged)
 
-      $activeState.withLock { $0.activeTagId = FontTag.Ubiquitous.external.id }
+      $activeState.withLock { $0.activeTagId = Tag.Ubiquitous.external.id }
 
       await store.receive(\.activeTagIdChanged)
       await store.withExhaustivity(.off(showSkippedAssertions: false)) {

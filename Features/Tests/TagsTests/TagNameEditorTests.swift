@@ -15,11 +15,11 @@ import TestSupport
 struct TagNameEditorTests {
 
   func store(membership: Bool? = nil) throws -> TestStoreOf<TagNameEditor> {
-    let tag = FontTag(id: 5, displayName: "New Tag", ordering: 5)
+    let tag = Tag(id: 5, displayName: "New Tag", ordering: 5)
     return TestStore(
       initialState: TagNameEditor.State(
         tagId: tag.id,
-        draft: FontTag.Draft(tag),
+        draft: Tag.Draft(tag),
         membership: membership
       )
     ) {

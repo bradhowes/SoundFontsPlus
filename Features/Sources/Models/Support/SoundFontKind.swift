@@ -99,9 +99,9 @@ extension SoundFontKind {
     return false
   }
 
-  /// - returns: A list of ``FontTag.ID`` values to associate with when adding a new file.
-  public var tagIds: [FontTag.ID] {
-    var ubiTags: [FontTag.Ubiquitous] = [.all]
+  /// - returns: A list of ``Tag.ID`` values to associate with when adding a new file.
+  public var tagIds: [Tag.ID] {
+    var ubiTags: [Tag.Ubiquitous] = [.all]
     switch self {
     case .builtin: ubiTags.append(.builtIn)
     case .installed: ubiTags += [.added, .device]

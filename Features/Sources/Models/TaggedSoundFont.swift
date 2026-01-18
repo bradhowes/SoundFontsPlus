@@ -10,11 +10,11 @@ import Tagged
 @Table
 public struct TaggedSoundFont {
   public let soundFontId: SoundFont.ID
-  public let tagId: FontTag.ID
+  public let tagId: Tag.ID
 
   public init(
     soundFontId: SoundFont.ID,
-    tagId: FontTag.ID
+    tagId: Tag.ID
   ) {
     self.soundFontId = soundFontId
     self.tagId = tagId
@@ -33,7 +33,7 @@ extension TaggedSoundFont {
 
         PRIMARY KEY("soundFontId", "tagId")
         FOREIGN KEY("soundFontId") REFERENCES "soundFonts"("id") ON DELETE CASCADE,
-        FOREIGN KEY("tagId") REFERENCES "fontTags"("id") ON DELETE CASCADE
+        FOREIGN KEY("tagId") REFERENCES "tags"("id") ON DELETE CASCADE
       ) STRICT
       """
       )

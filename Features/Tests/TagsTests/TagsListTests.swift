@@ -16,14 +16,14 @@ import TestSupport
 struct TagsListTests {
 
   func store() throws -> TestStoreOf<TagsList> {
-    _ = try FontTag.make(displayName: "My New Tag")
+    _ = try Tag.make(displayName: "My New Tag")
     return TestStore(initialState: TagsList.State()) { TagsList() }
   }
 
   @Test
   func deleteButtonTapped() async throws {
     @Shared(.activeState) var activeState = .default
-    $activeState.withLock { $0.activeTagId = FontTag.Ubiquitous.external.id }
+    $activeState.withLock { $0.activeTagId = Tag.Ubiquitous.external.id }
 
     let store = try store()
     let tagInfos = store.state.tagInfos
@@ -37,13 +37,13 @@ struct TagsListTests {
     }
 
     #expect(found?.count == 5)
-    #expect(activeState.activeTagId == FontTag.Ubiquitous.external.id)
+    #expect(activeState.activeTagId == Tag.Ubiquitous.external.id)
   }
 
   @Test
   func tagButtonTapped() async throws {
     @Shared(.activeState) var activeState = .default
-    #expect(activeState.activeTagId == FontTag.Ubiquitous.all.id)
+    #expect(activeState.activeTagId == Tag.Ubiquitous.all.id)
 
     let store = try store()
     await store.send(.tagButtonTapped(store.state.tagInfos.last!))

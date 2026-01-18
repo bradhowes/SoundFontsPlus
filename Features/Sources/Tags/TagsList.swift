@@ -15,7 +15,7 @@ public struct TagsList {
 
   @ObservableState
   public struct State: Equatable {
-    @FetchAll(TagInfo.query, animation: .smooth) public var tagInfos
+    @FetchAll public var tagInfos: [TagInfo]
 
     public init() {}
   }
@@ -23,7 +23,9 @@ public struct TagsList {
   public enum Action {
     case delegate(Delegate)
     case deleteButtonTapped(TagInfo)
+    case initialize
     case tagButtonTapped(TagInfo)
+    case updateFetchAllQuery
 
     @CasePathable
     public enum Delegate: Equatable {
@@ -34,9 +36,14 @@ public struct TagsList {
   public init() {}
 
   @Shared(.activeState) private var activeState
+  @Shared(.hideEmptyTags) public var hideEmptyTags
 
   public var body: some ReducerOf<Self> {
+
     Reduce<State, Action> { state, action in
+
+      log.action("TagsList", action)
+
       switch action {
 
       case .delegate:
@@ -45,31 +52,73 @@ public struct TagsList {
       case let .deleteButtonTapped(tagInfo):
         return deleteTag(&state, tagId: tagInfo.id)
 
+      case .initialize:
+        return initialize(&state)
+
       case let .tagButtonTapped(tagInfo):
         return activateTag(&state, tagId: tagInfo.id)
+
+      case .updateFetchAllQuery:
+        return updateFetchAllQuery(&state)
+
       }
     }
+  }
+
+  private enum CancelId {
+    case tagsListUpdateFetchAllQuery
   }
 }
 
 extension TagsList {
 
-  private func activateTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
+  private func activateTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
     $activeState.withLock { $0.activeTagId = tagId }
     return .none
   }
 
-  private func deleteTag(_ state: inout State, tagId: FontTag.ID) -> Effect<Action> {
+  private func deleteTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
     if activeState.activeTagId == tagId {
-      $activeState.withLock { $0.activeTagId = FontTag.Ubiquitous.all.id }
+      $activeState.withLock { $0.activeTagId = Tag.Ubiquitous.all.id }
     }
-    try? FontTag.delete(id: tagId)
+    try? Tag.delete(id: tagId)
     return .none
+  }
+
+  private func initialize(_ state: inout State) -> Effect<Action> {
+    .merge(
+      monitorHideEmptyTags(&state),
+      updateFetchAllQuery(&state)
+    )
+  }
+
+  private func monitorHideEmptyTags(_ state: inout State) -> Effect<Action> {
+    .publisher {
+      $hideEmptyTags
+        .publisher
+        .removeDuplicates()
+        .map { _ in
+          print("*** monitorHideEmptyTags")
+          return .updateFetchAllQuery
+        }
+    }
+  }
+
+  private func updateFetchAllQuery(_ state: inout State) -> Effect<Action> {
+    print("*** updateFetchAllQuery - \(hideEmptyTags)")
+    return .run(priority: .utility, name: "updateFetchAllQuery") { [tagInfos = state.$tagInfos] _ in
+      @Shared(.hideEmptyTags) var hideEmptyTags
+      if hideEmptyTags {
+        try await tagInfos.load(TagInfo.queryNonZero)
+      } else {
+        try await tagInfos.load(TagInfo.queryAll)
+      }
+    }.cancellable(id: CancelId.tagsListUpdateFetchAllQuery, cancelInFlight: true)
   }
 }
 
 public struct TagsListView: View {
-  @Bindable private var store: StoreOf<TagsList>
+  @State private var store: StoreOf<TagsList>
   @Shared(.activeState) private var activeState
 
   public init(store: StoreOf<TagsList>) {
@@ -88,6 +137,8 @@ public struct TagsListView: View {
         StyledHeader { Text("Tags") }
       }
     }
+    .animation(.smooth, value: store.tagInfos)
+    .task { await store.send(.initialize).finish() }
   }
 
   private func button(_ tagInfo: TagInfo) -> some View {
@@ -128,6 +179,8 @@ public struct TagsListView: View {
   }
 }
 
+private let log: Logger = .init(category: "TagsList")
+
 #if DEBUG
 
 extension TagsListView {
@@ -136,11 +189,21 @@ extension TagsListView {
     prepareDependencies {
       $0.defaultDatabase = previewDatabase()
       // swiftlint:disable:next force_try
-      let tag = try! FontTag.make(displayName: "Another Tag")
+      let tag = try! Tag.make(displayName: "Another Tag")
       Operations.tagSoundFont(tag.id, soundFontId: 1)
     }
 
-    return TagsListView(store: Store(initialState: .init()) { TagsList() })
+    return VStack {
+      @Shared(.hideEmptyTags) var hideEmptyTags
+      Toggle(
+        "Hide empty tags",
+        isOn: Binding(
+          get: { hideEmptyTags },
+          set: { newValue in $hideEmptyTags.withLock { $0 = newValue }}
+        )
+      )
+      TagsListView(store: Store(initialState: .init()) { TagsList() })
+    }
   }
 }
 

@@ -68,28 +68,28 @@ extension TestSupport {
       for fontId in 1...4 {
         TaggedSoundFont(
           soundFontId: .init(Int64(fontId)),
-          tagId: FontTag.Ubiquitous.all.id
+          tagId: Tag.Ubiquitous.all.id
         )
       }
       for fontId in 1...2 {
         TaggedSoundFont(
           soundFontId: .init(Int64(fontId)),
-          tagId: FontTag.Ubiquitous.builtIn.id
+          tagId: Tag.Ubiquitous.builtIn.id
         )
       }
       for fontId in 3...4 {
         TaggedSoundFont(
           soundFontId: .init(Int64(fontId)),
-          tagId: FontTag.Ubiquitous.added.id
+          tagId: Tag.Ubiquitous.added.id
         )
       }
       TaggedSoundFont(
         soundFontId: 3,
-        tagId: FontTag.Ubiquitous.device.id
+        tagId: Tag.Ubiquitous.device.id
       )
       TaggedSoundFont(
         soundFontId: 4,
-        tagId: FontTag.Ubiquitous.external.id
+        tagId: Tag.Ubiquitous.external.id
       )
     }.execute(db)
   }

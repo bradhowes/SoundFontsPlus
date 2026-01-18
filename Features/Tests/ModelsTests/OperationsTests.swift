@@ -121,10 +121,10 @@ struct OperationsTests {
 
   @Test
   func soundFontIdsForTag() async throws {
-    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.all.id) == [1, 2, 3, 4])
-    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.builtIn.id) == [1, 2])
-    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.added.id) == [3, 4])
-    #expect(Operations.soundFontIds(for: FontTag.Ubiquitous.external.id) == [4])
+    #expect(Operations.soundFontIds(for: Tag.Ubiquitous.all.id) == [1, 2, 3, 4])
+    #expect(Operations.soundFontIds(for: Tag.Ubiquitous.builtIn.id) == [1, 2])
+    #expect(Operations.soundFontIds(for: Tag.Ubiquitous.added.id) == [3, 4])
+    #expect(Operations.soundFontIds(for: Tag.Ubiquitous.external.id) == [4])
   }
 
   @Test
@@ -136,28 +136,28 @@ struct OperationsTests {
 
   @Test
   func tagSoundFont() async throws {
-    let newTag = try FontTag.make(displayName: "New Tag")
+    let newTag = try Tag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
     #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
     #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
-    Operations.tagSoundFont(FontTag.Ubiquitous.external.id, soundFontId: 1)
+    Operations.tagSoundFont(Tag.Ubiquitous.external.id, soundFontId: 1)
     #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
   }
 
   @Test
   func tagSoundFontIgnoresUbiquitousTags() async throws {
-    let newTag = try FontTag.make(displayName: "New Tag")
+    let newTag = try Tag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
     #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
-    Operations.tagSoundFont(FontTag.Ubiquitous.external.id, soundFontId: 1)
+    Operations.tagSoundFont(Tag.Ubiquitous.external.id, soundFontId: 1)
     #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
   }
 
   @Test
   func untagSoundFont() async throws {
     @Dependency(\.defaultDatabase) var database
-    let newTag = try FontTag.make(displayName: "New Tag")
+    let newTag = try Tag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
     #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
     Operations.untagSoundFont(newTag.id, soundFontId: 1)
@@ -167,10 +167,10 @@ struct OperationsTests {
   @Test
   func untagSoundFontIgnoresUbiquitousTags() async throws {
     @Dependency(\.defaultDatabase) var database
-    let newTag = try FontTag.make(displayName: "New Tag")
+    let newTag = try Tag.make(displayName: "New Tag")
     Operations.tagSoundFont(newTag.id, soundFontId: 1)
     #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
-    Operations.untagSoundFont(FontTag.Ubiquitous.all.id, soundFontId: 1)
+    Operations.untagSoundFont(Tag.Ubiquitous.all.id, soundFontId: 1)
     #expect(Operations.tagIds(for: 1) == [-2, -1, 1])
   }
 

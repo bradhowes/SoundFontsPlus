@@ -128,15 +128,15 @@ private func performMigrations(
   AudioConfig.migrate(&migrator)
   DelayConfig.migrate(&migrator)
   ReverbConfig.migrate(&migrator)
-  FontTag.migrate(&migrator)
+  Tag.migrate(&migrator)
   TaggedSoundFont.migrate(&migrator)
   MIDIConfig.migrate(&migrator)
 
   migrator.registerMigration("Add ubiquitous tags") { db in
-    let tags: [FontTag] = FontTag.Ubiquitous.allCases.enumerated().map {
-      .init(id: FontTag.ID(rawValue: $0.1.rawValue), displayName: $0.1.displayName ?? "???", ordering: $0.0)
+    let tags: [Tag] = Tag.Ubiquitous.allCases.enumerated().map {
+      .init(id: Tag.ID(rawValue: $0.1.rawValue), displayName: $0.1.displayName ?? "???", ordering: $0.0)
     }
-    try FontTag.insert {
+    try Tag.insert {
       tags
     }.execute(db)
   }

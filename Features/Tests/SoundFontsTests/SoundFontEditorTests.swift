@@ -69,7 +69,7 @@ struct SoundFontEditorTests {
     // manipulating ubiquitous tags that the app manages.
     withDatabaseWriter { db in
       try TaggedSoundFont.insert {
-        .init(soundFontId: soundFontId, tagId: FontTag.Ubiquitous.external.id)
+        .init(soundFontId: soundFontId, tagId: Tag.Ubiquitous.external.id)
       }
       .execute(db)
     }

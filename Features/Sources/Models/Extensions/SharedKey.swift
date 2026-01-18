@@ -7,6 +7,8 @@ import Tagged
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var favoritesOnTop: Self { Self[.appStorage("favoritesOnTop"), default: false] }
+  public static var hideEmptyTags: Self { Self[.appStorage("hideEmptyTags"), default: false] }
+  public static var showedHideEmptyTagsNotice: Self { Self[.appStorage("showedHideEmptyTagsNotice"), default: false] }
   public static var showOnlyFavorites: Self { Self[.appStorage("showOnlyFavorites"), default: false] }
   public static var sortPresetsByName: Self { Self[.appStorage("sortPresetsByName"), default: false] }
 }

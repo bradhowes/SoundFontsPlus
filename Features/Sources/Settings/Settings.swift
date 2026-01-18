@@ -47,6 +47,7 @@ public struct Settings {
     @Shared(.duckOtherApps) public var duckOtherApps
     @Shared(.favoritesOnTop) public var favoritesOnTop
     @Shared(.favoriteSymbolName) public var favoriteSymbolName
+    @Shared(.hideEmptyTags) public var hideEmptyTags
     @Shared(.keyboardSlides) public var keyboardSlides
     @Shared(.keyLabels) public var keyLabels
     @Shared(.keyWidth) public var keyWidth
@@ -286,6 +287,7 @@ public struct SettingsView: View {
           }
         }
         tuningSection
+        fontsSection
         appSection
         aboutSection
       }
@@ -464,6 +466,47 @@ extension SettingsView {
     TuningView(store: store.scope(state: \.tuning, action: \.tuning))
   }
 
+  private var fontsSection: some View {
+    Section("Fonts") {
+      Group {
+        VStack(alignment: .leading, spacing: 8) {
+          Toggle(isOn: $store.copyFileWhenInstalling) {
+            Text("Copy SF2 files to app folder on device when adding.")
+          }
+          Text(
+"""
+Enabled is the safest option, but it takes up space on your device. \
+Disable to link directly to files in iCloud or on external drives.
+"""
+          )
+          .font(.settingsDescription)
+        }
+        HStack {
+          Text("Hide built-in SF2 files")
+          Spacer()
+          Button {
+            store.send(.hideBuiltInFilesTapped)
+          } label: {
+            Text("Hide")
+          }
+        }
+        HStack {
+          Text("Unhide built-in SF2 files")
+          Spacer()
+          Button {
+            store.send(.unhideBuiltInFilesTapped)
+          } label: {
+            Text("Show")
+          }
+        }
+        Toggle(isOn: $store.hideEmptyTags) {
+          Text("Hide tags with no fonts")
+        }
+      }
+      .circledCheckMarkToggleStyle()
+    }
+  }
+
   private var appSection: some View {
     Section("Application") {
       Group {
@@ -493,41 +536,10 @@ extension SettingsView {
           }
           .circledCheckMarkToggleStyle()
 #endif
-          VStack(alignment: .leading, spacing: 8) {
-            Toggle(isOn: $store.copyFileWhenInstalling) {
-              Text("Copy SF2 files to app folder on device when adding.")
-            }
-            Text(
-"""
-Enabled is the safest option, but it takes up space on your device. \
-Disable to link directly to files in iCloud or on external drives.
-"""
-            )
-            .font(.settingsDescription)
-          }
-          .circledCheckMarkToggleStyle()
           Toggle(isOn: $store.disableIdleTimer) {
             Text("Disable device locking while active")
           }
           .circledCheckMarkToggleStyle()
-        }
-        HStack {
-          Text("Hide built-in SF2 files")
-          Spacer()
-          Button {
-            store.send(.hideBuiltInFilesTapped)
-          } label: {
-            Text("Hide")
-          }
-        }
-        HStack {
-          Text("Unhide built-in SF2 files")
-          Spacer()
-          Button {
-            store.send(.unhideBuiltInFilesTapped)
-          } label: {
-            Text("Show")
-          }
         }
         if !isAUv3 {
           HStack {

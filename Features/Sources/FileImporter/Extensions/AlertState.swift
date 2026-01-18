@@ -6,18 +6,6 @@ import SwiftUI
 
 extension AlertState {
 
-  static func addedSummary(displayName: String) -> Self {
-    Self {
-      TextState("Added")
-    } actions: {
-      ButtonState(role: .cancel) {
-        TextState("OK")
-      }
-    } message: {
-      TextState("Successfully addeed sound font '\(displayName)'.")
-    }
-  }
-
   static public func confirmAddExisting(action: Action, displayName: Substring) -> Self {
     Self {
       TextState("Add '\(displayName)'?")

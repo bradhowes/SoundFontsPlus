@@ -9,7 +9,7 @@ public struct ActiveState {
 
   public var activeSoundFontId: SoundFont.ID?
   public var activePresetId: Preset.ID?
-  public var activeTagId: FontTag.ID?
+  public var activeTagId: Tag.ID?
 
   public var activeDelayConfigId: DelayConfig.ID?
   public var activeReverbConfigId: ReverbConfig.ID?
@@ -17,7 +17,7 @@ public struct ActiveState {
   public init(
     activeSoundFontId: SoundFont.ID?,
     activePresetId: Preset.ID?,
-    activeTagId: FontTag.ID?,
+    activeTagId: Tag.ID?,
     activeDelayConfigId: DelayConfig.ID?,
     activeReverbConfigId: ReverbConfig.ID?
   ) {
@@ -32,7 +32,7 @@ public struct ActiveState {
     .init(
       activeSoundFontId: 1,
       activePresetId: 1,
-      activeTagId: FontTag.Ubiquitous.all.id,
+      activeTagId: Tag.Ubiquitous.all.id,
       activeDelayConfigId: nil,
       activeReverbConfigId: nil
     )

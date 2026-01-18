@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import Sharing
 import SQLiteData
 import Tagged
 
@@ -9,7 +10,7 @@ import Tagged
  */
 @Selection
 public struct TagInfo {
-  public let id: FontTag.ID
+  public let id: Tag.ID
   public let displayName: String
   public let soundFontsCount: Int
   public let ordering: Int
@@ -20,16 +21,25 @@ public struct TagInfo {
 
 extension TagInfo {
 
-  public static var query: Select<TagInfo.Columns.QueryValue, FontTag, TaggedSoundFont?> {
-    FontTag
-      .group(by: \.id)
-      .order(by: \.ordering)
-      .leftJoin(TaggedSoundFont.all) {
-        $0.id.eq($1.tagId)
-      }.select {
-        TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count(), ordering: $0.ordering)
-      }
-  }
+  public static let queryNonZero: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont> = Tag
+    .group(by: \.id)
+    .order(by: \.ordering)
+    .join(TaggedSoundFont.all) {
+      $0.id.eq($1.tagId)
+    }
+    .select {
+      TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count(), ordering: $0.ordering)
+    }
+
+  public static let queryAll: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont?> = Tag
+    .group(by: \.id)
+    .order(by: \.ordering)
+    .leftJoin(TaggedSoundFont.all) {
+      $0.id.eq($1.tagId)
+    }
+    .select {
+      TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count(), ordering: $0.ordering)
+    }
 }
 
 extension TagInfo: Equatable, Identifiable, Sendable {}

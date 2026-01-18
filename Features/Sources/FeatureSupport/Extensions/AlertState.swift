@@ -18,10 +18,9 @@ extension AlertState {
       }
     } message: {
       TextState(
-        """
-      Not copying SF2 files may lead to unusable fonts if the file moves or is not immediately available on the
-      device.
-      """
+"""
+Not copying files may lead to unusable sound fonts if the file moves or is not immediately available on the device.
+"""
       )
     }
   }
@@ -38,10 +37,10 @@ extension AlertState {
       }
     } message: {
       TextState(
-        """
-      Disabling will prevent the device from sleeping and locking the screen, resulting in increased battery usage
-      and reduced security when unattended.
-      """
+"""
+Disabling will prevent the device from sleeping and locking the screen, resulting in increased battery usage \
+and reduced security when unattended.
+"""
       )
     }
   }
@@ -110,7 +109,7 @@ Deleting a SoundFont will delete any customizations you may have made to its pre
     } message: {
       TextState(
 """
-Unable to resolve the bookmark for the sound font '\(displayName)' due to an internal error.
+Unable to resolve the bookmark for the sound font '\(displayName)' due to an internal error. \
 Please delete the sound font and then add it back.
 """
       )
@@ -125,7 +124,7 @@ Please delete the sound font and then add it back.
     } message: {
       TextState(
 """
-Unable to locate the external file for sound font '\(displayName)'.
+Unable to locate the external file for sound font '\(displayName)'. \
 Connect the external drive containing the file to resolve this issue.
 """
       )
@@ -151,6 +150,27 @@ extension AlertState {
       TextState(
 """
 Confirm to immediately unhide all of the hidden presets.
+"""
+      )
+    }
+  }
+}
+
+// MARK: - TagsEditor alerts
+
+extension AlertState {
+
+  static public func newTagWillBeHidden() -> Self {
+    Self {
+      TextState("Empty Tags are Hidden")
+    } actions: {
+      ButtonState(role: .cancel) { TextState("OK") }
+    } message: {
+      TextState(
+"""
+The new tag will not appear in the main tag view since it does not have any associated sound fonts. \
+This can be changed by disabling the "Hide tags with no fonts" option in the Settings panel. \
+Tags will always appear in the tag editors regardless of this setting.
 """
       )
     }

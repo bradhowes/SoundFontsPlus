@@ -24,7 +24,7 @@ struct SoundFontTests {
     }
   )
   func migration() async throws {
-    @FetchAll(FontTag.all.order(by: \.id)) var tags
+    @FetchAll(Tag.all.order(by: \.id)) var tags
     try await $tags.load()
 
     @FetchAll(SoundFont.all.order(by: \.id)) var soundFonts
@@ -160,8 +160,8 @@ struct SoundFontTests {
 
   @Test
   func deletingSoundFontUpdatesTags() async throws {
-    let allTag = FontTag.with(id: FontTag.Ubiquitous.all.id)!
-    let builtInTag = FontTag.with(id: FontTag.Ubiquitous.builtIn.id)!
+    let allTag = Tag.with(id: Tag.Ubiquitous.all.id)!
+    let builtInTag = Tag.with(id: Tag.Ubiquitous.builtIn.id)!
 
     #expect(allTag.soundFonts.count == 4)
     #expect(builtInTag.soundFonts.count == 2)

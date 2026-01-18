@@ -2,12 +2,20 @@
 
 import FeatureSupport
 
+/**
+ Presents the list of changes for the app.
+ */
 @Reducer
 public struct Changes {
 
+  /**
+   Representation of a versioned change log.
+   */
   public struct Change: Hashable {
-    let version: String
-    let items: [String]
+    /// The semantic version of the change
+    public let version: String
+    /// The collection of changes, presented as a bullet list
+    public let items: [String]
 
     public init(version: String, items: [String]) {
       self.version = version
@@ -42,6 +50,7 @@ public struct Changes {
     }
   }
 
+  /// - returns: True if the app should show the changes made per version.
   public static var shouldShow: Bool {
     @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
     defer { $lastShowedChangesVersion.withLock { $0 = Bundle.main.releaseVersionNumber } }
@@ -49,6 +58,12 @@ public struct Changes {
     return lastShowedChangesVersion != Bundle.main.releaseVersionNumber && !lastShowedChangesVersion.isEmpty
   }
 
+  /**
+   Convert string content into a list of ``Change`` values.
+
+   - parameter data: the content to process
+   - returns: array of ``Change`` values
+   */
   public static func compile(_ data: String) -> [Change] {
     var entries = [Change]()
     var version = ""
