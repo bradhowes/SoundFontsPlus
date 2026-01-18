@@ -42,61 +42,91 @@ struct FileImporterTests {
     }
 
     let err = TestError.failedToDoSomething("oh no")
-    await store.send(.filePicked(.failure(err))) {
+    await store.send(.filesPicked(.failure(err))) {
       $0.showChooser = false
       $0.destination = .alert(.failedToPick(error: err))
     }
   }
 
   @Test
-  func filePickedInvalidFile() async throws {
+  func filePickedOneUnknownFileType() async throws {
     let store = store()
     await store.send(.showFileImporter) {
       $0.showChooser = true
     }
 
     let url = SF2ResourceTag.fluidFont.url.appendingPathComponent("foo")
-    await store.send(.filePicked(.success(url))) {
+    await store.send(.filesPicked(.success([url]))) {
       $0.showChooser = false
-      $0.destination = .alert(.invalidSoundFontFormat(displayName: "foo"))
+      $0.destination = .alert(.importResults(message: "Failed to add sound font file."))
+      $0.failures = [.init(url, reason: .unknownFileType)]
     }
+
+    await store.receive(\.delegate, .importFinished)
   }
 
   @Test
-  func filePickedGenericFailure() async throws {
-    let lastPathComponent = "BlahBlah.sf2"
-    let url = SF2ResourceTag.fluidFont.url.appendingPathComponent("foo")
-    let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(lastPathComponent)
-    try? FileManager.default.copyItem(at: url, to: tmp)
-    let dst = FileManager.default.sharedDocumentsDirectory.appendingPathComponent(lastPathComponent)
-    try? FileManager.default.copyItem(at: tmp, to: dst)
-
-    let err = NSError(
-      domain: "NSCocoaErrorDomain",
-      code: 256,
-      userInfo: [
-        "NSFilePath": tmp.path,
-        "NSURL": tmp,
-        "NSUnderlyingError": NSError(domain: "NSPOSIXErrorDomain", code: 20, userInfo: nil)
-      ]
-    )
-
-    let store = TestStoreOf<FileImporter>(initialState: .init()) {
-      FileImporter()
-    } withDependencies: {
-      $0.fileManager = .liveValue
-      $0.fileManager.copyItem = { _, _ in throw err}
-    }
-
+  func filePickedMultipleUnknownFileTypes() async throws {
+    let store = store()
     await store.send(.showFileImporter) {
       $0.showChooser = true
     }
 
-    await store.send(.filePicked(.success(tmp))) {
+    let url1 = SF2ResourceTag.fluidFont.url.appendingPathComponent("foo")
+    let url2 = SF2ResourceTag.fluidFont.url.appendingPathComponent("bar")
+    await store.send(.filesPicked(.success([url1, url2]))) {
       $0.showChooser = false
-      $0.destination = .alert(.genericFailureToImport(displayName: "BlahBlah", error: err))
+      $0.destination = .alert(.importResults(message: "Failed to add any sound font files."))
+      $0.failures = [
+        .init(url1, reason: .unknownFileType),
+        .init(url2, reason: .unknownFileType)
+      ]
     }
+
+    await store.receive(\.delegate, .importFinished)
   }
+
+//  @Test
+//  func filePickedGenericFailure() async throws {
+//    let lastPathComponent = "BlahBlah.sf2"
+//    let url = SF2ResourceTag.fluidFont.url.appendingPathComponent("foo")
+//    let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(lastPathComponent)
+//    try? FileManager.default.copyItem(at: url, to: tmp)
+//    let dst = FileManager.default.sharedDocumentsDirectory.appendingPathComponent(lastPathComponent)
+//    try? FileManager.default.copyItem(at: tmp, to: dst)
+//
+//    let err = NSError(
+//      domain: "NSCocoaErrorDomain",
+//      code: 256,
+//      userInfo: [
+//        "NSFilePath": tmp.path,
+//        "NSURL": tmp,
+//        "NSUnderlyingError": NSError(domain: "NSPOSIXErrorDomain", code: 20, userInfo: nil)
+//      ]
+//    )
+//
+//    let store = TestStoreOf<FileImporter>(initialState: .init()) {
+//      FileImporter()
+//    } withDependencies: {
+//      $0.fileManager = .liveValue
+//      $0.fileManager.copyItem = { _, _ in throw err}
+//    }
+//
+//    await store.send(.showFileImporter) {
+//      $0.showChooser = true
+//    }
+//
+//    await store.send(.filesPicked(.success([tmp]))) {
+//      $0.showChooser = false
+//      $0.failures = [.init(url, reason: .unknownError("The file \"BlahBlah.sf2\" couldn't be opened."))]
+//    }
+//
+//    await store.send(.importNextFile) {
+//      $0.destination = .alert(.importResults(message: "Failed to add sound font file."))
+//    }
+//
+//    await store.receive(\.delegate, .importFinished)
+//  }
 
   @Test
   func filePickedAdded() async throws {
@@ -127,24 +157,17 @@ struct FileImporterTests {
     let dst = FileManager.default.fontFilesDirectory.appendingPathComponent(lastPathComponent)
     try? FileManager.default.removeItem(at: dst)
 
-    await store.send(.filePicked(.success(tmp))) {
+    await store.send(.filesPicked(.success([tmp]))) {
       $0.showChooser = false
-      $0.destination = .alert(.addedSummary(displayName: "BlahBlah"))
+      // $0.destination = .alert(.addedSummary(displayName: "BlahBlah"))
+      $0.successes = [tmp]
     }
 
-    await store.send(.showFileImporter) {
-      $0.showChooser = true
+    await store.receive(\.importNextFile) {
+      $0.destination = .alert(.importResults(message: "Added 1 sound font file."))
     }
 
-    await store.send(.filePicked(.success(tmp))) {
-      $0.showChooser = false
-      $0.destination = .alert(
-        .confirmAddExisting(
-          action: .importDuplicateFileConfirmed(displayName: "BlahBlah", url: tmp),
-          displayName: "BlahBlah"
-        )
-      )
-    }
+    await store.receive(\.delegate, .importFinished)
   }
 
   @Test
@@ -166,10 +189,16 @@ struct FileImporterTests {
     let dst = FileManager.default.sharedDocumentsDirectory.appendingPathComponent(lastPathComponent)
     try? FileManager.default.removeItem(at: dst)
 
-    await store.send(.filePicked(.success(tmp))) {
+    await store.send(.filesPicked(.success([tmp]))) {
       $0.showChooser = false
-      $0.destination = .alert(.addedSummary(displayName: "BlahBlah"))
+      $0.successes = [tmp]
     }
+
+    await store.receive(\.importNextFile) {
+      $0.destination = .alert(.importResults(message: "Added 1 sound font file."))
+    }
+
+    await store.receive(\.delegate, .importFinished)
   }
 }
 

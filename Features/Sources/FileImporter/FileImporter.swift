@@ -203,7 +203,7 @@ extension FileImporter {
     let message: String
     switch (state.successes.count, state.failures.count) {
     case (0, 1): message = "Failed to add sound font file."
-    case (0, _): message = "Unable to add any sound font files."
+    case (0, _): message = "Failed to add any sound font files."
     case (1, 0): message = "Added 1 sound font file."
     case (_, 0): message = "Added \(state.successes.count) sound font files."
     case (_, _): message = "Added \(state.successes.count) out of \(state.successes.count + state.failures.count) sound font files."
