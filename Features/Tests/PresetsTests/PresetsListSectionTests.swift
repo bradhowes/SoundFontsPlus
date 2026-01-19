@@ -25,7 +25,7 @@ struct PresetsListSectionTests {
     }
 
     let presets = Operations.presets(for: 1)
-    let store = TestStore(initialState: PresetsListSection.State(section: 40, presets: presets[...], editingVisibility: false)) {
+    let store = TestStore(initialState: PresetsListSection.State(section: 40, presets: presets[...])) {
       PresetsListSection()
     }
     return store

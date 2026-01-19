@@ -27,7 +27,7 @@ struct PresetButtonTests {
       notes: "",
       kind: .preset
     )
-    return TestStore(initialState: PresetButton.State(preset: preset, editingVisibility: false)) {
+    return TestStore(initialState: PresetButton.State(preset: preset)) {
       PresetButton()
     }
   }
