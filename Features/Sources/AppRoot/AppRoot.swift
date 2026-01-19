@@ -621,7 +621,7 @@ extension AppRoot {
 
 extension AppRoot.Destination.State: Equatable {}
 
-// MARK: -
+// MARK: - View
 
 public struct AppRootView: View {
   @Bindable private var store: StoreOf<AppRoot>

@@ -9,14 +9,13 @@ public struct IndicatorModifier: ViewModifier {
     case none
     // Selected item -- only for SoundFont button when switching to a non-active item
     case selected
-
     // Active item -- shows the active SoundFont, Tag, or Preset
     case active
-
+    // Active favorite -- only for Preset buttons
     case activeFavorite
-
+    // Active coloring but without an indicator image
     case activeNoIndicator
-
+    // Favorite styling -- only for Preset buttons
     case favorite
 
     var labelColor: Color {
