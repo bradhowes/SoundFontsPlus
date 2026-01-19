@@ -13,9 +13,10 @@ public struct StyledList<Content: View>: View {
   public var body: some View {
     List {
       content
+        .listRowSeparator(.hidden)
     }
     .listStyle(.plain)
-    .listSectionSpacing(.compact)
+    .listSectionSpacing(0)
     // .background(.green)
   }
 #endif // os(iOS)
@@ -24,6 +25,7 @@ public struct StyledList<Content: View>: View {
   public var body: some View {
     List {
       content
+        .listRowSeparator(.hidden)
     }
     .listStyle(.plain)
   }
@@ -32,13 +34,21 @@ public struct StyledList<Content: View>: View {
 
 public struct StyledEntry<Content: View>: View {
   private let content: Content
+  @State private var visible: Bool
 
   public init(@ViewBuilder _ content: () -> Content) {
     self.content = content()
+    self.visible = true
   }
 
   public var body: some View {
     content
+      .onGeometryChange(for: Bool.self) {
+        $0.frame(in: .global).origin.y > 40.0
+      } action: {
+        visible = $0
+      }
+      .opacity(visible ? 1.0 : 0.0)
   }
 }
 
@@ -51,7 +61,6 @@ public struct StyledHeader<Content: View>: View {
 
   public var body: some View {
     content
-      // .padding([.top, .bottom], 8)
       .frame(
         minWidth: 0,
         maxWidth: .infinity,
@@ -59,7 +68,35 @@ public struct StyledHeader<Content: View>: View {
         maxHeight: .infinity,
         alignment: .topLeading
       )
+      .padding([.top, .bottom, .leading], 8)
       .background(.black)
       .foregroundStyle(Color.listHeaderForeground)
+      .offset(x: -16)
   }
 }
+
+#if DEBUG
+
+#Preview {
+  StyledList {
+    ForEach(0...5, id: \.self) { section in
+      Section {
+        let entries = (section * 5)..<(section * 5 + 5)
+        ForEach(entries, id: \.self) { entry in
+          StyledEntry {
+            HStack {
+              Text("Hello \(entry)")
+                .indicator(.active)
+              Spacer()
+              Text("\(entry)")
+            }
+          }
+        }
+      } header: {
+        StyledHeader { Text("Section \(section)") }
+      }
+    }
+  }
+}
+
+#endif // DEBUG

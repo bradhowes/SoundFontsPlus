@@ -278,7 +278,6 @@ struct SoundFontButtonView: View {
       Spacer()
       statusIndicator
     }
-    .listRowSeparator(.hidden)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
         store.send(.delegate(.editSoundFont(store.soundFontInfo)), animation: .default)
@@ -346,8 +345,6 @@ extension SoundFontButtonView {
           SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[0])) { SoundFontButton() })
           SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[1])) { SoundFontButton() })
         }
-        .listRowSeparator(.hidden)
-        .listStyle(.plain)
       }
       List {
         SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[0])) { SoundFontButton() })

@@ -356,9 +356,6 @@ public struct PresetsListView: View {
           doScrollTo(proxy: proxy, oldValue: $0, newValue: $1)
         }
       }
-      .onAppear {
-        store.send(.fetchPresets)
-      }
       .task {
         await store.send(.initialize).finish()
       }

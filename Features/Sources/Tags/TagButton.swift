@@ -59,6 +59,7 @@ struct TagButtonView: View {
   @State private var store: StoreOf<TagButton>
   @Shared(.activeState) private var activeState
   private var state: IndicatorModifier.State { activeState.activeTagId == store.id ? .active : .none }
+  private var count: String { store.tagInfo.soundFontsCount > 0 ? "\(store.tagInfo.soundFontsCount)" : "" }
 
   public init(store: StoreOf<TagButton>) {
     self.store = store
@@ -71,9 +72,10 @@ struct TagButtonView: View {
       HStack {
         Text(store.tagInfo.displayName)
           .font(.button)
+          .opacity(count.isEmpty ? 0.75 : 1.0)
           .indicator(state)
         Spacer()
-        Text("\(store.tagInfo.soundFontsCount)")
+        Text(count)
       }
       .contentShape(.interaction, Rectangle())
       .simultaneousGesture(
@@ -81,7 +83,7 @@ struct TagButtonView: View {
           .onEnded { _ in store.send(.delegate(.edit(store.tagInfo))) }
       )
     }
-    .listRowSeparator(.hidden)
+    .disabled(count.isEmpty)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
         store.send(.delegate(.edit(store.tagInfo)), animation: .default)
@@ -121,21 +123,23 @@ extension TagButtonView {
     $activeState.withLock { $0.activeTagId = tagInfos[0].id }
 
     return VStack {
-      Section {
-        List {
+      StyledList {
+        Section {
           TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[0])) { TagButton() })
           TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[1])) { TagButton() })
+        } header: {
+          StyledHeader { Text("Foo") }
         }
-        .listRowSeparator(.hidden)
-        .listStyle(.plain)
       }
-      List {
-        TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[0])) { TagButton() })
-        TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[1])) { TagButton() })
+      StyledList {
+        Section {
+          TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[0])) { TagButton() })
+          TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[1])) { TagButton() })
+        } header: {
+          StyledHeader { Text("Bar") }
+        }
       }
-#if os(iOS)
-      .listStyle(.grouped)
-#endif
+      Spacer(minLength: 1)
     }
   }
 }

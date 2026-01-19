@@ -92,7 +92,6 @@ public struct PresetButtonView: View {
       )
     }
     .id(store.preset.id) // !!! For proper scrollTo behavior
-    .listRowSeparator(.hidden)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       if !editingVisibility {
         Button {

@@ -169,7 +169,7 @@ extension AlertState {
     } message: {
       TextState(
 """
-The tag is associated with \(associationCount) sound fonts -- they will not be affected. \
+This tag is associated with \(associationCount) sound fonts — they will not be affected. \
 Deleting the tag cannot be undone.
 """
       )
