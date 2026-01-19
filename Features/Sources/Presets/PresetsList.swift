@@ -215,9 +215,9 @@ extension PresetsList {
     }
 
     state.sections = presets.isEmpty ?
-      .init(uniqueElements: [PresetsListSection.State(section: 0, presets: [], editingVisibility: state.editingVisibility)]) :
+      .init(uniqueElements: [PresetsListSection.State(section: 0, presets: [])]) :
       .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map {
-        PresetsListSection.State(section: $0.lowerBound, presets: presets[$0], editingVisibility: state.editingVisibility)
+        PresetsListSection.State(section: $0.lowerBound, presets: presets[$0])
       })
 
     return .none
@@ -257,27 +257,27 @@ extension PresetsList {
   ) -> Effect<Action> {
     switch action {
 
-    case let .createFavorite(preset):
+    case .createFavorite(let preset):
       _ = preset.clone()
       return generatePresetSections(&state)
 
-    case let .deleteFavorite(preset):
+    case .deleteFavorite(let preset):
       return deleteFavorite(&state, preset: preset)
 
-    case let .editPreset(preset):
+    case .editPreset(let preset):
       return .send(.delegate(.edit(sectionId: sectionId, preset: preset)))
 
-    case let .headerTapped(presetId):
+    case .headerTapped(scrollTo: let presetId):
       state.scrollToPresetId = .init(presetId: presetId, anchor: .top)
       return .none
 
-    case let .hidePreset(preset):
+    case .hidePreset(let preset):
       return hidePreset(&state, preset: preset)
 
     case .searchButtonTapped:
       return searchButtonTapped(&state)
 
-    case let .selectPreset(preset):
+    case .selectPreset(let preset):
       return selectPreset(&state, preset: preset)
     }
   }
@@ -334,7 +334,7 @@ extension PresetsList.Destination.State: _EphemeralState { public typealias Acti
 // MARK: -
 
 public struct PresetsListView: View {
-  @Bindable private var store: StoreOf<PresetsList>
+  @State private var store: StoreOf<PresetsList>
   @FocusState var focusedField: PresetsList.State.Field?
 
   public init(store: StoreOf<PresetsList>) {
@@ -363,6 +363,13 @@ public struct PresetsListView: View {
         await store.send(.initialize).finish()
       }
     }
+    .environment(
+      \.editMode,
+      Binding(
+        get: { store.editingVisibility ? EditMode.active : .inactive },
+        set: { store.send(.editingVisibilityChanged($0 == .active)) }
+      )
+    )
     .animation(.smooth, value: store.isSearchFieldPresented)
     .animation(.smooth, value: store.editingVisibility)
     .animation(.smooth, value: store.sections)

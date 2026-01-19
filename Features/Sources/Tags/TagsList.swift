@@ -6,26 +6,42 @@ import SQLiteData
 /**
  Feature that shows a list of tag buttons.
 
- - Touching a button makes the associated tag active
- - Swiping left offers a button to edit the tags and a button to delete the swiped tag
- - Long-press on a tag to edit the tags
+ - Touching a button makes the associated tag active, and this will affect which fonts are shown in the font view
+ - Swiping left offers a button to edit the tags
+ - Swiping right shows a button to delete a user's tag
+ - Long-press on a tag to show the tag editor
  */
 @Reducer
 public struct TagsList {
 
+  @Reducer
+  public enum Destination {
+    case alert(AlertState<Alert>)
+
+    @CasePathable
+    public enum Alert: Equatable {
+      case deleteTagConfirmed(TagInfo)
+    }
+  }
+
   @ObservableState
   public struct State: Equatable {
-    @FetchAll public var tagInfos: [TagInfo]
+    public var rows: IdentifiedArrayOf<TagButton.State>
+    @Presents public var destination: Destination.State?
 
-    public init() {}
+    public init() {
+      rows = .init()
+    }
   }
 
   public enum Action {
+    case deinitialize
     case delegate(Delegate)
-    case deleteButtonTapped(TagInfo)
+    case destination(PresentationAction<Destination.Action>)
     case initialize
-    case tagButtonTapped(TagInfo)
+    case rows(IdentifiedActionOf<TagButton>)
     case updateFetchAllQuery
+    case updateRows([TagInfo])
 
     @CasePathable
     public enum Delegate: Equatable {
@@ -46,42 +62,63 @@ public struct TagsList {
 
       switch action {
 
+      case .deinitialize:
+        return .merge(CancelId.allCases.map { .cancel(id: $0) })
+
       case .delegate:
         return .none
 
-      case let .deleteButtonTapped(tagInfo):
-        return deleteTag(&state, tagId: tagInfo.id)
+      case .destination(.presented(.alert(.deleteTagConfirmed(let tagInfo)))):
+        return deleteTagConfirmed(&state, tagInfo: tagInfo)
 
       case .initialize:
         return initialize(&state)
 
-      case let .tagButtonTapped(tagInfo):
-        return activateTag(&state, tagId: tagInfo.id)
+      case .rows(.element(_, .delegate(let action))):
+        return processRowAction(&state, action: action)
 
       case .updateFetchAllQuery:
         return updateFetchAllQuery(&state)
 
+      case .updateRows(let tagInfos):
+        return updateRows(&state, tagInfos: tagInfos)
+
+      default:
+        return .none
       }
     }
+    .forEach(\.rows, action: \.rows) {
+      TagButton()
+    }
+    .ifLet(\.destination, action: \.destination)
   }
 
-  private enum CancelId {
+  private enum CancelId: CaseIterable {
+    case taskListMonitorHideEmptyTags
     case tagsListUpdateFetchAllQuery
   }
 }
 
 extension TagsList {
 
-  private func activateTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
-    $activeState.withLock { $0.activeTagId = tagId }
+  private func confirmDeleteTag(_ state: inout State, tagInfo: TagInfo) -> Effect<Action> {
+    state.destination = .alert(
+      .confirmDeleteTag(
+        action: .deleteTagConfirmed(tagInfo),
+        displayName: tagInfo.displayName,
+        associationCount: tagInfo.soundFontsCount
+      )
+    )
     return .none
   }
 
-  private func deleteTag(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
-    if activeState.activeTagId == tagId {
+  private func deleteTagConfirmed(_ state: inout State, tagInfo: TagInfo) -> Effect<Action> {
+    if activeState.activeTagId == tagInfo.id {
       $activeState.withLock { $0.activeTagId = Tag.Ubiquitous.all.id }
     }
-    try? Tag.delete(id: tagId)
+
+    try? Tag.delete(id: tagInfo.id)
+
     return .none
   }
 
@@ -98,28 +135,63 @@ extension TagsList {
         .publisher
         .removeDuplicates()
         .map { _ in
-          print("*** monitorHideEmptyTags")
           return .updateFetchAllQuery
         }
+    }.cancellable(id: CancelId.taskListMonitorHideEmptyTags)
+  }
+
+  private func processRowAction(_ state: inout State, action: TagButton.Delegate) -> Effect<Action> {
+    log.action("processRowAction", action)
+    switch action {
+
+    case .activate(let tagInfo):
+      $activeState.withLock { $0.activeTagId = tagInfo.id }
+      return .none
+
+    case .delete(let tagInfo):
+      if tagInfo.soundFontsCount > 0 {
+        return confirmDeleteTag(&state, tagInfo: tagInfo)
+      }
+      return deleteTagConfirmed(&state, tagInfo: tagInfo)
+
+    case .edit(let tagInfo):
+      return .send(.delegate(.edit(focus: tagInfo.ordering)), animation: .smooth)
+
     }
   }
 
   private func updateFetchAllQuery(_ state: inout State) -> Effect<Action> {
-    print("*** updateFetchAllQuery - \(hideEmptyTags)")
-    return .run(priority: .utility, name: "updateFetchAllQuery") { [tagInfos = state.$tagInfos] _ in
+    .run(priority: .utility, name: "updateFetchAllQuery") { send in
       @Shared(.hideEmptyTags) var hideEmptyTags
+      @FetchAll var query: [TagInfo]
       if hideEmptyTags {
-        try await tagInfos.load(TagInfo.queryNonZero)
+        try await $query.load(TagInfo.queryNonZero)
       } else {
-        try await tagInfos.load(TagInfo.queryAll)
+        try await $query.load(TagInfo.queryAll)
+      }
+      for await update in $query.publisher.values {
+        await send(.updateRows(update))
       }
     }.cancellable(id: CancelId.tagsListUpdateFetchAllQuery, cancelInFlight: true)
   }
+
+  private func updateRows(_ state: inout State, tagInfos: [TagInfo]) -> Effect<Action> {
+    withAnimation(.smooth) {
+      state.rows = .init(uniqueElements: tagInfos.map { .init(tagInfo: $0) })
+    }
+    return .none
+  }
 }
+
+extension TagsList.Destination.State: Equatable {}
+extension TagsList.Destination.State: _EphemeralState {
+  public typealias Action = Alert
+}
+
+// MARK: - View
 
 public struct TagsListView: View {
   @State private var store: StoreOf<TagsList>
-  @Shared(.activeState) private var activeState
 
   public init(store: StoreOf<TagsList>) {
     self.store = store
@@ -128,54 +200,18 @@ public struct TagsListView: View {
   public var body: some View {
     StyledList {
       Section {
-        ForEach(store.tagInfos, id: \.id) { tagInfo in
+        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
           StyledEntry {
-            button(tagInfo)
+            TagButtonView(store: rowStore)
           }
         }
       } header: {
         StyledHeader { Text("Tags") }
       }
     }
-    .animation(.smooth, value: store.tagInfos)
+    .animation(.smooth, value: store.rows)
     .task { await store.send(.initialize).finish() }
-  }
-
-  private func button(_ tagInfo: TagInfo) -> some View {
-    Button {
-      store.send(.tagButtonTapped(tagInfo))
-    } label: {
-      HStack {
-        Text(tagInfo.displayName)
-        Spacer()
-        Text("\(tagInfo.soundFontsCount)")
-      }
-      .font(.button)
-      .indicator(activeState.activeTagId == tagInfo.id ? .active : .none )
-    }
-    .listRowSeparator(.hidden)
-    .swipeActions(edge: .leading, allowsFullSwipe: false) {
-      Button {
-        store.send(.delegate(.edit(focus: tagInfo.ordering)), animation: .smooth)
-      } label: {
-        Image(systemName: "pencil")
-          .tint(.cyan)
-      }
-    }
-    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-      if tagInfo.id.isUserDefined {
-        Button {
-          store.send(.deleteButtonTapped(tagInfo), animation: .smooth)
-        } label: {
-          Image(systemName: "trash")
-            .tint(.red)
-        }
-      }
-    }
-    .simultaneousGesture(
-      LongPressGesture(minimumDuration: 1.0)
-        .onEnded { _ in store.send(.delegate(.edit(focus: nil))) }
-    )
+    .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
 }
 

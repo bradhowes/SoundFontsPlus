@@ -225,7 +225,7 @@ extension SoundFontButton {
 // MARK: - View
 
 struct SoundFontButtonView: View {
-  @Bindable private var store: StoreOf<SoundFontButton>
+  @State private var store: StoreOf<SoundFontButton>
   @Shared(.selectedSoundFontId) private var selectedSoundFontId
   @Shared(.activeState) private var activeState
   @Environment(\.editMode) private var deletingMode
@@ -250,17 +250,24 @@ struct SoundFontButtonView: View {
         }
       } label: {
         HStack {
-          // Show indicator when edititing preset visibility
-          Image(systemName: store.deleting ? "inset.filled.circle" : "circle")
-            .foregroundStyle(Color.red)
-            .frame(width: inDeletingMode ? 24 : 0)
-            .opacity(inDeletingMode ? 1.0 : 0.0)
-            .disabled(!inDeletingMode)
-            .animation(.smooth, value: store.deleting) // animate the visibiliity toggle image
+          if inDeletingMode {
+            Image(systemName: store.deleting ? "inset.filled.circle" : "circle")
+              .foregroundStyle(Color.red)
+              .frame(width: inDeletingMode ? 24 : 0)
+              .opacity(inDeletingMode ? 1.0 : 0.0)
+              .disabled(!inDeletingMode)
+              .animation(.smooth, value: store.deleting) // animate the visibiliity toggle image
+          }
           Text(store.soundFontInfo.displayName)
             .font(.button)
             .indicator(inDeletingMode ? .none : state)
+          Spacer() // Have the stack take up the whole region of the list so that touch hits will happen anywhere on the item
         }
+        .contentShape(.interaction, Rectangle())
+        .simultaneousGesture(
+          LongPressGesture(minimumDuration: 1.0)
+            .onEnded { _ in store.send(.delegate(.editSoundFont(store.soundFontInfo))) }
+        )
         .animation(.smooth, value: inDeletingMode) // animate the transition to/from visibility editing
         .onChange(of: inDeletingMode) {
           if inDeletingMode && store.deleting {
@@ -290,10 +297,6 @@ struct SoundFontButtonView: View {
         }
       }
     }
-    .simultaneousGesture(
-      LongPressGesture(minimumDuration: 1.0)
-        .onEnded { _ in store.send(.delegate(.editSoundFont(store.soundFontInfo))) }
-    )
     .task {
       await store.send(.bookmarkMonitorStart).finish()
     }

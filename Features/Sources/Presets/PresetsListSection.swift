@@ -15,12 +15,10 @@ public struct PresetsListSection {
     public var rows: IdentifiedArrayOf<PresetButton.State>
     // Make sure section IDs do not conflict with preset IDs.
     public var sectionId: Int { (section + 1) * PresetsList.noGroupingSize }
-    public var editingVisibility: Bool
 
-    public init(section: Int, presets: ArraySlice<Preset>, editingVisibility: Bool) {
+    public init(section: Int, presets: ArraySlice<Preset>) {
       self.section = section
-      self.rows = .init(uniqueElements: presets.map { .init(preset: $0, editingVisibility: editingVisibility) })
-      self.editingVisibility = editingVisibility
+      self.rows = .init(uniqueElements: presets.map { .init(preset: $0) })
     }
 
     /**
@@ -45,7 +43,7 @@ public struct PresetsListSection {
       case createFavorite(Preset)
       case deleteFavorite(Preset)
       case editPreset(Preset)
-      case headerTapped(Preset.ID)
+      case headerTapped(scrollTo: Preset.ID)
       case hidePreset(Preset)
       case searchButtonTapped
       case selectPreset(Preset)
@@ -85,6 +83,8 @@ public struct PresetsListSectionView: View {
   private var store: StoreOf<PresetsListSection>
   private let searching: Bool
   @State private var showSearchButton: Bool = false
+  @Environment(\.editMode) private var editMode
+  private var editingVisibility: Bool { (editMode?.wrappedValue ?? .inactive) == .active }
 
   public init(store: StoreOf<PresetsListSection>, searching: Bool) {
     self.store = store
@@ -100,10 +100,10 @@ public struct PresetsListSectionView: View {
           .id(store.sectionId)
       }
       .onTapGesture(count: 2) {
-        store.send(.delegate(.headerTapped(1)))
+        store.send(.delegate(.headerTapped(scrollTo: 1)))
       }
       .onTapGesture(count: 1) {
-        store.send(.delegate(.headerTapped(Preset.ID(rawValue: Int64(store.section - (PresetsList.groupingSize - 1))))))
+        store.send(.delegate(.headerTapped(scrollTo: Preset.ID(rawValue: Int64(store.section - (PresetsList.groupingSize - 1))))))
       }
     }
   }
@@ -118,7 +118,7 @@ public struct PresetsListSectionView: View {
           .frame(maxWidth: .infinity, alignment: .leading)
           .contentShape(Rectangle())
         Spacer()
-        if (showSearchButton || store.section == 0) && !store.editingVisibility {
+        if (showSearchButton || store.section == 0) && !editingVisibility {
           Button {
             store.send(.delegate(.searchButtonTapped))
           } label: {

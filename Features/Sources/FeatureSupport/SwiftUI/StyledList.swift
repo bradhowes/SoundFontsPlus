@@ -14,8 +14,9 @@ public struct StyledList<Content: View>: View {
     List {
       content
     }
-    .listSectionSpacing(.compact)
     .listStyle(.plain)
+    .listSectionSpacing(.compact)
+    // .background(.green)
   }
 #endif // os(iOS)
 
@@ -58,7 +59,7 @@ public struct StyledHeader<Content: View>: View {
         maxHeight: .infinity,
         alignment: .topLeading
       )
-      // .background(.black.opacity(0.75))
+      .background(.black)
       .foregroundStyle(Color.listHeaderForeground)
   }
 }

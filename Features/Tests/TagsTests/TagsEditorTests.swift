@@ -19,7 +19,7 @@ struct TagsEditorTests {
     mode: TagsEditor.Mode,
     focused: Int? = nil,
     soundFontId: SoundFont.ID? = nil,
-    memberships: [Tag.ID: Bool]? = nil,
+    memberships: [Models.Tag.ID: Bool]? = nil,
     editModeActive: Bool = false
   ) -> TestStoreOf<TagsEditor> {
     return TestStore(
@@ -77,7 +77,7 @@ struct TagsEditorTests {
       .init(
         tagId: nil,
         draft: .init(displayName: "New Tag", ordering: rows.count),
-        membership: false
+        membership: true
       )
     )
 
@@ -90,7 +90,7 @@ struct TagsEditorTests {
       .init(
         tagId: nil,
         draft: .init(displayName: "New Tag 1", ordering: rows.count),
-        membership: false
+        membership: true
       )
     )
 
@@ -110,7 +110,7 @@ struct TagsEditorTests {
       .init(
         tagId: nil,
         draft: .init(displayName: "New Tag", ordering: rows.count),
-        membership: false
+        membership: true
       )
     )
 
@@ -139,7 +139,7 @@ struct TagsEditorTests {
       .init(
         tagId: nil,
         draft: .init(displayName: "New Tag", ordering: rows.count),
-        membership: false
+        membership: true
       )
     )
 
@@ -205,7 +205,7 @@ struct TagsEditorTests {
       .init(
         tagId: nil,
         draft: .init(displayName: "New Tag", ordering: rows.count),
-        membership: false
+        membership: true
       )
     )
 

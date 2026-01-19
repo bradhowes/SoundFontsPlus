@@ -8,8 +8,8 @@ import SwiftUI
  Custom view for a preset name.
  */
 public struct PresetNameView: View {
-  @Shared(.favoriteSymbolName) var symbolName
-  @Shared(.starFavoriteNames) var starFavoriteNames
+  @Shared(.favoriteSymbolName) private var symbolName
+  @Shared(.starFavoriteNames) private var starFavoriteNames
   private let preset: Preset?
 
   public init(preset: Preset?) {

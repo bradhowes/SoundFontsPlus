@@ -185,7 +185,8 @@ private extension TagsEditor {
 
     state.focused = rowId
 
-    if hideEmptyTags && state.mode == .tagEditing,
+    // Show alert about empty tags not appearing in main view.
+    if state.mode == .tagEditing,
        hideEmptyTags,
        !showedHideEmptyTagsNotice {
       state.destination = .alert(.newTagWillBeHidden())
@@ -196,6 +197,7 @@ private extension TagsEditor {
   }
 
   func deleteTag(_ state: inout State, rowId: Int) -> Effect<Action> {
+    // This is done to support animation of deleted row.
     return .run { send in
       await send(.finalizeDeleteTag(rowId: rowId))
     }

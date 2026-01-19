@@ -114,7 +114,7 @@ extension SoundFontsList {
     return .none
   }
 
-  private func deleteSoundFont(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
+  private func confirmDeleteSoundFont(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
     state.destination = .alert(
       .confirmDeleteSoundFont(
         action: .deleteSoundFontConfirmed(soundFontInfo),
@@ -185,7 +185,7 @@ extension SoundFontsList {
       return alertMissingFile(&state, soundFontInfo: soundFontInfo)
 
     case .deleteSoundFont(let soundFontInfo):
-      return deleteSoundFont(&state, soundFontInfo: soundFontInfo)
+      return confirmDeleteSoundFont(&state, soundFontInfo: soundFontInfo)
 
     case .editSoundFont(let soundFontInfo):
       return edit(&state, soundFontId: soundFontInfo.id)
@@ -258,7 +258,7 @@ extension SoundFontsList.Destination.State: _EphemeralState {
 // MARK: - View
 
 public struct SoundFontsListView: View {
-  @Bindable private var store: StoreOf<SoundFontsList>
+  @State private var store: StoreOf<SoundFontsList>
   @State private var editing: EditMode = .inactive
 
   public init(store: StoreOf<SoundFontsList>) {
@@ -303,9 +303,7 @@ public struct SoundFontsListView: View {
     }
     .environment(\.editMode, $editing)
     .animation(.smooth, value: store.rows)
-    .task {
-      await store.send(.initialize).finish()
-    }
+    .task { await store.send(.initialize).finish() }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
 }

@@ -160,6 +160,22 @@ Confirm to immediately unhide all of the hidden presets.
 
 extension AlertState {
 
+  static public func confirmDeleteTag(action: Action, displayName: String, associationCount: Int) -> Self {
+    Self {
+      TextState("Delete '\(displayName)'?")
+    } actions: {
+      ButtonState(role: .destructive, action: action) { TextState("Delete") }
+      ButtonState(role: .cancel) { TextState("Cancel") }
+    } message: {
+      TextState(
+"""
+The tag is associated with \(associationCount) sound fonts -- they will not be affected. \
+Deleting the tag cannot be undone.
+"""
+      )
+    }
+  }
+
   static public func newTagWillBeHidden() -> Self {
     Self {
       TextState("Empty Tags are Hidden")
