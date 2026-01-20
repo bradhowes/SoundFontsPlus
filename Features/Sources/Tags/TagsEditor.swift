@@ -113,7 +113,6 @@ public struct TagsEditor {
 
   @Dependency(\.defaultDatabase) private var database
   @Shared(.hideEmptyTags) private var hideEmptyTags
-  @Shared(.showedHideEmptyTagsNotice) private var showedHideEmptyTagsNotice
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -136,8 +135,23 @@ public struct TagsEditor {
       case .finalizeDeleteTag(let rowId):
         return finalizeDeleteTag(&state, rowId: rowId)
 
-      case let .rows(.element(id: id, action: .delegate(.tagSwipedToDelete))):
+      case let .rows(.element(id: id, action: \.delegate.tagSwipedToDelete)):
         return deleteTag(&state, rowId: id)
+
+      case let .rows(.element(id: id, action: \.binding.membership)):
+        // This is only called when editing a sound font, so soundFontId must be non-nil
+        guard
+          let soundFontId = state.soundFontId,
+          let index = state.rows.index(id: id)
+        else {
+          return .none
+        }
+
+        let tagState = state.rows[index]
+        if checkForEmptyTag(soundFontId: soundFontId, tagState: tagState) {
+          state.destination = .alert(.tagWillBeHidden(displayName: tagState.draft.displayName))
+        }
+        return .none
 
       case .saveButtonTapped:
         return dismiss(&state, save: true)
@@ -179,21 +193,32 @@ private extension TagsEditor {
       .init(
         tagId: nil,
         draft: .init(displayName: newName, ordering: rowId),
-        membership: state.soundFontId != nil ? true : nil
+        membership: state.soundFontId != nil ? false : nil
       )
     )
 
     state.focused = rowId
 
-    // Show alert about empty tags not appearing in main view.
+    // Show alert about empty tags not appearing in main view. Only show in the editor from the tags view -- there are different
+    // conditions for presenting the alert when editing tags of a sound font.
     if state.mode == .tagEditing,
-       hideEmptyTags,
-       !showedHideEmptyTagsNotice {
-      state.destination = .alert(.newTagWillBeHidden())
-      $showedHideEmptyTagsNotice.withLock { $0 = true }
+       hideEmptyTags {
+      state.destination = .alert(.tagWillBeHidden(displayName: newName))
     }
 
     return .none
+  }
+
+  func checkForEmptyTag(soundFontId: SoundFont.ID, tagState: TagNameEditor.State) -> Bool {
+    if !hideEmptyTags { return false }
+    if let tagId = tagState.tagId {
+      // Existing tag, os see if we are removing the sole association to the tag
+      let memberships = Operations.soundFontIds(for: tagId)
+      return memberships.count == 1 && memberships.contains(soundFontId) && !tagState.membership
+    } else {
+      // New tag and membership was unset
+      return !tagState.membership
+    }
   }
 
   func deleteTag(_ state: inout State, rowId: Int) -> Effect<Action> {

@@ -30,7 +30,7 @@ public struct TagNameEditor {
       self.draft = draft
       self.originalDisplayName = draft.displayName
       self.originalMembership = membership
-      self.membership = membership ?? false
+      self.membership = tagId == nil ? true : (membership ?? false)
     }
 
     public mutating func save(_ db: Database, ordering: Int, soundFontId: SoundFont.ID?) {
@@ -89,11 +89,19 @@ public struct TagNameEditor {
     Reduce { state, action in
       switch action {
 
+      case .binding(\.membership):
+        print(action)
+        return .none
+
+      case .binding:
+        return .none
+
       case .tagSwipedToDelete:
         return .send(.delegate(.tagSwipedToDelete(state.id)), animation: .default)
 
-      default:
+      case .delegate:
         return .none
+
       }
     }
   }

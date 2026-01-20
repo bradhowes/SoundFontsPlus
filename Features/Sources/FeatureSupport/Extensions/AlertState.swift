@@ -176,7 +176,7 @@ Deleting the tag cannot be undone.
     }
   }
 
-  static public func newTagWillBeHidden() -> Self {
+  static public func tagWillBeHidden(displayName: String) -> Self {
     Self {
       TextState("Empty Tags are Hidden")
     } actions: {
@@ -184,9 +184,8 @@ Deleting the tag cannot be undone.
     } message: {
       TextState(
 """
-The new tag will not appear in the main tag view since it does not have any associated sound fonts. \
-This can be changed by disabling the "Hide tags with no fonts" option in the Settings panel. \
-Tags will always appear in the tag editors regardless of this setting.
+Due to the "Hide tags with no fonts" setting, the '\(displayName)' tag will not appear in the main tag view since it is not \
+associated with any sound fonts.
 """
       )
     }

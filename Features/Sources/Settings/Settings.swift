@@ -47,6 +47,7 @@ public struct Settings {
     @Shared(.duckOtherApps) public var duckOtherApps
     @Shared(.favoritesOnTop) public var favoritesOnTop
     @Shared(.favoriteSymbolName) public var favoriteSymbolName
+    @Shared(.hideBuiltinFiles) public var hideBuiltinFiles
     @Shared(.hideEmptyTags) public var hideEmptyTags
     @Shared(.keyboardSlides) public var keyboardSlides
     @Shared(.keyLabels) public var keyLabels
@@ -94,12 +95,11 @@ public struct Settings {
     case binding(BindingAction<State>)
     case bluetoothMIDILocateButtonTapped
     case contactDeveloperTapped
+    case createBackupTapped
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case dismissButtonTapped
-    case exportFilesTapped
     case hideBuiltInFilesTapped
-    case importFilesTapped
     case initialize
     case midiAssignmentsButtonTapped
     case midiConnectionsButtonTapped
@@ -107,6 +107,8 @@ public struct Settings {
     case midiControllersButtonTapped
     case midiTrafficIndicator(MIDITrafficIndicator.Action)
     case path(StackActionOf<Path>)
+    case restoreBackupTapped
+    case restoreFreshInstallTapped
     case reviewAppTapped
     case tuning(Tuning.Action)
     case unhideBuiltInFilesTapped
@@ -293,6 +295,7 @@ public struct SettingsView: View {
       }
       .font(.settings)
       .formStyle(.grouped)
+      .circledCheckMarkToggleStyle()
       .navigationTitle("Settings")
       .toolbar {
         ToolbarItem(placement: .automatic) {
@@ -339,7 +342,6 @@ extension SettingsView {
         Text("Play sound on preset change")
       }
     }
-    .circledCheckMarkToggleStyle()
   }
 
   private var keyboardSection: some View {
@@ -361,15 +363,12 @@ extension SettingsView {
       Toggle(isOn: $store.showKeyNotes) {
         Text("Show key note in toolbar")
       }
-      .circledCheckMarkToggleStyle()
       Toggle(isOn: $store.showSolfegeTags) {
         Text("Show solfège tag in toolbar")
       }
-      .circledCheckMarkToggleStyle()
       Toggle(isOn: $store.keyboardSlides) {
         Text("Keyboard slides with touch")
       }
-      .circledCheckMarkToggleStyle()
       VStack {
         Text("Key Width")
         Slider(value: $store.keyWidth, in: 32...96, step: 1) {
@@ -416,15 +415,12 @@ extension SettingsView {
       Toggle(isOn: $store.midiAutoConnect) {
         Text("New devices will auto-connect")
       }
-      .circledCheckMarkToggleStyle()
       Toggle(isOn: $store.showMIDITrafficIndicator) {
         Text("Show MIDI activity indicator in toolbar")
       }
-      .circledCheckMarkToggleStyle()
       Toggle(isOn: $store.showMIDINotesOnKeyboard) {
         Text("Show MIDI note activity on keyboard")
       }
-      .circledCheckMarkToggleStyle()
       HStack {
         Text("Bluetooth MIDI")
         Spacer()
@@ -469,41 +465,41 @@ extension SettingsView {
   private var fontsSection: some View {
     Section("Fonts") {
       Group {
-        VStack(alignment: .leading, spacing: 8) {
           Toggle(isOn: $store.copyFileWhenInstalling) {
-            Text("Copy SF2 files to app folder on device when adding.")
-          }
-          Text(
+            VStack(alignment: .leading, spacing: 8) {
+              Text("Copy SF2 files to app folder on device when adding")
+              Text(
 """
-Enabled is the safest option, but it takes up space on your device. \
+Enabled is the safest option but files consume space on your device. \
 Disable to link directly to files in iCloud or on external drives.
 """
-          )
-          .font(.settingsDescription)
-        }
-        HStack {
-          Text("Hide built-in SF2 files")
-          Spacer()
-          Button {
-            store.send(.hideBuiltInFilesTapped)
-          } label: {
-            Text("Hide")
+              )
+              .font(.settingsDescription)
+            }
           }
-        }
-        HStack {
-          Text("Unhide built-in SF2 files")
-          Spacer()
-          Button {
-            store.send(.unhideBuiltInFilesTapped)
-          } label: {
-            Text("Show")
-          }
-        }
         Toggle(isOn: $store.hideEmptyTags) {
-          Text("Hide tags with no fonts")
+          VStack(alignment: .leading, spacing: 8) {
+            Text("Hide tags with no sound fonts")
+            Text(
+"""
+Enable to reduce clutter in the main tags view. Tag editors will always show all tags.
+"""
+            )
+            .font(.settingsDescription)
+          }
+        }
+        Toggle(isOn: $store.hideBuiltinFiles) {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("Hide built-in SF2 files")
+            Text(
+"""
+Do not show the pre-installed sound fonts when the "All" tag is active.
+"""
+            )
+            .font(.settingsDescription)
+          }
         }
       }
-      .circledCheckMarkToggleStyle()
     }
   }
 
@@ -513,20 +509,17 @@ Disable to link directly to files in iCloud or on external drives.
         Toggle(isOn: $store.showActiveVoiceCount) {
           Text("Show active voice counter")
         }
-        .circledCheckMarkToggleStyle()
         if !isAUv3 {
 #if os(iOS)
           Toggle(isOn: $store.mixWithOtherApps) {
             Text("Mix audio with other apps on device")
           }
-          .circledCheckMarkToggleStyle()
           .onChange(of: store.mixWithOtherApps) {
             _ = audioSession.restart()
           }
           Toggle(isOn: $store.duckOtherApps) {
             Text("Reduce audio from other apps")
           }
-          .circledCheckMarkToggleStyle()
           .disabled(store.mixWithOtherApps == false)
           .onChange(of: store.duckOtherApps) {
             _ = audioSession.restart()
@@ -534,30 +527,61 @@ Disable to link directly to files in iCloud or on external drives.
           Toggle(isOn: $store.backgroundProcessing) {
             Text("Background processing mode")
           }
-          .circledCheckMarkToggleStyle()
 #endif
           Toggle(isOn: $store.disableIdleTimer) {
             Text("Disable device locking while active")
           }
-          .circledCheckMarkToggleStyle()
         }
         if !isAUv3 {
           HStack {
-            Text("Export all internal files to local SoundFonts folder on device.")
+            VStack(alignment: .leading, spacing: 8) {
+              Text("Restore to fresh install")
+              Text(
+"""
+Removes all installed SF2 files and any customizations — same as reinstalling application.
+"""
+              )
+              .font(.settingsDescription)
+            }
             Spacer()
             Button {
-              store.send(.exportFilesTapped)
+              store.send(.restoreFreshInstallTapped)
             } label: {
-              Text("Export")
+              Text("Reinstall")
             }
           }
           HStack {
-            Text("Import all SF2 files in local SoundFonts folder on device.")
+            VStack(alignment: .leading, spacing: 8) {
+              Text("Create backup of database and SF2 files")
+              Text(
+"""
+Backups are stored on iCloud. Only files that were copied onto device are backed up.
+"""
+              )
+              .font(.settingsDescription)
+            }
             Spacer()
             Button {
-              store.send(.importFilesTapped)
+              store.send(.createBackupTapped)
             } label: {
-              Text("Import")
+              Text("Backup")
+            }
+          }
+          HStack {
+            VStack(alignment: .leading, spacing: 8) {
+              Text("Restore from backup")
+              Text(
+"""
+Erases current database and SF2 files with contents of previous backup.
+"""
+              )
+              .font(.settingsDescription)
+            }
+            Spacer()
+            Button {
+              store.send(.restoreBackupTapped)
+            } label: {
+              Text("Restore")
             }
           }
         }
