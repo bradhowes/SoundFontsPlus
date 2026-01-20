@@ -38,10 +38,10 @@ public struct TagsList {
     case deinitialize
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
+    case fetchAllQueryChanged
     case initialize
     case rows(IdentifiedActionOf<TagButton>)
     case rowsUpdated([TagInfo])
-    case updateFetchAllQuery
 
     @CasePathable
     public enum Delegate: Equatable {
@@ -72,6 +72,9 @@ public struct TagsList {
       case .destination(.presented(.alert(.deleteTagConfirmed(let tagInfo)))):
         return deleteTagConfirmed(&state, tagInfo: tagInfo)
 
+      case .fetchAllQueryChanged:
+        return updateFetchAllQuery(&state)
+
       case .initialize:
         return initialize(&state)
 
@@ -80,9 +83,6 @@ public struct TagsList {
 
       case .rowsUpdated(let tagInfos):
         return updateRows(&state, tagInfos: tagInfos)
-
-      case .updateFetchAllQuery:
-        return updateFetchAllQuery(&state)
 
       default:
         return .none
@@ -127,7 +127,7 @@ extension TagsList {
   private func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
       monitorHideEmptyTags(&state),
-      updateFetchAllQuery(&state)
+      monitorHideBuiltinFonts(&state)
     )
   }
 
@@ -136,7 +136,7 @@ extension TagsList {
       $hideEmptyTags
         .publisher
         .removeDuplicates()
-        .map { _ in .updateFetchAllQuery }
+        .map { _ in .fetchAllQueryChanged }
     }.cancellable(id: CancelId.tagsListMonitorHideEmptyTags)
   }
 
@@ -145,7 +145,7 @@ extension TagsList {
       $hideBuiltinFonts
         .publisher
         .removeDuplicates()
-        .map { _ in .updateFetchAllQuery }
+        .map { _ in .fetchAllQueryChanged }
     }.cancellable(id: CancelId.tagsListMonitorHideBuiltinFonts)
   }
 
