@@ -472,18 +472,6 @@ extension AppRoot {
     }.cancellable(id: CancelId.appRootMonitorInvalidationNotification, cancelInFlight: true)
   }
 
-  private func processKeyboardAction(_ state: inout State, action: Keyboard.Action.Delegate) -> Effect<Action> {
-    switch action {
-    case .noteOn(let key):
-      return reduce(into: &state, action: .toolBar(.lastPlayedKeyChanged(key)))
-        .animation(.smooth)
-
-    case .visibleKeyRangeChanged(let lowest, let highest):
-      $firstVisibleKey.withLock { $0 = lowest }
-      return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
-    }
-  }
-
   private func processFontsAndPresetsSplitAction(
     _ state: inout State,
     action: SplitViewReducer.Action.Delegate
@@ -513,6 +501,18 @@ extension AppRoot {
     return .none
   }
 
+  private func processKeyboardAction(_ state: inout State, action: Keyboard.Action.Delegate) -> Effect<Action> {
+    switch action {
+    case .noteOn(let key):
+      return reduce(into: &state, action: .toolBar(.lastPlayedKeyChanged(key)))
+        .animation(.smooth)
+
+    case .visibleKeyRangeChanged(let lowest, let highest):
+      $firstVisibleKey.withLock { $0 = lowest }
+      return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
+    }
+  }
+
   private func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
     switch action {
 
@@ -539,7 +539,7 @@ extension AppRoot {
       return .none.animation(.smooth)
 
     case .importFinished:
-      return reduce(into: &state, action: .soundFontsList(.activeTagIdChanged))
+      return reduce(into: &state, action: .soundFontsList(.updateFetchAllQuery))
 
     case .presetNameTapped:
       return .merge(

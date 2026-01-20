@@ -32,12 +32,15 @@ struct SoundFontsListTests {
   }
 
   func initialized(_ closure: (TestStoreOf<SoundFontsList>) async throws -> Void) async throws {
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+    @Shared(.hideEmptyTags) var hideEmptyTags = false
+
     let store = store()
     await store.send(.initialize)
-    await store.receive(\.activeTagIdChanged)
+    await store.receive(\.updateFetchAllQuery)
 
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.receive(\.soundFontInfosChanged)
+      await store.receive(\.rowsUpdated)
     }
 
     #expect(store.state.rows.count == 4)
@@ -61,14 +64,14 @@ struct SoundFontsListTests {
       @Shared(.activeState) var activeState
       $activeState.withLock { $0.activeTagId = nil }
 
-      await store.receive(\.activeTagIdChanged)
-      await store.receive(\.soundFontInfosChanged)
+      await store.receive(\.updateFetchAllQuery)
+      await store.receive(\.rowsUpdated)
 
       $activeState.withLock { $0.activeTagId = Tag.Ubiquitous.external.id }
 
-      await store.receive(\.activeTagIdChanged)
+      await store.receive(\.updateFetchAllQuery)
       await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-        await store.receive(\.soundFontInfosChanged)
+        await store.receive(\.rowsUpdated)
       }
       #expect(store.state.rows.count == 1)
     }
@@ -168,7 +171,7 @@ struct SoundFontsListTests {
       #expect(deleted != nil)
       #expect(deleted?.soundFontInfo.displayName == "Font 3")
 
-      await store.receive(\.soundFontInfosChanged) {
+      await store.receive(\.rowsUpdated) {
         $0.rows = oldRows
       }
       #expect(removeLog.log.count == 1)
@@ -195,7 +198,7 @@ struct SoundFontsListTests {
       #expect(deleted != nil)
       #expect(deleted?.soundFontInfo.displayName == "Font 4")
 
-      await store.receive(\.soundFontInfosChanged) {
+      await store.receive(\.rowsUpdated) {
         $0.rows = oldRows
       }
     }

@@ -40,8 +40,8 @@ public struct TagsList {
     case destination(PresentationAction<Destination.Action>)
     case initialize
     case rows(IdentifiedActionOf<TagButton>)
+    case rowsUpdated([TagInfo])
     case updateFetchAllQuery
-    case updateRows([TagInfo])
 
     @CasePathable
     public enum Delegate: Equatable {
@@ -52,6 +52,7 @@ public struct TagsList {
   public init() {}
 
   @Shared(.activeState) private var activeState
+  @Shared(.hideBuiltinFonts) public var hideBuiltinFonts
   @Shared(.hideEmptyTags) public var hideEmptyTags
 
   public var body: some ReducerOf<Self> {
@@ -77,11 +78,11 @@ public struct TagsList {
       case .rows(.element(_, .delegate(let action))):
         return processRowAction(&state, action: action)
 
+      case .rowsUpdated(let tagInfos):
+        return updateRows(&state, tagInfos: tagInfos)
+
       case .updateFetchAllQuery:
         return updateFetchAllQuery(&state)
-
-      case .updateRows(let tagInfos):
-        return updateRows(&state, tagInfos: tagInfos)
 
       default:
         return .none
@@ -94,7 +95,8 @@ public struct TagsList {
   }
 
   private enum CancelId: CaseIterable {
-    case taskListMonitorHideEmptyTags
+    case tagsListMonitorHideEmptyTags
+    case tagsListMonitorHideBuiltinFonts
     case tagsListUpdateFetchAllQuery
   }
 }
@@ -134,10 +136,17 @@ extension TagsList {
       $hideEmptyTags
         .publisher
         .removeDuplicates()
-        .map { _ in
-          return .updateFetchAllQuery
-        }
-    }.cancellable(id: CancelId.taskListMonitorHideEmptyTags)
+        .map { _ in .updateFetchAllQuery }
+    }.cancellable(id: CancelId.tagsListMonitorHideEmptyTags)
+  }
+
+  private func monitorHideBuiltinFonts(_ state: inout State) -> Effect<Action> {
+    .publisher {
+      $hideBuiltinFonts
+        .publisher
+        .removeDuplicates()
+        .map { _ in .updateFetchAllQuery }
+    }.cancellable(id: CancelId.tagsListMonitorHideBuiltinFonts)
   }
 
   private func processRowAction(_ state: inout State, action: TagButton.Delegate) -> Effect<Action> {
@@ -165,12 +174,12 @@ extension TagsList {
       @Shared(.hideEmptyTags) var hideEmptyTags
       @FetchAll var query: [TagInfo]
       if hideEmptyTags {
-        try await $query.load(TagInfo.queryNonZero)
+        try await $query.load(TagInfo.queryNonEmpty)
       } else {
         try await $query.load(TagInfo.queryAll)
       }
-      for await update in $query.publisher.values {
-        await send(.updateRows(update))
+      for await rows in $query.publisher.values {
+        await send(.rowsUpdated(rows))
       }
     }.cancellable(id: CancelId.tagsListUpdateFetchAllQuery, cancelInFlight: true)
   }

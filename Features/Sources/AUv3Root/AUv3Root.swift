@@ -231,7 +231,7 @@ extension AUv3Root {
       fatalError("misconfiguration for AUv3Root")
 
     case .importFinished:
-      return reduce(into: &state, action: .soundFontsList(.activeTagIdChanged))
+      return reduce(into: &state, action: .soundFontsList(.updateFetchAllQuery))
 
     case .presetNameTapped:
       return .merge(

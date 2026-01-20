@@ -110,7 +110,13 @@ public enum Operations {
   }
 
   public static func soundFontIds(for tagId: Tag.ID) -> [SoundFont.ID] {
-    let query = TaggedSoundFont.select { $0.soundFontId }.where { $0.tagId.eq(tagId) }
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts
+    var query = TaggedSoundFont
+      .select { $0.soundFontId }
+      .where { $0.tagId.eq(tagId) }
+    if hideBuiltinFonts {
+      query = query.where { $0.soundFontId > SoundFont.ID(4) }
+    }
     return withDatabaseReader { try query.fetchAll($0) } ?? []
   }
 

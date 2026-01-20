@@ -46,9 +46,11 @@ extension SoundFontInfo {
 
   public static func query(id tagId: Tag.ID? = nil) -> Select<Self.Columns.QueryValue, TaggedSoundFont, SoundFont> {
     @Shared(.activeState) var activeState
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts
+
     let tagId = tagId ?? activeState.activeTagId ?? Tag.Ubiquitous.all.id
     return TaggedSoundFont
-      .join(SoundFont.all) {
+      .join(hideBuiltinFonts ? (SoundFont.all.where { $0.id > SoundFont.ID(4) }) : SoundFont.all) {
         $0.tagId.eq(tagId) && $0.soundFontId.eq($1.id)
       }
       .select {

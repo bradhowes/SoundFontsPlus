@@ -21,25 +21,77 @@ public struct TagInfo {
 
 extension TagInfo {
 
-  public static let queryNonZero: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont> = Tag
-    .group(by: \.id)
-    .order(by: \.ordering)
-    .join(TaggedSoundFont.all) {
-      $0.id.eq($1.tagId)
-    }
-    .select {
-      TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count(), ordering: $0.ordering)
-    }
+  public static var queryBase: Select<(), Tag, ()> {
+    Tag.all
+      .group(by: \.id)
+      .order(by: \.ordering)
+  }
 
-  public static let queryAll: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont?> = Tag
-    .group(by: \.id)
-    .order(by: \.ordering)
-    .leftJoin(TaggedSoundFont.all) {
-      $0.id.eq($1.tagId)
+  public static var filteredQueryBase: Select<(), Tag, ()> {
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts
+    if hideBuiltinFonts {
+      return queryBase.where { $0.id != Tag.Ubiquitous.builtIn.id }
     }
-    .select {
-      TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count(), ordering: $0.ordering)
-    }
+    return queryBase
+  }
+
+  /// - returns: query that returns a ``TagInfo`` for every ``Tag`` that has one or more ``TaggedSoundFont`` associations.
+  /// If `hideBuiltinFonts` is `true`, then do not count associations from built-in sound fonts
+  public static var queryNonEmpty: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont> {
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts
+    return filteredQueryBase
+      .join(hideBuiltinFonts ? TaggedSoundFont.all.where { $0.soundFontId > SoundFont.ID(4) } : TaggedSoundFont.all) {
+        $0.id.eq($1.tagId)
+      }
+      .select {
+        TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count(), ordering: $0.ordering)
+      }
+  }
+
+  /// - returns: query that returns a ``TagInfo`` for every ``Tag`` even if it has no ``TaggedSoundFont`` associations.
+  /// If `hideBuiltinFonts` is `true`, then do not count associations from built-in sound fonts
+  public static var queryAll: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont?> {
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts
+    return filteredQueryBase
+      .leftJoin(hideBuiltinFonts ? TaggedSoundFont.all.where { $0.soundFontId > SoundFont.ID(4) } : TaggedSoundFont.all) {
+        $0.id.eq($1.tagId)
+      }
+      .select {
+        TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count(), ordering: $0.ordering)
+      }
+  }
 }
 
 extension TagInfo: Equatable, Identifiable, Sendable {}
+
+// Select all:
+//
+// SELECT "tags"."id" AS "id", "tags"."displayName" AS "displayName", count("taggedSoundFonts"."soundFontId") AS "soundFontsCount", "tags"."ordering" AS "ordering"
+// FROM "tags"
+// LEFT JOIN "taggedSoundFonts" ON ("tags"."id") = ("taggedSoundFonts"."tagId")
+// GROUP BY "tags"."id"
+// ORDER BY "tags"."ordering";
+
+// Select all no built-in:
+//
+// SELECT "tags"."id" AS "id", "tags"."displayName" AS "displayName", count("taggedSoundFonts"."soundFontId") AS "soundFontsCount", "tags"."ordering" AS "ordering"
+// FROM "tags"
+// LEFT JOIN "taggedSoundFonts" ON ("tags"."id") = ("taggedSoundFonts"."tagId") AND ("taggedSoundFonts"."soundFontId") > 4
+// GROUP BY "tags"."id"
+// ORDER BY "tags"."ordering";
+
+// Select non-empty
+//
+// SELECT "tags"."id" AS "id", "tags"."displayName" AS "displayName", count("taggedSoundFonts"."soundFontId") AS "soundFontsCount", "tags"."ordering" AS "ordering"
+// FROM "tags"
+// JOIN "taggedSoundFonts" ON ("tags"."id") = ("taggedSoundFonts"."tagId")
+// GROUP BY "tags"."id"
+// ORDER BY "tags"."ordering";
+
+// Select non-empty no built-in
+//
+// SELECT "tags"."id" AS "id", "tags"."displayName" AS "displayName", count("taggedSoundFonts"."soundFontId") AS "soundFontsCount", "tags"."ordering" AS "ordering"
+// FROM "tags"
+// JOIN "taggedSoundFonts" ON ("tags"."id") = ("taggedSoundFonts"."tagId") AND ("taggedSoundFonts"."soundFontId") > 4
+// GROUP BY "tags"."id"
+// ORDER BY "tags"."ordering";

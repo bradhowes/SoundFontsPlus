@@ -23,6 +23,9 @@ struct TagsListTests {
     tagFont: Bool = false,
     _ closure: (TestStoreOf<TagsList>) async throws -> Void
   ) async throws {
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+    @Shared(.hideEmptyTags) var hideEmptyTags = false
+
     if makeTag {
       let tag = try Tag.make(displayName: "My New Tag")
       if tagFont {
@@ -35,7 +38,7 @@ struct TagsListTests {
     await store.send(\.initialize)
     await store.receive(\.updateFetchAllQuery)
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.receive(\.updateRows)
+      await store.receive(\.rowsUpdated)
     }
 
     try await closure(store)
@@ -54,7 +57,7 @@ struct TagsListTests {
       let tagInfo = rows[5].tagInfo
 
       await store.send(\.rows[id: tagInfo.id].delegate.delete, tagInfo)
-      await store.receive(\.updateRows) {
+      await store.receive(\.rowsUpdated) {
         $0.rows = .init(rows.dropLast(1))
       }
 
@@ -123,7 +126,7 @@ struct TagsListTests {
         // $0.rows = .init(rows.dropLast())
       }
 
-      await store.receive(\.updateRows) {
+      await store.receive(\.rowsUpdated) {
         $0.rows = .init(rows.dropLast(1))
       }
 
@@ -177,7 +180,7 @@ struct TagsListTests {
       await store.receive(\.updateFetchAllQuery)
 
       let filtered = rows.filter({ $0.tagInfo.soundFontsCount > 0})
-      await store.receive(\.updateRows, filtered.map(\.tagInfo)) {
+      await store.receive(\.rowsUpdated, filtered.map(\.tagInfo)) {
         $0.rows = filtered
       }
     }

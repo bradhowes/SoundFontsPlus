@@ -30,15 +30,15 @@ public struct SoundFontsList {
   }
 
   public enum Action {
-    case activeTagIdChanged
     case delegate(Delegate)
     case deletingModeEnded(delete: Bool)
     case deinitialize
     case destination(PresentationAction<Destination.Action>)
     case initialize
     case rows(IdentifiedActionOf<SoundFontButton>)
+    case rowsUpdated([SoundFontInfo])
     case showActiveSoundFont
-    case soundFontInfosChanged([SoundFontInfo])
+    case updateFetchAllQuery
 
     @CasePathable
     public enum Delegate: Equatable {
@@ -49,17 +49,15 @@ public struct SoundFontsList {
   public init() {}
 
   @Dependency(\.defaultDatabase) private var database
-  @Shared(.selectedSoundFontId) private var selectedSoundFontId
   @Shared(.activeState) private var activeState
+  @Shared(.hideBuiltinFonts) private var hideBuiltinFonts
+  @Shared(.selectedSoundFontId) private var selectedSoundFontId
 
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       log.action("SoundFontsList", action)
 
       switch action {
-
-      case .activeTagIdChanged:
-        return updateFetchAll(&state)
 
       case .deinitialize:
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
@@ -74,17 +72,20 @@ public struct SoundFontsList {
       case .initialize:
         return .merge(
           monitorActiveTag(&state),
-          updateFetchAll(&state)
+          monitorHideBuiltinFonts(&state)
         )
 
       case .rows(.element(_, .delegate(let action))):
         return processRowAction(&state, action: action)
 
+      case .rowsUpdated(let soundFontInfos):
+        return soundFontInfosChanged(&state, soundFontInfos: soundFontInfos)
+
       case .showActiveSoundFont:
         return showActiveSoundFont(&state)
 
-      case .soundFontInfosChanged(let soundFontInfos):
-        return soundFontInfosChanged(&state, soundFontInfos: soundFontInfos)
+      case .updateFetchAllQuery:
+        return updateFetchAllQuery(&state)
 
       default:
         return .none
@@ -98,6 +99,7 @@ public struct SoundFontsList {
 
   private enum CancelId: String, CaseIterable {
     case soundFontsListMonitorActiveTagId
+    case soundFontsListMonitorHideBuiltinFonts
     case soundFontsListUpdateFetchAll
   }
 }
@@ -196,16 +198,21 @@ extension SoundFontsList {
   }
 
   private func monitorActiveTag(_ state: inout State) -> Effect<Action> {
-    log.info("monitorActiveTag")
-    return .publisher {
-      return $activeState.activeTagId
+    .publisher {
+      $activeState.activeTagId
         .publisher
         .removeDuplicates()
-        .map { tagId in
-          log.info("activeTagChanged - \(String(describing: tagId))")
-          return .activeTagIdChanged
-        }
+        .map { _ in .updateFetchAllQuery }
     }.cancellable(id: CancelId.soundFontsListMonitorActiveTagId, cancelInFlight: true)
+  }
+
+  private func monitorHideBuiltinFonts(_ state: inout State) -> Effect<Action> {
+    .publisher {
+      $hideBuiltinFonts
+        .publisher
+        .removeDuplicates()
+        .map { _ in .updateFetchAllQuery }
+    }.cancellable(id: CancelId.soundFontsListMonitorHideBuiltinFonts)
   }
 
   private func select(_ state: inout State, soundFontId: SoundFont.ID, available: Bool) -> Effect<Action> {
@@ -232,18 +239,12 @@ extension SoundFontsList {
     return .none
   }
 
-  private func updateFetchAll(_ state: inout State) -> Effect<Action> {
+  private func updateFetchAllQuery(_ state: inout State) -> Effect<Action> {
     .run(priority: .utility, name: "monitorFetchAll") { send in
-      // Update a query for the SoundFont list view. When the DB changes, this will emit a `soundFontInfoChanged` action
-      // causing the rows to change. The query depends on the value of `activeState.activeTagId` so when that changes,
-      // `monitorFetchAll` reruns which cancels the old query and installs a new one.
       @FetchAll var soundFontInfos: [SoundFontInfo]
-
-      // Make sure we are reading from the latest value of `activeState.activeTagId` before processing
       try await $soundFontInfos.load(SoundFontInfo.query())
-
-      for try await update in $soundFontInfos.publisher.values {
-        await send(.soundFontInfosChanged(update))
+      for try await rows in $soundFontInfos.publisher.values {
+        await send(.rowsUpdated(rows))
       }
 
     }.cancellable(id: CancelId.soundFontsListUpdateFetchAll, cancelInFlight: true)
@@ -315,6 +316,8 @@ private let log: Logger = .init(category: "SoundFontsList")
 extension SoundFontsListView {
   static var preview: some View {
     prepareDependencies {
+      @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+      @Shared(.hideEmptyTags) var hideEmptyTags = false
       $0.defaultDatabase = previewDatabase()
     }
 

@@ -19,6 +19,8 @@ struct TagInfoTests {
 
   @Test
   func testQueryAll() async throws {
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+    @Shared(.hideEmptyTags) var hideEmptyTags = false
     let found = withDatabaseReader { try TagInfo.queryAll.fetchAll($0) } ?? []
     #expect(found.count == 5)
     #expect(found[0].soundFontsCount == 4)
@@ -41,8 +43,10 @@ struct TagInfoTests {
   }
 
   @Test
-  func testQueryNonZero() async throws {
-    let found = withDatabaseReader { try TagInfo.queryNonZero.fetchAll($0) } ?? []
+  func testQueryNonEmpty() async throws {
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+    @Shared(.hideEmptyTags) var hideEmptyTags = false
+    let found = withDatabaseReader { try TagInfo.queryNonEmpty.fetchAll($0) } ?? []
     #expect(found.count == 5)
     #expect(found[0].soundFontsCount == 4)
     #expect(found[1].soundFontsCount == 2)
@@ -69,6 +73,8 @@ struct TagInfoTests {
     }
   )
   func liveQuery() async throws {
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+    @Shared(.hideEmptyTags) var hideEmptyTags = false
     let found = withDatabaseReader { try TagInfo.queryAll.fetchAll($0) } ?? []
     #expect(found.count == 5)
     #expect(found[0].soundFontsCount == 4)

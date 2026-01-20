@@ -47,7 +47,7 @@ public struct Settings {
     @Shared(.duckOtherApps) public var duckOtherApps
     @Shared(.favoritesOnTop) public var favoritesOnTop
     @Shared(.favoriteSymbolName) public var favoriteSymbolName
-    @Shared(.hideBuiltinFiles) public var hideBuiltinFiles
+    @Shared(.hideBuiltinFonts) public var hideBuiltinFonts
     @Shared(.hideEmptyTags) public var hideEmptyTags
     @Shared(.keyboardSlides) public var keyboardSlides
     @Shared(.keyLabels) public var keyLabels
@@ -99,7 +99,6 @@ public struct Settings {
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case dismissButtonTapped
-    case hideBuiltInFilesTapped
     case initialize
     case midiAssignmentsButtonTapped
     case midiConnectionsButtonTapped
@@ -111,7 +110,6 @@ public struct Settings {
     case restoreFreshInstallTapped
     case reviewAppTapped
     case tuning(Tuning.Action)
-    case unhideBuiltInFilesTapped
 
     @CasePathable
     public enum Delegate {
@@ -488,7 +486,7 @@ Enable to reduce clutter in the main tags view. Tag editors will always show all
             .font(.settingsDescription)
           }
         }
-        Toggle(isOn: $store.hideBuiltinFiles) {
+        Toggle(isOn: $store.hideBuiltinFonts) {
           VStack(alignment: .leading, spacing: 8) {
             Text("Hide built-in SF2 files")
             Text(

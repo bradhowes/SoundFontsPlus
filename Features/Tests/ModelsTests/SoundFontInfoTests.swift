@@ -21,6 +21,8 @@ struct SoundFontInfoTests {
   @Test
   func query() async throws {
     @Shared(.activeState) var activeState
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+    @Shared(.hideEmptyTags) var hideEmptyTags = false
     $activeState.withLock { $0.activeTagId = 99 }
     var found = withDatabaseReader { try SoundFontInfo.query().fetchAll($0) } ?? []
     #expect(found.isEmpty)

@@ -121,6 +121,8 @@ struct OperationsTests {
 
   @Test
   func soundFontIdsForTag() async throws {
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+    @Shared(.hideEmptyTags) var hideEmptyTags = false
     #expect(Operations.soundFontIds(for: Tag.Ubiquitous.all.id) == [1, 2, 3, 4])
     #expect(Operations.soundFontIds(for: Tag.Ubiquitous.builtIn.id) == [1, 2])
     #expect(Operations.soundFontIds(for: Tag.Ubiquitous.added.id) == [3, 4])
