@@ -284,8 +284,8 @@ public struct AppRoot {
       case .synth(.delegate(.stopped)):
         return audioChainInactive(&state)
 
-      case .tagsList(.delegate(.edit(let ordering))):
-        state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: ordering))
+      case .tagsList(.delegate(.edit(focus: let ordering))):
+        state.destination = .tagsEditor(TagsEditor.State(focused: ordering))
         return .none
 
       case .toolBar(.delegate(let action)):

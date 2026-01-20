@@ -41,7 +41,6 @@ struct SoundFontEditorTests {
   func changeTagsButtonTapped() async {
     let store = store()
     let editorState = TagsEditor.State(
-      mode: .fontEditing,
       soundFontId: store.state.soundFont.id,
       memberships: store.state.memberships
     )
@@ -56,7 +55,6 @@ struct SoundFontEditorTests {
     #expect(store.state.tagsList == "All, Built-in")
 
     let editorState = TagsEditor.State(
-      mode: .fontEditing,
       soundFontId: store.state.soundFont.id,
       memberships: store.state.memberships
     )

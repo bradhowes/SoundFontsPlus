@@ -158,8 +158,8 @@ public struct AUv3Root {
         state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
         return .none
 
-      case .tagsList(.delegate(.edit(focus: let focus))):
-        state.destination = .tagsEditor(TagsEditor.State(mode: .tagEditing, focused: focus))
+      case .tagsList(.delegate(.edit(focus: let ordering))):
+        state.destination = .tagsEditor(TagsEditor.State(focused: ordering))
         return .none
 
       case .toolBar(.delegate(let action)):

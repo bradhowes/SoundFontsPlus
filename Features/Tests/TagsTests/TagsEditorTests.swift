@@ -15,17 +15,27 @@ import TestSupport
 @MainActor
 struct TagsEditorTests {
 
-  func store(
-    mode: TagsEditor.Mode,
+  func tagEditingStore(
     focused: Int? = nil,
-    soundFontId: SoundFont.ID? = nil,
-    memberships: [Models.Tag.ID: Bool]? = nil,
     editModeActive: Bool = false
   ) -> TestStoreOf<TagsEditor> {
     return TestStore(
       initialState: TagsEditor.State(
-        mode: mode,
         focused: focused,
+        editModeActive: editModeActive
+      )
+    ) {
+      TagsEditor()
+    }
+  }
+
+  func fontEditingStore(
+    soundFontId: SoundFont.ID,
+    memberships: [Models.Tag.ID: Bool],
+    editModeActive: Bool = false
+  ) -> TestStoreOf<TagsEditor> {
+    return TestStore(
+      initialState: TagsEditor.State(
         soundFontId: soundFontId,
         memberships: memberships,
         editModeActive: editModeActive
@@ -37,7 +47,7 @@ struct TagsEditorTests {
 
   @Test
   func addButtonTapped() async {
-    let store = store(mode: .tagEditing)
+    let store = tagEditingStore()
     var rows = store.state.rows
     #expect(rows.count == 5)
     rows.append(
@@ -69,7 +79,7 @@ struct TagsEditorTests {
 
   @Test
   func addButtonTappedForFont() async {
-    let store = store(mode: .fontEditing, soundFontId: 1, memberships: [:])
+    let store = fontEditingStore(soundFontId: 1, memberships: [:])
     var rows = store.state.rows
     #expect(rows.count == 5)
 
@@ -77,7 +87,7 @@ struct TagsEditorTests {
       .init(
         tagId: nil,
         draft: .init(displayName: "New Tag", ordering: rows.count),
-        membership: true
+        membership: false
       )
     )
 
@@ -90,7 +100,7 @@ struct TagsEditorTests {
       .init(
         tagId: nil,
         draft: .init(displayName: "New Tag 1", ordering: rows.count),
-        membership: true
+        membership: false
       )
     )
 
@@ -102,7 +112,7 @@ struct TagsEditorTests {
 
   @Test
   func cancelButtonTapped() async {
-    let store = store(mode: .tagEditing, soundFontId: 1, memberships: [:])
+    let store = tagEditingStore()
     var rows = store.state.rows
     #expect(rows.count == 5)
 
@@ -110,9 +120,9 @@ struct TagsEditorTests {
       .init(
         tagId: nil,
         draft: .init(displayName: "New Tag", ordering: rows.count),
-        membership: true
       )
     )
+    rows[5].membership = true
 
     await store.send(.addButtonTapped) {
       $0.rows = rows
@@ -130,7 +140,7 @@ struct TagsEditorTests {
 
   @Test
   func deleteButtonTappedOnNew() async {
-    let store = store(mode: .tagEditing, soundFontId: 1, memberships: [:])
+    let store = tagEditingStore()
     var rows = store.state.rows
     #expect(rows.count == 5)
 
@@ -139,7 +149,6 @@ struct TagsEditorTests {
       .init(
         tagId: nil,
         draft: .init(displayName: "New Tag", ordering: rows.count),
-        membership: true
       )
     )
 
@@ -159,7 +168,7 @@ struct TagsEditorTests {
 
   @Test
   func deleteButtonTappedOnOld() async {
-    let store = store(mode: .tagEditing, soundFontId: 1, memberships: [:])
+    let store = tagEditingStore()
     var rows = store.state.rows
     let rowId = 0
     await store.send(.deleteButtonTapped(at: IndexSet([rowId])))
@@ -174,7 +183,7 @@ struct TagsEditorTests {
 
   @Test
   func deleteButtonSwipedOnOld() async {
-    let store = store(mode: .tagEditing)
+    let store = tagEditingStore()
     var rows = store.state.rows
 
     let rowId = 1
@@ -190,14 +199,14 @@ struct TagsEditorTests {
 
   @Test
   func deleteButtonTappedInvalidIndex() async {
-    let store = store(mode: .fontEditing, soundFontId: 1, memberships: [:])
+    let store = fontEditingStore(soundFontId: 1, memberships: [:])
     await store.send(.deleteButtonTapped(at: IndexSet([99_999])))
     await store.receive(\.finalizeDeleteTag, 99_999)
   }
 
   @Test
   func saveButtonTapped() async {
-    let store = store(mode: .tagEditing, soundFontId: 1, memberships: [:])
+    let store = tagEditingStore()
     var rows = store.state.rows
     #expect(rows.count == 5)
 
@@ -205,7 +214,6 @@ struct TagsEditorTests {
       .init(
         tagId: nil,
         draft: .init(displayName: "New Tag", ordering: rows.count),
-        membership: true
       )
     )
 
@@ -235,7 +243,7 @@ struct TagsEditorTests {
 
   @Test
   func tagMoved() async {
-    let store = store(mode: .tagEditing)
+    let store = tagEditingStore()
     var rows = store.state.rows
     rows.move(fromOffsets: IndexSet([1]), toOffset: 3)
     await store.send(.tagMoved(at: IndexSet([1]), to: 3)) {
@@ -245,7 +253,7 @@ struct TagsEditorTests {
 
   @Test
   func toggleEditMode() async {
-    let store = store(mode: .tagEditing)
+    let store = tagEditingStore()
     await store.send(.toggleEditModeActive) {
       $0.editModeActive = true
     }

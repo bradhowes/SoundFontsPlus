@@ -25,7 +25,7 @@ public struct TagNameEditor {
 
     public var isUbiquitous: Bool { tagId?.isUbiquitous ?? false }
 
-    public init(tagId: Tag.ID?, draft: Tag.Draft, membership: Bool? = nil) {
+    public init(tagId: Tag.ID? = nil, draft: Tag.Draft, membership: Bool? = nil) {
       self.tagId = tagId
       self.draft = draft
       self.originalDisplayName = draft.displayName

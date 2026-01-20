@@ -18,12 +18,11 @@ private let log: Logger = .init(category: "TagsEditor")
 @Reducer
 public struct TagsEditor {
 
-  @frozen
-  public enum Mode: Equatable {
+  fileprivate enum Mode: Equatable {
     case tagEditing
     case fontEditing
 
-    public var title: String {
+    var title: String {
       switch self {
       case .tagEditing: return "Tags Editor"
       case .fontEditing: return "Font Tags"
@@ -43,45 +42,55 @@ public struct TagsEditor {
 
   @ObservableState
   public struct State: Equatable {
+    fileprivate let mode: Mode
     public var rows: IdentifiedArrayOf<TagNameEditor.State>
-    public let mode: Mode
-    public var editModeActive: Bool = false
+    public var editModeActive: Bool
     public var focused: Int?
     public var deleting: Set<Tag.ID> = []
     public let soundFontId: SoundFont.ID?
     @Presents public var destination: Destination.State?
 
     /**
-     Define intial state of the feature.
+     Define initial state of the feature for tag editing from main tag view.
 
-     - parameter mode indication which kind of editing is being done, all tags or font-specific.
-     - parameter focused optional tag to make active and focused (only valid for user-defined tags)
-     - parameter soundFontId optional sound font that is being edited (only valid in `.fontEditing` mode)
-     - parameter memberships optional mapping that describes which tags a font is a member of
-     - parameter editMode the SwiftUI edit mode to start off in. Only used here when testing.
+     - parameter focused the index of the tag to set focus on (only useful for user tags).
+     - parameter editModeActive true if edit mode is active (only used in tests)
      */
     public init(
-      mode: Mode,
       focused: Int? = nil,
-      soundFontId: SoundFont.ID? = nil,
-      memberships: [Tag.ID: Bool]? = nil,
       editModeActive: Bool = false
     ) {
-      self.mode = mode
+      self.mode = .tagEditing
+      self.rows = .init(uniqueElements: Tag.tags .map { .init(tagId: $0.id, draft: .init($0), membership: nil) })
+      self.editModeActive = editModeActive
+      self.soundFontId = nil
+    }
+
+    /**
+     Define initial state of the feature for tag editing from sound font editor view.
+
+     - parameter soundFontId the ID of the sound font being edited
+     - parameter memberships the mapping of tag memberships for the sound font
+     - parameter editModeActive true if edit mode is active (only used in tests)
+     */
+    public init(
+      soundFontId: SoundFont.ID,
+      memberships: [Tag.ID: Bool],
+      editModeActive: Bool = false
+    ) {
+      self.mode = .fontEditing
       self.rows = .init(
         uniqueElements: Tag.tags
           .map {
             .init(
               tagId: $0.id,
               draft: .init($0),
-              membership: memberships != nil ? (memberships?[$0.id] ?? false) : nil
+              membership: memberships[$0.id] ?? false
             )
           }
       )
-      self.focused = focused
       self.editModeActive = editModeActive
       self.soundFontId = soundFontId
-      self.destination = nil
     }
 
     public mutating func save() {
@@ -364,15 +373,22 @@ extension TagsEditorView {
     @Dependency(\.defaultDatabase) var db
     _ = try? Tag.make(displayName: "New Tag")
     let tags = Tag.tags
-    return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.ordering)) { TagsEditor() })
+    return TagsEditorView(store: Store(initialState: .init(focused: tags.last?.ordering)) { TagsEditor() })
   }
 
   static var previewInEditMode: some View {
     prepareDependencies { $0.defaultDatabase = previewDatabase() }
     let tags = Tag.tags
-    return TagsEditorView(store: Store(initialState: .init(mode: .tagEditing, focused: tags.last?.ordering, editModeActive: true)) {
-      TagsEditor()
-    })
+    return TagsEditorView(
+      store: Store(
+        initialState: .init(
+          focused: tags.last?.ordering,
+          editModeActive: true
+        )
+      ) {
+        TagsEditor()
+      }
+    )
   }
 
   static var previewWithMemberships: some View {
@@ -385,13 +401,15 @@ extension TagsEditorView {
     memberships[tags[1].id] = true
     memberships[tags[4].id] = true
 
-    return TagsEditorView(store: Store(initialState: .init(
-      mode: .fontEditing,
-      focused: tags.last?.ordering,
-      soundFontId: SoundFont.ID(rawValue: 1),
-      memberships: memberships)) {
+    return TagsEditorView(
+      store: Store(
+        initialState: .init(
+          soundFontId: SoundFont.ID(rawValue: 1),
+          memberships: memberships)
+      ) {
         TagsEditor()
-      })
+      }
+    )
   }
 }
 

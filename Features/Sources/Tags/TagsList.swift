@@ -45,7 +45,7 @@ public struct TagsList {
 
     @CasePathable
     public enum Delegate: Equatable {
-      case edit(focus: Int?)
+      case edit(focus: Int)
     }
   }
 

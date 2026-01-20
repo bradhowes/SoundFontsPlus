@@ -152,7 +152,6 @@ extension SoundFontEditor {
     state.path.append(
       .editTags(
         TagsEditor.State(
-          mode: .fontEditing,
           soundFontId: state.soundFont.id,
           memberships: state.memberships
         )
