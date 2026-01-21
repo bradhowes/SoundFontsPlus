@@ -16,7 +16,7 @@ import Tagged
 /// control. The four tags above are managed by the app -- the user cannot affect their membership outside of adding and
 /// deleting SF2 files.
 @Table
-public struct Tag {
+nonisolated public struct Tag {
   public typealias ID = Tagged<Self, Int64>
 
   /**

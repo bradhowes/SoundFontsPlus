@@ -5,10 +5,10 @@ import Tagged
 
 /**
  The mapping of tags to SoundFont ids. If a SoundFont is a member of a tag, then there will be a `TaggedSoundFont`
- entry for it. As such, this is a many to many association.
+ entry for it. As such, this is a many-to-many association.
  */
 @Table
-public struct TaggedSoundFont {
+nonisolated public struct TaggedSoundFont {
   public let soundFontId: SoundFont.ID
   public let tagId: Tag.ID
 
@@ -32,8 +32,8 @@ extension TaggedSoundFont {
         "tagId" INTEGER NOT NULL,
 
         PRIMARY KEY("soundFontId", "tagId")
-        FOREIGN KEY("soundFontId") REFERENCES "soundFonts"("id") ON DELETE CASCADE,
-        FOREIGN KEY("tagId") REFERENCES "tags"("id") ON DELETE CASCADE
+        FOREIGN KEY("soundFontId") REFERENCES "\(raw: SoundFont.tableName)"("id") ON DELETE CASCADE,
+        FOREIGN KEY("tagId") REFERENCES "\(raw: Tag.tableName)"("id") ON DELETE CASCADE
       ) STRICT
       """
       )

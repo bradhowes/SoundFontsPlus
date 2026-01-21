@@ -14,7 +14,7 @@ import Tagged
  works with `SoundFontInfo` rows which is a slimmer view into the SoundFont table.
  */
 @Table
-public struct SoundFont {
+nonisolated public struct SoundFont {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID

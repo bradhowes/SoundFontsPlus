@@ -9,7 +9,7 @@ import Tagged
  this value as the primary key and for identity.
  */
 @Table
-public struct MIDIConfig {
+nonisolated public struct MIDIConfig {
   @Column(primaryKey: true)
   public var uniqueId: MIDIUniqueID
   public var id: Int64 { Int64(uniqueId) }

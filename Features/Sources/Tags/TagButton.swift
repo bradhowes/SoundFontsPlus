@@ -56,7 +56,7 @@ extension TagButton {
 // MARK: - View
 
 struct TagButtonView: View {
-  @State private var store: StoreOf<TagButton>
+  private var store: StoreOf<TagButton>
   @Shared(.activeState) private var activeState
   private var state: IndicatorModifier.State { activeState.activeTagId == store.id ? .active : .none }
   private var count: String { store.tagInfo.soundFontsCount > 0 ? "\(store.tagInfo.soundFontsCount)" : "" }

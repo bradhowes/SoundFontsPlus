@@ -93,7 +93,7 @@ public struct Changes {
 }
 
 public struct ChangesView: View {
-  @State private var store: StoreOf<Changes>
+  private var store: StoreOf<Changes>
 
   public init(store: StoreOf<Changes>) {
     self.store = store

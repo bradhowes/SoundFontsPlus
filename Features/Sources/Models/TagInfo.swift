@@ -9,7 +9,7 @@ import Tagged
  number of SoundFont instances that are members of the tag.
  */
 @Selection
-public struct TagInfo {
+nonisolated public struct TagInfo {
   public let id: Tag.ID
   public let displayName: String
   public let soundFontsCount: Int

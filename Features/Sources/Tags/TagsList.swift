@@ -200,7 +200,7 @@ extension TagsList.Destination.State: _EphemeralState {
 // MARK: - View
 
 public struct TagsListView: View {
-  @State private var store: StoreOf<TagsList>
+  @Bindable private var store: StoreOf<TagsList>
 
   public init(store: StoreOf<TagsList>) {
     self.store = store

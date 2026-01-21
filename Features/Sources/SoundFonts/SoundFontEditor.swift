@@ -176,7 +176,7 @@ extension SoundFontEditor {
 
 public struct SoundFontEditorView: View {
   @Bindable private var store: StoreOf<SoundFontEditor>
-  @Environment(\.openURL) var openURL
+  @Environment(\.openURL) private var openURL
 
   public init(store: StoreOf<SoundFontEditor>) {
     self.store = store

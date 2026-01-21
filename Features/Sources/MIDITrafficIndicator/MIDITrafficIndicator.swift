@@ -90,7 +90,7 @@ public struct MIDITrafficBlinker<T: Publisher>: ViewModifier where T.Output == M
   private let tag: String
   @State private var isAnimating = false
   @State private var color: Color = .clear
-  @Dependency(\.mainQueue) var mainQueue
+  @Dependency(\.mainQueue) private var mainQueue
 
   var publisher: T
   var duration: Double

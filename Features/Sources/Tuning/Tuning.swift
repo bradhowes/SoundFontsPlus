@@ -134,7 +134,7 @@ extension Tuning {
 }
 
 public struct TuningView: View {
-  @State private var store: StoreOf<Tuning>
+  @Bindable private var store: StoreOf<Tuning>
   private let formatter: NumberFormatter = {
     var formatter = NumberFormatter()
     formatter.numberStyle = .decimal

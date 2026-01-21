@@ -258,7 +258,7 @@ extension Keyboard {
 
 public struct KeyboardView: View {
   typealias Event = SpatialEventGesture.Value.Element
-  @State private var store: StoreOf<Keyboard>
+  private var store: StoreOf<Keyboard>
   @State private var frames: [CGRect] = Array(repeating: .zero, count: Note.midiRange.count)
   @Shared(.keyboardSlides) private var keyboardSlides
 
@@ -459,8 +459,10 @@ public struct KeyboardView: View {
   }
 }
 
+#if DEBUG
+
 struct KeyboardPreview: View {
-  @State var store: StoreOf<Keyboard> = Store(initialState: .init()) { Keyboard() }
+  var store: StoreOf<Keyboard> = Store(initialState: .init()) { Keyboard() }
 
   @Shared(.keyWidth) var keyWidth
   @Shared(.keyboardSlides) var keyboardSlides
@@ -515,3 +517,5 @@ struct KeyboardPreview: View {
 
   return KeyboardPreview()
 }
+
+#endif // DEBUG

@@ -3,8 +3,13 @@
 import SwiftUI
 
 public struct SimultaneousLongPressGestureModifier: ViewModifier {
-  let minimumDuration: Double
-  let action: () -> Void
+  private let minimumDuration: Double
+  private let action: () -> Void
+
+  public init(minimumDuration: Double, action: @escaping () -> Void) {
+    self.minimumDuration = minimumDuration
+    self.action = action
+  }
 
   public func body(content: Content) -> some View {
     content

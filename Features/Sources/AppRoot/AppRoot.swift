@@ -88,6 +88,18 @@ public struct AppRoot {
       tagsList: TagsList.State? = nil,
       toolBar: ToolBar.State? = nil,
     ) {
+      @Shared(.isAUv3) var isAUv3 = false
+      @Shared(.midiInputPortId) var midiInputPortId
+      @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
+
+#if false
+      @Shared(.activeState) var activeState
+      $activeState.withLock {
+        $0.activePresetId = nil
+        $0.activeSoundFontId = nil
+      }
+#endif // false
+
       self.appReview = appReview ?? .init()
       self.delay = delay ?? .init()
       self.fontsAndPresetsSplit = fontsAndPresetsSplit ?? Self.makeFontsAndPresetsSplitState()
@@ -311,34 +323,26 @@ public struct AppRoot {
 
 extension AppRoot {
 
-  public static func prepareDependencies() {
-    Dependencies.prepareDependencies {
+  /**
+   Create and return new instance of AppRoot store after first establishing runtime dependencies. See ``SoundFontsApp.swift`` for
+   usage.
 
-      try? FileManager.default.createDirectory(at: FileManager.default.fontFilesDirectory, withIntermediateDirectories: true)
-
-#if false
-      @Shared(.activeState) var activeState
-      $activeState.withLock {
-        $0.activePresetId = nil
-        $0.activeSoundFontId = nil
+   - returns: new `AppRoot` store ready to use in ``AppRootView``
+   */
+  @MainActor
+  public static func makeWithDependencies() -> StoreOf<AppRoot> {
+    prepareDependencies {
+      if ProcessInfo.processInfo.environment["UITesting"] == "true" {
+        $0.defaultFileStorage = .inMemory
+      } else {
+        $0.defaultFileStorage = .fileSystem
       }
-#endif // false
-
-      @Shared(.isAUv3) var isAUv3 = false
-
-      $0.audioGraph = .liveValue
-      $0.audioSession = .liveValue
 
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
-      $0.defaultFileStorage = .fileSystem
+      try? $0.fileManager.createDirectory(FileManager.default.fontFilesDirectory)
 
-      $0.delayDevice = DelayDevice.liveValue
-      $0.reverbDevice = ReverbDevice.liveValue
-
-      // MIDI support. Create the MIDI client but do not start until we can install a monitor on it
-      @Shared(.midiInputPortId) var midiInputPortId
-      @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
+      return StoreOf<AppRoot>(initialState: AppRoot.State()) { AppRoot() }
     }
   }
 

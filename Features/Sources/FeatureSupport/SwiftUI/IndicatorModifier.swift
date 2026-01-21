@@ -46,13 +46,16 @@ public struct IndicatorModifier: ViewModifier {
     }
   }
 
-  let state: State
-
+  private let state: State
   private var indicatorWidth: CGFloat { 4 }
   private var cornerRadius: CGFloat { indicatorWidth / 2.0 }
   private var offset: CGFloat { -2.0 * indicatorWidth }
   private var indicator: Color { state.indicatorColor }
   private var labelColor: Color { state.labelColor }
+
+  public init(state: State) {
+    self.state = state
+  }
 
   public func body(content: Content) -> some View {
     ZStack(alignment: .leading) {

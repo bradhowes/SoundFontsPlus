@@ -259,7 +259,7 @@ extension SoundFontsList.Destination.State: _EphemeralState {
 // MARK: - View
 
 public struct SoundFontsListView: View {
-  @State private var store: StoreOf<SoundFontsList>
+  @Bindable private var store: StoreOf<SoundFontsList>
   @State private var editing: EditMode = .inactive
 
   public init(store: StoreOf<SoundFontsList>) {

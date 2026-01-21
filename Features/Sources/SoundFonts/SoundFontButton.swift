@@ -225,7 +225,7 @@ extension SoundFontButton {
 // MARK: - View
 
 struct SoundFontButtonView: View {
-  @State private var store: StoreOf<SoundFontButton>
+  private var store: StoreOf<SoundFontButton>
   @Shared(.selectedSoundFontId) private var selectedSoundFontId
   @Shared(.activeState) private var activeState
   @Environment(\.editMode) private var deletingMode

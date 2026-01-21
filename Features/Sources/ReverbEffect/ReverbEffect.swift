@@ -229,7 +229,7 @@ extension ReverbEffect {
 
 public struct ReverbEffectView: View {
   @Bindable private var store: StoreOf<ReverbEffect>
-  @Environment(\.auv3ControlsTheme) var theme
+  @Environment(\.auv3ControlsTheme) private var theme
 
   public init(store: StoreOf<ReverbEffect>) {
     self.store = store

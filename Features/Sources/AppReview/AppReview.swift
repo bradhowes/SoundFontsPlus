@@ -132,7 +132,7 @@ extension View {
 #if DEBUG
 
 struct AppReviewDemoView: View {
-  @State var store: StoreOf<AppReview>
+  var store: StoreOf<AppReview>
 
   init(store: StoreOf<AppReview>) {
     self.store = store

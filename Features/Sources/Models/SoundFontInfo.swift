@@ -10,7 +10,7 @@ import Tagged
  can display availability info for the file.
  */
 @Selection
-public struct SoundFontInfo {
+nonisolated public struct SoundFontInfo {
   public let id: SoundFont.ID
   public let displayName: String
   public let kind: SoundFont.Kind

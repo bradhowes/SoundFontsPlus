@@ -334,8 +334,8 @@ extension PresetsList.Destination.State: _EphemeralState { public typealias Acti
 // MARK: -
 
 public struct PresetsListView: View {
-  @State private var store: StoreOf<PresetsList>
-  @FocusState var focusedField: PresetsList.State.Field?
+  @Bindable private var store: StoreOf<PresetsList>
+  @FocusState private var focusedField: PresetsList.State.Field?
 
   public init(store: StoreOf<PresetsList>) {
     self.store = store

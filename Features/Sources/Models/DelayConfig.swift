@@ -11,7 +11,7 @@ import Tagged
  delay device receives the associated delay config settings.
  */
 @Table
-public struct DelayConfig {
+nonisolated public struct DelayConfig {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
@@ -38,7 +38,7 @@ extension DelayConfig {
         "enabled" INTEGER NOT NULL CHECK ("enabled" in (0, 1)),
         "presetId" INTEGER NOT NULL,
 
-        FOREIGN KEY("presetId") REFERENCES "presets"("id") ON DELETE CASCADE
+        FOREIGN KEY("presetId") REFERENCES "\(raw: Preset.tableName)"("id") ON DELETE CASCADE
       ) STRICT
       """
       )

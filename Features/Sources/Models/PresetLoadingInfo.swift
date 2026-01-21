@@ -9,7 +9,7 @@ import Tagged
  Attributes from Preset and SoundFont columns used to load the preset into the synth.
  */
 @Selection
-public struct PresetLoadingInfo {
+nonisolated public struct PresetLoadingInfo {
   public let soundFontId: SoundFont.ID
   public let presetIndex: Int
   public let kind: SoundFont.Kind

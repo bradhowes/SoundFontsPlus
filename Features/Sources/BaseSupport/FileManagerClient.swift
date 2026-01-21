@@ -17,6 +17,7 @@ public struct FileManagerClient: Sendable {
   public var isUbiquitousItem: @Sendable (_ url: URL) -> Bool
   public var copyItem: @Sendable (_ src: URL, _ dst: URL) throws -> Void
   public var removeItem: @Sendable (_ at: URL) throws -> Void
+  public var createDirectory: @Sendable (_ at: URL) throws -> Void
 }
 
 extension FileManagerClient: DependencyKey {
@@ -34,7 +35,8 @@ extension FileManagerClient: DependencyKey {
       fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
       isUbiquitousItem: { FileManager.default.isUbiquitousItem(at: $0) },
       copyItem: { try FileManager.default.copyItem(at: $0, to: $1) },
-      removeItem: { try FileManager.default.removeItem(at: $0) }
+      removeItem: { try FileManager.default.removeItem(at: $0) },
+      createDirectory: { try FileManager.default.createDirectory(at: $0, withIntermediateDirectories: true) }
     )
   }
 
@@ -50,7 +52,8 @@ extension FileManagerClient: DependencyKey {
       fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
       isUbiquitousItem: { _ in false },
       copyItem: { _, _ in },
-      removeItem: { _ in }
+      removeItem: { _ in },
+      createDirectory: { _ in }
     )
   }
 
@@ -67,7 +70,8 @@ extension FileManagerClient: DependencyKey {
       fileSizeOf: { _ in unimplemented("fileSizeOf", placeholder: 0) },
       isUbiquitousItem: { _ in unimplemented("isUbiquitousItem", placeholder: false) },
       copyItem: { _, _ in unimplemented("copyItem", placeholder: ()) },
-      removeItem: { _ in unimplemented("removeItem", placeholder: ()) }
+      removeItem: { _ in unimplemented("removeItem", placeholder: ()) },
+      createDirectory: { _ in unimplemented("createDirectory", placeholder: ()) },
     )
   }
 }

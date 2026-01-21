@@ -6,7 +6,7 @@ import SQLiteData
 import Tagged
 
 @Table
-public struct AudioConfig {
+nonisolated public struct AudioConfig {
 
   public static var minGain: Double { -90.0 }
   public static var defaultGain: Double { 0.0 }
@@ -51,7 +51,7 @@ extension AudioConfig {
         "customTuning" REAL NOT NULL,
         "presetId" INTEGER NOT NULL,
 
-        FOREIGN KEY("presetId") REFERENCES "presets"("id") ON DELETE CASCADE
+        FOREIGN KEY("presetId") REFERENCES "\(raw: Preset.tableName)"("id") ON DELETE CASCADE
       ) STRICT
       """
       )

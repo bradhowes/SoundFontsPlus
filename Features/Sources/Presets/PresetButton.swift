@@ -50,8 +50,8 @@ public struct PresetButton {
 }
 
 public struct PresetButtonView: View {
-  @State private var store: StoreOf<PresetButton>
-  @Shared(.activeState) var activeState
+  private var store: StoreOf<PresetButton>
+  @Shared(.activeState) private var activeState
   @Environment(\.editMode) private var editingMode
   private var editingVisibility: Bool { (editingMode?.wrappedValue ?? .inactive) == .active }
   private var isFavorite: Bool { store.preset.kind == .favorite }

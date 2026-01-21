@@ -11,7 +11,7 @@ import Tagged
  row can be deleted by the user; otherwise the rows are removed only when the owning ``SoundFont`` entry is removed.
  */
 @Table
-public struct Preset {
+nonisolated public struct Preset {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
@@ -85,7 +85,7 @@ extension Preset {
         "displayName" TEXT NOT NULL COLLATE NOCASE,
         "kind" INTEGER NOT NULL,
         "notes" TEXT NOT NULL,
-        FOREIGN KEY("soundFontId") REFERENCES "soundFonts"("id") ON DELETE CASCADE
+        FOREIGN KEY("soundFontId") REFERENCES "\(raw: SoundFont.tableName)"("id") ON DELETE CASCADE
       ) STRICT
       """
       )

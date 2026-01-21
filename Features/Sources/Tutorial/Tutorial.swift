@@ -78,9 +78,9 @@ public struct Tutorial {
 }
 
 public struct TutorialView: View {
-  @State private var store: StoreOf<Tutorial>
-  let bottomSpacerMinLength: CGFloat = 24.0
-  let sideTapRegionWidth: CGFloat = 24.0
+  @Bindable private var store: StoreOf<Tutorial>
+  private let bottomSpacerMinLength: CGFloat = 24.0
+  private let sideTapRegionWidth: CGFloat = 24.0
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   public init(store: StoreOf<Tutorial>) {

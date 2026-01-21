@@ -11,7 +11,7 @@ import Tagged
  reverb device receives the associated reverb config settings.
  */
 @Table
-public struct ReverbConfig {
+nonisolated public struct ReverbConfig {
   public typealias ID = Tagged<Self, Int64>
 
   public let id: ID
@@ -34,7 +34,7 @@ extension ReverbConfig {
         "enabled" INTEGER NOT NULL CHECK ("enabled" in (0, 1)),
         "presetId" INTEGER NOT NULL,
 
-        FOREIGN KEY("presetId") REFERENCES "presets"("id") ON DELETE CASCADE
+        FOREIGN KEY("presetId") REFERENCES "\(raw: Preset.tableName)"("id") ON DELETE CASCADE
       ) STRICT
       """
       )
