@@ -8,7 +8,11 @@ import TestSupport
 
 @testable import FeatureSupport
 
-@Suite
+@Suite(
+  .dependencies {
+    $0.defaultDatabase = TestSupport.testDatabase()
+  }
+)
 @MainActor
 struct MIDIMonitorTests {
 

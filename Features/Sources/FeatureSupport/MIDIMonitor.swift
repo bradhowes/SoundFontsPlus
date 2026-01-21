@@ -9,8 +9,6 @@ import os
 import Sharing
 import SQLiteData
 
-private let log: Logger = .init(category: "MIDIMonitor")
-
 public struct MIDITrafficStat: Equatable, Sendable {
   public let id: MIDIUniqueID
   public let channel: UInt8
@@ -47,6 +45,9 @@ public final class MIDIMonitor: @unchecked Sendable {
 
   @Shared(.midi) private var midi
 
+  // TODO: we should be able to use @Dependency(\.defaultDatabase) but during tests it is not being properly set
+  private var database: DatabaseWriter
+
   /**
    Create new instance that sends MIDI traffic to the given MIDI instrument (SF2LibAU).
 
@@ -55,6 +56,8 @@ public final class MIDIMonitor: @unchecked Sendable {
   public init(instrument: AVAudioUnitMIDIInstrument) {
     self.midiInstrument = instrument
     self.connectivity = []
+    @Dependency(\.defaultDatabase) var database
+    self.database = database
   }
 }
 
@@ -64,10 +67,11 @@ extension MIDIMonitor: Monitor {
    Determine if the given MIDI i
    */
   public func shouldConnect(to uniqueId: MIDIUniqueID) -> Bool {
-    @Dependency(\.defaultDatabase) var database
-    let midiConfig = withDatabaseReader {
-      try MIDIConfig.all.find(uniqueId).fetchOne($0)
-    } ?? nil
+    let midiConfig = withErrorReporting {
+      try database.read {
+        try MIDIConfig.all.find(uniqueId).fetchOne($0)
+      } ?? nil
+    }
 
     if let midiConfig {
       log.debug("shouldConnect - uniqueId: \(uniqueId.asHex) result: \(midiConfig.autoConnect)")
@@ -251,3 +255,5 @@ extension MIDIMonitor: Receiver {
     midiInstrument.reset()
   }
 }
+
+private let log: Logger = .init(category: "MIDIMonitor")

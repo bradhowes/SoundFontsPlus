@@ -13,8 +13,9 @@ public enum TestSupport {
   static let log: Logger = .init(category: "TestSupport")
 
   public static func testDatabase(seeder: ((Database) throws -> Void)? = addMockPresets) -> any DatabaseWriter {
+    log.info("creating test database")
     // swiftlint:disable:next force_try
-    try! appDatabase(fonts: [], loadAllPresets: false, seeder: seeder)
+    return try! appDatabase(fonts: [], loadAllPresets: false, seeder: seeder)
   }
 }
 

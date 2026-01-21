@@ -205,7 +205,7 @@ public struct Settings {
   }
 
   private enum CancelId: String {
-    case appSettingsMonitorMIDIConnections
+    case settingsMonitorMIDIConnections
   }
 }
 
@@ -228,7 +228,7 @@ extension Settings {
     return .publisher {
       midiMonitor.$connectivity
         .map { _ in .midiConnectionsChanged }
-    }.cancellable(id: CancelId.appSettingsMonitorMIDIConnections)
+    }.cancellable(id: CancelId.settingsMonitorMIDIConnections)
   }
 
   private func tuningChanged(_ state: inout State, enabled: Bool, frequency: Double) -> Effect<Action> {

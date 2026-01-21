@@ -233,6 +233,16 @@ public struct AppRoot {
         return .none
 
       case .deinitialize:
+
+        // By design MIDI does not have a complete 'stop' function, so there could be messages coming over after we are
+        // deinitialized. Remove any installed MIDIMonitor so that it will no longer try to access the database.
+        @Shared(.midi) var midi
+        if let midi {
+          midi.monitor = nil
+          midi.receiver = nil
+          midi.stop()
+        }
+
         var actions = [
           .merge(CancelId.allCases.map { .cancel(id: $0) }),
           reduce(into: &state, action: .delay(.deinitialize)),
@@ -241,6 +251,7 @@ public struct AppRoot {
           reduce(into: &state, action: .reverb(.deinitialize)),
           reduce(into: &state, action: .soundFontsList(.deinitialize)),
           reduce(into: &state, action: .synth(.deinitialize)),
+          reduce(into: &state, action: .tagsList(.deinitialize)),
           reduce(into: &state, action: .toolBar(.deinitialize))
         ]
 
@@ -445,14 +456,22 @@ extension AppRoot {
 
   private func installMIDIMonitor(midiInstrument: AVAudioUnitMIDIInstrument) {
     log.info("creating MIDIMonitor")
+
     @Shared(.midi) var midi
     guard let midi else { return }
+
     @Shared(.midiMonitor) var midiMonitor
+    guard midiMonitor == nil else { fatalError() }
+
+    let monitor = MIDIMonitor(instrument: midiInstrument)
     $midiMonitor.withLock {
-      $0 = MIDIMonitor(instrument: midiInstrument)
+      $0 = monitor
     }
-    midi.receiver = midiMonitor
-    midi.monitor = midiMonitor
+
+    midi.receiver = monitor
+    midi.monitor = monitor
+
+    log.info("starting MIDI service")
     midi.start()
   }
 

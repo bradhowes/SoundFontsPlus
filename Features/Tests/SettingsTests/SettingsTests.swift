@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import DependenciesTestSupport
 import FeatureSupport
 import MIDIConnections
 import MorkAndMIDI
@@ -10,6 +11,9 @@ import TestSupport
 @testable import Settings
 
 @Suite(
+  .dependencies {
+    $0.defaultDatabase = TestSupport.testDatabase()
+  },
   .snapshots(record: .failed)
 )
 @MainActor
