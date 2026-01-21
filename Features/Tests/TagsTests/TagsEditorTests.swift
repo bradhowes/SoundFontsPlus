@@ -46,7 +46,9 @@ struct TagsEditorTests {
   }
 
   @Test
-  func addButtonTapped() async {
+  func addButtonTappedNoPrompt() async {
+    @Shared(.hideEmptyTags) var hideEmptyTags: Bool = false
+
     let store = tagEditingStore()
     var rows = store.state.rows
     #expect(rows.count == 5)
@@ -74,6 +76,42 @@ struct TagsEditorTests {
     await store.send(.addButtonTapped) {
       $0.rows = rows
       $0.focused = 6
+    }
+  }
+
+  @Test
+  func addButtonTappedWithPrompt() async {
+    @Shared(.hideEmptyTags) var hideEmptyTags: Bool = true
+
+    let store = tagEditingStore()
+    var rows = store.state.rows
+    #expect(rows.count == 5)
+    rows.append(
+      .init(
+        tagId: nil,
+        draft: .init(displayName: "New Tag", ordering: rows.count),
+        membership: nil
+      )
+    )
+
+    await store.send(.addButtonTapped) {
+      $0.rows = rows
+      $0.focused = 5
+      $0.destination = .alert(.tagWillBeHidden(displayName: "New Tag"))
+    }
+
+    rows.append(
+      .init(
+        tagId: nil,
+        draft: .init(displayName: "New Tag 1", ordering: rows.count),
+        membership: nil
+      )
+    )
+
+    await store.send(.addButtonTapped) {
+      $0.rows = rows
+      $0.focused = 6
+      $0.destination = .alert(.tagWillBeHidden(displayName: "New Tag 1"))
     }
   }
 
@@ -112,6 +150,9 @@ struct TagsEditorTests {
 
   @Test
   func cancelButtonTapped() async {
+    @Shared(.hideEmptyTags) var hideEmptyTags
+    $hideEmptyTags.withLock { $0 = false }
+
     let store = tagEditingStore()
     var rows = store.state.rows
     #expect(rows.count == 5)
@@ -140,6 +181,9 @@ struct TagsEditorTests {
 
   @Test
   func deleteButtonTappedOnNew() async {
+    @Shared(.hideEmptyTags) var hideEmptyTags
+    $hideEmptyTags.withLock { $0 = false }
+
     let store = tagEditingStore()
     var rows = store.state.rows
     #expect(rows.count == 5)
@@ -206,6 +250,9 @@ struct TagsEditorTests {
 
   @Test
   func saveButtonTapped() async {
+    @Shared(.hideEmptyTags) var hideEmptyTags
+    $hideEmptyTags.withLock { $0 = false }
+
     let store = tagEditingStore()
     var rows = store.state.rows
     #expect(rows.count == 5)
@@ -275,5 +322,10 @@ struct TagsEditorTests {
   @Test
   func previewWithMemberships() async throws {
     try TestSupport.assertSnapshot(matching: TagsEditorView.previewWithMemberships)
+  }
+
+  @Test
+  func previewWithMembershipsInEditMode() async throws {
+    try TestSupport.assertSnapshot(matching: TagsEditorView.previewWithMembershipsInEditMode)
   }
 }

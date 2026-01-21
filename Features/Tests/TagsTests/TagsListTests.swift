@@ -36,7 +36,7 @@ struct TagsListTests {
     let store = TestStore(initialState: TagsList.State()) { TagsList() }
 
     await store.send(\.initialize)
-    await store.receive(\.updateFetchAllQuery)
+    await store.receive(\.fetchAllQueryChanged)
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
       await store.receive(\.rowsUpdated)
     }
@@ -177,7 +177,7 @@ struct TagsListTests {
 
       $hideEmptyTags.withLock { $0 = true }
 
-      await store.receive(\.updateFetchAllQuery)
+      await store.receive(\.fetchAllQueryChanged)
 
       let filtered = rows.filter({ $0.tagInfo.soundFontsCount > 0})
       await store.receive(\.rowsUpdated, filtered.map(\.tagInfo)) {

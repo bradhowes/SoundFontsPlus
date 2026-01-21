@@ -137,6 +137,7 @@ public struct TagsEditor {
       case .deleteButtonTapped(let indices):
         return deleteTag(&state, indices: indices)
 
+        // TODO: add test
       case .editModeActiveChanged(let value):
         state.editModeActive = value
         return .none
@@ -147,6 +148,7 @@ public struct TagsEditor {
       case let .rows(.element(id: id, action: \.delegate.tagSwipedToDelete)):
         return deleteTag(&state, rowId: id)
 
+        // TODO: add test
       case let .rows(.element(id: id, action: \.binding.membership)):
         // This is only called when editing a sound font, so soundFontId must be non-nil
         guard
@@ -377,18 +379,8 @@ extension TagsEditorView {
   }
 
   static var previewInEditMode: some View {
-    prepareDependencies { $0.defaultDatabase = previewDatabase() }
-    let tags = Tag.tags
-    return TagsEditorView(
-      store: Store(
-        initialState: .init(
-          focused: tags.last?.ordering,
-          editModeActive: true
-        )
-      ) {
-        TagsEditor()
-      }
-    )
+    preview
+      .environment(\.editMode, .constant(.active))
   }
 
   static var previewWithMemberships: some View {
@@ -410,6 +402,11 @@ extension TagsEditorView {
         TagsEditor()
       }
     )
+  }
+
+  static var previewWithMembershipsInEditMode: some View {
+    previewWithMemberships
+      .environment(\.editMode, .constant(.active))
   }
 }
 

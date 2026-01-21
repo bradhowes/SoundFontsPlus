@@ -238,8 +238,10 @@ extension TagsListView {
       Operations.tagSoundFont(tag.id, soundFontId: 1)
     }
 
+    @Shared(.hideEmptyTags) var hideEmptyTags
+    $hideEmptyTags.withLock { $0 = false }
+
     return VStack {
-      @Shared(.hideEmptyTags) var hideEmptyTags
       Toggle(
         "Hide empty tags",
         isOn: Binding(
