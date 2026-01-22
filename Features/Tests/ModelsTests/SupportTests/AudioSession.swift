@@ -4,7 +4,7 @@ import AVFAudio.AVAudioSession
 import Foundation
 import Testing
 
-@testable import Synth
+@testable import Models
 
 @Suite
 struct AudioSessionTests {

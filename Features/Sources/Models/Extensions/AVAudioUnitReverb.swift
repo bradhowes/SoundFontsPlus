@@ -1,7 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFAudio.AVAudioUnitReverb
-import Models
 
 extension AVAudioUnitReverb {
 

@@ -6,8 +6,6 @@ import Dependencies
 import DependenciesMacros
 import Sharing
 
-private let log: Logger = .init(category: "AudioGraph")
-
 @DependencyClient
 public struct AudioGraph: Sendable {
   public var start: @Sendable (AVAudioUnitMIDIInstrument?) -> Bool = { _ in false }
@@ -100,3 +98,5 @@ private func stopGraph(_ engine: AVAudioEngine, synth: AVAudioUnitMIDIInstrument
 
   log.info("stopGraph END")
 }
+
+private let log: Logger = .init(category: "AudioGraph")

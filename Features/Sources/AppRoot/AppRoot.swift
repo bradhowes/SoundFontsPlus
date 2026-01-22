@@ -89,8 +89,6 @@ public struct AppRoot {
       toolBar: ToolBar.State? = nil,
     ) {
       @Shared(.isAUv3) var isAUv3 = false
-      @Shared(.midiInputPortId) var midiInputPortId
-      @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
 
 #if false
       @Shared(.activeState) var activeState
@@ -166,7 +164,6 @@ public struct AppRoot {
     case appReview(AppReview.Action)
     case audioUnitCrashed
     case binding(BindingAction<State>)
-    case clearToast
     case deinitialize
     case delay(DelayEffect.Action)
     case destination(PresentationAction<Destination.Action>)
@@ -175,7 +172,6 @@ public struct AppRoot {
     case initialize
     case keyboard(Keyboard.Action)
     case presetsList(PresetsList.Action)
-    case reevaluateToastState
     case reverb(ReverbEffect.Action)
     case scenePhaseChanged(ScenePhase)
     case soundFontsList(SoundFontsList.Action)
@@ -201,6 +197,8 @@ public struct AppRoot {
 
     Scope(state: \.appReview, action: \.appReview) { AppReview() }
     Scope(state: \.delay, action: \.delay) { DelayEffect() }
+    Scope(state: \.fontsAndPresetsSplit, action: \.fontsAndPresetsSplit) { SplitViewReducer() }
+    Scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit) { SplitViewReducer() }
     Scope(state: \.keyboard, action: \.keyboard) { Keyboard() }
     Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
     Scope(state: \.reverb, action: \.reverb) { ReverbEffect() }
@@ -211,9 +209,6 @@ public struct AppRoot {
 #if os(iOS)
     Scope(state: \.volumeMonitor, action: \.volumeMonitor) { VolumeMonitor() }
 #endif
-
-    Scope(state: \.fontsAndPresetsSplit, action: \.fontsAndPresetsSplit) { SplitViewReducer() }
-    Scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit) { SplitViewReducer() }
 
     Reduce { state, action in
 
@@ -226,10 +221,6 @@ public struct AppRoot {
 
       case .audioUnitCrashed:
         log.error("*** audioUnit crashed")
-        return .none
-
-      case .clearToast:
-        state.toastState = .none
         return .none
 
       case .deinitialize:
@@ -287,9 +278,6 @@ public struct AppRoot {
       case .presetsList(.delegate(.edit(let sectionId, let preset))):
         state.destination = .presetEditor(PresetEditor.State(sectionId: sectionId, preset: preset))
         return .none
-
-      case .reevaluateToastState:
-        return reevaluateToastState(&state)
 
       case .scenePhaseChanged(let phase):
         return scenePhaseChanged(&state, phase: phase)
@@ -352,6 +340,9 @@ extension AppRoot {
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       try? $0.fileManager.createDirectory(FileManager.default.fontFilesDirectory)
+
+      @Shared(.midiInputPortId) var midiInputPortId
+      @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
 
       return StoreOf<AppRoot>(initialState: AppRoot.State()) { AppRoot() }
     }
@@ -590,19 +581,6 @@ extension AppRoot {
     }
   }
 
-  private func reevaluateToastState(_ state: inout State) -> Effect<Action> {
-    guard
-      state.readyForUse,
-      let reason = state.volumeMonitor.reason
-    else {
-      return .none
-    }
-
-    state.toastState = .volumeMonitor(reason: reason)
-
-    return .none
-  }
-
   private func scenePhaseChanged(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
     switch phase {
 
@@ -724,11 +702,6 @@ public struct AppRootView: View {
       verticalSizeClass: verticalSizeClass
     )
     .appReview(store: store.scope(state: \.appReview, action: \.appReview))
-    .onChange(of: store.toastState) { _, newValue in
-      if newValue == nil {
-        store.send(.reevaluateToastState)
-      }
-    }
     .toast(item: $store.toastState, alignment: .top) { reason in
       switch reason {
       case .volumeMonitor(reason: let reason): volumeMonitorToast(reason)
@@ -995,16 +968,6 @@ private let log: Logger = .init(category: "AppRoot")
 extension AppRootView {
 
   static var preview: some View {
-    prepareDependencies {
-      $0.defaultDatabase = previewDatabase()
-      $0.delayDevice = DelayDevice.liveValue
-      $0.reverbDevice = ReverbDevice.liveValue
-      @Shared(.tagsListVisible) var tagsListVisible
-      $tagsListVisible.withLock { $0 = false }
-      @Shared(.effectsPanelVisible) var effectsPanelVisible
-      $effectsPanelVisible.withLock { $0 = true }
-    }
-
     return ZStack {
       Color.black
         .ignoresSafeArea(edges: .all)
@@ -1016,7 +979,24 @@ extension AppRootView {
 }
 
 #Preview {
-  AppRootView.preview
+  prepareDependencies {
+    $0.defaultDatabase = previewDatabase()
+    @Shared(.tagsListVisible) var tagsListVisible
+    $tagsListVisible.withLock { $0 = true }
+    @Shared(.effectsPanelVisible) var effectsPanelVisible
+    $effectsPanelVisible.withLock { $0 = true }
+    @Shared(.activeState) var activeState
+    $activeState.withLock {
+      $0 = .init(
+        activeSoundFontId: 1,
+        activePresetId: 1,
+        activeTagId: -1,
+        activeDelayConfigId: nil,
+        activeReverbConfigId: nil
+      )
+    }
+    return AppRootView.preview
+  }
 }
 
 #endif

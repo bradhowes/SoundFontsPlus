@@ -7,6 +7,7 @@ import FeatureSupport
 import Models
 import ReverbEffect
 import Settings
+import SF2LibAU
 import Sharing
 import SnapshotTesting
 import SoundFonts
@@ -20,17 +21,26 @@ import Tutorial
 @Suite(
   .dependencies {
     let mockVolume = OutputVolumeFlipFlop()
-    $0.defaultDatabase = TestSupport.testDatabase()
-    $0.audioGraph = .previewValue
+    @Shared(.activeState) var activeState
+    $activeState.withLock {
+      $0 = .init(
+        activeSoundFontId: 1,
+        activePresetId: 1,
+        activeTagId: -1,
+        activeDelayConfigId: nil,
+        activeReverbConfigId: nil
+      )
+    }
+    $0.audioGraph = .liveValue // MockAudioGraph().audioGraph
     $0.audioSession = .liveValue
     $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
-    $0.delayDevice = .liveValue
     $0.date = .constant(.now)
+    $0.defaultDatabase = TestSupport.testDatabase()
+    $0.delayDevice = .liveValue
     $0.mainQueue = .immediate
     $0.outputVolume = mockVolume.makeOutputVolume()
     $0.reverbDevice = .liveValue
-  },
-  .snapshots(record: .failed)
+  }
 )
 @MainActor
 struct AppRootTests {
@@ -71,6 +81,10 @@ struct AppRootTests {
         $0.toolBar.preset = Preset.with(id: 1)
         $0.toastState = nil
         $0.readyForUse = true
+      }
+
+      await store.receive(\.synth.lastPresetLoadFinished) {
+        $0.synth.firstTimePresetLoaded = false
       }
 
       try await closure(store)
@@ -128,6 +142,7 @@ struct AppRootTests {
   func refreshPresets() async throws {
     try await initialized { store in
       let soundFont = SoundFont.with(id: 1)!
+
       await store.send(\.soundFontsList.delegate, .edit(soundFont)) {
         $0.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
       }
@@ -190,6 +205,68 @@ struct AppRootTests {
   }
 
   @Test
+  func audioUnitCrashed() async throws {
+    try await initialized { store in
+      await store.send(\.audioUnitCrashed)
+    }
+  }
+
+  @Test
+  func scenePhaseChanged() async throws {
+    try await initialized { store in
+      await store.send(\.scenePhaseChanged, .active)
+      await store.send(\.scenePhaseChanged, .inactive)
+      await store.send(\.scenePhaseChanged, .background)
+    }
+  }
+
+  @Test
+  func volumeMonitorChanged() async throws {
+    try await initialized { store in
+      await store.send(\.volumeMonitor.delegate.reasonChanged, .volumeLevelIsZero) {
+        $0.toastState = .volumeMonitor(reason: .volumeLevelIsZero)
+        $0.keyboard.muted = true
+      }
+
+      await store.send(\.volumeMonitor.delegate.reasonChanged, .noActivePreset)
+
+      await store.send(\.volumeMonitor.delegate.reasonChanged, .none) {
+        $0.toastState = nil
+        $0.keyboard.muted = false
+      }
+    }
+  }
+
+//  @Test
+//  func destinationDismissed() async throws {
+//    try await initialized { store in
+//      await store.send(\.destination.dismiss)
+//    }
+//  }
+//
+//  @Test
+//  func showEditPreset() async throws {
+//    try await initialized { store in
+//      #expect(store.state.presetsList.sections.isEmpty == false)
+//      let section = store.state.presetsList.sections.first!
+//      let preset = section.rows.first!.preset
+//      await store.send(
+//        \.presetsList.delegate,
+//         .edit(
+//          sectionId: 0,
+//          preset: preset
+//         )
+//      ) {
+//        $0.destination = .presetEditor(.init(sectionId: section.sectionId, preset: preset))
+//      }
+//
+//      await store.send(\.destination.dismiss)
+//    }
+//  }
+
+  @Test(
+    .snapshots(record: .failed)
+  )
   func appRootViewPreview() async throws {
     try TestSupport.assertSnapshot(matching: AppRootView.preview)
   }

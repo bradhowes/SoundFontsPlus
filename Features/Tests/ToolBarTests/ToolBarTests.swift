@@ -179,7 +179,7 @@ struct ToolBarTests {
   @Test(
     .dependencies {
       $0.audioGraph = .liveValue
-      $0.audioSession = .liveValue
+      $0.audioSession = MockAudioSession().audioSession
       $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
       $0.continuousClock = .immediate
       $0.defaultDatabase = try appDatabase(loadAllPresets: false)

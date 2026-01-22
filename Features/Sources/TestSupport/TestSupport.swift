@@ -48,8 +48,8 @@ extension TestSupport {
 
     let kinds: [Preset.Kind] = [.preset, .preset, .hidden]
 
-    try Preset.insert {
-      for fontIndex in fonts.indices {
+    for fontIndex in fonts.indices {
+      try Preset.insert {
         for (presetIndex, kind) in kinds.enumerated() {
           Preset.Draft(
             index: presetIndex,
@@ -62,8 +62,8 @@ extension TestSupport {
             kind: kind
           )
         }
-      }
-    }.execute(db)
+      }.execute(db)
+    }
 
     try TaggedSoundFont.insert {
       for fontId in 1...4 {

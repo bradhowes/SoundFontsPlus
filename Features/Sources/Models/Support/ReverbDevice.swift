@@ -3,11 +3,7 @@
 import AVFAudio
 import Dependencies
 import DependenciesMacros
-import Models
 
-/**
- 
- */
 @DependencyClient
 public struct ReverbDevice: Sendable {
   public var setConfig: @Sendable (ReverbConfig.Draft) -> Void

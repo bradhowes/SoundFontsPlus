@@ -9,6 +9,7 @@ import Dependencies
 import DependenciesTestSupport
 import Models
 import ReverbEffect
+import SF2LibAU
 import Sharing
 import SnapshotTesting
 import SwiftUI
@@ -19,9 +20,8 @@ import TestSupport
 
 @Suite(
   .dependencies {
-    // TODO: use mock here
     $0.audioGraph = .liveValue
-    $0.audioSession = .liveValue
+    $0.audioSession = MockAudioSession().audioSession
     $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
     $0.continuousClock = .immediate
     $0.defaultDatabase = TestSupport.testDatabase()

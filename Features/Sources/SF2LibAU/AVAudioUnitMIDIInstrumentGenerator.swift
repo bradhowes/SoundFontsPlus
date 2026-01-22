@@ -1,7 +1,6 @@
 import AVFAudio
 import Dependencies
 import Foundation
-import SF2LibAU
 
 public struct AVAudioUnitMIDIInstrumentGenerator: Sendable {
   private var generator: @Sendable () async -> AVAudioUnitMIDIInstrument?
