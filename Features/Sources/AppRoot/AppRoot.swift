@@ -971,7 +971,7 @@ extension AppRootView {
     return ZStack {
       Color.black
         .ignoresSafeArea(edges: .all)
-      AppRootView(store: Store(initialState: .init()) { AppRoot() })
+      AppRootView(store: AppRoot.makeWithDependencies())
         // .preferredColorScheme(.dark)
         .environment(\.colorScheme, .dark)
     }
@@ -979,24 +979,7 @@ extension AppRootView {
 }
 
 #Preview {
-  prepareDependencies {
-    $0.defaultDatabase = previewDatabase()
-    @Shared(.tagsListVisible) var tagsListVisible
-    $tagsListVisible.withLock { $0 = true }
-    @Shared(.effectsPanelVisible) var effectsPanelVisible
-    $effectsPanelVisible.withLock { $0 = true }
-    @Shared(.activeState) var activeState
-    $activeState.withLock {
-      $0 = .init(
-        activeSoundFontId: 1,
-        activePresetId: 1,
-        activeTagId: -1,
-        activeDelayConfigId: nil,
-        activeReverbConfigId: nil
-      )
-    }
-    return AppRootView.preview
-  }
+  AppRootView.preview
 }
 
 #endif

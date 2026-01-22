@@ -265,6 +265,9 @@ struct AppRootTests {
 //  }
 
   @Test(
+    .dependencies {
+      $0.fileManager.createDirectory = { try FileManager.default.createDirectory(at: $0, withIntermediateDirectories: true) }
+    },
     .snapshots(record: .failed)
   )
   func appRootViewPreview() async throws {
