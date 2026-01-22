@@ -64,7 +64,10 @@ public final class MIDIMonitor: @unchecked Sendable {
 extension MIDIMonitor: Monitor {
 
   /**
-   Determine if the given MIDI i
+   Determine if the remote device should be connected to.
+
+   - parameter uniqueId: the ID of the remote endpoint that has appeared.
+   - returns: true if connection should be established
    */
   public func shouldConnect(to uniqueId: MIDIUniqueID) -> Bool {
     let midiConfig = withErrorReporting {

@@ -6,7 +6,7 @@ import Sharing
 
 public struct MIDIConnectionRow {
   public static var unknownChannel: UInt8 { 255 }
-  public static var disabledFixedVolume: Int { 128 }
+  public static var disabledFixedVolume: Int { MIDIConfig.disabledFixedVolume }
 
   public let id: MIDIUniqueID
   public let displayName: String

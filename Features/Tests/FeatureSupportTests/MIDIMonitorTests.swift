@@ -2,6 +2,7 @@
 
 import AVFAudio.AVAudioUnit
 import DependenciesTestSupport
+import MorkAndMIDI
 import SnapshotTesting
 import Testing
 import TestSupport
@@ -21,6 +22,74 @@ struct MIDIMonitorTests {
     let monitor = MIDIMonitor(instrument: MockAudioUnit())
     #expect(monitor.channel == -1)
     #expect(monitor.group == -1)
+  }
+
+  @Test
+  func autoConnectDisabled() {
+    let mau = MockAudioUnit()
+    @Shared(.midiChannel) var midiChannel = 1
+    @Shared(.midiAutoConnect) var midiAudoConnect = false
+
+    let monitor = MIDIMonitor(instrument: mau)
+
+    @Dependency(\.defaultDatabase) var database
+    @Shared(.midiAutoConnect) var midiAutoConnect = false
+
+    #expect(!monitor.shouldConnect(to: MIDIUniqueID(123123)))
+  }
+
+  @Test
+  func autoConnectEnabled() {
+    let mau = MockAudioUnit()
+    @Shared(.midiChannel) var midiChannel = 1
+    @Shared(.midiAutoConnect) var midiAudoConnect = true
+
+    let monitor = MIDIMonitor(instrument: mau)
+
+    @Dependency(\.defaultDatabase) var database
+    @Shared(.midiAutoConnect) var midiAutoConnect = false
+
+    #expect(monitor.shouldConnect(to: MIDIUniqueID(123123)))
+  }
+
+  @Test
+  func connectByUniqueIdFalse() {
+    let mau = MockAudioUnit()
+    @Shared(.midiChannel) var midiChannel = 1
+    @Shared(.midiAutoConnect) var midiAudoConnect = true
+
+    let monitor = MIDIMonitor(instrument: mau)
+
+    @Dependency(\.defaultDatabase) var database
+    withDatabaseWriter { db in
+      try MIDIConfig.upsert {
+        .init(uniqueId: 123123, autoConnect: false, fixedVolume: MIDIConfig.disabledFixedVolume)
+      }
+      .execute(db)
+    }
+    @Shared(.midiAutoConnect) var midiAutoConnect = false
+
+    #expect(!monitor.shouldConnect(to: MIDIUniqueID(123123)))
+  }
+
+  @Test
+  func connectByUniqueIdTrue() {
+    let mau = MockAudioUnit()
+    @Shared(.midiChannel) var midiChannel = 1
+    @Shared(.midiAutoConnect) var midiAudoConnect = false
+
+    let monitor = MIDIMonitor(instrument: mau)
+
+    @Dependency(\.defaultDatabase) var database
+    withDatabaseWriter { db in
+      try MIDIConfig.upsert {
+        .init(uniqueId: 123123, autoConnect: true, fixedVolume: MIDIConfig.disabledFixedVolume)
+      }
+      .execute(db)
+    }
+    @Shared(.midiAutoConnect) var midiAutoConnect = false
+
+    #expect(monitor.shouldConnect(to: MIDIUniqueID(123123)))
   }
 
   @Test
@@ -119,9 +188,36 @@ struct MIDIMonitorTests {
   }
 
   @Test
+  func didUpdateConnections() {
+    let mau = MockAudioUnit()
+    @Shared(.midiChannel) var midiChannel = 1
+    let monitor = MIDIMonitor(instrument: mau)
+
+    let midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
+    @Shared(.midi) var sharedMIDI
+    $sharedMIDI.withLock { $0 = midi }
+
+    midi.monitor = monitor
+    midi.receiver = monitor
+    midi.start()
+
+    monitor.didUpdateConnections(connected: [], disappeared: [])
+  }
+
+  @Test
   func unusedMethods() {
     let monitor = MIDIMonitor(instrument: MockAudioUnit())
     #expect(throws: Never.self) {
+      monitor.didConnect(to: 123123)
+      monitor.willUpdateConnections()
+      monitor.didInitialize()
+      monitor.willUninitialize()
+      monitor.didCreate(inputPort: .init(bitPattern: 123123))
+      monitor.willDelete(inputPort: .init(bitPattern: 123123))
+      monitor.didStart()
+      monitor.didStop()
+      monitor.didSee(uniqueId: 123123, group: 1, channel: 2)
+
       monitor.noteOff2(source: 123, note: 84, velocity: 12345, channel: 0, attributeType: 0, attributeData: 0)
       monitor.noteOn2(source: 123, note: 84, velocity: 12345, channel: 1, attributeType: 0, attributeData: 0)
       monitor.polyphonicKeyPressure2(source: 123, note: 84, pressure: 12345, channel: 1)

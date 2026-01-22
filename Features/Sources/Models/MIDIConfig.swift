@@ -10,6 +10,8 @@ import Tagged
  */
 @Table
 nonisolated public struct MIDIConfig {
+  public static var disabledFixedVolume: Int { 128 }
+
   @Column(primaryKey: true)
   public var uniqueId: MIDIUniqueID
   public var id: Int64 { Int64(uniqueId) }
