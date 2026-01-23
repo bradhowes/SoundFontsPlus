@@ -3,7 +3,6 @@
 import AVFAudio.AVAudioEngine
 import Models
 import Sharing
-import Synth
 
 public final class MockAudioGraph: @unchecked Sendable {
   public var active: Bool = false
