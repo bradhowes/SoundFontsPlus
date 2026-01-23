@@ -5,6 +5,7 @@ import DelayEffect
 import DependenciesTestSupport
 import FeatureSupport
 import Models
+import MorkAndMIDI
 import ReverbEffect
 import Settings
 import SF2LibAU
@@ -97,6 +98,23 @@ struct AppRootTests {
   @Test
   func initialize() async throws {
     try await initialized { _ in }
+  }
+
+  @Test
+  func initializeWithMIDI() async throws {
+    @Shared(.midi) var midi
+    $midi.withLock {
+      $0 = MIDI(clientName: "BlahBlah", uniqueId: 123123, midiProto: .v2_0)
+    }
+
+    try await initialized { _ in }
+  }
+
+  @Test
+  func synthStopped() async throws {
+    try await initialized { store in
+      await store.send(\.synth.delegate.stopped)
+    }
   }
 
   @Test
@@ -238,32 +256,42 @@ struct AppRootTests {
     }
   }
 
-//  @Test
-//  func destinationDismissed() async throws {
-//    try await initialized { store in
-//      await store.send(\.destination.dismiss)
-//    }
-//  }
-//
-//  @Test
-//  func showEditPreset() async throws {
-//    try await initialized { store in
-//      #expect(store.state.presetsList.sections.isEmpty == false)
-//      let section = store.state.presetsList.sections.first!
-//      let preset = section.rows.first!.preset
-//      await store.send(
-//        \.presetsList.delegate,
-//         .edit(
-//          sectionId: 0,
-//          preset: preset
-//         )
-//      ) {
-//        $0.destination = .presetEditor(.init(sectionId: section.sectionId, preset: preset))
-//      }
-//
-//      await store.send(\.destination.dismiss)
-//    }
-//  }
+  @Test
+  func showEditPreset() async throws {
+    try await initialized { store in
+      #expect(store.state.presetsList.sections.isEmpty == false)
+      let section = store.state.presetsList.sections.first!
+      let preset = section.rows.first!.preset
+      await store.send(
+        \.presetsList.delegate,
+         .edit(
+          sectionId: section.sectionId,
+          preset: preset
+         )
+      ) {
+        $0.destination = .presetEditor(.init(sectionId: section.sectionId, preset: preset))
+      }
+
+      await store.send(\.destination.dismiss) {
+        $0.destination = nil
+      }
+    }
+  }
+
+  @Test
+  func showSettings() async throws {
+    try await initialized { store in
+
+      // TODO: use MIDI mocks to enable exhaustivity
+      _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+        await store.send(\.toolBar.delegate.settingsButtonTapped)
+      }
+      await store.send(\.destination.dismiss) {
+        $0.destination = nil
+        $0.presetsList.scrollToPresetId = .init(presetId: 1)
+      }
+    }
+  }
 
   @Test(
     .dependencies {

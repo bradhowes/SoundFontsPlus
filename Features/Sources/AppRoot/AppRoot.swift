@@ -425,6 +425,7 @@ extension AppRoot {
 
   private func presetEditorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
     if editor.visible {
+      // Preset is (still) visible -- update its entry in case there were changes.
       state.presetsList.updateSection(editor.sectionId, presetId: editor.preset.id, displayName: editor.displayName)
       return .none
     }
