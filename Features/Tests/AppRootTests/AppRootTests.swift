@@ -131,6 +131,19 @@ struct AppRootTests {
     // #expect(UIKit.UIApplication.shared.isIdleTimerDisabled)
   }
 
+  @Test(
+    .dependencies {
+      $0.continuousClock = .immediate
+    }
+  )
+  func processKeyboardAction() async throws {
+    try await initialized { store in
+      await store.send(\.keyboard.delegate.noteOn, .C4) {
+        $0.toolBar.temporaryStatus = .lastPlayedKey("C4")
+      }
+    }
+  }
+
   @Test
   func processPresetsSplitAction() async throws {
     try await initialized { store in
@@ -243,7 +256,7 @@ struct AppRootTests {
   func volumeMonitorChanged() async throws {
     try await initialized { store in
       await store.send(\.volumeMonitor.delegate.reasonChanged, .volumeLevelIsZero) {
-        $0.toastState = .volumeMonitor(reason: .volumeLevelIsZero)
+        $0.toastState = .volumeLevelIsZero
         $0.keyboard.muted = true
       }
 
@@ -278,7 +291,9 @@ struct AppRootTests {
     }
   }
 
-  @Test
+  @Test(
+    .snapshots(record: .failed)
+  )
   func showSettings() async throws {
     try await initialized { store in
 
@@ -286,9 +301,124 @@ struct AppRootTests {
       _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
         await store.send(\.toolBar.delegate.settingsButtonTapped)
       }
+
+      let view = AppRootView(store: StoreOf<AppRoot>(initialState: store.state) { AppRoot() })
+      try TestSupport.assertSnapshot(matching: view)
+
       await store.send(\.destination.dismiss) {
         $0.destination = nil
         $0.presetsList.scrollToPresetId = .init(presetId: 1)
+      }
+    }
+  }
+
+  @Test(
+    .snapshots(record: .failed)
+  )
+  func showNoVolumeToast() async throws {
+    let state: AppRoot.State = .init(toastState: .volumeLevelIsZero)
+    let store: StoreOf<AppRoot> = .init(initialState: state) { AppRoot() }
+
+    var view: some View {
+      return ZStack {
+        Color.black
+          .ignoresSafeArea(edges: .all)
+        AppRootView(store: store)
+        // .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
+      }
+    }
+
+    try TestSupport.assertSnapshot(matching: view)
+  }
+
+  @Test(
+    .snapshots(record: .failed)
+  )
+  func showNoPresetToast() async throws {
+    let state: AppRoot.State = .init(toastState: .noActivePreset)
+    let store: StoreOf<AppRoot> = .init(initialState: state) { AppRoot() }
+
+    var view: some View {
+      return ZStack {
+        Color.black
+          .ignoresSafeArea(edges: .all)
+        AppRootView(store: store)
+        // .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
+      }
+    }
+
+    try TestSupport.assertSnapshot(matching: view)
+  }
+
+  @Test
+  func editingPresetVisibilityChanged() async throws {
+    try await initialized { store in
+      _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+        await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, true) {
+          $0.presetsList.editingVisibility = true
+        }
+        await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, false) {
+          $0.presetsList.editingVisibility = false
+        }
+      }
+    }
+  }
+
+  @Test
+  func effectsVisibilityChanged() async throws {
+    @Shared(.effectsPanelVisible) var effectsPanelVisible
+    try await initialized { store in
+      await store.send(\.toolBar.delegate.effectsVisibilityChanged, true)
+      #expect(effectsPanelVisible == true)
+      await store.send(\.toolBar.delegate.effectsVisibilityChanged, false)
+      #expect(effectsPanelVisible == false)
+    }
+  }
+
+  @Test(
+    .dependencies {
+      $0.continuousClock = .immediate
+    }
+  )
+  func presetNameTapped() async throws {
+    try await initialized { store in
+      await store.send(\.toolBar.delegate.presetNameTapped)
+    }
+  }
+
+  @Test
+  func panic() async throws {
+    try await initialized { store in
+      await store.send(\.keyboard.visualizeMIDINote, .on(.C4)) {
+        $0.keyboard.noteCounters[60] = 1
+      }
+      await store.send(\.toolBar.delegate.panic) {
+        $0.keyboard.noteCounters[60] = 0
+      }
+    }
+  }
+
+  @Test
+  func tagsListVisibilityChanged() async throws {
+    try await initialized { store in
+      await store.send(\.toolBar.delegate.tagsListVisibilityChanged, true) {
+        $0.fontsAndTagsSplit.panesVisible = .init(rawValue: 3)
+      }
+      await store.receive(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: .init(rawValue: 3), position: 0.4))
+      await store.send(\.toolBar.delegate.tagsListVisibilityChanged, false) {
+        $0.fontsAndTagsSplit.panesVisible = .init(rawValue: 1)
+      }
+      await store.receive(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: .init(rawValue: 1), position: 0.4))
+    }
+  }
+
+  @Test
+  func visibleKeyRangeChanged() async throws {
+    try await initialized { store in
+      await store.send(\.toolBar.delegate, .visibleKeyRangeChanged(lowest: .A1, highest: .G3)) {
+        $0.keyboard.scrollTo = .init(midiNoteValue: 33)
       }
     }
   }

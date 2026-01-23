@@ -45,13 +45,6 @@ public struct AppRoot {
     #endif
   }
 
-  /**
-   The various toasts that can appear.
-   */
-  public enum ToastState: Equatable {
-    case volumeMonitor(reason: VolumeMonitor.Reason)
-  }
-
   @ObservableState
   public struct State: Equatable {
     public var appReview: AppReview.State
@@ -72,7 +65,7 @@ public struct AppRoot {
     // Set to true when synth is created and audio state is active. Once set, does not change.
     public var readyForUse = false
     public var audioUnitCrashed = false
-    public var toastState: ToastState?
+    public var toastState: VolumeMonitor.Reason?
 
     public init(
       appReview: AppReview.State? = nil,
@@ -87,6 +80,7 @@ public struct AppRoot {
       synth: Synth.State? = nil,
       tagsList: TagsList.State? = nil,
       toolBar: ToolBar.State? = nil,
+      toastState: VolumeMonitor.Reason? = nil
     ) {
       @Shared(.isAUv3) var isAUv3 = false
 
@@ -109,6 +103,8 @@ public struct AppRoot {
       self.synth = synth ?? .init()
       self.tagsList = tagsList ?? .init()
       self.toolBar = toolBar ?? .init()
+      self.toastState = toastState
+
 #if os(iOS)
       self.volumeMonitor = .init()
 
@@ -383,7 +379,6 @@ extension AppRoot {
 
     if !state.readyForUse {
       state.readyForUse = true
-      state.toastState = nil
       actions.append(activePresetIdChanged(&state, presetId: activeState.activePresetId))
     }
 
@@ -607,9 +602,9 @@ extension AppRoot {
     log.info("volumeMonitor reasonChanged: \(reason.debugDescription)")
     if let reason {
       if state.toastState == nil {
-        state.toastState = .volumeMonitor(reason: reason)
+        state.toastState = reason
       }
-    } else if case .volumeMonitor = state.toastState {
+    } else {
       state.toastState = nil
     }
 
@@ -706,9 +701,7 @@ public struct AppRootView: View {
     )
     .appReview(store: store.scope(state: \.appReview, action: \.appReview))
     .toast(item: $store.toastState, alignment: .top) { reason in
-      switch reason {
-      case .volumeMonitor(reason: let reason): volumeMonitorToast(reason)
-      }
+      volumeMonitorToast(reason)
     }
     .toastStyle(.plain)
   }
