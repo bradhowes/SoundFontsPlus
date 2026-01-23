@@ -11,7 +11,7 @@ public struct FileImportFailure: Error, Equatable {
     case unableToCreateFile
     case unknownError(String)
     case duplicateFile
-    case failedToReadDirectory
+    case cannotImportDirectory
     case unknownFileType
   }
 

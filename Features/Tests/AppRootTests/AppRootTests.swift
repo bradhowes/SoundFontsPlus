@@ -385,6 +385,9 @@ struct AppRootTests {
   func presetNameTapped() async throws {
     try await initialized { store in
       await store.send(\.toolBar.delegate.presetNameTapped)
+      await store.receive(\.presetsList.showActivePresetNow, timeout: .seconds(30)) {
+        $0.presetsList.scrollToPresetId = .init(presetId: 1)
+      }
     }
   }
 

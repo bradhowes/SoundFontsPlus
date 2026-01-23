@@ -22,7 +22,7 @@ public struct FileImporter {
 
   @ObservableState
   public struct State: Equatable {
-    public let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) } + [.folder]
+    public let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
     public var showChooser: Bool
     @Presents public var destination: Destination.State?
 
@@ -69,6 +69,9 @@ public struct FileImporter {
       case let .destination(.presented(.alert(.addExistingConfirmed(url: url)))):
         return importFile(&state, url: url, allowExisting: true)
 
+      case .destination(.dismiss):
+        return importNextFile(&state)
+
       case .fileImporterDismissed:
         state.showChooser = false
         return .none
@@ -110,54 +113,7 @@ extension FileImporter {
 
   private func collectFiles(_ state: inout State, urls: [URL]) -> Effect<Action> {
     log.debug("collectFiles - \(urls)")
-
-    var dirs: [URL] = []
-
-    func addFiles(_ url: [URL]) {
-      for url in urls {
-        do {
-          if url.hasDirectoryPath {
-            log.debug("adding directory - \(url)")
-            dirs.append(url)
-          } else {
-            do {
-              log.debug("adding file - \(url)")
-              let rawTypeId = try url.resourceValues(forKeys: [.typeIdentifierKey]).typeIdentifier
-              if let rawTypeId {
-                log.debug("rawTypeId: \(rawTypeId, privacy: .public)")
-                let typeId = UTType(rawTypeId)
-                if let typeId {
-                  log.debug("typeId: \(typeId, privacy: .public)")
-                  if state.types.contains(typeId) {
-                    state.filesPicked.append(url)
-                    continue
-                  }
-                }
-              }
-              state.failures.append(.init(url, reason: .unknownFileType))
-            } catch {
-              state.failures.append(.init(url, reason: .unknownFileType))
-            }
-          }
-        }
-      }
-    }
-
-    addFiles(urls)
-
-    while let url = dirs.popLast() {
-      do {
-        let urls = try FileManager.default.contentsOfDirectory(
-          at: url,
-          includingPropertiesForKeys: [.typeIdentifierKey],
-          options: [.skipsHiddenFiles]
-        )
-        addFiles(urls)
-      } catch {
-        state.failures.append(.init(url, reason: .failedToReadDirectory))
-      }
-    }
-
+    state.filesPicked = urls
     return importNextFile(&state)
   }
 

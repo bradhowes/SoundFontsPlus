@@ -5,24 +5,35 @@ import BaseSupport
 import Foundation
 import Dependencies
 import DependenciesTestSupport
+import Engine
 import Sharing
 import Testing
 import TestSupport
 
 @testable import SF2LibAU
 
-@Suite(
-  .dependencies {
-    // TODO: use mock here
-//    $0.audioGraph = .liveValue
-//    $0.audioSession = .liveValue
-//    $0.continuousClock = .immediate
-//    $0.defaultDatabase = TestSupport.testDatabase()
-  },
-  .snapshots(record: .failed),
-  .serialized
-)
+// SF2LibAU cannot be tested via the SF2LibAU API since it actually creates 
+@Suite
 @MainActor
 struct SF2LibAUTests {
 
+  @Test
+  func engineTests() async throws {
+    var engine = SF2Engine()
+    engine.create(48000.0, 16)
+
+    _ = SF2Engine.createResetCommandPayload()
+    _ = SF2Engine.createUseBankProgramPayload(1, 2)
+    _ = SF2Engine.createChannelMessagePayload(1, 2)
+    _ = SF2Engine.createAllSoundOffPayload()
+    _ = SF2Engine.createAllNotesOffPayload()
+
+    #expect(engine.activePresetName() == "")
+    #expect(engine.activeVoiceCount() == 0)
+    #expect(engine.monophonicModeEnabled() == false)
+    #expect(engine.polyphonicModeEnabled() == true)
+    #expect(engine.portamentoModeEnabled() == false)
+    #expect(engine.oneVoicePerKeyModeEnabled() == false)
+    #expect(engine.retriggerModeEnabled() == true)
+  }
 }

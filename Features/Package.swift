@@ -242,6 +242,7 @@ let package = Package(
     .testTarget(name: "BaseSupportTests", dependencies: ["BaseSupport"]),
     .testTarget(name: "FeatureSupportTests", dependencies: ["FeatureSupport"]),
     .testTarget(name: "MIDITrafficIndicatorTests", dependencies: ["MIDITrafficIndicator"]),
+    .testTarget(name: "SF2LibAUTests", dependencies: ["SF2LibAU"]),
     .testTarget(name: "SF2ResourcesTests", dependencies: ["BaseSupport"]),
     .testTarget(
       name: "SynthTests",

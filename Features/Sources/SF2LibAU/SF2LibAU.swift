@@ -114,12 +114,8 @@ extension SF2LibAU {
 
 extension SF2LibAU {
 
-  public var activePresetName: String { String(engine.activePresetName()).trimmedOfWhitespaces }
-  public var monophonicModeEnabled: Bool { engine.monophonicModeEnabled(); }
-  public var polyphonicModeEnabled: Bool { engine.polyphonicModeEnabled(); }
-  public var oneVoicePerKeyModeEnabled: Bool { engine.oneVoicePerKeyModeEnabled(); }
-  public var retriggerModeEnabled: Bool { engine.retriggerModeEnabled(); }
-  public var portamentoModeEnabled: Bool { engine.portamentoModeEnabled() }
+  // Only used for testing (temporary)
+  internal var getEngine: SF2Engine { self.engine }
 
   public func sendMIDI(bytes: [UInt8], when: AUEventSampleTime = 0, cable: UInt8 = 0) -> Bool {
     log.info("sendMIDI BEGIN - \(bytes.count) bytes")
