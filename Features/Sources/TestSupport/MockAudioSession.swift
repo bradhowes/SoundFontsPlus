@@ -2,7 +2,6 @@
 
 import Models
 import Sharing
-import Synth
 
 public final class MockAudioSession: @unchecked Sendable {
   public var active: Bool = false
