@@ -79,14 +79,14 @@ struct FileImporterTests {
     let url2 = SF2ResourceTag.fluidFont.url.appendingPathComponent("bar")
     await store.send(.filesPicked(.success([url1, url2]))) {
       $0.showChooser = false
-      $0.filesPicked = [url1]
+      $0.filesPending = [url1]
       $0.failures = [
         .init(url2, reason: .invalidFile)
       ]
     }
 
     await store.receive(\.importNextFile) {
-      $0.filesPicked = []
+      $0.filesPending = []
       $0.failures = [
         .init(url2, reason: .invalidFile),
         .init(url1, reason: .invalidFile)
@@ -211,7 +211,8 @@ struct FileImporterTests {
     }
   )
   func filePickedDuplicateFile() async throws {
-    @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling = true
+    @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
+    $copyFileWhenInstalling.withLock { $0 = true }
 
     let store = store()
     await store.send(.showFileImporter) {
@@ -221,42 +222,37 @@ struct FileImporterTests {
     let url1 = SF2ResourceTag.fluidFont.url
     var dst = FileManager.default.fontFilesDirectory.appendingPathComponent(url1.lastPathComponent)
     try? FileManager.default.removeItem(at: dst)
+
     let url2 = SF2ResourceTag.fluidFont.url
     dst = FileManager.default.fontFilesDirectory.appendingPathComponent(url2.lastPathComponent)
     try? FileManager.default.removeItem(at: dst)
 
     await store.send(.filesPicked(.success([url1, url2]))) {
       $0.showChooser = false
-      $0.filesPicked = [url1]
+      $0.filesPending = [url1]
       $0.destination = nil
       $0.successes = [url2]
     }
 
     await store.receive(\.importNextFile) {
-      $0.filesPicked = []
+      $0.filesPending = [url1]
       $0.destination = .alert(
         .confirmAddExisting(
-          action: .addExistingConfirmed(url: url1),
+          action: .addExistingConfirmed,
           displayName: "FluidR3_GM"
         )
       )
     }
 
     await store.send(\.destination.dismiss) {
+      $0.filesPending = []
+      $0.failures = [.init(url1, reason: .duplicateFile)]
       $0.destination = .alert(
-        .importResults(message: "Added 1 sound font file.")
+        .importResults(message: "Added 1 out of 2 sound font files.")
       )
     }
 
     await store.receive(\.delegate, .importFinished)
-  }
-
-  @Test
-  func confirmAddExisting() async throws {
-    let _: AlertState<FileImporter.Action> = .confirmAddExisting(
-      action: FileImporter.Action.importDupiicateConfirmed(URL(filePath: "/a/b/c")),
-      displayName: "Foo"
-    )
   }
 
   @Test

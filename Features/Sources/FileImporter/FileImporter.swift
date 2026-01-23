@@ -16,7 +16,7 @@ public struct FileImporter {
 
     @CasePathable
     public enum Alert: Equatable {
-      case addExistingConfirmed(url: URL)
+      case addExistingConfirmed
     }
   }
 
@@ -29,7 +29,7 @@ public struct FileImporter {
     public var showChooser: Bool
     @Presents public var destination: Destination.State?
 
-    public var filesPicked: [URL] = []
+    public var filesPending: [URL] = []
     public var successes: [URL] = []
     public var failures: [FileImportFailure] = []
 
@@ -44,8 +44,6 @@ public struct FileImporter {
     case destination(PresentationAction<Destination.Action>)
     case fileImporterDismissed
     case filesPicked(Result<[URL], Error>)
-    case importDupiicateConfirmed(URL)
-    case importDuplicateDenied(URL)
     case importNextFile
     case showFileImporter
 
@@ -66,14 +64,22 @@ public struct FileImporter {
 
       switch action {
 
-      case .delegate:
-        return .none
-
-      case let .destination(.presented(.alert(.addExistingConfirmed(url: url)))):
-        return importFile(&state, url: url, allowExisting: true)
+      case .destination(.presented(.alert(.addExistingConfirmed))):
+        return importFile(&state, allowExisting: true)
 
       case .destination(.dismiss):
-        return state.filesPicked.isEmpty ? .none : importNextFile(&state)
+        if case let .alert(what) = state.destination {
+          let actions = what.buttons.compactMap { $0.action.action }
+          if actions.contains(.addExistingConfirmed) {
+            // User did not confirm adding the duplicate
+            guard let url = state.filesPending.popLast() else {
+              fatalError("logic error")
+            }
+            state.failures.append(.init(url, reason: .duplicateFile))
+            return importNextFile(&state)
+          }
+        }
+        return .none
 
       case .fileImporterDismissed:
         state.showChooser = false
@@ -116,19 +122,18 @@ extension FileImporter {
 
   private func collectFiles(_ state: inout State, urls: [URL]) -> Effect<Action> {
     log.debug("collectFiles - \(urls)")
-    state.filesPicked = urls
+    state.filesPending = urls
     return importNextFile(&state)
   }
 
   private func importNextFile(_ state: inout State) -> Effect<Action> {
-    if let url = state.filesPicked.popLast() {
-      return importFile(&state, url: url, allowExisting: false)
-    } else {
-      return importFinished(&state)
-    }
+    state.filesPending.isEmpty ? importFinished(&state) : importFile(&state, allowExisting: false)
   }
 
-  private func importFile(_ state: inout State, url: URL, allowExisting: Bool) -> Effect<Action> {
+  private func importFile(_ state: inout State, allowExisting: Bool) -> Effect<Action> {
+    guard let url = state.filesPending.popLast() else {
+      fatalError("logic error")
+    }
 
     if !validateSoundFont(url: url) {
       log.info("invalid SF2 file")
@@ -140,7 +145,8 @@ extension FileImporter {
     do {
       kind = try placeSoundFont(url: url, allowExisting: allowExisting)
     } catch CocoaError.fileWriteFileExists {
-      state.destination = .alert(.confirmAddExisting(action: .addExistingConfirmed(url: url), displayName: url.displayName))
+      state.filesPending.append(url)
+      state.destination = .alert(.confirmAddExisting(action: .addExistingConfirmed, displayName: url.displayName))
       return .none
     } catch {
       state.failures.append(.init(url, reason: .unknownError(error.localizedDescription)))
