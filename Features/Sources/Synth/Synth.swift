@@ -270,25 +270,23 @@ extension Synth {
 
   private func monitorMediaServices(_ state: inout State) -> Effect<Action> {
     log.info("monitorMediaServices BEGIN")
-    return .publisher {
-      NotificationCenter.default
-        .publisher(for: AVAudioSession.mediaServicesWereResetNotification)
-        .map { _ in
-          log.debug("monitorMediaServices - mediaServicesWereResetNotification fired")
-          return .mediaServicesWereReset
-        }
+    return .run { send in
+      for await _ in NotificationCenter.default
+        .publisher(for: AVAudioSession.mediaServicesWereResetNotification).values {
+        log.debug("monitorMediaServices - mediaServicesWereResetNotification fired")
+        await send(.mediaServicesWereReset)
+      }
     }.cancellable(id: CancelId.synthMonitorMediaServices, cancelInFlight: true)
   }
 
   private func monitorRouteChanged(_ state: inout State) -> Effect<Action> {
     log.info("monitorRouteChanged BEGIN")
-    return .publisher {
-      NotificationCenter.default
-        .publisher(for: AVAudioSession.routeChangeNotification)
-        .map { _ in
-          log.debug("monitorRouteChanged - routeChangeNotification fired")
-          return .audioSessionRouteChanged
-        }
+    return .run { send in
+      for await _ in NotificationCenter.default
+        .publisher(for: AVAudioSession.routeChangeNotification).values {
+        log.debug("monitorMediaServices - routeChangeNotification fired")
+        await send(.audioSessionRouteChanged)
+      }
     }.cancellable(id: CancelId.synthMonitorRouteChanged, cancelInFlight: true)
   }
 

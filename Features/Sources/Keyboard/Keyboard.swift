@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AsyncAlgorithms
 import AVFAudio.AVAudioUnit
 import FeatureSupport
 import SwiftUI
@@ -186,12 +187,10 @@ extension Keyboard {
   private func monitorMIDINotes(_ state: inout State) -> Effect<Action> {
     @Shared(.midiMonitor) var midiMonitor
     guard let midiMonitor else { return .none }
-    return .publisher {
-      midiMonitor.$notes
-        .compactMap {
-          guard let note = $0 else { return nil }
-          return .visualizeMIDINote(note)
-        }
+    return .run { send in
+      for await note in midiMonitor.$notes.values.compacted() {
+        await send(.visualizeMIDINote(note))
+      }
     }.cancellable(id: CancelId.keyboardMonitorMIDINotes)
   }
 

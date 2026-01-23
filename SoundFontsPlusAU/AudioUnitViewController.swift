@@ -1,7 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AUv3Root
-import Combine
 import CoreAudioKit
 import FeatureSupport
 import os

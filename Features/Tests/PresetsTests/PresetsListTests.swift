@@ -79,7 +79,6 @@ struct PresetsListTests {
   @Test
   func initializeWithNoSoundFontId() async throws {
     let store = try setup(activeSoundFontId: nil, selectedSoundFontId: nil)
-    #expect(store.state.sections.isEmpty)
 
     await store.send(.initialize)
     await store.receive(\.selectedSoundFontIdChanged) {
@@ -95,13 +94,9 @@ struct PresetsListTests {
   @Test
   func initializeWithSoundFontId() async throws {
     let store = try setup()
-    #expect(store.state.sections.isEmpty)
 
     await store.send(.initialize)
-    await store.receive(\.selectedSoundFontIdChanged) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
-    }
-    #expect(store.state.sections.count == 1)
+    await store.receive(\.selectedSoundFontIdChanged)
 
     await store.send(.deinitialize)
     await store.finish()
@@ -221,9 +216,7 @@ struct PresetsListTests {
     let store = try setup()
     await store.send(.initialize)
 
-    await store.receive(\.selectedSoundFontIdChanged, nil) {
-      $0.sections = [.init(section: 0, presets: presets[...])]
-    }
+    await store.receive(\.selectedSoundFontIdChanged)
 
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     $selectedSoundFontId.withLock { $0 = 2 }

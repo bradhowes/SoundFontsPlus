@@ -225,9 +225,10 @@ extension Settings {
 
   private func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
     guard let midiMonitor else { return .none }
-    return .publisher {
-      midiMonitor.$connectivity
-        .map { _ in .midiConnectionsChanged }
+    return .run { send in
+      for await _ in midiMonitor.$connectivity.values {
+        await send(.midiConnectionsChanged)
+      }
     }.cancellable(id: CancelId.settingsMonitorMIDIConnections)
   }
 

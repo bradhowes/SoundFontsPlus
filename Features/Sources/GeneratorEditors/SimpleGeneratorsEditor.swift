@@ -162,11 +162,10 @@ extension GeneratorsEditor {
   }
 
   private func monitorActivePresetId() -> Effect<Action> {
-    .publisher {
-      $activeState.activePresetId
-        .publisher
-        .removeDuplicates()
-        .map { .activePresetIdChanged($0) }
+    .run { [$activeState] send in
+      for await value in UncheckedSendable($activeState.activePresetId.publisher.values.removeDuplicates()) {
+        await send(.activePresetIdChanged(value))
+      }
     }.cancellable(id: CancelId.monitorActivePresetId, cancelInFlight: true)
   }
 

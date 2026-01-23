@@ -6,6 +6,7 @@ import FeatureSupport
 
 @Reducer
 public struct ReverbEffect {
+  public static let unsetPresetId: Preset.ID = -1
 
   @ObservableState
   public struct State: Equatable {
@@ -16,14 +17,13 @@ public struct ReverbEffect {
     public var wetDryMix: KnobFeature.State
     public var dirty: Bool
 
-    public init(presetId: Preset.ID = -1, dirty: Bool = false) {
+    public init(presetId: Preset.ID = ReverbEffect.unsetPresetId, dirty: Bool = false) {
       @Shared(.parameterTree) var parameterTree
       @Shared(.reverbLockEnabled) var locked
       self.config = .init(presetId: presetId)
       self.locked = .init(isOn: locked, displayName: "Lock")
       self.enabled = .init(isOn: false, displayName: "On")
       self.wetDryMix = .init(parameter: parameterTree[.reverbAmount])
-
       self.dirty = dirty
     }
   }
@@ -109,6 +109,7 @@ public struct ReverbEffect {
 extension ReverbEffect {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+    // Nothing to do?
     guard
       !state.locked.isOn,
       let presetId,
@@ -117,11 +118,16 @@ extension ReverbEffect {
       return .none
     }
 
-    guard state.dirty else {
+    // Nothing to save?
+    guard
+      state.config.presetId != Self.unsetPresetId,
+      state.dirty
+    else {
       return applyConfigForPreset(&state, presetId: presetId)
     }
 
-    return .merge(
+    // Save current changes and then apply new config. Order is important here.
+    return .concatenate(
       .run { [toSave = state.config] _ in ReverbConfig.save(config: toSave) },
       .run { send in await send(.applyConfigForPreset(presetId)) }
         .cancellable(id: CancelId.reverbEffectApplyConfigForPreset, cancelInFlight: true)
@@ -143,11 +149,10 @@ extension ReverbEffect {
   }
 
   private func monitorActivePresetId() -> Effect<Action> {
-    .publisher {
-      $activeState.activePresetId
-        .publisher
-        .removeDuplicates()
-        .map { .activePresetIdChanged($0) }
+    .run { [$activeState] send in
+      for await value in UncheckedSendable($activeState.activePresetId.publisher.values.removeDuplicates()) {
+        await send(.activePresetIdChanged(value))
+      }
     }.cancellable(id: CancelId.reverbEffectMonitorActivePresetId, cancelInFlight: true)
   }
 

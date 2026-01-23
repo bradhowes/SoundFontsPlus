@@ -23,8 +23,9 @@ public struct SoundFontsList {
     public var rows: IdentifiedArrayOf<SoundFontButton.State>
 
     public init(destination: Destination.State? = nil) {
-      @FetchAll(SoundFontInfo.query()) var soundFontInfos
-      log.info("init \(soundFontInfos)")
+      let soundFontInfos: [SoundFontInfo] = withDatabaseReader { db in
+        try SoundFontInfo.query().fetchAll(db)
+      } ?? []
       self.rows = .init(uncheckedUniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
     }
   }
@@ -198,20 +199,18 @@ extension SoundFontsList {
   }
 
   private func monitorActiveTag(_ state: inout State) -> Effect<Action> {
-    .publisher {
-      $activeState.activeTagId
-        .publisher
-        .removeDuplicates()
-        .map { _ in .updateFetchAllQuery }
+    .run { [$activeState] send in
+      for await _ in UncheckedSendable($activeState.activeTagId.publisher.values.removeDuplicates()) {
+        await send(.updateFetchAllQuery)
+      }
     }.cancellable(id: CancelId.soundFontsListMonitorActiveTagId, cancelInFlight: true)
   }
 
   private func monitorHideBuiltinFonts(_ state: inout State) -> Effect<Action> {
-    .publisher {
-      $hideBuiltinFonts
-        .publisher
-        .removeDuplicates()
-        .map { _ in .updateFetchAllQuery }
+    .run { [$hideBuiltinFonts] send in
+      for await _ in UncheckedSendable($hideBuiltinFonts.publisher.values.removeDuplicates()) {
+        await send(.updateFetchAllQuery)
+      }
     }.cancellable(id: CancelId.soundFontsListMonitorHideBuiltinFonts)
   }
 

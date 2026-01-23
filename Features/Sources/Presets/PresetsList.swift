@@ -2,6 +2,7 @@
 
 import Algorithms // for `chunks` addition to collections
 import FeatureSupport
+import Sharing
 
 /**
  List of presets for the selected soundfont. Contains a collection of `PresetsListSection` entities that group
@@ -63,7 +64,13 @@ public struct PresetsList {
       self.isSearchFieldPresented = searchText != nil
       self.searchText = searchText ?? ""
       self.editingVisibility = editingVisibility
-      self.sections = []
+
+      let presets = Operations.presets(for: nil)
+      self.sections = presets.isEmpty ?
+        .init(uniqueElements: [PresetsListSection.State(section: 0, presets: [])]) :
+        .init(uniqueElements: presets.indices.chunks(ofCount: PresetsList.groupingSize).map {
+          PresetsListSection.State(section: $0.lowerBound, presets: presets[$0])
+        })
     }
 
     public func sectionIndex(for id: Int) -> Int? { sections.index(id: id) }
@@ -242,11 +249,10 @@ extension PresetsList {
   }
 
   private func monitorSelectedSoundFontId() -> Effect<Action> {
-    .publisher {
-      $selectedSoundFontId
-        .publisher
-        .removeDuplicates()
-        .map { .selectedSoundFontIdChanged($0) }
+    .run { [$selectedSoundFontId] send in
+      for await value in UncheckedSendable($selectedSoundFontId.publisher.values.removeDuplicates()) {
+        await send(.selectedSoundFontIdChanged(value))
+      }
     }.cancellable(id: CancelId.presetsListMonitorSelectedSoundFontId, cancelInFlight: true)
   }
 

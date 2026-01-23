@@ -1,7 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFAudio.AVAudioUnitSampler
-import Combine
 import CoreMIDI
 import FeatureSupport
 import MIDITrafficIndicator
@@ -122,9 +121,10 @@ extension MIDIConnections {
 
     // NOTE: the view expects the publisher to fire once after starting in order to fill the rows. If this is not guaranteed then
     // add a call to updateMIDIConnections()
-    return .publisher {
-      midiMonitor.$connectivity
-        .map { _ in .midiConnectionsChanged }
+    return .run { send in
+      for await _ in midiMonitor.$connectivity.values {
+        await send(.midiConnectionsChanged)
+      }
     }.cancellable(id: CancelId.midiConnectionsMonitorMIDIConnections)
   }
 

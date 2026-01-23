@@ -446,10 +446,13 @@ extension AppRoot {
   }
 
   private func installMIDIMonitor(midiInstrument: AVAudioUnitMIDIInstrument) {
-    log.info("creating MIDIMonitor")
+    log.info("install MIDIMonitor")
 
     @Shared(.midi) var midi
-    guard let midi else { return }
+    guard let midi else {
+      log.info("no MIDI to use")
+      return
+    }
 
     @Shared(.midiMonitor) var midiMonitor
     guard midiMonitor == nil else { fatalError() }
@@ -467,11 +470,10 @@ extension AppRoot {
   }
 
   private func monitorActivePresetId() -> Effect<Action> {
-    .publisher {
-      $activeState.activePresetId
-        .publisher
-        .removeDuplicates()
-        .map { .activePresetIdChanged($0) }
+    .run { [$activeState] send in
+      for await value in UncheckedSendable($activeState.activePresetId.publisher.values.removeDuplicates()) {
+        await send(.activePresetIdChanged(value))
+      }
     }.cancellable(id: CancelId.appRootMonitorActivePresetId, cancelInFlight: true)
   }
 

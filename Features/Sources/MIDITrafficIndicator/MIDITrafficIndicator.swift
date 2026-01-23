@@ -53,13 +53,10 @@ extension MIDITrafficIndicator {
   private func monitorMIDITraffic(_ state: inout State) -> Effect<Action> {
     @Shared(.midiMonitor) var midiMonitor
     guard let midiMonitor else { return .none }
-    return .publisher {
-      midiMonitor.$traffic
-        .compactMap {
-          guard let event = $0 else { return nil }
-          log.debug("traffic: \(String(describing: event), privacy: .public)")
-          return .showMIDITraffic(event)
-        }
+    return .run { send in
+      for await event in midiMonitor.$traffic.values.compacted() {
+        await send(.showMIDITraffic(event))
+      }
     }.cancellable(id: CancelId.midiTrafficIndicatorMonitorMIDITraffic)
   }
 

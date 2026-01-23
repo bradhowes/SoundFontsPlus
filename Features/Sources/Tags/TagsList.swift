@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AsyncAlgorithms
 import FeatureSupport
 import SQLiteData
 
@@ -30,7 +31,18 @@ public struct TagsList {
     @Presents public var destination: Destination.State?
 
     public init() {
-      rows = .init()
+      @Shared(.hideEmptyTags) var hideEmptyTags
+      let tagInfos: [TagInfo]?
+      if hideEmptyTags {
+        tagInfos = withDatabaseReader { db in
+          try TagInfo.queryNonEmpty.fetchAll(db)
+        }
+      } else {
+        tagInfos = withDatabaseReader { db in
+          try TagInfo.queryAll.fetchAll(db)
+        }
+      }
+      self.rows = .init(uniqueElements: (tagInfos ?? []).map { .init(tagInfo: $0) })
     }
   }
 
@@ -125,28 +137,18 @@ extension TagsList {
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {
-    .merge(
-      monitorHideEmptyTags(&state),
-      monitorHideBuiltinFonts(&state)
-    )
+    monitorQueryDependecies(&state)
   }
 
-  private func monitorHideEmptyTags(_ state: inout State) -> Effect<Action> {
-    .publisher {
-      $hideEmptyTags
-        .publisher
-        .removeDuplicates()
-        .map { _ in .fetchAllQueryChanged }
+  private func monitorQueryDependecies(_ state: inout State) -> Effect<Action> {
+    .run { [$hideEmptyTags, $hideBuiltinFonts] send in
+      for await _ in merge(
+        UncheckedSendable($hideEmptyTags.publisher.values),
+        UncheckedSendable($hideBuiltinFonts.publisher.values)
+      ) {
+        await send(.fetchAllQueryChanged)
+      }
     }.cancellable(id: CancelId.tagsListMonitorHideEmptyTags)
-  }
-
-  private func monitorHideBuiltinFonts(_ state: inout State) -> Effect<Action> {
-    .publisher {
-      $hideBuiltinFonts
-        .publisher
-        .removeDuplicates()
-        .map { _ in .fetchAllQueryChanged }
-    }.cancellable(id: CancelId.tagsListMonitorHideBuiltinFonts)
   }
 
   private func processRowAction(_ state: inout State, action: TagButton.Delegate) -> Effect<Action> {

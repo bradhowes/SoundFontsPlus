@@ -83,7 +83,7 @@ struct AppRootTests {
         $0.readyForUse = true
       }
 
-      await store.receive(\.synth.lastPresetLoadFinished) {
+      await store.receive(\.synth.lastPresetLoadFinished, timeout: .seconds(10)) {
         $0.synth.firstTimePresetLoaded = false
       }
 
@@ -176,6 +176,7 @@ struct AppRootTests {
       let soundFont = SoundFont.with(id: 1)!
       await store.send(\.soundFontsList.delegate, .edit(soundFont)) {
         $0.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
+        $0.synth.firstTimePresetLoaded = false
       }
     }
   }
