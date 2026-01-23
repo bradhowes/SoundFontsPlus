@@ -22,7 +22,10 @@ public struct FileImporter {
 
   @ObservableState
   public struct State: Equatable {
-    public let types = ["com.braysoftware.sf2", "com.soundblaster.soundfont"].compactMap { UTType($0) }
+    public let types = [
+      "com.braysoftware.sf2",
+      "com.soundblaster.soundfont"
+    ].compactMap { UTType($0) }
     public var showChooser: Bool
     @Presents public var destination: Destination.State?
 
@@ -70,7 +73,7 @@ public struct FileImporter {
         return importFile(&state, url: url, allowExisting: true)
 
       case .destination(.dismiss):
-        return importNextFile(&state)
+        return state.filesPicked.isEmpty ? .none : importNextFile(&state)
 
       case .fileImporterDismissed:
         state.showChooser = false
