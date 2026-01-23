@@ -433,11 +433,11 @@ extension AppRoot {
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {
-    log.info("sharedDocumentsDirectory dump: \(FileManager.default.sharedDocumentsDirectory.path())")
-    let found = try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.sharedDocumentsDirectory.path())
-    for each in (found ?? []) {
-      log.info("found: \(each)")
-    }
+//    log.info("sharedDocumentsDirectory dump: \(FileManager.default.sharedDocumentsDirectory.path())")
+//    let found = try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.sharedDocumentsDirectory.path())
+//    for each in (found ?? []) {
+//      log.info("found: \(each)")
+//    }
     return .merge(
       createCloudDocumentsDirectory(),
       monitorActivePresetId(),
@@ -713,30 +713,30 @@ public struct AppRootView: View {
     .toastStyle(.plain)
   }
 
-  private var initializeToast: Toast {
-    Toast(role: .informational, duration: .indefinite) {
-      Label {
-        Text(" Loading…")
-          .font(.toastLabel)
-          .foregroundStyle(.teal)
-      } icon: {
-        ProgressView()
-          .tint(.teal)
-      }
-    }
-  }
+//  private var initializeToast: Toast {
+//    Toast(role: .informational, duration: .indefinite) {
+//      Label {
+//        Text(" Loading…")
+//          .font(.toastLabel)
+//          .foregroundStyle(.teal)
+//      } icon: {
+//        ProgressView()
+//          .tint(.teal)
+//      }
+//    }
+//  }
 
-  private var panicToast: Toast {
-    Toast(role: .warning, duration: .seconds(3)) {
-      Label {
-        Text("Panic!")
-          .font(.toastLabel)
-          .foregroundStyle(.teal)
-      } icon: {
-        Image(systemName: "exclamationmark.octagon.fill")
-      }
-    }
-  }
+//  private var panicToast: Toast {
+//    Toast(role: .warning, duration: .seconds(3)) {
+//      Label {
+//        Text("Panic!")
+//          .font(.toastLabel)
+//          .foregroundStyle(.teal)
+//      } icon: {
+//        Image(systemName: "exclamationmark.octagon.fill")
+//      }
+//    }
+//  }
 
   private func volumeMonitorToast(_ reason: VolumeMonitor.Reason) -> Toast {
     switch reason {
