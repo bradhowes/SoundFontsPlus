@@ -210,7 +210,7 @@ struct FileImporterTests {
       $0.defaultDatabase = TestSupport.testDatabase()
     }
   )
-  func filePickedDuplicateFile() async throws {
+  func filePickedDuplicateFiles() async throws {
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
     $copyFileWhenInstalling.withLock { $0 = true }
 
@@ -235,18 +235,11 @@ struct FileImporterTests {
     }
 
     await store.receive(\.importNextFile) {
-      $0.filesPending = [url1]
-      $0.destination = .alert(
-        .confirmAddExisting(
-          action: .addExistingConfirmed,
-          displayName: "FluidR3_GM"
-        )
-      )
-    }
-
-    await store.send(\.destination.dismiss) {
       $0.filesPending = []
       $0.failures = [.init(url1, reason: .duplicateFile)]
+    }
+
+    await store.receive(\.importNextFile) {
       $0.destination = .alert(
         .importResults(message: "Added 1 out of 2 sound font files.")
       )
@@ -256,31 +249,9 @@ struct FileImporterTests {
   }
 
   @Test
-  func fileAlreadyImported() async throws {
-    let _: AlertState<FileImporter.Action> = .fileAlreadyImported(
-      url: URL(filePath: "a/b/c")
-    )
-  }
-
-  @Test
   func failedToPick() async throws {
     struct MockError: Error {}
     let _: AlertState<FileImporter.Action> = .failedToPick(error: MockError())
-  }
-
-  @Test
-  func genericFailureToImport() async throws {
-    struct MockError: Error {}
-    let _: AlertState<FileImporter.Action> = .genericFailureToImport(
-      displayName: "Foo",
-      error: MockError()
-    )
-  }
-
-  @Test
-  func invalidSoundFontFormat() async throws {
-    struct MockError: Error {}
-    let _: AlertState<FileImporter.Action> = .invalidSoundFontFormat(displayName: "Foo")
   }
 
   @Test

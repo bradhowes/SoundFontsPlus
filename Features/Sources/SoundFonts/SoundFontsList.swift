@@ -14,6 +14,7 @@ public struct SoundFontsList {
     @CasePathable
     public enum Alert: Equatable {
       case deleteSoundFontConfirmed(SoundFontInfo)
+      case deleteSoundFontCollectionConfirmed([SoundFontInfo])
     }
   }
 
@@ -21,20 +22,25 @@ public struct SoundFontsList {
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
     public var rows: IdentifiedArrayOf<SoundFontButton.State>
+    public var editingMode: EditMode
 
-    public init(destination: Destination.State? = nil) {
+    public init(destination: Destination.State? = nil, editingMode: EditMode = .inactive) {
       let soundFontInfos: [SoundFontInfo] = withDatabaseReader { db in
         try SoundFontInfo.query().fetchAll(db)
       } ?? []
       self.rows = .init(uncheckedUniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
+      self.editingMode = editingMode
     }
   }
 
-  public enum Action {
+  public enum Action: BindableAction {
+    case binding(BindingAction<State>)
     case delegate(Delegate)
-    case deletingModeEnded(delete: Bool)
+    case deleteModeCancelButtonTapped
+    case deleteModeDeleteButtonTapped
     case deinitialize
     case destination(PresentationAction<Destination.Action>)
+    case headerDoubleTapped
     case initialize
     case rows(IdentifiedActionOf<SoundFontButton>)
     case rowsUpdated([SoundFontInfo])
@@ -55,6 +61,8 @@ public struct SoundFontsList {
   @Shared(.selectedSoundFontId) private var selectedSoundFontId
 
   public var body: some ReducerOf<Self> {
+    BindingReducer()
+
     Reduce { state, action in
       log.action("SoundFontsList", action)
 
@@ -63,12 +71,38 @@ public struct SoundFontsList {
       case .deinitialize:
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
 
-      case .deletingModeEnded(let confirmed):
-        print(confirmed)
+      case .deleteModeCancelButtonTapped:
+        state.editingMode = .inactive
+        return .none
+
+      case .deleteModeDeleteButtonTapped:
+        let selected = state.rows
+          .filter { $0.deleting }
+          .map { $0.soundFontInfo }
+        if !selected.isEmpty {
+          state.destination = .alert(.confirmDeleteSoundFontCollection(
+            action: .deleteSoundFontCollectionConfirmed(selected),
+            count: selected.count
+          ))
+        } else {
+          state.editingMode = .inactive
+        }
         return .none
 
       case .destination(.presented(.alert(.deleteSoundFontConfirmed(let soundFontInfo)))):
         return deleteSoundFontConfirmed(&state, soundFontInfo: soundFontInfo)
+
+      case .destination(.presented(.alert(.deleteSoundFontCollectionConfirmed(let soundFontInfos)))):
+        state.editingMode = .inactive
+        return deleteSoundFontCollectionConfirmed(&state, soundFontInfos: soundFontInfos)
+
+      case .destination(.dismiss):
+        state.editingMode = .inactive
+        return .none
+
+      case .headerDoubleTapped:
+        state.editingMode = .active
+        return .none
 
       case .initialize:
         return .merge(
@@ -86,7 +120,7 @@ public struct SoundFontsList {
         return showActiveSoundFont(&state)
 
       case .updateFetchAllQuery:
-        return updateFetchAllQuery(&state)
+        return updateFetchAllQuery()
 
       default:
         return .none
@@ -127,10 +161,50 @@ extension SoundFontsList {
     return .none
   }
 
+  private func deleteSoundFontCollectionConfirmed(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
+    @Dependency(\.fileManager) var fileManager
+    state.editingMode = .inactive
+    for soundFontInfo in soundFontInfos {
+      guard let soundFont = SoundFont.with(id: soundFontInfo.id ) else {
+        log.error("unexpected missing soundfont ID \(soundFontInfo.id)")
+        continue
+      }
+
+      guard
+        let kind = try? SoundFontKind(kind: soundFont.kind, location: soundFont.location, displayName: soundFontInfo.displayName)
+      else {
+        log.error("unexpected nil kind value for soundfont ID \(soundFontInfo.id)")
+        continue
+      }
+
+      guard !kind.isBuiltin else {
+        log.error("unexpected kind value for soundfont ID \(soundFontInfo.id) - \(String(describing: kind), privacy: .public)")
+        continue
+      }
+
+      if kind.deleteWhenRemoved {
+        do {
+          log.info("removing file \(kind.url)")
+          try fileManager.removeItem(kind.url)
+        } catch {
+          log.error("failed to remove item \(kind.url)")
+        }
+      }
+
+      log.info("removing db entry for \(soundFont.displayName)")
+      SoundFont.delete(id: soundFontInfo.id)
+
+      deleted(soundFontInfo.id)
+    }
+
+    return showActiveSoundFont(&state)
+  }
+
   private func deleteSoundFontConfirmed(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
     @Dependency(\.fileManager) var fileManager
     guard let soundFont = SoundFont.with(id: soundFontInfo.id ) else {
       log.error("unexpected missing soundfont ID \(soundFontInfo.id)")
+      state.destination = .alert(.genericDeleteFailure("Sound font ID \(soundFontInfo.id) was not found."))
       return .none
     }
 
@@ -138,11 +212,13 @@ extension SoundFontsList {
       let kind = try? SoundFontKind(kind: soundFont.kind, location: soundFont.location, displayName: soundFontInfo.displayName)
     else {
       log.error("unexpected nil kind value for soundfont ID \(soundFontInfo.id)")
+      state.destination = .alert(.genericDeleteFailure("Invalid (nil) sound font 'kind' value."))
       return .none
     }
 
-    guard kind.isExternal || kind.isInstalled else {
+    guard !kind.isBuiltin else {
       log.error("unexpected kind value for soundfont ID \(soundFontInfo.id) - \(String(describing: kind), privacy: .public)")
+      state.destination = .alert(.genericDeleteFailure("Cannot delete built-in sound fonts."))
       return .none
     }
 
@@ -152,21 +228,33 @@ extension SoundFontsList {
         try fileManager.removeItem(kind.url)
       } catch {
         log.error("failed to remove item \(kind.url)")
+        state.destination = .alert(.genericDeleteFailure(
+          "Failed to remove sound font file at \(kind.url) - \(error.localizedDescription)."
+        ))
       }
     }
 
     log.info("removing db entry for \(soundFont.displayName)")
     SoundFont.delete(id: soundFontInfo.id)
 
-    if activeState.activeSoundFontId == soundFontInfo.id {
+    deleted(soundFontInfo.id)
+
+    return showActiveSoundFont(&state)
+  }
+
+  private func deleted(_ soundFontId: SoundFont.ID) {
+    if activeState.activeSoundFontId == soundFontId {
       $activeState.withLock {
-        $0.activeSoundFontId = SF2ResourceTag.fluidFont.id
-        $0.activePresetId = 1
+        $0.activeSoundFontId = nil
+        $0.activePresetId = nil
       }
-      return showActiveSoundFont(&state)
     }
 
-    return .none
+    if selectedSoundFontId == soundFontId {
+      $selectedSoundFontId.withLock {
+        $0 = nil
+      }
+    }
   }
 
   private func edit(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
@@ -194,7 +282,7 @@ extension SoundFontsList {
       return edit(&state, soundFontId: soundFontInfo.id)
 
     case .selectSoundFont(let soundFontInfo, let available):
-      return select(&state, soundFontId: soundFontInfo.id, available: available)
+      return select(soundFontId: soundFontInfo.id, available: available)
     }
   }
 
@@ -214,7 +302,7 @@ extension SoundFontsList {
     }.cancellable(id: CancelId.soundFontsListMonitorHideBuiltinFonts)
   }
 
-  private func select(_ state: inout State, soundFontId: SoundFont.ID, available: Bool) -> Effect<Action> {
+  private func select(soundFontId: SoundFont.ID, available: Bool) -> Effect<Action> {
     if selectedSoundFontId != soundFontId && available {
       $selectedSoundFontId.withLock { $0 = soundFontId }
     }
@@ -224,7 +312,7 @@ extension SoundFontsList {
   private func showActiveSoundFont(_ state: inout State) -> Effect<Action> {
     if let activeSoundFontId = activeState.activeSoundFontId,
        let index = state.rows.index(id: activeSoundFontId) {
-      return select(&state, soundFontId: activeSoundFontId, available: state.rows[index].statusInfoTag.available)
+      return select(soundFontId: activeSoundFontId, available: state.rows[index].statusInfoTag.available)
     } else {
       return .none
     }
@@ -238,7 +326,7 @@ extension SoundFontsList {
     return .none
   }
 
-  private func updateFetchAllQuery(_ state: inout State) -> Effect<Action> {
+  private func updateFetchAllQuery() -> Effect<Action> {
     .run(priority: .utility, name: "monitorFetchAll") { send in
       @FetchAll var soundFontInfos: [SoundFontInfo]
       try await $soundFontInfos.load(SoundFontInfo.query())
@@ -259,7 +347,6 @@ extension SoundFontsList.Destination.State: _EphemeralState {
 
 public struct SoundFontsListView: View {
   @Bindable private var store: StoreOf<SoundFontsList>
-  @State private var editing: EditMode = .inactive
 
   public init(store: StoreOf<SoundFontsList>) {
     self.store = store
@@ -275,33 +362,34 @@ public struct SoundFontsListView: View {
         }
       } header: {
         StyledHeader {
-          if editing == .active {
+          ZStack(alignment: .leadingFirstTextBaseline) {
+            Text("Files")
+              .zIndex(1)
+              .opacity(store.editingMode == .active ? 0.0 : 1.0)
+              .onTapGesture(count: 2) {
+                store.send(.headerDoubleTapped)
+              }
             HStack(spacing: 16) {
               Button {
-                store.send(.deletingModeEnded(delete: false))
-                editing = .inactive
+                store.send(.deleteModeCancelButtonTapped)
               } label: {
                 Text("Cancel")
               }
               Button {
-                store.send(.deletingModeEnded(delete: false))
-                editing = .inactive
+                store.send(.deleteModeDeleteButtonTapped)
               } label: {
                 Text("Delete")
                   .foregroundStyle(.red)
               }
             }
-          } else {
-            Text("Files")
+            .zIndex(2)
+            .opacity(store.editingMode == .active ? 1.0 : 0.0)
           }
-        }
-        .onTapGesture(count: 2) {
-          editing = editing == .inactive ? .active : .inactive
-          print(editing)
         }
       }
     }
-    .environment(\.editMode, $editing)
+    .environment(\.editMode, $store.editingMode)
+    .animation(.smooth, value: store.editingMode)
     .animation(.smooth, value: store.rows)
     .task { await store.send(.initialize).finish() }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))

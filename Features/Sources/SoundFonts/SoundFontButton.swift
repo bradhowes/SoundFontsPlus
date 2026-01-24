@@ -230,7 +230,7 @@ struct SoundFontButtonView: View {
   @Shared(.activeState) private var activeState
   @Environment(\.editMode) private var deletingMode
   private var inDeletingMode: Bool { (deletingMode?.wrappedValue ?? .inactive) == .active }
-
+  private var canDelete: Bool { inDeletingMode && store.soundFontInfo.kind != .builtin }
   private var state: IndicatorModifier.State {
     activeState.activeSoundFontId == store.state.soundFontInfo.id ? .active :
     selectedSoundFontId == store.state.soundFontInfo.id ? .selected : .none
@@ -250,14 +250,12 @@ struct SoundFontButtonView: View {
         }
       } label: {
         HStack {
-          if inDeletingMode {
-            Image(systemName: store.deleting ? "inset.filled.circle" : "circle")
-              .foregroundStyle(Color.red)
-              .frame(width: inDeletingMode ? 24 : 0)
-              .opacity(inDeletingMode ? 1.0 : 0.0)
-              .disabled(!inDeletingMode)
-              .animation(.smooth, value: store.deleting) // animate the visibiliity toggle image
-          }
+          Image(systemName: store.deleting ? "inset.filled.circle" : "circle")
+            .foregroundStyle(Color.red)
+            .frame(width: canDelete ? 24 : 0)
+            .opacity(canDelete ? 1.0 : 0.0)
+            .disabled(!canDelete)
+            .animation(.smooth, value: store.deleting) // animate the visibiliity toggle image
           Text(store.soundFontInfo.displayName)
             .font(.button)
             .indicator(inDeletingMode ? .none : state)

@@ -18,6 +18,7 @@ public struct FileManagerClient: Sendable {
   public var copyItem: @Sendable (_ src: URL, _ dst: URL) throws -> Void
   public var removeItem: @Sendable (_ at: URL) throws -> Void
   public var createDirectory: @Sendable (_ at: URL) throws -> Void
+  public var contentsOfDirectory: @Sendable (_ at: URL) throws -> [URL]
 }
 
 extension FileManagerClient: DependencyKey {
@@ -36,7 +37,14 @@ extension FileManagerClient: DependencyKey {
       isUbiquitousItem: { FileManager.default.isUbiquitousItem(at: $0) },
       copyItem: { try FileManager.default.copyItem(at: $0, to: $1) },
       removeItem: { try FileManager.default.removeItem(at: $0) },
-      createDirectory: { try FileManager.default.createDirectory(at: $0, withIntermediateDirectories: true) }
+      createDirectory: { try FileManager.default.createDirectory(at: $0, withIntermediateDirectories: true) },
+      contentsOfDirectory: {
+        try FileManager.default.contentsOfDirectory(
+          at: $0,
+          includingPropertiesForKeys: [.typeIdentifierKey],
+          options: [.skipsHiddenFiles]
+        )
+      }
     )
   }
 
@@ -53,7 +61,14 @@ extension FileManagerClient: DependencyKey {
       isUbiquitousItem: { _ in false },
       copyItem: { _, _ in },
       removeItem: { _ in },
-      createDirectory: { _ in }
+      createDirectory: { _ in },
+      contentsOfDirectory: {
+        try FileManager.default.contentsOfDirectory(
+          at: $0,
+          includingPropertiesForKeys: [.typeIdentifierKey],
+          options: [.skipsHiddenFiles]
+        )
+      }
     )
   }
 
@@ -72,6 +87,7 @@ extension FileManagerClient: DependencyKey {
       copyItem: { _, _ in unimplemented("copyItem", placeholder: ()) },
       removeItem: { _ in unimplemented("removeItem", placeholder: ()) },
       createDirectory: { _ in unimplemented("createDirectory", placeholder: ()) },
+      contentsOfDirectory: { _ in unimplemented("contentsOfDirectory", placeholder: [bogus]) }
     )
   }
 }

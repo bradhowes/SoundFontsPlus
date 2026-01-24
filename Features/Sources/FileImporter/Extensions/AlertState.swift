@@ -6,39 +6,6 @@ import SwiftUI
 
 extension AlertState {
 
-  static public func confirmAddExisting(action: Action, displayName: Substring) -> Self {
-    Self {
-      TextState("Add '\(displayName)'?")
-    } actions: {
-      ButtonState(action: action) { TextState("Yes") }
-      ButtonState(role: .cancel) { TextState("Cancel") }
-    } message: {
-      TextState(
-"""
-The SF2 file for \(displayName) exists on the device, but its presets do not appear in the database.
-Do you wish to recreate entries in the database for it?
-"""
-      )
-    }
-  }
-
-  static func fileAlreadyImported(url: URL) -> Self {
-    Self {
-      TextState("Already Imported")
-    } actions: {
-      ButtonState(role: .cancel) {
-        TextState("OK")
-      }
-    } message: {
-      let baseName = url.lastPathComponent
-      return TextState(
-      """
-      The file "\(baseName)" already exists in the collection.
-      """
-      )
-    }
-  }
-
   static func failedToPick(error: Error) -> Self {
     Self {
       TextState("Failed to Pick")
@@ -51,37 +18,13 @@ Do you wish to recreate entries in the database for it?
     }
   }
 
-  static func genericFailureToImport(displayName: String, error: Error) -> Self {
-    Self {
-      TextState("Failed to Add")
-    } actions: {
-      ButtonState(role: .cancel) {
-        TextState("OK")
-      }
-    } message: {
-      TextState("\(error.localizedDescription)")
-    }
-  }
-
-  static func invalidSoundFontFormat(displayName: String) -> Self {
-    Self {
-      TextState("Invalid SF2 File")
-    } actions: {
-      ButtonState(role: .cancel) {
-        TextState("OK")
-      }
-    } message: {
-      TextState("'\(displayName)' does not appear to be a valid sound font file.")
-    }
-  }
-
-  static public func importResults(message: String) -> Self {
+  static public func importResults(summary: String) -> Self {
     Self {
       TextState("Finished Importing")
     } actions: {
       ButtonState(role: .cancel) { TextState("OK") }
     } message: {
-      TextState(message)
+      TextState(summary)
     }
   }
 }

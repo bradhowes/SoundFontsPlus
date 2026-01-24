@@ -82,7 +82,7 @@ Deleting a favorite cannot be undone.
   }
 }
 
-// MARK: - SoundFont alerts
+// MARK: - SoundFontsList alerts
 
 extension AlertState {
 
@@ -98,6 +98,31 @@ extension AlertState {
 Deleting a SoundFont will delete any customizations you may have made to its presets. This cannot be undone.
 """
       )
+    }
+  }
+
+  static public func confirmDeleteSoundFontCollection(action: Action, count: Int) -> Self {
+    Self {
+      TextState("Delete ^[\(count) sound font](inflect: true)?")
+    } actions: {
+      ButtonState(role: .destructive, action: action) { TextState("Delete") }
+      ButtonState(role: .cancel) { TextState("Cancel") }
+    } message: {
+      TextState(
+"""
+Deleting sound fonts will delete any customizations you may have made to their presets. This cannot be undone.
+"""
+      )
+    }
+  }
+
+  static public func genericDeleteFailure(_ message: String) -> Self {
+    Self {
+      TextState("Failed to Delete")
+    } actions: {
+      ButtonState(role: .cancel) { TextState("OK") }
+    } message: {
+      TextState(message)
     }
   }
 
