@@ -64,20 +64,6 @@ public struct FileImporter {
 
       switch action {
 
-      case .destination(.dismiss):
-        if case let .alert(what) = state.destination {
-          let actions = what.buttons.compactMap { $0.action.action }
-          if actions.contains(.addExistingConfirmed) {
-            // User did not confirm adding the duplicate
-            guard let url = state.filesPending.popLast() else {
-              fatalError("logic error")
-            }
-            state.failures.append(.init(url, reason: .duplicateFile))
-            return importNextFile(&state)
-          }
-        }
-        return .none
-
       case .fileImporterDismissed:
         state.showChooser = false
         return .none
@@ -195,39 +181,7 @@ extension FileImporter {
   }
 
   private func importFinished(_ state: inout State) -> Effect<Action> {
-    func failureClause(prelude: String? = nil) -> String {
-      var contents: String = prelude?.appending("\n") ?? ""
-      if !state.failures.isEmpty {
-        for each in state.failures {
-          contents.append("- \(each.url.deletingPathExtension().lastPathComponent): \(each.reason.tag)\n")
-        }
-      }
-      return contents
-    }
-
-    func successClause(prelude: String? = nil) -> String {
-      var contents: String = prelude?.appending("\n") ?? ""
-      if !state.successes.isEmpty {
-        for each in state.successes {
-          contents.append("- \(each.deletingPathExtension().lastPathComponent)\n")
-        }
-      }
-      return contents
-    }
-
-    let summary: String
-    switch (state.successes.count, state.failures.count) {
-    case (0, 1): summary = failureClause(prelude: "Failed to add sound font file:")
-    case (0, _): summary = failureClause(prelude: "Failed to add any sound font files:")
-    case (1, 0): summary = "Added 1 sound font file."
-    case (_, 0): summary = successClause(prelude: "Added \(state.successes.count) sound font files:")
-    case (_, _):
-      summary = successClause(
-        prelude: "Added \(state.successes.count) out of \(state.successes.count + state.failures.count) sound font files:"
-      ) + failureClause(prelude: "Failure(s):")
-    }
-
-    state.destination = .alert(.importResults(summary: summary))
+    state.destination = .alert(.importResults(summary: Self.generateImportSummary(state.successes, state.failures)))
     return .send(.delegate(.importFinished))
   }
 
@@ -268,6 +222,46 @@ extension FileImporter {
       var fileInfo = SF2FileInfo(std.string(url.path(percentEncoded: false)))
       return fileInfo.load()
     } ?? false
+  }
+}
+
+extension FileImporter {
+
+  static func generateImportSummary(_ successes: [URL], _ failures: [FileImportFailure]) -> String {
+
+    func failureClause(prelude: String? = nil) -> String {
+      var contents: String = prelude?.appending("\n") ?? ""
+      if !failures.isEmpty {
+        for each in failures {
+          contents.append("- \(each.url.deletingPathExtension().lastPathComponent): \(each.reason.tag)\n")
+        }
+      }
+      return contents
+    }
+
+    func successClause(prelude: String? = nil) -> String {
+      var contents: String = prelude?.appending("\n") ?? ""
+      if !successes.isEmpty {
+        for each in successes {
+          contents.append("- \(each.deletingPathExtension().lastPathComponent)\n")
+        }
+      }
+      return contents
+    }
+
+    let summary: String
+    switch (successes.count, failures.count) {
+    case (0, 1): summary = failureClause(prelude: "Failed to add sound font file:")
+    case (0, _): summary = failureClause(prelude: "Failed to add any sound font files:")
+    case (1, 0): summary = "Added 1 sound font file."
+    case (_, 0): summary = successClause(prelude: "Added \(successes.count) sound font files:")
+    case (_, _):
+      summary = successClause(
+        prelude: "Added \(successes.count) out of \(successes.count + failures.count) sound font files:"
+      ) + failureClause(prelude: "Failure(s):")
+    }
+
+    return summary
   }
 }
 

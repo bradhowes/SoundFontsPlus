@@ -58,13 +58,9 @@ struct FileImporterTests {
     let url = SF2ResourceTag.fluidFont.url.appendingPathComponent("foo")
     await store.send(.filesPicked(.success([url]))) {
       $0.showChooser = false
-      $0.failures = [.init(url, reason: .invalidFile)]
+      $0.failures = [.init(url, reason: .unknownFileType)]
+      $0.destination = .alert(.importResults(summary: FileImporter.generateImportSummary($0.successes, $0.failures)))
     }
-
-    await store.receive(\.importNextFile) {
-      $0.destination = .alert(.importResults(message: "Failed to add sound font file."))
-    }
-
     await store.receive(\.delegate, .importFinished)
   }
 
@@ -79,22 +75,12 @@ struct FileImporterTests {
     let url2 = SF2ResourceTag.fluidFont.url.appendingPathComponent("bar")
     await store.send(.filesPicked(.success([url1, url2]))) {
       $0.showChooser = false
-      $0.filesPending = [url1]
-      $0.failures = [
-        .init(url2, reason: .invalidFile)
-      ]
-    }
-
-    await store.receive(\.importNextFile) {
       $0.filesPending = []
       $0.failures = [
-        .init(url2, reason: .invalidFile),
-        .init(url1, reason: .invalidFile)
+        .init(url2, reason: .unknownFileType),
+        .init(url1, reason: .unknownFileType)
       ]
-    }
-
-    await store.receive(\.importNextFile) {
-      $0.destination = .alert(.importResults(message: "Failed to add any sound font files."))
+      $0.destination = .alert(.importResults(summary: FileImporter.generateImportSummary($0.successes, $0.failures)))
     }
 
     await store.receive(\.delegate, .importFinished)
@@ -137,7 +123,7 @@ struct FileImporterTests {
     }
 
     await store.receive(\.importNextFile) {
-      $0.destination = .alert(.importResults(message: "Added 1 sound font file."))
+      $0.destination = .alert(.importResults(summary: "Added 1 sound font file."))
     }
 
     await store.receive(\.delegate, .importFinished)
@@ -168,7 +154,7 @@ struct FileImporterTests {
     }
 
     await store.receive(\.importNextFile) {
-      $0.destination = .alert(.importResults(message: "Added 1 sound font file."))
+      $0.destination = .alert(.importResults(summary: "Added 1 sound font file."))
     }
 
     await store.receive(\.delegate, .importFinished)
@@ -198,7 +184,7 @@ struct FileImporterTests {
     }
 
     await store.receive(\.importNextFile) {
-      $0.destination = .alert(.importResults(message: "Failed to add sound font file."))
+      $0.destination = .alert(.importResults(summary: FileImporter.generateImportSummary($0.successes, $0.failures)))
     }
 
     await store.receive(\.delegate, .importFinished)
@@ -240,9 +226,68 @@ struct FileImporterTests {
     }
 
     await store.receive(\.importNextFile) {
-      $0.destination = .alert(
-        .importResults(message: "Added 1 out of 2 sound font files.")
-      )
+      $0.destination = .alert(.importResults(summary: FileImporter.generateImportSummary($0.successes, $0.failures)))
+    }
+
+    await store.receive(\.delegate, .importFinished)
+  }
+
+  @Test(
+    .dependencies {
+      $0.fileManager = .testValue
+      $0.fileManager.contentsOfDirectory = { _ in [] }
+    }
+  )
+  func filePickedEmptyDirectory() async throws {
+    let store = TestStoreOf<FileImporter>(initialState: .init()) {
+      FileImporter()
+    } withDependencies: {
+      $0.fileManager = .liveValue
+      $0.defaultDatabase = TestSupport.testDatabase()
+    }
+
+    let tmp = FileManager.default.temporaryDirectory.appending(path: "filePickedEmptyDirectory", directoryHint: .isDirectory)
+    try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+
+    await store.send(.filesPicked(.success([tmp]))) {
+      $0.showChooser = false
+      $0.destination = .alert(.importResults(summary: FileImporter.generateImportSummary($0.successes, $0.failures)))
+    }
+
+    await store.receive(\.delegate, .importFinished)
+  }
+
+  @Test(
+    .dependencies {
+      $0.fileManager = .testValue
+      $0.fileManager.contentsOfDirectory = { _ in [] }
+    }
+  )
+  func filePickedDirectory() async throws {
+    let store = TestStoreOf<FileImporter>(initialState: .init()) {
+      FileImporter()
+    } withDependencies: {
+      $0.fileManager = .liveValue
+      $0.defaultDatabase = TestSupport.testDatabase()
+    }
+
+    let dir = FileManager.default.temporaryDirectory.appending(path: "filePickedDirectory", directoryHint: .isDirectory)
+    try? FileManager.default.removeItem(at: dir)
+    try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+
+    let url1 = SF2ResourceTag.fluidFont.url
+    let dst = dir.appending(path: "filePickedDirectory.sf2", directoryHint: .notDirectory)
+    try? FileManager.default.copyItem(at: url1, to: dst)
+    try? FileManager.default.removeItem(at: FileManager.default.fontFilesDirectory.appending(path: "filePickedDirectory.sf2"))
+
+    await store.send(.filesPicked(.success([dir]))) {
+      $0.showChooser = false
+      $0.successes = [dst]
+    }
+
+    await store.receive(\.importNextFile) {
+      $0.filesPending = []
+      $0.destination = .alert(.importResults(summary: FileImporter.generateImportSummary($0.successes, $0.failures)))
     }
 
     await store.receive(\.delegate, .importFinished)
@@ -256,7 +301,7 @@ struct FileImporterTests {
 
   @Test
   func importResults() async throws {
-    let _: AlertState<FileImporter.Action> = .importResults(message: "Everything")
+    let _: AlertState<FileImporter.Action> = .importResults(summary: "Everything")
   }
 }
 

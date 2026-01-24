@@ -136,7 +136,7 @@ struct SoundFontsListTests {
       }
 
       await store.send(.destination(.presented(.alert(.deleteSoundFontConfirmed(row.soundFontInfo))))) {
-        $0.destination = nil
+        $0.destination = .alert(.genericDeleteFailure("Cannot delete built-in sound fonts."))
       }
 
       let deleted = oldRows.remove(id: row.id)

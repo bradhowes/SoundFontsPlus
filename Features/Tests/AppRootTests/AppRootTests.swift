@@ -41,7 +41,9 @@ import Tutorial
     $0.mainQueue = .immediate
     $0.outputVolume = mockVolume.makeOutputVolume()
     $0.reverbDevice = .liveValue
-  }
+    $0.continuousClock = ImmediateClock()
+  },
+  .serialized
 )
 @MainActor
 struct AppRootTests {
