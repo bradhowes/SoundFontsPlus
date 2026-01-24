@@ -13,6 +13,7 @@ import Keyboard
 import MorkAndMIDI
 import Presets
 import ReverbEffect
+import SF2LibAU
 import SQLiteData
 import Settings
 import SoundFonts
@@ -27,6 +28,7 @@ import VolumeMonitor
  The top-level feature of the application.
  */
 @Reducer
+// swiftlint:disable type_body_length
 public struct AppRoot {
 
   /**
@@ -67,6 +69,9 @@ public struct AppRoot {
     public var audioUnitCrashed = false
     public var toastState: VolumeMonitor.Reason?
 
+    /**
+     Constructur for main app.
+     */
     public init(
       appReview: AppReview.State? = nil,
       delay: DelayEffect.State? = nil,
@@ -122,6 +127,39 @@ public struct AppRoot {
       // Deep-linking to a destination at start up for dev/testing
       //
       // destination = .settings(SettingsFeature.State(midi: midi, midiMonitor: midiMonitor))
+    }
+
+    /**
+     Constructor for AUv3 component.
+     */
+    public init(
+      audioUnit: SF2LibAU,
+      destination: Destination.State? = nil,
+      fontsAndPresetsSplit: SplitViewReducer.State? = nil,
+      fontsAndTagsSplit: SplitViewReducer.State? = nil,
+      presetsList: PresetsList.State? = nil,
+      soundFontsList: SoundFontsList.State? = nil,
+      tagsList: TagsList.State? = nil,
+      toolBar: ToolBar.State? = nil,
+    ) {
+      @Shared(.isAUv3) var isAUv3 = true
+
+      self.appReview = .init()
+      self.delay = .init()
+      self.fontsAndPresetsSplit = fontsAndPresetsSplit ?? Self.makeFontsAndPresetsSplitState()
+      self.fontsAndTagsSplit = fontsAndTagsSplit ?? Self.makeFontsAndTagsSplitState()
+      self.keyboard = .init()
+      self.presetsList = presetsList ?? .init()
+      self.reverb = .init()
+      self.soundFontsList = soundFontsList ?? .init()
+      self.synth = .init()
+      self.tagsList = tagsList ?? .init()
+      self.toolBar = toolBar ?? .init()
+      self.toastState = nil
+
+#if os(iOS)
+      self.volumeMonitor = .init()
+#endif // os(iOS)
     }
 
     static public func makeFontsAndPresetsSplitState() -> SplitViewReducer.State {
@@ -619,6 +657,7 @@ extension AppRoot {
 #endif
   }
 }
+// swiftlint:enable type_body_length
 
 extension AppRoot.Destination.State: Equatable {}
 

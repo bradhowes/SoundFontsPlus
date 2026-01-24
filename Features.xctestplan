@@ -50,13 +50,6 @@
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "AUv3RootTests",
-        "name" : "AUv3RootTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
         "identifier" : "AppReviewTests",
         "name" : "AppReviewTests"
       }

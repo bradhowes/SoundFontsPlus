@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		BD22B1C82ED5D73900E72F0E /* AppRoot in Frameworks */ = {isa = PBXBuildFile; productRef = BD22B1C72ED5D73900E72F0E /* AppRoot */; };
-		BD22B1E82ED66F1800E72F0E /* AUv3Root in Frameworks */ = {isa = PBXBuildFile; productRef = BD22B1E72ED66F1800E72F0E /* AUv3Root */; };
 		BD22B21A2ED7658400E72F0E /* SF2LibAU in Frameworks */ = {isa = PBXBuildFile; productRef = BD22B2192ED7658400E72F0E /* SF2LibAU */; };
 		BD275B262E93EF2A004F0C7A /* Tuning in Frameworks */ = {isa = PBXBuildFile; productRef = BD275B252E93EF2A004F0C7A /* Tuning */; };
 		BD275B282E93F1CE004F0C7A /* FileImporter in Frameworks */ = {isa = PBXBuildFile; productRef = BD275B272E93F1CE004F0C7A /* FileImporter */; };
@@ -26,6 +25,7 @@
 		BD7217342E93BE270017DB8C /* SF2Resources in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217332E93BE270017DB8C /* SF2Resources */; };
 		BD7217362E93BE270017DB8C /* VolumeMonitor in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217352E93BE270017DB8C /* VolumeMonitor */; };
 		BD7217382E93C08E0017DB8C /* Tutorial in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217372E93C08E0017DB8C /* Tutorial */; };
+		BD82BC0E2F25806B00EEDDDE /* AppRoot in Frameworks */ = {isa = PBXBuildFile; productRef = BD82BC0D2F25806B00EEDDDE /* AppRoot */; };
 		BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BB92DE259DF00B8FB13 /* Engine */; };
 		BDAF5BBC2DE259DF00B8FB13 /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BBB2DE259DF00B8FB13 /* SF2Lib */; };
 		BDB8CC192E9508580035EBEA /* Changes in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC182E9508580035EBEA /* Changes */; };
@@ -144,7 +144,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BD22B1E82ED66F1800E72F0E /* AUv3Root in Frameworks */,
+				BD82BC0E2F25806B00EEDDDE /* AppRoot in Frameworks */,
 				BD22B21A2ED7658400E72F0E /* SF2LibAU in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -259,8 +259,8 @@
 			);
 			name = SoundFontsPlusAU;
 			packageProductDependencies = (
-				BD22B1E72ED66F1800E72F0E /* AUv3Root */,
 				BD22B2192ED7658400E72F0E /* SF2LibAU */,
+				BD82BC0D2F25806B00EEDDDE /* AppRoot */,
 			);
 			productName = SoundFontsPlusAU;
 			productReference = BD5AE3842ED0C2910073F3F2 /* SoundFontsPlusAU.appex */;
@@ -812,10 +812,6 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = AppRoot;
 		};
-		BD22B1E72ED66F1800E72F0E /* AUv3Root */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = AUv3Root;
-		};
 		BD22B2192ED7658400E72F0E /* SF2LibAU */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SF2LibAU;
@@ -879,6 +875,10 @@
 		BD7217372E93C08E0017DB8C /* Tutorial */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Tutorial;
+		};
+		BD82BC0D2F25806B00EEDDDE /* AppRoot */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppRoot;
 		};
 		BDAF5BB92DE259DF00B8FB13 /* Engine */ = {
 			isa = XCSwiftPackageProductDependency;
