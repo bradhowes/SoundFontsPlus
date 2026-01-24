@@ -163,6 +163,7 @@ struct PresetsListTests {
   @Test(
     .dependencies {
       $0.continuousClock = TestClock()
+      $0.fileManager = .liveValue
     }
   )
   func selectFromSearch() async throws {
@@ -234,7 +235,11 @@ struct PresetsListTests {
     await store.finish()
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.fileManager = .liveValue
+    }
+  )
   func buttonTapped() async throws {
     @Shared(.activeState) var activeState
     try await initialized { store in

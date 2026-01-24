@@ -56,6 +56,8 @@ public struct SoundFontsList {
   public init() {}
 
   @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.fileManager) private var fileManager
+
   @Shared(.activeState) private var activeState
   @Shared(.hideBuiltinFonts) private var hideBuiltinFonts
   @Shared(.selectedSoundFontId) private var selectedSoundFontId
@@ -227,10 +229,14 @@ extension SoundFontsList {
         log.info("removing file \(kind.url)")
         try fileManager.removeItem(kind.url)
       } catch {
-        log.error("failed to remove item \(kind.url)")
-        state.destination = .alert(.genericDeleteFailure(
-          "Failed to remove sound font file at \(kind.url) - \(error.localizedDescription)."
-        ))
+        log.error("failed to remove item \(kind.url) - \(error.localizedDescription, privacy: .public)")
+
+        // Only alert user is the file still exists.
+        if fileManager.fileExists(kind.url) {
+          state.destination = .alert(.genericDeleteFailure(
+            "Failed to remove sound font file \(kind.url.lastPathComponent)."
+          ))
+        }
       }
     }
 

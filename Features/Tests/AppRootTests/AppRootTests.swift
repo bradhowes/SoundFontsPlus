@@ -38,6 +38,7 @@ import Tutorial
     $0.date = .constant(.now)
     $0.defaultDatabase = TestSupport.testDatabase()
     $0.delayDevice = .liveValue
+    $0.fileManager = .liveValue
     $0.mainQueue = .immediate
     $0.outputVolume = mockVolume.makeOutputVolume()
     $0.reverbDevice = .liveValue

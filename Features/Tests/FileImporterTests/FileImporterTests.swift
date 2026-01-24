@@ -196,7 +196,8 @@ struct FileImporterTests {
       $0.defaultDatabase = TestSupport.testDatabase()
     }
   )
-  func filePickedDuplicateFiles() async throws {
+  func filePickedDuplicateFilesCancel() async throws {
+    @Dependency(\.fileManager) var fileManager
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
     $copyFileWhenInstalling.withLock { $0 = true }
 
@@ -205,24 +206,82 @@ struct FileImporterTests {
       $0.showChooser = true
     }
 
-    let url1 = SF2ResourceTag.fluidFont.url
-    var dst = FileManager.default.fontFilesDirectory.appendingPathComponent(url1.lastPathComponent)
-    try? FileManager.default.removeItem(at: dst)
+    let uuid = "filePickedDuplicateFilesCancel"
+    let fileName = uuid + ".sf2"
+    let tmp = FileManager.default.temporaryDirectory.appending(path: uuid, directoryHint: .isDirectory)
+    try? fileManager.createDirectory(tmp)
+    let url = tmp.appending(path: fileName)
+    try? fileManager.copyItem(SF2ResourceTag.fluidFont.url, url)
+    try? fileManager.removeItem(fileManager.fontFilesDirectory().appendingPathComponent(fileName))
 
-    let url2 = SF2ResourceTag.fluidFont.url
-    dst = FileManager.default.fontFilesDirectory.appendingPathComponent(url2.lastPathComponent)
-    try? FileManager.default.removeItem(at: dst)
-
-    await store.send(.filesPicked(.success([url1, url2]))) {
+    await store.send(.filesPicked(.success([url, url]))) {
       $0.showChooser = false
-      $0.filesPending = [url1]
+      $0.filesPending = [url]
       $0.destination = nil
-      $0.successes = [url2]
+      $0.successes = [url]
     }
 
     await store.receive(\.importNextFile) {
+      $0.filesPending = [url]
+      $0.destination = .alert(.replaceDuplicateFile(
+        action: .replaceDuplicateFileConfirmed,
+        displayName: url.lastPathComponent
+      ))
+    }
+
+    await store.send(\.destination.dismiss) {
+      $0.failures.append(.init(url, reason: .duplicateFile))
       $0.filesPending = []
-      $0.failures = [.init(url1, reason: .duplicateFile)]
+      $0.destination = .alert(.importResults(summary: FileImporter.generateImportSummary($0.successes, $0.failures)))
+    }
+
+    await store.receive(\.delegate, .importFinished)
+  }
+
+  @Test(
+    .dependencies {
+      $0.fileManager = .liveValue
+      $0.defaultDatabase = TestSupport.testDatabase()
+    }
+  )
+  func filePickedDuplicateFilesAccept() async throws {
+    @Dependency(\.fileManager) var fileManager
+    @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
+    $copyFileWhenInstalling.withLock { $0 = true }
+
+    let store = store()
+    await store.send(.showFileImporter) {
+      $0.showChooser = true
+    }
+
+    let uuid = "filePickedDuplicateFilesAccept"
+    let fileName = uuid + ".sf2"
+    let tmp = FileManager.default.temporaryDirectory.appending(path: uuid, directoryHint: .isDirectory)
+    try? fileManager.createDirectory(tmp)
+    let url = tmp.appending(path: fileName)
+    try? fileManager.copyItem(SF2ResourceTag.fluidFont.url, url)
+    try? fileManager.removeItem(fileManager.fontFilesDirectory().appendingPathComponent(fileName))
+
+    await store.send(.filesPicked(.success([url, url]))) {
+      $0.showChooser = false
+      $0.filesPending = [url]
+      $0.destination = nil
+      $0.successes = [url]
+    }
+
+    await store.receive(\.importNextFile) {
+      $0.filesPending = [url]
+      $0.destination = .alert(.replaceDuplicateFile(
+        action: .replaceDuplicateFileConfirmed,
+        displayName: url.lastPathComponent
+      ))
+    }
+
+    await store.send(\.destination.alert.replaceDuplicateFileConfirmed) {
+      $0.successes.append(url)
+      $0.filesPending = []
+      $0.destination = nil
+      // $0.destination = .alert(.importResults(summary: FileImporter.generateImportSummary($0.successes, $0.failures)))
     }
 
     await store.receive(\.importNextFile) {

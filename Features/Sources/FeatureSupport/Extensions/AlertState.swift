@@ -155,6 +155,22 @@ Connect the external drive containing the file to resolve this issue.
       )
     }
   }
+
+  static public func missingFileForSelectedPreset(action: Action, displayName: String) -> Self {
+    Self {
+      TextState("File for '\(displayName)' Missing")
+    } actions: {
+      ButtonState(role: .destructive, action: action) { TextState("Remove") }
+      ButtonState(role: .cancel) { TextState("Cancel") }
+    } message: {
+      TextState(
+"""
+Unable to locate the file for sound font '\(displayName)'. Do you wish to \
+remove the sound font entry for it?
+"""
+      )
+    }
+  }
 }
 
 // MARK: - SoundFontEditor alerts

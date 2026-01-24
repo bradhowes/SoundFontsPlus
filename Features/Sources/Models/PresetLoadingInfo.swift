@@ -18,6 +18,9 @@ nonisolated public struct PresetLoadingInfo {
   public let soundFontName: String
   public let gain: Double
   public let pan: Double
+}
+
+extension PresetLoadingInfo {
 
   static func query(for id: Preset.ID? = nil) -> Select<Self.Columns.QueryValue, Preset, (SoundFont, AudioConfig?)> {
     @Shared(.activeState) var activeState
@@ -43,6 +46,18 @@ nonisolated public struct PresetLoadingInfo {
           pan: $2.pan ?? 0.0
         )
       }
+  }
+
+  /**
+   Obtain the loading info for a given preset ID. Used when directing the synth to begin using the preset.
+
+   - parameter id: the preset to query for
+   - returns: the optional `PresetLoadingInfo` for the preset
+   */
+  public static func `for`(id: Preset.ID? = nil) -> PresetLoadingInfo? {
+    withDatabaseReader {
+      try PresetLoadingInfo.query(for: id).fetchOne($0)
+    } ?? nil
   }
 }
 

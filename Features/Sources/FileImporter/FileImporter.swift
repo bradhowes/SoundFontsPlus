@@ -16,7 +16,7 @@ public struct FileImporter {
 
     @CasePathable
     public enum Alert: Equatable {
-      case addExistingConfirmed
+      case replaceDuplicateFileConfirmed
     }
   }
 
@@ -64,6 +64,18 @@ public struct FileImporter {
 
       switch action {
 
+      case .destination(.presented(.alert(.replaceDuplicateFileConfirmed))):
+        return importFile(&state, overwrite: true)
+
+      case .destination(.dismiss):
+        if let actions = state.destination?.alert?.buttons.map(\.action.action),
+           actions.contains(.replaceDuplicateFileConfirmed),
+           let url = state.filesPending.popLast() {
+          state.failures.append(.init(url, reason: .duplicateFile))
+          return importNextFile(&state)
+        }
+        return .none
+
       case .fileImporterDismissed:
         state.showChooser = false
         return .none
@@ -93,7 +105,6 @@ extension FileImporter {
 
   private func beginImporting(_ state: inout State, urls: [URL]) -> Effect<Action> {
     log.info("beginImporting - \(urls)")
-    @Dependency(\.fileManager) var fileManager
     var pending: [URL] = urls
 
     while let url = pending.popLast() {
@@ -123,10 +134,13 @@ extension FileImporter {
     return importNextFile(&state)
   }
 
-  private func copyToFontFilesFolder(url: URL) throws -> URL {
+  private func copyToFontFilesFolder(url: URL, overwrite: Bool) throws -> URL {
     try url.withSecurityScopingThrows { url in
       log.info("copying \(url) to \(fileManager.fontFilesDirectory())")
       let destination = fileManager.fontFilesDirectory().appendingPathComponent(url.lastPathComponent)
+      if overwrite {
+        try? fileManager.removeItem(destination)
+      }
       try fileManager.copyItem(url, destination)
       return destination
     }
@@ -146,7 +160,7 @@ extension FileImporter {
     }
   }
 
-  private func importFile(_ state: inout State) -> Effect<Action> {
+  private func importFile(_ state: inout State, overwrite: Bool = false) -> Effect<Action> {
     guard let url = state.filesPending.popLast() else {
       fatalError("logic error - unexpected empty filePending")
     }
@@ -164,9 +178,14 @@ extension FileImporter {
 
     let kind: SoundFontKind
     do {
-      kind = try placeSoundFont(url: url)
+      kind = try placeSoundFont(url: url, overwrite: overwrite)
     } catch CocoaError.fileWriteFileExists {
-      return recordFailure(&state, .init(url, reason: .duplicateFile))
+      state.filesPending.append(url)
+      state.destination = .alert(.replaceDuplicateFile(
+        action: .replaceDuplicateFileConfirmed,
+        displayName: url.lastPathComponent
+      ))
+      return .none
     } catch {
       return recordFailure(&state, .init(url, reason: .unknownError(error.localizedDescription)))
     }
@@ -189,13 +208,13 @@ extension FileImporter {
     state.filesPending.isEmpty ? importFinished(&state) : importFile(&state)
   }
 
-  private func placeSoundFont(url: URL) throws -> SoundFontKind {
+  private func placeSoundFont(url: URL, overwrite: Bool) throws -> SoundFontKind {
     @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
 
     let location: SoundFontKind
     if copyFileWhenInstalling {
       log.info("copying file to app folder")
-      let destination = try copyToFontFilesFolder(url: url)
+      let destination = try copyToFontFilesFolder(url: url, overwrite: overwrite)
       location = .installed(filename: destination.lastPathComponent)
     } else {
       log.info("using external file")

@@ -181,6 +181,8 @@ public struct AppRoot {
 
   public init() {}
 
+  @Dependency(\.fileManager) private var fileManager
+
   @Shared(.activeState) private var activeState
   @Shared(.effectsPanelVisible) private var effectsPanelVisible
   @Shared(.firstVisibleKey) private var firstVisibleKey
@@ -335,7 +337,7 @@ extension AppRoot {
 
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
-      try? $0.fileManager.createDirectory(FileManager.default.fontFilesDirectory)
+      try? $0.fileManager.createDirectory($0.fileManager.fontFilesDirectory())
 
       @Shared(.midiInputPortId) var midiInputPortId
       @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
@@ -394,8 +396,8 @@ extension AppRoot {
   }
 
   private func createCloudDocumentsDirectory() -> Effect<Action> {
-    .run(priority: .utility, name: "createCloudDocumentsDirectory") { _ in
-      if let url = FileManager.default.cloudDocumentsDirectory {
+    .run(priority: .utility, name: "createCloudDocumentsDirectory") { [fileManager] _ in
+      if let url = fileManager.cloudDocumentsDirectory() {
         log.info("iCloud documents directory: \(url)")
       } else {
         log.error("iCloud documents directory is not available")

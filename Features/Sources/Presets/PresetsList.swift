@@ -23,6 +23,7 @@ public struct PresetsList {
     public enum Alert: Equatable {
       case deleteFavoriteConfirmed(Preset)
       case hidePresetConfirmed(Preset)
+      case missingFileForSelectedPreset(SoundFont.ID)
     }
   }
 
@@ -107,6 +108,8 @@ public struct PresetsList {
   }
 
   @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.fileManager) var fileManager
+
   @Shared(.activeState) private var activeState
   @Shared(.confirmPresetHiding) private var confirmPresetHiding
   @Shared(.selectedSoundFontId) private var selectedSoundFontId
@@ -137,6 +140,16 @@ public struct PresetsList {
 
       case .destination(.presented(.alert(.hidePresetConfirmed(let preset)))):
         return hidePresetConfirmed(&state, preset: preset)
+
+      case .destination(.presented(.alert(.missingFileForSelectedPreset(let soundFontId)))):
+        SoundFont.delete(id: soundFontId)
+        if activeState.activeSoundFontId == soundFontId {
+          $activeState.withLock { $0.activeSoundFontId = nil }
+        }
+        if selectedSoundFontId == soundFontId {
+          $selectedSoundFontId.withLock { $0 = nil }
+        }
+        return .none
 
       case .fetchPresets:
         state.scrollToPresetId = .init(presetId: activeState.activePresetId)
@@ -304,6 +317,20 @@ extension PresetsList {
   }
 
   private func selectPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
+    guard let info = PresetLoadingInfo.for(id: preset.id) else { return .none }
+    guard
+      let kind = try? SoundFontKind(kind: info.kind, location: info.location, displayName: info.soundFontName),
+      fileManager.fileExists(kind.url)
+    else {
+      state.destination = .alert(
+        .missingFileForSelectedPreset(
+          action: .missingFileForSelectedPreset(info.soundFontId),
+          displayName: info.soundFontName
+        )
+      )
+      return .none
+    }
+
     let changed = activeState.activePresetId != preset.id
     if changed {
       $activeState.withLock {

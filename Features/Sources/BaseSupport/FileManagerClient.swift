@@ -19,6 +19,8 @@ public struct FileManagerClient: Sendable {
   public var removeItem: @Sendable (_ at: URL) throws -> Void
   public var createDirectory: @Sendable (_ at: URL) throws -> Void
   public var contentsOfDirectory: @Sendable (_ at: URL) throws -> [URL]
+  public var fileExists: @Sendable (_ at: URL) -> Bool
+  public var startDownloadingUbiquitousItem: @Sendable (_ url: URL) throws -> Void
 }
 
 extension FileManagerClient: DependencyKey {
@@ -44,7 +46,9 @@ extension FileManagerClient: DependencyKey {
           includingPropertiesForKeys: [.typeIdentifierKey],
           options: [.skipsHiddenFiles]
         )
-      }
+      },
+      fileExists: { FileManager.default.fileExists(atPath: $0.path()) },
+      startDownloadingUbiquitousItem: { try FileManager.default.startDownloadingUbiquitousItem(at: $0) }
     )
   }
 
@@ -68,7 +72,9 @@ extension FileManagerClient: DependencyKey {
           includingPropertiesForKeys: [.typeIdentifierKey],
           options: [.skipsHiddenFiles]
         )
-      }
+      },
+      fileExists: { FileManager.default.fileExists(atPath: $0.path()) },
+      startDownloadingUbiquitousItem: { try FileManager.default.startDownloadingUbiquitousItem(at: $0) }
     )
   }
 
@@ -87,7 +93,9 @@ extension FileManagerClient: DependencyKey {
       copyItem: { _, _ in unimplemented("copyItem", placeholder: ()) },
       removeItem: { _ in unimplemented("removeItem", placeholder: ()) },
       createDirectory: { _ in unimplemented("createDirectory", placeholder: ()) },
-      contentsOfDirectory: { _ in unimplemented("contentsOfDirectory", placeholder: [bogus]) }
+      contentsOfDirectory: { _ in unimplemented("contentsOfDirectory", placeholder: [bogus]) },
+      fileExists: { _ in unimplemented("fileExists", placeholder: false) },
+      startDownloadingUbiquitousItem: { _ in unimplemented("startDownloadingUbiquitousItem") }
     )
   }
 }

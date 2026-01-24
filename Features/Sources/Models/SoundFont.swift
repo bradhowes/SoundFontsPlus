@@ -70,7 +70,7 @@ extension SoundFont {
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
         "displayName" TEXT NOT NULL,
         "kind" TEXT NOT NULL,
-        "location" BLOB NOT NULL UNIQUE,
+        "location" BLOB NOT NULL,
         "originalName" TEXT NOT NULL,
         "embeddedName" TEXT NOT NULL,
         "embeddedComment" TEXT NOT NULL,
