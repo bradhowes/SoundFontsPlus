@@ -405,6 +405,58 @@ struct ToolBarTests {
     await store.finish()
   }
 
+  @Test func previewWithFixedKeyboard() async throws {
+    @Shared(.keyboardSlides) var keyboardSlides
+    $keyboardSlides.withLock { $0 = false }
+    let view = ToolBarView(
+      store: Store(
+        initialState: .init(
+          preset: Preset(
+            id: 0,
+            index: 0,
+            bank: 1,
+            program: 1,
+            originalName: "Foo",
+            soundFontId: 0,
+            displayName: "Foo"
+          ),
+          showMoreButtons: true
+        )
+      ) {
+        ToolBar()
+      })
+
+    try withSnapshotTesting(record: .failed) {
+      try TestSupport.assertSnapshot(matching: view)
+    }
+  }
+
+  @Test func previewWithFSlidingKeyboard() async throws {
+    @Shared(.keyboardSlides) var keyboardSlides
+    $keyboardSlides.withLock { $0 = true }
+    let view = ToolBarView(
+      store: Store(
+        initialState: .init(
+          preset: Preset(
+            id: 0,
+            index: 0,
+            bank: 1,
+            program: 1,
+            originalName: "Foo",
+            soundFontId: 0,
+            displayName: "Foo"
+          ),
+          showMoreButtons: true
+        )
+      ) {
+        ToolBar()
+      })
+
+    try withSnapshotTesting(record: .failed) {
+      try TestSupport.assertSnapshot(matching: view)
+    }
+  }
+
   @Test
   func preview() async throws {
     try withSnapshotTesting(record: .failed) {
