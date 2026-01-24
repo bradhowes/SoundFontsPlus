@@ -57,6 +57,19 @@ struct SoundFontsListTests {
   }
 
   @Test
+  func deleteModeDeleteButtonTapped() async throws {
+    try await initialized { store in
+
+      await store.send(\.headerDoubleTapped) {
+        $0.editingMode = .active
+      }
+      await store.send(\.deleteModeCancelButtonTapped) {
+        $0.editingMode = .inactive
+      }
+    }
+  }
+
+  @Test
   func activeTagIdChanged() async throws {
     @Shared(.isAUv3) var isAUv3 = false
 

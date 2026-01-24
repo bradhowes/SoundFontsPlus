@@ -18,5 +18,5 @@ public func navigationBarTitleStyle() {
       .foregroundColor: UIColor.whiteText
     ]
   }
-#endif
+#endif // os(iOS)
 }
