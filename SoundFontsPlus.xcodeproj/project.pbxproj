@@ -72,6 +72,7 @@
 		BD7DBC892DF36955005A31DE /* Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Development.xcconfig; sourceTree = "<group>"; };
 		BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
+		BD82BC0F2F265DAA00EEDDDE /* SoundFontButtonStatusInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundFontButtonStatusInfo.swift; sourceTree = "<group>"; };
 		BDB6A3972E8EC8F400126442 /* Features */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Features; sourceTree = "<group>"; };
 		BDF653892EB2673E00BF74C6 /* Features.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Features.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -165,6 +166,7 @@
 				BD5AE3852ED0C2910073F3F2 /* SoundFontsPlusAU */,
 				BD1D27802B6F13DD005C3ED0 /* Products */,
 				BD6E7D9F2B6FC319004201F2 /* Frameworks */,
+				BD82BC0F2F265DAA00EEDDDE /* SoundFontButtonStatusInfo.swift */,
 			);
 			sourceTree = "<group>";
 		};

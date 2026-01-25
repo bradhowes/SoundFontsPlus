@@ -4,13 +4,17 @@ import Clocks
 import Dependencies
 import Foundation
 
+public protocol Bookmarker {
+  var cloudState: Bookmark.CloudState {get}
+  var isAvailable: Bool {get}
+}
+
 /**
  A bookmark represents a file located outside of the app's sandboxed storage space or that of an app group. It is used to reference
  sound font files without making a copy of them. However there are risks involved, namely that the bookmark may not resolve to a
  real file.
  */
-public final class Bookmark: Codable {
-
+public final class Bookmark: Codable, Bookmarker {
   public enum CodingKeys: CodingKey {
     case name
     case bookmark
@@ -110,8 +114,6 @@ extension Bookmark {
     case local
     /// Item is on iCloud but not available locally.
     case inCloud
-    /// Item is queued to be downloaded to the device.
-    case downloadRequested
     /// Item is currently being downloaded to the device.
     case downloading
     /// Item has been downloaded and is available locally.
@@ -125,43 +127,26 @@ extension Bookmark {
   /// Obtain the current iCloud state of the bookmark item
   public var cloudState: CloudState {
     url.withSecurityScoping { url in
-      guard
-        let values = try? url.resourceValues(
-          forKeys: [
-            .isUbiquitousItemKey,
-            .ubiquitousItemDownloadRequestedKey,
-            .ubiquitousItemDownloadingStatusKey,
-            .ubiquitousItemIsDownloadingKey,
-            .ubiquitousItemDownloadingErrorKey
-          ]
-        )
-      else {
-        // log.debug("bookmark cloudState: .unknown")
-        return .unknown
-      }
-
-      // log.debug("cloudState: \(String(describing: values), privacy: .public)")
-
-      let isUbiquitous = (values.isUbiquitousItem ?? false)
-      let state: CloudState
-      if !isUbiquitous {
-        // log.debug("bookmark cloudState: .local")
-        state = .local
-      } else if values.ubiquitousItemDownloadingError != nil {
-        state = .downloadError
-      } else {
-        switch values.ubiquitousItemDownloadingStatus {
-        case nil: state = .inCloud
-        case .current: state = .downloaded
-        case .downloaded: state = .downloading
-        case .notDownloaded: state = .inCloud
-        default: state = .inCloud
-        }
-      }
-
-      // log.debug("cloudState: \(state, privacy: .public)")
-      return state
+      @Dependency(\.ubiquitousItemState) var ubiquitousItemState
+      return Self.cloudState(for: ubiquitousItemState(url))
     } ?? .unknown
+  }
+
+  public static func cloudState(for state: UbiquitousItemState?) -> CloudState {
+    guard let state else { return .unknown }
+    guard let isUbiquitous = state.isUbiquitousItem else { return .unknown }
+    if !isUbiquitous {
+      return .local
+    } else if state.ubiquitousItemIsDownloading == true {
+      return .downloading
+    } else if state.ubiquitousItemDownloadingError != nil {
+      return .downloadError
+    } else {
+      switch state.ubiquitousItemDownloadingStatus {
+      case .current, .downloaded: return .downloaded
+      default: return .inCloud
+      }
+    }
   }
 }
 

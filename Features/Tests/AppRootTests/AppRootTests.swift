@@ -44,7 +44,7 @@ import Tutorial
     $0.reverbDevice = .liveValue
     $0.continuousClock = ImmediateClock()
   },
-  .serialized
+  .serialized // due to SF2LibAU creation
 )
 @MainActor
 struct AppRootTests {

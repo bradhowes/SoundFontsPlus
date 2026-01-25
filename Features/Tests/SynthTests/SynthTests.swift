@@ -29,7 +29,7 @@ import TestSupport
     $0.reverbDevice = .liveValue
   },
   .snapshots(record: .failed),
-  .serialized
+  .serialized // due to SF2LibAU creation
 )
 @MainActor
 struct SynthTests {
