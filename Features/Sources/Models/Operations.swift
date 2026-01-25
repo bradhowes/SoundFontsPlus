@@ -110,29 +110,22 @@ public enum Operations {
   }
 
   public static func soundFontIds(for tagId: Tag.ID) -> [SoundFont.ID] {
-    @Shared(.hideBuiltinFonts) var hideBuiltinFonts
-    var query = TaggedSoundFont
-      .select { $0.soundFontId }
-      .where { $0.tagId.eq(tagId) }
-    if hideBuiltinFonts {
-      query = query.where { $0.soundFontId > SoundFont.ID(4) }
-    }
-    return withDatabaseReader { try query.fetchAll($0) } ?? []
-  }
-
-  public static func tagIds(for soundFontId: SoundFont.ID) -> [Tag.ID] {
-    withDatabaseReader {
-      try TaggedSoundFont.select { $0.tagId }
-        .where { $0.soundFontId.eq(soundFontId) }
-        .fetchAll($0)
-    } ?? []
+    (withDatabaseReader { try SoundFontInfo.query(for: tagId).fetchAll($0) } ?? []).map(\.id)
   }
 
   public static func tagSoundFont(_ tagId: Tag.ID, soundFontId: SoundFont.ID) {
     guard !tagId.isUbiquitous else { return }
-    let existing = tagIds(for: soundFontId)
-    guard existing.first(where: {$0 == tagId}) == nil else { return }
-    withDatabaseWriter { db in
+    @Dependency(\.defaultDatabase) var database
+
+    let existing = database.withReader { db in
+      try TaggedSoundFont
+        .where { $0.soundFontId.eq(soundFontId) }
+        .where { $0.tagId.eq(tagId) }
+        .fetchCount(db)
+    } ?? 0
+
+    guard existing == 0 else { return }
+    database.withWriter { db in
       try TaggedSoundFont.insert {
         .init(soundFontId: soundFontId, tagId: tagId)
       }

@@ -79,8 +79,8 @@ public struct SoundFontsList {
 
       case .deleteModeDeleteButtonTapped:
         let selected = state.rows
-          .filter { $0.deleting }
-          .map { $0.soundFontInfo }
+          .filter(\.deleting)
+          .map(\.soundFontInfo)
         if !selected.isEmpty {
           state.destination = .alert(.confirmDeleteSoundFontCollection(
             action: .deleteSoundFontCollectionConfirmed(selected),
@@ -104,7 +104,13 @@ public struct SoundFontsList {
 
       case .headerDoubleTapped:
         state.editingMode = .active
-        return .none
+        return .merge(
+          state.rows.map {
+            reduce(
+              into: &state,
+              action: .rows(.element(id: $0.id, action: .resetDeleting))
+            )
+        })
 
       case .initialize:
         return .merge(
@@ -167,63 +173,37 @@ extension SoundFontsList {
     @Dependency(\.fileManager) var fileManager
     state.editingMode = .inactive
     for soundFontInfo in soundFontInfos {
-      guard let soundFont = SoundFont.with(id: soundFontInfo.id ) else {
-        log.error("unexpected missing soundfont ID \(soundFontInfo.id)")
-        continue
-      }
-
-      guard
-        let kind = try? SoundFontKind(kind: soundFont.kind, location: soundFont.location, displayName: soundFontInfo.displayName)
-      else {
-        log.error("unexpected nil kind value for soundfont ID \(soundFontInfo.id)")
-        continue
-      }
-
-      guard !kind.isBuiltin else {
-        log.error("unexpected kind value for soundfont ID \(soundFontInfo.id) - \(String(describing: kind), privacy: .public)")
-        continue
-      }
-
-      if kind.deleteWhenRemoved {
-        do {
-          log.info("removing file \(kind.url)")
-          try fileManager.removeItem(kind.url)
-        } catch {
-          log.error("failed to remove item \(kind.url)")
-        }
-      }
-
-      log.info("removing db entry for \(soundFont.displayName)")
-      SoundFont.delete(id: soundFontInfo.id)
-
-      deleted(soundFontInfo.id)
+      _ = deleteSoundFont(soundFontInfo)
     }
 
     return showActiveSoundFont(&state)
   }
 
   private func deleteSoundFontConfirmed(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
+    state.destination = deleteSoundFont(soundFontInfo)
+    return showActiveSoundFont(&state)
+  }
+
+  private func deleteSoundFont(_ soundFontInfo: SoundFontInfo) -> Destination.State? {
     @Dependency(\.fileManager) var fileManager
     guard let soundFont = SoundFont.with(id: soundFontInfo.id ) else {
       log.error("unexpected missing soundfont ID \(soundFontInfo.id)")
-      state.destination = .alert(.genericDeleteFailure("Sound font ID \(soundFontInfo.id) was not found."))
-      return .none
+      return .alert(.genericDeleteFailure("Sound font ID \(soundFontInfo.id) was not found."))
     }
 
     guard
       let kind = try? SoundFontKind(kind: soundFont.kind, location: soundFont.location, displayName: soundFontInfo.displayName)
     else {
       log.error("unexpected nil kind value for soundfont ID \(soundFontInfo.id)")
-      state.destination = .alert(.genericDeleteFailure("Invalid (nil) sound font 'kind' value."))
-      return .none
+      return .alert(.genericDeleteFailure("Invalid (nil) sound font 'kind' value."))
     }
 
     guard !kind.isBuiltin else {
       log.error("unexpected kind value for soundfont ID \(soundFontInfo.id) - \(String(describing: kind), privacy: .public)")
-      state.destination = .alert(.genericDeleteFailure("Cannot delete built-in sound fonts."))
-      return .none
+      return .alert(.genericDeleteFailure("Cannot delete built-in sound fonts."))
     }
 
+    var alert: Destination.State?
     if kind.deleteWhenRemoved {
       do {
         log.info("removing file \(kind.url)")
@@ -233,9 +213,7 @@ extension SoundFontsList {
 
         // Only alert user is the file still exists.
         if fileManager.fileExists(kind.url) {
-          state.destination = .alert(.genericDeleteFailure(
-            "Failed to remove sound font file \(kind.url.lastPathComponent)."
-          ))
+          alert = .alert(.genericDeleteFailure("Failed to remove sound font file \(kind.url.lastPathComponent)."))
         }
       }
     }
@@ -244,8 +222,7 @@ extension SoundFontsList {
     SoundFont.delete(id: soundFontInfo.id)
 
     deleted(soundFontInfo.id)
-
-    return showActiveSoundFont(&state)
+    return alert
   }
 
   private func deleted(_ soundFontId: SoundFont.ID) {

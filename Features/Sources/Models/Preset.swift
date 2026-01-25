@@ -7,8 +7,10 @@ import Tagged
 
 /**
  Defines a sound font preset. Most of the read-only attributes come from the SF2 loaded into the application. A preset
- can be duplicated into a `favorite` which can have its own audio settings, or a preset can be hidden from view. Only an `favorite`
+ can be duplicated into a `favorite` which can have its own audio settings, or a preset can be hidden from view. Only a `favorite`
  row can be deleted by the user; otherwise the rows are removed only when the owning ``SoundFont`` entry is removed.
+
+ Note that visibility is case of `Kind` and not an attribute of Preset.
  */
 @Table
 nonisolated public struct Preset {
@@ -111,13 +113,7 @@ extension Preset {
   }
 
   /// Obtain the `AudioConfig` value associated with this preset. If one does not exist, returns nil.
-  public var audioConfig: AudioConfig? {
-    withDatabaseReader { db in
-      try AudioConfig.all
-        .where { $0.presetId.eq(self.id) }
-        .fetchOne(db)
-    } ?? nil
-  }
+  public var audioConfig: AudioConfig? { AudioConfig.with(presetId: self.id) }
 
   /// Obtain an `AudioConfig.Draft` for the preset, creating one if necessary.
   public var audioConfigDraft: AudioConfig.Draft {
@@ -126,14 +122,7 @@ extension Preset {
   }
 
   /// Obtain the `DelayConfig` value associated with this config/preset. If one does not exist, returns `nil`.
-  public var delayConfig: DelayConfig? {
-    withDatabaseReader { db in
-      try DelayConfig
-        .all
-        .where { $0.presetId.eq(self.id) }
-        .fetchOne(db)
-    } ?? nil
-  }
+  public var delayConfig: DelayConfig? { DelayConfig.with(presetId: self.id) }
 
   /// Obtain the `DelayConfig.Draft` value associated with this config/preset. If one does not exist, then
   /// return one with default values. Goal is to only save an entry when there is a deviation from
@@ -144,13 +133,7 @@ extension Preset {
   }
 
   /// Obtain the `ReverbConfig` value associated with this config/preset. If one does not exist, returns `nil`.
-  public var reverbConfig: ReverbConfig? {
-    withDatabaseReader { db in
-      try ReverbConfig.all
-        .where { $0.presetId.eq(self.id) }
-        .fetchOne(db)
-    } ?? nil
-  }
+  public var reverbConfig: ReverbConfig? { ReverbConfig.with(presetId: self.id) }
 
   /// Obtain the `ReverbConfig.Draft` value associated with this config/preset. If one does not exist, then
   /// return one with default values. Goal is to only save an entry when there is a deviation from
@@ -182,33 +165,26 @@ extension Preset {
       kind: .favorite
     )
 
-    guard let clone = withDatabaseWriter({ db in
+    let clone = withDatabaseWriter { db in
       try Self.insert {
         dupe
       }
       .returning(\.self)
       .fetchAll(db)
-    })?.first else {
-      return nil
-    }
+    }?.first
 
-    // Can this be done with key paths?
-
-    if let audioConfig = self.audioConfig {
-      _ = audioConfig.clone(presetId: clone.id)
-    }
-
-    if let delayConfig = self.delayConfig {
-      _ = delayConfig.clone(presetId: clone.id)
-    }
-
-    if let reverbConfig = self.reverbConfig {
-      _ = reverbConfig.clone(presetId: clone.id)
+    if let clone {
+      audioConfig?.clone(presetId: clone.id)
+      delayConfig?.clone(presetId: clone.id)
+      reverbConfig?.clone(presetId: clone.id)
     }
 
     return clone
   }
 
+  /**
+   Toggle the visibility of the preset.
+   */
   public mutating func toggleVisibility() {
     precondition(self.kind != .favorite)
     let kind: Kind = self.kind == .preset ? .hidden : .preset
@@ -220,6 +196,7 @@ extension Preset {
     }
   }
 
+  /// - returns: a name value that does not match any other preset in the presets of the sound font.
   public var uniqueName: String {
     let query = Preset.all
       .where { $0.soundFontId.eq(self.soundFontId) }

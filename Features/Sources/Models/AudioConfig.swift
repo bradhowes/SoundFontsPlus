@@ -87,8 +87,7 @@ extension AudioConfig {
   @discardableResult
   public static func save(config: Draft) -> Self? {
     withDatabaseWriter { db in
-      precondition(config.presetId != -1)
-      return try Self.upsert {
+      try Self.upsert {
         config
       }
       .returning(\.self)
@@ -102,21 +101,20 @@ extension AudioConfig {
    - parameter presetId: the Preset.ID to associate with
    - returns: cloned instance
    */
+  @discardableResult
   public func clone(presetId: Preset.ID) -> Self? {
-    let dupe = Draft(
-      gain: self.gain,
-      pan: self.pan,
-      keyboardLowestNoteEnabled: self.keyboardLowestNoteEnabled,
-      keyboardLowestNote: self.keyboardLowestNote,
-      pitchBendRange: self.pitchBendRange,
-      customTuningEnabled: self.customTuningEnabled,
-      customTuning: self.customTuning,
-      presetId: presetId
-    )
-
-    return withDatabaseWriter { db in
+    withDatabaseWriter { db in
       try Self.insert {
-        dupe
+        Draft(
+          gain: self.gain,
+          pan: self.pan,
+          keyboardLowestNoteEnabled: self.keyboardLowestNoteEnabled,
+          keyboardLowestNote: self.keyboardLowestNote,
+          pitchBendRange: self.pitchBendRange,
+          customTuningEnabled: self.customTuningEnabled,
+          customTuning: self.customTuning,
+          presetId: presetId
+        )
       }
       .returning(\.self)
       .fetchOne(db)

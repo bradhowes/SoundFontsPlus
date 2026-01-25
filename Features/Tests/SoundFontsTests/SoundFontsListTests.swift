@@ -18,6 +18,9 @@ private class RemoveLog: @unchecked Sendable {
 @Suite(
   .dependencies {
     $0.defaultDatabase = TestSupport.testDatabase()
+    $0.fileManager.fontFilePath = { FileManager.default.temporaryDirectory.appendingPathComponent($0) }
+    $0.fileManager.removeItem = { _ in }
+    $0.fileManager.fileExists = { _ in false }
   },
   .snapshots(record: .failed)
 )
@@ -138,11 +141,10 @@ struct SoundFontsListTests {
   }
 
   @Test
-  func deleteSoundFontConfirmed() async throws {
+  func deleteSoundFontBuiltinConfirmed() async throws {
     try await initialized { store in
+      let row = store.state.rows[1]
 
-      var oldRows = store.state.rows
-      let row = oldRows[1]
       await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo))))) {
         $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(row.soundFontInfo),
                                                         displayName: "Font 2"))
@@ -151,10 +153,6 @@ struct SoundFontsListTests {
       await store.send(.destination(.presented(.alert(.deleteSoundFontConfirmed(row.soundFontInfo))))) {
         $0.destination = .alert(.genericDeleteFailure("Cannot delete built-in sound fonts."))
       }
-
-      let deleted = oldRows.remove(id: row.id)
-      #expect(deleted != nil)
-      #expect(deleted?.soundFontInfo.displayName == "Font 2")
     }
   }
 
@@ -167,10 +165,17 @@ struct SoundFontsListTests {
   )
   func deleteSoundFontConfirmedInternal() async throws {
     @Shared(.inMemory("removeLog")) var removeLog = RemoveLog()
+    @Shared(.activeState) var activeState
+    @Shared(.selectedSoundFontId) var selectedSoundFontId
+
     try await initialized { store in
 
       var oldRows = store.state.rows
       let row = oldRows[2]
+
+      $activeState.withLock { $0.activeSoundFontId = row.id }
+      $selectedSoundFontId.withLock { $0 = row.id }
+
       await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo))))) {
         $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(row.soundFontInfo),
                                                         displayName: "Font 3"))
@@ -189,6 +194,81 @@ struct SoundFontsListTests {
       }
       #expect(removeLog.log.count == 1)
       #expect(removeLog.log[0] == URL(filePath: "/fake/path/GeneralUser GS MuseScore v1.442.sf2"))
+
+      #expect(activeState.activeSoundFontId == nil)
+      #expect(selectedSoundFontId == nil)
+    }
+  }
+
+  @Test
+  func deleteSoundFontConfirmedInvalidSoundFontId() async throws {
+    try await initialized { store in
+      let row = store.state.rows[0]
+      let bad: SoundFontInfo = .init(
+        id: 999,
+        displayName: row.soundFontInfo.displayName + " Bogus",
+        kind: row.soundFontInfo.kind,
+        location: row.soundFontInfo.location
+      )
+
+      await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(bad))))) {
+        $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(bad),
+                                                        displayName: "Font 1 Bogus"))
+      }
+
+      await store.send(.destination(.presented(.alert(.deleteSoundFontConfirmed(bad))))) {
+        $0.destination = .alert(.genericDeleteFailure("Sound font ID 999 was not found."))
+      }
+    }
+  }
+
+  @Test
+  func deleteSoundFontConfirmedBuiltinFailed() async throws {
+    try await initialized { store in
+      let row = store.state.rows[0]
+      await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo))))) {
+        $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(row.soundFontInfo),
+                                                        displayName: "Font 1"))
+      }
+
+      await store.send(.destination(.presented(.alert(.deleteSoundFontConfirmed(row.soundFontInfo))))) {
+        $0.destination = .alert(.genericDeleteFailure("Cannot delete built-in sound fonts."))
+      }
+    }
+  }
+
+  @Test(
+    .dependencies {
+      @Shared(.inMemory("removeLog")) var removeLog = RemoveLog()
+      $0.fileManager.fontFilePath = { what in URL(filePath: "/fake/path").appendingPathComponent(what) }
+      $0.fileManager.removeItem = { _ in throw NSError(domain: "bogus", code: 1, userInfo: nil) }
+      $0.fileManager.fileExists = { _ in true }
+    }
+  )
+  func deleteSoundFontConfirmedInternalFailedRemove() async throws {
+    @Shared(.inMemory("removeLog")) var removeLog = RemoveLog()
+    try await initialized { store in
+
+      var oldRows = store.state.rows
+      let row = oldRows[2]
+      await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo))))) {
+        $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(row.soundFontInfo),
+                                                        displayName: "Font 3"))
+      }
+
+      await store.send(.destination(.presented(.alert(.deleteSoundFontConfirmed(row.soundFontInfo))))) {
+        $0.destination = .alert(.genericDeleteFailure("Failed to remove sound font file GeneralUser GS MuseScore v1.442.sf2."))
+      }
+
+      let deleted = oldRows.remove(id: row.id)
+      #expect(deleted != nil)
+      #expect(deleted?.soundFontInfo.displayName == "Font 3")
+
+      await store.receive(\.rowsUpdated) {
+        $0.rows = oldRows
+      }
+
+      #expect(removeLog.log.isEmpty)
     }
   }
 
@@ -231,6 +311,91 @@ struct SoundFontsListTests {
       })
 
       await store.receive(\.delegate, .edit(soundFont!))
+    }
+  }
+
+  @Test
+  func deleteModeCancel() async throws {
+    try await initialized { store in
+
+      await store.send(\.headerDoubleTapped) {
+        $0.editingMode = .active
+      }
+
+      await store.send(.rows(.element(id: 4, action: .toggleDeleting))) {
+        $0.rows[3].deleting = true
+      }
+
+      await store.send(\.deleteModeCancelButtonTapped) {
+        $0.editingMode = .inactive
+      }
+
+      await store.send(\.headerDoubleTapped) {
+        $0.editingMode = .active
+        $0.rows[3].deleting = false
+      }
+    }
+  }
+
+  @Test
+  func deleteModeConfirmEmpty() async throws {
+    try await initialized { store in
+
+      await store.send(\.headerDoubleTapped) {
+        $0.editingMode = .active
+      }
+
+      await store.send(\.deleteModeDeleteButtonTapped) {
+        $0.editingMode = .inactive
+      }
+    }
+  }
+
+  @Test
+  func deleteModeConfirm() async throws {
+    try await initialized { store in
+
+      await store.send(\.headerDoubleTapped) {
+        $0.editingMode = .active
+      }
+
+      var rows = store.state.rows
+      let idx3 = store.state.rows.index(id: 3)!
+      let idx4 = store.state.rows.index(id: 4)!
+
+      await store.send(.rows(.element(id: 3, action: .toggleDeleting))) {
+        $0.rows[idx3].deleting = true
+      }
+
+      await store.send(.rows(.element(id: 4, action: .toggleDeleting))) {
+        $0.rows[idx4].deleting = true
+      }
+
+      let selected = store.state.rows.filter(\.deleting).map(\.soundFontInfo)
+
+      await store.send(\.deleteModeDeleteButtonTapped) {
+        $0.destination = .alert(
+          .confirmDeleteSoundFontCollection(
+            action: .deleteSoundFontCollectionConfirmed(selected),
+            count: selected.count
+          )
+        )
+      }
+
+      await store.send(\.destination.presented.alert.deleteSoundFontCollectionConfirmed, selected) {
+        $0.editingMode = .inactive
+        $0.destination = nil
+      }
+
+      rows.remove(id: 3)
+      await store.receive(\.rowsUpdated) {
+        $0.rows = rows
+      }
+
+      rows.remove(id: 4)
+      await store.receive(\.rowsUpdated) {
+        $0.rows = rows
+      }
     }
   }
 

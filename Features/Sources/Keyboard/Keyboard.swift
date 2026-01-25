@@ -96,6 +96,9 @@ public struct Keyboard {
 
   public init() {}
 
+  @Shared(.activeState) private var activeState
+  @Shared(.showMIDINotesOnKeyboard) private var showMIDINotesOnKeyboard
+
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
 
@@ -143,9 +146,6 @@ public struct Keyboard {
       }
     }
   }
-
-  @Shared(.activeState) private var activeState
-  @Shared(.showMIDINotesOnKeyboard) private var showMIDINotesOnKeyboard
 
   private enum CancelId: String, CaseIterable {
     case keyboardMonitorMIDINotes

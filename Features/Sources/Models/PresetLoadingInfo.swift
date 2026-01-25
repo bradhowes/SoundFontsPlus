@@ -35,7 +35,7 @@ extension PresetLoadingInfo {
         $0.id.eq($2.presetId)
       }
       .select {
-        PresetLoadingInfo.Columns(
+        Columns(
           soundFontId: $1.id,
           presetIndex: $0.index,
           kind: $1.kind,

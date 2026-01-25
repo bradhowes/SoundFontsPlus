@@ -86,6 +86,7 @@ extension ReverbConfig {
    - parameter presetId: the ID of the favorite to assign to the clone
    - returns: cloned config or nil if unable to clone
    */
+  @discardableResult
   public func clone(presetId: Preset.ID) -> Self? {
     var draft = Self.draft(for: presetId, cloning: .init(self))
     draft.enabled = self.enabled
