@@ -108,32 +108,26 @@ public struct PresetsListSectionView: View {
     }
   }
 
-  @ViewBuilder
   private var sectionHeader: some View {
-    if searching {
+    HStack {
       Text(sectionText)
-    } else {
-      HStack {
-        Text(sectionText)
-          .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
+      Spacer()
+      Button {
+        store.send(.delegate(.searchButtonTapped))
+      } label: {
+        Image(systemName: "magnifyingglass")
+          .imageScale(.small)
           .contentShape(Rectangle())
-        Spacer()
-        if (showSearchButton || store.section == 0) && !editingVisibility {
-          Button {
-            store.send(.delegate(.searchButtonTapped))
-          } label: {
-            Image(systemName: "magnifyingglass")
-              .imageScale(.small)
-              .contentShape(Rectangle())
-          }
-        }
       }
-      // Track vertical position of our header -- when it becomes pinned, show the search button
-      .onGeometryChange(for: Double.self) {
-        $0.frame(in: .global).origin.y
-      } action: {
-        showSearchButton = $0 < 94.0
-      }
+      .opacity((showSearchButton || store.section == 0) && !editingVisibility ? 1.0 : 0.0)
+    }
+    // Track vertical position of our header -- when it becomes pinned, show the search button
+    .onGeometryChange(for: Double.self) {
+      $0.frame(in: .global).origin.y
+    } action: {
+      showSearchButton = $0 < 94.0
     }
   }
 

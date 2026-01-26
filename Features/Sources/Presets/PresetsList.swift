@@ -338,7 +338,7 @@ extension PresetsList {
         $0.activeSoundFontId = preset.soundFontId
       }
     }
-    return state.isSearchFieldPresented ? dismissSearch(&state) : .none
+    return .none
   }
 
   private func setSoundFont(_ state: inout State, soundFontId: SoundFont.ID?) -> Effect<Action> {

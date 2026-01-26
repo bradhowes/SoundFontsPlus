@@ -24,17 +24,35 @@ public struct SoundFontsList {
     public var rows: IdentifiedArrayOf<SoundFontButton.State>
     public var editingMode: EditMode
 
+    @ObservationStateIgnored
+    public var searchSource: IdentifiedArrayOf<SoundFontButton.State>
+    public var searchText: String
+    public var isSearchFieldPresented: Bool
+    public var focusedField: Field?
+    @ObservationStateIgnored
+    public var lastSearchText: String?
+
+    public enum Field: String, Hashable {
+      case searchText
+    }
+
     public init(destination: Destination.State? = nil, editingMode: EditMode = .inactive) {
       let soundFontInfos: [SoundFontInfo] = withDatabaseReader { db in
         try SoundFontInfo.query().fetchAll(db)
       } ?? []
       self.rows = .init(uncheckedUniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
       self.editingMode = editingMode
+
+      self.searchSource = []
+      self.searchText = ""
+      self.isSearchFieldPresented = false
     }
   }
 
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
+    case cancelSearchButtonTapped
+    case clearSearchTextField
     case delegate(Delegate)
     case deleteModeCancelButtonTapped
     case deleteModeDeleteButtonTapped
@@ -44,6 +62,8 @@ public struct SoundFontsList {
     case initialize
     case rows(IdentifiedActionOf<SoundFontButton>)
     case rowsUpdated([SoundFontInfo])
+    case searchButtonTapped
+    case searchTextChanged(String)
     case showActiveSoundFont
     case updateFetchAllQuery
 
@@ -69,6 +89,12 @@ public struct SoundFontsList {
       log.action("SoundFontsList", action)
 
       switch action {
+
+      case .cancelSearchButtonTapped:
+        return dismissSearch(&state)
+
+      case .clearSearchTextField:
+        return searchTextChanged(&state, searchText: "")
 
       case .deinitialize:
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
@@ -123,6 +149,12 @@ public struct SoundFontsList {
 
       case .rowsUpdated(let soundFontInfos):
         return soundFontInfosChanged(&state, soundFontInfos: soundFontInfos)
+
+      case .searchButtonTapped:
+        return searchButtonTapped(&state)
+
+      case .searchTextChanged(let value):
+        return searchTextChanged(&state, searchText: value)
 
       case .showActiveSoundFont:
         return showActiveSoundFont(&state)
@@ -240,6 +272,16 @@ extension SoundFontsList {
     }
   }
 
+  private func dismissSearch(_ state: inout State) -> Effect<Action> {
+    state.rows = state.searchSource
+    state.searchSource = []
+    state.isSearchFieldPresented = false
+    state.focusedField = nil
+    state.lastSearchText = state.searchText
+    state.searchText = ""
+    return .none
+  }
+
   private func edit(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
     if let soundFont = SoundFont.with(id: soundFontId) {
       return .send(.delegate(.edit(soundFont)))
@@ -283,6 +325,24 @@ extension SoundFontsList {
         await send(.updateFetchAllQuery)
       }
     }.cancellable(id: CancelId.soundFontsListMonitorHideBuiltinFonts)
+  }
+
+  private func searchButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.searchSource = state.rows
+    state.isSearchFieldPresented = true
+    state.focusedField = .searchText
+    state.searchText = ""
+    state.rows = []
+    return searchTextChanged(&state, searchText: state.lastSearchText ?? "")
+  }
+
+  private func searchTextChanged(_ state: inout State, searchText: String) -> Effect<Action> {
+    if searchText != state.searchText {
+      state.searchText = searchText
+      state.rows = state.searchSource.filter { $0.soundFontInfo.displayName.localizedLowercase.contains(searchText.lowercased())
+      }
+    }
+    return .none
   }
 
   private func select(soundFontId: SoundFont.ID, available: Bool) -> Effect<Action> {
@@ -330,52 +390,105 @@ extension SoundFontsList.Destination.State: _EphemeralState {
 
 public struct SoundFontsListView: View {
   @Bindable private var store: StoreOf<SoundFontsList>
+  @FocusState private var focusedField: SoundFontsList.State.Field?
+  private var searching: Bool { store.isSearchFieldPresented }
 
   public init(store: StoreOf<SoundFontsList>) {
     self.store = store
   }
 
   public var body: some View {
-    StyledList {
-      Section {
-        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-          StyledEntry {
-            SoundFontButtonView(store: rowStore)
-          }
-        }
-      } header: {
-        StyledHeader {
-          ZStack(alignment: .leadingFirstTextBaseline) {
-            Text("Files")
-              .zIndex(1)
-              .opacity(store.editingMode == .active ? 0.0 : 1.0)
-              .onTapGesture(count: 2) {
-                store.send(.headerDoubleTapped)
-              }
-            HStack(spacing: 16) {
-              Button {
-                store.send(.deleteModeCancelButtonTapped)
-              } label: {
-                Text("Cancel")
-              }
-              Button {
-                store.send(.deleteModeDeleteButtonTapped)
-              } label: {
-                Text("Delete")
-                  .foregroundStyle(.red)
-              }
+    VStack(spacing: 0) {
+      if searching {
+        searchField
+      }
+      StyledList {
+        Section {
+          ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+            StyledEntry {
+              SoundFontButtonView(store: rowStore)
             }
-            .zIndex(2)
-            .opacity(store.editingMode == .active ? 1.0 : 0.0)
+          }
+        } header: {
+          StyledHeader {
+            sectionHeader
           }
         }
       }
     }
     .environment(\.editMode, $store.editingMode)
+    .animation(.smooth, value: store.isSearchFieldPresented)
     .animation(.smooth, value: store.editingMode)
     .animation(.smooth, value: store.rows)
     .task { await store.send(.initialize).finish() }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
+  }
+
+  private var searchField: some View {
+    HStack {
+      TextField("Search", text: $store.searchText.sending(\.searchTextChanged))
+        .textFieldStyle(.roundedBorder)
+        .focused($focusedField, equals: .searchText)
+#if os(iOS)
+        .autocorrectionDisabled()
+        .autocapitalization(.none)
+#endif
+        .transition(.slide)
+        .bind($store.focusedField, to: $focusedField)
+        .clearButton {
+          store.send(.clearSearchTextField)
+        }
+      Spacer()
+      Button {
+        store.send(.cancelSearchButtonTapped)
+      } label: {
+        Image(systemName: "xmark")
+          .frame(width: 32, height: 32)
+          .contentShape(Rectangle())
+      }
+    }
+    .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
+  }
+
+  private var sectionHeader: some View {
+    ZStack(alignment: .leadingFirstTextBaseline) {
+      HStack {
+        Text("Files")
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .contentShape(Rectangle())
+          .onTapGesture(count: 2) {
+            store.send(.headerDoubleTapped)
+          }
+        Spacer()
+        Button {
+          store.send(.searchButtonTapped)
+        } label: {
+          Image(systemName: "magnifyingglass")
+            .imageScale(.small)
+            .contentShape(Rectangle())
+        }
+      }
+      .zIndex(1)
+      .opacity((store.editingMode == .active || searching) ? 0.0 : 1.0)
+      HStack(spacing: 16) {
+        Button {
+          store.send(.deleteModeCancelButtonTapped)
+        } label: {
+          Text("Cancel")
+        }
+        Button {
+          store.send(.deleteModeDeleteButtonTapped)
+        } label: {
+          Text("Delete")
+            .foregroundStyle(.red)
+        }
+      }
+      .zIndex(2)
+      .opacity(store.editingMode == .active ? 1.0 : 0.0)
+      Text("Found \(store.rows.count)")
+        .zIndex(3)
+        .opacity(searching ? 1.0 : 0.0)
+    }
   }
 }
 
