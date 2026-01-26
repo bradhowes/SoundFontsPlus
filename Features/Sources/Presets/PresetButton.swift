@@ -12,9 +12,11 @@ public struct PresetButton {
   public struct State: Equatable, Identifiable {
     public var id: Preset.ID { preset.id }
     public var preset: Preset
+    public let symbolPrefix: String?
 
-    public init(preset: Preset) {
+    public init(preset: Preset, symbolPrefix: String?) {
       self.preset = preset
+      self.symbolPrefix = symbolPrefix
     }
   }
 
@@ -53,6 +55,7 @@ public struct PresetButtonView: View {
   private var store: StoreOf<PresetButton>
   @Shared(.activeState) private var activeState
   @Environment(\.editMode) private var editingMode
+
   private var editingVisibility: Bool { (editingMode?.wrappedValue ?? .inactive) == .active }
   private var isFavorite: Bool { store.preset.kind == .favorite }
   private var isHidden: Bool { store.preset.kind == .hidden }
@@ -81,10 +84,14 @@ public struct PresetButtonView: View {
             .frame(width: 24)
             .animation(.smooth, value: store.preset.kind) // animate the visibiliity toggle image
         }
-        PresetNameView(preset: store.preset)
-          .indicator(editingVisibility ? .favorite : state)
+        if let symbolPrefix = store.symbolPrefix {
+          Image(systemName: symbolPrefix)
+        }
+        Text(store.preset.displayName)
+          .font(.button)
         Spacer()
       }
+      .indicator(editingVisibility ? .favorite : state)
       .contentShape(.interaction, Rectangle())
       .simultaneousGesture(
         LongPressGesture(minimumDuration: 1.0)
@@ -147,19 +154,19 @@ extension PresetButtonView {
     return VStack {
       Text("Normal")
       List {
-        PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets[0], symbolPrefix: nil)) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets[1], symbolPrefix: nil)) { PresetButton() })
         // swiftlint:disable:next force_unwrapping
-        PresetButtonView(store: Store(initialState: .init(preset: presets.last!)) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets.last!, symbolPrefix: "ℹ️")) { PresetButton() })
       }
       .listStyle(.plain)
       .environment(\.editMode, .constant(.inactive))
 
       Text("Edit Mode")
       List {
-        PresetButtonView(store: Store(initialState: .init(preset: presets[0])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: .init(preset: presets[1])) { PresetButton() })
-        PresetButtonView(store: Store(initialState: .init(preset: presets[2])) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets[0], symbolPrefix: nil)) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets[1], symbolPrefix: nil)) { PresetButton() })
+        PresetButtonView(store: Store(initialState: .init(preset: presets[2], symbolPrefix: "ℹ️")) { PresetButton() })
       }
       .listStyle(.plain)
       .environment(\.editMode, .constant(.active))

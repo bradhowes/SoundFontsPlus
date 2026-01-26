@@ -20,11 +20,13 @@ public struct ToolBar {
 
     case lastPlayedKey(String)
     case panic
+    case startup
 
     var text: String {
       switch self {
       case .lastPlayedKey(let status): return status
       case .panic: return "😱 PANIC - all notes off"
+      case .startup: return "Initializing…"
       }
     }
   }
@@ -73,6 +75,7 @@ public struct ToolBar {
       self.preset = preset
       self.showMoreButtons = showMoreButtons
       self.tagsListVisible = tagsListVisible ?? savedTagsListVisible
+      self.temporaryStatus = .startup
     }
 
     public mutating func setTagsListVisible(_ state: Bool) {
@@ -209,6 +212,7 @@ public struct ToolBar {
 extension ToolBar {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+    state.temporaryStatus = nil
     if let presetId = presetId,
        let preset = Preset.with(id: presetId) {
       state.preset = preset
@@ -359,8 +363,14 @@ public struct ToolBarView: View {
   @Shared(.showActiveVoiceCount) private var showActiveVoiceCount
   @Shared(.showMIDITrafficIndicator) private var showMIDITrafficIndicator
   @Shared(.isAUv3) private var isAUv3
+  @Shared(.favoriteSymbolName) private var favoriteSymbolName
+  @Shared(.starFavoriteNames) private var starFavoriteNames
   @Environment(\.appPanelBackground) private var appPanelBackground
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+  private var showingPresetSymbol: Bool { starFavoriteNames && store.preset?.kind == .favorite && store.temporaryStatus == nil }
+  private var statusTextValue: String { store.temporaryStatus?.text ?? store.preset?.displayName ?? "—" }
+  private var statusTextColor: Color { (store.preset?.kind == .favorite || store.temporaryStatus != nil) ? .orange : .accentColor }
 
   public init(store: StoreOf<ToolBar>) {
     self.store = store
@@ -418,12 +428,8 @@ public struct ToolBarView: View {
             .transition(.slide)
         }
         statusText
-        Spacer()
       }
       .animation(.smooth, value: showActiveVoiceCount || showMIDITrafficIndicator)
-      .contentShape(Rectangle())
-      .onTapGesture(count: 2) { store.send(.statusTextTapped(count: 2)) }
-      .onTapGesture(count: 1) { store.send(.statusTextTapped(count: 1)) }
     }
   }
 
@@ -436,11 +442,20 @@ public struct ToolBarView: View {
   }
 
   private var statusText: some View {
-    Text(store.temporaryStatus?.text ?? store.preset?.displayName ?? "—")
-      .font(.status)
-      .foregroundStyle(store.preset?.kind == .favorite ? Color.orange : Color.accentColor)
-      .indicator(.activeNoIndicator)
-      .contentTransition(.interpolate)
+    HStack {
+      if showingPresetSymbol {
+        Image(systemName: favoriteSymbolName)
+      }
+      Text(statusTextValue)
+      Spacer()
+    }
+    .font(.status)
+    .foregroundStyle(statusTextColor)
+    .contentTransition(.interpolate)
+    .animation(.smooth, value: statusTextValue)
+    .contentShape(Rectangle())
+    .onTapGesture(count: 2) { store.send(.statusTextTapped(count: 2)) }
+    .onTapGesture(count: 1) { store.send(.statusTextTapped(count: 1)) }
   }
 
   private var addSoundFontButton: some View {

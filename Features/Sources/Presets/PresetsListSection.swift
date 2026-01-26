@@ -16,9 +16,9 @@ public struct PresetsListSection {
     // Make sure section IDs do not conflict with preset IDs.
     public var sectionId: Int { (section + 1) * PresetsList.noGroupingSize }
 
-    public init(section: Int, presets: ArraySlice<Preset>) {
+    public init(section: Int, presets: ArraySlice<Preset>, symbolPrefix: String?) {
       self.section = section
-      self.rows = .init(uniqueElements: presets.map { .init(preset: $0) })
+      self.rows = .init(uniqueElements: presets.map { .init(preset: $0, symbolPrefix: $0.isFavorite ? symbolPrefix : nil) })
     }
 
     /**
@@ -106,6 +106,7 @@ public struct PresetsListSectionView: View {
         store.send(.delegate(.headerTapped(scrollTo: Preset.ID(rawValue: Int64(store.section - (PresetsList.groupingSize - 1))))))
       }
     }
+    .animation(.smooth, value: store.rows)
   }
 
   private var sectionHeader: some View {

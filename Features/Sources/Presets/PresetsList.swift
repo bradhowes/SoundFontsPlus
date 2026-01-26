@@ -62,15 +62,21 @@ public struct PresetsList {
       focusedField: Field? = nil,
       editingVisibility: Bool = false
     ) {
+      @Shared(.favoriteSymbolName) var symbolName
+      @Shared(.starFavoriteNames) var starFavoriteNames
+
       self.isSearchFieldPresented = searchText != nil
       self.searchText = searchText ?? ""
       self.editingVisibility = editingVisibility
 
       let presets = Operations.presets(for: nil)
+
+      let symbolPrefix = starFavoriteNames ? symbolName : nil
+
       self.sections = presets.isEmpty ?
-        .init(uniqueElements: [PresetsListSection.State(section: 0, presets: [])]) :
+        .init(uniqueElements: [PresetsListSection.State(section: 0, presets: [], symbolPrefix: nil)]) :
         .init(uniqueElements: presets.indices.chunks(ofCount: PresetsList.groupingSize).map {
-          PresetsListSection.State(section: $0.lowerBound, presets: presets[$0])
+          PresetsListSection.State(section: $0.lowerBound, presets: presets[$0], symbolPrefix: symbolPrefix)
         })
     }
 
@@ -112,7 +118,9 @@ public struct PresetsList {
 
   @Shared(.activeState) private var activeState
   @Shared(.confirmPresetHiding) private var confirmPresetHiding
+  @Shared(.favoriteSymbolName) private var favoriteSymbolName
   @Shared(.selectedSoundFontId) private var selectedSoundFontId
+  @Shared(.starFavoriteNames) private var starFavoriteNames
 
   public init() {}
 
@@ -234,10 +242,12 @@ extension PresetsList {
       }
     }
 
+    let symbolPrefix = starFavoriteNames ? favoriteSymbolName : nil
+
     state.sections = presets.isEmpty ?
-      .init(uniqueElements: [PresetsListSection.State(section: 0, presets: [])]) :
+      .init(uniqueElements: [PresetsListSection.State(section: 0, presets: [], symbolPrefix: symbolPrefix)]) :
       .init(uniqueElements: presets.indices.chunks(ofCount: grouping).map {
-        PresetsListSection.State(section: $0.lowerBound, presets: presets[$0])
+        PresetsListSection.State(section: $0.lowerBound, presets: presets[$0], symbolPrefix: symbolPrefix)
       })
 
     return .none
