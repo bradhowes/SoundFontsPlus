@@ -11,11 +11,11 @@ struct FileManagerTests {
   @Test
   func sharedDocumentsDirectory() async throws {
     let url = FileManager.default.sharedDocumentsDirectory
-    #expect(url.path() != "")
-    #expect(FileManager.default.fileExists(atPath: url.path()))
-    try FileManager.default.removeItem(atPath: url.path())
-    #expect(!FileManager.default.fileExists(atPath: url.path()))
-    #expect(FileManager.default.sharedDocumentsDirectory.path() != "")
+    #expect(url.path(percentEncoded: false) != "")
+    #expect(FileManager.default.fileExists(atPath: url.path(percentEncoded: false)))
+    try FileManager.default.removeItem(atPath: url.path(percentEncoded: false))
+    #expect(!FileManager.default.fileExists(atPath: url.path(percentEncoded: false)))
+    #expect(FileManager.default.sharedDocumentsDirectory.path(percentEncoded: false) != "")
   }
 
   @Test
@@ -25,7 +25,7 @@ struct FileManagerTests {
 
   @Test
   func localDocumentsDirectory() async throws {
-    #expect(FileManager.default.localDocumentsDirectory.path() != "")
+    #expect(FileManager.default.localDocumentsDirectory.path(percentEncoded: false) != "")
   }
 
   @Test

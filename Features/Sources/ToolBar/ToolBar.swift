@@ -379,30 +379,21 @@ public struct ToolBarView: View {
   public var body: some View {
     HStack(alignment: .center, spacing: 12) {
       addSoundFontButton
-      toggleTagsButton
-      if !isAUv3 {
-        toggleEffectsButton
-      }
-      if horizontalSizeClass == .compact {
-        ZStack(alignment: .trailing) {
-          status
-            .zIndex(0)
-            .opacity(store.showMoreButtons ? 0.0 : 1.0)
-
-          if store.showMoreButtons {
-            moreButtons
-              .offset(x: 12)
-              .zIndex(1)
-              .transition(.move(edge: .trailing))
-          }
-        }
-        toggleMoreButton
-          .zIndex(2)
-          .offset(x: 4)
-      } else {
+      tagsButton
+      effectsButton
+      ZStack(alignment: .trailing) {
         status
-        moreButtons
-          .padding(.trailing, 8)
+          .zIndex(0)
+          .opacity(store.showMoreButtons ? 0.0 : 1.0)
+        additionalButtons
+          .opacity((store.showMoreButtons || horizontalSizeClass != .compact) ? 1.0 : 0.0)
+          .offset(x: horizontalSizeClass == .compact ? 12 : 0)
+          .zIndex(1)
+          .transition(.move(edge: .trailing))
+        moreButton
+          .zIndex(horizontalSizeClass == .compact ? 2 : -99)
+          .offset(x: 4)
+          // .opacity(horizontalSizeClass == .compact ? 1.0 : 0.0)
       }
     }
     .imageScale(.large)
@@ -416,11 +407,9 @@ public struct ToolBarView: View {
 
   private var status: some View {
     ZStack(alignment: .leading) {
-      if !isAUv3 {
-        if showMIDITrafficIndicator {
-          MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
-            .zIndex(-99)
-        }
+      if showMIDITrafficIndicator {
+        MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
+          .zIndex(-99)
       }
       HStack {
         if showActiveVoiceCount || showMIDITrafficIndicator {
@@ -466,7 +455,7 @@ public struct ToolBarView: View {
     }
   }
 
-  private var toggleTagsButton: some View {
+  private var tagsButton: some View {
     Button {
       store.send(.tagsListVisibilityButtonTapped)
     } label: {
@@ -475,7 +464,7 @@ public struct ToolBarView: View {
     }
   }
 
-  private var toggleEffectsButton: some View {
+  private var effectsButton: some View {
     Button {
       store.send(.effectsVisibilityButtonTapped)
     } label: {
@@ -484,7 +473,7 @@ public struct ToolBarView: View {
     }
   }
 
-  private var toggleMoreButton: some View {
+  private var moreButton: some View {
     Button {
       store.send(.showMoreButtonTapped)
     } label: {
@@ -495,32 +484,33 @@ public struct ToolBarView: View {
     .background(.black)
   }
 
-  private var moreButtons: some View {
+  private var additionalButtons: some View {
     HStack(alignment: .center, spacing: 12) {
-      if !isAUv3 {
-        Button {
-          store.send(.shiftKeyboardDownButtonTapped)
-        } label: {
-          Text(.shiftKeyboardLeftIndicator + store.lowestKey.label)
-        }
-        .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
-        Button {
-          store.send(.slidingKeyboardButtonTapped)
-        } label: {
-          Image(
-            systemName: store.keyboardSlides
-            ? .slidingKeyboardButtonImageName
-            : .fixedKeyboardButtonImageName
-          )
-          .tint(if: store.keyboardSlides)
-        }
-        Button {
-          store.send(.shiftKeyboardUpButtonTapped)
-        } label: {
-          Text(store.highestKey.label + .shiftKeyboardRightIndicator)
-        }
-        .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
+      Button {
+        store.send(.shiftKeyboardDownButtonTapped)
+      } label: {
+        Text(.shiftKeyboardLeftIndicator + store.lowestKey.label)
+          .fixedSize()
       }
+      .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
+      Button {
+        store.send(.slidingKeyboardButtonTapped)
+      } label: {
+        Image(
+          systemName: store.keyboardSlides
+          ? .slidingKeyboardButtonImageName
+          : .fixedKeyboardButtonImageName
+        )
+        .fixedSize()
+        .tint(if: store.keyboardSlides)
+      }
+      Button {
+        store.send(.shiftKeyboardUpButtonTapped)
+      } label: {
+        Text(store.highestKey.label + .shiftKeyboardRightIndicator)
+          .fixedSize()
+      }
+      .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
       Button {
         store.send(.presetsVisibilityButtonTapped)
       } label: {
@@ -593,7 +583,7 @@ extension ToolBarView {
 }
 
 #Preview {
-  ToolBarView.preview(showMoreButtons: true)
+  ToolBarView.preview(showMoreButtons: false)
     .environment(\.font, Font.body)
 }
 

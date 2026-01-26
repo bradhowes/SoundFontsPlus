@@ -47,7 +47,7 @@ extension FileManagerClient: DependencyKey {
           options: [.skipsHiddenFiles]
         )
       },
-      fileExists: { FileManager.default.fileExists(atPath: $0.path()) },
+      fileExists: { FileManager.default.fileExists(atPath: $0.path(percentEncoded: false)) },
       startDownloadingUbiquitousItem: { try FileManager.default.startDownloadingUbiquitousItem(at: $0) }
     )
   }
@@ -73,7 +73,7 @@ extension FileManagerClient: DependencyKey {
           options: [.skipsHiddenFiles]
         )
       },
-      fileExists: { FileManager.default.fileExists(atPath: $0.path()) },
+      fileExists: { FileManager.default.fileExists(atPath: $0.path(percentEncoded: false)) },
       startDownloadingUbiquitousItem: { try FileManager.default.startDownloadingUbiquitousItem(at: $0) }
     )
   }

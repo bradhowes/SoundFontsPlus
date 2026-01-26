@@ -213,6 +213,11 @@ extension Synth {
   private func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
     let firstTimePresetLoaded = state.firstTimePresetLoaded
     log.info("lastPresetLoadFinished BEGIN - \(firstTimePresetLoaded)")
+
+    // TODO: remove hack to support external bookmark files when AUv3 component can read from db.
+    let dst = FileManager.default.fontFilesDirectory.appendingPathComponent("tmp.sf2")
+    try? FileManager.default.removeItem(at: dst)
+
     guard
       let parameterTree = state.avAudioUnit?.parameterTree,
       let presetId = activeState.activePresetId
@@ -387,23 +392,41 @@ extension Synth {
       return playNote(state)
     }
 
-    let result: Bool
+    let sentRequest: Bool
     if presetInfo.soundFontId == state.loadedSoundFontId {
       log.info("useActivePreset - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = avAudioUnit.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
+      sentRequest = avAudioUnit.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
     } else {
-      guard let location = try? SoundFontKind(
-        kind: presetInfo.kind,
-        location: presetInfo.location,
-        displayName: presetInfo.soundFontName
-      )
+      guard
+        let location = try? SoundFontKind(
+          kind: presetInfo.kind,
+          location: presetInfo.location,
+          displayName: presetInfo.soundFontName,
+        )
       else {
         log.error("useActivePreset END - unexpected nil location for \(String(describing: presetInfo), privacy: .public)")
         return .none
       }
-      let path = location.url.path(percentEncoded: false)
-      log.info("useActivePreset - loading \(path) -- preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      result = avAudioUnit.sendLoadFileUsePreset(
+
+      let path: String
+      if location.isExternal {
+
+        // TODO: remove hack to support external bookmark files when AUv3 component can read from db for file info.
+        path = location.url.withSecurityScoping { url in
+          let dst = FileManager.default.fontFilesDirectory.appendingPathComponent("tmp.sf2")
+          try? FileManager.default.removeItem(at: dst)
+          do {
+            try FileManager.default.copyItem(at: url, to: dst)
+            return dst.path(percentEncoded: false)
+          } catch {
+            return ""
+          }
+        } ?? ""
+      } else {
+        path = location.url.path(percentEncoded: false)
+      }
+
+      sentRequest = avAudioUnit.sendLoadFileUsePreset(
         path: path,
         preset: presetInfo.presetIndex,
         gain: presetInfo.gain,
@@ -414,7 +437,7 @@ extension Synth {
     state.loadedPresetIndex = presetInfo.presetIndex
     state.loadedSoundFontId = presetInfo.soundFontId
 
-    log.info("useActivePreset END - \(result)")
+    log.info("useActivePreset END - \(sentRequest)")
     return .none
   }
 }

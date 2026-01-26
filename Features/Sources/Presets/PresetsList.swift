@@ -159,6 +159,10 @@ public struct PresetsList {
         }
         return .none
 
+      case let .editingVisibilityChanged(editing):
+        state.editingVisibility = editing
+        return generatePresetSections(&state)
+
       case .fetchPresets:
         state.scrollToPresetId = .init(presetId: activeState.activePresetId)
         return generatePresetSections(&state)
@@ -181,10 +185,6 @@ public struct PresetsList {
       case .showActivePresetNow:
         state.scrollToPresetId = .init(presetId: activeState.activePresetId)
         return .none
-
-      case let .editingVisibilityChanged(editing):
-        state.editingVisibility = editing
-        return generatePresetSections(&state)
 
       default:
         return .none
@@ -330,7 +330,9 @@ extension PresetsList {
     guard let info = PresetLoadingInfo.for(id: preset.id) else { return .none }
     guard
       let kind = try? SoundFontKind(kind: info.kind, location: info.location, displayName: info.soundFontName),
-      fileManager.fileExists(kind.url)
+      kind.url.withSecurityScoping({
+        fileManager.fileExists($0)
+      }) == true
     else {
       state.destination = .alert(
         .missingFileForSelectedPreset(

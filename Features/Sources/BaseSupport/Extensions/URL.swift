@@ -70,3 +70,5 @@ extension URL {
 extension URL {
   public var displayName: Substring { self.lastPathComponent.withoutExtension }
 }
+
+private let log: Logger = .init(category: "URL")
