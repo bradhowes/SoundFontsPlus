@@ -339,7 +339,8 @@ extension SoundFontsList {
   private func searchTextChanged(_ state: inout State, searchText: String) -> Effect<Action> {
     if searchText != state.searchText {
       state.searchText = searchText
-      state.rows = state.searchSource.filter { $0.soundFontInfo.displayName.localizedLowercase.contains(searchText.lowercased())
+      state.rows = state.searchSource.filter {
+        $0.soundFontInfo.displayName.localizedCaseInsensitiveContains(searchText.lowercased())
       }
     }
     return .none

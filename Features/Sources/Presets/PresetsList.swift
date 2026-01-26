@@ -230,7 +230,7 @@ extension PresetsList {
     )
     if let searchText = state.optionalSearchText {
       presets = presets.filter {
-        $0.displayName.localizedLowercase.contains(searchText.lowercased())
+        $0.displayName.localizedCaseInsensitiveContains(searchText)
       }
     }
 

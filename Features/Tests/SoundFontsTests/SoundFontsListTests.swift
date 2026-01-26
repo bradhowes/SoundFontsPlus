@@ -420,6 +420,75 @@ struct SoundFontsListTests {
   }
 
   @Test
+  func searchSoundFonts() async throws {
+    try await initialized { store in
+
+      let rows = store.state.rows
+
+      await store.send(\.searchButtonTapped) {
+        $0.isSearchFieldPresented = true
+        $0.focusedField = .searchText
+        $0.searchSource = rows
+        $0.rows = []
+      }
+
+      await store.send(.searchTextChanged("no")) {
+        $0.searchText = "no"
+      }
+
+      await store.send(.clearSearchTextField) {
+        $0.searchText = ""
+        $0.rows = []
+      }
+
+      await store.send(.cancelSearchButtonTapped) {
+        $0.searchSource = []
+        $0.isSearchFieldPresented = false
+        $0.focusedField = nil
+        $0.lastSearchText = ""
+        $0.rows = rows
+      }
+    }
+  }
+
+  @Test(
+    .dependencies {
+      $0.defaultDatabase = try! appDatabase()
+    }
+  )
+  func selectFromSearch() async throws {
+    try await initialized { store in
+
+      let rows = store.state.rows
+      print(rows.map(\.soundFontInfo.displayName))
+      let land = rows.filter({ $0.soundFontInfo.displayName.contains("land") })[0]
+
+      await store.send(\.searchButtonTapped) {
+        $0.isSearchFieldPresented = true
+        $0.focusedField = .searchText
+        $0.searchSource = rows
+        $0.rows = []
+      }
+
+      await store.send(.searchTextChanged("land")) {
+        $0.searchText = "land"
+        $0.rows = [land]
+      }
+
+      await store.send(\.rows[id: 4].delegate, .selectSoundFont(land.soundFontInfo, available: true))
+
+      await store.send(\.cancelSearchButtonTapped) {
+        $0.rows = rows
+        $0.searchSource = []
+        $0.isSearchFieldPresented = false
+        $0.lastSearchText = "land"
+        $0.searchText = ""
+        $0.focusedField = nil
+      }
+    }
+  }
+
+  @Test
   func soundFontsListViewPreview() async throws {
     try TestSupport.assertSnapshot(matching: SoundFontsListView.preview)
   }

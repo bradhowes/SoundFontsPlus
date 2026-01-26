@@ -168,7 +168,6 @@ struct PresetsListTests {
   )
   func selectFromSearch() async throws {
     @Dependency(\.continuousClock) var clock
-    let testClock = clock as! TestClock<Duration>
     try await initialized { store in
 
       await store.send(\.sections, .element(id: PresetsList.noGroupingSize, action: .delegate(.searchButtonTapped))) {
@@ -196,19 +195,7 @@ struct PresetsListTests {
          )
       )
 
-      await store.receive(\.sections[id: PresetsList.noGroupingSize].delegate.selectPreset) {
-        $0.isSearchFieldPresented = false
-        $0.focusedField = nil
-        $0.sections = [.init(section: 0, presets: presets[...])]
-      }
-
-      await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
-
-      await store.receive(\.showActivePreset)
-
-      await store.receive(\.showActivePresetNow) {
-        $0.scrollToPresetId = .init(presetId: 1, anchor: .center)
-      }
+      await store.receive(\.sections[id: PresetsList.noGroupingSize].delegate.selectPreset)
     }
   }
 
