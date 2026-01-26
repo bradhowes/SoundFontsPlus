@@ -48,6 +48,7 @@ struct ToolBarTests {
     let store = try await store()
 
     await store.send(.activePresetIdChanged(2)) {
+      $0.temporaryStatus = nil
       $0.preset = .init(
         id: Tagged(rawValue: 2),
         index: 1,

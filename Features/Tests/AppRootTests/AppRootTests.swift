@@ -83,6 +83,7 @@ struct AppRootTests {
         $0.synth.loadedSoundFontId = 1
         $0.synth.loadedPresetIndex = 0
         $0.toolBar.preset = Preset.with(id: 1)
+        $0.toolBar.temporaryStatus = nil
         $0.toastState = nil
         $0.readyForUse = true
       }
