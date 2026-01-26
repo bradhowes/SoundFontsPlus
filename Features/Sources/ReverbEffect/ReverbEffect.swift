@@ -313,6 +313,7 @@ extension ReverbEffectView {
 
 #Preview {
   ReverbEffectView.preview
+    .environment(\.font, Font.body)
 }
 
 #endif // DEBUG

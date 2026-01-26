@@ -150,7 +150,10 @@ struct SoundFontButtonView: View {
         if inDeletingMode {
           store.send(.toggleDeleting)
         } else {
-          store.send(.delegate(.selectSoundFont(store.soundFontInfo, available: store.statusInfoTag.available)), animation: .default)
+          store.send(
+            .delegate(.selectSoundFont(store.soundFontInfo, available: store.statusInfoTag.available)),
+            animation: .default
+          )
         }
       } label: {
         HStack {
@@ -263,6 +266,7 @@ extension SoundFontButtonView {
 
 #Preview {
   SoundFontButtonView.preview
+    .environment(\.font, Font.body)
 }
 
 #endif

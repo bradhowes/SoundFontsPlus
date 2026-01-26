@@ -548,8 +548,9 @@ extension ToolBarView {
               set: { newValue in $showActiveVoiceCount.withLock { $0 = newValue }}
             )
           )
+          .circledCheckMarkToggleStyle()
           Toggle("Show more buttons", isOn: $showMoreButtons)
-
+            .circledCheckMarkToggleStyle()
           ToolBarView(
             store: Store(
               initialState: .init(
@@ -578,6 +579,7 @@ extension ToolBarView {
 
 #Preview {
   ToolBarView.preview(showMoreButtons: true)
+    .environment(\.font, Font.body)
 }
 
 #endif // DEBUG

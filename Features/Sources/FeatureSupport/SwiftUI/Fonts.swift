@@ -25,10 +25,18 @@ extension CGFloat {
   public static var versionFontSize: Self { 18 }
   public static var toastLabelFontSize: Self { 20 }
 
-  public var appFont: Font { Font.custom("EurostileRegular", size: self) }
+  public var appFont: Font { Font.custom(Font.customFontName, size: self) }
 }
 
 extension Font {
+  public static var applicationFontName: String { "Eurostile" }
+  public static var customFontName: String { "\(applicationFontName)Regular" }
+
+  public static var body: Font {
+    installApplicationFont()
+    return Font.custom(Font.customFontName, size: 20)
+  }
+
   public static var activeVoiceCount: Font { CGFloat.activeVoiceCountFontSize.appFont }
   public static var button: Font { CGFloat.buttonFontSize.appFont }
   public static var change: Font { CGFloat.changeFontSize.appFont }

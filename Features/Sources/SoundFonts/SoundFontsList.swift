@@ -386,6 +386,7 @@ private let log: Logger = .init(category: "SoundFontsList")
 extension SoundFontsListView {
   static var preview: some View {
     prepareDependencies {
+      installApplicationFont()
       @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
       @Shared(.hideEmptyTags) var hideEmptyTags = false
       $0.defaultDatabase = previewDatabase()
@@ -404,6 +405,7 @@ extension SoundFontsListView {
 
 #Preview {
   SoundFontsListView.preview
+    .environment(\.font, Font.body)
 }
 
 #endif // DEBUG

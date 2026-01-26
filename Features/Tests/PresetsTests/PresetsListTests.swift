@@ -237,7 +237,7 @@ struct PresetsListTests {
 
   @Test(
     .dependencies {
-      $0.fileManager = .liveValue
+      $0.fileManager.fileExists = { _ in true }
     }
   )
   func buttonTapped() async throws {
@@ -252,6 +252,27 @@ struct PresetsListTests {
       )
       await store.receive(\.sections[id: store.state.sections[0].id].delegate.selectPreset, presets[1])
       #expect(activeState.activePresetId == presets[1].id)
+    }
+  }
+
+  @Test(
+    .dependencies {
+      $0.fileManager.fileExists = { _ in false }
+    }
+  )
+  func buttonTappedMissingFile() async throws {
+    @Shared(.activeState) var activeState
+    try await initialized { store in
+      await store.send(
+        \.sections,
+         .element(
+          id: store.state.sections[0].id,
+          action: .rows(.element(id: presets[1].id, action: .delegate(.selectPreset(presets[1]))))
+         )
+      )
+      await store.receive(\.sections[id: store.state.sections[0].id].delegate.selectPreset, presets[1]) {
+        $0.destination = .alert(.missingFileForSelectedPreset(action: .missingFileForSelectedPreset(1), displayName: "Font 1"))
+      }
     }
   }
 

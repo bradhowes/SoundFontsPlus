@@ -373,6 +373,8 @@ extension AppRoot {
         $0.defaultFileStorage = .fileSystem
       }
 
+      installApplicationFont()
+
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       try? $0.fileManager.createDirectory($0.fileManager.fontFilesDirectory())
@@ -717,6 +719,7 @@ public struct AppRootView: View {
     .padding(0)
     .animation(.smooth, value: effectsPanelVisible)
     .animation(.smooth, value: isInputKeyboardVisible)
+    .environment(\.font, Font.body)
     .environment(\.auv3ControlsTheme, theme)
     .environment(\.appPanelBackground, appPanelBackground)
     .onChange(of: scenePhase) { _, newPhase in
@@ -1009,8 +1012,6 @@ extension AppRootView {
       Color.black
         .ignoresSafeArea(edges: .all)
       AppRootView(store: AppRoot.makeWithDependencies())
-        // .preferredColorScheme(.dark)
-        .environment(\.colorScheme, .dark)
     }
   }
 }

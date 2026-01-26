@@ -159,7 +159,7 @@ extension ChangesView {
     return  NavigationStack {
       ChangesView(store: .init(initialState: .init(data)) { Changes() })
     }
-    .preferredColorScheme(.dark)
+    .environment(\.font, Font.body)
     .environment(\.colorScheme, .dark)
   }
 }

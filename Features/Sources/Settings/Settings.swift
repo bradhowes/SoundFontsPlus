@@ -660,6 +660,7 @@ extension SettingsView {
 
 #Preview {
   SettingsView.preview
+    .environment(\.font, Font.body)
 }
 
 #endif // DEBUG

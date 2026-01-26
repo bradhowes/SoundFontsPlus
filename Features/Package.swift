@@ -158,7 +158,8 @@ let package = Package(
         .product(name: "CasePaths", package: "swift-case-paths"),
         .product(name: "MorkAndMIDI", package: "morkandmidi"),
         .product(name: "Sharing", package: "swift-sharing")
-      ]
+      ],
+      resources: [.process("Resources")]
     ),
     .target(
       name: "Models",
@@ -196,8 +197,7 @@ let package = Package(
     .target(
       name: "TestSupport",
       dependencies: [
-        "BaseSupport",
-        "Models",
+        "FeatureSupport",
         .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
       ]
     ),

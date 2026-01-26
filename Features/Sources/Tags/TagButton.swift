@@ -76,6 +76,7 @@ struct TagButtonView: View {
           .indicator(state)
         Spacer()
         Text(count)
+          .font(.button)
       }
       .contentShape(.interaction, Rectangle())
       .simultaneousGesture(
@@ -113,6 +114,7 @@ extension TagButtonView {
   static var preview: some View {
     // swiftlint:disable:next force_try
     let tagInfos = try! prepareDependencies {
+      installApplicationFont()
       $0.defaultDatabase = previewDatabase()
       return try $0.defaultDatabase.read { db in
         try TagInfo.queryAll.fetchAll(db)
@@ -146,6 +148,7 @@ extension TagButtonView {
 
 #Preview {
   TagButtonView.preview
+    .environment(\.font, Font.body)
 }
 
 #endif

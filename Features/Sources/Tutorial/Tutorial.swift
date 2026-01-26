@@ -320,7 +320,8 @@ symbol (configurable). Next page talks more about them.
       gist:
 """
 Preset copies are known as \"favorites\". \
-They provide a way to highlight a preset and to customize with your own settings.
+They provide a way to customize them without needing to edit the font file. They can be highlighted and arranged \
+to be easily found in the presets list.
 """
     ) {
       VStack(spacing: 18) {
@@ -450,7 +451,8 @@ Tap the \(Image(systemName: .tagsListButtonImageName)) button to see the tag pan
       title: "Toolbar",
       gist:
 """
-Shows the active preset name, MIDI activity indicator, active voice count, and various controls.
+Shows the active preset name, MIDI activity indicator, active voice count, and various conrols for accessing additional \
+parts of the application.
 """
     ) {
       Image("ToolBar1", bundle: Bundle.module)
@@ -463,23 +465,39 @@ Shows the active preset name, MIDI activity indicator, active voice count, and v
       Grid(verticalSpacing: 12) {
         GridRow {
           Image(systemName: "plus.circle")
+            .gridColumnAlignment(.trailing)
           Text("Add a new soundfont file")
             .gridColumnAlignment(.leading)
         }
         GridRow {
           Image(systemName: "tag")
+            .gridColumnAlignment(.trailing)
           Text("Toggle tag list visibility")
         }
         GridRow {
           Image(systemName: "waveform")
+            .gridColumnAlignment(.trailing)
           Text("Toggle effects panel visibility")
         }
         GridRow {
           Image(systemName: "chevron.left")
+            .gridColumnAlignment(.trailing)
           Text("Show more controls (in narrow views)")
         }
+        GridRow {
+          Image(systemName: "hand.tap")
+            .gridColumnAlignment(.trailing)
+          Text("Single-tap on the preset name to scroll to its entry.")
+        }
+        GridRow {
+          HStack {
+            Image(systemName: "hand.tap")
+            Image(systemName: "hand.tap")
+          }
+          .gridColumnAlignment(.trailing)
+          Text("Double-tap on the preset name to cancel all active notes in the synth (aka PANIC).")
+        }
       }
-      Text("Long-touch on preset name to cancel all active notes (aka Panic).")
     }
   }
 
@@ -488,7 +506,8 @@ Shows the active preset name, MIDI activity indicator, active voice count, and v
       title: "More Controls",
       gist:
 """
-Change the visible key range with the ❰ and ❱ buttons. \
+Change the visible key range with the ❰ and ❱ buttons. You can have a preset/favorite adjust the keyboard \
+when it becomes active. \
 Tap \(Image(systemName: "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right")) \
 to toggle keyboard sliding during playing.
 """
@@ -529,7 +548,7 @@ to toggle keyboard sliding during playing.
       title: "Reverb Controls",
       gist:
 """
-You can add a reverberation effect to a preset. \
+You can add a reverberation effect to a preset and save its configuration so that it is restored when the preset activates. \
 Tap the \(Image(systemName: .effectsButtonImageName)) toolbar button to show. \
 Swipe up/down to change room or adjust knob value.
 """
@@ -727,7 +746,7 @@ or globally.
       Text("Show tutorial")
     }
   }
-  .preferredColorScheme(.dark)
+  .environment(\.font, Font.body)
   .environment(\.colorScheme, .dark)
   .sheet(isPresented: $showTutorial) {
     NavigationStack {

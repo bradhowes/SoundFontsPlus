@@ -254,6 +254,7 @@ extension TuningView {
 
 #Preview {
   TuningView.preview
+    .environment(\.font, Font.body)
 }
 
 #endif // DEBUG

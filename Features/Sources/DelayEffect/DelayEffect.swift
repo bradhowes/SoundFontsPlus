@@ -301,6 +301,7 @@ extension DelayEffectView {
     @Shared(.parameterTree) var parameterTree = ParameterAddress.createParameterTree()
 
     prepareDependencies {
+      installApplicationFont()
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase { db in
         try DelayConfig.insert {
@@ -348,6 +349,8 @@ extension DelayEffectView {
         DelayEffectView(store: Store(initialState: .init()) {
           DelayEffect()
         })
+        .environment(\.font, Font.body)
+        .environment(\.colorScheme, .dark)
         .environment(\.auv3ControlsTheme, theme)
       }
       .padding()

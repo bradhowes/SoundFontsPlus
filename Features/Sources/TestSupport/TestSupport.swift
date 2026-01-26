@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import BaseSupport
+import FeatureSupport
 import Foundation
 import Models
 import SF2Resources
@@ -117,6 +117,7 @@ extension TestSupport {
     line: Int = #line,
     col: Int = #column
   ) throws {
+    installApplicationFont()
     let uniqueTestName = makeUniqueSnapshotName(testName)
     log.info("assertSnapshot - \(uniqueTestName)")
     //    for (key, value) in ProcessInfo.processInfo.environment {

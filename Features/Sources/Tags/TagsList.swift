@@ -234,6 +234,7 @@ extension TagsListView {
 
   static var preview: some View {
     prepareDependencies {
+      installApplicationFont()
       $0.defaultDatabase = previewDatabase()
       // swiftlint:disable:next force_try
       let tag = try! Tag.make(displayName: "Another Tag")
@@ -258,6 +259,7 @@ extension TagsListView {
 
 #Preview {
   TagsListView.preview
+    .environment(\.font, Font.body)
 }
 
 #endif // DEBUG

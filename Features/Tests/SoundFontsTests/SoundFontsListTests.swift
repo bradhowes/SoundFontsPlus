@@ -60,6 +60,26 @@ struct SoundFontsListTests {
   }
 
   @Test
+  func alertInvalidBookmark() async throws {
+    try await initialized { store in
+      let info = store.state.rows[id: 3]!.soundFontInfo
+      await store.send(\.rows[id: 3].delegate.alertInvalidBookmark, info) {
+        $0.destination = .alert(.invalidBookmark(displayName: info.displayName))
+      }
+    }
+  }
+
+  @Test
+  func alertMissingFile() async throws {
+    try await initialized { store in
+      let info = store.state.rows[id: 3]!.soundFontInfo
+      await store.send(\.rows[id: 3].delegate.alertMissingFile, info) {
+        $0.destination = .alert(.missingFile(displayName: info.displayName))
+      }
+    }
+  }
+
+  @Test
   func deleteModeDeleteButtonTapped() async throws {
     try await initialized { store in
 

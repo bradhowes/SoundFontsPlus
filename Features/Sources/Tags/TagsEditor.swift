@@ -384,7 +384,10 @@ extension TagsEditorView {
   }
 
   static var previewWithMemberships: some View {
-    prepareDependencies { $0.defaultDatabase = previewDatabase() }
+    prepareDependencies {
+      installApplicationFont()
+      $0.defaultDatabase = previewDatabase()
+    }
     _ = try? Tag.make(displayName: "New Tag 1")
     _ = try? Tag.make(displayName: "New Tag 2")
     let tags = Tag.tags
@@ -412,6 +415,7 @@ extension TagsEditorView {
 
 #Preview {
   TagsEditorView.previewWithMemberships
+    .environment(\.font, Font.body)
 }
 
 #endif // DEBUG

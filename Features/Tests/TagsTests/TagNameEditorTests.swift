@@ -49,6 +49,9 @@ struct TagNameEditorTests {
 
   @Test
   func tagNameEditorPreview() async throws {
-    try TestSupport.assertSnapshot(matching: TagNameEditorView.preview)
+    try TestSupport.assertSnapshot(
+      matching: TagNameEditorView.preview,
+      size: .init(width: 400, height: 1200)
+    )
   }
 }

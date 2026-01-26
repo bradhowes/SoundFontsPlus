@@ -226,6 +226,8 @@ extension PresetEditor.Destination.State: _EphemeralState {
   public typealias Action = Alert
 }
 
+// MARK: - View
+
 public struct PresetEditorView: View {
   @Bindable private var store: StoreOf<PresetEditor>
   @Shared(.firstVisibleKey) private var lowestKey
@@ -270,6 +272,7 @@ public struct PresetEditorView: View {
     Section {
       if !store.isFavorite {
         Toggle("Visible", isOn: $store.visible)
+          .circledCheckMarkToggleStyle()
       }
       NameFieldView(text: $store.displayName, readOnly: false)
       HStack {
@@ -288,6 +291,7 @@ public struct PresetEditorView: View {
   var keyboardSection: some View {
     Section(header: Text("Shift Keyboard")) {
       Toggle("Enabled", isOn: $store.pendingAudioConfig.keyboardLowestNoteEnabled)
+        .circledCheckMarkToggleStyle()
       HStack {
         Text("First key:")
         // Spacer()
@@ -410,6 +414,7 @@ extension AVAudioUnitReverbPreset: @retroactive Strideable {
 extension PresetEditorView {
   static var preview: some View {
     prepareDependencies {
+      installApplicationFont()
       $0.defaultDatabase = previewDatabase()
       navigationBarTitleStyle()
     }

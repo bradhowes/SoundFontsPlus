@@ -311,6 +311,7 @@ extension SoundFontEditorView {
   static var preview: some View {
     // swiftlint:disable:next force_try
     var soundFonts = try! prepareDependencies {
+      installApplicationFont()
       $0.defaultDatabase = previewDatabase { db in
         try Preset
           .all
@@ -331,6 +332,7 @@ extension SoundFontEditorView {
 
 #Preview {
   SoundFontEditorView.preview
+    .environment(\.font, Font.body)
 }
 
 #endif // DEBUG

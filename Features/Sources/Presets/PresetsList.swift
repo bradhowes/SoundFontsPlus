@@ -457,12 +457,16 @@ private let log: Logger = .init(category: "PresetsList")
 extension PresetsListView {
 
   static var preview: some View {
-    prepareDependencies { $0.defaultDatabase = previewDatabase() }
+    prepareDependencies {
+      installApplicationFont()
+      $0.defaultDatabase = previewDatabase()
+    }
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     $selectedSoundFontId.withLock { $0 = 1 }
     return VStack {
       let store = Store(initialState: .init()) { PresetsList() }
       PresetsListView(store: store)
+        .environment(\.font, Font.body)
       Toggle("Editing", isOn: Binding(
         get: { store.editingVisibility },
         set: { store.send(.editingVisibilityChanged($0)) }
