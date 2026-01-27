@@ -93,7 +93,7 @@ public struct Synth {
         return acquireAudioSession(&state)
 
       case .activePresetIdChanged(let presetId):
-        return useActivePreset(&state, presetId: presetId)
+        return sendActivePresetChange(&state, presetId: presetId)
 
       case .audioSessionRouteChanged:
         return audioSessionRouteChanged(&state)
@@ -114,7 +114,7 @@ public struct Synth {
         return restartAudioSession(&state)
 
       case .playNote:
-        return playNote(state)
+        return sendNoteOnOffSequence(&state)
 
       case .releaseAudioSession:
         return releaseAudioSession(&state)
@@ -239,7 +239,7 @@ extension Synth {
     state.firstTimePresetLoaded = false
 
     log.info("lastPresetLoadFinished END")
-    return firstTimePresetLoaded ? .none : .send(.playNote)
+    return firstTimePresetLoaded ? .none : sendNoteOnOffSequence(&state)
   }
 
   private func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
@@ -297,7 +297,7 @@ extension Synth {
 
 #endif // os(iOS)
 
-  private func playNote(_ state: State) -> Effect<Action> {
+  private func sendNoteOnOffSequence(_ state: inout State) -> Effect<Action> {
     log.debug("playNote BEGIN - \(playSoundOnPresetChange) ")
 
     guard let avAudioUnit = state.avAudioUnit else {
@@ -368,7 +368,7 @@ extension Synth {
     log.info("stopAudioSession END")
   }
 
-  private func useActivePreset(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+  private func sendActivePresetChange(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     log.info("useActivePreset BEGIN - presetId: \(presetId ?? -1)")
     guard
       let avAudioUnit = state.avAudioUnit,
@@ -389,7 +389,7 @@ extension Synth {
 
     guard state.loadedPresetIndex != presetInfo.presetIndex || state.loadedSoundFontId != presetInfo.soundFontId else {
       log.info("useActivePreset END - already loaded")
-      return playNote(state)
+      return sendNoteOnOffSequence(&state)
     }
 
     let sentRequest: Bool
@@ -397,41 +397,7 @@ extension Synth {
       log.info("useActivePreset - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
       sentRequest = avAudioUnit.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
     } else {
-      guard
-        let location = try? SoundFontKind(
-          kind: presetInfo.kind,
-          location: presetInfo.location,
-          displayName: presetInfo.soundFontName,
-        )
-      else {
-        log.error("useActivePreset END - unexpected nil location for \(String(describing: presetInfo), privacy: .public)")
-        return .none
-      }
-
-      let path: String
-      if location.isExternal {
-
-        // TODO: remove hack to support external bookmark files when AUv3 component can read from db for file info.
-        path = location.url.withSecurityScoping { url in
-          let dst = FileManager.default.fontFilesDirectory.appendingPathComponent("tmp.sf2")
-          try? FileManager.default.removeItem(at: dst)
-          do {
-            try FileManager.default.copyItem(at: url, to: dst)
-            return dst.path(percentEncoded: false)
-          } catch {
-            return ""
-          }
-        } ?? ""
-      } else {
-        path = location.url.path(percentEncoded: false)
-      }
-
-      sentRequest = avAudioUnit.sendLoadFileUsePreset(
-        path: path,
-        preset: presetInfo.presetIndex,
-        gain: presetInfo.gain,
-        pan: presetInfo.pan
-      )
+      sentRequest = sendLoadFileUsePreset(avAudioUnit, presetInfo: presetInfo)
     }
 
     state.loadedPresetIndex = presetInfo.presetIndex
@@ -439,5 +405,44 @@ extension Synth {
 
     log.info("useActivePreset END - \(sentRequest)")
     return .none
+  }
+
+  private func sendLoadFileUsePreset(_ avAudioUnit: AVAudioUnitMIDIInstrument, presetInfo: PresetLoadingInfo) -> Bool {
+    guard
+      let location = try? SoundFontKind(
+        kind: presetInfo.kind,
+        location: presetInfo.location,
+        displayName: presetInfo.soundFontName,
+      )
+    else {
+      log.error("useActivePreset END - unexpected nil location for \(String(describing: presetInfo), privacy: .public)")
+      return false
+    }
+
+    let path: String
+    if location.isExternal {
+      @Dependency(\.fileManager) var fileManager
+
+      // TODO: remove hack to support external bookmark files when AUv3 component can read from db for file info.
+      path = location.url.withSecurityScoping { url in
+        let dst = fileManager.fontFilesDirectory().appendingPathComponent("tmp.sf2")
+        try? fileManager.removeItem(dst)
+        do {
+          try fileManager.copyItem(url, dst)
+          return dst.path(percentEncoded: false)
+        } catch {
+          return ""
+        }
+      } ?? ""
+    } else {
+      path = location.url.path(percentEncoded: false)
+    }
+
+    return avAudioUnit.sendLoadFileUsePreset(
+      path: path,
+      preset: presetInfo.presetIndex,
+      gain: presetInfo.gain,
+      pan: presetInfo.pan
+    )
   }
 }
