@@ -264,8 +264,9 @@ public struct ReverbEffectView: View {
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
     }
-    .task { await store.send(.initialize).finish() }
-    .onDisappear { store.send(.deinitialize) }
+    .task {
+      await store.send(.initialize).finish()
+    }
   }
 }
 
