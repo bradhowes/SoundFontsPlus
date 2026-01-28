@@ -61,4 +61,20 @@ extension PresetLoadingInfo {
   }
 }
 
+extension PresetLoadingInfo: CustomStringConvertible {
+  public var description: String {
+    """
+    <PresetLoadingInfo
+      id=\(soundFontId)
+      presetIndex=\(presetIndex)
+      kind="\(kind)"
+      presetName="\(presetName)"
+      soundFontName="\(soundFontName)"
+      gain=\(gain)
+      pan=\(pan)
+    />
+    """
+  }
+}
+
 extension PresetLoadingInfo: Equatable, Sendable {}

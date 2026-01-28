@@ -408,6 +408,8 @@ extension Synth {
   }
 
   private func sendLoadFileUsePreset(_ avAudioUnit: AVAudioUnitMIDIInstrument, presetInfo: PresetLoadingInfo) -> Bool {
+    log.info("sendLoadFileUsePreset BEGIN - \(presetInfo, privacy: .public)")
+
     guard
       let location = try? SoundFontKind(
         kind: presetInfo.kind,
@@ -415,34 +417,52 @@ extension Synth {
         displayName: presetInfo.soundFontName,
       )
     else {
-      log.error("useActivePreset END - unexpected nil location for \(String(describing: presetInfo), privacy: .public)")
+      log.error("sendLoadFileUsePreset END - unexpected nil location for \(presetInfo, privacy: .public)")
       return false
     }
 
-    let path: String
-    if location.isExternal {
-      @Dependency(\.fileManager) var fileManager
+    if case let .external(bookmark) = location {
+      guard let data = bookmark.bookmark else {
+        log.error("sendLoadFileUsePreset END - unexpected nil bookmark data for \(presetInfo, privacy: .public)")
+        return false
+      }
 
-      // TODO: remove hack to support external bookmark files when AUv3 component can read from db for file info.
-      path = location.url.withSecurityScoping { url in
-        let dst = fileManager.fontFilesDirectory().appendingPathComponent("tmp.sf2")
-        try? fileManager.removeItem(dst)
-        do {
-          try fileManager.copyItem(url, dst)
-          return dst.path(percentEncoded: false)
-        } catch {
-          return ""
-        }
-      } ?? ""
+      log.debug("sending bookmark data to synth - \(bookmark.url, privacy: .public)")
+
+      return avAudioUnit.sendLoadBookmarkUsePreset(
+        bookmark: data,
+        preset: presetInfo.presetIndex,
+        gain: presetInfo.gain,
+        pan: presetInfo.pan
+      )
+
+//      @Dependency(\.fileManager) var fileManager
+//
+//      // TODO: remove hack to support external bookmark files when AUv3 component can read from db for file info.
+//      location.url.withSecurityScoping { url in
+//        let dst = fileManager.fontFilesDirectory().appendingPathComponent("tmp.sf2")
+//        try? fileManager.removeItem(dst)
+//        do {
+//          try fileManager.copyItem(url, dst)
+//          return dst.path(percentEncoded: false)
+//        } catch {
+//          return ""
+//        }
+//      } ?? ""
+//
+//      guard let path else {
+//        log.error("useActivePreset END - unexpected empty path for \(String(describing: presetInfo), privacy: .public)")
+//        return false
+//      }
+
     } else {
-      path = location.url.path(percentEncoded: false)
+      log.debug("sending file path to synth - \(location.url, privacy: .public)")
+      return avAudioUnit.sendLoadFileUsePreset(
+        path: location.url.path(percentEncoded: false),
+        preset: presetInfo.presetIndex,
+        gain: presetInfo.gain,
+        pan: presetInfo.pan
+      )
     }
-
-    return avAudioUnit.sendLoadFileUsePreset(
-      path: path,
-      preset: presetInfo.presetIndex,
-      gain: presetInfo.gain,
-      pan: presetInfo.pan
-    )
   }
 }

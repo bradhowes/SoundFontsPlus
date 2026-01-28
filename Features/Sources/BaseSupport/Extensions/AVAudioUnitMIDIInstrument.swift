@@ -9,6 +9,10 @@ extension AVAudioUnitMIDIInstrument {
     sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload(std.string(path), preset)))
   }
 
+  public func sendLoadBookmarkUsePreset(bookmark: Data, preset: Int, gain: Double, pan: Double) -> Bool {
+    sendMIDI(bytes: Array(SF2Engine.createLoadBookmarkUsePresetPayload(bookmark, preset)))
+  }
+
   public func sendUsePreset(preset: Int, gain: Double, pan: Double) -> Bool {
     sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload("", preset)))
   }

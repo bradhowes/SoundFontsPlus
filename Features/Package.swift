@@ -14,7 +14,7 @@ extension Package.Dependency {
   }
   static var sf2Lib: PackageDescription.Package.Dependency {
     useLocalSF2Lib ? .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib") :
-      .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.4.0")
+      .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.7.0")
   }
 }
 
