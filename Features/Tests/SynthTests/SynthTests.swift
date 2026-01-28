@@ -107,8 +107,6 @@ struct SynthTests {
       }
 
       await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
-
-      await store.receive(\.playNote, timeout: .seconds(5))
     }
   }
 

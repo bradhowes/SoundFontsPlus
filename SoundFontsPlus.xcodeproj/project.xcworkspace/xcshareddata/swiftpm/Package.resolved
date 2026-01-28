@@ -1,5 +1,5 @@
 {
-  "originHash" : "476cd8ad01be6c7c82b80a3a44f57b19aeb5883689af91247f55756dbac7a104",
+  "originHash" : "16557b0a761d3884f7e7a724fb3c8f9d5cdf1fef87d39471c8f12cd9e9fb25ed",
   "pins" : [
     {
       "identity" : "auv3controls",
@@ -159,8 +159,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-dependencies",
       "state" : {
-        "revision" : "a10f9feeb214bc72b5337b6ef6d5a029360db4cc",
-        "version" : "1.10.0"
+        "revision" : "411297072220a96f1501211afebd3715316907d2",
+        "version" : "1.10.1"
       }
     },
     {
@@ -222,8 +222,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-structured-queries",
       "state" : {
-        "revision" : "862802b5a66aec04219b7c2a10e06a5681da86ee",
-        "version" : "0.27.0"
+        "revision" : "4a740db139e256bc92f075a247efe52232b4116b",
+        "version" : "0.28.0"
       }
     },
     {

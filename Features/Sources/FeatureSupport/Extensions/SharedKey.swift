@@ -4,7 +4,6 @@ import AVFAudio
 import Models
 import MorkAndMIDI
 import Sharing
-import Synth
 import Tagged
 
 // MARK: - AppStorage Bool settings
