@@ -4,6 +4,8 @@ import Foundation
 import os
 
 extension FileManager: @unchecked @retroactive Sendable {
+  public static let documentsDirectoryName = "Documents"
+  public static let fontFilesDirectoryName = "FontFiles"
 
   /// - returns: The app group identifier.
   public var applicationGroupIdentifier: String { "group.com.braysoftware.SFP" }
@@ -55,16 +57,23 @@ extension FileManager: @unchecked @retroactive Sendable {
   }
 
   /// - returns: The directory containing SoundFontsPlus font files
-  public var fontFilesDirectory: URL { sharedDocumentsDirectory.appendingPathComponent("FontFiles") }
-
-  /// - returns: True if the user has an iCloud container available to use
-  public var hasCloudDirectory: Bool { ubiquityIdentityToken != nil }
+  public var fontFilesDirectory: URL {
+    sharedDocumentsDirectory.appending(
+      component: Self.fontFilesDirectoryName,
+      directoryHint: .isDirectory
+    )
+  }
 
   /// - returns: Location of documents on device that can be backed-up to iCloud if enabled.
   public var localDocumentsDirectory: URL { urls(for: .documentDirectory, in: .userDomainMask)[0] }
 
-  /// - returns: Location of app documents in iCloud (if enabled).
-  public var cloudDocumentsDirectory: URL? { url(forUbiquityContainerIdentifier: nil) }
+  /// - returns: Location of app documents folder in iCloud (if enabled).
+  public var cloudDocumentsDirectory: URL? {
+    url(forUbiquityContainerIdentifier: nil)?.appending(
+      component: Self.documentsDirectoryName,
+      directoryHint: .isDirectory
+    )
+  }
 
   /**
    Try to obtain the size of a given file.

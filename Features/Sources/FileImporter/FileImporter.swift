@@ -5,7 +5,7 @@ import FeatureSupport
 import UniformTypeIdentifiers
 
 /**
- Feature that imports a SF2 file for use in the synth.
+ Feature that imports an SF2 file for use in the synth.
  */
 @Reducer
 public struct FileImporter {

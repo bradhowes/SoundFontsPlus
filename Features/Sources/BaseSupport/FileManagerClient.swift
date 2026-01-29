@@ -7,7 +7,6 @@ import Dependencies
  Collection of FileManager dependencies to allow for mocking and controlling in tests.
  */
 public struct FileManagerClient: Sendable {
-  public var hasCloudDirectory: @Sendable () -> Bool
   public var localDocumentsDirectory: @Sendable () -> URL
   public var sharedDocumentsDirectory: @Sendable () -> URL
   public var cloudDocumentsDirectory: @Sendable () -> URL?
@@ -21,6 +20,8 @@ public struct FileManagerClient: Sendable {
   public var contentsOfDirectory: @Sendable (_ at: URL) throws -> [URL]
   public var fileExists: @Sendable (_ at: URL) -> Bool
   public var startDownloadingUbiquitousItem: @Sendable (_ url: URL) throws -> Void
+  public var databaseFileURL: @Sendable () -> URL
+  public var moveItem: @Sendable (_ src: URL, _ dst: URL) throws -> Void
 }
 
 extension FileManagerClient: DependencyKey {
@@ -29,7 +30,6 @@ extension FileManagerClient: DependencyKey {
   /// to satisfy Sendable conformance.
   public static var liveValue: FileManagerClient {
     .init(
-      hasCloudDirectory: { FileManager.default.hasCloudDirectory },
       localDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
       sharedDocumentsDirectory: { FileManager.default.sharedDocumentsDirectory },
       cloudDocumentsDirectory: { FileManager.default.cloudDocumentsDirectory },
@@ -48,14 +48,18 @@ extension FileManagerClient: DependencyKey {
         )
       },
       fileExists: { FileManager.default.fileExists(atPath: $0.path(percentEncoded: false)) },
-      startDownloadingUbiquitousItem: { try FileManager.default.startDownloadingUbiquitousItem(at: $0) }
+      startDownloadingUbiquitousItem: { try FileManager.default.startDownloadingUbiquitousItem(at: $0) },
+      databaseFileURL: { FileManager.default.sharedDocumentsDirectory.appending(path: "db.sqlite", directoryHint: .notDirectory) },
+      moveItem: {
+        precondition($0.lastPathComponent == $1.lastPathComponent)
+        try FileManager.default.moveItem(at: $0, to: $1)
+      }
     )
   }
 
   /// Mapping of FileManager functionality to use in SwiftUI previews
   public static var previewValue: FileManagerClient {
     .init(
-      hasCloudDirectory: { false },
       localDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
       sharedDocumentsDirectory: { FileManager.default.sharedDocumentsDirectory },
       cloudDocumentsDirectory: { nil },
@@ -74,7 +78,12 @@ extension FileManagerClient: DependencyKey {
         )
       },
       fileExists: { FileManager.default.fileExists(atPath: $0.path(percentEncoded: false)) },
-      startDownloadingUbiquitousItem: { try FileManager.default.startDownloadingUbiquitousItem(at: $0) }
+      startDownloadingUbiquitousItem: { try FileManager.default.startDownloadingUbiquitousItem(at: $0) },
+      databaseFileURL: { FileManager.default.sharedDocumentsDirectory.appending(path: "db.sqlite", directoryHint: .notDirectory) },
+      moveItem: {
+        precondition($0.lastPathComponent == $1.lastPathComponent)
+        try FileManager.default.moveItem(at: $0, to: $1)
+      }
     )
   }
 
@@ -82,7 +91,6 @@ extension FileManagerClient: DependencyKey {
   public static var testValue: FileManagerClient {
     let bogus: URL = .init(fileURLWithPath: "bogus")
     return .init(
-      hasCloudDirectory: { unimplemented("hasCloudDirectory", placeholder: false) },
       localDocumentsDirectory: { unimplemented("localDocumentsDirectory", placeholder: bogus) },
       sharedDocumentsDirectory: { unimplemented("sharedDocumentsDirectory", placeholder: bogus) },
       cloudDocumentsDirectory: { unimplemented("cloudDocumentsDirectory", placeholder: nil) },
@@ -95,7 +103,9 @@ extension FileManagerClient: DependencyKey {
       createDirectory: { _ in unimplemented("createDirectory", placeholder: ()) },
       contentsOfDirectory: { _ in unimplemented("contentsOfDirectory", placeholder: [bogus]) },
       fileExists: { _ in unimplemented("fileExists", placeholder: false) },
-      startDownloadingUbiquitousItem: { _ in unimplemented("startDownloadingUbiquitousItem") }
+      startDownloadingUbiquitousItem: { _ in unimplemented("startDownloadingUbiquitousItem") },
+      databaseFileURL: { unimplemented("databaseFileURL", placeholder: bogus) },
+      moveItem: { _, _ in unimplemented("moveItem") }
     )
   }
 }

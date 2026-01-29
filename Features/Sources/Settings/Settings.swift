@@ -152,6 +152,9 @@ public struct Settings {
         }
         return .none
 
+      case .createBackupTapped:
+        return backupToCloud(&state)
+
       case .destination(.presented(.alert(.disableCopyFileConfirmed))):
         state.$copyFileWhenInstalling.withLock { $0 = false }
         return .none
@@ -193,6 +196,9 @@ public struct Settings {
         }
         return .none
 
+      case .restoreBackupTapped:
+        return restoreFromCloud(&state)
+
       case let .tuning(.delegate(.tuningChanged(enabled, frequency))):
         return tuningChanged(&state, enabled: enabled, frequency: frequency)
 
@@ -210,6 +216,21 @@ public struct Settings {
 }
 
 extension Settings {
+
+  private func backupToCloud(_ state: inout State) -> Effect<Action> {
+
+    do {
+      let url = try BackupManager.backup()
+      state.destination = .alert(.notifyBackupName(url.lastPathComponent))
+    } catch {
+      state.destination = .alert(.notifyBackupFailure(error.description))
+    }
+    return .none
+  }
+
+  private func restoreFromCloud(_ state: inout State) -> Effect<Action> {
+    return .none
+  }
 
   private func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
     @Dependency(\.dismiss) var dismiss
@@ -268,6 +289,7 @@ public struct SettingsView: View {
   @State private var changingKeyWidth: Bool = false
   @Shared(.isAUv3) private var isAUv3
   @Dependency(\.audioSession) private var audioSession
+  @Dependency(\.fileManager) private var fileManager
 
   private let showFakeKeyboard: Bool
   private let bundle = Bundle.main
@@ -554,7 +576,7 @@ Removes all installed SF2 files and any customizations — same as reinstalling 
               Text("Create backup of database and SF2 files")
               Text(
 """
-Backups are stored on iCloud. Only files that were copied onto device are backed up.
+Backups are stored in the SoundFonts+ iCloud folder. Sound font files that were copied onto device are also backed up.
 """
               )
               .font(.settingsDescription)
@@ -566,6 +588,7 @@ Backups are stored on iCloud. Only files that were copied onto device are backed
               Text("Backup")
             }
           }
+          .disabled(fileManager.cloudDocumentsDirectory() == nil)
           HStack {
             VStack(alignment: .leading, spacing: 8) {
               Text("Restore from backup")
@@ -583,6 +606,7 @@ Erases current database and SF2 files with contents of previous backup.
               Text("Restore")
             }
           }
+          .disabled(fileManager.cloudDocumentsDirectory() == nil)
         }
       }
     }

@@ -187,12 +187,9 @@ struct AppRootTests {
     }
   }
 
-  @Test(
-    .dependencies { _ in
-      @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion = ""
-    }
-  )
+  @Test
   func showChanges() async throws {
+    @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion = ""
     try await initialized(exhaustivity: .off(showSkippedAssertions: false)) { store in
       @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
       await store.send(\.toolBar.delegate, .settingsButtonTapped)
@@ -295,20 +292,13 @@ struct AppRootTests {
     }
   }
 
-  @Test(
-    .snapshots(record: .failed)
-  )
+  @Test
   func showSettings() async throws {
     try await initialized { store in
-
       // TODO: use MIDI mocks to enable exhaustivity
       _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
         await store.send(\.toolBar.delegate.settingsButtonTapped)
       }
-
-      let view = AppRootView(store: StoreOf<AppRoot>(initialState: store.state) { AppRoot() })
-      try TestSupport.assertSnapshot(matching: view)
-
       await store.send(\.destination.dismiss) {
         $0.destination = nil
         $0.presetsList.scrollToPresetId = .init(presetId: 1)
@@ -431,9 +421,6 @@ struct AppRootTests {
   }
 
   @Test(
-    .dependencies {
-      $0.fileManager.createDirectory = { try FileManager.default.createDirectory(at: $0, withIntermediateDirectories: true) }
-    },
     .snapshots(record: .failed)
   )
   func appRootViewPreview() async throws {

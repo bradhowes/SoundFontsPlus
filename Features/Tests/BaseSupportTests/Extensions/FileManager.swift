@@ -19,11 +19,6 @@ struct FileManagerTests {
   }
 
   @Test
-  func hasCloudDirectory() async throws {
-    #expect(FileManager.default.hasCloudDirectory == (FileManager.default.ubiquityIdentityToken != nil))
-  }
-
-  @Test
   func localDocumentsDirectory() async throws {
     #expect(FileManager.default.localDocumentsDirectory.path(percentEncoded: false) != "")
   }
@@ -42,7 +37,6 @@ struct FileManagerTests {
   @Test
   func fileManagerLiveClient() async throws {
     let uat = FileManagerClient.liveValue
-    #expect(uat.hasCloudDirectory() == FileManager.default.hasCloudDirectory)
     #expect(uat.localDocumentsDirectory() == FileManager.default.localDocumentsDirectory)
     #expect(uat.sharedDocumentsDirectory() == FileManager.default.sharedDocumentsDirectory)
     #expect(uat.cloudDocumentsDirectory() == FileManager.default.cloudDocumentsDirectory)
@@ -53,7 +47,6 @@ struct FileManagerTests {
   @Test
   func fileManagerPreviewClient() async throws {
     let uat = FileManagerClient.previewValue
-    #expect(uat.hasCloudDirectory() == false)
     #expect(uat.localDocumentsDirectory() == FileManager.default.localDocumentsDirectory)
     #expect(uat.sharedDocumentsDirectory() == FileManager.default.sharedDocumentsDirectory)
     #expect(uat.cloudDocumentsDirectory() == nil)

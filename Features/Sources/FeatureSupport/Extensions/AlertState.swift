@@ -2,7 +2,7 @@
 
 import ComposableArchitecture
 
-// MARK: - App alerts
+// MARK: - Settings alerts
 
 extension AlertState {
 
@@ -40,6 +40,40 @@ Not copying files may lead to unusable sound fonts if the file moves or is not i
 """
 Disabling will prevent the device from sleeping and locking the screen, resulting in increased battery usage \
 and reduced security when unattended.
+"""
+      )
+    }
+  }
+
+  static public func notifyBackupName(_ backupName: String) -> Self {
+    Self {
+      TextState("Backup Created")
+    } actions: {
+      ButtonState(role: .cancel) {
+        TextState("OK")
+      }
+    } message: {
+      TextState(
+"""
+New backup created in \(backupName) folder.
+"""
+      )
+    }
+  }
+
+  static public func notifyBackupFailure(_ error: String) -> Self {
+    Self {
+      TextState("Backup Failed")
+    } actions: {
+      ButtonState(role: .cancel) {
+        TextState("OK")
+      }
+    } message: {
+      TextState(
+"""
+Failed to create backup:
+
+ \(error)
 """
       )
     }
@@ -227,6 +261,26 @@ Deleting the tag cannot be undone.
 """
 Due to the "Hide tags with no fonts" setting, the '\(displayName)' tag will not appear in the main tag view since it is not \
 associated with any sound fonts.
+"""
+      )
+    }
+  }
+}
+
+extension AlertState {
+
+  static public func confirmBackupRestore(action: Action, displayName: String) -> Self {
+    Self {
+      TextState("Restore from Backup \(displayName)?")
+    } actions: {
+      ButtonState(role: .cancel) { TextState("Cancel") }
+      ButtonState(role: .destructive, action: action) { TextState("Confirm") }
+    } message: {
+      TextState(
+"""
+Restoring from a backup will delete any changes made since the backup was created, and will replace all installed \
+sound font files with those in the backup.
+This action cannot be undone."
 """
       )
     }
