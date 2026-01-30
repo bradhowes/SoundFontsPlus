@@ -8,6 +8,7 @@ import MIDIConnections
 import MIDIControllers
 import MIDITrafficIndicator
 import MorkAndMIDI
+import SwiftToasts
 import Tuning
 
 @Reducer
@@ -21,13 +22,17 @@ public struct Settings {
   }
 
   @Reducer
+  @frozen
   public enum Destination {
     case alert(AlertState<Alert>)
+    case backupPicker(FilePicker)
 
     @CasePathable
+    @frozen
     public enum Alert {
       case disableCopyFileConfirmed
       case disableIdleTimerConfirmed
+      case restoreConfirmed
     }
   }
 
@@ -40,6 +45,7 @@ public struct Settings {
     public var midiTrafficIndicator: MIDITrafficIndicator.State
     public var tuning: Tuning.State
     public let hasMIDI: Bool
+    public var showProgressIndicator: Bool = false
 
     @Shared(.backgroundProcessing) public var backgroundProcessing
     @Shared(.copyFileWhenInstalling) public var copyFileWhenInstalling
@@ -107,6 +113,8 @@ public struct Settings {
     case midiTrafficIndicator(MIDITrafficIndicator.Action)
     case path(StackActionOf<Path>)
     case restoreBackupTapped
+    case restoreFailed(Error)
+    case restoreFinished
     case restoreFreshInstallTapped
     case reviewAppTapped
     case tuning(Tuning.Action)
@@ -163,6 +171,9 @@ public struct Settings {
         state.$disableIdleTimer.withLock { $0 = true }
         return .none
 
+      case .destination(.presented(.backupPicker(.picked(let result)))):
+        return restoreBackupPicked(&state, result: result)
+
       case .dismissButtonTapped:
         return dismissButtonTapped(&state)
 
@@ -197,7 +208,17 @@ public struct Settings {
         return .none
 
       case .restoreBackupTapped:
-        return restoreFromCloud(&state)
+        return restoreBackupTapped(&state)
+
+      case .restoreFailed(let error):
+        state.showProgressIndicator = false
+        state.destination = .alert(.restoreFailed(error))
+        return .none
+
+      case .restoreFinished:
+        state.showProgressIndicator = false
+        state.destination = .alert(.restoreFinished())
+        return .none
 
       case let .tuning(.delegate(.tuningChanged(enabled, frequency))):
         return tuningChanged(&state, enabled: enabled, frequency: frequency)
@@ -228,10 +249,6 @@ extension Settings {
     return .none
   }
 
-  private func restoreFromCloud(_ state: inout State) -> Effect<Action> {
-    return .none
-  }
-
   private func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
     @Dependency(\.dismiss) var dismiss
     return .run { _ in await dismiss() }
@@ -251,6 +268,37 @@ extension Settings {
         await send(.midiConnectionsChanged)
       }
     }.cancellable(id: CancelId.settingsMonitorMIDIConnections)
+  }
+
+  private func restoreBackupPicked(_ state: inout State, result: Result<[URL], Error>) -> Effect<Action> {
+    switch result {
+
+    case .success(let urls):
+      guard let url = urls.first else {
+        log.error("Expected to have one URL from picker")
+        return .none
+      }
+
+      state.showProgressIndicator = true
+
+      return .run { send in
+        do {
+          try await BackupManager.restore(backupDirectory: url)
+          await send(.restoreFinished)
+        } catch {
+          await send(.restoreFailed(error))
+        }
+      }
+
+    case .failure(let error):
+      log.error("Failed to pick backup - \(error.localizedDescription, privacy: .public)")
+      return .none
+    }
+  }
+
+  private func restoreBackupTapped(_ state: inout State) -> Effect<Action> {
+    state.destination = .backupPicker(.init(types: [.folder, .directory], allowsMultipleSelection: false))
+    return .none
   }
 
   private func tuningChanged(_ state: inout State, enabled: Bool, frequency: Double) -> Effect<Action> {
@@ -332,7 +380,12 @@ public struct SettingsView: View {
       case .midiControllers(let store): MIDIControllersView(store: store)
       }
     }
+    .toast(isPresented: $store.showProgressIndicator, alignment: .center) {
+      restoringProgressToast
+    }
+    .toastStyle(.plain)
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
+    .filePicker($store.scope(state: \.destination?.backupPicker, action: \.destination.backupPicker))
     .task {
       await store.send(.initialize).finish()
     }
@@ -657,6 +710,22 @@ Erases current database and SF2 files with contents of previous backup.
             }
           }
         }
+      }
+    }
+  }
+}
+
+extension SettingsView {
+
+  private var restoringProgressToast: Toast {
+    Toast(role: .informational, duration: .indefinite) {
+      Label {
+        Text("Restoring…")
+          .font(.toastLabel)
+          .foregroundStyle(.teal)
+      } icon: {
+        ProgressView()
+          .tint(.teal)
       }
     }
   }

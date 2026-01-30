@@ -376,7 +376,7 @@ extension PresetsList {
 extension PresetsList.Destination.State: Equatable {}
 extension PresetsList.Destination.State: _EphemeralState { public typealias Action = Alert }
 
-// MARK: -
+// MARK: - View
 
 public struct PresetsListView: View {
   @Bindable private var store: StoreOf<PresetsList>

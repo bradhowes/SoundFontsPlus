@@ -659,6 +659,7 @@ extension AppRoot {
 #endif
   }
 }
+
 // swiftlint:enable type_body_length
 
 extension AppRoot.Destination.State: Equatable {}

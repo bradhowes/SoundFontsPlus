@@ -269,7 +269,7 @@ associated with any sound fonts.
 
 extension AlertState {
 
-  static public func confirmBackupRestore(action: Action, displayName: String) -> Self {
+  public static func confirmBackupRestore(action: Action, displayName: String) -> Self {
     Self {
       TextState("Restore from Backup \(displayName)?")
     } actions: {
@@ -281,6 +281,33 @@ extension AlertState {
 Restoring from a backup will delete any changes made since the backup was created, and will replace all installed \
 sound font files with those in the backup.
 This action cannot be undone."
+"""
+      )
+    }
+  }
+
+  public static func restoreFailed(_ error: Error) -> Self {
+    Self {
+      TextState("Restore Failed")
+    } actions: {
+      ButtonState(role: .cancel) { TextState("OK") }
+    } message: {
+      TextState(
+"""
+Unable to restore from the backup: \(error.localizedDescription)
+"""
+      )
+    }
+  }
+
+  public static func restoreFinished() -> Self {
+    Self {
+      TextState("Restore Complete")
+    } actions: {
+    } message: {
+      TextState(
+"""
+Restored from backup. You must quit the app and restart it to being using the restored data.
 """
       )
     }

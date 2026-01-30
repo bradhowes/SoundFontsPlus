@@ -2,6 +2,7 @@
 
 import FeatureSupport
 import UniformTypeIdentifiers
+import SwiftUI
 
 /**
  Feature that imports an SF2 file for use in the synth.
@@ -22,13 +23,13 @@ public struct BackupPicker {
   @ObservableState
   public struct State: Equatable {
     public let types: [UTType] = [.folder, .directory]
-    public var showChooser: Bool
+    public var showPicker: Bool
     @Presents public var destination: Destination.State?
 
     public var restorePending: URL?
 
-    public init(showChooser: Bool = false, destination: Destination.State? = nil) {
-      self.showChooser = showChooser
+    public init(showPicker: Bool = false, destination: Destination.State? = nil) {
+      self.showPicker = showPicker
       self.destination = destination
     }
   }
@@ -36,9 +37,9 @@ public struct BackupPicker {
   public enum Action {
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
-    case backupImporterDismissed
-    case backupPicked(Result<URL, Error>)
-    case showBackupImporter
+    case pickerDismissed
+    case picked(Result<[URL], Error>)
+    case showPicker
 
     public enum Delegate {
       case importConfirmed(URL)
@@ -62,18 +63,18 @@ public struct BackupPicker {
         return .send(.delegate(.importConfirmed(restorePending)))
 
       case .destination(.dismiss):
-        state.showChooser = false
+        state.showPicker = false
         return .none
 
-      case .backupImporterDismissed:
-        state.showChooser = false
+      case .pickerDismissed:
+        state.showPicker = false
         return .none
 
-      case .backupPicked(let result):
+      case .picked(let result):
         return backupPicked(&state, result: result)
 
-      case .showBackupImporter:
-        state.showChooser = true
+      case .showPicker:
+        state.showPicker = true
         return .none
 
       default:
@@ -86,16 +87,16 @@ public struct BackupPicker {
 
 extension BackupPicker {
 
-  private func backupPicked(_ state: inout State, result: Result<URL, Error>) -> Effect<Action> {
+  private func backupPicked(_ state: inout State, result: Result<[URL], Error>) -> Effect<Action> {
     log.debug("backupPicked - \(String(describing: result), privacy: .public)")
 
-    state.showChooser = false
+    state.showPicker = false
 
     switch result {
 
-    case .success(let url):
-      state.restorePending = url
-      state.destination = .alert(.confirmBackupRestore(action: .restoreConfirmed, displayName: url.lastPathComponent))
+    case .success(let urls):
+      state.restorePending = urls[0]
+      state.destination = .alert(.confirmBackupRestore(action: .restoreConfirmed, displayName: urls[0].lastPathComponent))
       return .none
 
     case .failure:
@@ -111,6 +112,36 @@ extension BackupPicker {
 extension BackupPicker.Destination.State: Equatable {}
 extension BackupPicker.Destination.State: _EphemeralState {
   public typealias Action = Alert
+}
+
+public struct BackupPickerViewModifier: ViewModifier {
+  @Bindable private var store: StoreOf<BackupPicker>
+
+  public init(store: StoreOf<BackupPicker>) {
+    self.store = store
+  }
+
+  public func body(content: Content) -> some View {
+    content
+      .fileImporter(
+        isPresented: Binding(
+          get: { store.showPicker },
+          set: { _ in store.send(.pickerDismissed) }
+        ),
+        allowedContentTypes: store.types,
+        allowsMultipleSelection: false
+      ) { result in
+        store.send(.picked(result))
+      }
+      .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
+  }
+}
+
+extension View {
+
+  public func backupPickerFeature(_ store: StoreOf<BackupPicker>) -> some View {
+    modifier(BackupPickerViewModifier(store: store))
+  }
 }
 
 private let log: Logger = .init(category: "BackupImporter")
