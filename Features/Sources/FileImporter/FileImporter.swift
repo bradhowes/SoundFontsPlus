@@ -11,8 +11,9 @@ import UniformTypeIdentifiers
 public struct FileImporter {
 
   @Reducer
-  public enum Destination: Equatable {
+  public enum Destination {
     case alert(AlertState<Alert>)
+    case picker(FilePicker)
 
     @CasePathable
     public enum Alert: Equatable {
@@ -22,19 +23,18 @@ public struct FileImporter {
 
   @ObservableState
   public struct State: Equatable {
-    public let types = [
+    @Presents public var destination: Destination.State?
+
+    public let types: [UTType] = [
       "com.braysoftware.sf2",
       "com.soundblaster.soundfont"
     ].compactMap { UTType($0) } + [.folder, .directory]
-    public var showChooser: Bool
-    @Presents public var destination: Destination.State?
 
     public var filesPending: [URL] = []
     public var successes: [URL] = []
     public var failures: [FileImportFailure] = []
 
-    public init(showChooser: Bool = false, destination: Destination.State? = nil) {
-      self.showChooser = showChooser
+    public init(destination: Destination.State? = nil) {
       self.destination = destination
     }
   }
@@ -42,8 +42,6 @@ public struct FileImporter {
   public enum Action {
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
-    case fileImporterDismissed
-    case filesPicked(Result<[URL], Error>)
     case importNextFile
     case showFileImporter
 
@@ -64,8 +62,14 @@ public struct FileImporter {
 
       switch action {
 
+      case .delegate:
+        return .none
+
       case .destination(.presented(.alert(.replaceDuplicateFileConfirmed))):
         return importFile(&state, overwrite: true)
+
+      case .destination(.presented(.picker(.picked(let result)))):
+        return filesPicked(&state, result: result)
 
       case .destination(.dismiss):
         if let actions = state.destination?.alert?.buttons.map(\.action.action),
@@ -76,25 +80,18 @@ public struct FileImporter {
         }
         return .none
 
-      case .fileImporterDismissed:
-        state.showChooser = false
-        return .none
-
-      case .filesPicked(let result):
-        state.showChooser = false
-        state.successes = []
-        state.failures = []
-        return filesPicked(&state, result: result)
-
       case .importNextFile:
         return importNextFile(&state)
 
       case .showFileImporter:
-        state.showChooser = true
+        state.destination = .picker(
+          .init(
+            types: state.types,
+            allowsMultipleSelection: true
+          )
+        )
         return .none
 
-      default:
-        return .none
       }
     }
     .ifLet(\.destination, action: \.destination)

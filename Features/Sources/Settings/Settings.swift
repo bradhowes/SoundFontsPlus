@@ -8,7 +8,6 @@ import MIDIConnections
 import MIDIControllers
 import MIDITrafficIndicator
 import MorkAndMIDI
-import SwiftToasts
 import Tuning
 
 @Reducer
@@ -45,7 +44,6 @@ public struct Settings {
     public var midiTrafficIndicator: MIDITrafficIndicator.State
     public var tuning: Tuning.State
     public let hasMIDI: Bool
-    public var showProgressIndicator: Bool = false
 
     @Shared(.backgroundProcessing) public var backgroundProcessing
     @Shared(.copyFileWhenInstalling) public var copyFileWhenInstalling
@@ -211,12 +209,10 @@ public struct Settings {
         return restoreBackupTapped(&state)
 
       case .restoreFailed(let error):
-        state.showProgressIndicator = false
         state.destination = .alert(.restoreFailed(error))
         return .none
 
       case .restoreFinished:
-        state.showProgressIndicator = false
         state.destination = .alert(.restoreFinished())
         return .none
 
@@ -279,8 +275,6 @@ extension Settings {
         return .none
       }
 
-      state.showProgressIndicator = true
-
       return .run { send in
         do {
           try await BackupManager.restore(backupDirectory: url)
@@ -297,7 +291,12 @@ extension Settings {
   }
 
   private func restoreBackupTapped(_ state: inout State) -> Effect<Action> {
-    state.destination = .backupPicker(.init(types: [.folder, .directory], allowsMultipleSelection: false))
+    state.destination = .backupPicker(
+      .init(
+        types: [.folder, .directory],
+        allowsMultipleSelection: false
+      )
+    )
     return .none
   }
 
@@ -380,10 +379,6 @@ public struct SettingsView: View {
       case .midiControllers(let store): MIDIControllersView(store: store)
       }
     }
-    .toast(isPresented: $store.showProgressIndicator, alignment: .center) {
-      restoringProgressToast
-    }
-    .toastStyle(.plain)
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     .filePicker($store.scope(state: \.destination?.backupPicker, action: \.destination.backupPicker))
     .task {
@@ -710,22 +705,6 @@ Erases current database and SF2 files with contents of previous backup.
             }
           }
         }
-      }
-    }
-  }
-}
-
-extension SettingsView {
-
-  private var restoringProgressToast: Toast {
-    Toast(role: .informational, duration: .indefinite) {
-      Label {
-        Text("Restoring…")
-          .font(.toastLabel)
-          .foregroundStyle(.teal)
-      } icon: {
-        ProgressView()
-          .tint(.teal)
       }
     }
   }

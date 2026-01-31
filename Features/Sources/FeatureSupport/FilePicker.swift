@@ -71,31 +71,19 @@ public struct FilePicker {
   public var body: some ReducerOf<Self> {}
 }
 
-public struct FilePickerViewModifier: ViewModifier {
-  private var store: StoreOf<FilePicker>?
-
-  public init(store: Binding<StoreOf<FilePicker>?>) {
-    self.store = store.wrappedValue
-  }
-
-  public func body(content: Content) -> some View {
-    content
-      .fileImporter(
-        isPresented: Binding(
-          get: { store != nil },
-          set: { _ in }
-        ),
-        allowedContentTypes: store?.types ?? [],
-        allowsMultipleSelection: store?.allowsMultipleSelection ?? false
-      ) {
-        store?.send(.picked($0))
-      }
-  }
-}
-
 extension View {
 
   public func filePicker(_ store: Binding<StoreOf<FilePicker>?>) -> some View {
-    modifier(FilePickerViewModifier(store: store))
+    let store = store.wrappedValue
+    return self.fileImporter(
+      isPresented: Binding(
+        get: { store != nil },
+        set: { _ in }
+      ),
+      allowedContentTypes: store?.types ?? [],
+      allowsMultipleSelection: store?.allowsMultipleSelection ?? false
+    ) {
+      store?.send(.picked($0))
+    }
   }
 }

@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
+import FeatureSupport
 import SwiftUI
 
 public struct FileImporterViewModifier: ViewModifier {
@@ -12,17 +13,8 @@ public struct FileImporterViewModifier: ViewModifier {
 
   public func body(content: Content) -> some View {
     content
-      .fileImporter(
-        isPresented: Binding(
-          get: { store.showChooser },
-          set: { _ in store.send(.fileImporterDismissed) }
-        ),
-        allowedContentTypes: store.types,
-        allowsMultipleSelection: true
-      ) { result in
-        store.send(.filesPicked(result))
-      }
       .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
+      .filePicker($store.scope(state: \.destination?.picker, action: \.destination.picker))
   }
 }
 
