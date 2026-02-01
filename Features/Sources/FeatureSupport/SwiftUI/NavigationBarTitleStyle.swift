@@ -3,10 +3,17 @@
 import SwiftUI
 
 public func installApplicationFont() {
+#if os(iOS)
   if let url = Bundle.module.url(forResource: Font.applicationFontName, withExtension: ".ttc"),
      UIFont(name: Font.applicationFontName, size: 12) == nil {
     CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
   }
+#elseif os(macOS)
+  if let url = Bundle.module.url(forResource: Font.applicationFontName, withExtension: ".ttc"),
+     NSFont(name: Font.applicationFontName, size: 12) == nil {
+    CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+  }
+#endif
 }
 
 @MainActor
