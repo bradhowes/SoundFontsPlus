@@ -37,6 +37,7 @@ public struct AppRoot {
   @Reducer
   @frozen
   public enum Destination {
+    case alert(AlertState<Alert>)
     case changes(Changes)
     case presetEditor(PresetEditor)
     case settings(Settings)
@@ -45,6 +46,12 @@ public struct AppRoot {
     #if os(iOS)
     case tutorial(Tutorial)
     #endif
+
+    @CasePathable
+    @frozen
+    public enum Alert {
+      case reinitializeConfirmed
+    }
   }
 
   @ObservableState
@@ -287,6 +294,9 @@ public struct AppRoot {
 #endif
         return .merge(actions)
 
+      case .destination(.presented(.alert(.reinitializeConfirmed))):
+        return reinitializeConfirmed(&state)
+
       case .destination(.presented(.soundFontEditor(.delegate(.refreshPresets)))):
         return reduce(into: &state, action: .presetsList(.fetchPresets))
 
@@ -452,7 +462,7 @@ extension AppRoot {
     case .presetEditor(let editor):
       return presetEditorDismissed(&state, editor: editor)
 
-    case .settings:
+    case .alert, .settings:
       return reduce(into: &state, action: .presetsList(.fetchPresets))
 
     default:
@@ -570,6 +580,9 @@ extension AppRoot {
   private func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
     switch action {
 
+    case .reinitialize:
+      state.destination = .alert(.confirmReinitialize(action: .reinitializeConfirmed))
+
     case .showChanges:
       state.showChanges()
 
@@ -621,6 +634,12 @@ extension AppRoot {
     }
   }
 
+  private func reinitializeConfirmed(_ state: inout State) -> Effect<Action> {
+    BackupManager.reinitialize()
+    state.destination = .alert(.reinitialized())
+    return .none.animation(.smooth)
+  }
+
   private func scenePhaseChanged(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
     switch phase {
 
@@ -663,6 +682,7 @@ extension AppRoot {
 // swiftlint:enable type_body_length
 
 extension AppRoot.Destination.State: Equatable {}
+extension AppRoot.Destination.Alert: Equatable {}
 
 // MARK: - View
 
@@ -749,6 +769,7 @@ public struct AppRootView: View {
       volumeMonitorToast(reason)
     }
     .toastStyle(.plain)
+    .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
 
 //  private var initializeToast: Toast {

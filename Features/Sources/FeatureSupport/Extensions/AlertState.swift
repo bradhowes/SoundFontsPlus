@@ -129,7 +129,9 @@ extension AlertState {
     } message: {
       TextState(
 """
-Deleting a SoundFont will delete any customizations you may have made to its presets. This cannot be undone.
+Deleting a SoundFont will delete any customizations you may have made to its presets. 
+
+This cannot be undone.
 """
       )
     }
@@ -144,7 +146,9 @@ Deleting a SoundFont will delete any customizations you may have made to its pre
     } message: {
       TextState(
 """
-Deleting sound fonts will delete any customizations you may have made to their presets. This cannot be undone.
+Deleting sound fonts will delete any customizations you may have made to their presets. 
+
+This cannot be undone.
 """
       )
     }
@@ -244,7 +248,8 @@ extension AlertState {
     } message: {
       TextState(
 """
-This tag is associated with \(associationCount) sound fonts — they will not be affected. \
+This tag is associated with \(associationCount) sound fonts — they will not be affected.
+
 Deleting the tag cannot be undone.
 """
       )
@@ -269,6 +274,38 @@ associated with any sound fonts.
 
 extension AlertState {
 
+  public static func confirmReinitialize(action: Action) -> Self {
+    Self {
+      TextState("Reinitialize?")
+    } actions: {
+      ButtonState(role: .cancel) { TextState("Cancel") }
+      ButtonState(role: .destructive, action: action) { TextState("Confirm") }
+    } message: {
+      TextState(
+"""
+Reinitializing will delete any changes made since you first installed the app. It will also remove \
+any sont files installed onto the device, leaving only the 4 original sound fonts.
+
+This action cannot be undone.
+"""
+      )
+    }
+  }
+
+  public static func reinitialized() -> Self {
+    Self {
+      TextState("Reinitialized")
+    } actions: {
+      ButtonState(role: .none) { TextState("OK") }
+    } message: {
+      TextState(
+"""
+All customizations have been removed.
+"""
+      )
+    }
+  }
+
   public static func confirmBackupRestore(action: Action, displayName: String) -> Self {
     Self {
       TextState("Restore from Backup \(displayName)?")
@@ -280,6 +317,7 @@ extension AlertState {
 """
 Restoring from a backup will delete any changes made since the backup was created, and will replace all installed \
 sound font files with those in the backup.
+
 This action cannot be undone."
 """
       )

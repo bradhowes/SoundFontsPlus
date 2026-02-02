@@ -113,12 +113,12 @@ public struct Settings {
     case restoreBackupTapped
     case restoreFailed(Error)
     case restoreFinished
-    case restoreFreshInstallTapped
     case reviewAppTapped
     case tuning(Tuning.Action)
 
     @CasePathable
     public enum Delegate {
+      case reinitialize
       case showChanges
       case showTutorial
     }
@@ -335,6 +335,7 @@ public struct SettingsView: View {
   @Bindable private var store: StoreOf<Settings>
   @State private var changingKeyWidth: Bool = false
   @Shared(.isAUv3) private var isAUv3
+  @Shared(.backupRestoreEnabled) private var backupRestoreEnabled
   @Dependency(\.audioSession) private var audioSession
   @Dependency(\.fileManager) private var fileManager
 
@@ -604,7 +605,7 @@ Do not show the pre-installed sound fonts when the "All" tag is active.
         if !isAUv3 {
           HStack {
             VStack(alignment: .leading, spacing: 8) {
-              Text("Restore to fresh install")
+              Text("Restore to initial install")
               Text(
 """
 Removes all installed SF2 files and any customizations — same as reinstalling application.
@@ -614,47 +615,49 @@ Removes all installed SF2 files and any customizations — same as reinstalling 
             }
             Spacer()
             Button {
-              store.send(.restoreFreshInstallTapped)
+              store.send(.delegate(.reinitialize))
             } label: {
-              Text("Reinstall")
+              Text("Reinitialize")
             }
           }
-          HStack {
-            VStack(alignment: .leading, spacing: 8) {
-              Text("Create backup of database and SF2 files")
-              Text(
+          if backupRestoreEnabled {
+            HStack {
+              VStack(alignment: .leading, spacing: 8) {
+                Text("Create backup of database and SF2 files")
+                Text(
 """
 Backups are stored in the SoundFonts+ iCloud folder. Sound font files that were copied onto device are also backed up.
 """
-              )
-              .font(.settingsDescription)
+                )
+                .font(.settingsDescription)
+              }
+              Spacer()
+              Button {
+                store.send(.createBackupTapped)
+              } label: {
+                Text("Backup")
+              }
             }
-            Spacer()
-            Button {
-              store.send(.createBackupTapped)
-            } label: {
-              Text("Backup")
-            }
-          }
-          .disabled(fileManager.cloudDocumentsDirectory() == nil)
-          HStack {
-            VStack(alignment: .leading, spacing: 8) {
-              Text("Restore from backup")
-              Text(
+            .disabled(fileManager.cloudDocumentsDirectory() == nil)
+            HStack {
+              VStack(alignment: .leading, spacing: 8) {
+                Text("Restore from backup")
+                Text(
 """
 Erases current database and SF2 files with contents of previous backup.
 """
-              )
-              .font(.settingsDescription)
+                )
+                .font(.settingsDescription)
+              }
+              Spacer()
+              Button {
+                store.send(.restoreBackupTapped)
+              } label: {
+                Text("Restore")
+              }
             }
-            Spacer()
-            Button {
-              store.send(.restoreBackupTapped)
-            } label: {
-              Text("Restore")
-            }
+            .disabled(fileManager.cloudDocumentsDirectory() == nil)
           }
-          .disabled(fileManager.cloudDocumentsDirectory() == nil)
         }
       }
     }

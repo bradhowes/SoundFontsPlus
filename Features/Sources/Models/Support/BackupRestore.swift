@@ -4,9 +4,74 @@ import BaseSupport
 import Dependencies
 import Foundation
 import GRDB
+import Sharing
 
 // Based off of code in https://github.com/groue/GRDB.swift/discussions/1798#discussioncomment-13926896
 public enum BackupManager {
+
+  public static func reinitialize() {
+    withDatabaseWriter { db in
+
+      log.info("deleting installed soundfont files")
+      try SoundFont
+        .where { $0.kind.neq(SoundFont.Kind.builtin) }
+        .delete()
+        .execute(db)
+
+      log.info("deleting custom tags")
+      try Tag
+        .where { $0.id.gte(Tag.ID(0)) }
+        .delete()
+        .execute(db)
+
+      log.info("deleting favorites")
+      try Preset
+        .where { $0.kind.eq(Preset.Kind.favorite) }
+        .delete()
+        .execute(db)
+
+      log.info("unhiding presets")
+      try Preset
+        .where { $0.kind.eq(Preset.Kind.hidden) }
+        .update { $0.kind = .preset }
+        .execute(db)
+
+      log.info("removing custom audio configurations")
+      try AudioConfig
+        .delete()
+        .execute(db)
+
+      log.info("removing delay configurations")
+      try DelayConfig
+        .delete()
+        .execute(db)
+
+      log.info("removing reverb configurations")
+      try ReverbConfig
+        .delete()
+        .execute(db)
+    }
+
+    @Dependency(\.fileManager) var fileManager
+
+    do {
+      try fileManager.removeItem(fileManager.fontFilesDirectory())
+    } catch {
+      log.error("removeItem on 'FontFiles' failed - \(error.localizedDescription, privacy: .public)")
+    }
+
+    do {
+      try fileManager.createDirectory(fileManager.fontFilesDirectory())
+    } catch {
+      log.error("createDirectory on 'FontFiles' failed - \(error.localizedDescription, privacy: .public)")
+    }
+
+    @Shared(.activeState) var activeState
+    $activeState.withLock { $0 = .default }
+
+    @Shared(.selectedSoundFontId) var selectedSoundFontId
+    $selectedSoundFontId.withLock { $0 = nil }
+  }
 
   // swiftlint:disable:next function_body_length
   public static func backup() throws(BackupError) -> URL {
