@@ -31,7 +31,6 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
    */
   nonisolated public func createAudioUnit(with componentDescription: AudioComponentDescription) throws -> AUAudioUnit {
     try DispatchQueue.main.sync {
-      // AppRoot.prepareDependencies()
       let audioUnit = try SF2LibAU(componentDescription: componentDescription, options: [])
       DispatchQueue.main.async { [weak self] in
         self?.installView(audioUnit: audioUnit)
@@ -47,8 +46,8 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
       host.view.removeFromSuperview()
     }
 
-    // Entry point for AUvRoot feature
-    let content = AppRootView(store: Store(initialState: .init(audioUnit: audioUnit)) { AppRoot() })
+    // Entry point for AUv3 view
+    let content = AppRootView(store: AppRoot.makeWithDependencies())
     let host = AUv3HostingController(rootView: content)
 
     self.addChild(host)
