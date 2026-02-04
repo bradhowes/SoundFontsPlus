@@ -137,6 +137,20 @@ public struct ChangesView: View {
   }
 }
 
+extension View {
+
+  public func changesSheet(_ store: Binding<StoreOf<Changes>?>) -> some View {
+    self
+      .sheet(item: store) { child in
+        NavigationStack {
+          ChangesView(store: child)
+            .preferredColorScheme(.dark)
+            .environment(\.colorScheme, .dark)
+        }
+      }
+  }
+}
+
 #if DEBUG
 
 extension ChangesView {

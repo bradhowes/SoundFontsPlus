@@ -32,11 +32,6 @@ extension Font {
   public static var applicationFontName: String { "Eurostile" }
   public static var customFontName: String { "\(applicationFontName)Regular" }
 
-  public static var body: Font {
-    installApplicationFont()
-    return Font.custom(Font.customFontName, size: 20)
-  }
-
   public static var activeVoiceCount: Font { CGFloat.activeVoiceCountFontSize.appFont }
   public static var button: Font { CGFloat.buttonFontSize.appFont }
   public static var change: Font { CGFloat.changeFontSize.appFont }

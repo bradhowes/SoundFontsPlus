@@ -5,7 +5,7 @@ import Foundation
 import PackageDescription
 
 let useLocalMorkAndMIDI = false
-let useLocalSF2Lib = false
+let useLocalSF2Lib = true
 
 extension Package.Dependency {
   static var morkAndMIDI: PackageDescription.Package.Dependency {
@@ -14,7 +14,7 @@ extension Package.Dependency {
   }
   static var sf2Lib: PackageDescription.Package.Dependency {
     useLocalSF2Lib ? .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib") :
-      .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.8.0")
+      .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.10.0")
   }
 }
 
@@ -56,6 +56,7 @@ let package = Package(
     .morkAndMIDI,
     .sf2Lib,
     //
+    .package(url: "https://github.com/alexanderwe/swiftui-theming", from: "0.1.0"),
     .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.1"),
     // NOTE: only used to gain access to `isApproximatelyEqual` in unit tests
     .package(url: "https://github.com/apple/swift-numerics", from: "1.1.0"),
@@ -158,7 +159,8 @@ let package = Package(
         .product(name: "AUv3Controls", package: "AUv3Controls"),
         .product(name: "CasePaths", package: "swift-case-paths"),
         .product(name: "MorkAndMIDI", package: "morkandmidi"),
-        .product(name: "Sharing", package: "swift-sharing")
+        .product(name: "Sharing", package: "swift-sharing"),
+        .product(name: "Theming", package: "swiftui-theming")
       ],
       resources: [.process("Resources")]
     ),

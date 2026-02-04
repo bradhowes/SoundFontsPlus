@@ -713,6 +713,18 @@ Erases current database and SF2 files with contents of previous backup.
   }
 }
 
+extension View {
+
+  public func settingsSheet(_ store: Binding<StoreOf<Settings>?>, showFakeKeyboard: Bool) -> some View {
+    self
+      .sheet(item: store) {
+        SettingsView(store: $0, showFakeKeyboard: showFakeKeyboard)
+          .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
+      }
+  }
+}
+
 private let log: Logger = .init(category: "AppSettings")
 
 #if DEBUG

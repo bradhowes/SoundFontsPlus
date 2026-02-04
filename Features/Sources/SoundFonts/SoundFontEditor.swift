@@ -305,6 +305,18 @@ public struct SoundFontEditorView: View {
   }
 }
 
+extension View {
+
+  public func soundFontEditorSheet(_ store: Binding<StoreOf<SoundFontEditor>?>) -> some View {
+    self
+      .sheet(item: store) {
+        SoundFontEditorView(store: $0)
+          .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
+      }
+  }
+}
+
 #if DEBUG
 
 extension SoundFontEditorView {

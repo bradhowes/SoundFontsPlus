@@ -409,6 +409,18 @@ extension AVAudioUnitReverbPreset: @retroactive Strideable {
   public typealias Stride = Int
 }
 
+extension View {
+
+  public func presetEditorSheet(_ store: Binding<StoreOf<PresetEditor>?>) -> some View {
+    self
+      .sheet(item: store) {
+        PresetEditorView(store: $0)
+          .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
+      }
+  }
+}
+
 #if DEBUG
 
 extension PresetEditorView {

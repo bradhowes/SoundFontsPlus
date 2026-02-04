@@ -13,6 +13,10 @@ struct SoundFontsPlusApp: App {
   // Following Point·Free style from https://github.com/pointfreeco/swift-composable-architecture/blob/main/Examples/SyncUps/SyncUps/App.swift
   static let store: StoreOf<AppRoot> = AppRoot.makeWithDependencies()
 
+  init() {
+    installApplicationFont()
+  }
+
   var body: some Scene {
     WindowGroup {
       if isTesting {

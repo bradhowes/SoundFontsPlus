@@ -362,6 +362,18 @@ public struct TagsEditorView: View {
   }
 }
 
+extension View {
+
+  public func tagsEditorSheet(_ store: Binding<StoreOf<TagsEditor>?>) -> some View {
+    self
+      .sheet(item: store) {
+        TagsEditorView(store: $0)
+          .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
+      }
+  }
+}
+
 #if DEBUG
 
 extension TagsEditorView {

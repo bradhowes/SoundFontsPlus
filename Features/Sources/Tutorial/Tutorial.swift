@@ -734,6 +734,19 @@ or globally.
   }
 }
 
+extension View {
+
+  public func tutorialSheet(_ store: Binding<StoreOf<Tutorial>?>) -> some View {
+    self
+      .sheet(item: store) { child in
+        NavigationStack {
+          TutorialView(store: child)
+            .preferredColorScheme(.dark)
+            .environment(\.colorScheme, .dark)
+        }
+      }
+  }
+}
 #if DEBUG
 
 #Preview {
