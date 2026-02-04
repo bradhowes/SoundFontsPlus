@@ -193,7 +193,7 @@ public struct SoundFontEditorView: View {
         fileSection
       }
       .font(.soundFontEditor)
-      .navigationTitle("SoundFont")
+      .navigationTitle("Font Editor")
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button("Cancel") {

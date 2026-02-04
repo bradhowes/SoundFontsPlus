@@ -25,32 +25,55 @@ public struct ToolBarView: View {
   }
 
   public var body: some View {
-    HStack(alignment: .center, spacing: 12) {
-      addSoundFontButton
-      tagsButton
-      effectsButton
-      ZStack(alignment: .trailing) {
-        status
-          .zIndex(0)
-          .opacity(store.showMoreButtons ? 0.0 : 1.0)
-        additionalButtons
-          .opacity((store.showMoreButtons || horizontalSizeClass != .compact) ? 1.0 : 0.0)
-          .offset(x: horizontalSizeClass == .compact ? 12 : 0)
-          .zIndex(1)
-          .transition(.move(edge: .trailing))
-        moreButton
-          .zIndex(horizontalSizeClass == .compact ? 2 : -99)
-          .offset(x: 4)
-          // .opacity(horizontalSizeClass == .compact ? 1.0 : 0.0)
+    Group {
+      if horizontalSizeClass == .compact {
+        compactBar
+      } else {
+        fullBar
       }
     }
     .imageScale(.large)
-    .background(Color.black)
+    .background(.windowBackground)
     .frame(height: 40)
     .frame(maxHeight: 40)
     .animation(.easeInOut, value: store.showMoreButtons)
     .animation(.smooth, value: store.activeVoiceCount)
     .fileImporterFeature(store.scope(state: \.fileImporter, action: \.fileImporter))
+  }
+
+  private var fullBar: some View {
+    HStack(alignment: .center, spacing: 12) {
+      addSoundFontButton
+      tagsButton
+      effectsButton
+      status
+      shiftDownButton
+      slidingKeyboardButton
+      shiftUpButton
+      editVisibilityButton
+      settingsButton
+    }
+  }
+
+  private var compactBar: some View {
+    HStack(alignment: .center, spacing: 12) {
+      addSoundFontButton
+      tagsButton
+      effectsButton
+      if store.showMoreButtons {
+        Spacer()
+          .frame(height: 40)
+          .background(.windowBackground)
+        shiftDownButton
+        slidingKeyboardButton
+        shiftUpButton
+        editVisibilityButton
+        settingsButton
+      } else {
+        status
+      }
+      moreButton
+    }
   }
 
   private var status: some View {
@@ -132,53 +155,57 @@ public struct ToolBarView: View {
     }
   }
 
-  private var additionalButtons: some View {
-    HStack(alignment: .center, spacing: 12) {
-      Button {
-        store.send(.shiftKeyboardDownButtonTapped)
-      } label: {
-        Text(.shiftKeyboardLeftIndicator + store.lowestKey.label)
-          .fixedSize()
-          .tint(.mainAccentColor)
-      }
-      .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
-      Button {
-        store.send(.slidingKeyboardButtonTapped)
-      } label: {
-        Image(
-          systemName: store.keyboardSlides
-          ? .slidingKeyboardButtonImageName
-          : .fixedKeyboardButtonImageName
-        )
+  private var shiftDownButton: some View {
+    Button {
+      store.send(.shiftKeyboardDownButtonTapped)
+    } label: {
+      Text(.shiftKeyboardLeftIndicator + store.lowestKey.label)
         .fixedSize()
-        .tint(if: store.keyboardSlides)
-      }
-      Button {
-        store.send(.shiftKeyboardUpButtonTapped)
-      } label: {
-        Text(store.highestKey.label + .shiftKeyboardRightIndicator)
-          .fixedSize()
-          .tint(.mainAccentColor)
-      }
-      .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
-      Button {
-        store.send(.presetsVisibilityButtonTapped)
-      } label: {
-        Image(systemName: .presetsVisibilityButtonImageName)
-          .tint(if: store.editingPresetVisibility)
-      }
-      Button {
-        store.send(.settingsButtonTapped)
-      } label: {
-        Image(systemName: .settingsButtonImageName)
-          .tint(.mainAccentColor)
-      }
-      Button {
-        store.send(.helpButtonTapped)
-      } label: {
-        Image(systemName: .helpButtonImageName)
-          .tint(.mainAccentColor)
-      }
+        .tint(.mainAccentColor)
+    }
+    .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
+  }
+
+  private var slidingKeyboardButton: some View {
+    Button {
+      store.send(.slidingKeyboardButtonTapped)
+    } label: {
+      Image(
+        systemName: store.keyboardSlides
+        ? .slidingKeyboardButtonImageName
+        : .fixedKeyboardButtonImageName
+      )
+      .fixedSize()
+      .tint(if: store.keyboardSlides)
+    }
+  }
+
+  private var shiftUpButton: some View {
+    Button {
+      store.send(.shiftKeyboardUpButtonTapped)
+    } label: {
+      Text(store.highestKey.label + .shiftKeyboardRightIndicator)
+        .fixedSize()
+        .tint(.mainAccentColor)
+    }
+    .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
+  }
+
+  private var editVisibilityButton: some View {
+    Button {
+      store.send(.presetsVisibilityButtonTapped)
+    } label: {
+      Image(systemName: .presetsVisibilityButtonImageName)
+        .tint(if: store.editingPresetVisibility)
+    }
+  }
+
+  private var settingsButton: some View {
+    Button {
+      store.send(.settingsButtonTapped)
+    } label: {
+      Image(systemName: .settingsButtonImageName)
+        .tint(.mainAccentColor)
     }
   }
 }

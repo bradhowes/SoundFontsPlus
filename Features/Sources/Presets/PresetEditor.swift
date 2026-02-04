@@ -248,7 +248,7 @@ public struct PresetEditorView: View {
         infoSection
       }
       .font(.presetEditor)
-      .navigationTitle("Preset")
+      .navigationTitle("Preset Editor")
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button("Cancel") {

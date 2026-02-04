@@ -240,7 +240,7 @@ public struct MIDIConnectionsView: View {
   private func rowContent(_ row: MIDIConnectionRow) -> some View {
     Text("\(row.displayName)")
       .frame(maxWidth: .infinity, alignment: .leading)
-      .foregroundStyle(animating == row.id ? Color.accentColor : .primary)
+      .foregroundStyle(animating == row.id ? Color.mainAccentColor : .primary)
 
     Text(row.channel == 255 ? "-" : "\(row.channel + 1)")
       .frame(maxWidth: .infinity)

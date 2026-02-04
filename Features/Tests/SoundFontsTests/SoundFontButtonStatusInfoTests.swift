@@ -126,7 +126,7 @@ struct SoundFontButtonStatusInfoTests {
         .init(
           action: .delegate(.selectSoundFont(info, available: true)),
           imageName: "link",
-          color: .accentColor.opacity(0.5)
+          color: .mainAccentColor.opacity(0.5)
         )
     )
     #expect(
@@ -134,7 +134,7 @@ struct SoundFontButtonStatusInfoTests {
         .init(
           action: .delegate(.alertMissingFile(info)),
           imageName: "exclamationmark.circle",
-          color: .yellow
+          color: .alternateAccentColor
         )
     )
     #expect(
@@ -142,7 +142,7 @@ struct SoundFontButtonStatusInfoTests {
         .init(
           action: .delegate(.selectSoundFont(info, available: true)),
           imageName: "icloud",
-          color: .accentColor.opacity(0.5)
+          color: .mainAccentColor.opacity(0.5)
         )
     )
     #expect(
@@ -150,7 +150,7 @@ struct SoundFontButtonStatusInfoTests {
         .init(
           action: .statusInfoChanged(.cloudIsDownloading),
           imageName: "icloud.and.arrow.down.fill",
-          color: .accentColor.opacity(0.5)
+          color: .mainAccentColor.opacity(0.5)
         )
     )
     #expect(
@@ -158,7 +158,7 @@ struct SoundFontButtonStatusInfoTests {
         .init(
           action: .downloadFileButtonTapped,
           imageName: "icloud.and.arrow.down",
-          color: .yellow
+          color: .alternateAccentColor
         )
     )
   }

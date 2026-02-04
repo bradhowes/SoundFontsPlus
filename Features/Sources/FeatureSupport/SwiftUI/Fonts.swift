@@ -68,20 +68,9 @@ extension Color {
   public static var splitViewHandleBackgroundColor: Self { .splitViewHandleBackground }
   public static var panelBackgroundColor: Self { .panelBackground }
 
-  public static var changeDescription: Color { .accentColor }
+  public static var changeDescription: Color { .mainAccent }
   public static var listHeaderForeground: Color { Color.gray.mix(with: .black, by: 0.25) }
   public static var presetsHeaderForeground: Color { Color.gray.mix(with: .black, by: 0.30) }
 
   public static var buttonActive: Color { .teal }
-}
-
-public enum ColorTheme {
-  case standard
-
-  public var primaryColor: Color {
-    switch self {
-    case .standard:
-      return .accentColor
-    }
-  }
 }

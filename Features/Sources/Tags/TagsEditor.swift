@@ -366,8 +366,10 @@ extension View {
 
   public func tagsEditorSheet(_ store: Binding<StoreOf<TagsEditor>?>) -> some View {
     self
-      .sheet(item: store) {
-        TagsEditorView(store: $0)
+      .sheet(item: store) { child in
+        NavigationStack {
+          TagsEditorView(store: child)
+        }
       }
   }
 }

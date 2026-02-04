@@ -80,7 +80,7 @@ public struct PresetButtonView: View {
         if editingVisibility {
           // Show indicator when edititing preset visibility
           Image(systemName: isHidden ? "circle" : "inset.filled.circle")
-            .foregroundStyle(Color.orange)
+            .foregroundStyle(Color.alternateAccentColor)
             .frame(width: 24)
             .animation(.smooth, value: store.preset.kind) // animate the visibiliity toggle image
         }
@@ -111,7 +111,7 @@ public struct PresetButtonView: View {
           store.send(.delegate(.createFavorite(store.preset)), animation: .default)
         } label: {
           Image(systemName: store.preset.isFavorite ? "document.on.document.fill" : "star")
-            .tint(.orange)
+            .tint(Color.alternateAccentColor)
         }
       }
     }

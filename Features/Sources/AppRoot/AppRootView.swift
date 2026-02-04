@@ -23,7 +23,7 @@ public struct AppRootView: View {
   @Bindable private var store: StoreOf<AppRoot>
 
   private let dividerBorderColor: Color = .splitViewHandleBackgroundColor
-  private let dividerSpan: CGFloat = 4
+  private let dividerSpan: CGFloat = 2
   @State private var isInputKeyboardVisible = false
   @State private var effectsOffset: CGFloat = 0.0
 
@@ -149,7 +149,8 @@ extension AppRootView {
     ).splitViewConfiguration(
       .init(
         orientation: .horizontal,
-        draggableRange: 0.35...0.7
+        draggableRange: 0.15...0.85,
+        visibleDividerSpan: dividerSpan
       )
     )
   }
@@ -171,15 +172,16 @@ extension AppRootView {
         orientation: .vertical,
         draggableRange: 0.15...0.85,
         dragToHidePanes: .secondary,
-        doubleClickToClose: .secondary
+        doubleClickToClose: .secondary,
+        visibleDividerSpan: dividerSpan
       )
     )
   }
 
   fileprivate var handleDivider: some View {
     HandleDivider(
-      dividerColor: .splitViewHandleBackgroundColor,
-      handleColor: .splitViewHandleBackgroundColor,
+      dividerColor: dividerBorderColor,
+      handleColor: dividerBorderColor,
       dotColor: .mainAccentColor,
       handleLength: 48,
       handleWidth: 8.0,

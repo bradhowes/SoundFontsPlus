@@ -18,40 +18,42 @@ public struct IndicatorModifier: ViewModifier {
     // Favorite styling -- only for Preset buttons
     case favorite
 
-    var labelColor: Color {
+    func labelColor(colorScheme: ColorScheme) -> Color {
       switch self {
-      case .none: return .mainAccentColor.darker
-      case .active, .activeNoIndicator: return .mainAccentColor.lighter
+      case .none: return colorScheme == .dark ? .mainAccentColor.darker : .mainAccentColor.lighter
+      case .active, .activeNoIndicator: return colorScheme == .dark ? .mainAccentColor.lighter : .mainAccentColor.darker
       case .activeFavorite: return .alternateAccentColor
-      case .favorite: return .alternateAccentColor.darker
+      case .favorite: return colorScheme == .dark ? .alternateAccentColor.darker : .alternateAccentColor.lighter
       case .selected: return .selected
       }
     }
 
-    var indicatorColor: Color {
+    func indicatorColor(colorScheme: ColorScheme) -> Color {
       switch self {
       case .none, .activeNoIndicator: return .clear
-      case .active: return .mainAccentColor.lighter
-      case .activeFavorite: return .alternateAccentColor.lighter
-      case .favorite: return .alternateAccentColor.darker
+      case .active: return colorScheme == .dark ? .mainAccentColor.lighter : .mainAccentColor.darker
+      case .activeFavorite: return colorScheme == .dark ? .alternateAccentColor.lighter : .alternateAccentColor.darker
+      case .favorite: return colorScheme == .dark ? .alternateAccentColor.darker : .alternateAccentColor.lighter
       case .selected: return .clear
       }
     }
 
-    var indicatorGradient: Gradient {
+    func indicatorGradient(colorScheme: ColorScheme) -> Gradient {
       switch self {
-      case .active, .activeFavorite: return .init(colors: [.clear, indicatorColor, .clear])
+      case .active, .activeFavorite: return .init(colors: [.clear, indicatorColor(colorScheme: colorScheme), .clear])
       default: return .init(colors: [.clear, .clear])
       }
     }
   }
 
+  @Environment(\.colorScheme) private var colorScheme
+
   private let state: State
   private var indicatorWidth: CGFloat { 4 }
   private var cornerRadius: CGFloat { indicatorWidth / 2.0 }
   private var offset: CGFloat { -2.0 * indicatorWidth }
-  private var indicator: Color { state.indicatorColor }
-  private var labelColor: Color { state.labelColor }
+  private var indicator: Color { state.indicatorColor(colorScheme: colorScheme) }
+  private var labelColor: Color { state.labelColor(colorScheme: colorScheme) }
 
   public init(state: State) {
     self.state = state
@@ -60,7 +62,7 @@ public struct IndicatorModifier: ViewModifier {
   public func body(content: Content) -> some View {
     ZStack(alignment: .leading) {
       Rectangle()
-        .fill(state.indicatorGradient)
+        .fill(state.indicatorGradient(colorScheme: colorScheme))
         .frame(width: indicatorWidth)
         .cornerRadius(cornerRadius)
         .offset(x: offset)

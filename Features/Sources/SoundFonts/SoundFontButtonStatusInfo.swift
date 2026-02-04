@@ -56,7 +56,7 @@ public enum SoundFontButtonStatusInfoTag: Equatable {
       return .init(
         action: .delegate(.selectSoundFont(info, available: true)),
         imageName: "circle.fill",
-        color: .black
+        color: .clear
       )
     case .invalidBookmark:
       return .init(
@@ -68,31 +68,31 @@ public enum SoundFontButtonStatusInfoTag: Equatable {
       return .init(
         action: .delegate(.selectSoundFont(info, available: true)),
         imageName: "link",
-        color: .accentColor.opacity(0.5)
+        color: .mainAccentColor.opacity(0.5)
       )
     case .localIsMissing:
       return .init(
         action: .delegate(.alertMissingFile(info)),
         imageName: "exclamationmark.circle",
-        color: .yellow
+        color: .alternateAccentColor
       )
     case .cloudIsDownloaded:
       return .init(
         action: .delegate(.selectSoundFont(info, available: true)),
         imageName: "icloud",
-        color: .accentColor.opacity(0.5)
+        color: .mainAccentColor.opacity(0.5)
       )
     case .cloudIsDownloading:
       return .init(
         action: .statusInfoChanged(.cloudIsDownloading),
         imageName: "icloud.and.arrow.down.fill",
-        color: .accentColor.opacity(0.5)
+        color: .mainAccentColor.opacity(0.5)
       )
     case .cloudIsMissing:
       return .init(
         action: .downloadFileButtonTapped,
         imageName: "icloud.and.arrow.down",
-        color: .yellow
+        color: .alternateAccentColor
       )
     }
   }

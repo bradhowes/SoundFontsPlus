@@ -21,11 +21,11 @@ public func navigationBarTitleStyle() {
 #if os(iOS)
 
   // If the app font is not available, attempt to load it manually so that snapshot tests will use it.
-  if UIFont(name: "Eurostile", size: 40) == nil {
+  if UIFont(name: "Eurostile", size: 30) == nil {
     installApplicationFont()
   }
 
-  if let big = UIFont(name: Font.applicationFontName, size: 40) {
+  if let big = UIFont(name: Font.applicationFontName, size: 30) {
     UINavigationBar.appearance().largeTitleTextAttributes = [
       .font: big,
       .foregroundColor: UIColor.selected
