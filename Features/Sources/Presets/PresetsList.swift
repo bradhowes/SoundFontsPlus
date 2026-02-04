@@ -478,7 +478,6 @@ extension PresetsListView {
     return VStack {
       let store = Store(initialState: .init()) { PresetsList() }
       PresetsListView(store: store)
-        .environment(\.font, Font.body)
       Toggle("Editing", isOn: Binding(
         get: { store.editingVisibility },
         set: { store.send(.editingVisibilityChanged($0)) }

@@ -397,7 +397,7 @@ public struct ToolBarView: View {
       }
     }
     .imageScale(.large)
-    .background(Color.black)
+    .background(Color.panelBackgroundColor)
     .frame(height: 40)
     .frame(maxHeight: 40)
     .animation(.easeInOut, value: store.showMoreButtons)
@@ -452,6 +452,7 @@ public struct ToolBarView: View {
       store.send(.addSoundFontButtonTapped)
     } label: {
       Image(systemName: .addSoundFontButtonImageName)
+        .tint(.mainAccentColor)
     }
   }
 
@@ -481,7 +482,7 @@ public struct ToolBarView: View {
         .tint(if: store.showMoreButtons)
         .frame(width: 24)
     }
-    .background(.black)
+    .background(Color.panelBackgroundColor)
   }
 
   private var additionalButtons: some View {
@@ -491,6 +492,7 @@ public struct ToolBarView: View {
       } label: {
         Text(.shiftKeyboardLeftIndicator + store.lowestKey.label)
           .fixedSize()
+          .tint(.mainAccentColor)
       }
       .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
       Button {
@@ -509,6 +511,7 @@ public struct ToolBarView: View {
       } label: {
         Text(store.highestKey.label + .shiftKeyboardRightIndicator)
           .fixedSize()
+          .tint(.mainAccentColor)
       }
       .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
       Button {
@@ -521,14 +524,16 @@ public struct ToolBarView: View {
         store.send(.settingsButtonTapped)
       } label: {
         Image(systemName: .settingsButtonImageName)
+          .tint(.mainAccentColor)
       }
       Button {
         store.send(.helpButtonTapped)
       } label: {
         Image(systemName: .helpButtonImageName)
+          .tint(.mainAccentColor)
       }
     }
-    .background(.black)
+    .background(Color.panelBackgroundColor)
   }
 }
 
@@ -584,7 +589,6 @@ extension ToolBarView {
 
 #Preview {
   ToolBarView.preview(showMoreButtons: false)
-    .environment(\.font, Font.body)
 }
 
 #endif // DEBUG

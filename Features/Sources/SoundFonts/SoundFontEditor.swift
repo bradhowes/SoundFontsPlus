@@ -311,8 +311,6 @@ extension View {
     self
       .sheet(item: store) {
         SoundFontEditorView(store: $0)
-          .preferredColorScheme(.dark)
-          .environment(\.colorScheme, .dark)
       }
   }
 }

@@ -22,8 +22,8 @@ import VolumeMonitor
 public struct AUv3RootView: View {
   @Bindable private var store: StoreOf<AppRoot>
 
-  private let appPanelBackground = Color.black
-  private let dividerBorderColor: Color = Color.gray.mix(with: .black, by: 0.7)
+  private let appPanelBackground = Color.panelBackgroundColor
+  private let dividerBorderColor: Color = .splitViewHandleBackgroundColor
   private let dividerSpan: CGFloat = 4
   @State private var isInputKeyboardVisible = false
   @State private var effectsOffset: CGFloat = 0.0
@@ -156,9 +156,9 @@ extension AUv3RootView {
 
   fileprivate var handleDivider: some View {
     HandleDivider(
-      dividerColor: dividerBorderColor,
-      handleColor: .black,
-      dotColor: .accentColor,
+      dividerColor: .splitViewHandleBackgroundColor,
+      handleColor: .splitViewHandleBackgroundColor,
+      dotColor: .mainAccentColor,
       handleLength: 48,
       handleWidth: 8.0,
       paddingInsets: 4.0
@@ -205,11 +205,7 @@ extension View {
 extension AUv3RootView {
 
   static var preview: some View {
-    return ZStack {
-      Color.black
-        .ignoresSafeArea(edges: .all)
-      AUv3RootView(store: AppRoot.makeWithDependencies())
-    }
+    AUv3RootView(store: AppRoot.makeWithDependencies())
   }
 }
 

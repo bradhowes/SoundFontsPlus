@@ -9,8 +9,6 @@ import SwiftUI
 
 @main
 struct SoundFontsPlusApp: App {
-
-  // Following Point·Free style from https://github.com/pointfreeco/swift-composable-architecture/blob/main/Examples/SyncUps/SyncUps/App.swift
   static let store: StoreOf<AppRoot> = AppRoot.makeWithDependencies()
 
   init() {
@@ -23,6 +21,7 @@ struct SoundFontsPlusApp: App {
         EmptyView()
       } else {
         ContentView()
+          .environment(\.font, FeatureSupport.Font.body)
       }
     }
   }
@@ -30,15 +29,10 @@ struct SoundFontsPlusApp: App {
 
 struct ContentView: View {
   var body: some View {
-    ZStack {
-      Color.black
-        .ignoresSafeArea(edges: .all)
-      AppRootView(store: SoundFontsPlusApp.store)
-        .environment(\.colorScheme, .dark)
+    AppRootView(store: SoundFontsPlusApp.store)
 #if os(iOS)
-      // We don't want to mistake music keyboard activity for iOS app switching or other system gestures
-        .defersSystemGestures(on: [.bottom, .leading, .trailing])
+    // We don't want to mistake music keyboard activity for iOS app switching or other system gestures
+      .defersSystemGestures(on: [.bottom, .leading, .trailing])
 #endif
-    }
   }
 }

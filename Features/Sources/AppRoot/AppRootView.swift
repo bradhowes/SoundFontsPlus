@@ -22,8 +22,8 @@ import VolumeMonitor
 public struct AppRootView: View {
   @Bindable private var store: StoreOf<AppRoot>
 
-  private let appPanelBackground = Color.black
-  private let dividerBorderColor: Color = Color.gray.mix(with: .black, by: 0.7)
+  private let appPanelBackground = Color.panelBackgroundColor
+  private let dividerBorderColor: Color = .splitViewHandleBackgroundColor
   private let dividerSpan: CGFloat = 4
   @State private var isInputKeyboardVisible = false
   @State private var effectsOffset: CGFloat = 0.0
@@ -46,10 +46,10 @@ public struct AppRootView: View {
       : maxKeyboardPanelHeight * (verticalSizeClass == .compact ? 0.5 : 1.0)
   }
 
-  private var theme: Theme {
+  private var theme: AUv3Controls.Theme {
     var theme = Theme(colorScheme: colorScheme)
-    theme.controlForegroundColor = .teal
-    theme.textColor = .teal.mix(with: .black, by: 0.2)
+    theme.controlForegroundColor = .mainAccentColor
+    theme.textColor = colorScheme == .dark ? .mainAccentColor.mix(with: .black, by: 0.2) : .mainAccentColor.mix(with:.white, by: 0.2)
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
@@ -73,9 +73,7 @@ public struct AppRootView: View {
     .padding(0)
     .animation(.smooth, value: effectsPanelVisible)
     .animation(.smooth, value: isInputKeyboardVisible)
-    .environment(\.font, FeatureSupport.Font.body)
     .environment(\.auv3ControlsTheme, theme)
-    .environment(\.appPanelBackground, appPanelBackground)
     .onChange(of: scenePhase) { _, newPhase in
       store.send(.scenePhaseChanged(newPhase))
     }
@@ -181,9 +179,9 @@ extension AppRootView {
 
   fileprivate var handleDivider: some View {
     HandleDivider(
-      dividerColor: dividerBorderColor,
-      handleColor: .black,
-      dotColor: .accentColor,
+      dividerColor: .splitViewHandleBackgroundColor,
+      handleColor: .splitViewHandleBackgroundColor,
+      dotColor: .mainAccentColor,
       handleLength: 48,
       handleWidth: 8.0,
       paddingInsets: 4.0
@@ -223,7 +221,6 @@ extension AppRootView {
         effectsOffset = newValue
       }
       .scrollDisabled(effectsOffset > 0)
-      .background(Color.black)
       dividerBorderColor
         .frame(height: dividerSpan)
     }
@@ -270,8 +267,6 @@ extension View {
     self
       .sheet(item: store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
         PresetEditorView(store: $0)
-          .preferredColorScheme(.dark)
-          .environment(\.colorScheme, .dark)
       }
   }
 
@@ -279,8 +274,6 @@ extension View {
     self
       .sheet(item: store.scope(state: \.destination?.settings, action: \.destination.settings)) {
         SettingsView(store: $0, showFakeKeyboard: showFakeKeyboard)
-          .preferredColorScheme(.dark)
-          .environment(\.colorScheme, .dark)
       }
   }
 
@@ -288,8 +281,6 @@ extension View {
     self
       .sheet(item: store.scope(state: \.destination?.soundFontEditor, action: \.destination.soundFontEditor)) {
         SoundFontEditorView(store: $0)
-          .preferredColorScheme(.dark)
-          .environment(\.colorScheme, .dark)
       }
   }
 
@@ -298,8 +289,6 @@ extension View {
       .sheet(item: store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor)) { child in
         NavigationStack {
           TagsEditorView(store: child)
-            .preferredColorScheme(.dark)
-            .environment(\.colorScheme, .dark)
         }
       }
   }
@@ -310,8 +299,6 @@ extension View {
       .sheet(item: store.scope(state: \.destination?.tutorial, action: \.destination.tutorial)) { child in
         NavigationStack {
           TutorialView(store: child)
-            .preferredColorScheme(.dark)
-            .environment(\.colorScheme, .dark)
         }
       }
   }
@@ -323,11 +310,7 @@ extension View {
 extension AppRootView {
 
   static var preview: some View {
-    return ZStack {
-      Color.black
-        .ignoresSafeArea(edges: .all)
-      AppRootView(store: AppRoot.makeWithDependencies())
-    }
+    AppRootView(store: AppRoot.makeWithDependencies())
   }
 }
 

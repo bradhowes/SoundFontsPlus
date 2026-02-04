@@ -349,8 +349,6 @@ extension DelayEffectView {
         DelayEffectView(store: Store(initialState: .init()) {
           DelayEffect()
         })
-        .environment(\.font, Font.body)
-        .environment(\.colorScheme, .dark)
         .environment(\.auv3ControlsTheme, theme)
       }
       .padding()

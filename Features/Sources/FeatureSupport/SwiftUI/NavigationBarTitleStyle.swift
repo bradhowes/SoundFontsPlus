@@ -28,14 +28,14 @@ public func navigationBarTitleStyle() {
   if let big = UIFont(name: Font.applicationFontName, size: 40) {
     UINavigationBar.appearance().largeTitleTextAttributes = [
       .font: big,
-      .foregroundColor: UIColor.whiteText
+      .foregroundColor: UIColor.selected
     ]
   }
 
   if let normal = UIFont(name: Font.applicationFontName, size: 20) {
     UINavigationBar.appearance().titleTextAttributes = [
       .font: normal,
-      .foregroundColor: UIColor.whiteText
+      .foregroundColor: UIColor.selected
     ]
   }
 

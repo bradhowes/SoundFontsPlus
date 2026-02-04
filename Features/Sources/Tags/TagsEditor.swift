@@ -368,8 +368,6 @@ extension View {
     self
       .sheet(item: store) {
         TagsEditorView(store: $0)
-          .preferredColorScheme(.dark)
-          .environment(\.colorScheme, .dark)
       }
   }
 }

@@ -69,8 +69,8 @@ public struct StyledHeader<Content: View>: View {
         alignment: .topLeading
       )
       .padding([.top, .bottom, .leading], 8)
-      .background(.black)
-      .foregroundStyle(Color.listHeaderForeground)
+      // .background(.black)
+      .foregroundStyle(Color.listHeaderText)
       .offset(x: -16)
   }
 }

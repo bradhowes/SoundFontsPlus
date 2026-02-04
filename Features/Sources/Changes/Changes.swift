@@ -103,23 +103,23 @@ public struct ChangesView: View {
     ScrollView {
       Text("Changes")
         .font(.navigationTitle)
-        .foregroundStyle(.orange)
+        .foregroundStyle(Color.mainAccentColor)
       Grid(alignment: .leading, verticalSpacing: 8) {
         ForEach(store.log, id: \.self) { change in
           Text(change.version)
-            .font(.version)
-            .foregroundStyle(.orange)
+            .font(.changeVersion)
+            .foregroundStyle(Color.alternateAccentColor)
             .gridColumnAlignment(.leading)
             .padding([.top], 18)
           ForEach(change.items, id: \.self) { item in
             GridRow {
               Text("•")
-                .font(.change)
-                .foregroundStyle(.orange)
+                .font(.changeVersion)
+                .foregroundStyle(Color.alternateAccentColor)
               Text(item)
                 .gridColumnAlignment(.leading)
-                .font(.change)
-                .foregroundStyle(.teal)
+                .font(.changeDescription)
+                .foregroundStyle(Color.mainAccentColor)
             }
           }
         }
@@ -130,8 +130,11 @@ public struct ChangesView: View {
     .navigationTitle("")
     .toolbar {
       ToolbarItem(placement: .automatic) {
-        Button("Done") { store.send(.dismissButtonTapped, animation: .default) }
-          .font(.button)
+        Button {
+          store.send(.dismissButtonTapped, animation: .default)
+        } label: {
+          Image(systemName: "checkmark")
+        }
       }
     }
   }
@@ -144,8 +147,6 @@ extension View {
       .sheet(item: store) { child in
         NavigationStack {
           ChangesView(store: child)
-            .preferredColorScheme(.dark)
-            .environment(\.colorScheme, .dark)
         }
       }
   }
@@ -154,9 +155,7 @@ extension View {
 #if DEBUG
 
 extension ChangesView {
-
-  static var preview: some View {
-    let data = """
+  static let previewData = """
       # 1.0.0
       * First item
       * Second
@@ -169,17 +168,26 @@ extension ChangesView {
       * Fixed first item
       * Removed second item
       """
-
-    return  NavigationStack {
-      ChangesView(store: .init(initialState: .init(data)) { Changes() })
+  static var preview: some View {
+    NavigationStack {
+      ChangesView(store: .init(initialState: .init(previewData)) { Changes() })
     }
-    .environment(\.font, Font.body)
-    .environment(\.colorScheme, .dark)
   }
 }
 
 #Preview {
-  ChangesView.preview
+  @Previewable @State var show: Bool = false
+  VStack {
+    Text("This is a test")
+    Button {
+      show = true
+    } label: {
+      Text("Show")
+    }
+  }
+  .sheet(isPresented: $show) {
+    ChangesView.preview
+  }
 }
 
 #endif // DEBUG

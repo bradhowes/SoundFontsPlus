@@ -22,10 +22,15 @@ extension CGFloat {
   public static var tutorialBodyFontSize: Self { 18 }
   public static var tutorialGistFontSize: Self { 22 }
   public static var tutorialTitleFontSize: Self { 48 }
-  public static var versionFontSize: Self { 18 }
+
+  public static var changeVersionFontSize: Self { 18 }
+  public static var changeDescriptionFontSize: Self { 15 }
   public static var toastLabelFontSize: Self { 20 }
 
-  public var appFont: Font { Font.custom(Font.customFontName, size: self) }
+  public var appFont: Font {
+    installApplicationFont()
+    return Font.custom(Font.customFontName, size: self)
+  }
 }
 
 extension Font {
@@ -49,11 +54,34 @@ extension Font {
   public static var tutorialBody: Font { CGFloat.tutorialBodyFontSize.appFont }
   public static var tutorialGist: Font { CGFloat.tutorialGistFontSize.appFont }
   public static var tutorialTitle: Font { CGFloat.tutorialTitleFontSize.appFont }
-  public static var version: Font { CGFloat.versionFontSize.appFont }
   public static var toastLabel: Font { CGFloat.toastLabelFontSize.appFont }
+
+  public static var changeVersion: Font { CGFloat.changeVersionFontSize.appFont }
+  public static var changeDescription: Font { CGFloat.changeDescriptionFontSize.appFont }
 }
 
 extension Color {
+
+  // Need to republish these since assets have only internal access, not public.
+  public static var alternateAccentColor: Self { .alternateAccent }
+  public static var mainAccentColor: Self { .mainAccent }
+  public static var splitViewHandleBackgroundColor: Self { .splitViewHandleBackground }
+  public static var panelBackgroundColor: Self { .panelBackground }
+
+  public static var changeDescription: Color { .accentColor }
   public static var listHeaderForeground: Color { Color.gray.mix(with: .black, by: 0.25) }
   public static var presetsHeaderForeground: Color { Color.gray.mix(with: .black, by: 0.30) }
+
+  public static var buttonActive: Color { .teal }
+}
+
+public enum ColorTheme {
+  case standard
+
+  public var primaryColor: Color {
+    switch self {
+    case .standard:
+      return .accentColor
+    }
+  }
 }

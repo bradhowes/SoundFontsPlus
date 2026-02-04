@@ -5,6 +5,6 @@ import SwiftUI
 extension View {
 
   public func tint(if value: Bool) -> some View {
-    self.tint(value ? Color.orange : Color.accentColor)
+    self.tint(value ? Color.alternateAccentColor : Color.mainAccentColor)
   }
 }

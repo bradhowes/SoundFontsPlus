@@ -56,11 +56,11 @@ let package = Package(
     .morkAndMIDI,
     .sf2Lib,
     //
-    .package(url: "https://github.com/alexanderwe/swiftui-theming", from: "0.1.0"),
     .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.1"),
     // NOTE: only used to gain access to `isApproximatelyEqual` in unit tests
     .package(url: "https://github.com/apple/swift-numerics", from: "1.1.0"),
     .package(url: "https://github.com/athankefalas/swift-toasts", from: "0.9.2"),
+    .package(url: "https://github.com/Charlyk/swift-theme-kit", from: "1.2.4"),
     //
     .package(url: "https://github.com/pointfreeco/sqlite-data", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.2"),
@@ -160,7 +160,7 @@ let package = Package(
         .product(name: "CasePaths", package: "swift-case-paths"),
         .product(name: "MorkAndMIDI", package: "morkandmidi"),
         .product(name: "Sharing", package: "swift-sharing"),
-        .product(name: "Theming", package: "swiftui-theming")
+        .product(name: "SwiftThemeKit", package: "swift-theme-kit")
       ],
       resources: [.process("Resources")]
     ),

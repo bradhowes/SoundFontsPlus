@@ -415,8 +415,6 @@ extension View {
     self
       .sheet(item: store) {
         PresetEditorView(store: $0)
-          .preferredColorScheme(.dark)
-          .environment(\.colorScheme, .dark)
       }
   }
 }

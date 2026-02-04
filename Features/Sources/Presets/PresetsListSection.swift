@@ -122,7 +122,7 @@ public struct PresetsListSectionView: View {
           .imageScale(.small)
           .contentShape(Rectangle())
       }
-      .opacity((showSearchButton || store.section == 0) && !editingVisibility ? 1.0 : 0.0)
+      .opacity((showSearchButton || store.section == 0) && !searching && !editingVisibility ? 1.0 : 0.0)
     }
     // Track vertical position of our header -- when it becomes pinned, show the search button
     .onGeometryChange(for: Double.self) {

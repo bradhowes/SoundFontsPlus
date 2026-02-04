@@ -137,8 +137,11 @@ public struct TutorialView: View {
     }
     .toolbar {
       ToolbarItem(placement: .automatic) {
-        Button("Done") { store.send(.dismissButtonTapped, animation: .default) }
-          .font(.button)
+        Button {
+          store.send(.dismissButtonTapped, animation: .default)
+        } label: {
+          Image(systemName: "checkmark")
+        }
       }
     }
   }
@@ -154,7 +157,7 @@ extension TutorialView {
     VStack(spacing: 18) {
       Text(title)
         .font(.tutorialTitle)
-        .foregroundStyle(.orange)
+        .foregroundStyle(Color.alternateAccentColor)
       Text(gist)
         .font(.tutorialGist)
       rest()
@@ -218,7 +221,7 @@ The panel on the left-hand side shows names of the installed soundfont files.
                 .gridColumnAlignment(.leading)
             }
             Text("Swipe Actions")
-              .foregroundStyle(.orange)
+              .foregroundStyle(Color.alternateAccentColor)
             GridRow {
               Image(systemName: "pencil")
               Text("Edit name and tags")
@@ -276,7 +279,7 @@ The list to the right of the fonts list shows the visible presets in the selecte
         }
       }
       Text("Swipe Actions")
-        .foregroundStyle(.orange)
+        .foregroundStyle(Color.alternateAccentColor)
       HStack(spacing: 18) {
         Grid {
           GridRow {
@@ -286,7 +289,7 @@ The list to the right of the fonts list shows the visible presets in the selecte
           }
           GridRow {
             Image(systemName: "star")
-              .foregroundStyle(.orange)
+              .foregroundStyle(Color.alternateAccentColor)
             Text("Create favorite")
               .gridColumnAlignment(.leading)
           }
@@ -376,7 +379,7 @@ Tags help organize your font collection as it grows, allowing you to quickly cha
           }
           Grid(verticalSpacing: 12) {
             Text("Default Tags")
-              .foregroundStyle(.orange)
+              .foregroundStyle(Color.alternateAccentColor)
             GridRow {
               Text("All")
                 .gridColumnAlignment(.trailing)
@@ -402,7 +405,7 @@ Tags help organize your font collection as it grows, allowing you to quickly cha
           }
           if horizontalSizeClass != .compact {
             Text("Swipe Actions")
-              .foregroundStyle(.orange)
+              .foregroundStyle(Color.alternateAccentColor)
             Grid {
               GridRow {
                 Image(systemName: "pencil")
@@ -425,7 +428,7 @@ Tap the \(Image(systemName: .tagsListButtonImageName)) button to see the tag pan
       )
       if horizontalSizeClass == .compact {
         Text("Swipe Actions")
-          .foregroundStyle(.orange)
+          .foregroundStyle(Color.alternateAccentColor)
         HStack(spacing: 18) {
           Grid {
             GridRow {
@@ -533,7 +536,7 @@ to toggle keyboard sliding during playing.
         }
         GridRow {
           Image(systemName: "chevron.left")
-            .foregroundStyle(.orange)
+            .foregroundStyle(Color.alternateAccentColor)
           Text("Hide these buttons (in narrow views)")
         }
       }
@@ -562,7 +565,7 @@ Swipe up/down to change room or adjust knob value.
           radius: CGFloat(6.0),
           x: CGFloat(0), y: CGFloat(0))
       Text("Controls")
-        .foregroundStyle(.orange)
+        .foregroundStyle(Color.alternateAccentColor)
       Grid(verticalSpacing: 12) {
         GridRow {
           HStack {
@@ -614,7 +617,7 @@ tap on label to enter numeric value.
           radius: CGFloat(6.0),
           x: CGFloat(0), y: CGFloat(0))
       Text("Controls")
-        .foregroundStyle(.orange)
+        .foregroundStyle(Color.alternateAccentColor)
       Grid(verticalSpacing: 12) {
         GridRow {
           HStack {
@@ -666,37 +669,37 @@ tap on label to enter numeric value.
       Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: 12) {
         GridRow {
           Text("•")
-            .foregroundStyle(.orange)
+            .foregroundStyle(Color.alternateAccentColor)
           Text("Use as AUv3 components in supported audio apps like GarageBand and Cubasis")
             .gridColumnAlignment(.leading)
         }
         GridRow {
           Text("•")
-            .foregroundStyle(.orange)
+            .foregroundStyle(Color.alternateAccentColor)
           Text("Use MIDI controllers to play notes and adjust settings")
             .gridColumnAlignment(.leading)
         }
         GridRow {
           Text("•")
-            .foregroundStyle(.orange)
+            .foregroundStyle(Color.alternateAccentColor)
           Text("Connect using Bluetooth MIDI")
             .gridColumnAlignment(.leading)
         }
         GridRow {
           Text("•")
-            .foregroundStyle(.orange)
+            .foregroundStyle(Color.alternateAccentColor)
           Text("Adjust the width of the virtual keyboard keys")
             .gridColumnAlignment(.leading)
         }
         GridRow {
           Text("•")
-            .foregroundStyle(.orange)
+            .foregroundStyle(Color.alternateAccentColor)
           Text("Show solfège labels")
             .gridColumnAlignment(.leading)
         }
         GridRow {
           Text("•")
-            .foregroundStyle(.orange)
+            .foregroundStyle(Color.alternateAccentColor)
           Text(
 """
 Transpose pitch or set A4 frequency to values other than 440 Hz, either for a specific preset \
@@ -723,7 +726,7 @@ or globally.
     VStack(spacing: 18) {
       Text("Enjoy!")
         .font(.largeTitle)
-        .foregroundStyle(.orange)
+        .foregroundStyle(Color.alternateAccentColor)
       Button {
         store.send(.dismissButtonTapped)
       } label: {
@@ -741,16 +744,15 @@ extension View {
       .sheet(item: store) { child in
         NavigationStack {
           TutorialView(store: child)
-            .preferredColorScheme(.dark)
-            .environment(\.colorScheme, .dark)
         }
       }
   }
 }
+
 #if DEBUG
 
 #Preview {
-  @Previewable @State var showTutorial: Bool = true
+  @Previewable @State var showTutorial: Bool = false
   VStack {
     Text("This is a test")
     Button {
@@ -759,8 +761,6 @@ extension View {
       Text("Show tutorial")
     }
   }
-  .environment(\.font, Font.body)
-  .environment(\.colorScheme, .dark)
   .sheet(isPresented: $showTutorial) {
     NavigationStack {
       TutorialView(store: Store(initialState: .init(page: .intro)) { Tutorial() })

@@ -22,9 +22,9 @@ public struct IndicatorModifier: ViewModifier {
       switch self {
       case .none: return .accentColor.darker
       case .active, .activeNoIndicator: return .accentColor.lighter
-      case .activeFavorite: return .orange
-      case .favorite: return .orange.darker
-      case .selected: return .whiteText
+      case .activeFavorite: return .alternateAccent
+      case .favorite: return .alternateAccent.darker
+      case .selected: return .selected
       }
     }
 
@@ -32,8 +32,8 @@ public struct IndicatorModifier: ViewModifier {
       switch self {
       case .none, .activeNoIndicator: return .clear
       case .active: return .accentColor.lighter
-      case .activeFavorite: return .orange.lighter
-      case .favorite: return .orange.darker
+      case .activeFavorite: return .alternateAccent.lighter
+      case .favorite: return .alternateAccent.darker
       case .selected: return .clear
       }
     }
