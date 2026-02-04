@@ -3,7 +3,6 @@
 import AudioToolbox
 import BaseSupport
 import CoreAudioKit
-import Dependencies
 import Engine
 
 /**
@@ -114,9 +113,6 @@ extension SF2LibAU {
 
 extension SF2LibAU {
 
-  // Only used for testing (temporary)
-  internal var getEngine: SF2Engine { self.engine }
-
   public func sendMIDI(bytes: [UInt8], when: AUEventSampleTime = 0, cable: UInt8 = 0) -> Bool {
     log.info("sendMIDI BEGIN - \(bytes.count) bytes")
     guard let block = unsafe scheduleMIDIEventBlock else {
@@ -184,13 +180,6 @@ extension SF2LibAU {
 
     // Per doc, we must invoke the original method we are overriding.
     try super.allocateRenderResources()
-
-    // FIXME: debugging code
-//    log.info("sharedDocumentsDirectory dump: \(FileManager.default.sharedDocumentsDirectory.path())")
-//    let found = try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.sharedDocumentsDirectory.path())
-//    for each in (found ?? []) {
-//      log.info("found: \(each)")
-//    }
 
     log.info("allocateRenderResources END")
   }
