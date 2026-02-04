@@ -436,25 +436,6 @@ extension Synth {
         pan: presetInfo.pan
       )
 
-//      @Dependency(\.fileManager) var fileManager
-//
-//      // TODO: remove hack to support external bookmark files when AUv3 component can read from db for file info.
-//      location.url.withSecurityScoping { url in
-//        let dst = fileManager.fontFilesDirectory().appendingPathComponent("tmp.sf2")
-//        try? fileManager.removeItem(dst)
-//        do {
-//          try fileManager.copyItem(url, dst)
-//          return dst.path(percentEncoded: false)
-//        } catch {
-//          return ""
-//        }
-//      } ?? ""
-//
-//      guard let path else {
-//        log.error("useActivePreset END - unexpected empty path for \(String(describing: presetInfo), privacy: .public)")
-//        return false
-//      }
-
     } else {
       log.debug("sending file path to synth - \(location.url, privacy: .public)")
       return avAudioUnit.sendLoadFileUsePreset(
