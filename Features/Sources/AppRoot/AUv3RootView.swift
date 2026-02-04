@@ -22,7 +22,6 @@ import VolumeMonitor
 public struct AUv3RootView: View {
   @Bindable private var store: StoreOf<AppRoot>
 
-  private let appPanelBackground = Color.panelBackgroundColor
   private let dividerBorderColor: Color = .splitViewHandleBackgroundColor
   private let dividerSpan: CGFloat = 4
   @State private var isInputKeyboardVisible = false
@@ -64,7 +63,6 @@ public struct AUv3RootView: View {
     .animation(.smooth, value: isInputKeyboardVisible)
     .environment(\.font, FeatureSupport.Font.body)
     .environment(\.auv3ControlsTheme, theme)
-    .environment(\.appPanelBackground, appPanelBackground)
     .onChange(of: scenePhase) { _, newPhase in
       store.send(.scenePhaseChanged(newPhase))
     }

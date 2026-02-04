@@ -21,6 +21,7 @@ struct SoundFontsPlusApp: App {
         EmptyView()
       } else {
         ContentView()
+          .tint(.mainAccentColor)
           .environment(\.font, FeatureSupport.Font.body)
       }
     }

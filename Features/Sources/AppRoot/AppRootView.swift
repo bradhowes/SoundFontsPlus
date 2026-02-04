@@ -22,7 +22,6 @@ import VolumeMonitor
 public struct AppRootView: View {
   @Bindable private var store: StoreOf<AppRoot>
 
-  private let appPanelBackground = Color.panelBackgroundColor
   private let dividerBorderColor: Color = .splitViewHandleBackgroundColor
   private let dividerSpan: CGFloat = 4
   @State private var isInputKeyboardVisible = false
@@ -49,7 +48,7 @@ public struct AppRootView: View {
   private var theme: AUv3Controls.Theme {
     var theme = Theme(colorScheme: colorScheme)
     theme.controlForegroundColor = .mainAccentColor
-    theme.textColor = colorScheme == .dark ? .mainAccentColor.mix(with: .black, by: 0.2) : .mainAccentColor.mix(with:.white, by: 0.2)
+    theme.textColor = colorScheme == .dark ? .mainAccentColor.mix(with: .black, by: 0.2) : .mainAccentColor.mix(with: .white, by: 0.2)
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"

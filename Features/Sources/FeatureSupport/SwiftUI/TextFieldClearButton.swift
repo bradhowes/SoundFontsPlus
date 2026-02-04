@@ -23,7 +23,7 @@ public struct ClearButton: ViewModifier {
           .frame(width: 32, height: 32)
           .contentShape(Rectangle())
       }
-      .padding(.trailing, 8)
+      .padding(.trailing, 0)
     }
   }
 }

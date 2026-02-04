@@ -61,17 +61,12 @@ public struct StyledHeader<Content: View>: View {
 
   public var body: some View {
     content
-      .frame(
-        minWidth: 0,
-        maxWidth: .infinity,
-        minHeight: 0,
-        maxHeight: .infinity,
-        alignment: .topLeading
-      )
-      .padding([.top, .bottom, .leading], 8)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .contentShape(Rectangle())
+      // .padding([.top, .bottom, .leading], 8)
       // .background(.black)
       .foregroundStyle(Color.listHeaderText)
-      .offset(x: -16)
+      // .offset(x: -16)
   }
 }
 

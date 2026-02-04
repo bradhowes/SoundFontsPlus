@@ -261,7 +261,6 @@ public struct KeyboardView: View {
   @State private var frames: [CGRect] = Array(repeating: .zero, count: Note.midiRange.count)
   @Shared(.keyboardSlides) private var keyboardSlides
 
-  @Environment(\.appPanelBackground) private var appPanelBackground
   @Environment(\.maxKeyboardPanelHeight) private var maxKeyboardPanelHeight
   @Environment(\.verticalSizeClass) private var verticalSizeClass
 
@@ -303,7 +302,7 @@ public struct KeyboardView: View {
           }
         }
       }
-      .background(appPanelBackground)
+      .background(Color.panelBackgroundColor)
       .onScrollGeometryChange(for: CGRect.self) { geometry in
         geometry.visibleRect
       } action: { _, newValue in
@@ -410,10 +409,9 @@ public struct KeyboardView: View {
 
     return RoundedRectangle(cornerRadius: cornerRadius)
       .fill(color)
-      .fill((note.isValidMidiNote && store.noteCounters[note.midiNoteValue] > 0) ?
-            activeColor.opacity(0.3) : .clear)
+      .fill((note.isValidMidiNote && store.noteCounters[note.midiNoteValue] > 0) ? activeColor.opacity(0.3) : .clear)
       .frame(width: width, height: height)
-      .offset(y: -cornerRadius)
+      .offset(y: -cornerRadius / 2)
       .id(note)
   }
 

@@ -40,6 +40,7 @@ public struct CircledCheckMarkToggleStyle: ToggleStyle {
       Image(systemName: configuration.isOn ? "checkmark.circle.fill" : "circle")
         .accessibility(label: Text(configuration.isOn ? "Checked" : "Unchecked"))
         .imageScale(.large)
+        .foregroundStyle(Color.mainAccentColor)
         .animation(.smooth, value: configuration.isOn)
     }
     .animation(.smooth, value: configuration.isOn)

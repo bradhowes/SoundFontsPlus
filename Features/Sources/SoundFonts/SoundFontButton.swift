@@ -145,43 +145,38 @@ struct SoundFontButtonView: View {
   }
 
   public var body: some View {
-    HStack {
-      Button {
+    Button {
+      store.send(
+        inDeletingMode
+        ? .toggleDeleting
+        : .delegate(.selectSoundFont(store.soundFontInfo, available: store.statusInfoTag.available)),
+        animation: .default
+      )
+    } label: {
+      HStack {
         if inDeletingMode {
-          store.send(.toggleDeleting)
-        } else {
-          store.send(
-            .delegate(.selectSoundFont(store.soundFontInfo, available: store.statusInfoTag.available)),
-            animation: .default
-          )
-        }
-      } label: {
-        HStack {
           Image(systemName: store.deleting ? "inset.filled.circle" : "circle")
             .foregroundStyle(Color.red)
-            .frame(width: canDelete ? 24 : 0)
-            .opacity(canDelete ? 1.0 : 0.0)
-            .disabled(!canDelete)
-            .animation(.smooth, value: store.deleting) // animate the visibiliity toggle image
-          Text(store.soundFontInfo.displayName)
-            .font(.button)
-            .indicator(inDeletingMode ? .none : state)
-          Spacer() // Have the stack take up the whole region of the list so that touch hits will happen anywhere on the item
+            .frame(width: 24)
+            .animation(.smooth, value: store.deleting)
         }
-        .contentShape(.interaction, Rectangle())
-        .simultaneousGesture(
-          LongPressGesture(minimumDuration: 1.0)
-            .onEnded { _ in store.send(.delegate(.editSoundFont(store.soundFontInfo))) }
-        )
-        .animation(.smooth, value: inDeletingMode) // animate the transition to/from visibility editing
-        .onChange(of: inDeletingMode) {
-          if inDeletingMode && store.deleting {
-            store.send(.resetDeleting)
-          }
+        Text(store.soundFontInfo.displayName)
+          .font(.button)
+        Spacer()
+        statusIndicator
+      }
+      .indicator(inDeletingMode ? .none : state)
+      .contentShape(.interaction, Rectangle())
+      .simultaneousGesture(
+        LongPressGesture(minimumDuration: 1.0)
+          .onEnded { _ in store.send(.delegate(.editSoundFont(store.soundFontInfo))) }
+      )
+      .animation(.smooth, value: inDeletingMode) // animate the transition to/from visibility editing
+      .onChange(of: inDeletingMode) {
+        if inDeletingMode && store.deleting {
+          store.send(.resetDeleting)
         }
       }
-      Spacer()
-      statusIndicator
     }
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {

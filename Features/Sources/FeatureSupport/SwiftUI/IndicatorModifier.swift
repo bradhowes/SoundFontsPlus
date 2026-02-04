@@ -20,10 +20,10 @@ public struct IndicatorModifier: ViewModifier {
 
     var labelColor: Color {
       switch self {
-      case .none: return .accentColor.darker
-      case .active, .activeNoIndicator: return .accentColor.lighter
-      case .activeFavorite: return .alternateAccent
-      case .favorite: return .alternateAccent.darker
+      case .none: return .mainAccentColor.darker
+      case .active, .activeNoIndicator: return .mainAccentColor.lighter
+      case .activeFavorite: return .alternateAccentColor
+      case .favorite: return .alternateAccentColor.darker
       case .selected: return .selected
       }
     }
@@ -31,9 +31,9 @@ public struct IndicatorModifier: ViewModifier {
     var indicatorColor: Color {
       switch self {
       case .none, .activeNoIndicator: return .clear
-      case .active: return .accentColor.lighter
-      case .activeFavorite: return .alternateAccent.lighter
-      case .favorite: return .alternateAccent.darker
+      case .active: return .mainAccentColor.lighter
+      case .activeFavorite: return .alternateAccentColor.lighter
+      case .favorite: return .alternateAccentColor.darker
       case .selected: return .clear
       }
     }
