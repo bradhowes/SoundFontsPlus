@@ -3,8 +3,6 @@
 import FeatureSupport
 import SwiftToasts
 
-#if os(iOS)
-
 /**
  Monitor the volume setting for the active audio session. When the volume setting is zero or the active preset ID is
  nil, show a toast image indicating that there will be no audio output and the reason why.
@@ -138,5 +136,3 @@ private extension VolumeMonitor {
 }
 
 private let log: Logger = .init(category: "VolumeMonitor")
-
-#endif
