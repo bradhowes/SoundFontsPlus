@@ -84,6 +84,9 @@ public struct FileImporter {
         return importNextFile(&state)
 
       case .showFileImporter:
+        state.filesPending = []
+        state.successes = []
+        state.failures = []
         state.destination = .picker(
           .init(
             types: state.types,
