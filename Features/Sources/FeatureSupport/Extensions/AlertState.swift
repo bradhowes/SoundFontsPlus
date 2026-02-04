@@ -129,7 +129,7 @@ extension AlertState {
     } message: {
       TextState(
 """
-Deleting a SoundFont will delete any customizations you may have made to its presets. 
+Deleting a SoundFont will delete any customizations you may have made to its presets.
 
 This cannot be undone.
 """
@@ -146,7 +146,7 @@ This cannot be undone.
     } message: {
       TextState(
 """
-Deleting sound fonts will delete any customizations you may have made to their presets. 
+Deleting sound fonts will delete any customizations you may have made to their presets.
 
 This cannot be undone.
 """
