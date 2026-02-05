@@ -68,6 +68,10 @@ public struct FileImporter {
       case .destination(.presented(.alert(.replaceDuplicateFileConfirmed))):
         return importFile(&state, overwrite: true)
 
+      case .destination(.presented(.picker(.cancelled))):
+        state.destination = nil
+        return .none
+
       case .destination(.presented(.picker(.picked(let result)))):
         return filesPicked(&state, result: result)
 

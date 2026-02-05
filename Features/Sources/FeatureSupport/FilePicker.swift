@@ -63,6 +63,7 @@ public struct FilePicker {
 
   @frozen
   public enum Action {
+    case cancelled
     case picked(Result<[URL], Error>)
   }
 
@@ -78,7 +79,7 @@ extension View {
     return self.fileImporter(
       isPresented: Binding(
         get: { state != nil },
-        set: { value in if !value { store.wrappedValue = nil } }
+        set: { if $0 == false { state?.send(.cancelled) } }
       ),
       allowedContentTypes: state?.types ?? [],
       allowsMultipleSelection: state?.allowsMultipleSelection ?? false
