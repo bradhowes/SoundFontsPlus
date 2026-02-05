@@ -214,18 +214,18 @@ extension SettingsView {
   private var fontsSection: some View {
     Section("Fonts") {
       Group {
-          Toggle(isOn: $store.copyFileWhenInstalling) {
-            VStack(alignment: .leading, spacing: 8) {
-              Text("Copy SF2 files to app folder on device when adding")
-              Text(
+        Toggle(isOn: $store.copyFileWhenInstalling) {
+          VStack(alignment: .leading, spacing: 8) {
+            Text("Copy SF2 files to app folder on device when adding")
+            Text(
 """
 Enabled is the safest option but files consume space on your device. \
 Disable to link directly to files in iCloud or on external drives.
 """
-              )
-              .font(.settingsDescription)
-            }
+            )
+            .font(.settingsDescription)
           }
+        }
         Toggle(isOn: $store.hideEmptyTags) {
           VStack(alignment: .leading, spacing: 8) {
             Text("Hide tags with no sound fonts")
@@ -255,6 +255,28 @@ Do not show the pre-installed sound fonts when the "All" tag is active.
   private var appSection: some View {
     Section("Application") {
       Group {
+        VStack(alignment: .leading, spacing: 8) {
+          HStack {
+            Text("Color scheme")
+            Spacer()
+            Picker(
+              selection: $store.colorSchemeBehavior
+            ) {
+              ForEach(ColorSchemeBehavior.allCases) { kind in
+                Text(kind.rawValue)
+              }
+            } label: {
+              Text("")
+            }
+            .pickerStyle(.segmented)
+          }
+          Text(
+"""
+The color scheme can track the device's setting, or it can be fixed to a constant scheme.
+"""
+          )
+          .font(.settingsDescription)
+        }
         Toggle(isOn: $store.showActiveVoiceCount) {
           Text("Show active voice counter")
         }

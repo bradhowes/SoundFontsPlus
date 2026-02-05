@@ -12,6 +12,7 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var backupRestoreEnabled: Self { Self[.appStorage("backupRestoreEnabled"), default: false] }
   public static var confirmPresetHiding: Self { Self[.appStorage("stopConfirmingPresetHiding"), default: true] }
   public static var copyFileWhenInstalling: Self { Self[.appStorage("copyFileWhenInstalling"), default: true] }
+  public static var darkModeEnabled: Self { Self[.appStorage("darkModeEnabled"), default: true] }
   public static var delayLockEnabled: Self { Self[.appStorage("delayLockEnabled"), default: false] }
   public static var disableIdleTimer: Self { Self[.appStorage("disableIdleTimer"), default: false]}
   public static var effectsPanelVisible: Self { Self[.appStorage("effectsPanelVisible"), default: false] }
@@ -61,6 +62,10 @@ extension SharedKey where Self == AppStorageKey<Int>.Default {
   public static var midiChannel: Self { Self[.appStorage("midiChannel"), default: 0] }
   public static var midiInputPortId: Self { Self[.appStorage("midiInputPortId"), default: 44_658]}
   public static var pitchBendRange: Self { Self[.appStorage("pitchBendRange"), default: 2] }
+}
+
+extension SharedKey where Self == AppStorageKey<ColorSchemeBehavior>.Default {
+  public static var colorSchemeBehavior: Self { Self[.appStorage("colorSchemeBehavior"), default: .dark] }
 }
 
 extension SharedKey where Self == AppStorageKey<String>.Default {

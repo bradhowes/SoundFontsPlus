@@ -46,6 +46,7 @@ public struct Settings {
     public let hasMIDI: Bool
 
     @Shared(.backgroundProcessing) public var backgroundProcessing
+    @Shared(.colorSchemeBehavior) public var colorSchemeBehavior
     @Shared(.copyFileWhenInstalling) public var copyFileWhenInstalling
     @Shared(.disableIdleTimer) public var disableIdleTimer
     @Shared(.duckOtherApps) public var duckOtherApps

@@ -311,12 +311,21 @@ extension View {
 extension AppRootView {
 
   static var preview: some View {
-    AppRootView(store: AppRoot.makeWithDependencies())
+    @Shared(.darkModeEnabled) var darkModeEnabled
+    let bg: Color = darkModeEnabled ? .black : .white
+    return ZStack {
+      bg
+        .ignoresSafeArea()
+      AppRootView(store: AppRoot.makeWithDependencies())
+    }
   }
 }
 
 #Preview {
+  @Previewable
+  @Shared(.darkModeEnabled) var darkModeEnabled
   AppRootView.preview
+    .environment(\.colorScheme, darkModeEnabled ? .dark : .light)
 }
 
 #endif
