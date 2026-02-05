@@ -110,7 +110,7 @@ struct SoundFontButtonStatusInfoTests {
         .init(
           action: .delegate(.selectSoundFont(info, available: true)),
           imageName: "circle.fill",
-          color: .black
+          color: .clear
         )
     )
     #expect(

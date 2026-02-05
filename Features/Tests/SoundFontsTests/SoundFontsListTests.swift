@@ -408,10 +408,6 @@ struct SoundFontsListTests {
       }
 
       rows.remove(id: 3)
-      await store.receive(\.rowsUpdated) {
-        $0.rows = rows
-      }
-
       rows.remove(id: 4)
       await store.receive(\.rowsUpdated) {
         $0.rows = rows

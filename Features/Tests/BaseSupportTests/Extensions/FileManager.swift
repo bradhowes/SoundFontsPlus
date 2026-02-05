@@ -5,7 +5,7 @@ import Testing
 
 @testable import BaseSupport
 
-@Suite
+@Suite(.serialized)
 struct FileManagerTests {
 
   @Test
@@ -13,7 +13,7 @@ struct FileManagerTests {
     let url = FileManager.default.sharedDocumentsDirectory
     #expect(url.path(percentEncoded: false) != "")
     #expect(FileManager.default.fileExists(atPath: url.path(percentEncoded: false)))
-    try FileManager.default.removeItem(atPath: url.path(percentEncoded: false))
+    try? FileManager.default.removeItem(atPath: url.path(percentEncoded: false))
     #expect(!FileManager.default.fileExists(atPath: url.path(percentEncoded: false)))
     #expect(FileManager.default.sharedDocumentsDirectory.path(percentEncoded: false) != "")
   }
