@@ -74,16 +74,16 @@ public struct FilePicker {
 extension View {
 
   public func filePicker(_ store: Binding<StoreOf<FilePicker>?>) -> some View {
-    let store = store.wrappedValue
+    let state = store.wrappedValue
     return self.fileImporter(
       isPresented: Binding(
-        get: { store != nil },
-        set: { _ in }
+        get: { state != nil },
+        set: { value in if !value { store.wrappedValue = nil } }
       ),
-      allowedContentTypes: store?.types ?? [],
-      allowsMultipleSelection: store?.allowsMultipleSelection ?? false
+      allowedContentTypes: state?.types ?? [],
+      allowsMultipleSelection: state?.allowsMultipleSelection ?? false
     ) {
-      store?.send(.picked($0))
+      state?.send(.picked($0))
     }
   }
 }
