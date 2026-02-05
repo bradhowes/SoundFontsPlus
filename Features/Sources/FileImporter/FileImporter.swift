@@ -11,30 +11,33 @@ import UniformTypeIdentifiers
 public struct FileImporter {
 
   @Reducer
-  public enum Destination {
+  public enum Destination: Equatable {
     case alert(AlertState<Alert>)
-    case picker(FilePicker)
 
     @CasePathable
     public enum Alert: Equatable {
+      case multipleImportsConfirmed
       case replaceDuplicateFileConfirmed
     }
   }
 
   @ObservableState
   public struct State: Equatable {
-    @Presents public var destination: Destination.State?
-
-    public let types: [UTType] = [
+    public let types = [
       "com.braysoftware.sf2",
       "com.soundblaster.soundfont"
-    ].compactMap { UTType($0) } + [.folder, .directory]
+    ].compactMap { UTType($0) } + [
+      .folder, .directory
+    ]
+    public var showPicker: Bool
+    @Presents public var destination: Destination.State?
 
     public var filesPending: [URL] = []
     public var successes: [URL] = []
     public var failures: [FileImportFailure] = []
 
-    public init(destination: Destination.State? = nil) {
+    public init(showPicker: Bool = false, destination: Destination.State? = nil) {
+      self.showPicker = showPicker
       self.destination = destination
     }
   }
@@ -42,6 +45,8 @@ public struct FileImporter {
   public enum Action {
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
+    case fileImporterDismissed
+    case filesPicked(Result<[URL], Error>)
     case importNextFile
     case showFileImporter
 
@@ -62,18 +67,11 @@ public struct FileImporter {
 
       switch action {
 
-      case .delegate:
-        return .none
+      case .destination(.presented(.alert(.multipleImportsConfirmed))):
+        return importNextFile(&state)
 
       case .destination(.presented(.alert(.replaceDuplicateFileConfirmed))):
         return importFile(&state, overwrite: true)
-
-      case .destination(.presented(.picker(.cancelled))):
-        state.destination = nil
-        return .none
-
-      case .destination(.presented(.picker(.picked(let result)))):
-        return filesPicked(&state, result: result)
 
       case .destination(.dismiss):
         if let actions = state.destination?.alert?.buttons.map(\.action.action),
@@ -84,21 +82,23 @@ public struct FileImporter {
         }
         return .none
 
+      case .fileImporterDismissed:
+        state.showPicker = false
+        return .none
+
+      case .filesPicked(let result):
+        state.showPicker = false
+        return filesPicked(&state, result: result)
+
       case .importNextFile:
         return importNextFile(&state)
 
       case .showFileImporter:
-        state.filesPending = []
-        state.successes = []
-        state.failures = []
-        state.destination = .picker(
-          .init(
-            types: state.types,
-            allowsMultipleSelection: true
-          )
-        )
+        state.showPicker = true
         return .none
 
+      default:
+        return .none
       }
     }
     .ifLet(\.destination, action: \.destination)
@@ -109,6 +109,11 @@ extension FileImporter {
 
   private func beginImporting(_ state: inout State, urls: [URL]) -> Effect<Action> {
     log.info("beginImporting - \(urls)")
+
+    state.filesPending = []
+    state.successes = []
+    state.failures = []
+
     var pending: [URL] = urls
 
     while let url = pending.popLast() {
@@ -133,6 +138,11 @@ extension FileImporter {
           }
         }
       }
+    }
+
+    if state.filesPending.count > 1 {
+      state.destination = .alert(.confirmMultipleImports(action: .multipleImportsConfirmed, count: state.filesPending.count))
+      return .none
     }
 
     return importNextFile(&state)
@@ -204,7 +214,13 @@ extension FileImporter {
   }
 
   private func importFinished(_ state: inout State) -> Effect<Action> {
+    @Shared(.activeState) var activeState
     state.destination = .alert(.importResults(summary: Self.generateImportSummary(state.successes, state.failures)))
+
+    // Make sure that the user can see the new additions in the font list
+    if activeState.activeTagId != Tag.Ubiquitous.all.id && activeState.activeTagId != Tag.Ubiquitous.added.id {
+      $activeState.activeTagId.withLock { $0 = Tag.Ubiquitous.added.id }
+    }
     return .send(.delegate(.importFinished))
   }
 

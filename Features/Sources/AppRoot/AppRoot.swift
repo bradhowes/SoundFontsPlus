@@ -606,7 +606,10 @@ extension AppRoot {
       return .none.animation(.smooth)
 
     case .importFinished:
-      return reduce(into: &state, action: .soundFontsList(.updateFetchAllQuery))
+      return .merge(
+        reduce(into: &state, action: .tagsList(.fetchAllQueryChanged)),
+        reduce(into: &state, action: .soundFontsList(.updateFetchAllQuery))
+      )
 
     case .presetNameTapped:
       return .merge(

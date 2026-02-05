@@ -79,7 +79,7 @@ extension View {
     return self.fileImporter(
       isPresented: Binding(
         get: { state != nil },
-        set: { if $0 == false { state?.send(.cancelled) } }
+        set: { _ in state?.send(.cancelled) }
       ),
       allowedContentTypes: state?.types ?? [],
       allowsMultipleSelection: state?.allowsMultipleSelection ?? false

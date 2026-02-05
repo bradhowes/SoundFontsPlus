@@ -386,4 +386,16 @@ extension AlertState {
       TextState(summary)
     }
   }
+
+  public static func confirmMultipleImports(action: Action, count: Int) -> Self {
+    Self {
+      TextState("Import multiple font files?")
+    } actions: {
+      ButtonState(role: .none, action: action) { TextState("Continue") }
+      ButtonState(role: .cancel) { TextState("Cancel") }
+    } message: {
+      TextState("Preparing to import \(count) sound font files.")
+    }
+
+  }
 }

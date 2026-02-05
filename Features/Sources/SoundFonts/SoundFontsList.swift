@@ -204,8 +204,24 @@ extension SoundFontsList {
   private func deleteSoundFontCollectionConfirmed(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
     @Dependency(\.fileManager) var fileManager
     state.editingMode = .inactive
-    for soundFontInfo in soundFontInfos {
-      _ = deleteSoundFont(soundFontInfo)
+
+    let ids = soundFontInfos.map { $0.id }
+    withDatabaseWriter { db in
+      try SoundFont.delete()
+        .where { ids.contains($0.id) }
+        .execute(db)
+    }
+
+    let urls = soundFontInfos
+      .filter { $0.isInstalled }
+      .compactMap { try? SoundFontKind(kind: $0.kind, location: $0.location, displayName: $0.displayName).url }
+
+    for url in urls {
+      do {
+        try fileManager.removeItem(url)
+      } catch {
+        log.error("failed to remove sound font at \(url): \(error)")
+      }
     }
 
     return showActiveSoundFont(&state)

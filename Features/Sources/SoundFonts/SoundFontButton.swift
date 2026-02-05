@@ -134,7 +134,7 @@ struct SoundFontButtonView: View {
   @Shared(.activeState) private var activeState
   @Environment(\.editMode) private var deletingMode
   private var inDeletingMode: Bool { (deletingMode?.wrappedValue ?? .inactive) == .active }
-  private var canDelete: Bool { inDeletingMode && store.soundFontInfo.kind != .builtin }
+  private var canDelete: Bool { store.soundFontInfo.kind != .builtin }
   private var state: IndicatorModifier.State {
     activeState.activeSoundFontId == store.state.soundFontInfo.id ? .active :
     selectedSoundFontId == store.state.soundFontInfo.id ? .selected : .none
@@ -154,7 +154,7 @@ struct SoundFontButtonView: View {
       )
     } label: {
       HStack {
-        if inDeletingMode {
+        if inDeletingMode && canDelete {
           Image(systemName: store.deleting ? "inset.filled.circle" : "circle")
             .foregroundStyle(Color.red)
             .frame(width: 24)
@@ -187,7 +187,7 @@ struct SoundFontButtonView: View {
       }
     }
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-      if !store.soundFontInfo.isBuiltin {
+      if canDelete {
         Button {
           store.send(.delegate(.deleteSoundFont(store.soundFontInfo)), animation: .default)
         } label: {
