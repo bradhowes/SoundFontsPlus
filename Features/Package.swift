@@ -5,7 +5,7 @@ import Foundation
 import PackageDescription
 
 let useLocalMorkAndMIDI = false
-let useLocalSF2Lib = true
+let useLocalSF2Lib = false
 
 extension Package.Dependency {
   static var morkAndMIDI: PackageDescription.Package.Dependency {
