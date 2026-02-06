@@ -25,6 +25,7 @@ public struct Synth {
   public struct State: Equatable {
     public var loadedSoundFontId: SoundFont.ID?
     public var loadedPresetIndex: Int?
+    public var activePresetId: Preset.ID?
 
     @ObservationStateIgnored
     public var firstTimePresetLoaded: Bool = true
@@ -63,6 +64,7 @@ public struct Synth {
     @CasePathable
     public enum Delegate: Equatable {
       case audioUnitCreated(AVAudioUnitMIDIInstrument)
+      case missingPresetInfo(Preset.ID)
       case running
       case stopped
     }
@@ -77,7 +79,6 @@ public struct Synth {
   @Dependency(\.defaultDatabase) private var database
   @Dependency(\.avAudioUnitMIDIInstrumentGenerator) private var avAudioUnitGen
 
-  @Shared(.activeState) private var activeState
   @Shared(.backgroundProcessing) private var backgroundProcessing
   @Shared(.playSoundOnPresetChange) private var playSoundOnPresetChange
 
@@ -93,7 +94,7 @@ public struct Synth {
         return acquireAudioSession(&state)
 
       case .activePresetIdChanged(let presetId):
-        return sendActivePresetChange(&state, presetId: presetId)
+        return activePresetIdChanged(&state, presetId: presetId)
 
       case .audioSessionRouteChanged:
         return audioSessionRouteChanged(&state)
@@ -114,7 +115,7 @@ public struct Synth {
         return restartAudioSession(&state)
 
       case .playNote:
-        return sendNoteOnOffSequence(&state)
+        return sendNoteOnOffSequence(state)
 
       case .releaseAudioSession:
         return releaseAudioSession(&state)
@@ -139,6 +140,50 @@ public struct Synth {
 }
 
 extension Synth {
+
+  private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+    log.info("activePresetIdChanged BEGIN - presetId: \(presetId ?? -1)")
+    guard
+      let presetId = presetId
+    else {
+      log.info("activePresetIdChanged END - nil preset ID")
+      return .none
+    }
+
+    guard
+      let avAudioUnit = state.avAudioUnit,
+      state.audioSessionActivated
+    else {
+      log.info("activePresetIdChanged END - nil audioUnit or inactive audio session")
+      return .none
+    }
+
+    guard let presetInfo = Operations.presetLoadingInfo(id: presetId) else {
+      log.info("activePresetIdChanged END - no presetInfo")
+      return .none
+    }
+
+    state.activePresetId = presetId
+
+    guard state.loadedPresetIndex != presetInfo.presetIndex || state.loadedSoundFontId != presetInfo.soundFontId else {
+      log.info("activePresetIdChanged END - already loaded")
+      return sendNoteOnOffSequence(state)
+    }
+
+    let sentRequest: Bool
+    if presetInfo.soundFontId == state.loadedSoundFontId {
+      log.info("activePresetIdChanged - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
+      sentRequest = avAudioUnit.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
+    } else {
+      sentRequest = sendLoadFileUsePreset(avAudioUnit, presetInfo: presetInfo)
+    }
+
+    state.loadedPresetIndex = presetInfo.presetIndex
+    state.loadedSoundFontId = presetInfo.soundFontId
+
+    log.info("activePresetIdChanged END - \(sentRequest)")
+    return .none
+  }
 
   private func audioSessionRouteChanged(_ state: inout State) -> Effect<Action> {
     log.info("audioSessionRouteChanged - BEGIN")
@@ -214,13 +259,9 @@ extension Synth {
     let firstTimePresetLoaded = state.firstTimePresetLoaded
     log.info("lastPresetLoadFinished BEGIN - \(firstTimePresetLoaded)")
 
-    // TODO: remove hack to support external bookmark files when AUv3 component can read from db.
-    let dst = FileManager.default.fontFilesDirectory.appendingPathComponent("tmp.sf2")
-    try? FileManager.default.removeItem(at: dst)
-
     guard
       let parameterTree = state.avAudioUnit?.parameterTree,
-      let presetId = activeState.activePresetId
+      let presetId = state.activePresetId
     else {
       log.info("lastPresetLoadFinished END - nil parameterTree or presetId")
       return .none
@@ -239,7 +280,7 @@ extension Synth {
     state.firstTimePresetLoaded = false
 
     log.info("lastPresetLoadFinished END")
-    return firstTimePresetLoaded ? .none : sendNoteOnOffSequence(&state)
+    return firstTimePresetLoaded ? .none : sendNoteOnOffSequence(state)
   }
 
   private func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
@@ -297,29 +338,6 @@ extension Synth {
 
 #endif // os(iOS)
 
-  private func sendNoteOnOffSequence(_ state: inout State) -> Effect<Action> {
-    log.debug("playNote BEGIN - \(playSoundOnPresetChange) ")
-
-    guard let avAudioUnit = state.avAudioUnit else {
-      log.debug("playNote END - !avAudioUnit")
-      return .none
-    }
-
-    guard playSoundOnPresetChange else {
-      log.debug("playNote END - !playSoundOnPresetChange")
-      return .none
-    }
-
-    return .run(priority: .utility, name: "playNote") { _ in
-      @Dependency(\.continuousClock) var clock
-      log.debug("sending note on")
-      avAudioUnit.startNote(60, withVelocity: 127, onChannel: 0)
-      try? await clock.sleep(for: Self.playNoteDurationMilliseconds)
-      log.debug("sending note off")
-      avAudioUnit.stopNote(60, onChannel: 0)
-    }.cancellable(id: CancelId.synthPlayNote, cancelInFlight: true)
-  }
-
   private func restartAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("restartAudioSession - BEGIN")
     stopAudioSession(&state)
@@ -334,76 +352,6 @@ extension Synth {
       stopAudioSession(&state)
     }
     log.info("releaseAudioSession - END")
-    return .none
-  }
-
-  private func startAudioSession(_ state: inout State) {
-    var audioSessionActivated = state.audioSessionActivated
-    log.info("startAudioSession BEGIN - \(audioSessionActivated)")
-    if !audioSessionActivated {
-      audioSessionActivated = audioSession.start()
-      state.audioSessionActivated = audioSessionActivated
-      if audioSessionActivated {
-        startEngine(&state)
-      }
-    }
-    log.info("startAudioSession END - \(audioSessionActivated)")
-  }
-
-  private func startEngine(_ state: inout State) {
-    log.info("startEngine BEGIN")
-    guard let midiInstrument = state.avAudioUnit?.midiInstrument else {
-      log.info("startEngine END - no midi instrument")
-      return
-    }
-
-    let started = audioGraph.start(midiInstrument)
-    log.info("startEngine END - \(started)")
-  }
-
-  private func stopAudioSession(_ state: inout State) {
-    log.info("stopAudioSession BEGIN")
-    audioSession.stop()
-    state.audioSessionActivated = false
-    log.info("stopAudioSession END")
-  }
-
-  private func sendActivePresetChange(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
-    log.info("useActivePreset BEGIN - presetId: \(presetId ?? -1)")
-    guard
-      let avAudioUnit = state.avAudioUnit,
-      state.audioSessionActivated
-    else {
-      log.info("useActivePreset END - nil audioUnit or inactive audio session")
-      return .none
-    }
-
-    guard let presetInfo = Operations.presetLoadingInfo(id: presetId) else {
-      log.info("useActivePreset END - no presetInfo")
-      $activeState.withLock {
-        $0.activePresetId = nil
-        $0.activeSoundFontId = nil
-      }
-      return .none
-    }
-
-    guard state.loadedPresetIndex != presetInfo.presetIndex || state.loadedSoundFontId != presetInfo.soundFontId else {
-      log.info("useActivePreset END - already loaded")
-      return sendNoteOnOffSequence(&state)
-    }
-
-    let sentRequest: Bool
-    if presetInfo.soundFontId == state.loadedSoundFontId {
-      log.info("useActivePreset - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      sentRequest = avAudioUnit.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
-    } else {
-      sentRequest = sendLoadFileUsePreset(avAudioUnit, presetInfo: presetInfo)
-    }
-
-    state.loadedPresetIndex = presetInfo.presetIndex
-    state.loadedSoundFontId = presetInfo.soundFontId
-
-    log.info("useActivePreset END - \(sentRequest)")
     return .none
   }
 
@@ -445,5 +393,59 @@ extension Synth {
         pan: presetInfo.pan
       )
     }
+  }
+
+  private func sendNoteOnOffSequence(_ state: State) -> Effect<Action> {
+    log.debug("playNote BEGIN - \(playSoundOnPresetChange) ")
+
+    guard let avAudioUnit = state.avAudioUnit else {
+      log.debug("playNote END - !avAudioUnit")
+      return .none
+    }
+
+    guard playSoundOnPresetChange else {
+      log.debug("playNote END - !playSoundOnPresetChange")
+      return .none
+    }
+
+    return .run(priority: .utility, name: "playNote") { _ in
+      @Dependency(\.continuousClock) var clock
+      log.debug("sending note on")
+      avAudioUnit.startNote(60, withVelocity: 127, onChannel: 0)
+      try? await clock.sleep(for: Self.playNoteDurationMilliseconds)
+      log.debug("sending note off")
+      avAudioUnit.stopNote(60, onChannel: 0)
+    }.cancellable(id: CancelId.synthPlayNote, cancelInFlight: true)
+  }
+
+  private func startAudioSession(_ state: inout State) {
+    var audioSessionActivated = state.audioSessionActivated
+    log.info("startAudioSession BEGIN - \(audioSessionActivated)")
+    if !audioSessionActivated {
+      audioSessionActivated = audioSession.start()
+      state.audioSessionActivated = audioSessionActivated
+      if audioSessionActivated {
+        startEngine(&state)
+      }
+    }
+    log.info("startAudioSession END - \(audioSessionActivated)")
+  }
+
+  private func startEngine(_ state: inout State) {
+    log.info("startEngine BEGIN")
+    guard let midiInstrument = state.avAudioUnit?.midiInstrument else {
+      log.info("startEngine END - no midi instrument")
+      return
+    }
+
+    let started = audioGraph.start(midiInstrument)
+    log.info("startEngine END - \(started)")
+  }
+
+  private func stopAudioSession(_ state: inout State) {
+    log.info("stopAudioSession BEGIN")
+    audioSession.stop()
+    state.audioSessionActivated = false
+    log.info("stopAudioSession END")
   }
 }

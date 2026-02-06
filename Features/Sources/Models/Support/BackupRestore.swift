@@ -66,8 +66,8 @@ public enum BackupManager {
       log.error("createDirectory on 'FontFiles' failed - \(error.localizedDescription, privacy: .public)")
     }
 
-    @Shared(.activeState) var activeState
-    $activeState.withLock { $0 = .default }
+    // @Shared(.activeState) var activeState
+    // $activeState.withLock { $0 = .default }
 
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     $selectedSoundFontId.withLock { $0 = nil }

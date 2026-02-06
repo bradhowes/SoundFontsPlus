@@ -206,10 +206,10 @@ extension AppRootView {
     return VStack(alignment: .leading, spacing: 0) {
       ScrollView(.horizontal) {
         HStack(spacing: 0) {
-          ReverbEffectView(store: store.scope(state: \.reverb, action: \.reverb))
+          ReverbEffectView(store: store.scope(state: \.reverbEffect, action: \.reverbEffect))
           dividerBorderColor
             .frame(width: dividerSpan)
-          DelayEffectView(store: store.scope(state: \.delay, action: \.delay))
+          DelayEffectView(store: store.scope(state: \.delayEffect, action: \.delayEffect))
         }
       }
       .onScrollGeometryChange(for: CGFloat.self) { geometry in

@@ -27,6 +27,7 @@ public struct TagsList {
 
   @ObservableState
   public struct State: Equatable {
+    public var activeTagId: Tag.ID = Tag.Ubiquitous.all.id
     public var rows: IdentifiedArrayOf<TagButton.State>
     @Presents public var destination: Destination.State?
 
@@ -51,19 +52,20 @@ public struct TagsList {
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case fetchAllQueryChanged
+    case importFinished
     case initialize
     case rows(IdentifiedActionOf<TagButton>)
     case rowsUpdated([TagInfo])
 
     @CasePathable
     public enum Delegate: Equatable {
+      case activeTagIdChanged(Tag.ID)
       case edit(focus: Int)
     }
   }
 
   public init() {}
 
-  @Shared(.activeState) private var activeState
   @Shared(.hideBuiltinFonts) public var hideBuiltinFonts
   @Shared(.hideEmptyTags) public var hideEmptyTags
 
@@ -86,6 +88,13 @@ public struct TagsList {
 
       case .fetchAllQueryChanged:
         return updateFetchAllQuery(&state)
+
+      case .importFinished:
+        // Make sure that the user can see the new additions in the font list
+        if state.activeTagId != Tag.Ubiquitous.all.id && state.activeTagId != Tag.Ubiquitous.added.id {
+          state.activeTagId = Tag.Ubiquitous.added.id
+        }
+        return .send(.delegate(.activeTagIdChanged(state.activeTagId)))
 
       case .initialize:
         return initialize(&state)
@@ -127,11 +136,12 @@ extension TagsList {
   }
 
   private func deleteTagConfirmed(_ state: inout State, tagInfo: TagInfo) -> Effect<Action> {
-    if activeState.activeTagId == tagInfo.id {
-      $activeState.withLock { $0.activeTagId = Tag.Ubiquitous.all.id }
-    }
-
     try? Tag.delete(id: tagInfo.id)
+
+    if state.activeTagId == tagInfo.id {
+      state.activeTagId = Tag.Ubiquitous.all.id
+      return .send(.delegate(.activeTagIdChanged(state.activeTagId)))
+    }
 
     return .none
   }
@@ -156,8 +166,8 @@ extension TagsList {
     switch action {
 
     case .activate(let tagInfo):
-      $activeState.withLock { $0.activeTagId = tagInfo.id }
-      return .none
+      state.activeTagId = tagInfo.id
+      return .send(.delegate(.activeTagIdChanged(state.activeTagId)))
 
     case .delete(let tagInfo):
       if tagInfo.soundFontsCount > 0 {
@@ -213,7 +223,7 @@ public struct TagsListView: View {
       Section {
         ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
           StyledEntry {
-            TagButtonView(store: rowStore)
+            TagButtonView(store: rowStore, indicatorModifierState: indicatorState(for: rowStore.id))
           }
         }
       } header: {
@@ -223,6 +233,10 @@ public struct TagsListView: View {
     .animation(.smooth, value: store.rows)
     .task { await store.send(.initialize).finish() }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
+  }
+
+  private func indicatorState(for tagId: Tag.ID) -> IndicatorModifier.State {
+    tagId == store.activeTagId ? .active : .none
   }
 }
 

@@ -19,6 +19,7 @@ public struct VolumeMonitor {
   @ObservableState
   public struct State: Equatable {
     public var reason: Reason?
+    public var activePresetId: Preset.ID?
 
     public init(reason: Reason? = nil) {
       self.reason = reason
@@ -41,7 +42,6 @@ public struct VolumeMonitor {
   public init() {}
 
   @Dependency(\.outputVolume) private var outputVolume
-  @Shared(.activeState) private var activeState
 
   public var body: some Reducer<State, Action> {
 
@@ -92,6 +92,7 @@ private extension VolumeMonitor {
   }
 
   func presetChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+    state.activePresetId = presetId
     return updateReason(
       &state,
       volume: outputVolume.getValue(),
@@ -130,7 +131,7 @@ private extension VolumeMonitor {
     return updateReason(
       &state,
       volume: volume,
-      presetId: activeState.activePresetId
+      presetId: state.activePresetId
     )
   }
 }

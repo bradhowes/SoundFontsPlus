@@ -26,7 +26,7 @@ public struct PresetEditor {
 
     public let sectionId: Int
     public let preset: Preset
-
+    public let isActive: Bool
     public var displayName: String
     public var visible: Bool
 
@@ -45,9 +45,10 @@ public struct PresetEditor {
 
     public let audioUnit: AUAudioUnit?
 
-    public init(sectionId: Int, preset: Preset, audioUnit: AUAudioUnit? = nil) {
+    public init(sectionId: Int, preset: Preset, isActive: Bool, audioUnit: AUAudioUnit? = nil) {
       self.sectionId = sectionId
       self.preset = preset
+      self.isActive = isActive
       self.displayName = preset.displayName
       self.originalName = preset.originalName
       self.visible = preset.kind == .preset
@@ -110,7 +111,6 @@ public struct PresetEditor {
 
   public init() {}
 
-  @Shared(.activeState) private var activeState
   @Shared(.confirmPresetHiding) private var confirmPresetHiding
 
   public var body: some ReducerOf<Self> {
@@ -189,7 +189,7 @@ extension PresetEditor {
   }
 
   private func gainSliderChanged(_ state: inout State) -> Effect<Action> {
-    guard activeState.activePresetId == state.preset.id else { return .none }
+    guard state.isActive else { return .none }
     guard let parameterTree = state.audioUnit?.parameterTree else { return .none }
     state.pendingAudioConfig.gain = state.gainSlider
     let gainAddress = AUParameterAddress(SF2.Entity.Generator.Index.initialAttenuation.rawValue)
@@ -205,7 +205,7 @@ extension PresetEditor {
   }
 
   private func panSliderChanged(_ state: inout State) -> Effect<Action> {
-    guard activeState.activePresetId == state.preset.id else { return .none }
+    guard state.isActive else { return .none }
     state.pendingAudioConfig.gain = state.gainSlider
     guard let parameterTree = state.audioUnit?.parameterTree else { return .none }
     let panAddress = AUParameterAddress(SF2.Entity.Generator.Index.pan.rawValue)
@@ -330,6 +330,8 @@ public struct PresetEditorView: View {
     Section(header: Text("Contents")) {
       LabeledContent("SoundFont", value: store.soundFontName)
       LabeledContent("Address", value: "Bank: \(store.preset.bank) Index: \(store.preset.program)")
+      LabeledContent("Index", value: "\(store.preset.index)")
+      LabeledContent("Id", value: "\(store.preset.id)")
     }.font(.footnote)
   }
 
@@ -430,7 +432,9 @@ extension PresetEditorView {
     }
 
     let presets = Operations.presets(for: nil)
-    return PresetEditorView(store: Store(initialState: .init(sectionId: 0, preset: presets[0])) { PresetEditor() })
+    return PresetEditorView(store: Store(initialState: .init(sectionId: 0, preset: presets[0], isActive: false)) {
+      PresetEditor()
+    })
   }
 }
 

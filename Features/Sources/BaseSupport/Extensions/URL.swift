@@ -9,7 +9,7 @@ extension URL {
   /**
    - Returns: the URL for the file that persists the `activeState` values. NOTE: not used by AUv3
    */
-  public static let activeStateURL: URL = .applicationSupportDirectory.appendingPathComponent("activeState.json")
+  public static let appActiveStateURL: URL = .applicationSupportDirectory.appendingPathComponent("activeState.json")
 
   /**
    Attempt to obtain bookmark data for an artifact URL that can be saved and later used to generate a valid URL

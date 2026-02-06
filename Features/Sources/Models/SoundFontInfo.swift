@@ -53,11 +53,8 @@ extension SoundFontInfo {
    return rows for all ``SoundFont`` entries.
    - returns: a query that produces a row for each associated ``SoundFont``
    */
-  public static func query(for tagId: Tag.ID? = nil) -> Select<Columns.QueryValue, TaggedSoundFont, SoundFont> {
-    @Shared(.activeState) var activeState
+  public static func query(for tagId: Tag.ID) -> Select<Columns.QueryValue, TaggedSoundFont, SoundFont> {
     @Shared(.hideBuiltinFonts) var hideBuiltinFonts
-
-    let tagId = tagId ?? activeState.activeTagId ?? Tag.Ubiquitous.all.id
     return TaggedSoundFont
       .join(hideBuiltinFonts ? (SoundFont.all.where { $0.kind.neq(SoundFont.Kind.builtin) }) : SoundFont.all) {
         $0.tagId.eq(tagId) && $0.soundFontId.eq($1.id)

@@ -22,6 +22,9 @@ public struct SoundFontsList {
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
     public var rows: IdentifiedArrayOf<SoundFontButton.State>
+    public var activeTagId: Tag.ID = Tag.Ubiquitous.all.id
+    public var activePresetSource: PresetSource?
+    public var selectedPresetSource: PresetSource?
     public var editingMode: EditMode
 
     @ObservationStateIgnored
@@ -38,7 +41,7 @@ public struct SoundFontsList {
 
     public init(destination: Destination.State? = nil, editingMode: EditMode = .inactive) {
       let soundFontInfos: [SoundFontInfo] = withDatabaseReader { db in
-        try SoundFontInfo.query().fetchAll(db)
+        try SoundFontInfo.query(for: Tag.Ubiquitous.all.id).fetchAll(db)
       } ?? []
       self.rows = .init(uncheckedUniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
       self.editingMode = editingMode
@@ -50,6 +53,7 @@ public struct SoundFontsList {
   }
 
   public enum Action: BindableAction {
+    case activeTagIdChanged(Tag.ID)
     case binding(BindingAction<State>)
     case cancelSearchButtonTapped
     case clearSearchTextField
@@ -60,15 +64,18 @@ public struct SoundFontsList {
     case destination(PresentationAction<Destination.Action>)
     case headerDoubleTapped
     case initialize
+    case missingSoundFontDetected(SoundFont.ID)
     case rows(IdentifiedActionOf<SoundFontButton>)
     case rowsUpdated([SoundFontInfo])
     case searchButtonTapped
     case searchTextChanged(String)
+    case selectedActivated
     case showActiveSoundFont
     case updateFetchAllQuery
 
     @CasePathable
     public enum Delegate: Equatable {
+      case presetSourceChanged(PresetSource?)
       case edit(SoundFont)
     }
   }
@@ -78,9 +85,7 @@ public struct SoundFontsList {
   @Dependency(\.defaultDatabase) private var database
   @Dependency(\.fileManager) private var fileManager
 
-  @Shared(.activeState) private var activeState
   @Shared(.hideBuiltinFonts) private var hideBuiltinFonts
-  @Shared(.selectedSoundFontId) private var selectedSoundFontId
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -89,6 +94,10 @@ public struct SoundFontsList {
       log.action("SoundFontsList", action)
 
       switch action {
+
+      case .activeTagIdChanged(let tagId):
+        state.activeTagId = tagId
+        return updateFetchAllQuery(tagId)
 
       case .cancelSearchButtonTapped:
         return dismissSearch(&state)
@@ -139,10 +148,17 @@ public struct SoundFontsList {
         })
 
       case .initialize:
-        return .merge(
-          monitorActiveTag(&state),
-          monitorHideBuiltinFonts(&state)
-        )
+        return monitorHideBuiltinFonts(&state)
+
+      case .missingSoundFontDetected(let soundFontId):
+        SoundFont.delete(id: soundFontId)
+        if state.activePresetSource == .active(soundFontId) {
+          state.activePresetSource = nil
+        }
+        if state.selectedPresetSource == .selected(soundFontId) {
+          state.selectedPresetSource = nil
+        }
+        return .none
 
       case .rows(.element(_, .delegate(let action))):
         return processRowAction(&state, action: action)
@@ -156,11 +172,14 @@ public struct SoundFontsList {
       case .searchTextChanged(let value):
         return searchTextChanged(&state, searchText: value)
 
+      case .selectedActivated:
+        return selectedActivated(&state)
+
       case .showActiveSoundFont:
         return showActiveSoundFont(&state)
 
       case .updateFetchAllQuery:
-        return updateFetchAllQuery()
+        return updateFetchAllQuery(state.activeTagId)
 
       default:
         return .none
@@ -169,11 +188,10 @@ public struct SoundFontsList {
     .forEach(\.rows, action: \.rows) {
       SoundFontButton()
     }
-    .ifLet(\.destination, action: \.destination)
+    // .ifLet(\.destination, action: \.destination)
   }
 
   private enum CancelId: String, CaseIterable {
-    case soundFontsListMonitorActiveTagId
     case soundFontsListMonitorHideBuiltinFonts
     case soundFontsListUpdateFetchAll
   }
@@ -228,11 +246,11 @@ extension SoundFontsList {
   }
 
   private func deleteSoundFontConfirmed(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
-    state.destination = deleteSoundFont(soundFontInfo)
-    return showActiveSoundFont(&state)
+    state.destination = deleteSoundFont(&state, soundFontInfo: soundFontInfo)
+    return .merge(deleted(&state, soundFontId: soundFontInfo.id), showActiveSoundFont(&state))
   }
 
-  private func deleteSoundFont(_ soundFontInfo: SoundFontInfo) -> Destination.State? {
+  private func deleteSoundFont(_ state: inout State, soundFontInfo: SoundFontInfo) -> Destination.State? {
     @Dependency(\.fileManager) var fileManager
     guard let soundFont = SoundFont.with(id: soundFontInfo.id ) else {
       log.error("unexpected missing soundfont ID \(soundFontInfo.id)")
@@ -267,25 +285,22 @@ extension SoundFontsList {
     }
 
     log.info("removing db entry for \(soundFont.displayName)")
-    SoundFont.delete(id: soundFontInfo.id)
 
-    deleted(soundFontInfo.id)
     return alert
   }
 
-  private func deleted(_ soundFontId: SoundFont.ID) {
-    if activeState.activeSoundFontId == soundFontId {
-      $activeState.withLock {
-        $0.activeSoundFontId = nil
-        $0.activePresetId = nil
-      }
+  private func deleted(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
+    if state.selectedPresetSource == .selected(soundFontId) {
+      state.selectedPresetSource = nil
+      return .send(.delegate(.presetSourceChanged(state.activePresetSource)))
     }
 
-    if selectedSoundFontId == soundFontId {
-      $selectedSoundFontId.withLock {
-        $0 = nil
-      }
+    if state.activePresetSource == .active(soundFontId) {
+      state.activePresetSource = nil
+      return .send(.delegate(.presetSourceChanged(state.activePresetSource)))
     }
+
+    return .none
   }
 
   private func dismissSearch(_ state: inout State) -> Effect<Action> {
@@ -316,23 +331,15 @@ extension SoundFontsList {
     case .alertMissingFile(let soundFontInfo):
       return alertMissingFile(&state, soundFontInfo: soundFontInfo)
 
-    case .deleteSoundFont(let soundFontInfo):
+    case .delete(let soundFontInfo):
       return confirmDeleteSoundFont(&state, soundFontInfo: soundFontInfo)
 
-    case .editSoundFont(let soundFontInfo):
+    case .edit(let soundFontInfo):
       return edit(&state, soundFontId: soundFontInfo.id)
 
-    case .selectSoundFont(let soundFontInfo, let available):
-      return select(soundFontId: soundFontInfo.id, available: available)
+    case .select(let soundFontInfo, let available):
+      return selected(&state, soundFontId: soundFontInfo.id, available: available)
     }
-  }
-
-  private func monitorActiveTag(_ state: inout State) -> Effect<Action> {
-    .run { [$activeState] send in
-      for await _ in UncheckedSendable($activeState.activeTagId.publisher.values.removeDuplicates()) {
-        await send(.updateFetchAllQuery)
-      }
-    }.cancellable(id: CancelId.soundFontsListMonitorActiveTagId, cancelInFlight: true)
   }
 
   private func monitorHideBuiltinFonts(_ state: inout State) -> Effect<Action> {
@@ -362,20 +369,33 @@ extension SoundFontsList {
     return .none
   }
 
-  private func select(soundFontId: SoundFont.ID, available: Bool) -> Effect<Action> {
-    if selectedSoundFontId != soundFontId && available {
-      $selectedSoundFontId.withLock { $0 = soundFontId }
+  private func selected(_ state: inout State, soundFontId: SoundFont.ID, available: Bool) -> Effect<Action> {
+    if state.activePresetSource == .active(soundFontId) {
+      if state.selectedPresetSource != nil {
+        state.selectedPresetSource = nil
+      }
+      return .send(.delegate(.presetSourceChanged(available ? state.activePresetSource : nil)))
+    } else if state.selectedPresetSource != .selected(soundFontId) {
+      state.selectedPresetSource = .selected(soundFontId)
+      return .send(.delegate(.presetSourceChanged(available ? state.selectedPresetSource : nil)))
+    }
+    return .none
+  }
+
+  private func selectedActivated(_ state: inout State) -> Effect<Action> {
+    if let selectedPresetSource = state.selectedPresetSource {
+      state.activePresetSource = selectedPresetSource.activated
+      state.selectedPresetSource = nil
     }
     return .none
   }
 
   private func showActiveSoundFont(_ state: inout State) -> Effect<Action> {
-    if let activeSoundFontId = activeState.activeSoundFontId,
-       let index = state.rows.index(id: activeSoundFontId) {
-      return select(soundFontId: activeSoundFontId, available: state.rows[index].statusInfoTag.available)
-    } else {
-      return .none
+    if let soundFontId = state.activePresetSource?.id,
+       let index = state.rows.index(id: soundFontId) {
+      return selected(&state, soundFontId: soundFontId, available: state.rows[index].statusInfoTag.available)
     }
+    return .none
   }
 
   private func soundFontInfosChanged(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
@@ -386,10 +406,10 @@ extension SoundFontsList {
     return .none
   }
 
-  private func updateFetchAllQuery() -> Effect<Action> {
+  private func updateFetchAllQuery(_ tagId: Tag.ID) -> Effect<Action> {
     .run(priority: .utility, name: "monitorFetchAll") { send in
       @FetchAll var soundFontInfos: [SoundFontInfo]
-      try await $soundFontInfos.load(SoundFontInfo.query())
+      try await $soundFontInfos.load(SoundFontInfo.query(for: tagId))
       for try await rows in $soundFontInfos.publisher.values {
         await send(.rowsUpdated(rows))
       }
@@ -423,7 +443,10 @@ public struct SoundFontsListView: View {
         Section {
           ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
             StyledEntry {
-              SoundFontButtonView(store: rowStore)
+              SoundFontButtonView(
+                store: rowStore,
+                indicatorModifierState: indicatorModifierState(for: rowStore.id)
+              )
             }
           }
         } header: {
@@ -439,6 +462,12 @@ public struct SoundFontsListView: View {
     .animation(.smooth, value: store.rows)
     .task { await store.send(.initialize).finish() }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
+  }
+
+  private func indicatorModifierState(for soundFontId: SoundFont.ID) -> IndicatorModifier.State {
+    store.activePresetSource == .active(soundFontId) ? .active :
+    store.selectedPresetSource == .selected(soundFontId) ? .selected :
+      .none
   }
 
   private var searchField: some View {

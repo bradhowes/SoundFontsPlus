@@ -15,10 +15,26 @@ public struct PresetsListSection {
     public var rows: IdentifiedArrayOf<PresetButton.State>
     // Make sure section IDs do not conflict with preset IDs.
     public var sectionId: Int { (section + 1) * PresetsList.noGroupingSize }
+    public var presetSource: PresetSource?
+    public var activePresetId: Preset.ID?
 
-    public init(section: Int, presets: ArraySlice<Preset>, symbolPrefix: String?) {
+    public init(
+      section: Int,
+      presets: ArraySlice<Preset>,
+      symbolPrefix: String? = nil,
+      presetSource: PresetSource? = nil,
+      activePresetId: Preset.ID? = nil,
+    ) {
       self.section = section
-      self.rows = .init(uniqueElements: presets.map { .init(preset: $0, symbolPrefix: $0.isFavorite ? symbolPrefix : nil) })
+      self.presetSource = presetSource
+      self.activePresetId = activePresetId
+      self.rows = .init(
+        uniqueElements: presets.map {
+          .init(
+            preset: $0,
+            symbolPrefix: $0.isFavorite ? symbolPrefix : nil
+          )
+        })
     }
 
     /**
@@ -74,7 +90,10 @@ public struct PresetsListSection {
     case let .deleteFavorite(preset): return .send(.delegate(.deleteFavorite(preset)))
     case let .editPreset(preset): return .send(.delegate(.editPreset(preset)))
     case let .hidePreset(preset): return .send(.delegate(.hidePreset(preset)))
-    case let .selectPreset(preset): return .send(.delegate(.selectPreset(preset)))
+    case let .selectPreset(preset):
+      state.activePresetId = preset.id
+      state.presetSource = state.presetSource?.activated
+      return .send(.delegate(.selectPreset(preset)))
     }
   }
 }
@@ -86,7 +105,10 @@ public struct PresetsListSectionView: View {
   @Environment(\.editMode) private var editMode
   private var editingVisibility: Bool { (editMode?.wrappedValue ?? .inactive) == .active }
 
-  public init(store: StoreOf<PresetsListSection>, searching: Bool) {
+  public init(
+    store: StoreOf<PresetsListSection>,
+    searching: Bool
+  ) {
     self.store = store
     self.searching = searching
   }
@@ -145,9 +167,21 @@ public struct PresetsListSectionView: View {
   private var buttonRows: some View {
     ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
       StyledEntry {
-        PresetButtonView(store: rowStore)
+        PresetButtonView(
+          store: rowStore,
+          indicatorModifierState: indicatorModifierState(for: rowStore.preset)
+        )
       }
     }
+  }
+
+  private func indicatorModifierState(for preset: Preset) -> IndicatorModifier.State {
+    if store.presetSource?.isActive ?? false,
+       store.presetSource?.id == preset.soundFontId,
+       store.activePresetId == preset.id {
+      return preset.isFavorite ? .activeFavorite : .active
+    }
+    return preset.isFavorite ? .favorite : .none
   }
 }
 

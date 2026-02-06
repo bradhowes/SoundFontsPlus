@@ -214,13 +214,7 @@ extension FileImporter {
   }
 
   private func importFinished(_ state: inout State) -> Effect<Action> {
-    @Shared(.activeState) var activeState
     state.destination = .alert(.importResults(summary: Self.generateImportSummary(state.successes, state.failures)))
-
-    // Make sure that the user can see the new additions in the font list
-    if activeState.activeTagId != Tag.Ubiquitous.all.id && activeState.activeTagId != Tag.Ubiquitous.added.id {
-      $activeState.activeTagId.withLock { $0 = Tag.Ubiquitous.added.id }
-    }
     return .send(.delegate(.importFinished))
   }
 

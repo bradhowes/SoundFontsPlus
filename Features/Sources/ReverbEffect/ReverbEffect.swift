@@ -10,7 +10,7 @@ public struct ReverbEffect {
 
   @ObservableState
   public struct State: Equatable {
-
+    public var activePresetId: Preset.ID?
     public var config: ReverbConfig.Draft
     public var enabled: ToggleFeature.State
     public var locked: ToggleFeature.State
@@ -33,7 +33,6 @@ public struct ReverbEffect {
     case applyConfigForPreset(Preset.ID)
     case deinitialize
     case enabled(ToggleFeature.Action)
-    case initialize
     case locked(ToggleFeature.Action)
     case roomPresetChanged(AVAudioUnitReverbPreset)
     case saveDebounced
@@ -71,9 +70,6 @@ public struct ReverbEffect {
       case .enabled:
         return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
 
-      case .initialize:
-        return monitorActivePresetId()
-
       case .locked:
         return updateLocked(&state)
 
@@ -92,7 +88,6 @@ public struct ReverbEffect {
     }
   }
 
-  @Shared(.activeState) private var activeState
   @Shared(.parameterTree) private var parameterTree
   @Dependency(\.mainQueue) private var mainQueue
   @Dependency(\.reverbDevice) private var reverbDevice
@@ -117,6 +112,8 @@ extension ReverbEffect {
     else {
       return .none
     }
+
+    state.activePresetId = presetId
 
     // Nothing to save?
     guard
@@ -148,14 +145,6 @@ extension ReverbEffect {
     )
   }
 
-  private func monitorActivePresetId() -> Effect<Action> {
-    .run { [$activeState] send in
-      for await value in UncheckedSendable($activeState.activePresetId.publisher.values.removeDuplicates()) {
-        await send(.activePresetIdChanged(value))
-      }
-    }.cancellable(id: CancelId.reverbEffectMonitorActivePresetId, cancelInFlight: true)
-  }
-
   private func runDebouncers(_ state: inout State) -> Effect<Action> {
     state.dirty = true
     return .merge(
@@ -178,7 +167,7 @@ extension ReverbEffect {
 
   private func saveDebounced(_ state: inout State) -> Effect<Action> {
     state.dirty = false
-    if let presetId = activeState.activePresetId,
+    if let presetId = state.activePresetId,
        state.config.presetId == presetId,
        let found = ReverbConfig.save(config: state.config) {
       state.config = .init(found)
@@ -212,7 +201,7 @@ extension ReverbEffect {
   }
 
   private func globalToLocalConfig(_ state: inout State) -> Effect<Action> {
-    guard let presetId = activeState.activePresetId else { return .none }
+    guard let presetId = state.activePresetId else { return .none }
     var localConfig = ReverbConfig.draft(for: presetId)
     localConfig.roomPreset = state.config.roomPreset
     localConfig.wetDryMix = state.config.wetDryMix
@@ -264,9 +253,6 @@ public struct ReverbEffectView: View {
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
     }
-    .task {
-      await store.send(.initialize).finish()
-    }
   }
 }
 
@@ -276,7 +262,6 @@ private let log: Logger = .init(category: "ReverbEffect")
 
 extension ReverbEffectView {
   static var preview: some View {
-    @Shared(.activeState) var activeState = .default
 
     var theme = Theme()
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
@@ -291,22 +276,20 @@ extension ReverbEffectView {
       $0.reverbDevice = testValue
     }
 
+    let store = Store(initialState: .init()) { ReverbEffect() }
+
     return VStack {
       ScrollView(.horizontal) {
-        ReverbEffectView(store: Store(initialState: .init()) { ReverbEffect() })
+        ReverbEffectView(store: store)
           .environment(\.auv3ControlsTheme, theme)
       }
       .padding()
       .border(theme.controlBackgroundColor, width: 1)
       Button("Preset 1") {
-        $activeState.withLock {
-          $0.activePresetId = 1
-        }
+        store.send(.activePresetIdChanged(1))
       }
       Button("Preset 2") {
-        $activeState.withLock {
-          $0.activePresetId = 2
-        }
+        store.send(.activePresetIdChanged(2))
       }
     }
   }

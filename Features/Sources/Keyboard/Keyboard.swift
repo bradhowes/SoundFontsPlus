@@ -96,7 +96,6 @@ public struct Keyboard {
 
   public init() {}
 
-  @Shared(.activeState) private var activeState
   @Shared(.showMIDINotesOnKeyboard) private var showMIDINotesOnKeyboard
 
   public var body: some ReducerOf<Self> {

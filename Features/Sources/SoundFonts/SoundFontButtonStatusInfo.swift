@@ -54,7 +54,7 @@ public enum SoundFontButtonStatusInfoTag: Equatable {
     switch self {
     case .internalFile:
       return .init(
-        action: .delegate(.selectSoundFont(info, available: true)),
+        action: .delegate(.select(info, available: true)),
         imageName: "circle.fill",
         color: .clear
       )
@@ -66,7 +66,7 @@ public enum SoundFontButtonStatusInfoTag: Equatable {
       )
     case .localIsAvailable:
       return .init(
-        action: .delegate(.selectSoundFont(info, available: true)),
+        action: .delegate(.select(info, available: true)),
         imageName: "link",
         color: .mainAccentColor.opacity(0.5)
       )
@@ -78,7 +78,7 @@ public enum SoundFontButtonStatusInfoTag: Equatable {
       )
     case .cloudIsDownloaded:
       return .init(
-        action: .delegate(.selectSoundFont(info, available: true)),
+        action: .delegate(.select(info, available: true)),
         imageName: "icloud",
         color: .mainAccentColor.opacity(0.5)
       )

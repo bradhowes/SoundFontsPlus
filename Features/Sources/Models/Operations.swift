@@ -7,13 +7,6 @@ import SQLiteData
 
 public enum Operations {
 
-  /// - returns: the SoundFont ID to use when querying for presets to show, either the active or the selected font.
-  public static func currentPresetsSource() -> SoundFont.ID? {
-    @Shared(.selectedSoundFontId) var selectedSoundFontId
-    @Shared(.activeState) var activeState
-    return selectedSoundFontId ?? activeState.activeSoundFontId
-  }
-
   /**
    Obtain a query that returns the set of presets to show (unordered) for a given sound font ID. Honors the
    `showOnlyFavorites` setting.
@@ -21,9 +14,9 @@ public enum Operations {
    - parameter soundFontId: the sound font to query for
    - returns: a query showing the appropriate contents
    */
-  public static func presetsQuery(for soundFontId: SoundFont.ID? = nil) -> Where<Preset> {
+  public static func presetsQuery(for soundFontId: SoundFont.ID?) -> Where<Preset> {
     @Shared(.showOnlyFavorites) var showOnlyFavorites
-    return Preset.all.where { $0.soundFontId.eq(soundFontId ?? currentPresetsSource() ?? -1) } && (
+    return Preset.all.where { $0.soundFontId.eq(soundFontId ?? -1) } && (
       showOnlyFavorites
       ? .where { $0.kind.eq(Preset.Kind.favorite) }
       : .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.favorite) }
@@ -81,7 +74,7 @@ public enum Operations {
    - returns: the collection of presets
    */
   public static func allPresets(for soundFontId: SoundFont.ID?) -> [Preset] {
-    guard let soundFontId = (soundFontId ?? currentPresetsSource()) else { return [] }
+    guard let soundFontId else { return [] }
     let query = Preset
       .all
       .where { $0.soundFontId.eq(soundFontId) }
@@ -105,8 +98,8 @@ public enum Operations {
   }
 
   public static func presetAudioConfig(id: Preset.ID? = nil) -> AudioConfig? {
-    @Shared(.activeState) var activeState
-    return AudioConfig.with(presetId: id ?? activeState.activePresetId)
+    guard let id else { return nil }
+    return AudioConfig.with(presetId: id)
   }
 
   public static func soundFontIds(for tagId: Tag.ID) -> [SoundFont.ID] {

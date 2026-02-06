@@ -102,7 +102,6 @@ public struct AUv3Root {
 
   @Dependency(\.fileManager) private var fileManager
 
-  @Shared(.activeState) private var activeState
   @Shared(.fontsAndPresetsSplitPosition) private var fontsAndPresetsSplitPosition
   @Shared(.fontsAndTagsSplitPosition) private var fontsAndTagsSplitPosition
   @Shared(.tagsListVisible) private var tagsListVisible
@@ -154,7 +153,13 @@ public struct AUv3Root {
         return initialize(&state)
 
       case .presetsList(.delegate(.edit(let sectionId, let preset))):
-        state.destination = .presetEditor(PresetEditor.State(sectionId: sectionId, preset: preset))
+        state.destination = .presetEditor(
+          PresetEditor.State(
+            sectionId: sectionId,
+            preset: preset,
+            isActive: false
+          )
+        )
         return .none
 
       case .soundFontsList(.delegate(.edit(let soundFont))):
@@ -178,7 +183,6 @@ public struct AUv3Root {
 
   private enum CancelId: String, CaseIterable {
     case auv3RootCreateCloudDocumentsDirectory
-    case auv3RootMonitorActivePresetId
     case auv3RootMonitorInvalidationNotification
   }
 }
@@ -249,17 +253,8 @@ extension AUv3Root {
 
   private func initialize(_ state: inout State) -> Effect<Action> {
     return .merge(
-      createCloudDocumentsDirectory(),
-      monitorActivePresetId()
+      createCloudDocumentsDirectory()
     )
-  }
-
-  private func monitorActivePresetId() -> Effect<Action> {
-    .run { [$activeState] send in
-      for await value in UncheckedSendable($activeState.activePresetId.publisher.values.removeDuplicates()) {
-        await send(.activePresetIdChanged(value))
-      }
-    }.cancellable(id: CancelId.auv3RootMonitorActivePresetId, cancelInFlight: true)
   }
 
   private func processFontsAndPresetsSplitAction(

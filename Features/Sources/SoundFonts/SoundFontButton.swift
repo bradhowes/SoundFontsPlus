@@ -56,9 +56,9 @@ public struct SoundFontButton {
   public enum Delegate: Equatable {
     case alertInvalidBookmark(SoundFontInfo)
     case alertMissingFile(SoundFontInfo)
-    case deleteSoundFont(SoundFontInfo)
-    case editSoundFont(SoundFontInfo)
-    case selectSoundFont(SoundFontInfo, available: Bool)
+    case delete(SoundFontInfo)
+    case edit(SoundFontInfo)
+    case select(SoundFontInfo, available: Bool)
   }
 
   public init() {}
@@ -130,18 +130,14 @@ extension SoundFontButton {
 
 struct SoundFontButtonView: View {
   private var store: StoreOf<SoundFontButton>
-  @Shared(.selectedSoundFontId) private var selectedSoundFontId
-  @Shared(.activeState) private var activeState
   @Environment(\.editMode) private var deletingMode
   private var inDeletingMode: Bool { (deletingMode?.wrappedValue ?? .inactive) == .active }
   private var canDelete: Bool { store.soundFontInfo.kind != .builtin }
-  private var state: IndicatorModifier.State {
-    activeState.activeSoundFontId == store.state.soundFontInfo.id ? .active :
-    selectedSoundFontId == store.state.soundFontInfo.id ? .selected : .none
-  }
+  private let indicatorModifierState: IndicatorModifier.State
 
-  public init(store: StoreOf<SoundFontButton>) {
+  public init(store: StoreOf<SoundFontButton>, indicatorModifierState: IndicatorModifier.State) {
     self.store = store
+    self.indicatorModifierState = indicatorModifierState
   }
 
   public var body: some View {
@@ -149,7 +145,7 @@ struct SoundFontButtonView: View {
       store.send(
         inDeletingMode
         ? .toggleDeleting
-        : .delegate(.selectSoundFont(store.soundFontInfo, available: store.statusInfoTag.available)),
+        : .delegate(.select(store.soundFontInfo, available: store.statusInfoTag.available)),
         animation: .default
       )
     } label: {
@@ -165,11 +161,11 @@ struct SoundFontButtonView: View {
         Spacer()
         statusIndicator
       }
-      .indicator(inDeletingMode ? .none : state)
+      .indicator(inDeletingMode ? .none : indicatorModifierState)
       .contentShape(.interaction, Rectangle())
       .simultaneousGesture(
         LongPressGesture(minimumDuration: 1.0)
-          .onEnded { _ in store.send(.delegate(.editSoundFont(store.soundFontInfo))) }
+          .onEnded { _ in store.send(.delegate(.edit(store.soundFontInfo))) }
       )
       .animation(.smooth, value: inDeletingMode) // animate the transition to/from visibility editing
       .onChange(of: inDeletingMode) {
@@ -180,7 +176,7 @@ struct SoundFontButtonView: View {
     }
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
-        store.send(.delegate(.editSoundFont(store.soundFontInfo)), animation: .default)
+        store.send(.delegate(.edit(store.soundFontInfo)), animation: .default)
       } label: {
         Image(systemName: "pencil")
           .tint(.cyan)
@@ -189,7 +185,7 @@ struct SoundFontButtonView: View {
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
       if canDelete {
         Button {
-          store.send(.delegate(.deleteSoundFont(store.soundFontInfo)), animation: .default)
+          store.send(.delegate(.delete(store.soundFontInfo)), animation: .default)
         } label: {
           Image(systemName: "trash")
             .tint(.red)
@@ -232,25 +228,32 @@ extension SoundFontButtonView {
       @Shared(.hideEmptyTags) var hideEmptyTags = false
       $0.defaultDatabase = previewDatabase()
       return try $0.defaultDatabase.read { db in
-        try SoundFontInfo.query().fetchAll(db)
+        try SoundFontInfo.query(for: Tag.Ubiquitous.all.id).fetchAll(db)
       }
     }
-
-    @Shared(.activeState) var activeState
-    $activeState.withLock { $0.activeSoundFontId = soundFontInfos[0].id }
-    @Shared(.selectedSoundFontId) var selectedSoundFontId
-    $selectedSoundFontId.withLock { $0 = soundFontInfos[1].id }
 
     return VStack {
       Section {
         List {
-          SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[0])) { SoundFontButton() })
-          SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[1])) { SoundFontButton() })
+          SoundFontButtonView(
+            store: Store(initialState: .init(soundFontInfo: soundFontInfos[0])) { SoundFontButton()
+            },
+            indicatorModifierState: .active)
+          SoundFontButtonView(
+            store: Store(initialState: .init(soundFontInfo: soundFontInfos[1])) { SoundFontButton()
+            },
+            indicatorModifierState: .selected)
         }
       }
       List {
-        SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[0])) { SoundFontButton() })
-        SoundFontButtonView(store: Store(initialState: .init(soundFontInfo: soundFontInfos[1])) { SoundFontButton() })
+        SoundFontButtonView(
+          store: Store(initialState: .init(soundFontInfo: soundFontInfos[0])) { SoundFontButton()
+          },
+          indicatorModifierState: .active)
+        SoundFontButtonView(
+          store: Store(initialState: .init(soundFontInfo: soundFontInfos[1])) { SoundFontButton()
+          },
+          indicatorModifierState: .selected)
       }
 #if os(iOS)
       .listStyle(.grouped)

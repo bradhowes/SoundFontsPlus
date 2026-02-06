@@ -9,7 +9,7 @@ public struct DelayEffect {
 
   @ObservableState
   public struct State: Equatable {
-
+    public var activePresetId: Preset.ID?
     public var config: DelayConfig.Draft
     public var enabled: ToggleFeature.State
     public var locked: ToggleFeature.State
@@ -40,7 +40,6 @@ public struct DelayEffect {
     case deinitialize
     case enabled(ToggleFeature.Action)
     case feedback(KnobFeature.Action)
-    case initialize
     case locked(ToggleFeature.Action)
     case saveDebounced
     case time(KnobFeature.Action)
@@ -86,9 +85,6 @@ public struct DelayEffect {
       case .feedback:
         return updateAndSave(&state, path: \.feedback, value: state.feedback.value)
 
-      case .initialize:
-        return monitorActivePresetId()
-
       case .locked:
         return updateLocked(&state)
 
@@ -107,7 +103,6 @@ public struct DelayEffect {
     }
   }
 
-  @Shared(.activeState) private var activeState
   @Shared(.parameterTree) private var parameterTree
   @Dependency(\.mainQueue) private var mainQueue
   @Dependency(\.delayDevice) private var delayDevice
@@ -115,7 +110,6 @@ public struct DelayEffect {
 
   private enum CancelId: String, CaseIterable {
     case delayEffectApplyConfigForPreset
-    case delayEffectMonitorActivePresetId
     case delayEffectSaveDebouncer
     case delayEffectUpdateDebouncer
   }
@@ -132,6 +126,8 @@ extension DelayEffect {
     else {
       return .none
     }
+
+    state.activePresetId = presetId
 
     // Nothing to save?
     guard
@@ -166,14 +162,6 @@ extension DelayEffect {
     )
   }
 
-  private func monitorActivePresetId() -> Effect<Action> {
-    .run { [$activeState] send in
-      for await value in UncheckedSendable($activeState.activePresetId.publisher.values.removeDuplicates()) {
-        await send(.activePresetIdChanged(value))
-      }
-    }.cancellable(id: CancelId.delayEffectMonitorActivePresetId, cancelInFlight: true)
-  }
-
   private func runDebouncers(_ state: inout State) -> Effect<Action> {
     state.dirty = true
     return .merge(
@@ -196,7 +184,7 @@ extension DelayEffect {
 
   private func saveDebounced(_ state: inout State) -> Effect<Action> {
     state.dirty = false
-    if let presetId = activeState.activePresetId,
+    if let presetId = state.activePresetId,
        state.config.presetId == presetId,
        let found = DelayConfig.save(config: state.config) {
       state.config = .init(found)
@@ -230,7 +218,7 @@ extension DelayEffect {
   }
 
   private func globalToLocalConfig(_ state: inout State) -> Effect<Action> {
-    guard let presetId = activeState.activePresetId else { return .none }
+    guard let presetId = state.activePresetId else { return .none }
     var localConfig = DelayConfig.draft(for: presetId)
     localConfig.time = state.config.time
     localConfig.feedback = state.config.feedback
@@ -274,8 +262,6 @@ public struct DelayEffectView: View {
         KnobView(store: store.scope(state: \.cutoff, action: \.cutoff))
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
       }
-    }.task {
-      await store.send(.initialize).finish()
     }
   }
 }
@@ -287,11 +273,6 @@ private let log: Logger = .init(category: "DelayEffect")
 extension DelayEffectView {
   // swiftlint:disable:next function_body_length
   static func preview(presetId: Preset.ID) -> some View {
-    @Shared(.activeState) var activeState
-    $activeState.withLock {
-      $0.activePresetId = presetId
-    }
-
     var theme = Theme()
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
@@ -344,29 +325,25 @@ extension DelayEffectView {
       $0.delayDevice = testValue
     }
 
+    let store = Store(initialState: .init()) {
+      DelayEffect()
+    }
+
     return VStack {
       ScrollView(.horizontal) {
-        DelayEffectView(store: Store(initialState: .init()) {
-          DelayEffect()
-        })
-        .environment(\.auv3ControlsTheme, theme)
+        DelayEffectView(store: store)
+          .environment(\.auv3ControlsTheme, theme)
       }
       .padding()
       .border(theme.controlBackgroundColor, width: 1)
       Button("Preset 1") {
-        $activeState.withLock {
-          $0.activePresetId = 1
-        }
+        store.send(.activePresetIdChanged(1))
       }
       Button("Preset 2") {
-        $activeState.withLock {
-          $0.activePresetId = 2
-        }
+        store.send(.activePresetIdChanged(2))
       }
       Button("Preset 3") {
-        $activeState.withLock {
-          $0.activePresetId = 3
-        }
+        store.send(.activePresetIdChanged(3))
       }
     }
   }

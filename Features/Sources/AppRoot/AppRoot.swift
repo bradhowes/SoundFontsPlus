@@ -53,14 +53,15 @@ public struct AppRoot {
 
   @ObservableState
   public struct State: Equatable {
+    public var activePresetId: Preset.ID?
     public var appReview: AppReview.State
-    public var delay: DelayEffect.State
+    public var delayEffect: DelayEffect.State
     @Presents public var destination: Destination.State?
     public var fontsAndPresetsSplit: SplitViewReducer.State
     public var fontsAndTagsSplit: SplitViewReducer.State
     public var keyboard: Keyboard.State
     public var presetsList: PresetsList.State
-    public var reverb: ReverbEffect.State
+    public var reverbEffect: ReverbEffect.State
     public var soundFontsList: SoundFontsList.State
     public var synth: Synth.State
     public var tagsList: TagsList.State
@@ -76,13 +77,13 @@ public struct AppRoot {
      */
     public init(
       appReview: AppReview.State? = nil,
-      delay: DelayEffect.State? = nil,
+      delayEffect: DelayEffect.State? = nil,
       destination: Destination.State? = nil,
       fontsAndPresetsSplit: SplitViewReducer.State? = nil,
       fontsAndTagsSplit: SplitViewReducer.State? = nil,
       keyboard: Keyboard.State? = nil,
       presetsList: PresetsList.State? = nil,
-      reverb: ReverbEffect.State? = nil,
+      reverbEffect: ReverbEffect.State? = nil,
       soundFontsList: SoundFontsList.State? = nil,
       synth: Synth.State? = nil,
       tagsList: TagsList.State? = nil,
@@ -92,12 +93,12 @@ public struct AppRoot {
       @Shared(.isAUv3) var isAUv3 = false
 
       self.appReview = appReview ?? .init()
-      self.delay = delay ?? .init()
+      self.delayEffect = delayEffect ?? .init()
       self.fontsAndPresetsSplit = fontsAndPresetsSplit ?? Self.makeFontsAndPresetsSplitState()
       self.fontsAndTagsSplit = fontsAndTagsSplit ?? Self.makeFontsAndTagsSplitState()
       self.keyboard = keyboard ?? .init()
       self.presetsList = presetsList ?? .init()
-      self.reverb = reverb ?? .init()
+      self.reverbEffect = reverbEffect ?? .init()
       self.soundFontsList = soundFontsList ?? .init()
       self.synth = synth ?? .init()
       self.tagsList = tagsList ?? .init()
@@ -153,14 +154,14 @@ public struct AppRoot {
     case audioUnitCrashed
     case binding(BindingAction<State>)
     case deinitialize
-    case delay(DelayEffect.Action)
+    case delayEffect(DelayEffect.Action)
     case destination(PresentationAction<Destination.Action>)
     case fontsAndPresetsSplit(SplitViewReducer.Action)
     case fontsAndTagsSplit(SplitViewReducer.Action)
     case initialize
     case keyboard(Keyboard.Action)
     case presetsList(PresetsList.Action)
-    case reverb(ReverbEffect.Action)
+    case reverbEffect(ReverbEffect.Action)
     case scenePhaseChanged(ScenePhase)
     case soundFontsList(SoundFontsList.Action)
     case synth(Synth.Action)
@@ -173,7 +174,6 @@ public struct AppRoot {
 
   @Dependency(\.fileManager) private var fileManager
 
-  @Shared(.activeState) private var activeState
   @Shared(.effectsPanelVisible) private var effectsPanelVisible
   @Shared(.firstVisibleKey) private var firstVisibleKey
   @Shared(.fontsAndPresetsSplitPosition) private var fontsAndPresetsSplitPosition
@@ -184,12 +184,12 @@ public struct AppRoot {
     BindingReducer()
 
     Scope(state: \.appReview, action: \.appReview) { AppReview() }
-    Scope(state: \.delay, action: \.delay) { DelayEffect() }
+    Scope(state: \.delayEffect, action: \.delayEffect) { DelayEffect() }
     Scope(state: \.fontsAndPresetsSplit, action: \.fontsAndPresetsSplit) { SplitViewReducer() }
     Scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit) { SplitViewReducer() }
     Scope(state: \.keyboard, action: \.keyboard) { Keyboard() }
     Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
-    Scope(state: \.reverb, action: \.reverb) { ReverbEffect() }
+    Scope(state: \.reverbEffect, action: \.reverbEffect) { ReverbEffect() }
     Scope(state: \.soundFontsList, action: \.soundFontsList) { SoundFontsList() }
     Scope(state: \.synth, action: \.synth) { Synth() }
     Scope(state: \.tagsList, action: \.tagsList) { TagsList() }
@@ -222,10 +222,10 @@ public struct AppRoot {
 
         var actions = [
           .merge(CancelId.allCases.map { .cancel(id: $0) }),
-          reduce(into: &state, action: .delay(.deinitialize)),
+          reduce(into: &state, action: .delayEffect(.deinitialize)),
           reduce(into: &state, action: .keyboard(.deinitialize)),
           reduce(into: &state, action: .presetsList(.deinitialize)),
-          reduce(into: &state, action: .reverb(.deinitialize)),
+          reduce(into: &state, action: .reverbEffect(.deinitialize)),
           reduce(into: &state, action: .soundFontsList(.deinitialize)),
           reduce(into: &state, action: .synth(.deinitialize)),
           reduce(into: &state, action: .tagsList(.deinitialize)),
@@ -262,12 +262,35 @@ public struct AppRoot {
       case .keyboard(.delegate(let action)):
         return processKeyboardAction(&state, action: action)
 
+      case .presetsList(.delegate(.activePresetIdChanged(let presetId))):
+        return .merge(
+          reduce(into: &state, action: .delayEffect(.activePresetIdChanged(presetId))),
+          reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
+          reduce(into: &state, action: .reverbEffect(.activePresetIdChanged(presetId))),
+          reduce(into: &state, action: .soundFontsList(.selectedActivated)),
+          reduce(into: &state, action: .synth(.activePresetIdChanged(presetId))),
+          reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId))),
+          reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId)))
+        )
+
       case .presetsList(.delegate(.edit(let sectionId, let preset))):
-        state.destination = .presetEditor(PresetEditor.State(sectionId: sectionId, preset: preset))
+        state.destination = .presetEditor(
+          PresetEditor.State(
+            sectionId: sectionId,
+            preset: preset,
+            isActive: preset.id == state.activePresetId
+          )
+        )
         return .none
+
+      case .presetsList(.delegate(.missingSoundFontDetected(let soundFontId))):
+        return reduce(into: &state, action: .soundFontsList(.missingSoundFontDetected(soundFontId)))
 
       case .scenePhaseChanged(let phase):
         return scenePhaseChanged(&state, phase: phase)
+
+      case .soundFontsList(.delegate(.presetSourceChanged(let presetSource))):
+        return reduce(into: &state, action: .presetsList(.presetSourceChanged(presetSource)))
 
       case .soundFontsList(.delegate(.edit(let soundFont))):
         state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
@@ -281,6 +304,9 @@ public struct AppRoot {
 
       case .synth(.delegate(.stopped)):
         return audioChainInactive(&state)
+
+      case .tagsList(.delegate(.activeTagIdChanged(let tagId))):
+        return reduce(into: &state, action: .soundFontsList(.activeTagIdChanged(tagId)))
 
       case .tagsList(.delegate(.edit(focus: let ordering))):
         state.destination = .tagsEditor(TagsEditor.State(focused: ordering))
@@ -302,7 +328,6 @@ public struct AppRoot {
 
   private enum CancelId: String, CaseIterable {
     case appRootCreateCloudDocumentsDirectory
-    case appRootMonitorActivePresetId
     case appRootMonitorInvalidationNotification
   }
 }
@@ -368,7 +393,7 @@ extension AppRoot {
 
     if !state.readyForUse {
       state.readyForUse = true
-      actions.append(activePresetIdChanged(&state, presetId: activeState.activePresetId))
+      actions.append(activePresetIdChanged(&state, presetId: state.activePresetId))
     }
 
     return .merge(actions)
@@ -420,7 +445,6 @@ extension AppRoot {
 //    }
     return .merge(
       createCloudDocumentsDirectory(),
-      monitorActivePresetId(),
       monitorInvalidationNotification(&state),
       reduce(into: &state, action: .synth(.initialize)),
     )
@@ -448,14 +472,6 @@ extension AppRoot {
 
     log.info("starting MIDI service")
     midi.start()
-  }
-
-  private func monitorActivePresetId() -> Effect<Action> {
-    .run { [$activeState] send in
-      for await value in UncheckedSendable($activeState.activePresetId.publisher.values.removeDuplicates()) {
-        await send(.activePresetIdChanged(value))
-      }
-    }.cancellable(id: CancelId.appRootMonitorActivePresetId, cancelInFlight: true)
   }
 
   private func monitorInvalidationNotification(_ state: inout State) -> Effect<Action> {
@@ -537,15 +553,11 @@ extension AppRoot {
       return .none.animation(.smooth)
 
     case .importFinished:
-      return .merge(
-        reduce(into: &state, action: .tagsList(.fetchAllQueryChanged)),
-        reduce(into: &state, action: .soundFontsList(.updateFetchAllQuery))
-      )
+      return reduce(into: &state, action: .tagsList(.importFinished))
 
     case .presetNameTapped:
       return .merge(
         reduce(into: &state, action: .appReview(.ask)),
-        reduce(into: &state, action: .presetsList(.showActivePreset)),
         reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
       )
 

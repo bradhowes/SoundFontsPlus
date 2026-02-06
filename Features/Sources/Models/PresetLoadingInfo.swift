@@ -1,7 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import Foundation
-import Sharing
 import SQLiteData
 import Tagged
 
@@ -22,11 +21,10 @@ nonisolated public struct PresetLoadingInfo {
 
 extension PresetLoadingInfo {
 
-  static func query(for id: Preset.ID? = nil) -> Select<Self.Columns.QueryValue, Preset, (SoundFont, AudioConfig?)> {
-    @Shared(.activeState) var activeState
+  static func query(for id: Preset.ID?) -> Select<Self.Columns.QueryValue, Preset, (SoundFont, AudioConfig?)> {
     return Preset
       .where {
-        $0.id.eq(id ?? activeState.activePresetId ?? -1)
+        $0.id.eq(id ?? -1)
       }
       .join(SoundFont.all) {
         $0.soundFontId.eq($1.id)
@@ -54,7 +52,7 @@ extension PresetLoadingInfo {
    - parameter id: the preset to query for
    - returns: the optional `PresetLoadingInfo` for the preset
    */
-  public static func `for`(id: Preset.ID? = nil) -> PresetLoadingInfo? {
+  public static func `for`(id: Preset.ID?) -> PresetLoadingInfo? {
     withDatabaseReader {
       try PresetLoadingInfo.query(for: id).fetchOne($0)
     } ?? nil

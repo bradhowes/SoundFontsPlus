@@ -57,12 +57,12 @@ extension TagButton {
 
 struct TagButtonView: View {
   private var store: StoreOf<TagButton>
-  @Shared(.activeState) private var activeState
-  private var state: IndicatorModifier.State { activeState.activeTagId == store.id ? .active : .none }
   private var count: String { store.tagInfo.soundFontsCount > 0 ? "\(store.tagInfo.soundFontsCount)" : "" }
+  private let indicatorModifierState: IndicatorModifier.State
 
-  public init(store: StoreOf<TagButton>) {
+  public init(store: StoreOf<TagButton>, indicatorModifierState: IndicatorModifier.State) {
     self.store = store
+    self.indicatorModifierState = indicatorModifierState
   }
 
   public var body: some View {
@@ -73,7 +73,7 @@ struct TagButtonView: View {
         Text(store.tagInfo.displayName)
           .font(.button)
           .opacity(count.isEmpty ? 0.75 : 1.0)
-          .indicator(state)
+          .indicator(indicatorModifierState)
         Spacer()
         Text(count)
           .font(.button)
@@ -121,22 +121,19 @@ extension TagButtonView {
       }
     }
 
-    @Shared(.activeState) var activeState
-    $activeState.withLock { $0.activeTagId = tagInfos[0].id }
-
     return VStack {
       StyledList {
         Section {
-          TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[0])) { TagButton() })
-          TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[1])) { TagButton() })
+          TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[0])) { TagButton() }, indicatorModifierState: .active)
+          TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[1])) { TagButton() }, indicatorModifierState: .none)
         } header: {
           StyledHeader { Text("Foo") }
         }
       }
       StyledList {
         Section {
-          TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[0])) { TagButton() })
-          TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[1])) { TagButton() })
+          TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[0])) { TagButton() }, indicatorModifierState: .active)
+          TagButtonView(store: Store(initialState: .init(tagInfo: tagInfos[1])) { TagButton() }, indicatorModifierState: .none)
         } header: {
           StyledHeader { Text("Bar") }
         }
