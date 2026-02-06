@@ -28,7 +28,6 @@ import VolumeMonitor
  The top-level feature of the application.
  */
 @Reducer
-// swiftlint:disable type_body_length
 public struct AppRoot {
 
   /**
@@ -43,9 +42,7 @@ public struct AppRoot {
     case settings(Settings)
     case soundFontEditor(SoundFontEditor)
     case tagsEditor(TagsEditor)
-    #if os(iOS)
     case tutorial(Tutorial)
-    #endif
 
     @CasePathable
     @frozen
@@ -68,9 +65,7 @@ public struct AppRoot {
     public var synth: Synth.State
     public var tagsList: TagsList.State
     public var toolBar: ToolBar.State
-    #if os(iOS)
     public var volumeMonitor: VolumeMonitor.State
-    #endif
     // Set to true when synth is created and audio state is active. Once set, does not change.
     public var readyForUse = false
     public var audioUnitCrashed = false
@@ -108,11 +103,7 @@ public struct AppRoot {
       self.tagsList = tagsList ?? .init()
       self.toolBar = toolBar ?? .init()
       self.toastState = toastState
-
-#if os(iOS)
       self.volumeMonitor = .init()
-
-#if !DEBUG || !targetEnvironment(simulator)
 
       if Tutorial.shouldShow {
         showTutorial()
@@ -120,45 +111,9 @@ public struct AppRoot {
         showChanges()
       }
 
-#endif // !DEBUG || !targetEnvironment(simulator)
-#endif // os(iOS)
-
       // Deep-linking to a destination at start up for dev/testing
       //
       // destination = .settings(SettingsFeature.State(midi: midi, midiMonitor: midiMonitor))
-    }
-
-    /**
-     Constructor for AUv3 component.
-     */
-    public init(
-      audioUnit: SF2LibAU,
-      destination: Destination.State? = nil,
-      fontsAndPresetsSplit: SplitViewReducer.State? = nil,
-      fontsAndTagsSplit: SplitViewReducer.State? = nil,
-      presetsList: PresetsList.State? = nil,
-      soundFontsList: SoundFontsList.State? = nil,
-      tagsList: TagsList.State? = nil,
-      toolBar: ToolBar.State? = nil,
-    ) {
-      @Shared(.isAUv3) var isAUv3 = true
-
-      self.appReview = .init()
-      self.delay = .init()
-      self.fontsAndPresetsSplit = fontsAndPresetsSplit ?? Self.makeFontsAndPresetsSplitState()
-      self.fontsAndTagsSplit = fontsAndTagsSplit ?? Self.makeFontsAndTagsSplitState()
-      self.keyboard = .init()
-      self.presetsList = presetsList ?? .init()
-      self.reverb = .init()
-      self.soundFontsList = soundFontsList ?? .init()
-      self.synth = .init()
-      self.tagsList = tagsList ?? .init()
-      self.toolBar = toolBar ?? .init()
-      self.toastState = nil
-
-#if os(iOS)
-      self.volumeMonitor = .init()
-#endif // os(iOS)
     }
 
     static public func makeFontsAndPresetsSplitState() -> SplitViewReducer.State {
@@ -211,9 +166,7 @@ public struct AppRoot {
     case synth(Synth.Action)
     case tagsList(TagsList.Action)
     case toolBar(ToolBar.Action)
-#if os(iOS)
     case volumeMonitor(VolumeMonitor.Action)
-#endif
   }
 
   public init() {}
@@ -241,9 +194,7 @@ public struct AppRoot {
     Scope(state: \.synth, action: \.synth) { Synth() }
     Scope(state: \.tagsList, action: \.tagsList) { TagsList() }
     Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
-#if os(iOS)
     Scope(state: \.volumeMonitor, action: \.volumeMonitor) { VolumeMonitor() }
-#endif
 
     Reduce { state, action in
 
@@ -281,9 +232,7 @@ public struct AppRoot {
           reduce(into: &state, action: .toolBar(.deinitialize))
         ]
 
-#if os(iOS)
         actions.append(reduce(into: &state, action: .volumeMonitor(.stop)))
-#endif
         return .merge(actions)
 
       case .destination(.presented(.alert(.reinitializeConfirmed))):
@@ -396,9 +345,7 @@ extension AppRoot {
       reduce(into: &state, action: .synth(.activePresetIdChanged(presetId))),
       reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId)))
     ]
-#if os(iOS)
     actions.append(reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId))))
-#endif
     return .merge(actions)
   }
 
@@ -417,9 +364,7 @@ extension AppRoot {
     // The synth is up and running with an active audio session. Safe to monitor its state now.
     var actions = [Effect<Action>]()
 
-#if os(iOS)
     actions.append(reduce(into: &state, action: .volumeMonitor(.start)))
-#endif
 
     if !state.readyForUse {
       state.readyForUse = true
@@ -430,11 +375,7 @@ extension AppRoot {
   }
 
   private func audioChainInactive(_ state: inout State) -> Effect<Action> {
-#if os(iOS)
     return reduce(into: &state, action: .volumeMonitor(.stop))
-#else
-    return .none
-#endif
   }
 
   private func createCloudDocumentsDirectory() -> Effect<Action> {
@@ -579,9 +520,7 @@ extension AppRoot {
       state.showChanges()
 
     case .showTutorial:
-#if os(iOS)
       state.showTutorial()
-#endif
     }
 
     return .none
@@ -654,7 +593,6 @@ extension AppRoot {
   }
 
   private func volumeMonitorReasonChanged(_ state: inout State, reason: VolumeMonitor.Reason?) -> Effect<Action> {
-#if os(iOS)
     log.info("volumeMonitor reasonChanged: \(reason.debugDescription)")
     if let reason {
       if state.toastState == nil {
@@ -668,13 +606,8 @@ extension AppRoot {
       into: &state,
       action: .keyboard(.outputVolumeStateChanged(reason != nil ? .muted : .unmuted))
     )
-#else
-    return .none
-#endif
   }
 }
-
-// swiftlint:enable type_body_length
 
 extension AppRoot.Destination.State: Equatable {}
 extension AppRoot.Destination.Alert: Equatable {}
