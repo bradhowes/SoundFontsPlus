@@ -89,11 +89,7 @@ public struct AppRootView: View {
       }
     }
 #endif // os(iOS)
-    .sheets(
-      store: $store,
-      horizontalSizeClass: horizontalSizeClass,
-      verticalSizeClass: verticalSizeClass
-    )
+    .sheets(store: $store, isCompact: showFakeKeyboard)
     .appReview(store: store.scope(state: \.appReview, action: \.appReview))
     .toast(item: $store.toastState, alignment: .top) { reason in
       volumeMonitorToast(reason)
@@ -246,19 +242,13 @@ extension View {
    Custom `View` modifier that generates all of the optional sheets that can be created in the feature.
   
    - parameter store: the `Root` store which will be scoped to a child feature for displaying
-   - parameter horizontalSizeClass: indicator of the horizontal size of the view
-   - parameter verticalSizeClass: indicator of the vertical size of the view
    - returns: modified view
    */
-  fileprivate func sheets(
-    store: Bindable<StoreOf<AppRoot>>,
-    horizontalSizeClass: UserInterfaceSizeClass?,
-    verticalSizeClass: UserInterfaceSizeClass?
-  ) -> some View {
+  fileprivate func sheets(store: Bindable<StoreOf<AppRoot>>, isCompact: Bool) -> some View {
     self
       .changesSheet(store.scope(state: \.destination?.changes, action: \.destination.changes))
       .presetEditorSheet(store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor))
-      .settingsSheet(store.scope(state: \.destination?.settings, action: \.destination.settings), showFakeKeyboard: false)
+      .settingsSheet(store.scope(state: \.destination?.settings, action: \.destination.settings), showFakeKeyboard: isCompact)
       .soundFontEditorSheet(store.scope(state: \.destination?.soundFontEditor, action: \.destination.soundFontEditor))
       .tagsEditorSheet(store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor))
       .tutorialSheet(store.scope(state: \.destination?.tutorial, action: \.destination.tutorial))
@@ -268,6 +258,7 @@ extension View {
     self
       .sheet(item: store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
         PresetEditorView(store: $0)
+          .environment(\.colorScheme, .dark)
       }
   }
 
@@ -311,10 +302,8 @@ extension View {
 extension AppRootView {
 
   static var preview: some View {
-    @Shared(.darkModeEnabled) var darkModeEnabled
-    let bg: Color = darkModeEnabled ? .black : .white
-    return ZStack {
-      bg
+    ZStack {
+      Color.black
         .ignoresSafeArea()
       AppRootView(store: AppRoot.makeWithDependencies())
     }
@@ -322,10 +311,7 @@ extension AppRootView {
 }
 
 #Preview {
-  @Previewable
-  @Shared(.darkModeEnabled) var darkModeEnabled
   AppRootView.preview
-    .environment(\.colorScheme, darkModeEnabled ? .dark : .light)
 }
 
 #endif

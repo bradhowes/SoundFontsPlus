@@ -1,50 +1,22 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AppReview
-import AUv3Controls
 import BRHSplitView
-import Changes
-import DelayEffect
 import FeatureSupport
-import Keyboard
 import Presets
-import ReverbEffect
 import Settings
 import Sharing
 import SoundFonts
-import SwiftToasts
 import SwiftUI
 import Tags
 import ToolBar
-import Tutorial
-import VolumeMonitor
 
 public struct AUv3RootView: View {
   @Bindable private var store: StoreOf<AppRoot>
 
   private let dividerBorderColor: Color = .splitViewHandleBackgroundColor
-  private let dividerSpan: CGFloat = 4
-  @State private var isInputKeyboardVisible = false
-  @State private var effectsOffset: CGFloat = 0.0
-
-  @Shared(.effectsPanelVisible) private var effectsPanelVisible
+  private let dividerSpan: CGFloat = 2
 
   @Environment(\.scenePhase) var scenePhase
-  @Environment(\.colorScheme) private var colorScheme
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-  @Environment(\.verticalSizeClass) private var verticalSizeClass
-
-  private var theme: Theme {
-    var theme = Theme(colorScheme: colorScheme)
-    theme.controlForegroundColor = .teal
-    theme.textColor = .teal.mix(with: .black, by: 0.2)
-    theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
-    theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
-    theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
-    theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
-    theme.font = .effectsControl
-    return theme
-  }
 
   public init(store: StoreOf<AppRoot>) {
     self.store = store
@@ -52,59 +24,20 @@ public struct AUv3RootView: View {
   }
 
   public var body: some View {
-
-    // let _ = Self._printChanges()
     VStack(spacing: 0) {
       listViews
       controlViews
     }
     .padding(0)
-    .animation(.smooth, value: effectsPanelVisible)
-    .animation(.smooth, value: isInputKeyboardVisible)
     .environment(\.font, FeatureSupport.Font.body)
-    .environment(\.auv3ControlsTheme, theme)
     .onChange(of: scenePhase) { _, newPhase in
       store.send(.scenePhaseChanged(newPhase))
     }
     .task {
       await store.send(.initialize).finish()
     }
-    .sheets(
-      store: $store,
-      horizontalSizeClass: horizontalSizeClass,
-      verticalSizeClass: verticalSizeClass
-    )
-    .appReview(store: store.scope(state: \.appReview, action: \.appReview))
-    .toast(item: $store.toastState, alignment: .top) { reason in
-      volumeMonitorToast(reason)
-    }
-    .toastStyle(.plain)
+    .sheets(store: $store)
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
-  }
-
-  private func volumeMonitorToast(_ reason: VolumeMonitor.Reason) -> Toast {
-    switch reason {
-    case .volumeLevelIsZero:
-      Toast(role: .failure, duration: .indefinite) {
-        Label {
-          Text("Volume is muted.")
-            .font(.toastLabel)
-            .foregroundStyle(.teal)
-        } icon: {
-          Image(systemName: "speaker.slash")
-        }
-      }
-    case .noActivePreset:
-      Toast(role: .failure, duration: .indefinite) {
-        Label {
-          Text("No preset selected.")
-            .font(.toastLabel)
-            .foregroundStyle(.teal)
-        } icon: {
-          Image(systemName: "speaker.slash")
-        }
-      }
-    }
   }
 }
 
@@ -181,15 +114,9 @@ extension View {
    Custom `View` modifier that generates all of the optional sheets that can be created in the feature.
   
    - parameter store: the `Root` store which will be scoped to a child feature for displaying
-   - parameter horizontalSizeClass: indicator of the horizontal size of the view
-   - parameter verticalSizeClass: indicator of the vertical size of the view
    - returns: modified view
    */
-  fileprivate func sheets(
-    store: Bindable<StoreOf<AppRoot>>,
-    horizontalSizeClass: UserInterfaceSizeClass?,
-    verticalSizeClass: UserInterfaceSizeClass?
-  ) -> some View {
+  fileprivate func sheets(store: Bindable<StoreOf<AppRoot>>) -> some View {
     self
       .presetEditorSheet(store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor))
       .settingsSheet(store.scope(state: \.destination?.settings, action: \.destination.settings), showFakeKeyboard: false)

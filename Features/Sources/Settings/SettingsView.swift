@@ -64,6 +64,7 @@ public struct SettingsView: View {
     .task {
       await store.send(.initialize).finish()
     }
+    .darkMode() // TODO: find better approach for updating colorScheme when colorSchemeBehavior changes
   }
 }
 

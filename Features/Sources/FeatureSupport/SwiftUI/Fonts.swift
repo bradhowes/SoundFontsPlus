@@ -75,11 +75,3 @@ extension Color {
   public static var buttonActive: Color { .teal }
 }
 
-@frozen
-public enum ColorSchemeBehavior: String, CaseIterable, Identifiable {
-  case system = "Device"
-  case light = "Light"
-  case dark = "Dark"
-
-  public var id: Self { self }
-}

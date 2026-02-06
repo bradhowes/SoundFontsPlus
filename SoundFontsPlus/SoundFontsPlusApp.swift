@@ -3,19 +3,13 @@
 import AppRoot
 import ComposableArchitecture
 import FeatureSupport
-import MorkAndMIDI
+import Sharing
 import SQLiteData
 import SwiftUI
 
 @main
 struct SoundFontsPlusApp: App {
   static let store: StoreOf<AppRoot> = AppRoot.makeWithDependencies()
-
-  @Shared(.colorSchemeBehavior) private var colorSchemeBehavior
-  @Environment(\.colorScheme) private var colorScheme
-
-  private var darkModeEnabled: Bool { colorSchemeBehavior == .dark || colorScheme == .dark }
-  private var rootColor: Color { darkModeEnabled ? .black : .white }
 
   init() {
     installApplicationFont()
@@ -26,14 +20,15 @@ struct SoundFontsPlusApp: App {
       if isTesting {
         EmptyView()
       } else {
+        @Shared(.colorSchemeBehavior) var colorSchemeBehavior
         ZStack {
-          rootColor
+          colorSchemeBehavior.rootBackgroundColor
             .ignoresSafeArea()
           ContentView()
-            .environment(\.colorScheme, darkModeEnabled ? .dark : .light)
-            .tint(.mainAccentColor)
-            .environment(\.font, FeatureSupport.Font.body)
         }
+        .tint(.mainAccentColor)
+        .environment(\.font, FeatureSupport.Font.body)
+        .darkMode()
       }
     }
   }
