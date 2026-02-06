@@ -96,7 +96,7 @@ struct AppReviewTests {
       AppReview()
     }
 
-    let view = AppReviewDemoView(store: store)
+    _ = AppReviewDemoView(store: store)
     store.send(.ask)
 
 //    try TestSupport.assertSnapshot(matching: view)

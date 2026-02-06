@@ -1,7 +1,13 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFAudio
+import Foundation
 import Sharing
+
+extension UserDefaults {
+  // swiftlint:disable:next force_unwrapping
+  public nonisolated(unsafe) static let soundFontsSuite = UserDefaults(suiteName: FileManager.default.applicationGroupIdentifier)!
+}
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var backgroundProcessing: Self { Self[.appStorage("backgroundProcessing"), default: true] }

@@ -376,8 +376,6 @@ extension AppRoot {
       }
 
       @Shared(.isAUv3) var isAUv3 = false
-      @Shared(.activeStateURL) var activeStateURL = URL.applicationSupportDirectory.appendingPathComponent("activeState.json")
-      log.info("activeStateURL: \((activeStateURL?.lastPathComponent ?? "nil"), privacy: .public)")
 
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()

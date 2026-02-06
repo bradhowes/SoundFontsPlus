@@ -201,8 +201,6 @@ extension AUv3Root {
       }
 
       @Shared(.isAUv3) var isAUv3 = true
-      @Shared(.activeStateURL) var activeStateURL = URL.temporaryDirectory.appendingPathComponent(audioUnit.uuid.uuidString)
-      log.info("makeWithDependencies - uuid: \(audioUnit.uuid.uuidString, privacy: .public)")
 
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()

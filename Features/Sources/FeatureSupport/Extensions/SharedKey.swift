@@ -10,22 +10,21 @@ import Tagged
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var backupRestoreEnabled: Self { Self[.appStorage("backupRestoreEnabled"), default: false] }
-  public static var confirmPresetHiding: Self { Self[.appStorage("stopConfirmingPresetHiding"), default: true] }
+  public static var confirmPresetHiding: Self { Self[.appStorage("stopConfirmingPresetHiding"), default: true]
+  }
   public static var copyFileWhenInstalling: Self { Self[.appStorage("copyFileWhenInstalling"), default: true] }
   public static var delayLockEnabled: Self { Self[.appStorage("delayLockEnabled"), default: false] }
   public static var disableIdleTimer: Self { Self[.appStorage("disableIdleTimer"), default: false]}
   public static var effectsPanelVisible: Self { Self[.appStorage("effectsPanelVisible"), default: false] }
-  public static var favoritesOnTop: Self { Self[.appStorage("favoritesOnTop"), default: false] }
   public static var keyboardSlides: Self { Self[.appStorage("keyboardSlides"), default: false] }
   public static var midiAutoConnect: Self { Self[.appStorage("midiAutoConnect"), default: true] }
   public static var reverbLockEnabled: Self { Self[.appStorage("reverbLockEnabled"), default: false] }
   public static var showKeyNotes: Self { Self[.appStorage("showKeyNotes"), default: true] }
-  public static var showActiveVoiceCount: Self { Self[.appStorage("showActiveVoiceCount"), default: true]}
-  public static var showMIDINotesOnKeyboard: Self { Self[.appStorage("showMIDINotesOnKeyboard"), default: true]}
-  public static var showMIDITrafficIndicator: Self { Self[.appStorage("showMIDITrafficIndicator"), default: true]}
+  public static var showActiveVoiceCount: Self { Self[.appStorage("showActiveVoiceCount"), default: true] }
+  public static var showMIDINotesOnKeyboard: Self { Self[.appStorage("showMIDINotesOnKeyboard"), default: true] }
+  public static var showMIDITrafficIndicator: Self { Self[.appStorage("showMIDITrafficIndicator"), default: true] }
   public static var showOnlyFavorites: Self { Self[.appStorage("showOnlyFavorites"), default: false] }
   public static var showSolfegeTags: Self { Self[.appStorage("showSolfegeTags"), default: false] }
-  public static var sortPresetsByName: Self { Self[.appStorage("sortPresetsByName"), default: false] }
   public static var starFavoriteNames: Self { Self[.appStorage("starFavoriteNames"), default: true] }
   public static var tagsListVisible: Self { Self[.appStorage("tagsListVisible"), default: false] }
 }
@@ -68,14 +67,12 @@ extension SharedKey where Self == AppStorageKey<ColorSchemeBehavior>.Default {
 }
 
 extension SharedKey where Self == AppStorageKey<String>.Default {
-  public static var favoriteSymbolName: Self { Self[.appStorage("favoriteSymbolName"), default: "star.circle.fill"] }
+  public static var favoriteSymbolName: Self {
+    unsafe Self[.appStorage("favoriteSymbolName", store: .soundFontsSuite), default: "star.circle.fill"]
+  }
 }
 
 // MARK: - InMemory settings
-
-extension SharedKey where Self == InMemoryKey<ColorScheme?>.Default {
-  public static var systemColorScheme: Self { Self[.inMemory("systemColorScheme"), default: nil] }
-}
 
 extension SharedKey where Self == InMemoryKey<Double>.Default {
   public static var activePresetGain: Self { Self[.inMemory("activePresetGain"), default: 0.0] }
