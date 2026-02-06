@@ -5,7 +5,7 @@ import Foundation
 import PackageDescription
 
 let useLocalMorkAndMIDI = false
-let useLocalSF2Lib = false
+let useLocalSF2Lib = true
 
 extension Package.Dependency {
   static var morkAndMIDI: PackageDescription.Package.Dependency {
@@ -24,6 +24,7 @@ let package = Package(
   products: [
     .lib("AppReview"),
     .lib("AppRoot"),
+    .lib("AUv3Root"),
     .lib("BaseSupport"),
     .lib("Changes"),
     .lib("DelayEffect"),
@@ -94,6 +95,17 @@ let package = Package(
         "ToolBar",
         "Tutorial",
         "VolumeMonitor",
+        .product(name: "BRHSplitView", package: "brh-splitview"),
+      ]
+    ),
+    .feature(
+      "AUv3Root",
+      dependencies: [
+        "Presets",
+        "Settings",
+        "SoundFonts",
+        "Tags",
+        "ToolBar",
         .product(name: "BRHSplitView", package: "brh-splitview"),
       ]
     ),
@@ -209,6 +221,7 @@ let package = Package(
 
     .testFeature("AppReview"),
     .testFeature("AppRoot"),
+    .testFeature("AUv3Root"),
     .testFeature("Changes"),
     .testFeature("DelayEffect"),
     .testFeature("FileImporter"),

@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AppRoot
+import AUv3Root
 import CoreAudioKit
 import FeatureSupport
 import os
@@ -11,7 +11,7 @@ import SF2LibAU
 @MainActor
 public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
   public var audioUnit: SF2LibAU?
-  public var hostingController: AUv3HostingController<AppRootView>?
+  public var hostingController: AUv3HostingController<AUv3RootView>?
 
   deinit {}
 
@@ -48,7 +48,7 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
     }
 
     // Entry point for AUv3 view
-    let content = AppRootView(store: AppRoot.makeWithDependencies())
+    let content = AUv3RootView(store: AUv3Root.makeWithDependencies(audioUnit: audioUnit))
     let host = AUv3HostingController(rootView: content)
 
     self.addChild(host)

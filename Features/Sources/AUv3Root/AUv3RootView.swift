@@ -1,9 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AVFAudio
 import BRHSplitView
 import FeatureSupport
 import Presets
 import Settings
+import SF2LibAU
 import Sharing
 import SoundFonts
 import SwiftUI
@@ -11,14 +13,14 @@ import Tags
 import ToolBar
 
 public struct AUv3RootView: View {
-  @Bindable private var store: StoreOf<AppRoot>
+  @Bindable private var store: StoreOf<AUv3Root>
 
   private let dividerBorderColor: Color = .splitViewHandleBackgroundColor
   private let dividerSpan: CGFloat = 2
 
   @Environment(\.scenePhase) var scenePhase
 
-  public init(store: StoreOf<AppRoot>) {
+  public init(store: StoreOf<AUv3Root>) {
     self.store = store
     navigationBarTitleStyle()
   }
@@ -30,14 +32,10 @@ public struct AUv3RootView: View {
     }
     .padding(0)
     .environment(\.font, FeatureSupport.Font.body)
-    .onChange(of: scenePhase) { _, newPhase in
-      store.send(.scenePhaseChanged(newPhase))
-    }
     .task {
       await store.send(.initialize).finish()
     }
     .sheets(store: $store)
-    .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
 }
 
@@ -116,7 +114,7 @@ extension View {
    - parameter store: the `Root` store which will be scoped to a child feature for displaying
    - returns: modified view
    */
-  fileprivate func sheets(store: Bindable<StoreOf<AppRoot>>) -> some View {
+  fileprivate func sheets(store: Bindable<StoreOf<AUv3Root>>) -> some View {
     self
       .presetEditorSheet(store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor))
       .settingsSheet(store.scope(state: \.destination?.settings, action: \.destination.settings), showFakeKeyboard: false)
@@ -130,7 +128,10 @@ extension View {
 extension AUv3RootView {
 
   static var preview: some View {
-    AUv3RootView(store: AppRoot.makeWithDependencies())
+    let acd = Bundle.main.audioComponentDescription
+    // swiftlint:disable:next force_try
+    let audioUnit = try! SF2LibAU(componentDescription: acd)
+    return AUv3RootView(store: AUv3Root.makeWithDependencies(audioUnit: audioUnit))
   }
 }
 

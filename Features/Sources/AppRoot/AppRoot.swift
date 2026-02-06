@@ -383,8 +383,6 @@ extension AppRoot {
         $0.defaultFileStorage = .fileSystem
       }
 
-      installApplicationFont()
-
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       try? $0.fileManager.createDirectory($0.fileManager.fontFilesDirectory())
