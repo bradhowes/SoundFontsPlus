@@ -19,10 +19,16 @@ extension SharedKey where Self == AppStorageKey<Double>.Default {
 
 extension SharedKey where Self == FileStorageKey<ActiveState>.Default {
   public static var activeState: Self {
-    Self[.fileStorage(.activeStateURL), default: .default]
+    @Shared(.activeStateURL) var activeStateURL
+    // swiftlint:disable:next force_unwrapping
+    return Self[.fileStorage(activeStateURL!), default: .default]
   }
 }
 
 extension SharedKey where Self == InMemoryKey<SoundFont.ID?>.Default {
   public static var selectedSoundFontId: Self { Self[.inMemory("selectedSoundFont"), default: nil] }
+}
+
+extension SharedKey where Self == InMemoryKey<URL?>.Default {
+  public static var activeStateURL: Self { Self[.inMemory("activeStateURL"), default: nil] }
 }

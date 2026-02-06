@@ -74,4 +74,3 @@ extension Color {
 
   public static var buttonActive: Color { .teal }
 }
-

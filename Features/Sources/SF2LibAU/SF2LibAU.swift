@@ -14,6 +14,8 @@ public final class SF2LibAU: AUAudioUnit {
   private var _audioUnitShortName: String?
   private var _currentPreset: AUAudioUnitPreset?
 
+  public let uuid = UUID()
+
   private var engine: SF2Engine = SF2Engine()
   private var dryBus: AUAudioUnitBus
   private var reverbSendBus: AUAudioUnitBus
@@ -72,6 +74,7 @@ sub: \(componentDescription.componentSubType)
 
     try super.init(componentDescription: componentDescription, options: options)
 
+    log.info("uuid: \(self.uuid.uuidString, privacy: .public)")
     log.info("init - creating parameterTree")
     self.parameterTree = engine.getParameterTree()
 

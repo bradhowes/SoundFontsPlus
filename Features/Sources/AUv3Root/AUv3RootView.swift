@@ -32,6 +32,7 @@ public struct AUv3RootView: View {
     }
     .padding(0)
     .environment(\.font, FeatureSupport.Font.body)
+    .darkMode()
     .task {
       await store.send(.initialize).finish()
     }

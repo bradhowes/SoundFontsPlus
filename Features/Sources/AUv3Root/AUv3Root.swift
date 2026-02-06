@@ -16,7 +16,6 @@ import ToolBar
  The top-level feature of the AUv3 interface.
  */
 @Reducer
-// swiftlint:disable type_body_length
 public struct AUv3Root {
 
   /**
@@ -201,6 +200,10 @@ extension AUv3Root {
         $0.defaultFileStorage = .fileSystem
       }
 
+      @Shared(.isAUv3) var isAUv3 = true
+      @Shared(.activeStateURL) var activeStateURL = URL.temporaryDirectory.appendingPathComponent(audioUnit.uuid.uuidString)
+      log.info("makeWithDependencies - uuid: \(audioUnit.uuid.uuidString, privacy: .public)")
+
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
       try? $0.fileManager.createDirectory($0.fileManager.fontFilesDirectory())
@@ -320,8 +323,6 @@ extension AUv3Root {
     }
   }
 }
-
-// swiftlint:enable type_body_length
 
 extension AUv3Root.Destination.State: Equatable {}
 

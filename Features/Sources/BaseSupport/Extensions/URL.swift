@@ -7,20 +7,6 @@ import SQLiteData
 extension URL {
 
   /**
-   - Returns: the URL for the file that persists the `activeState` values. For an AUv3 extension we save to a
-   throw-away file that is unique across all instances since we do not want multiple AUv3 extensions to share
-   this state, and the active state is guided by the current AUv3 preset.
-   */
-  public static let activeStateURL: URL = {
-    @Shared(.isAUv3) var isAUv3
-    return isAUv3 ? .temporaryDirectory.appendingPathComponent(ProcessInfo().globallyUniqueString) :
-      .applicationSupportDirectory.appendingPathComponent("activeState.json")
-  }()
-}
-
-extension URL {
-
-  /**
    Attempt to obtain bookmark data for an artifact URL that can be saved and later used to generate a valid URL
    to the artifact.
 

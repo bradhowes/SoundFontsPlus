@@ -8,10 +8,12 @@ let useLocalMorkAndMIDI = false
 let useLocalSF2Lib = true
 
 extension Package.Dependency {
+
   static var morkAndMIDI: PackageDescription.Package.Dependency {
     useLocalMorkAndMIDI ? .package(name: "MorkAndMIDI", path: "/Users/howes/src/Mine/morkandmidi") :
       .package(url: "https://github.com/bradhowes/morkandmidi", from: "5.0.0")
   }
+
   static var sf2Lib: PackageDescription.Package.Dependency {
     useLocalSF2Lib ? .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib") :
       .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.10.0")

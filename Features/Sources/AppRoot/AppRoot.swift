@@ -96,14 +96,6 @@ public struct AppRoot {
     ) {
       @Shared(.isAUv3) var isAUv3 = false
 
-#if false
-      @Shared(.activeState) var activeState
-      $activeState.withLock {
-        $0.activePresetId = nil
-        $0.activeSoundFontId = nil
-      }
-#endif // false
-
       self.appReview = appReview ?? .init()
       self.delay = delay ?? .init()
       self.fontsAndPresetsSplit = fontsAndPresetsSplit ?? Self.makeFontsAndPresetsSplitState()
@@ -382,6 +374,10 @@ extension AppRoot {
       } else {
         $0.defaultFileStorage = .fileSystem
       }
+
+      @Shared(.isAUv3) var isAUv3 = false
+      @Shared(.activeStateURL) var activeStateURL = URL.applicationSupportDirectory.appendingPathComponent("activeState.json")
+      log.info("activeStateURL: \((activeStateURL?.lastPathComponent ?? "nil"), privacy: .public)")
 
       // swiftlint:disable:next force_try
       $0.defaultDatabase = try! appDatabase()
