@@ -379,14 +379,13 @@ extension AppRoot {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     guard state.readyForUse else { return .none }
-    var actions = [
+    return .merge(
       reduce(into: &state, action: .appReview(.ask)),
       reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
       reduce(into: &state, action: .synth(.activePresetIdChanged(presetId))),
-      reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId)))
-    ]
-    actions.append(reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId))))
-    return .merge(actions)
+      reduce(into: &state, action: .soundFontsList(.showActiveSoundFont)),
+      reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId))),
+      reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId))))
   }
 
   private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
