@@ -114,6 +114,7 @@ public struct PresetsList {
     case fetchPresets
     case initialize
     case presetSourceChanged(PresetSource?)
+    case restoreActiveState(presetSource: PresetSource, activePresetId: Preset.ID)
     case searchTextChanged(String)
     case sections(IdentifiedActionOf<PresetsListSection>)
     case showActivePreset
@@ -177,6 +178,11 @@ public struct PresetsList {
 
       case .presetSourceChanged(let presetSource):
         return presetSourceChanged(&state, presetSource: presetSource)
+
+      case let .restoreActiveState(presetSource, activePresetId):
+        state.presetSource = presetSource
+        state.activePresetId = activePresetId
+        return showActivePreset(&state)
 
       case .searchTextChanged(let value):
         return searchTextChanged(&state, searchText: value)

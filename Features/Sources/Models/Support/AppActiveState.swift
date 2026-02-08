@@ -8,7 +8,6 @@ import Foundation
 public struct AppActiveState {
 
   public var activeSoundFontId: SoundFont.ID?
-  public var selectedSoundFontId: SoundFont.ID?
   public var activePresetId: Preset.ID?
   public var activeTagId: Tag.ID?
 
@@ -18,7 +17,6 @@ public struct AppActiveState {
     activeTagId: Tag.ID? = nil
   ) {
     self.activeSoundFontId = activeSoundFontId
-    self.selectedSoundFontId = nil
     self.activePresetId = activePresetId
     self.activeTagId = activeTagId
   }

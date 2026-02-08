@@ -22,7 +22,7 @@ public struct SoundFontsList {
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
     public var rows: IdentifiedArrayOf<SoundFontButton.State>
-    public var activeTagId: Tag.ID = Tag.Ubiquitous.all.id
+    public var activeTagId: Tag.ID
     public var activePresetSource: PresetSource?
     public var selectedPresetSource: PresetSource?
     public var editingMode: EditMode
@@ -39,7 +39,17 @@ public struct SoundFontsList {
       case searchText
     }
 
-    public init(destination: Destination.State? = nil, editingMode: EditMode = .inactive) {
+    public init(
+      activeTagId: Tag.ID? = nil,
+      activePresetSource: PresetSource? = nil,
+      selectedPresetSource: PresetSource? = nil,
+      destination: Destination.State? = nil,
+      editingMode: EditMode = .inactive
+    ) {
+      self.activeTagId = activeTagId ?? Tag.Ubiquitous.all.id
+      self.activePresetSource = activePresetSource
+      self.selectedPresetSource = selectedPresetSource
+
       let soundFontInfos: [SoundFontInfo] = withDatabaseReader { db in
         try SoundFontInfo.query(for: Tag.Ubiquitous.all.id).fetchAll(db)
       } ?? []
@@ -65,6 +75,7 @@ public struct SoundFontsList {
     case headerDoubleTapped
     case initialize
     case missingSoundFontDetected(SoundFont.ID)
+    case restoreActiveState(activeTagId: Tag.ID, activePresetSource: PresetSource)
     case rows(IdentifiedActionOf<SoundFontButton>)
     case rowsUpdated([SoundFontInfo])
     case searchButtonTapped
@@ -158,6 +169,12 @@ public struct SoundFontsList {
         if state.selectedPresetSource == .selected(soundFontId) {
           state.selectedPresetSource = nil
         }
+        return .none
+
+      case let .restoreActiveState(activeTagId, activePresetSource):
+        state.activeTagId = activeTagId
+        state.activePresetSource = activePresetSource
+        state.selectedPresetSource = nil
         return .none
 
       case .rows(.element(_, .delegate(let action))):
@@ -386,6 +403,7 @@ extension SoundFontsList {
     if let selectedPresetSource = state.selectedPresetSource {
       state.activePresetSource = selectedPresetSource.activated
       state.selectedPresetSource = nil
+      return .send(.delegate(.presetSourceChanged(state.activePresetSource)))
     }
     return .none
   }
@@ -557,7 +575,7 @@ extension SoundFontsListView {
 
     return VStack {
       SoundFontsListView(store: Store(initialState: .init()) { SoundFontsList() })
-      TagsListView(store: Store(initialState: .init()) { TagsList() })
+      TagsListView(store: Store(initialState: .init(activeTagId: nil)) { TagsList() })
     }
   }
 }

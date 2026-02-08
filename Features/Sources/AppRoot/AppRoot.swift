@@ -28,6 +28,7 @@ import VolumeMonitor
  The top-level feature of the application.
  */
 @Reducer
+// swiftlint:disable:next type_body_length
 public struct AppRoot {
 
   /**
@@ -91,17 +92,28 @@ public struct AppRoot {
       toastState: VolumeMonitor.Reason? = nil
     ) {
       @Shared(.isAUv3) var isAUv3 = false
+      @Shared(.appActiveState) var appActiveState
 
+      let activePresetSource: PresetSource? =  .makeActive(appActiveState.activeSoundFontId)
+
+      self.activePresetId = appActiveState.activePresetId
       self.appReview = appReview ?? .init()
       self.delayEffect = delayEffect ?? .init()
       self.fontsAndPresetsSplit = fontsAndPresetsSplit ?? Self.makeFontsAndPresetsSplitState()
       self.fontsAndTagsSplit = fontsAndTagsSplit ?? Self.makeFontsAndTagsSplitState()
       self.keyboard = keyboard ?? .init()
-      self.presetsList = presetsList ?? .init()
+      self.presetsList = presetsList ?? .init(
+        presetSource: activePresetSource,
+        activePresetId: appActiveState.activePresetId
+      )
       self.reverbEffect = reverbEffect ?? .init()
-      self.soundFontsList = soundFontsList ?? .init()
+      self.soundFontsList = soundFontsList ?? .init(
+        activeTagId: appActiveState.activeTagId,
+        activePresetSource: activePresetSource,
+        selectedPresetSource: nil
+      )
       self.synth = synth ?? .init()
-      self.tagsList = tagsList ?? .init()
+      self.tagsList = tagsList ?? .init(activeTagId: appActiveState.activeTagId)
       self.toolBar = toolBar ?? .init()
       self.toastState = toastState
       self.volumeMonitor = .init()
@@ -174,6 +186,7 @@ public struct AppRoot {
 
   @Dependency(\.fileManager) private var fileManager
 
+  @Shared(.appActiveState) private var appActiveState
   @Shared(.effectsPanelVisible) private var effectsPanelVisible
   @Shared(.firstVisibleKey) private var firstVisibleKey
   @Shared(.fontsAndPresetsSplitPosition) private var fontsAndPresetsSplitPosition
@@ -263,6 +276,7 @@ public struct AppRoot {
         return processKeyboardAction(&state, action: action)
 
       case .presetsList(.delegate(.activePresetIdChanged(let presetId))):
+        $appActiveState.activePresetId.withLock { $0 = presetId }
         return .merge(
           reduce(into: &state, action: .delayEffect(.activePresetIdChanged(presetId))),
           reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
@@ -290,7 +304,7 @@ public struct AppRoot {
         return scenePhaseChanged(&state, phase: phase)
 
       case .soundFontsList(.delegate(.presetSourceChanged(let presetSource))):
-        return reduce(into: &state, action: .presetsList(.presetSourceChanged(presetSource)))
+        return presetSourceChanged(&state, presetSource: presetSource)
 
       case .soundFontsList(.delegate(.edit(let soundFont))):
         state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
@@ -306,6 +320,7 @@ public struct AppRoot {
         return audioChainInactive(&state)
 
       case .tagsList(.delegate(.activeTagIdChanged(let tagId))):
+        $appActiveState.activeTagId.withLock { $0 = tagId }
         return reduce(into: &state, action: .soundFontsList(.activeTagIdChanged(tagId)))
 
       case .tagsList(.delegate(.edit(focus: let ordering))):
@@ -428,22 +443,8 @@ extension AppRoot {
     }
   }
 
-  private func presetEditorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
-    if editor.visible {
-      // Preset is (still) visible -- update its entry in case there were changes.
-      state.presetsList.updateSection(editor.sectionId, presetId: editor.preset.id, displayName: editor.displayName)
-      return .none
-    }
-    return reduce(into: &state, action: .presetsList(.fetchPresets))
-  }
-
   private func initialize(_ state: inout State) -> Effect<Action> {
-//    log.info("sharedDocumentsDirectory dump: \(FileManager.default.sharedDocumentsDirectory.path())")
-//    let found = try? FileManager.default.contentsOfDirectory(atPath: FileManager.default.sharedDocumentsDirectory.path())
-//    for each in (found ?? []) {
-//      log.info("found: \(each)")
-//    }
-    return .merge(
+    .merge(
       createCloudDocumentsDirectory(),
       monitorInvalidationNotification(&state),
       reduce(into: &state, action: .synth(.initialize)),
@@ -483,6 +484,26 @@ extension AppRoot {
         }
       }
     }.cancellable(id: CancelId.appRootMonitorInvalidationNotification, cancelInFlight: true)
+  }
+
+  private func presetEditorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
+    if editor.visible {
+      // Preset is (still) visible -- update its entry in case there were changes.
+      state.presetsList.updateSection(editor.sectionId, presetId: editor.preset.id, displayName: editor.displayName)
+      return .none
+    }
+    return reduce(into: &state, action: .presetsList(.fetchPresets))
+  }
+
+  private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {
+    if let presetSource {
+      if presetSource.isActive {
+        $appActiveState.withLock {
+          $0.activeSoundFontId = presetSource.id
+        }
+      }
+    }
+    return reduce(into: &state, action: .presetsList(.presetSourceChanged(presetSource)))
   }
 
   private func processFontsAndPresetsSplitAction(

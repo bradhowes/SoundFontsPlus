@@ -31,8 +31,10 @@ public struct TagsList {
     public var rows: IdentifiedArrayOf<TagButton.State>
     @Presents public var destination: Destination.State?
 
-    public init() {
+    public init(activeTagId: Tag.ID? = nil) {
       @Shared(.hideEmptyTags) var hideEmptyTags
+      self.activeTagId = activeTagId ?? Tag.Ubiquitous.all.id
+
       let tagInfos: [TagInfo]?
       if hideEmptyTags {
         tagInfos = withDatabaseReader { db in
@@ -266,7 +268,7 @@ extension TagsListView {
           set: { newValue in $hideEmptyTags.withLock { $0 = newValue }}
         )
       )
-      TagsListView(store: Store(initialState: .init()) { TagsList() })
+      TagsListView(store: Store(initialState: .init(activeTagId: nil)) { TagsList() })
     }
   }
 }
