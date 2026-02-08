@@ -34,21 +34,13 @@ public struct StyledList<Content: View>: View {
 
 public struct StyledEntry<Content: View>: View {
   private let content: Content
-  @State private var visible: Bool
 
   public init(@ViewBuilder _ content: () -> Content) {
     self.content = content()
-    self.visible = true
   }
 
   public var body: some View {
     content
-      .onGeometryChange(for: Bool.self) {
-        $0.frame(in: .global).origin.y > 40.0
-      } action: {
-        visible = $0
-      }
-      .opacity(visible ? 1.0 : 0.0)
   }
 }
 

@@ -288,15 +288,19 @@ extension PresetsList {
 
   private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {
     log.debug("presetSourceChanged: \(String(describing: presetSource))")
-    if state.presetSource == presetSource && presetSource?.isActive ?? false {
+    if let presetSource,
+       presetSource.isActive {
       let activePresetId = state.activePresetId ?? Preset.ID(-1)
       log.debug("setting scrollToPresetId to \(activePresetId)")
       state.scrollToPresetId = .init(presetId: activePresetId)
-      return .none
-    } else {
+    }
+
+    if state.presetSource != presetSource {
       state.presetSource = presetSource
       return generatePresetSections(&state)
     }
+
+    return .none
   }
 
   private func processSectionAction(
