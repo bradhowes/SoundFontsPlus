@@ -342,7 +342,6 @@ extension AppRoot {
       reduce(into: &state, action: .reverbEffect(.activePresetIdChanged(presetId))),
       reduce(into: &state, action: .soundFontsList(.selectedActivated)),
       reduce(into: &state, action: .synth(.activePresetIdChanged(presetId))),
-      reduce(into: &state, action: .soundFontsList(.showActiveSoundFont)),
       reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId))),
       reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId))))
   }

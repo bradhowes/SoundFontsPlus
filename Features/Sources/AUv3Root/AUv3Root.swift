@@ -32,9 +32,8 @@ public struct AUv3Root {
 
   @ObservableState
   public struct State: Equatable {
-    @Presents public var destination: Destination.State?
-
     public let audioUnit: SF2LibAU
+    @Presents public var destination: Destination.State?
     public var fontsAndPresetsSplit: SplitViewReducer.State
     public var fontsAndTagsSplit: SplitViewReducer.State
     public var presetsList: PresetsList.State
@@ -56,6 +55,7 @@ public struct AUv3Root {
       toolBar: ToolBar.State? = nil,
     ) {
       @Shared(.isAUv3) var isAUv3 = true
+
       self.audioUnit = audioUnit
       self.fontsAndPresetsSplit = fontsAndPresetsSplit ?? Self.makeFontsAndPresetsSplitState()
       self.fontsAndTagsSplit = fontsAndTagsSplit ?? Self.makeFontsAndTagsSplitState()
@@ -126,13 +126,7 @@ public struct AUv3Root {
         return activePresetIdChanged(&state, presetId: presetId)
 
       case .deinitialize:
-        return .merge(
-          .merge(CancelId.allCases.map { .cancel(id: $0) }),
-          reduce(into: &state, action: .presetsList(.deinitialize)),
-          reduce(into: &state, action: .soundFontsList(.deinitialize)),
-          reduce(into: &state, action: .tagsList(.deinitialize)),
-          reduce(into: &state, action: .toolBar(.deinitialize))
-        )
+        return deinitialize(&state)
 
       case .destination(.presented(.soundFontEditor(.delegate(.refreshPresets)))):
         return reduce(into: &state, action: .presetsList(.fetchPresets))
@@ -152,19 +146,25 @@ public struct AUv3Root {
       case .initialize:
         return initialize(&state)
 
+      case .presetsList(.delegate(.activePresetIdChanged(let presetId))):
+        return activePresetIdChanged(&state, presetId: presetId)
+
       case .presetsList(.delegate(.edit(let sectionId, let preset))):
-        state.destination = .presetEditor(
-          PresetEditor.State(
-            sectionId: sectionId,
-            preset: preset,
-            isActive: false
-          )
-        )
-        return .none
+        return editPreset(&state, sectionId: sectionId, preset: preset)
+
+      case .presetsList(.delegate(.missingSoundFontDetected(let soundFontId))):
+        return reduce(into: &state, action: .soundFontsList(.missingSoundFontDetected(soundFontId)))
+
+      case .soundFontsList(.delegate(.presetSourceChanged(let presetSource))):
+        return presetSourceChanged(&state, presetSource: presetSource)
 
       case .soundFontsList(.delegate(.edit(let soundFont))):
         state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
         return .none
+
+      case .tagsList(.delegate(.activeTagIdChanged(let tagId))):
+        // $appActiveState.activeTagId.withLock { $0 = tagId }
+        return reduce(into: &state, action: .soundFontsList(.activeTagIdChanged(tagId)))
 
       case .tagsList(.delegate(.edit(focus: let ordering))):
         state.destination = .tagsEditor(TagsEditor.State(focused: ordering))
@@ -215,7 +215,10 @@ extension AUv3Root {
   }
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
-    reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId)))
+    .merge(
+      reduce(into: &state, action: .soundFontsList(.selectedActivated)),
+      reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId)))
+    )
   }
 
   private func createCloudDocumentsDirectory() -> Effect<Action> {
@@ -226,6 +229,16 @@ extension AUv3Root {
         log.error("iCloud documents directory is not available")
       }
     }.cancellable(id: CancelId.auv3RootCreateCloudDocumentsDirectory, cancelInFlight: true)
+  }
+
+  private func deinitialize(_ state: inout State) -> Effect<Action> {
+    .merge(
+      .merge(CancelId.allCases.map { .cancel(id: $0) }),
+      reduce(into: &state, action: .presetsList(.deinitialize)),
+      reduce(into: &state, action: .soundFontsList(.deinitialize)),
+      reduce(into: &state, action: .tagsList(.deinitialize)),
+      reduce(into: &state, action: .toolBar(.deinitialize))
+    )
   }
 
   private func destinationDismissed(_ state: inout State) -> Effect<Action> {
@@ -242,6 +255,21 @@ extension AUv3Root {
     }
   }
 
+  private func editPreset(_ state: inout State, sectionId: Int, preset: Preset) -> Effect<Action> {
+    state.destination = .presetEditor(
+      .init(
+        sectionId: sectionId,
+        preset: preset,
+        isActive: preset.id == state.presetsList.activePresetId
+      )
+    )
+    return .none
+  }
+
+  private func initialize(_ state: inout State) -> Effect<Action> {
+    createCloudDocumentsDirectory()
+  }
+
   private func presetEditorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
     if editor.visible {
       // Preset is (still) visible -- update its entry in case there were changes.
@@ -251,10 +279,15 @@ extension AUv3Root {
     return reduce(into: &state, action: .presetsList(.fetchPresets))
   }
 
-  private func initialize(_ state: inout State) -> Effect<Action> {
-    return .merge(
-      createCloudDocumentsDirectory()
-    )
+  private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {
+    if let presetSource {
+      if presetSource.isActive {
+//        $appActiveState.withLock {
+//          $0.activeSoundFontId = presetSource.id
+//        }
+      }
+    }
+    return reduce(into: &state, action: .presetsList(.presetSourceChanged(presetSource)))
   }
 
   private func processFontsAndPresetsSplitAction(
@@ -297,10 +330,7 @@ extension AUv3Root {
       return reduce(into: &state, action: .presetsList(.editingVisibilityChanged(active)))
 
     case .presetNameTapped:
-      return .merge(
-        reduce(into: &state, action: .presetsList(.showActivePreset)),
-        reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
-      )
+      return reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
 
     case .settingsButtonTapped:
       state.destination = .settings(Settings.State())

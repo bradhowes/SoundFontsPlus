@@ -403,9 +403,12 @@ extension SoundFontsList {
     if let selectedPresetSource = state.selectedPresetSource {
       state.activePresetSource = selectedPresetSource.activated
       state.selectedPresetSource = nil
-      return .send(.delegate(.presetSourceChanged(state.activePresetSource)))
+//      return .merge(
+//        .send(.delegate(.presetSourceChanged(state.activePresetSource))),
+//        showActiveSoundFont(&state)
+//      )
     }
-    return .none
+    return showActiveSoundFont(&state)
   }
 
   private func showActiveSoundFont(_ state: inout State) -> Effect<Action> {
