@@ -317,8 +317,7 @@ extension Synth {
   private func monitorMediaServices(_ state: inout State) -> Effect<Action> {
     log.info("monitorMediaServices BEGIN")
     return .run { send in
-      for await _ in NotificationCenter.default
-        .publisher(for: AVAudioSession.mediaServicesWereResetNotification).values {
+      for await _ in NotificationCenter.default.notifications(named: AVAudioSession.mediaServicesWereResetNotification) {
         log.debug("monitorMediaServices - mediaServicesWereResetNotification fired")
         await send(.mediaServicesWereReset)
       }
@@ -328,8 +327,7 @@ extension Synth {
   private func monitorRouteChanged(_ state: inout State) -> Effect<Action> {
     log.info("monitorRouteChanged BEGIN")
     return .run { send in
-      for await _ in NotificationCenter.default
-        .publisher(for: AVAudioSession.routeChangeNotification).values {
+      for await _ in NotificationCenter.default.notifications(named: AVAudioSession.routeChangeNotification) {
         log.debug("monitorMediaServices - routeChangeNotification fired")
         await send(.audioSessionRouteChanged)
       }

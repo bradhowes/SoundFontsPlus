@@ -99,7 +99,7 @@ extension AUv3RootView {
     VStack(spacing: 0) {
       dividerBorderColor
         .frame(height: dividerSpan)
-      ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
+      ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar), isAUv3: true)
     }
   }
 }
@@ -118,7 +118,11 @@ extension View {
   fileprivate func sheets(store: Bindable<StoreOf<AUv3Root>>) -> some View {
     self
       .presetEditorSheet(store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor))
-      .settingsSheet(store.scope(state: \.destination?.settings, action: \.destination.settings), showFakeKeyboard: false)
+      .settingsSheet(
+        store.scope(state: \.destination?.settings, action: \.destination.settings),
+        showFakeKeyboard: false,
+        isAUv3: true
+      )
       .soundFontEditorSheet(store.scope(state: \.destination?.soundFontEditor, action: \.destination.soundFontEditor))
       .tagsEditorSheet(store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor))
   }

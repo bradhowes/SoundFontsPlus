@@ -13,17 +13,19 @@ import Tuning
 public struct SettingsView: View {
   @Bindable private var store: StoreOf<Settings>
   @State private var changingKeyWidth: Bool = false
-  @Shared(.isAUv3) private var isAUv3
   @Shared(.backupRestoreEnabled) private var backupRestoreEnabled
   @Dependency(\.audioSession) private var audioSession
   @Dependency(\.fileManager) private var fileManager
 
+  private let isAUv3: Bool
+  private var isApp: Bool { !isAUv3 }
   private let showFakeKeyboard: Bool
   private let bundle = Bundle.main
 
-  public init(store: StoreOf<Settings>, showFakeKeyboard: Bool) {
+  public init(store: StoreOf<Settings>, showFakeKeyboard: Bool, isAUv3: Bool) {
     self.store = store
     self.showFakeKeyboard = showFakeKeyboard
+    self.isAUv3 = isAUv3
   }
 
   public var body: some View {
@@ -31,14 +33,18 @@ public struct SettingsView: View {
       Form {
         presetsSection
         if !isAUv3 {
-          keyboardSection
-          if store.hasMIDI {
-            midiSection
+          if isApp {
+            keyboardSection
+            if store.hasMIDI {
+              midiSection
+            }
           }
         }
         tuningSection
         fontsSection
-        appSection
+        if isApp {
+          appSection
+        }
         aboutSection
       }
       .font(.settings)
@@ -215,16 +221,18 @@ extension SettingsView {
   private var fontsSection: some View {
     Section("Fonts") {
       Group {
-        Toggle(isOn: $store.copyFileWhenInstalling) {
-          VStack(alignment: .leading, spacing: 8) {
-            Text("Copy SF2 files to app folder on device when adding")
-            Text(
+        if isApp {
+          Toggle(isOn: $store.copyFileWhenInstalling) {
+            VStack(alignment: .leading, spacing: 8) {
+              Text("Copy SF2 files to app folder on device when adding")
+              Text(
 """
 Enabled is the safest option but files consume space on your device. \
 Disable to link directly to files in iCloud or on external drives.
 """
-            )
-            .font(.settingsDescription)
+              )
+              .font(.settingsDescription)
+            }
           }
         }
         Toggle(isOn: $store.hideEmptyTags) {
@@ -281,7 +289,7 @@ The color scheme can track the device's setting, or it can be fixed to a constan
         Toggle(isOn: $store.showActiveVoiceCount) {
           Text("Show active voice counter")
         }
-        if !isAUv3 {
+        if isApp {
 #if os(iOS)
           Toggle(isOn: $store.mixWithOtherApps) {
             Text("Mix audio with other apps on device")
@@ -303,8 +311,6 @@ The color scheme can track the device's setting, or it can be fixed to a constan
           Toggle(isOn: $store.disableIdleTimer) {
             Text("Disable device locking while active")
           }
-        }
-        if !isAUv3 {
           HStack {
             VStack(alignment: .leading, spacing: 8) {
               Text("Restore to initial install")
@@ -368,7 +374,7 @@ Erases current database and SF2 files with contents of previous backup.
   private var aboutSection: some View {
     Section("About") {
       Group {
-        if !isAUv3 {
+        if isApp {
           HStack {
             Text("View change history")
             Spacer()
@@ -391,7 +397,7 @@ Erases current database and SF2 files with contents of previous backup.
         HStack {
           Text("Version \(bundle.releaseVersionNumber)")
           Spacer()
-          if !isAUv3 {
+          if isApp {
             Button {
               store.send(.reviewAppTapped)
             } label: {
@@ -399,7 +405,7 @@ Erases current database and SF2 files with contents of previous backup.
             }
           }
         }
-        if !isAUv3 {
+        if isApp {
           HStack {
             Text("Contact developer (bradhowes@mac.com)")
             Spacer()
@@ -417,10 +423,10 @@ Erases current database and SF2 files with contents of previous backup.
 
 extension View {
 
-  public func settingsSheet(_ store: Binding<StoreOf<Settings>?>, showFakeKeyboard: Bool) -> some View {
+  public func settingsSheet(_ store: Binding<StoreOf<Settings>?>, showFakeKeyboard: Bool, isAUv3: Bool) -> some View {
     self
       .sheet(item: store) {
-        SettingsView(store: $0, showFakeKeyboard: showFakeKeyboard)
+        SettingsView(store: $0, showFakeKeyboard: showFakeKeyboard, isAUv3: isAUv3)
       }
   }
 }
@@ -437,7 +443,8 @@ extension SettingsView {
         store: Store(initialState: .init()) {
           Settings()
         },
-        showFakeKeyboard: false
+        showFakeKeyboard: false,
+        isAUv3: false
       )
     }
   }

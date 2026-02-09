@@ -84,13 +84,15 @@ public struct AUv3Root {
   }
 
   @frozen
-  public enum Action: BindableAction {
+  public enum Action: BindableAction, @unchecked Sendable {
     case activePresetIdChanged(Preset.ID?)
     case binding(BindingAction<State>)
+    case currentPresetChanged(AUAudioUnitPreset?)
     case deinitialize
     case destination(PresentationAction<Destination.Action>)
     case fontsAndPresetsSplit(SplitViewReducer.Action)
     case fontsAndTagsSplit(SplitViewReducer.Action)
+    case fullStateChanged(Dictionary<String, Any>?)
     case initialize
     case presetsList(PresetsList.Action)
     case soundFontsList(SoundFontsList.Action)
@@ -183,7 +185,8 @@ public struct AUv3Root {
 
   private enum CancelId: String, CaseIterable {
     case auv3RootCreateCloudDocumentsDirectory
-    case auv3RootMonitorInvalidationNotification
+    case auv3RootMonitorCurrentPreset
+    case auv3RootMonitorFullState
   }
 }
 
@@ -267,7 +270,29 @@ extension AUv3Root {
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {
-    createCloudDocumentsDirectory()
+    .merge(
+      createCloudDocumentsDirectory(),
+      monitorCurrentPreset(&state),
+      monitorFullState(&state)
+    )
+  }
+
+  private func monitorCurrentPreset(_ state: inout State) -> Effect<Action> {
+    .run { [audioUnit = state.audioUnit] send in
+      for await preset in audioUnit.currentPreset.publisher.values {
+        log.info("preset changed: \(preset.number) - \(preset.name)")
+        await send(.currentPresetChanged(preset))
+      }
+    }.cancellable(id: CancelId.auv3RootMonitorCurrentPreset, cancelInFlight: true)
+  }
+
+  private func monitorFullState(_ state: inout State) -> Effect<Action> {
+    .run { [audioUnit = state.audioUnit] send in
+      for await fullState in audioUnit.fullState.publisher.values {
+        log.info("fullState changed: \(fullState)")
+        await send(.fullStateChanged(fullState))
+      }
+    }.cancellable(id: CancelId.auv3RootMonitorFullState, cancelInFlight: true)
   }
 
   private func presetEditorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {

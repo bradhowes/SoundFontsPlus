@@ -9,10 +9,12 @@ public struct ToolBarView: View {
   private var store: StoreOf<ToolBar>
   @Shared(.showActiveVoiceCount) private var showActiveVoiceCount
   @Shared(.showMIDITrafficIndicator) private var showMIDITrafficIndicator
-  @Shared(.isAUv3) private var isAUv3
   @Shared(.favoriteSymbolName) private var favoriteSymbolName
   @Shared(.starFavoriteNames) private var starFavoriteNames
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+  private let isAUv3: Bool
+  private var isApp: Bool { !isAUv3 }
 
   private var showingPresetSymbol: Bool { starFavoriteNames && store.preset?.kind == .favorite && store.temporaryStatus == nil }
   private var statusTextValue: String { store.temporaryStatus?.text ?? store.preset?.displayName ?? "—" }
@@ -20,8 +22,9 @@ public struct ToolBarView: View {
     (store.preset?.kind == .favorite || store.temporaryStatus != nil) ? .alternateAccentColor : .mainAccentColor
   }
 
-  public init(store: StoreOf<ToolBar>) {
+  public init(store: StoreOf<ToolBar>, isAUv3: Bool) {
     self.store = store
+    self.isAUv3 = isAUv3
   }
 
   public var body: some View {
@@ -43,13 +46,19 @@ public struct ToolBarView: View {
 
   private var fullBar: some View {
     HStack(alignment: .center, spacing: 12) {
-      addSoundFontButton
+      if isApp {
+        addSoundFontButton
+      }
       tagsButton
-      effectsButton
+      if isApp {
+        effectsButton
+      }
       status
-      shiftDownButton
-      slidingKeyboardButton
-      shiftUpButton
+      if isApp {
+        shiftDownButton
+        slidingKeyboardButton
+        shiftUpButton
+      }
       editVisibilityButton
       settingsButton
     }
@@ -57,16 +66,22 @@ public struct ToolBarView: View {
 
   private var compactBar: some View {
     HStack(alignment: .center, spacing: 12) {
-      addSoundFontButton
+      if isApp {
+        addSoundFontButton
+      }
       tagsButton
-      effectsButton
+      if isApp {
+        effectsButton
+      }
       if store.showMoreButtons {
         Spacer()
           .frame(height: 40)
           .background(.windowBackground)
-        shiftDownButton
-        slidingKeyboardButton
-        shiftUpButton
+        if isApp {
+          shiftDownButton
+          slidingKeyboardButton
+          shiftUpButton
+        }
         editVisibilityButton
         settingsButton
       } else {
@@ -250,7 +265,7 @@ extension ToolBarView {
               )
             ) {
             ToolBar()
-          })
+          }, isAUv3: false)
           KeyboardView(store: Store(initialState: .init()) { Keyboard() })
         }
       }

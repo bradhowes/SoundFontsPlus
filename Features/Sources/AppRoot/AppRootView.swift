@@ -192,7 +192,7 @@ extension AppRootView {
       effectsView
         .knobValueEditor()
         .auv3ControlsTheme(theme)
-      ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar))
+      ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar), isAUv3: false)
       dividerBorderColor
         .frame(height: dividerSpan)
       keyboardView
@@ -248,53 +248,15 @@ extension View {
     self
       .changesSheet(store.scope(state: \.destination?.changes, action: \.destination.changes))
       .presetEditorSheet(store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor))
-      .settingsSheet(store.scope(state: \.destination?.settings, action: \.destination.settings), showFakeKeyboard: isCompact)
+      .settingsSheet(
+        store.scope(state: \.destination?.settings, action: \.destination.settings),
+        showFakeKeyboard: isCompact,
+        isAUv3: false
+      )
       .soundFontEditorSheet(store.scope(state: \.destination?.soundFontEditor, action: \.destination.soundFontEditor))
       .tagsEditorSheet(store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor))
       .tutorialSheet(store.scope(state: \.destination?.tutorial, action: \.destination.tutorial))
   }
-
-  fileprivate func presetEditorSheet(_ store: Bindable<StoreOf<AppRoot>>) -> some View {
-    self
-      .sheet(item: store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
-        PresetEditorView(store: $0)
-          .environment(\.colorScheme, .dark)
-      }
-  }
-
-  fileprivate func settingsSheet(_ store: Bindable<StoreOf<AppRoot>>, showFakeKeyboard: Bool) -> some View {
-    self
-      .sheet(item: store.scope(state: \.destination?.settings, action: \.destination.settings)) {
-        SettingsView(store: $0, showFakeKeyboard: showFakeKeyboard)
-      }
-  }
-
-  fileprivate func soundFontEditorSheet(_ store: Bindable<StoreOf<AppRoot>>) -> some View {
-    self
-      .sheet(item: store.scope(state: \.destination?.soundFontEditor, action: \.destination.soundFontEditor)) {
-        SoundFontEditorView(store: $0)
-      }
-  }
-
-  fileprivate func tagsEditorSheet(_ store: Bindable<StoreOf<AppRoot>>) -> some View {
-    self
-      .sheet(item: store.scope(state: \.destination?.tagsEditor, action: \.destination.tagsEditor)) { child in
-        NavigationStack {
-          TagsEditorView(store: child)
-        }
-      }
-  }
-
-#if os(iOS)
-  fileprivate func tutorialSheet(_ store: Bindable<StoreOf<AppRoot>>) -> some View {
-    self
-      .sheet(item: store.scope(state: \.destination?.tutorial, action: \.destination.tutorial)) { child in
-        NavigationStack {
-          TutorialView(store: child)
-        }
-      }
-  }
-#endif // os(iOS)
 }
 
 #if DEBUG
