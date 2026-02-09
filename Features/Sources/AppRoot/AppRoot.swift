@@ -28,7 +28,7 @@ import VolumeMonitor
  The top-level feature of the application.
  */
 @Reducer
-// swiftlint:disable:next type_body_length
+// swift lint:disable:next type_body_length
 public struct AppRoot {
 
   /**
@@ -54,7 +54,6 @@ public struct AppRoot {
 
   @ObservableState
   public struct State: Equatable {
-    public var activePresetId: Preset.ID?
     public var appReview: AppReview.State
     public var delayEffect: DelayEffect.State
     @Presents public var destination: Destination.State?
@@ -96,7 +95,6 @@ public struct AppRoot {
 
       let activePresetSource: PresetSource? =  .makeActive(appActiveState.activeSoundFontId)
 
-      self.activePresetId = appActiveState.activePresetId
       self.appReview = appReview ?? .init()
       self.delayEffect = delayEffect ?? .init()
       self.fontsAndPresetsSplit = fontsAndPresetsSplit ?? Self.makeFontsAndPresetsSplitState()
@@ -223,30 +221,7 @@ public struct AppRoot {
         return .none
 
       case .deinitialize:
-
-        // By design MIDI does not have a complete 'stop' function, so there could be messages coming over after we are
-        // deinitialized. Remove any installed MIDIMonitor so that it will no longer try to access the database.
-        @Shared(.midi) var midi
-        if let midi {
-          midi.monitor = nil
-          midi.receiver = nil
-          midi.stop()
-        }
-
-        var actions = [
-          .merge(CancelId.allCases.map { .cancel(id: $0) }),
-          reduce(into: &state, action: .delayEffect(.deinitialize)),
-          reduce(into: &state, action: .keyboard(.deinitialize)),
-          reduce(into: &state, action: .presetsList(.deinitialize)),
-          reduce(into: &state, action: .reverbEffect(.deinitialize)),
-          reduce(into: &state, action: .soundFontsList(.deinitialize)),
-          reduce(into: &state, action: .synth(.deinitialize)),
-          reduce(into: &state, action: .tagsList(.deinitialize)),
-          reduce(into: &state, action: .toolBar(.deinitialize))
-        ]
-
-        actions.append(reduce(into: &state, action: .volumeMonitor(.stop)))
-        return .merge(actions)
+        return deinitialize(&state)
 
       case .destination(.presented(.alert(.reinitializeConfirmed))):
         return reinitializeConfirmed(&state)
@@ -258,10 +233,7 @@ public struct AppRoot {
         return processSettingsAction(&state, action: action)
 
       case .destination(.dismiss):
-        return .merge(
-          reduce(into: &state, action: .appReview(.ask)),
-          destinationDismissed(&state)
-        )
+        return destinationDismissed(&state)
 
       case .fontsAndPresetsSplit(.delegate(let action)):
         return processFontsAndPresetsSplitAction(&state, action: action)
@@ -276,26 +248,10 @@ public struct AppRoot {
         return processKeyboardAction(&state, action: action)
 
       case .presetsList(.delegate(.activePresetIdChanged(let presetId))):
-        $appActiveState.activePresetId.withLock { $0 = presetId }
-        return .merge(
-          reduce(into: &state, action: .delayEffect(.activePresetIdChanged(presetId))),
-          reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
-          reduce(into: &state, action: .reverbEffect(.activePresetIdChanged(presetId))),
-          reduce(into: &state, action: .soundFontsList(.selectedActivated)),
-          reduce(into: &state, action: .synth(.activePresetIdChanged(presetId))),
-          reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId))),
-          reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId)))
-        )
+        return activePresetIdChanged(&state, presetId: presetId)
 
       case .presetsList(.delegate(.edit(let sectionId, let preset))):
-        state.destination = .presetEditor(
-          PresetEditor.State(
-            sectionId: sectionId,
-            preset: preset,
-            isActive: preset.id == state.activePresetId
-          )
-        )
-        return .none
+        return editPreset(&state, sectionId: sectionId, preset: preset)
 
       case .presetsList(.delegate(.missingSoundFontDetected(let soundFontId))):
         return reduce(into: &state, action: .soundFontsList(.missingSoundFontDetected(soundFontId)))
@@ -307,7 +263,7 @@ public struct AppRoot {
         return presetSourceChanged(&state, presetSource: presetSource)
 
       case .soundFontsList(.delegate(.edit(let soundFont))):
-        state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
+        state.destination = .soundFontEditor(.init(soundFont: soundFont))
         return .none
 
       case .synth(.delegate(.audioUnitCreated(let avAudioUnit))):
@@ -324,7 +280,7 @@ public struct AppRoot {
         return reduce(into: &state, action: .soundFontsList(.activeTagIdChanged(tagId)))
 
       case .tagsList(.delegate(.edit(focus: let ordering))):
-        state.destination = .tagsEditor(TagsEditor.State(focused: ordering))
+        state.destination = .tagsEditor(.init(focused: ordering))
         return .none
 
       case .toolBar(.delegate(let action)):
@@ -338,7 +294,6 @@ public struct AppRoot {
       }
     }
     .ifLet(\.$destination, action: \.destination)
-    // ._printChanges()
   }
 
   private enum CancelId: String, CaseIterable {
@@ -379,9 +334,13 @@ extension AppRoot {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     guard state.readyForUse else { return .none }
+    $appActiveState.activePresetId.withLock { $0 = presetId }
     return .merge(
       reduce(into: &state, action: .appReview(.ask)),
+      reduce(into: &state, action: .delayEffect(.activePresetIdChanged(presetId))),
       reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
+      reduce(into: &state, action: .reverbEffect(.activePresetIdChanged(presetId))),
+      reduce(into: &state, action: .soundFontsList(.selectedActivated)),
       reduce(into: &state, action: .synth(.activePresetIdChanged(presetId))),
       reduce(into: &state, action: .soundFontsList(.showActiveSoundFont)),
       reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId))),
@@ -401,13 +360,10 @@ extension AppRoot {
 
   private func audioChainActive(_ state: inout State) -> Effect<Action> {
     // The synth is up and running with an active audio session. Safe to monitor its state now.
-    var actions = [Effect<Action>]()
-
-    actions.append(reduce(into: &state, action: .volumeMonitor(.start)))
-
+    var actions = [reduce(into: &state, action: .volumeMonitor(.start))]
     if !state.readyForUse {
       state.readyForUse = true
-      actions.append(activePresetIdChanged(&state, presetId: state.activePresetId))
+      actions.append(activePresetIdChanged(&state, presetId: state.presetsList.activePresetId))
     }
 
     return .merge(actions)
@@ -428,18 +384,53 @@ extension AppRoot {
     }.cancellable(id: CancelId.appRootCreateCloudDocumentsDirectory, cancelInFlight: true)
   }
 
-  private func destinationDismissed(_ state: inout State) -> Effect<Action> {
-    switch state.destination {
+  private func deinitialize(_ state: inout State) -> Effect<Action> {
 
-    case .presetEditor(let editor):
-      return presetEditorDismissed(&state, editor: editor)
-
-    case .alert, .settings:
-      return reduce(into: &state, action: .presetsList(.fetchPresets))
-
-    default:
-      return .none
+    // By design MIDI does not have a complete 'stop' function, so there could be messages coming over after we are
+    // deinitialized. Remove any installed MIDIMonitor so that it will no longer try to access the database.
+    @Shared(.midi) var midi
+    if let midi {
+      midi.monitor = nil
+      midi.receiver = nil
+      midi.stop()
     }
+
+    return .merge(
+      .merge(CancelId.allCases.map { .cancel(id: $0) }),
+      reduce(into: &state, action: .delayEffect(.deinitialize)),
+      reduce(into: &state, action: .keyboard(.deinitialize)),
+      reduce(into: &state, action: .presetsList(.deinitialize)),
+      reduce(into: &state, action: .reverbEffect(.deinitialize)),
+      reduce(into: &state, action: .soundFontsList(.deinitialize)),
+      reduce(into: &state, action: .synth(.deinitialize)),
+      reduce(into: &state, action: .tagsList(.deinitialize)),
+      reduce(into: &state, action: .toolBar(.deinitialize)),
+      reduce(into: &state, action: .volumeMonitor(.stop))
+    )
+  }
+
+  private func destinationDismissed(_ state: inout State) -> Effect<Action> {
+    .merge(
+      reduce(into: &state, action: .appReview(.ask)),
+      {
+        switch state.destination {
+        case .presetEditor(let editor): presetEditorDismissed(&state, editor: editor)
+        case .alert, .settings: reduce(into: &state, action: .presetsList(.fetchPresets))
+        default: .none
+        }
+      }()
+    )
+  }
+
+  private func editPreset(_ state: inout State, sectionId: Int, preset: Preset) -> Effect<Action> {
+    state.destination = .presetEditor(
+      .init(
+        sectionId: sectionId,
+        preset: preset,
+        isActive: preset.id == state.presetsList.activePresetId
+      )
+    )
+    return .none
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {
@@ -548,17 +539,10 @@ extension AppRoot {
 
   private func processSettingsAction(_ state: inout State, action: Settings.Action.Delegate) -> Effect<Action> {
     switch action {
-
-    case .reinitialize:
-      state.destination = .alert(.confirmReinitialize(action: .reinitializeConfirmed))
-
-    case .showChanges:
-      state.showChanges()
-
-    case .showTutorial:
-      state.showTutorial()
+    case .reinitialize: state.destination = .alert(.confirmReinitialize(action: .reinitializeConfirmed))
+    case .showChanges: state.showChanges()
+    case .showTutorial: state.showTutorial()
     }
-
     return .none
   }
 

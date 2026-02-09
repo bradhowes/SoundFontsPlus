@@ -102,7 +102,6 @@ public struct PresetsList {
   }
 
   public enum Action: BindableAction {
-    case activeSoundFontIdChanged(SoundFont.ID)
     case binding(BindingAction<State>)
     case cancelSearchButtonTapped
     case clearScrollToPresetId
