@@ -19,7 +19,6 @@ struct VolumeMonitorTests {
     let store = TestStore(initialState: VolumeMonitor.State()) {
       VolumeMonitor()
     } withDependencies: {
-      @Shared(.activeState) var activeState = .default
       $0.outputVolume = mockVolume.makeOutputVolume()
     }
 
@@ -28,11 +27,11 @@ struct VolumeMonitorTests {
   }
 
   func togglePresetId(
+    _ activePresetId: inout Preset.ID?,
     assert updateStateToExpectedResult: ((_ state: inout VolumeMonitor.State) throws -> Void)? = nil,
   ) async {
-    @Shared(.activeState) var activeState
-    let newValue = activeState.activePresetId == nil ? Preset.ID(rawValue: 1) : nil
-    $activeState.activePresetId.withLock { $0 = newValue }
+    let newValue = activePresetId == nil ? Preset.ID(rawValue: 1) : nil
+    activePresetId = newValue
     await store.send(.activePresetIdChanged(newValue), assert: updateStateToExpectedResult)
   }
 
@@ -50,22 +49,24 @@ struct VolumeMonitorTests {
 
   @Test
   func activePresetBecomesNil() async throws {
+    var activePresetId: Preset.ID? = Preset.ID(rawValue: 1)
     await store.send(.start)
-    await togglePresetId { $0.reason = .noActivePreset }
+    await togglePresetId(&activePresetId) { $0.reason = .noActivePreset }
     await store.receive(\.delegate)
-    await togglePresetId { $0.reason = nil }
+    await togglePresetId(&activePresetId) { $0.reason = nil }
     await store.receive(\.delegate)
     await store.send(.stop)
   }
 
   @Test
   func ignorePresetChangesWhenVolumeIsZero() async throws {
+    var activePresetId: Preset.ID? = Preset.ID(rawValue: 1)
     await store.send(.start)
     mockVolume.advance()
     await store.receive(\.volumeChanged) { $0.reason = .volumeLevelIsZero }
     await store.receive(\.delegate)
-    await togglePresetId()
-    await togglePresetId()
+    await togglePresetId(&activePresetId)
+    await togglePresetId(&activePresetId)
     mockVolume.advance()
     await store.receive(\.volumeChanged) { $0.reason = nil }
     await store.receive(\.delegate)
@@ -74,29 +75,30 @@ struct VolumeMonitorTests {
 
   @Test
   func ignoreVolumeChangesWhenPresetIsNil() async throws {
+    var activePresetId: Preset.ID? = Preset.ID(rawValue: 1)
     await store.send(.start)
-    @Shared(.activeState) var activeState
-    await togglePresetId { $0.reason = .noActivePreset }
+    await togglePresetId(&activePresetId) { $0.reason = .noActivePreset }
     await store.receive(\.delegate)
     mockVolume.advance()
     await store.receive(\.volumeChanged)
     mockVolume.advance()
     await store.receive(\.volumeChanged)
-    await togglePresetId { $0.reason = nil }
+    await togglePresetId(&activePresetId) { $0.reason = nil }
     await store.receive(\.delegate)
     await store.send(.stop)
   }
 
   @Test
   func switchReasonWhenNecessary() async throws {
+    var activePresetId: Preset.ID? = Preset.ID(rawValue: 1)
     await store.send(.start)
-    await togglePresetId { $0.reason = .noActivePreset }
+    await togglePresetId(&activePresetId) { $0.reason = .noActivePreset }
     await store.receive(\.delegate)
     mockVolume.advance()
     await store.receive(\.volumeChanged)
-    await togglePresetId { $0.reason = .volumeLevelIsZero }
+    await togglePresetId(&activePresetId) { $0.reason = .volumeLevelIsZero }
     await store.receive(\.delegate)
-    await togglePresetId()
+    await togglePresetId(&activePresetId)
     mockVolume.advance()
     await store.receive(\.volumeChanged) { $0.reason = .noActivePreset }
     await store.receive(\.delegate)

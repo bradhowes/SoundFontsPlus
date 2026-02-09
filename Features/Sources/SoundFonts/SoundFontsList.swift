@@ -403,10 +403,6 @@ extension SoundFontsList {
     if let selectedPresetSource = state.selectedPresetSource {
       state.activePresetSource = selectedPresetSource.activated
       state.selectedPresetSource = nil
-//      return .merge(
-//        .send(.delegate(.presetSourceChanged(state.activePresetSource))),
-//        showActiveSoundFont(&state)
-//      )
     }
     return showActiveSoundFont(&state)
   }

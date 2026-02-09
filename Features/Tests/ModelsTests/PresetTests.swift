@@ -20,12 +20,7 @@ struct PresetTests {
 
   @MainActor
   func setup() async throws -> [Preset] {
-    @Shared(.activeState) var activeState
-    $activeState.withLock {
-      $0.activeSoundFontId = 1
-      $0.activePresetId = 1
-    }
-    return Operations.presets(for: 1)
+    return Preset.visible(for: 1)
   }
 
   @Test
@@ -89,14 +84,12 @@ struct PresetTests {
     #expect(preset.displayName == "Font 1 Preset 1")
     preset.toggleVisibility()
 
-    presets = withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
-    presets = Operations.presets(for: nil)
+    presets = Preset.visible(for: 1)
     #expect(presets[0].displayName == "Font 1 Preset 2")
     #expect(presets.count == 1)
     preset.toggleVisibility()
 
-    presets = withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
-    presets = Operations.presets(for: nil)
+    presets = Preset.visible(for: 1)
     #expect(presets[0].displayName == "Font 1 Preset 1")
     #expect(presets.count == 2)
   }

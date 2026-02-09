@@ -17,7 +17,7 @@ struct IndicatorModifierTests {
 
   @Test
   func renderingNormalSelected() async throws {
-    var presets = Operations.presets(for: nil)
+    var presets = Preset.visible(for: 1)
     if let clone = presets.last!.clone() {
       presets.append(clone)
     }
@@ -26,13 +26,13 @@ struct IndicatorModifierTests {
       List {
         PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0], symbolPrefix: "star.circle.fill")) {
           PresetButton()
-        })
+        }, indicatorModifierState: .active)
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1], symbolPrefix: "star.circle.fill")) {
           PresetButton()
-        })
+        }, indicatorModifierState: .none)
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!, symbolPrefix: "star.circle.fill")) {
           PresetButton()
-        })
+        }, indicatorModifierState: .none)
         Text("ActiveNoIndicator")
           .indicator(.activeNoIndicator)
       }
@@ -46,25 +46,22 @@ struct IndicatorModifierTests {
 
   @Test
   func renderingFavoriteSelected() async throws {
-    var presets = Operations.presets(for: nil)
+    var presets = Preset.visible(for: 1)
     if let clone = presets.last!.clone() {
       presets.append(clone)
     }
-
-    @Shared(.activeState) var activeState
-    $activeState.activePresetId.withLock { $0 = presets.last?.id }
 
     let view = VStack {
       List {
         PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0], symbolPrefix: "star.circle.fill")) {
           PresetButton()
-        })
+        }, indicatorModifierState: .none)
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1], symbolPrefix: "star.circle.fill")) {
           PresetButton()
-        })
+        }, indicatorModifierState: .none)
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!, symbolPrefix: "star.circle.fill")) {
           PresetButton()
-        })
+        }, indicatorModifierState: .none)
         Text("Selected")
           .indicator(.selected)
       }
@@ -79,7 +76,7 @@ struct IndicatorModifierTests {
 #if os(iOS)
   @Test
   func renderingNormalSelectedEditing() async throws {
-    var presets = Operations.presets(for: nil)
+    var presets = Preset.visible(for: 1)
     if let clone = presets.last!.clone() {
       presets.append(clone)
     }
@@ -88,13 +85,13 @@ struct IndicatorModifierTests {
       List {
         PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0], symbolPrefix: "star.circle.fill")) {
           PresetButton()
-        })
+        }, indicatorModifierState: .none)
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1], symbolPrefix: "star.circle.fill")) {
           PresetButton()
-        })
+        }, indicatorModifierState: .none)
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!, symbolPrefix: "star.circle.fill")) {
           PresetButton()
-        })
+        }, indicatorModifierState: .none)
         Text("ActiveNoIndicator")
           .indicator(.activeNoIndicator)
       }
@@ -108,25 +105,22 @@ struct IndicatorModifierTests {
 
   @Test
   func renderingFavoriteSelectedEditing() async throws {
-    var presets = Operations.presets(for: nil)
+    var presets = Preset.visible(for: 1)
     if let clone = presets.last!.clone() {
       presets.append(clone)
     }
-
-    @Shared(.activeState) var activeState
-    $activeState.activePresetId.withLock { $0 = presets.last?.id }
 
     let view = VStack {
       List {
         PresetButtonView(store: Store(initialState: PresetButton.State(preset: presets[0], symbolPrefix: "star.circle.fill")) {
           PresetButton()
-        })
+        }, indicatorModifierState: .active)
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets[1], symbolPrefix: "star.circle.fill")) {
           PresetButton()
-        })
+        }, indicatorModifierState: .none)
         PresetButtonView(store: Store(initialState: PresetButton.State.init(preset: presets.last!, symbolPrefix: "star.circle.fill")) {
           PresetButton()
-        })
+        }, indicatorModifierState: .none)
         Text("Selected")
           .indicator(.selected)
         Text("True")

@@ -74,20 +74,18 @@ public struct PresetsList {
       self.searchText = searchText ?? ""
       self.editingVisibility = editingVisibility
 
-      let presets = Operations.presets(for: presetSource?.id)
+      let presets: [Preset] = if let soundFontId = presetSource?.id { Preset.visible(for: soundFontId) } else { [] }
       let symbolPrefix = starFavoriteNames ? symbolName : nil
 
-      self.sections = presets.isEmpty ?
-        .init(uniqueElements: [PresetsListSection.State(section: 0, presets: [])]) :
-        .init(
-          uniqueElements: presets.indices.chunks(ofCount: PresetsList.groupingSize).map {
-            PresetsListSection.State(
-              section: $0.lowerBound,
-              presets: presets[$0],
-              symbolPrefix: symbolPrefix,
-              presetSource: presetSource,
-              activePresetId: activePresetId
-            )
+      self.sections = .init(
+        uniqueElements: presets.indices.chunks(ofCount: PresetsList.groupingSize).map {
+          PresetsListSection.State(
+            section: $0.lowerBound,
+            presets: presets[$0],
+            symbolPrefix: symbolPrefix,
+            presetSource: presetSource,
+            activePresetId: activePresetId
+          )
         })
     }
 
@@ -111,7 +109,6 @@ public struct PresetsList {
     case destination(PresentationAction<Destination.Action>)
     case editingVisibilityChanged(Bool)
     case fetchPresets
-    case initialize
     case presetSourceChanged(PresetSource?)
     case restoreActiveState(presetSource: PresetSource, activePresetId: Preset.ID)
     case searchTextChanged(String)
@@ -171,9 +168,6 @@ public struct PresetsList {
       case .fetchPresets:
         state.scrollToPresetId = .init(presetId: state.activePresetId)
         return generatePresetSections(&state)
-
-      case .initialize:
-        return .none
 
       case .presetSourceChanged(let presetSource):
         return presetSourceChanged(&state, presetSource: presetSource)
@@ -243,15 +237,17 @@ extension PresetsList {
   private func generatePresetSections(_ state: inout State) -> Effect<Action> {
     log.debug("generatePresetSections BEGIN")
     let grouping = state.optionalSearchText != nil ? Self.noGroupingSize : Self.groupingSize
-    var presets = (
-      state.editingVisibility
-      ? Operations.allPresets(for: state.presetSource?.id)
-      : Operations.presets(for: state.presetSource?.id)
-    )
-    if let searchText = state.optionalSearchText {
-      presets = presets.filter {
-        $0.displayName.localizedCaseInsensitiveContains(searchText)
+
+    var presets: [Preset]
+    if let soundFontId = state.presetSource?.id {
+      presets = state.editingVisibility ? Preset.all(for: soundFontId) : Preset.visible(for: soundFontId)
+      if let searchText = state.optionalSearchText {
+        presets = presets.filter {
+          $0.displayName.localizedCaseInsensitiveContains(searchText)
+        }
       }
+    } else {
+      presets = []
     }
 
     let symbolPrefix = starFavoriteNames ? favoriteSymbolName : nil
@@ -424,9 +420,6 @@ public struct PresetsListView: View {
         .onChange(of: store.scrollToPresetId) {
           doScrollTo(proxy: proxy)
         }
-      }
-      .task {
-        await store.send(.initialize).finish()
       }
     }
     .environment(

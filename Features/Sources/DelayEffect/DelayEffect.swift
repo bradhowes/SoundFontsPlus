@@ -19,7 +19,11 @@ public struct DelayEffect {
     public var wetDryMix: KnobFeature.State
     public var dirty: Bool
 
-    public init(presetId: Preset.ID = DelayEffect.unsetPresetId, dirty: Bool = false) {
+    public init(
+      presetId: Preset.ID = DelayEffect.unsetPresetId,
+      dirty: Bool = false,
+      activePresetId: Preset.ID? = nil
+    ) {
       @Shared(.parameterTree) var parameterTree
       @Shared(.delayLockEnabled) var locked
       self.config = .init(presetId: presetId)
@@ -30,6 +34,7 @@ public struct DelayEffect {
       self.cutoff = .init(parameter: parameterTree[.delayCutoff])
       self.wetDryMix = .init(parameter: parameterTree[.delayAmount])
       self.dirty = dirty
+      self.activePresetId = activePresetId
     }
   }
 

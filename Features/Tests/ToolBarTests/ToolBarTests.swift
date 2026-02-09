@@ -20,8 +20,6 @@ import TestSupport
 )
 @MainActor
 struct ToolBarTests {
-  @Shared(.activeState) var activeState = .default
-
   fileprivate func store() async throws -> TestStoreOf<ToolBar> {
     TestStoreOf<ToolBar>(initialState: .init()) {
       ToolBar()
@@ -44,7 +42,6 @@ struct ToolBarTests {
     .dependencies { $0.defaultDatabase = TestSupport.testDatabase() }
   )
   func activePresetIdChanged() async throws {
-    @Shared(.activeState) var activeState
     let store = try await store()
 
     await store.send(.activePresetIdChanged(2)) {
@@ -425,7 +422,7 @@ struct ToolBarTests {
         )
       ) {
         ToolBar()
-      })
+      }, isAUv3: false)
 
     try withSnapshotTesting(record: .failed) {
       try TestSupport.assertSnapshot(matching: view)
@@ -451,7 +448,7 @@ struct ToolBarTests {
         )
       ) {
         ToolBar()
-      })
+      }, isAUv3: false)
 
     try withSnapshotTesting(record: .failed) {
       try TestSupport.assertSnapshot(matching: view)

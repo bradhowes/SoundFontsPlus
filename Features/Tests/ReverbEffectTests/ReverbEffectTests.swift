@@ -22,10 +22,9 @@ import TestSupport
 @MainActor
 struct ReverbEffectTests {
   fileprivate let device = MockReverbDevice()
-  @Shared(.activeState) var activeState = .default
 
-  fileprivate func store() -> TestStoreOf<ReverbEffect> {
-    TestStoreOf<ReverbEffect>(initialState: .init()) {
+  fileprivate func store(activePresetId: Preset.ID? = nil) -> TestStoreOf<ReverbEffect> {
+    TestStoreOf<ReverbEffect>(initialState: .init(activePresetId: activePresetId)) {
       ReverbEffect()
     } withDependencies: {
       $0.reverbDevice.setConfig = { config in Task { await device.setConfig(config) } }
@@ -36,7 +35,6 @@ struct ReverbEffectTests {
   func initialization() async throws {
     let store = store()
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.send(.initialize)
       await store.receive(\.activePresetIdChanged)
       await store.receive(\.wetDryMix)
       await store.send(.deinitialize)
@@ -54,7 +52,6 @@ struct ReverbEffectTests {
     let store = store()
 
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.send(.initialize)
       await store.receive(\.activePresetIdChanged)
       #expect(store.state.config.id == nil)
       await store.receive(\.wetDryMix)
@@ -95,7 +92,6 @@ struct ReverbEffectTests {
     let store = store()
 
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.send(.initialize)
       await store.receive(\.activePresetIdChanged)
 
       #expect(store.state.config.id == nil)
@@ -143,7 +139,6 @@ struct ReverbEffectTests {
       let store = store()
 
       await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-        await store.send(.initialize)
         await store.receive(\.activePresetIdChanged)
 
         #expect(store.state.config.id == nil)
@@ -206,7 +201,6 @@ struct ReverbEffectTests {
     let store = store()
 
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.send(.initialize)
       await store.receive(\.activePresetIdChanged)
 
       #expect(store.state.config.enabled == false)
@@ -260,14 +254,10 @@ struct ReverbEffectTests {
     @Shared(.reverbLockEnabled) var locked = true
     let store = store()
 
-    await store.send(.initialize)
     await store.receive(\.activePresetIdChanged)
 
     #expect(store.state.config.id == nil)
     #expect(store.state.locked.isOn == true)
-
-    @Shared(.activeState) var activeState
-    $activeState.withLock { $0.activePresetId = 2 }
 
     await store.receive(\.activePresetIdChanged, 2)
 
@@ -285,17 +275,13 @@ struct ReverbEffectTests {
     let store = store()
 
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.send(.initialize)
       await store.receive(\.activePresetIdChanged, 1)
 
       #expect(store.state.config.id == 1)
 
       await store.receive(\.wetDryMix)
 
-      @Shared(.activeState) var activeState
-      $activeState.withLock { $0.activePresetId = 2 }
-
-      await store.receive(\.activePresetIdChanged, 2) {
+      await store.send(\.activePresetIdChanged, 2) {
         $0.config =  .init(
           id: 2,
           roomPreset: .cathedral,

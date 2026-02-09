@@ -82,13 +82,13 @@ struct SoundFontEditorTests {
   func showHiddenPresetsConfirmed() async {
     let store = store()
 
-    var presets = Operations.presets(for: soundFontId)
+    var presets = Preset.visible(for: 1)
     #expect(presets[0].kind == .preset)
     #expect(presets[0].displayName == "Font 1 Preset 1")
 
     presets[0].toggleVisibility()
 
-    presets = Operations.presets(for: soundFontId)
+    presets = Preset.visible(for: 1)
     #expect(presets[0].displayName == "Font 1 Preset 2")
 
     await store.send(.unhideAllButtonTapped) {
@@ -102,7 +102,7 @@ struct SoundFontEditorTests {
 
     await store.receive(\.delegate.refreshPresets)
 
-    presets = Operations.presets(for: soundFontId)
+    presets = Preset.visible(for: 1)
     #expect(presets[0].displayName == "Font 1 Preset 1")
   }
 

@@ -22,10 +22,9 @@ import TestSupport
 @MainActor
 struct DelayEffectTests {
   fileprivate let device = MockDelayDevice()
-  @Shared(.activeState) var activeState = .default
 
-  fileprivate func store() -> TestStoreOf<DelayEffect> {
-    TestStoreOf<DelayEffect>(initialState: .init()) {
+  fileprivate func store(activePresetId: Preset.ID? = nil) -> TestStoreOf<DelayEffect> {
+    TestStoreOf<DelayEffect>(initialState: .init(activePresetId: activePresetId)) {
       DelayEffect()
     } withDependencies: {
       $0.delayDevice.setConfig = { config in Task { await device.setConfig(config) } }
@@ -37,7 +36,6 @@ struct DelayEffectTests {
     let store = store()
 
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.send(.initialize)
       await store.receive(\.activePresetIdChanged)
       await store.receive(\.time)
       await store.receive(\.feedback)
@@ -57,7 +55,6 @@ struct DelayEffectTests {
   func enabledToggled() async throws {
     let store = store()
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.send(.initialize)
       await store.receive(\.activePresetIdChanged)
 
       #expect(store.state.config.id == nil)
@@ -110,7 +107,6 @@ struct DelayEffectTests {
     ) {
 
       await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-        await store.send(.initialize)
         await store.receive(\.activePresetIdChanged)
 
         #expect(store.state.config.id == nil)
@@ -184,7 +180,6 @@ struct DelayEffectTests {
     let store = store()
 
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.send(.initialize)
       await store.receive(\.activePresetIdChanged)
       #expect(store.state.config.enabled == false)
       #expect(store.state.locked.isOn == true)
@@ -241,14 +236,10 @@ struct DelayEffectTests {
     @Shared(.delayLockEnabled) var locked = true
     let store = store()
 
-    await store.send(.initialize)
     await store.receive(\.activePresetIdChanged)
 
     #expect(store.state.config.id == nil)
     #expect(store.state.locked.isOn == true)
-
-    @Shared(.activeState) var activeState
-    $activeState.withLock { $0.activePresetId = 2 }
 
     await store.receive(\.activePresetIdChanged, 2)
 
@@ -266,7 +257,6 @@ struct DelayEffectTests {
     let store = store()
 
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.send(.initialize)
       await store.receive(\.activePresetIdChanged, 1)
 
       #expect(store.state.config.id == 1)
@@ -275,9 +265,6 @@ struct DelayEffectTests {
       await store.receive(\.feedback)
       await store.receive(\.cutoff)
       await store.receive(\.wetDryMix)
-
-      @Shared(.activeState) var activeState
-      $activeState.withLock { $0.activePresetId = 2 }
 
       await store.receive(\.activePresetIdChanged, 2) {
         $0.config =  .init(

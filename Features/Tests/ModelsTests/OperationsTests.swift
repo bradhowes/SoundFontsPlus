@@ -27,7 +27,7 @@ struct OperationsTests {
     @Shared(.showOnlyFavorites) var showOnlyFavorites = false
     @Shared(.sortPresetsByName) var sortPresetsByName = false
 
-    var presets = Operations.presets(for: .fluidFont)
+    var presets = Preset.visible(for: .fluidFont)
     #expect(presets.count == 10)
 
     let preset3Name = presets[3].displayName
@@ -38,18 +38,18 @@ struct OperationsTests {
     let clone5 = presets[5].clone()
     #expect(clone5?.displayName == preset5Name + " copy")
 
-    presets = Operations.presets(for: .fluidFont)
+    presets = Preset.visible(for: .fluidFont)
     #expect(presets.count == 12)
     #expect(presets[3].displayName == preset3Name)
     #expect(presets[4].displayName == clone3?.displayName)
     #expect(presets[6].displayName == preset5Name)
     #expect(presets[7].displayName == clone5?.displayName)
 
-    presets = Operations.presets(for: .rolandNicePiano)
+    presets = Preset.visible(for: .rolandNicePiano)
     #expect(presets.count == 1)
 
     $sortPresetsByName.withLock { $0 = true }
-    presets = Operations.presets(for: .fluidFont)
+    presets = Preset.visible(for: .fluidFont)
     #expect(presets.count == 12)
     #expect(presets[0].displayName == "Bright Yamaha Grand")
     #expect(presets[1].displayName == "Celesta")
@@ -58,18 +58,18 @@ struct OperationsTests {
 
     $sortPresetsByName.withLock { $0 = false }
     $favoritesOnTop.withLock { $0 = true }
-    presets = Operations.presets(for: .fluidFont)
+    presets = Preset.visible(for: .fluidFont)
     #expect(presets.count == SoundFont.testSoundFontPresetLoadLimit + 2)
     #expect(presets[0].displayName == clone3?.displayName)
     #expect(presets[1].displayName == clone5?.displayName)
     #expect(presets[5].displayName == preset3Name)
     #expect(presets[7].displayName == preset5Name)
 
-    presets = Operations.presets(for: .rolandNicePiano)
+    presets = Preset.visible(for: .rolandNicePiano)
     #expect(presets.count == 1)
 
     $sortPresetsByName.withLock { $0 = true }
-    presets = Operations.presets(for: .fluidFont)
+    presets = Preset.visible(for: .fluidFont)
     #expect(presets.count == SoundFont.testSoundFontPresetLoadLimit + 2)
     #expect(presets[0].displayName == "Honky Tonk copy")
     #expect(presets[1].displayName == "Legend EP 2 copy")
@@ -78,10 +78,10 @@ struct OperationsTests {
 
     $showOnlyFavorites.withLock { $0 = true }
 
-    presets = Operations.presets(for: .fluidFont)
+    presets = Preset.visible(for: .fluidFont)
     #expect(presets.count == 2)
 
-    presets = Operations.presets(for: .rolandNicePiano)
+    presets = Preset.visible(for: .rolandNicePiano)
     #expect(presets.isEmpty)
   }
 
@@ -89,34 +89,22 @@ struct OperationsTests {
     arguments: [false, true]
   )
   func presets(_ showOnlyFavorites: Bool) async throws {
-    @Shared(.activeState) var activeState
-    @Shared(.selectedSoundFontId) var selectedSoundFontId
     @Shared(.showOnlyFavorites) var showOnlyFavorites = showOnlyFavorites
 
     let expectedCount = showOnlyFavorites ? 0 : 2
-    #expect(Operations.presets(for: nil).count == expectedCount)
-    $selectedSoundFontId.withLock { $0 = 2 }
-    #expect(Operations.presets(for: nil).count == expectedCount)
-    $selectedSoundFontId.withLock { $0 = 3 }
-    #expect(Operations.presets(for: nil).count == expectedCount)
-    $selectedSoundFontId.withLock { $0 = nil }
-    #expect(Operations.presets(for: nil).count == expectedCount)
-    $activeState.withLock { $0.activeSoundFontId = nil }
-    #expect(Operations.presets(for: nil).isEmpty)
+    #expect(Preset.visible(for: 1).count == expectedCount)
+    #expect(Preset.visible(for: 1).count == expectedCount)
+    #expect(Preset.visible(for: 1).count == expectedCount)
+    #expect(Preset.visible(for: 1).count == expectedCount)
+    #expect(Preset.visible(for: 1).isEmpty)
   }
 
   @Test
   func allPresets() async throws {
-    @Shared(.activeState) var activeState
-    @Shared(.selectedSoundFontId) var selectedSoundFontId
-    #expect(Operations.allPresets(for: nil).count == 3)
-    $selectedSoundFontId.withLock { $0 = 2 }
-    #expect(Operations.allPresets(for: nil).count == 3)
-    $selectedSoundFontId.withLock { $0 = 3 }
-    #expect(Operations.allPresets(for: nil).count == 3)
-    $selectedSoundFontId.withLock { $0 = nil }
-    $activeState.withLock { $0.activeSoundFontId = nil }
-    #expect(Operations.allPresets(for: nil).isEmpty)
+    #expect(Preset.all(for: 1).count == 3)
+    #expect(Preset.all(for: 1).count == 3)
+    #expect(Preset.all(for: 1).count == 3)
+    #expect(Preset.all(for: 1).isEmpty)
   }
 
   @Test
@@ -178,25 +166,12 @@ struct OperationsTests {
 
   @Test
   func activePresetLoadingInfo() async throws {
-    let presets = Operations.presets(for: nil)
-    @Shared(.activeState) var activeState
-    $activeState.withLock { $0.activePresetId = presets[presets.count - 1].id }
-    var apli = Operations.presetLoadingInfo()
+    let presets = Preset.visible(for: 1)
+    var apli = Operations.presetLoadingInfo(id: 1)
     #expect(apli?.soundFontId == presets[presets.count - 1].soundFontId)
     #expect(apli?.presetIndex == presets[presets.count - 1].index)
-    $activeState.withLock { $0.activePresetId = presets[0].id }
-    apli = Operations.presetLoadingInfo()
+    apli = Operations.presetLoadingInfo(id: 1)
     #expect(apli?.soundFontId == presets[0].soundFontId)
     #expect(apli?.presetIndex == presets[0].index)
-  }
-
-  @Test
-  func activePresetAudioConfig() async throws {
-    let presets = Operations.presets(for: nil)
-    @Dependency(\.defaultDatabase) var database
-    @Shared(.activeState) var activeState
-    $activeState.withLock { $0.activePresetId = presets[presets.count - 1].id }
-    let apac = Operations.presetAudioConfig()
-    #expect(apac == nil)
   }
 }

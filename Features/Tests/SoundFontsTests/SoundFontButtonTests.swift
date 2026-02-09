@@ -13,7 +13,6 @@ import TestSupport
 )
 @MainActor
 struct SoundFontButtonTests {
-  @Shared(.activeState) var activeState = .default
 
   fileprivate func store(kind: SoundFont.Kind) -> TestStoreOf<SoundFontButton> {
     let soundFontInfo = SoundFontInfo(id: 123, displayName: "Testing", kind: kind, location: Data())

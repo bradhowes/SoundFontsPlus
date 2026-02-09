@@ -22,16 +22,6 @@ import Tutorial
 @Suite(
   .dependencies {
     let mockVolume = OutputVolumeFlipFlop()
-    @Shared(.activeState) var activeState
-    $activeState.withLock {
-      $0 = .init(
-        activeSoundFontId: 1,
-        activePresetId: 1,
-        activeTagId: -1,
-        activeDelayConfigId: nil,
-        activeReverbConfigId: nil
-      )
-    }
     $0.audioGraph = .liveValue // MockAudioGraph().audioGraph
     $0.audioSession = .liveValue
     $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
@@ -50,7 +40,6 @@ import Tutorial
 struct AppRootTests {
 
   func store(showedTutorial: Bool = true) -> TestStoreOf<AppRoot> {
-    @Shared(.activeState) var activeState = .default
     @Shared(.showedTutorial) var showedTutorial = showedTutorial
     return .init(initialState: .init()) {
       AppRoot()
@@ -283,7 +272,7 @@ struct AppRootTests {
           preset: preset
          )
       ) {
-        $0.destination = .presetEditor(.init(sectionId: section.sectionId, preset: preset))
+        $0.destination = .presetEditor(.init(sectionId: section.sectionId, preset: preset, isActive: false))
       }
 
       await store.send(\.destination.dismiss) {

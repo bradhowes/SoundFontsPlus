@@ -88,10 +88,6 @@ struct SynthTests {
       @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
       $playSoundOnPresetChange.withLock { $0 = true }
 
-      @Shared(.activeState) var activeState
-      $activeState.withLock { $0.activePresetId = 2 }
-      try await $activeState.load()
-
       await store.send(\.activePresetIdChanged, 2) {
         $0.loadedSoundFontId = 1
         $0.loadedPresetIndex = 1

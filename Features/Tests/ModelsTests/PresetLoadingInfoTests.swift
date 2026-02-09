@@ -20,23 +20,16 @@ struct PresetLoadingInfoTests {
 
   @MainActor
   func setup() async throws -> [Preset] {
-    @Shared(.isAUv3) var isAUv3 = true
-    @Shared(.activeState) var activeState
-    $activeState.withLock { $0 = .none }
     return withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
   }
 
   @Test
   func appActivePresetLoadingInfo() async throws {
-    @Shared(.activeState) var activeState
-
-    $activeState.withLock { $0.activePresetId = nil }
     let presets = try await setup()
-    var apli = Operations.presetLoadingInfo(id: nil)
+    var apli = Operations.presetLoadingInfo(id: 1)
     #expect(apli == nil)
 
-    $activeState.withLock { $0.activePresetId = presets[0].id }
-    apli = Operations.presetLoadingInfo()
+    apli = Operations.presetLoadingInfo(id: 1)
     #expect(apli != nil)
     #expect(apli?.soundFontId == presets[0].soundFontId)
     #expect(apli?.presetIndex == presets[0].index)
@@ -48,15 +41,11 @@ struct PresetLoadingInfoTests {
 
   @Test
   func auv3ActivePresetLoadingInfo() async throws {
-    @Shared(.activeState) var activeState
-
-    $activeState.withLock { $0.activePresetId = nil }
     let presets = try await setup()
-    var apli = Operations.presetLoadingInfo(id: nil)
+    var apli = Operations.presetLoadingInfo(id: 1)
     #expect(apli == nil)
 
-    $activeState.withLock { $0.activePresetId = presets[0].id }
-    apli = Operations.presetLoadingInfo()
+    apli = Operations.presetLoadingInfo(id: 1)
     #expect(apli != nil)
     #expect(apli?.soundFontId == presets[0].soundFontId)
     #expect(apli?.presetIndex == presets[0].index)

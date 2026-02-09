@@ -1,5 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import BaseSupport
 import Dependencies
 import Sharing
 import SQLiteData
@@ -216,6 +217,9 @@ extension Preset {
 
     return candidate
   }
+}
+
+extension Preset {
 
   /**
    Fetch the row for a given ID.
@@ -230,8 +234,86 @@ extension Preset {
         .fetchOne(db)
     } ?? nil
   }
+
+  /**
+   Obtain a query that returns the set of presets to show (unordered) for a given sound font ID. Honors the
+   `showOnlyFavorites` setting.
+
+   - parameter soundFontId: the sound font to query for
+   - returns: a query showing the appropriate contents
+   */
+  public static func presetsQuery(for soundFontId: SoundFont.ID) -> Where<Self> {
+    @Shared(.showOnlyFavorites) var showOnlyFavorites
+    return Preset.all.where { $0.soundFontId.eq(soundFontId) } && (
+      showOnlyFavorites
+      ? .where { $0.kind.eq(Preset.Kind.favorite) }
+      : .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.favorite) }
+    )
+  }
+
+  /**
+   Obtain a query that returns an ordered collection of presets to show for a given sound font ID. Honors the
+   `favoritesOnTop` and `sortPresetsByName` settings which affect the ordering.
+
+   - parameter soundFontId: the sound font to query for
+   - returns: the select query
+   */
+  public static func orderedQuery(for soundFontId: SoundFont.ID) -> Select<(), Self, ()> {
+    @Shared(.favoritesOnTop) var favoritesOnTop
+    @Shared(.sortPresetsByName) var sortPresetsByName
+    let query = presetsQuery(for: soundFontId)
+    if sortPresetsByName {
+      return favoritesOnTop
+      ? query
+        .order { $0.kind.desc() }
+        .order { $0.displayName }
+      : query
+        .order { $0.kind }
+        .order { $0.displayName }
+    } else {
+      return favoritesOnTop
+      ? query
+        .order { $0.kind.desc() }
+        .order { $0.index }
+      : query
+        .order { $0.index }
+        .order { $0.kind }
+        .order { $0.displayName }
+    }
+  }
+
+  /**
+   Execute a query to obtain the presets for a given sound font ID.
+
+   - parameter soundFontId: the sound font to query for
+   - returns: the collection of presets
+   */
+  public static func visible(for soundFontId: SoundFont.ID) -> [Preset] {
+    withDatabaseReader {
+      try orderedQuery(for: soundFontId).fetchAll($0)
+    } ?? []
+  }
+
+  /**
+   Obtain the collection of presets for a given sound font ID. Does not perform any filtering of hidden presets.
+   Used when editing preset visibility.
+
+   - parameter soundFontId: the sound font to query for
+   - returns: the collection of presets
+   */
+  public static func all(for soundFontId: SoundFont.ID) -> [Preset] {
+    let query = Self
+      .all
+      .where { $0.soundFontId.eq(soundFontId) }
+      .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.hidden) }
+      .order(by: \.index)
+    return withDatabaseReader { try query.fetchAll($0) } ?? []
+  }
+
 }
 
 extension Preset.Kind: Hashable, QueryBindable, RawRepresentable, Sendable {}
 
 extension Preset: Hashable, Identifiable, Sendable {}
+
+private let log: Logger = .init(category: "Preset")

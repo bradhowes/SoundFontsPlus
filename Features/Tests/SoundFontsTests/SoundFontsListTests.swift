@@ -28,7 +28,6 @@ private class RemoveLog: @unchecked Sendable {
 struct SoundFontsListTests {
 
   func store() -> TestStoreOf<SoundFontsList> {
-    @Shared(.activeState) var activeState = .default
     return TestStore(initialState: SoundFontsList.State()) {
       SoundFontsList()
     }
@@ -97,14 +96,12 @@ struct SoundFontsListTests {
     @Shared(.isAUv3) var isAUv3 = false
 
     try await initialized { store in
-      @Shared(.activeState) var activeState
-      $activeState.withLock { $0.activeTagId = nil }
+      await store.send(\.activeTagIdChanged, Tag.Ubiquitous.all.id)
 
       await store.receive(\.updateFetchAllQuery)
       await store.receive(\.rowsUpdated)
 
-      $activeState.withLock { $0.activeTagId = Tag.Ubiquitous.external.id }
-
+      await store.send(\.activeTagIdChanged, Tag.Ubiquitous.external.id)
       await store.receive(\.updateFetchAllQuery)
       await store.withExhaustivity(.off(showSkippedAssertions: false)) {
         await store.receive(\.rowsUpdated)
@@ -117,10 +114,6 @@ struct SoundFontsListTests {
   func showActiveSoundFont() async throws {
     try await initialized { store in
       await store.send(.showActiveSoundFont)
-
-      @Shared(.activeState) var activeState
-      $activeState.withLock { $0.activeSoundFontId = nil }
-
       await store.send(.showActiveSoundFont)
     }
   }
@@ -133,12 +126,12 @@ struct SoundFontsListTests {
     try await initialized { store in
 
       var row = store.state.rows[1]
-      await store.send(.rows(.element(id: row.id, action: .delegate(.selectSoundFont(row.soundFontInfo, available: true)))))
+      await store.send(.rows(.element(id: row.id, action: .delegate(.select(row.soundFontInfo, available: true)))))
 
       #expect(selectedSoundFontId == 2)
 
       row = store.state.rows[0]
-      await store.send(.rows(.element(id: row.id, action: .delegate(.selectSoundFont(row.soundFontInfo, available: false)))))
+      await store.send(.rows(.element(id: row.id, action: .delegate(.select(row.soundFontInfo, available: false)))))
 
       #expect(selectedSoundFontId == 2)
     }
@@ -149,7 +142,7 @@ struct SoundFontsListTests {
     try await initialized { store in
 
       let row = store.state.rows[1]
-      await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo))))) {
+      await store.send(.rows(.element(id: row.id, action: .delegate(.delete(row.soundFontInfo))))) {
         $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(row.soundFontInfo),
                                                         displayName: "Font 2"))
       }
@@ -165,7 +158,7 @@ struct SoundFontsListTests {
     try await initialized { store in
       let row = store.state.rows[1]
 
-      await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo))))) {
+      await store.send(.rows(.element(id: row.id, action: .delegate(.delete(row.soundFontInfo))))) {
         $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(row.soundFontInfo),
                                                         displayName: "Font 2"))
       }
@@ -185,18 +178,13 @@ struct SoundFontsListTests {
   )
   func deleteSoundFontConfirmedInternal() async throws {
     @Shared(.inMemory("removeLog")) var removeLog = RemoveLog()
-    @Shared(.activeState) var activeState
-    @Shared(.selectedSoundFontId) var selectedSoundFontId
 
     try await initialized { store in
 
       var oldRows = store.state.rows
       let row = oldRows[2]
 
-      $activeState.withLock { $0.activeSoundFontId = row.id }
-      $selectedSoundFontId.withLock { $0 = row.id }
-
-      await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo))))) {
+      await store.send(.rows(.element(id: row.id, action: .delegate(.delete(row.soundFontInfo))))) {
         $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(row.soundFontInfo),
                                                         displayName: "Font 3"))
       }
@@ -215,8 +203,8 @@ struct SoundFontsListTests {
       #expect(removeLog.log.count == 1)
       #expect(removeLog.log[0] == URL(filePath: "/fake/path/GeneralUser GS MuseScore v1.442.sf2"))
 
-      #expect(activeState.activeSoundFontId == nil)
-      #expect(selectedSoundFontId == nil)
+      #expect(store.state.activePresetSource == nil)
+      #expect(store.state.selectedPresetSource == nil)
     }
   }
 
@@ -231,7 +219,7 @@ struct SoundFontsListTests {
         location: row.soundFontInfo.location
       )
 
-      await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(bad))))) {
+      await store.send(.rows(.element(id: row.id, action: .delegate(.delete(bad))))) {
         $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(bad),
                                                         displayName: "Font 1 Bogus"))
       }
@@ -246,7 +234,7 @@ struct SoundFontsListTests {
   func deleteSoundFontConfirmedBuiltinFailed() async throws {
     try await initialized { store in
       let row = store.state.rows[0]
-      await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo))))) {
+      await store.send(.rows(.element(id: row.id, action: .delegate(.delete(row.soundFontInfo))))) {
         $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(row.soundFontInfo),
                                                         displayName: "Font 1"))
       }
@@ -271,7 +259,7 @@ struct SoundFontsListTests {
 
       var oldRows = store.state.rows
       let row = oldRows[2]
-      await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo))))) {
+      await store.send(.rows(.element(id: row.id, action: .delegate(.delete(row.soundFontInfo))))) {
         $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(row.soundFontInfo),
                                                         displayName: "Font 3"))
       }
@@ -298,7 +286,7 @@ struct SoundFontsListTests {
 
       var oldRows = store.state.rows
       let row = oldRows[3]
-      await store.send(.rows(.element(id: row.id, action: .delegate(.deleteSoundFont(row.soundFontInfo))))) {
+      await store.send(.rows(.element(id: row.id, action: .delegate(.delete(row.soundFontInfo))))) {
         $0.destination = .alert(.confirmDeleteSoundFont(action: .deleteSoundFontConfirmed(row.soundFontInfo),
                                                         displayName: "Font 4"))
       }
@@ -322,7 +310,7 @@ struct SoundFontsListTests {
     try await initialized { store in
 
       let row = store.state.rows.first!
-      await store.send(.rows(.element(id: row.id, action: .delegate(.editSoundFont(row.soundFontInfo)))))
+      await store.send(.rows(.element(id: row.id, action: .delegate(.edit(row.soundFontInfo)))))
 
       let soundFontId = row.soundFontInfo.id
       @Dependency(\.defaultDatabase) var database
@@ -471,7 +459,7 @@ struct SoundFontsListTests {
         $0.rows = [land]
       }
 
-      await store.send(\.rows[id: 4].delegate, .selectSoundFont(land.soundFontInfo, available: true))
+      await store.send(\.rows[id: 4].delegate, .select(land.soundFontInfo, available: true))
 
       await store.send(\.cancelSearchButtonTapped) {
         $0.rows = rows

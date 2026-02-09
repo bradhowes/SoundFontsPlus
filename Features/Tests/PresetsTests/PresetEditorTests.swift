@@ -17,14 +17,9 @@ import TestSupport
 @MainActor
 struct PresetEditorTests {
 
-  func setup() throws -> (Preset, TestStoreOf<PresetEditor>) {
-    @Shared(.activeState) var activeState
-    $activeState.withLock {
-      $0.activeSoundFontId = 1
-      $0.activePresetId = 1
-    }
-    let presets = Operations.presets(for: 1)
-    let store = TestStore(initialState: PresetEditor.State(sectionId: 123, preset: presets[0])) {
+  func setup(isActive: Bool = false) throws -> (Preset, TestStoreOf<PresetEditor>) {
+    let presets = Preset.visible(for: 1)
+    let store = TestStore(initialState: PresetEditor.State(sectionId: 123, preset: presets[0], isActive: isActive)) {
       PresetEditor()
     }
     return (presets[0], store)

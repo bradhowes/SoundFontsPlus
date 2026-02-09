@@ -2,6 +2,7 @@
 
 import DependenciesTestSupport
 import FeatureSupport
+import Models
 import SnapshotTesting
 import Testing
 import TestSupport
@@ -21,6 +22,7 @@ struct TagsListTests {
   func initialized(
     makeTag: Bool = false,
     tagFont: Bool = false,
+    activeTagId: Models.Tag.ID? = nil,
     _ closure: (TestStoreOf<TagsList>) async throws -> Void
   ) async throws {
     @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
@@ -33,7 +35,7 @@ struct TagsListTests {
       }
     }
 
-    let store = TestStore(initialState: TagsList.State()) { TagsList() }
+    let store = TestStore(initialState: TagsList.State(activeTagId: activeTagId)) { TagsList() }
 
     await store.send(\.initialize)
     await store.receive(\.fetchAllQueryChanged)
@@ -49,10 +51,11 @@ struct TagsListTests {
 
   @Test
   func deleteButtonTappedEmptyTag() async throws {
-    @Shared(.activeState) var activeState = .default
-    $activeState.withLock { $0.activeTagId = Tag.Ubiquitous.external.id }
-
-    try await initialized(makeTag: true, tagFont: false) { store in
+    try await initialized(
+      makeTag: true,
+      tagFont: false,
+      activeTagId: Models.Tag.Ubiquitous.external.id
+    ) { store in
       let rows = store.state.rows
       let tagInfo = rows[5].tagInfo
 
@@ -66,16 +69,13 @@ struct TagsListTests {
       }
 
       #expect(found?.count == 5)
-      #expect(activeState.activeTagId == Tag.Ubiquitous.external.id)
+      #expect(store.state.activeTagId == Tag.Ubiquitous.external.id)
     }
   }
 
   @Test
   func deleteButtonTappedCancel() async throws {
-    @Shared(.activeState) var activeState = .default
-    $activeState.withLock { $0.activeTagId = Tag.Ubiquitous.external.id }
-
-    try await initialized(makeTag: true, tagFont: true) { store in
+    try await initialized(makeTag: true, tagFont: true, activeTagId: Models.Tag.Ubiquitous.external.id) { store in
       let rows = store.state.rows
       let tagInfo = rows[5].tagInfo
 
@@ -98,18 +98,15 @@ struct TagsListTests {
       }
 
       #expect(found?.count == 6)
-      #expect(activeState.activeTagId == Tag.Ubiquitous.external.id)
+      #expect(store.state.activeTagId == Models.Tag.Ubiquitous.external.id)
     }
   }
 
   @Test
   func deleteButtonTappedConfirmed() async throws {
-    @Shared(.activeState) var activeState = .default
-
-    try await initialized(makeTag: true, tagFont: true) { store in
+    try await initialized(makeTag: true, tagFont: true, activeTagId: 6) { store in
       let rows = store.state.rows
       let tagInfo = rows[5].tagInfo
-      $activeState.withLock { $0.activeTagId = tagInfo.id }
 
       await store.send(\.rows[id: tagInfo.id].delegate.delete, tagInfo) {
         $0.destination = .alert(
@@ -135,30 +132,24 @@ struct TagsListTests {
       }
 
       #expect(found?.count == 5)
-      #expect(activeState.activeTagId == Tag.Ubiquitous.all.id)
+      #expect(store.state.activeTagId == Tag.Ubiquitous.all.id)
     }
   }
 
   @Test
   func tagButtonTapped() async throws {
-    @Shared(.activeState) var activeState = .default
-    #expect(activeState.activeTagId == Tag.Ubiquitous.all.id)
-
-    try await initialized(makeTag: true, tagFont: true) { store in
+    try await initialized(makeTag: true, tagFont: true, activeTagId: Tag.Ubiquitous.all.id) { store in
       let rows = store.state.rows
       let tagInfo = rows[5].tagInfo
 
       await store.send(\.rows[id: tagInfo.id].delegate.activate, tagInfo)
-      #expect(activeState.activeTagId == tagInfo.id)
+      #expect(store.state.activeTagId == tagInfo.id)
     }
   }
 
   @Test
   func editButtonTapped() async throws {
-    @Shared(.activeState) var activeState = .default
-    #expect(activeState.activeTagId == Tag.Ubiquitous.all.id)
-
-    try await initialized(makeTag: true, tagFont: true) { store in
+    try await initialized(makeTag: true, tagFont: true, activeTagId: Tag.Ubiquitous.all.id) { store in
       let rows = store.state.rows
       let tagInfo = rows[5].tagInfo
 

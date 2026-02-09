@@ -33,7 +33,7 @@ struct PresetsListTests {
     }
   }
 
-  var presets: [Preset] { Operations.presets(for: 1) }
+  var presets: [Preset] { Preset.visible(for: 1) }
 
   func setup(
     activeSoundFontId: SoundFont.ID? = 1,
@@ -41,17 +41,9 @@ struct PresetsListTests {
     searchText: String? = nil,
     editingVisibility: Bool = false
   ) throws -> TestStoreOf<PresetsList> {
-    @Shared(.activeState) var activeState
-    $activeState.withLock {
-      $0.activeSoundFontId = activeSoundFontId
-      $0.activePresetId = 1
-    }
-
-    @Shared(.selectedSoundFontId) var selectedSoundFontId
-    $selectedSoundFontId.withLock { $0 = selectedSoundFontId }
-
     let store = TestStore(
       initialState: PresetsList.State(
+        presetSource: activeSoundFontId.flatMap { .active($0) } ?? selectedSoundFontId.flatMap { .selected($0) },
         searchText: searchText,
         editingVisibility: editingVisibility
       )
@@ -80,8 +72,7 @@ struct PresetsListTests {
   func initializeWithNoSoundFontId() async throws {
     let store = try setup(activeSoundFontId: nil, selectedSoundFontId: nil)
 
-    await store.send(.initialize)
-    await store.receive(\.selectedSoundFontIdChanged) {
+    await store.send(.presetSourceChanged(nil)) {
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: 1), anchor: .center)
       $0.sections = [.init(section: 0, presets: [], symbolPrefix: "star.circle.fill")]
     }
@@ -95,9 +86,7 @@ struct PresetsListTests {
   func initializeWithSoundFontId() async throws {
     let store = try setup()
 
-    await store.send(.initialize)
-    await store.receive(\.selectedSoundFontIdChanged)
-
+    await store.send(.presetSourceChanged(nil))
     await store.send(.deinitialize)
     await store.finish()
   }
@@ -203,19 +192,18 @@ struct PresetsListTests {
   @Test
   func detectSoundFontIdChange() async throws {
     let store = try setup()
-    await store.send(.initialize)
 
-    await store.receive(\.selectedSoundFontIdChanged)
+    await store.send(.presetSourceChanged(nil))
 
     @Shared(.selectedSoundFontId) var selectedSoundFontId
     $selectedSoundFontId.withLock { $0 = 2 }
     try await $selectedSoundFontId.load()
 
-    await store.receive(\.selectedSoundFontIdChanged, 2) {
+    await store.send(.presetSourceChanged(.active(2))) {
       $0.scrollToPresetId = nil
       $0.sections = [.init(
         section: 0,
-        presets: Operations.presets(for: 2)[...],
+        presets: Preset.visible(for: 2)[...],
         symbolPrefix: "star.circle.fill"
       )]
     }
@@ -230,7 +218,6 @@ struct PresetsListTests {
     }
   )
   func buttonTapped() async throws {
-    @Shared(.activeState) var activeState
     try await initialized { store in
       await store.send(
         \.sections,
@@ -240,7 +227,6 @@ struct PresetsListTests {
          )
       )
       await store.receive(\.sections[id: store.state.sections[0].id].delegate.selectPreset, presets[1])
-      #expect(activeState.activePresetId == presets[1].id)
     }
   }
 
@@ -250,7 +236,6 @@ struct PresetsListTests {
     }
   )
   func buttonTappedMissingFile() async throws {
-    @Shared(.activeState) var activeState
     try await initialized { store in
       await store.send(
         \.sections,
@@ -280,7 +265,7 @@ struct PresetsListTests {
         $0.sections[0] = .init(section: 0, presets: presets[...], symbolPrefix: "star.circle.fill")
       }
 
-      var updated = Operations.presets(for: nil)
+      var updated = Preset.visible(for: 1)
       #expect(updated[1].kind == .favorite)
 
       await store.send(
@@ -304,7 +289,7 @@ struct PresetsListTests {
         $0.destination = nil
       }
 
-      updated = Operations.presets(for: nil)
+      updated = Preset.visible(for: 1)
       #expect(updated[1].kind == .favorite)
     }
   }
@@ -324,7 +309,7 @@ struct PresetsListTests {
         $0.sections[0] = .init(section: 0, presets: presets[...], symbolPrefix: "star.circle.fill")
       }
 
-      var updated = Operations.presets(for: nil)
+      var updated = Preset.visible(for: 1)
       #expect(updated[1].kind == .favorite)
 
       await store.send(
@@ -349,7 +334,7 @@ struct PresetsListTests {
         $0.sections = [.init(section: 0, presets: presets[...], symbolPrefix: "star.circle.fill")]
       }
 
-      updated = Operations.presets(for: nil)
+      updated = Preset.visible(for: 1)
       #expect(updated[1].kind == .preset)
     }
   }
@@ -403,7 +388,7 @@ struct PresetsListTests {
         $0.destination = nil
       }
 
-      let updated = Operations.presets(for: nil)
+      let updated = Preset.visible(for: 1)
       #expect(updated[1] == presets[1])
       #expect(confirmPresetHiding == true)
     }
@@ -443,7 +428,7 @@ struct PresetsListTests {
         $0.sections = [.init(section: 0, presets: updated[...], symbolPrefix: "star.circle.fill")]
       }
 
-      updated = Operations.presets(for: nil)
+      updated = Preset.visible(for: 1)
       #expect(updated.count == 1)
       #expect(confirmPresetHiding == false)
     }
@@ -454,13 +439,13 @@ struct PresetsListTests {
     let store = try setup()
 
     await store.send(.editingVisibilityChanged(true)) {
-      $0.sections = [.init(section: 0, presets: Operations.allPresets(for: 1)[...], symbolPrefix: "star.circle.fill")]
+      $0.sections = [.init(section: 0, presets: Preset.all(for: 1)[...], symbolPrefix: "star.circle.fill")]
       $0.scrollToPresetId = nil
       $0.editingVisibility = true
     }
 
     await store.send(.editingVisibilityChanged(false)) {
-      $0.sections = [.init(section: 0, presets: Operations.presets(for: 1)[...], symbolPrefix: "star.circle.fill")]
+      $0.sections = [.init(section: 0, presets: Preset.visible(for: 1)[...], symbolPrefix: "star.circle.fill")]
       $0.scrollToPresetId = nil
       $0.editingVisibility = false
     }
@@ -499,8 +484,14 @@ struct PresetsListTests {
 extension PresetsList.Action.Delegate: Equatable {
   public static func == (lhs: PresetsList.Action.Delegate, rhs: PresetsList.Action.Delegate) -> Bool {
     switch (lhs, rhs) {
+    case let (.activePresetIdChanged(a), .activePresetIdChanged(b)):
+      return a == b
     case let (.edit(a, b), .edit(c, d)):
       return (a, b) == (c, d)
+    case let (.missingSoundFontDetected(a), .missingSoundFontDetected(b)):
+      return a == b
+    default:
+      return false
     }
   }
 }

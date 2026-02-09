@@ -12,6 +12,8 @@ import TestSupport
 @Suite(
   .dependencies {
     $0.defaultDatabase = TestSupport.testDatabase()
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+    @Shared(.hideEmptyTags) var hideEmptyTags = false
   },
   //  .snapshots(record: .failed)
 )
@@ -20,19 +22,15 @@ struct SoundFontInfoTests {
 
   @Test
   func query() async throws {
-    @Shared(.activeState) var activeState
-    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
-    @Shared(.hideEmptyTags) var hideEmptyTags = false
-    $activeState.withLock { $0.activeTagId = 99 }
-    var found = withDatabaseReader { try SoundFontInfo.query().fetchAll($0) } ?? []
+    var found = withDatabaseReader { try SoundFontInfo.query(for: 99).fetchAll($0) } ?? []
     #expect(found.isEmpty)
 
-    $activeState.withLock { $0.activeTagId = nil }
-    found = withDatabaseReader { try SoundFontInfo.query().fetchAll($0) } ?? []
-    #expect(found.count == 4)
+    found = withDatabaseReader { try SoundFontInfo.query(for: 1).fetchAll($0) } ?? []
+    guard !found.isEmpty else {
+      Issue.record("found is empty")
+      return
+    }
 
-    $activeState.withLock { $0.activeTagId = Tag.Ubiquitous.all.id }
-    found = withDatabaseReader { try SoundFontInfo.query().fetchAll($0) } ?? []
     #expect(found.count == 4)
     #expect(found[0].id == 1)
     #expect(found[1].id == 2)

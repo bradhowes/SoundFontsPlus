@@ -108,7 +108,7 @@ struct SoundFontButtonStatusInfoTests {
     #expect(
       SoundFontButtonStatusInfoTag.internalFile.statusInfo(info) ==
         .init(
-          action: .delegate(.selectSoundFont(info, available: true)),
+          action: .delegate(.select(info, available: true)),
           imageName: "circle.fill",
           color: .clear
         )
@@ -116,7 +116,7 @@ struct SoundFontButtonStatusInfoTests {
     #expect(
       SoundFontButtonStatusInfoTag.invalidBookmark.statusInfo(info) ==
         .init(
-          action: .delegate(.selectSoundFont(info, available: true)),
+          action: .delegate(.select(info, available: true)),
           imageName: "exclamationmark.circle",
           color: .red
         )
@@ -124,7 +124,7 @@ struct SoundFontButtonStatusInfoTests {
     #expect(
       SoundFontButtonStatusInfoTag.localIsAvailable.statusInfo(info) ==
         .init(
-          action: .delegate(.selectSoundFont(info, available: true)),
+          action: .delegate(.select(info, available: true)),
           imageName: "link",
           color: .mainAccentColor.opacity(0.5)
         )
@@ -140,7 +140,7 @@ struct SoundFontButtonStatusInfoTests {
     #expect(
       SoundFontButtonStatusInfoTag.cloudIsDownloaded.statusInfo(info) ==
         .init(
-          action: .delegate(.selectSoundFont(info, available: true)),
+          action: .delegate(.select(info, available: true)),
           imageName: "icloud",
           color: .mainAccentColor.opacity(0.5)
         )

@@ -431,7 +431,7 @@ extension PresetEditorView {
       navigationBarTitleStyle()
     }
 
-    let presets = Operations.presets(for: nil)
+    let presets = Preset.visible(for: 1)
     return PresetEditorView(store: Store(initialState: .init(sectionId: 0, preset: presets[0], isActive: false)) {
       PresetEditor()
     })

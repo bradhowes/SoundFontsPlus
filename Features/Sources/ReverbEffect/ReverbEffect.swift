@@ -17,7 +17,11 @@ public struct ReverbEffect {
     public var wetDryMix: KnobFeature.State
     public var dirty: Bool
 
-    public init(presetId: Preset.ID = ReverbEffect.unsetPresetId, dirty: Bool = false) {
+    public init(
+      presetId: Preset.ID = ReverbEffect.unsetPresetId,
+      dirty: Bool = false,
+      activePresetId: Preset.ID? = nil
+    ) {
       @Shared(.parameterTree) var parameterTree
       @Shared(.reverbLockEnabled) var locked
       self.config = .init(presetId: presetId)
@@ -25,6 +29,7 @@ public struct ReverbEffect {
       self.enabled = .init(isOn: false, displayName: "On")
       self.wetDryMix = .init(parameter: parameterTree[.reverbAmount])
       self.dirty = dirty
+      self.activePresetId = activePresetId
     }
   }
 

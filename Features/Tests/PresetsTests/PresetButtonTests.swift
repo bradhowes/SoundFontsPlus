@@ -15,7 +15,6 @@ import TestSupport
 struct PresetButtonTests {
 
   func store() -> TestStoreOf<PresetButton> {
-    @Shared(.activeState) var activeState = .default
     let preset = Preset(
       id: 1,
       index: 1,
