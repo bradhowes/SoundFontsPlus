@@ -120,6 +120,8 @@ list of libraries are:
 
 - [AppReview][AppReview] -- feature that asks the user for a review at appropriate intervals
 - [AppRoot][AppRoot] -- the top-level feature for the SoundFontsPlus app
+- [AUv3Root][AUv3Root] -- the top-level feature for the SoundFontsAU AUv3 app extension. Currently (and unfortunately)
+  this and [AppRoot][AppRoot] do not share common code to make sure that they handle actions the same way
 - [BaseSupport][BaseSupport] -- common bits used by many of the other libraries
 - [Changes][Changes.swift] -- feature that presents the app's markdown change log in a nice representation
 - [DelayEffect][DelayEffect] -- feature for the controls of the delay effect available in the app
@@ -127,7 +129,7 @@ list of libraries are:
 - [FileImporter][FileImporter] -- feature that handles importing/adding SF2 files
 - [Keyboard][Keyboard] -- feature that renders a piano keyboard at the bottom of the app. Supports multiple touches, and
   keyboard can scroll with the touch movements if enabled
-- [MIDIConnections][MIDIConnection] -- manages a view of available external MIDI devices and some state information that
+- [MIDIConnections][MIDIConnections] -- manages a view of available external MIDI devices and some state information that
   is remembered between launches
 - [MIDITrafficIndicator][MIDITrafficIndicator] -- small feature that just listens in on MIDI traffic and drives a bit
   SwiftUI when it sees some
@@ -167,6 +169,10 @@ list of libraries are:
   setting. If the volume is zero and/or there is no active preset, notifies the AppRoot to inform the user about the
   lack of audio output.
 
+Many of the features are used as-is for both the AUv3 and app targets. The AUv3 component has fewer features due to the
+inherent limitations of being an app extension. Shared features that must adapt to being in an AUv3 component use the
+`@Shared(.isAUv3)` attribute to omit functionality or drop SwiftUI elements.
+
 Each library above has a corresponding collection of tests found in the [Features/Tests](Features/Tests) folder. Some of
 the tests use Point*Free's [swift-snapshot-testing][10] library to
 save renderings of a view in order to flag if something is done to mess up and inadvertently change how a feature's view
@@ -196,6 +202,7 @@ Originally it was based on SwiftData, but I encountered too many issues and hurd
 
 [AppReview]: Features/Sources/AppReview/AppReview.swift
 [AppRoot]: Features/Sources/AppRoot
+[AUv3Root]: Features/Sources/AUv3Root
 [BaseSupport]: Features/Sources/BaseSupport
 [Changes]: Features/Sources/Changes/Changes.swift
 [DelayEffect]: Features/Sources/DelayEffect/DelayEffect.swift
