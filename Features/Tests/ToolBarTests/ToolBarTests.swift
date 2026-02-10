@@ -204,6 +204,7 @@ struct ToolBarTests {
     await synth.send(\.activePresetIdChanged, 2) {
       $0.loadedSoundFontId = 1
       $0.loadedPresetIndex = 1
+      $0.activePresetId = 2
     }
     await synth.receive(\.lastPresetLoadFinished, timeout: .seconds(5)) {
       $0.firstTimePresetLoaded = false

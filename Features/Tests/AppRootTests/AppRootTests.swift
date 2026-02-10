@@ -58,16 +58,16 @@ struct AppRootTests {
 
     let store = store(showedTutorial: showedTutorial)
 
-    try await store.withExhaustivity(exhaustivity) {
-      await store.send(.initialize)
-      await store.receive(\.activePresetIdChanged)
-      await store.receive(\.synth.synthAudioUnitCreated) {
-        $0.synth.audioSessionActivated = true
-        $0.synth.avAudioUnit = avAudioUnit
-      }
-      await store.receive(\.synth.delegate.audioUnitCreated) {
-        $0.keyboard.midiInstrument = $0.synth.avAudioUnit
-      }
+    await store.send(.initialize)
+    await store.receive(\.synth.synthAudioUnitCreated) {
+      $0.synth.audioSessionActivated = true
+      $0.synth.avAudioUnit = avAudioUnit
+    }
+    await store.receive(\.synth.delegate.audioUnitCreated) {
+      $0.keyboard.midiInstrument = $0.synth.avAudioUnit
+    }
+
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
       await store.receive(\.synth.delegate.running) {
         $0.synth.loadedSoundFontId = 1
         $0.synth.loadedPresetIndex = 0
@@ -75,11 +75,30 @@ struct AppRootTests {
         $0.toolBar.temporaryStatus = nil
         $0.toastState = nil
         $0.readyForUse = true
+        $0.delayEffect.activePresetId = 1
+        $0.volumeMonitor.activePresetId = 1
       }
+    }
 
-      await store.receive(\.synth.lastPresetLoadFinished, timeout: .seconds(10)) {
-        $0.synth.firstTimePresetLoaded = false
-      }
+    await store.receive(\.volumeMonitor.delegate.reasonChanged, .noActivePreset) {
+      $0.keyboard.muted = true
+      $0.toastState = .noActivePreset
+    }
+
+    await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1)) {
+      $0.presetsList.scrollToPresetId = .init(presetId: 1, anchor: .init(x: 0.5, y: 0.5))
+    }
+
+    await store.receive(\.volumeMonitor.delegate.reasonChanged, .none) {
+      $0.keyboard.muted = false
+      $0.toastState = .none
+    }
+
+    await store.receive(\.synth.lastPresetLoadFinished, timeout: .seconds(10)) {
+      $0.synth.firstTimePresetLoaded = false
+    }
+
+    try await store.withExhaustivity(exhaustivity) {
 
       try await closure(store)
 
@@ -184,7 +203,7 @@ struct AppRootTests {
       await store.send(\.toolBar.delegate, .settingsButtonTapped)
       #expect(store.state.destination != nil)
       let settings = store.state.destination
-      #expect(lastShowedChangesVersion == "")
+      #expect(lastShowedChangesVersion == "16.0")
       await store.send(\.destination.settings.delegate, .showChanges)
       #expect(store.state.destination != settings)
       #expect(lastShowedChangesVersion != "")
@@ -272,7 +291,7 @@ struct AppRootTests {
           preset: preset
          )
       ) {
-        $0.destination = .presetEditor(.init(sectionId: section.sectionId, preset: preset, isActive: false))
+        $0.destination = .presetEditor(.init(sectionId: section.sectionId, preset: preset, isActive: true))
       }
 
       await store.send(\.destination.dismiss) {
@@ -368,9 +387,7 @@ struct AppRootTests {
   func presetNameTapped() async throws {
     try await initialized { store in
       await store.send(\.toolBar.delegate.presetNameTapped)
-      await store.receive(\.presetsList.showActivePresetNow, timeout: .seconds(30)) {
-        $0.presetsList.scrollToPresetId = .init(presetId: 1)
-      }
+      await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1), timeout: .seconds(30))
     }
   }
 

@@ -73,7 +73,7 @@ extension DelayConfig {
    */
   @discardableResult
   public static func save(config: Draft) -> Self? {
-    log.debug("saving \(String(describing: config), privacy: .public)")
+    log.debug("saving \(config, privacy: .public)")
     return withDatabaseWriter { db in
       precondition(config.presetId != -1)
       return try Self.upsert {
@@ -125,12 +125,11 @@ extension DelayConfig {
 
   private static func fetchDraft(presetId: Preset.ID, clone: Draft, where: Where<Self>) -> Draft {
     withDatabaseReader { db in
-      guard
-        let found = try `where`.fetchOne(db)
-      else {
+      if let found = try `where`.fetchOne(db) {
+        return .init(found)
+      } else {
         return cloneDisabledDraft(clone, presetId: presetId)
       }
-      return .init(found)
     } ?? cloneDisabledDraft(clone, presetId: presetId)
   }
 }
@@ -138,5 +137,20 @@ extension DelayConfig {
 extension DelayConfig: Hashable, Identifiable, Sendable {}
 
 extension DelayConfig.Draft: Equatable, Sendable {}
+
+extension DelayConfig.Draft: CustomStringConvertible {
+  public var description: String {
+    """
+    <DelayConfig.Draft
+      time=\(time)
+      feedback=\(feedback)
+      cutoff=\(cutoff)
+      wetDryMix=\(wetDryMix)
+      enabled=\(enabled)
+      presetId=\(presetId)
+    />
+    """
+  }
+}
 
 private let log: Logger = .init(category: "DelayConfig")

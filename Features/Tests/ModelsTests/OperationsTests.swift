@@ -93,18 +93,18 @@ struct OperationsTests {
 
     let expectedCount = showOnlyFavorites ? 0 : 2
     #expect(Preset.visible(for: 1).count == expectedCount)
-    #expect(Preset.visible(for: 1).count == expectedCount)
-    #expect(Preset.visible(for: 1).count == expectedCount)
-    #expect(Preset.visible(for: 1).count == expectedCount)
-    #expect(Preset.visible(for: 1).isEmpty)
+    #expect(Preset.visible(for: 2).count == expectedCount)
+    #expect(Preset.visible(for: 3).count == expectedCount)
+    #expect(Preset.visible(for: 4).count == expectedCount)
+    #expect(Preset.visible(for: 5).isEmpty)
   }
 
   @Test
   func allPresets() async throws {
     #expect(Preset.all(for: 1).count == 3)
-    #expect(Preset.all(for: 1).count == 3)
-    #expect(Preset.all(for: 1).count == 3)
-    #expect(Preset.all(for: 1).isEmpty)
+    #expect(Preset.all(for: 2).count == 3)
+    #expect(Preset.all(for: 3).count == 3)
+    #expect(Preset.all(for: 5).isEmpty)
   }
 
   @Test
@@ -167,7 +167,7 @@ struct OperationsTests {
   @Test
   func activePresetLoadingInfo() async throws {
     let presets = Preset.visible(for: 1)
-    var apli = Operations.presetLoadingInfo(id: 1)
+    var apli = Operations.presetLoadingInfo(id: 2)
     #expect(apli?.soundFontId == presets[presets.count - 1].soundFontId)
     #expect(apli?.presetIndex == presets[presets.count - 1].index)
     apli = Operations.presetLoadingInfo(id: 1)

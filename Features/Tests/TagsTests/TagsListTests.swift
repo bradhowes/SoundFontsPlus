@@ -22,7 +22,7 @@ struct TagsListTests {
   func initialized(
     makeTag: Bool = false,
     tagFont: Bool = false,
-    activeTagId: Models.Tag.ID? = nil,
+    activeTagId: Models.Tag.ID? = Tag.Ubiquitous.all.id,
     _ closure: (TestStoreOf<TagsList>) async throws -> Void
   ) async throws {
     @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
@@ -132,7 +132,7 @@ struct TagsListTests {
       }
 
       #expect(found?.count == 5)
-      #expect(store.state.activeTagId == Tag.Ubiquitous.all.id)
+      #expect(store.state.activeTagId == 6)
     }
   }
 
@@ -142,7 +142,11 @@ struct TagsListTests {
       let rows = store.state.rows
       let tagInfo = rows[5].tagInfo
 
-      await store.send(\.rows[id: tagInfo.id].delegate.activate, tagInfo)
+      await store.send(\.rows[id: tagInfo.id].delegate.activate, tagInfo) {
+        $0.activeTagId = 1
+      }
+      await store.receive(\.delegate.activeTagIdChanged, tagInfo.id)
+
       #expect(store.state.activeTagId == tagInfo.id)
     }
   }

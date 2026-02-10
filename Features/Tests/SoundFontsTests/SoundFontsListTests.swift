@@ -97,12 +97,10 @@ struct SoundFontsListTests {
 
     try await initialized { store in
       await store.send(\.activeTagIdChanged, Tag.Ubiquitous.all.id)
-
-      await store.receive(\.updateFetchAllQuery)
       await store.receive(\.rowsUpdated)
-
-      await store.send(\.activeTagIdChanged, Tag.Ubiquitous.external.id)
-      await store.receive(\.updateFetchAllQuery)
+      await store.send(\.activeTagIdChanged, Tag.Ubiquitous.external.id) {
+        $0.activeTagId = -5
+      }
       await store.withExhaustivity(.off(showSkippedAssertions: false)) {
         await store.receive(\.rowsUpdated)
       }
@@ -120,20 +118,21 @@ struct SoundFontsListTests {
 
   @Test
   func selectSoundFont() async throws {
-    @Shared(.selectedSoundFontId) var selectedSoundFontId
-    #expect(selectedSoundFontId == nil)
-
     try await initialized { store in
 
       var row = store.state.rows[1]
-      await store.send(.rows(.element(id: row.id, action: .delegate(.select(row.soundFontInfo, available: true)))))
+      await store.send(.rows(.element(id: row.id, action: .delegate(.select(row.soundFontInfo, available: true))))) {
+        $0.selectedPresetSource = .selected(2)
+      }
 
-      #expect(selectedSoundFontId == 2)
+      await store.receive(\.delegate.presetSourceChanged, .selected(2))
 
       row = store.state.rows[0]
-      await store.send(.rows(.element(id: row.id, action: .delegate(.select(row.soundFontInfo, available: false)))))
+      await store.send(.rows(.element(id: row.id, action: .delegate(.select(row.soundFontInfo, available: false))))) {
+        $0.selectedPresetSource = .selected(1)
+      }
 
-      #expect(selectedSoundFontId == 2)
+      await store.receive(\.delegate.presetSourceChanged, nil)
     }
   }
 
@@ -147,9 +146,7 @@ struct SoundFontsListTests {
                                                         displayName: "Font 2"))
       }
 
-      await store.send(.destination(.dismiss)) {
-        $0.destination = nil
-      }
+      await store.send(.destination(.dismiss))
     }
   }
 
@@ -197,9 +194,6 @@ struct SoundFontsListTests {
       #expect(deleted != nil)
       #expect(deleted?.soundFontInfo.displayName == "Font 3")
 
-      await store.receive(\.rowsUpdated) {
-        $0.rows = oldRows
-      }
       #expect(removeLog.log.count == 1)
       #expect(removeLog.log[0] == URL(filePath: "/fake/path/GeneralUser GS MuseScore v1.442.sf2"))
 
@@ -272,10 +266,6 @@ struct SoundFontsListTests {
       #expect(deleted != nil)
       #expect(deleted?.soundFontInfo.displayName == "Font 3")
 
-      await store.receive(\.rowsUpdated) {
-        $0.rows = oldRows
-      }
-
       #expect(removeLog.log.isEmpty)
     }
   }
@@ -298,10 +288,6 @@ struct SoundFontsListTests {
       let deleted = oldRows.remove(id: row.id)
       #expect(deleted != nil)
       #expect(deleted?.soundFontInfo.displayName == "Font 4")
-
-      await store.receive(\.rowsUpdated) {
-        $0.rows = oldRows
-      }
     }
   }
 
@@ -392,7 +378,6 @@ struct SoundFontsListTests {
 
       await store.send(\.destination.presented.alert.deleteSoundFontCollectionConfirmed, selected) {
         $0.editingMode = .inactive
-        $0.destination = nil
       }
 
       rows.remove(id: 3)
@@ -459,7 +444,11 @@ struct SoundFontsListTests {
         $0.rows = [land]
       }
 
-      await store.send(\.rows[id: 4].delegate, .select(land.soundFontInfo, available: true))
+      await store.send(\.rows[id: 4].delegate, .select(land.soundFontInfo, available: true)) {
+        $0.selectedPresetSource = .selected(4)
+      }
+
+      await store.receive(\.delegate.presetSourceChanged, .selected(4))
 
       await store.send(\.cancelSearchButtonTapped) {
         $0.rows = rows

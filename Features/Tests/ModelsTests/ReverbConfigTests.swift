@@ -32,7 +32,7 @@ struct ReverbConfigTests {
   func draft() async throws {
     let (presets, reverbConfig) = try await setup()
     #expect(reverbConfig.roomPreset == .plate)
-    #expect(reverbConfig.wetDryMix == 25.0)
+    #expect(reverbConfig.wetDryMix == 50.0)
     #expect(reverbConfig.enabled == true)
     #expect(reverbConfig.presetId == presets[0].id)
 

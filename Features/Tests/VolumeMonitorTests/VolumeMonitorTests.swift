@@ -16,7 +16,7 @@ struct VolumeMonitorTests {
 
   init() async throws {
     let mockVolume = OutputVolumeFlipFlop()
-    let store = TestStore(initialState: VolumeMonitor.State()) {
+    let store = TestStore(initialState: .init(activePresetId: 1)) {
       VolumeMonitor()
     } withDependencies: {
       $0.outputVolume = mockVolume.makeOutputVolume()
@@ -32,7 +32,10 @@ struct VolumeMonitorTests {
   ) async {
     let newValue = activePresetId == nil ? Preset.ID(rawValue: 1) : nil
     activePresetId = newValue
-    await store.send(.activePresetIdChanged(newValue), assert: updateStateToExpectedResult)
+    await store.send(.activePresetIdChanged(newValue)) { [activePresetId] state in
+      try updateStateToExpectedResult?(&state)
+      state.activePresetId = activePresetId
+    }
   }
 
   @Test

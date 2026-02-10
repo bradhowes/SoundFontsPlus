@@ -21,8 +21,9 @@ public struct VolumeMonitor {
     public var reason: Reason?
     public var activePresetId: Preset.ID?
 
-    public init(reason: Reason? = nil) {
+    public init(reason: Reason? = nil, activePresetId: Preset.ID? = nil) {
       self.reason = reason
+      self.activePresetId = activePresetId
     }
   }
 

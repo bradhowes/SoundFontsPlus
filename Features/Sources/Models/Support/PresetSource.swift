@@ -4,7 +4,7 @@
  At any one time, there is only one active sound font ID in the system for presentation purposes: an active one that is the
  sound font containing the active preset, and a selected one that is showing the potential presets to be activated if selected.
  */
-public enum PresetSource: Equatable {
+public enum PresetSource: Equatable, Sendable {
   case active(SoundFont.ID)
   case selected(SoundFont.ID)
 

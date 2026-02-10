@@ -25,7 +25,7 @@ struct SoundFontInfoTests {
     var found = withDatabaseReader { try SoundFontInfo.query(for: 99).fetchAll($0) } ?? []
     #expect(found.isEmpty)
 
-    found = withDatabaseReader { try SoundFontInfo.query(for: 1).fetchAll($0) } ?? []
+    found = withDatabaseReader { try SoundFontInfo.query(for: Tag.Ubiquitous.all.id).fetchAll($0) } ?? []
     guard !found.isEmpty else {
       Issue.record("found is empty")
       return

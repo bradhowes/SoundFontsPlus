@@ -26,7 +26,9 @@ public struct DelayEffect {
     ) {
       @Shared(.parameterTree) var parameterTree
       @Shared(.delayLockEnabled) var locked
-      self.config = .init(presetId: presetId)
+      let config: DelayConfig.Draft = .init(presetId: presetId)
+      log.debug("config: \(config)")
+      self.config = config
       self.locked = .init(isOn: locked, displayName: "Lock")
       self.enabled = .init(isOn: false, displayName: "On")
       self.time = .init(parameter: parameterTree[.delayTime])
@@ -123,25 +125,28 @@ public struct DelayEffect {
 extension DelayEffect {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+    log.info("activePresetIdChanged BEGIN")
+
     // Nothing to do?
     guard
       !state.locked.isOn,
       let presetId,
       state.config.presetId != presetId
     else {
+      log.info("activePresetIdChanged END - nothing to do")
       return .none
     }
-
-    state.activePresetId = presetId
 
     // Nothing to save?
     guard
       state.config.presetId != Self.unsetPresetId,
       state.dirty
     else {
+      log.info("activePresetIdChanged END - nothing to save")
       return applyConfigForPreset(&state, presetId: presetId)
     }
 
+    log.info("activePresetIdChanged END - saving")
     // Save current changes and then apply new config. Order is important here.
     return .concatenate(
       .run { [toSave = state.config] _ in DelayConfig.save(config: toSave) },
@@ -151,20 +156,49 @@ extension DelayEffect {
   }
 
   private func applyConfigForPreset(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
-    log.info("applyConfigForPreset - \(presetId)")
-    let config = DelayConfig.draft(for: presetId, cloning: state.config)
-    log.debug("config: \(String(describing: config), privacy: .public)")
-    delayDevice.setConfig(config)
-    state.config = config
+    log.info("applyConfigForPreset BEGIN - \(presetId)")
+    let now = state.config
+    log.debug("applyConfigForPreset - now: \(now)")
+    let new = DelayConfig.draft(for: presetId, cloning: now)
+    log.debug("applyConfigForPreset - new: \(new)")
+
     state.dirty = false
 
-    return .merge(
-      reduce(into: &state, action: .enabled(.setValue(config.enabled))),
-      reduce(into: &state, action: .time(.setValue(config.time))),
-      reduce(into: &state, action: .feedback(.setValue(config.feedback))),
-      reduce(into: &state, action: .cutoff(.setValue(config.cutoff))),
-      reduce(into: &state, action: .wetDryMix(.setValue(config.wetDryMix))),
+    let changed: Bool = (
+      now.enabled != new.enabled ||
+      now.time != new.time ||
+      now.feedback != new.feedback ||
+      now.cutoff != new.cutoff ||
+      now.wetDryMix != new.wetDryMix ||
+      now.presetId != new.presetId
     )
+
+    if changed {
+      state.config = new
+      delayDevice.setConfig(new)
+    }
+
+    defer { state.activePresetId = presetId }
+
+    if state.activePresetId == nil {
+      return .merge(
+        reduce(into: &state, action: .enabled(.setValue(new.enabled))),
+        reduce(into: &state, action: .time(.setValueSilently(new.time))),
+        reduce(into: &state, action: .feedback(.setValueSilently(new.feedback))),
+        reduce(into: &state, action: .cutoff(.setValueSilently(new.cutoff))),
+        reduce(into: &state, action: .wetDryMix(.setValueSilently(new.wetDryMix))),
+      )
+    } else if changed {
+      return .merge(
+        reduce(into: &state, action: .enabled(.setValue(new.enabled))),
+        reduce(into: &state, action: .time(.setValue(new.time))),
+        reduce(into: &state, action: .feedback(.setValue(new.feedback))),
+        reduce(into: &state, action: .cutoff(.setValue(new.cutoff))),
+        reduce(into: &state, action: .wetDryMix(.setValue(new.wetDryMix))),
+      )
+    }
+
+    return .none
   }
 
   private func runDebouncers(_ state: inout State) -> Effect<Action> {
@@ -202,8 +236,10 @@ extension DelayEffect {
     path: WritableKeyPath<DelayConfig.Draft, T>,
     value: T
   ) -> Effect<Action> {
-    guard abs(state.config[keyPath: path] - value) > 1e-8 else { return .none }
+    guard state.activePresetId != nil, abs(state.config[keyPath: path] - value) > 1e-8 else { return .none }
     state.config[keyPath: path] = value
+    let config = state.config
+    log.info("updateAndSave - \(config, privacy: .public)")
     return runDebouncers(&state)
   }
 
@@ -212,8 +248,10 @@ extension DelayEffect {
     path: WritableKeyPath<DelayConfig.Draft, T>,
     value: T
   ) -> Effect<Action> {
-    guard state.config[keyPath: path] != value else { return .none }
+    guard state.activePresetId != nil, state.config[keyPath: path] != value else { return .none }
     state.config[keyPath: path] = value
+    let config = state.config
+    log.info("updateAndSave - \(config, privacy: .public)")
     return runDebouncers(&state)
   }
 

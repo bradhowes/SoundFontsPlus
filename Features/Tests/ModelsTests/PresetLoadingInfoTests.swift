@@ -26,7 +26,7 @@ struct PresetLoadingInfoTests {
   @Test
   func appActivePresetLoadingInfo() async throws {
     let presets = try await setup()
-    var apli = Operations.presetLoadingInfo(id: 1)
+    var apli = Operations.presetLoadingInfo(id: 99999)
     #expect(apli == nil)
 
     apli = Operations.presetLoadingInfo(id: 1)
@@ -42,7 +42,7 @@ struct PresetLoadingInfoTests {
   @Test
   func auv3ActivePresetLoadingInfo() async throws {
     let presets = try await setup()
-    var apli = Operations.presetLoadingInfo(id: 1)
+    var apli = Operations.presetLoadingInfo(id: 99999)
     #expect(apli == nil)
 
     apli = Operations.presetLoadingInfo(id: 1)

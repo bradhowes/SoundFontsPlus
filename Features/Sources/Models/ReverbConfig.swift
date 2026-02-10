@@ -16,7 +16,7 @@ nonisolated public struct ReverbConfig {
 
   public let id: ID
   public var roomPreset: AVAudioUnitReverbPreset = .mediumHall
-  public var wetDryMix: Double = 25.0
+  public var wetDryMix: Double = 50.0
   public var enabled: Bool = false
   public var presetId: Preset.ID
 }
@@ -119,12 +119,11 @@ extension ReverbConfig {
 
   private static func fetchDraft(presetId: Preset.ID, clone: Draft, where: Where<Self>) -> Draft {
     withDatabaseReader { db in
-      guard
-        let found = try `where`.fetchOne(db)
-      else {
+      if let found = try `where`.fetchOne(db) {
+        return .init(found)
+      } else {
         return cloneDisabledDraft(clone, presetId: presetId)
       }
-      return .init(found)
     } ?? cloneDisabledDraft(clone, presetId: presetId)
   }
 }
@@ -132,6 +131,19 @@ extension ReverbConfig {
 extension ReverbConfig: Hashable, Identifiable, Sendable {}
 
 extension ReverbConfig.Draft: Equatable, Sendable {}
+
+extension ReverbConfig.Draft: CustomStringConvertible {
+  public var description: String {
+    """
+    <ReverbConfig.Draft
+      roomPreset=\(roomPreset)
+      wetDryMix=\(wetDryMix)
+      enabled=\(enabled)
+      presetId=\(presetId)
+    />
+    """
+  }
+}
 
 extension AVAudioUnitReverbPreset: @retroactive QueryBindable {}
 
