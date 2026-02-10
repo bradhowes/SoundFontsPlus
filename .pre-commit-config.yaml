@@ -1,0 +1,20 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-yaml
+  - id: check-added-large-files
+- repo: local
+  hooks:
+  - id: use-local-midi-check
+    name: Check for useLocalMorkAndMIDI being used
+    entry: ./pre-commit-hooks/local_midi_check
+    language: unsupported
+  - id: use-local-sf2lib-check
+    name: Check for useLocalSF2Lib being used # let useLocalSF2Lib = true
+    entry: ./pre-commit-hooks/local_sf2lib_check
+    language: unsupported
