@@ -47,9 +47,9 @@ When any of these values change, the various views update as would be expected:
 * selected SoundFont ID changes --> list of preset entries updates
 * active preset ID changes:
     * audio effects update if preset has custom config
-    * keyboard shifts to a configured value
-    * SF2 engine loads preset (TBD)
-    * MIDI mapping updated if preset has custom config (TBD)
+    * keyboard optionally shifts to a configured lower key
+    * SF2 engine loads preset
+    * MIDI control mapping updated if preset has custom config (TODO)
 
 The app also relies on in-memory `@Shared` values to simplify the logic and API.
 
@@ -58,7 +58,7 @@ The app also relies on in-memory `@Shared` values to simplify the logic and API.
 The keyboard is one SwiftUI view that leverages the latest SwiftUI features to be able to draw the keys and track
 multiple touches that the same time. It too is a [TCA][1] feature but for performance reasons, the amount of info kept
 in the state is minimal. The keyboad can be set to remain in place during a drag, or to slide as a touch moves. This all
-replicates what currently exists in the original [SoundFonts][0] UIKit version. 
+replicates what currently exists in the original [SoundFonts][0] UIKit version.
 
 ## Effects Controls
 
@@ -134,7 +134,7 @@ list of libraries are:
 - [MIDITrafficIndicator][MIDITrafficIndicator] -- small feature that just listens in on MIDI traffic and drives a bit
   SwiftUI when it sees some
 - [Models][Models] -- collection of table definitions that make up the DB schema used by the app
-- [Presets][Presets] -- collection of features that handle all of the actions associated with a soundfont preset. 
+- [Presets][Presets] -- collection of features that handle all of the actions associated with a soundfont preset.
   - [PresetButton][PresetButton] -- even the button of the presets list are managed as a feature
   - [PresetEditor][PresetEditor] -- editor of preset meta data
   - [PresetsList][PresetsList] -- the feature for the list of "sections" of presets
@@ -209,7 +209,7 @@ Originally it was based on SwiftData, but I encountered too many issues and hurd
 [FeaturesSupport]: Features/Sources/FeatureSupport
 [FileImporter]: Features/Sources/FileImporter
 [Keyboard]: Features/Sources/Keyboard/Keyboard.swift
-[MIDIConnections]: Features/Sources/MIDIConnections/MIDIConnections.swift
+[MIDIConnections]: Features/Sources/MIDIConnections/MIDIConnections.Swift
 [MIDITrafficIndicator]: Features/Sources/MIDITrafficIndicator/MIDITrafficIndicator.swift
 [Models]: Features/Sources/Models
 [Presets]: Features/Sources/Presets

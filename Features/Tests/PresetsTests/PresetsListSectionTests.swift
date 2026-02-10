@@ -18,8 +18,14 @@ import TestSupport
 struct PresetsListSectionTests {
 
   func setup() throws -> TestStoreOf<PresetsListSection> {
-    var presets = Preset.visible(for: 1)
-    let store = TestStore(initialState: PresetsListSection.State(section: 40, presets: presets[...], symbolPrefix: "star.circle.fill")) {
+    let presets = Preset.visible(for: 1)
+    let store = TestStore(
+      initialState: PresetsListSection.State(
+        section: 40,
+        presets: presets[...],
+        symbolPrefix: "star.circle.fill"
+      )
+    ) {
       PresetsListSection()
     }
     return store
