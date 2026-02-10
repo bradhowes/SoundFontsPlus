@@ -209,7 +209,7 @@ Originally it was based on SwiftData, but I encountered too many issues and hurd
 [FeaturesSupport]: Features/Sources/FeatureSupport
 [FileImporter]: Features/Sources/FileImporter
 [Keyboard]: Features/Sources/Keyboard/Keyboard.swift
-[MIDIConnections]: Features/Sources/MIDIConnections/MIDIConnection.swift
+[MIDIConnections]: Features/Sources/MIDIConnections/MIDIConnections.swift
 [MIDITrafficIndicator]: Features/Sources/MIDITrafficIndicator/MIDITrafficIndicator.swift
 [Models]: Features/Sources/Models
 [Presets]: Features/Sources/Presets
