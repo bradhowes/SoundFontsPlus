@@ -10,10 +10,8 @@ import re
 pat = re.compile('^let *useLocalMorkAndMIDI *= *true')
 
 if __name__ == '__main__':
-    print(sys.argv)
     with open('Features/Package.swift') as fd:
         for line in fd.readlines():
             if pat.match(line):
-                print('** FOUND:', line)
                 sys.exit(1)
     sys.exit(0)
