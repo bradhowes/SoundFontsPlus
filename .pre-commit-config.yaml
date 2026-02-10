@@ -15,6 +15,6 @@ repos:
     entry: ./pre-commit-hooks/local_midi_check
     language: unsupported
   - id: use-local-sf2lib-check
-    name: Check for useLocalSF2Lib being used # let useLocalSF2Lib = true
+    name: Check for useLocalSF2Lib being used
     entry: ./pre-commit-hooks/local_sf2lib_check
     language: unsupported
