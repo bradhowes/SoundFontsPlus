@@ -68,7 +68,7 @@ extension SharedKey where Self == AppStorageKey<ColorSchemeBehavior>.Default {
 
 extension SharedKey where Self == AppStorageKey<String>.Default {
   public static var favoriteSymbolName: Self {
-    unsafe Self[.appStorage("favoriteSymbolName", store: .soundFontsSuite), default: "star.circle.fill"]
+    unsafe Self[.appStorage("favoriteSymbolName", store: .group), default: "star.circle.fill"]
   }
 }
 

@@ -24,17 +24,42 @@ public struct DelayEffect {
       dirty: Bool = false,
       activePresetId: Preset.ID? = nil
     ) {
-      @Shared(.parameterTree) var parameterTree
       @Shared(.delayLockEnabled) var locked
-      let config: DelayConfig.Draft = .init(presetId: presetId)
+
+      let config = DelayConfig.draft(for: presetId)
       log.debug("config: \(config)")
+
       self.config = config
       self.locked = .init(isOn: locked, displayName: "Lock")
       self.enabled = .init(isOn: false, displayName: "On")
-      self.time = .init(parameter: parameterTree[.delayTime])
-      self.feedback = .init(parameter: parameterTree[.delayFeedback])
-      self.cutoff = .init(parameter: parameterTree[.delayCutoff])
-      self.wetDryMix = .init(parameter: parameterTree[.delayAmount])
+      self.time = .init(
+        value: config.time,
+        displayName: "Time",
+        minimumValue: 0.0,
+        maximumValue: 2.0,
+        logarithmic: true
+      )
+      self.feedback = .init(
+        value: config.feedback,
+        displayName: "Feedback",
+        minimumValue: -100.0,
+        maximumValue: 100.0,
+        logarithmic: false
+      )
+      self.cutoff = .init(
+        value: config.cutoff,
+        displayName: "Cutoff",
+        minimumValue: 10.0,
+        maximumValue: 20_000.0,
+        logarithmic: true
+      )
+      self.wetDryMix = .init(
+        value: config.wetDryMix,
+        displayName: "Amount",
+        minimumValue: 0.0,
+        maximumValue: 100.0,
+        logarithmic: false
+      )
       self.dirty = dirty
       self.activePresetId = activePresetId
     }
@@ -110,7 +135,6 @@ public struct DelayEffect {
     }
   }
 
-  @Shared(.parameterTree) private var parameterTree
   @Dependency(\.mainQueue) private var mainQueue
   @Dependency(\.delayDevice) private var delayDevice
   @Dependency(\.debounceDurations) private var debounceDurations
@@ -321,8 +345,6 @@ extension DelayEffectView {
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
-
-    @Shared(.parameterTree) var parameterTree = ParameterAddress.createParameterTree()
 
     prepareDependencies {
       installApplicationFont()

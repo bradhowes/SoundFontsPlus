@@ -22,12 +22,21 @@ public struct ReverbEffect {
       dirty: Bool = false,
       activePresetId: Preset.ID? = nil
     ) {
-      @Shared(.parameterTree) var parameterTree
       @Shared(.reverbLockEnabled) var locked
-      self.config = .init(presetId: presetId)
+
+      let config = ReverbConfig.draft(for: presetId)
+      log.debug("config: \(config)")
+
+      self.config = config
       self.locked = .init(isOn: locked, displayName: "Lock")
       self.enabled = .init(isOn: false, displayName: "On")
-      self.wetDryMix = .init(parameter: parameterTree[.reverbAmount])
+      self.wetDryMix = .init(
+        value: config.wetDryMix,
+        displayName: "Amount",
+        minimumValue: 0.0,
+        maximumValue: 100.0,
+        logarithmic: false
+      )
       self.dirty = dirty
       self.activePresetId = activePresetId
     }
@@ -93,7 +102,6 @@ public struct ReverbEffect {
     }
   }
 
-  @Shared(.parameterTree) private var parameterTree
   @Dependency(\.mainQueue) private var mainQueue
   @Dependency(\.reverbDevice) private var reverbDevice
   @Dependency(\.debounceDurations) private var debounceDurations

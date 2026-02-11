@@ -4,11 +4,6 @@ import AVFAudio
 import Foundation
 import Sharing
 
-extension UserDefaults {
-  // swiftlint:disable:next force_unwrapping
-  public nonisolated(unsafe) static let soundFontsSuite = UserDefaults(suiteName: FileManager.default.applicationGroupIdentifier)!
-}
-
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var backgroundProcessing: Self { Self[.appStorage("backgroundProcessing"), default: true] }
   public static var duckOtherApps: Self { Self[.appStorage("duckOtherApps"), default: false] }
@@ -26,10 +21,4 @@ extension SharedKey where Self == AppStorageKey<Note>.Default {
 
 extension SharedKey where Self == InMemoryKey<Bool>.Default {
   public static var isAUv3: Self { Self[.inMemory("isAUv3"), default: false] }
-}
-
-extension SharedKey where Self == InMemoryKey<AUParameterTree>.Default {
-  public static var parameterTree: Self {
-    Self[.inMemory("parameterTree"), default: ParameterAddress.createParameterTree()]
-  }
 }

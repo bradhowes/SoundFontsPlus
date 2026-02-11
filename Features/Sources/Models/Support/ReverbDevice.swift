@@ -5,13 +5,21 @@ import BaseSupport
 import Dependencies
 import DependenciesMacros
 
-@DependencyClient
 public struct ReverbDevice: Sendable {
   public var setConfig: @Sendable (ReverbConfig.Draft) -> Void
-  public var effect: @Sendable () -> AVAudioUnitReverb = { AVAudioUnitReverb() }
+  public var effect: @Sendable () -> AVAudioUnitReverb
+
+  public init(
+    setConfig: @Sendable @escaping (ReverbConfig.Draft) -> Void,
+    effect: @Sendable @escaping () -> AVAudioUnitReverb
+  ) {
+    self.setConfig = setConfig
+    self.effect = effect
+  }
 }
 
 extension ReverbDevice: DependencyKey {
+
   public static var liveValue: ReverbDevice {
     let effect = AVAudioUnitReverb()
     return .init(

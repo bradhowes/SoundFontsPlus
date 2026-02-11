@@ -363,7 +363,7 @@ extension AUv3Root {
 
     case .tagsListVisibilityChanged(let visible):
       $tagsListVisible.withLock { $0 = visible }
-      let panes: SplitViewPanes = visible ? .both : .primary
+      let panes: SplitViewVisiblePanes = visible ? .both : .primary
       return reduce(into: &state, action: .fontsAndTagsSplit(.updatePanesVisibility(panes)))
 
     default:

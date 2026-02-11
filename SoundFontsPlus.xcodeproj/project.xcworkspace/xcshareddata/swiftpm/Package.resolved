@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/brh-splitview",
       "state" : {
-        "revision" : "db70896b23330136b94f9ac256d70ec1a358a6b8",
-        "version" : "1.0.5"
+        "revision" : "c52d607a02babb192e98f3cc4f0930a2edaade6f",
+        "version" : "1.1.1"
       }
     },
     {

@@ -9,7 +9,7 @@ import AudioUnit.AUParameters
  */
 public enum ParameterAddress: AUParameterAddress {
 
-  case delayEnabled = 2000 // make sure to no overlap with SF2Lib AUv3 plug-in which uses / reserves 0-1999
+  case delayEnabled = 2000 // make sure no overlap with SF2Lib AUv3 plug-in which uses / reserves 0-1999
   case delayTime
   case delayFeedback
   case delayCutoff

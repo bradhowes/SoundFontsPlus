@@ -5,18 +5,50 @@ import Engine
 
 extension AVAudioUnitMIDIInstrument {
 
+  /**
+   Create a custom SysEx MIDI message to load an SF2 file and activate a specific preset. Send it to the SF2LibAU audio unit.
+
+   - parameter path: the path to the SF2 file to load
+   - parameter preset: the index of the preset to activate
+   - parameter gain: the custom gain to apply (not used)
+   - parameter pan: the custom panning to apply (not used)
+   - returns: `true` if successfully sent message
+   */
   public func sendLoadFileUsePreset(path: String, preset: Int, gain: Double, pan: Double) -> Bool {
     sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload(std.string(path), preset)))
   }
 
+  /**
+   Create a custom SysEx MIDI message to load an SF2 file **bookmark** and activate a specific preset. Send it to the SF2LibAU
+   audio unit.
+
+   - parameter bookmark: the bookmark pointing to the SF2 file to load
+   - parameter preset: the index of the preset to activate
+   - parameter gain: the custom gain to apply (not used)
+   - parameter pan: the custom panning to apply (not used)
+   - returns: `true` if successfully sent message
+   */
   public func sendLoadBookmarkUsePreset(bookmark: Data, preset: Int, gain: Double, pan: Double) -> Bool {
     sendMIDI(bytes: Array(SF2Engine.createLoadBookmarkUsePresetPayload(bookmark, preset)))
   }
 
+  /**
+   Create a custom SysEx message to change the active preset of an already-loaded SF2 file. Send it to the SF2LibAU autio unit.
+
+   - parameter preset: the index of the preset to activate
+   - parameter gain: the custom gain to apply (not used)
+   - parameter pan: the custom panning to apply (not used)
+   - returns: `true` if successfully sent message
+   */
   public func sendUsePreset(preset: Int, gain: Double, pan: Double) -> Bool {
     sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload("", preset)))
   }
 
+  /**
+   Create a MIDI commands to turn off all notes and to perform a reset. Send it to the SF2LibAU autio unit.
+
+   - returns: `true` if successfully sent messages
+   */
   public func sendReset() -> Bool {
     [
       sendMIDI(bytes: Array(SF2Engine.createAllNotesOffPayload())),

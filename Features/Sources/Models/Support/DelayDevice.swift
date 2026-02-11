@@ -5,13 +5,21 @@ import BaseSupport
 import Dependencies
 import DependenciesMacros
 
-@DependencyClient
 public struct DelayDevice: Sendable {
   public var setConfig: @Sendable (DelayConfig.Draft) -> Void
-  public var effect: @Sendable () -> AVAudioUnitDelay = { AVAudioUnitDelay() }
+  public var effect: @Sendable () -> AVAudioUnitDelay
+
+  public init(
+    setConfig: @Sendable @escaping (DelayConfig.Draft) -> Void,
+    effect: @Sendable @escaping () -> AVAudioUnitDelay
+  ) {
+    self.setConfig = setConfig
+    self.effect = effect
+  }
 }
 
 extension DelayDevice: DependencyKey {
+
   public static var liveValue: DelayDevice {
     let effect = AVAudioUnitDelay()
     return .init(
