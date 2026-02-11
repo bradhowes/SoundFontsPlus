@@ -14,6 +14,7 @@ public struct StyledList<Content: View>: View {
     List {
       content
         .listRowSeparator(.hidden)
+        .listRowBackground(Color.clear)
     }
     .listStyle(.plain)
     .listSectionSpacing(0)
@@ -54,7 +55,7 @@ public struct StyledHeader<Content: View>: View {
   public var body: some View {
     content
       .frame(maxWidth: .infinity, alignment: .leading)
-      .contentShape(Rectangle())
+      // .contentShape(Rectangle())
       // .padding([.top, .bottom, .leading], 8)
       // .background(.black)
       .foregroundStyle(Color.listHeaderText)
