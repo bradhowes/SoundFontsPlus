@@ -57,7 +57,7 @@ extension AUv3RootView {
     ).splitViewConfiguration(
       .init(
         orientation: .horizontal,
-        draggableRange: 0.35...0.7
+        draggableRange: .fixedLength(lowerSpan: 140.0, upperSpan: 140.0),
       )
     )
   }
@@ -77,7 +77,7 @@ extension AUv3RootView {
     ).splitViewConfiguration(
       .init(
         orientation: .vertical,
-        draggableRange: 0.15...0.85,
+        draggableRange: .fixedLength(lowerSpan: 100.0, upperSpan: 100.0),
         dragToHidePanes: .secondary,
         doubleClickToClose: .secondary
       )
@@ -111,7 +111,7 @@ extension View {
 
   /**
    Custom `View` modifier that generates all of the optional sheets that can be created in the feature.
-  
+
    - parameter store: the `Root` store which will be scoped to a child feature for displaying
    - returns: modified view
    */
