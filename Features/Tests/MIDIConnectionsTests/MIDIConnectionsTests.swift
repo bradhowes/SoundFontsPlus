@@ -143,8 +143,8 @@ struct MIDIConnectionsTests {
     .dependencies { _ in }
   )
   func previewAutoConnect() async throws {
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: MIDIConnectionsView.preview)
+    withSnapshotTesting(record: .failed) {
+      TestSupport.assertSnapshot(matching: MIDIConnectionsView.preview)
     }
   }
 
@@ -153,8 +153,8 @@ struct MIDIConnectionsTests {
   )
   func previewNoAutoConnect() async throws {
     @Shared(.midiAutoConnect) var midiAutoConnect = false
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: MIDIConnectionsView.preview)
+    withSnapshotTesting(record: .failed) {
+      TestSupport.assertSnapshot(matching: MIDIConnectionsView.preview)
     }
   }
 }

@@ -134,7 +134,7 @@ struct TutorialTests {
     col: Int = #column
   ) throws {
     let store = StoreOf<Tutorial>(initialState: .init(page: page)) { Tutorial() }
-    try TestSupport.assertSnapshot(
+    TestSupport.assertSnapshot(
       matching: TutorialView(store: store),
       fileID: fileID,
       file: file,

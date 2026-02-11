@@ -244,17 +244,17 @@ struct DelayEffectTests {
 
   @Test
   func preview1() throws {
-    try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 1), config: .landscape)
+    TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 1), config: .landscape)
   }
 
   @Test
   func preview2() throws {
-    try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 2), config: .landscape)
+    TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 2), config: .landscape)
   }
 
   @Test
   func preview3() throws {
-    try TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 3), config: .landscape)
+    TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 3), config: .landscape)
   }
 }
 

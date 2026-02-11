@@ -23,6 +23,6 @@ struct SoundFontButtonTests {
 
   @Test
   func preview() async throws {
-    try TestSupport.assertSnapshot(matching: SoundFontButtonView.preview)
+    TestSupport.assertSnapshot(matching: SoundFontButtonView.preview)
   }
 }

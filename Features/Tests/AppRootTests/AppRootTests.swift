@@ -331,7 +331,7 @@ struct AppRootTests {
       }
     }
 
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 
   @Test(
@@ -351,7 +351,7 @@ struct AppRootTests {
       }
     }
 
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 
   @Test
@@ -430,6 +430,6 @@ struct AppRootTests {
     .snapshots(record: .failed)
   )
   func appRootViewPreview() async throws {
-    try TestSupport.assertSnapshot(matching: AppRootView.preview)
+    TestSupport.assertSnapshot(matching: AppRootView.preview)
   }
 }

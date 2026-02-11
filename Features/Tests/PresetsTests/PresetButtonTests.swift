@@ -43,6 +43,6 @@ struct PresetButtonTests {
 
   @Test
   func presetButtonPreview() async throws {
-    try TestSupport.assertSnapshot(matching: PresetButtonView.preview)
+    TestSupport.assertSnapshot(matching: PresetButtonView.preview)
   }
 }

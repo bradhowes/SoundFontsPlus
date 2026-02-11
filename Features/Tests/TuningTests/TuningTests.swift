@@ -171,11 +171,11 @@ struct TuningTests {
     let view = Form {
       TuningView(store: Store(initialState: .init(frequency: 587.3295358348151, enabled: false)) { Tuning() })
     }
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 
   @Test
   func preview() async throws {
-    try TestSupport.assertSnapshot(matching: TuningView.preview)
+    TestSupport.assertSnapshot(matching: TuningView.preview)
   }
 }

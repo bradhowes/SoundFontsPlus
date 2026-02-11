@@ -17,6 +17,6 @@ struct LongPressModifierTests {
 
   @Test
   func testViewModifier() throws {
-    try TestSupport.assertSnapshot(matching: LongPressGestureModifierPreview())
+    TestSupport.assertSnapshot(matching: LongPressGestureModifierPreview())
   }
 }

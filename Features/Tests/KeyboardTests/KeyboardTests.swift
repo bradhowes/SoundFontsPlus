@@ -30,7 +30,7 @@ struct KeyboardTests {
 
   @Test
   func keyboardPreviewPortrait() async throws {
-    try TestSupport.assertSnapshot(
+    TestSupport.assertSnapshot(
       matching: KeyboardPreview(),
       config: .portrait
     )
@@ -38,7 +38,7 @@ struct KeyboardTests {
 
   @Test
   func keyboardPreviewLandscape() async throws {
-    try TestSupport.assertSnapshot(
+    TestSupport.assertSnapshot(
       matching: KeyboardPreview(),
       config: .landscape
     )
@@ -50,7 +50,7 @@ struct KeyboardTests {
     @Shared(.keyLabels) var keyLabels = .none
     @Shared(.firstVisibleKey) var firstVisibleKey = .C4
     let view = VStack { KeyboardView(store: Store(initialState: Keyboard.State()) { Keyboard() }) }
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 
   @Test
@@ -59,7 +59,7 @@ struct KeyboardTests {
     @Shared(.keyLabels) var keyLabels = .cOnly
     @Shared(.firstVisibleKey) var firstVisibleKey = .A4
     let view = VStack { KeyboardView(store: Store(initialState: Keyboard.State()) { Keyboard() }) }
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 
   @Test
@@ -68,7 +68,7 @@ struct KeyboardTests {
     @Shared(.keyLabels) var keyLabels = .all
     @Shared(.firstVisibleKey) var firstVisibleKey = .E1
     let view = VStack { KeyboardView(store: Store(initialState: Keyboard.State()) { Keyboard() }) }
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 
   @Test
@@ -83,7 +83,7 @@ struct KeyboardTests {
       Keyboard()
     }
     let view = VStack { KeyboardView(store: store) }
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 
   @Test
@@ -101,7 +101,7 @@ struct KeyboardTests {
       Keyboard()
     }
     let view = VStack { KeyboardView(store: store) }
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 
   @Test

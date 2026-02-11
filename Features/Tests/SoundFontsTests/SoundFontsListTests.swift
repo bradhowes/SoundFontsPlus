@@ -463,6 +463,6 @@ struct SoundFontsListTests {
 
   @Test
   func soundFontsListViewPreview() async throws {
-    try TestSupport.assertSnapshot(matching: SoundFontsListView.preview)
+    TestSupport.assertSnapshot(matching: SoundFontsListView.preview)
   }
 }

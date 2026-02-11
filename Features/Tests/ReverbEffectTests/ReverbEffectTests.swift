@@ -271,7 +271,7 @@ struct ReverbEffectTests {
 
   @Test
   func preview() throws {
-    try TestSupport.assertSnapshot(matching: ReverbEffectView.preview)
+    TestSupport.assertSnapshot(matching: ReverbEffectView.preview)
   }
 }
 

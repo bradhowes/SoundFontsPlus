@@ -485,22 +485,22 @@ struct PresetsListTests {
     }
     let view = PresetsListView(store: store)
 
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: view)
+    withSnapshotTesting(record: .failed) {
+      TestSupport.assertSnapshot(matching: view)
     }
   }
 
   @Test
   func presetsListViewVisibilityEditing() async throws {
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: PresetsListView.previewEditing)
+    withSnapshotTesting(record: .failed) {
+      TestSupport.assertSnapshot(matching: PresetsListView.previewEditing)
     }
   }
 
   @Test
   func presetsListViewPreview() async throws {
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: PresetsListView.preview)
+    withSnapshotTesting(record: .failed) {
+      TestSupport.assertSnapshot(matching: PresetsListView.preview)
     }
   }
 }

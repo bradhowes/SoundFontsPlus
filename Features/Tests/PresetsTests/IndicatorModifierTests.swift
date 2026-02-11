@@ -41,7 +41,7 @@ struct IndicatorModifierTests {
       .tint(.teal)
     }
 
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 
   @Test
@@ -70,7 +70,7 @@ struct IndicatorModifierTests {
       .tint(.teal)
     }
 
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 
 #if os(iOS)
@@ -100,7 +100,7 @@ struct IndicatorModifierTests {
       .tint(.teal)
     }
 
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 
   @Test
@@ -133,7 +133,7 @@ struct IndicatorModifierTests {
       .tint(.teal)
     }
 
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 #endif // os(iOS)
 }

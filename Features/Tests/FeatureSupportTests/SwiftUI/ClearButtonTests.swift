@@ -18,6 +18,6 @@ struct ClearButtonTests {
   @Test
   func preview() throws {
     let view = TextFieldClearButton_Previews.previews
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 }

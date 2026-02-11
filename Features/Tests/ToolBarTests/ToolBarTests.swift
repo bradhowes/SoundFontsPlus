@@ -425,8 +425,8 @@ struct ToolBarTests {
         ToolBar()
       }, isAUv3: false)
 
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: view)
+    withSnapshotTesting(record: .failed) {
+      TestSupport.assertSnapshot(matching: view)
     }
   }
 
@@ -451,15 +451,15 @@ struct ToolBarTests {
         ToolBar()
       }, isAUv3: false)
 
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: view)
+    withSnapshotTesting(record: .failed) {
+      TestSupport.assertSnapshot(matching: view)
     }
   }
 
   @Test
   func preview() async throws {
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: ToolBarView.preview(showMoreButtons: true))
+    withSnapshotTesting(record: .failed) {
+      TestSupport.assertSnapshot(matching: ToolBarView.preview(showMoreButtons: true))
     }
   }
 }

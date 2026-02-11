@@ -100,7 +100,7 @@ struct AUv3RootTests {
 
   @Test
   func auv3RootViewPreview() async throws {
-    try TestSupport.assertSnapshot(matching: AUv3RootView.preview)
+    TestSupport.assertSnapshot(matching: AUv3RootView.preview)
   }
 }
 

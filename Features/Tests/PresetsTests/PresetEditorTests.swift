@@ -149,8 +149,8 @@ struct PresetEditorTests {
 
   @Test
   func presetEditorPreview() async throws {
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: PresetEditorView.preview)
+    withSnapshotTesting(record: .failed) {
+      TestSupport.assertSnapshot(matching: PresetEditorView.preview)
     }
   }
 }

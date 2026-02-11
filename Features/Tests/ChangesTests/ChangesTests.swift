@@ -122,6 +122,6 @@ struct ChangesFeatureTests {
 
   @Test
   func changesPreview() async throws {
-    try TestSupport.assertSnapshot(matching: ChangesView.preview)
+    TestSupport.assertSnapshot(matching: ChangesView.preview)
   }
 }

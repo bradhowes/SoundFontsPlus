@@ -183,6 +183,6 @@ struct TagsListTests {
 
   @Test
   func preview() async throws {
-    try TestSupport.assertSnapshot(matching: TagsListView.preview)
+    TestSupport.assertSnapshot(matching: TagsListView.preview)
   }
 }

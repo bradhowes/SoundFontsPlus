@@ -311,21 +311,21 @@ struct TagsEditorTests {
 
   @Test
   func preview() async throws {
-    try TestSupport.assertSnapshot(matching: TagsEditorView.preview)
+    TestSupport.assertSnapshot(matching: TagsEditorView.preview)
   }
 
   @Test
   func previewInEditMode() async throws {
-    try TestSupport.assertSnapshot(matching: TagsEditorView.previewInEditMode)
+    TestSupport.assertSnapshot(matching: TagsEditorView.previewInEditMode)
   }
 
   @Test
   func previewWithMemberships() async throws {
-    try TestSupport.assertSnapshot(matching: TagsEditorView.previewWithMemberships)
+    TestSupport.assertSnapshot(matching: TagsEditorView.previewWithMemberships)
   }
 
   @Test
   func previewWithMembershipsInEditMode() async throws {
-    try TestSupport.assertSnapshot(matching: TagsEditorView.previewWithMembershipsInEditMode)
+    TestSupport.assertSnapshot(matching: TagsEditorView.previewWithMembershipsInEditMode)
   }
 }

@@ -9,6 +9,10 @@ import SnapshotTesting
 import SwiftUI
 import Testing
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 public enum TestSupport {
   static let log: Logger = .init(category: "TestSupport")
 
@@ -116,7 +120,7 @@ extension TestSupport {
     testName: StaticString = #function,
     line: Int = #line,
     col: Int = #column
-  ) throws {
+  ) {
     installApplicationFont()
     let uniqueTestName = makeUniqueSnapshotName(testName)
     log.info("assertSnapshot - \(uniqueTestName)")
@@ -135,6 +139,8 @@ extension TestSupport {
     ) {
       matching
     }
+
+#if os(iOS)
 
     if let result = SnapshotTesting.verifySnapshot(
       of: view,
@@ -162,6 +168,9 @@ extension TestSupport {
         )
       }
     }
+
+#endif
+
   }
 }
 
@@ -211,6 +220,8 @@ extension TestSupport.SnapshotConfig {
     }
   }
 
+#if os(iOS)
+
   private func sharedTraits(_ mutations: inout UIMutableTraits) {
     mutations.layoutDirection = .leftToRight
     mutations.preferredContentSizeCategory = .medium
@@ -244,4 +255,7 @@ extension TestSupport.SnapshotConfig {
     )
     }
   }
+
+#endif
+
 }

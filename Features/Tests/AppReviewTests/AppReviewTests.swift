@@ -99,6 +99,6 @@ struct AppReviewTests {
     _ = AppReviewDemoView(store: store)
     store.send(.ask)
 
-//    try TestSupport.assertSnapshot(matching: view)
+//    TestSupport.assertSnapshot(matching: view)
   }
 }

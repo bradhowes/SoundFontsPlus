@@ -26,8 +26,8 @@ struct MIDIAssignmentsTests {
 
   @Test
   func preview() async throws {
-    try withSnapshotTesting(record: .failed) {
-      try TestSupport.assertSnapshot(matching: MIDIAssignmentsView.preview)
+    withSnapshotTesting(record: .failed) {
+      TestSupport.assertSnapshot(matching: MIDIAssignmentsView.preview)
     }
   }
 }

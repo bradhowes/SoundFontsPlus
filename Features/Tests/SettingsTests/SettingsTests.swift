@@ -158,6 +158,6 @@ struct SettingsTests {
   )
   func settingsViewPreview() async throws {
     let view = SettingsView.preview
-    try TestSupport.assertSnapshot(matching: view)
+    TestSupport.assertSnapshot(matching: view)
   }
 }
