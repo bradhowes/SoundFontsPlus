@@ -193,8 +193,7 @@ extension DelayEffect {
       now.time != new.time ||
       now.feedback != new.feedback ||
       now.cutoff != new.cutoff ||
-      now.wetDryMix != new.wetDryMix ||
-      now.presetId != new.presetId
+      now.wetDryMix != new.wetDryMix
     )
 
     if changed {

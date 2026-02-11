@@ -159,8 +159,7 @@ extension ReverbEffect {
     let changed: Bool = (
       now.enabled != new.enabled ||
       now.roomPreset != new.roomPreset ||
-      now.wetDryMix != new.wetDryMix ||
-      now.presetId != new.presetId
+      now.wetDryMix != new.wetDryMix
     )
 
     if changed {
