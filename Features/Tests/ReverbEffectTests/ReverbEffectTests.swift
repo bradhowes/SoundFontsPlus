@@ -37,7 +37,7 @@ struct ReverbEffectTests {
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
       await store.send(\.activePresetIdChanged, 1) {
         $0.activePresetId = 1
-        $0.config.presetId = 1
+        $0.config.presetId = -1
       }
       await store.send(.deinitialize)
     }
@@ -66,7 +66,6 @@ struct ReverbEffectTests {
     await store.receive(\.updateDebounced)
 
     let config = ReverbConfig.Draft(
-      id: 1,
       roomPreset: store.state.config.roomPreset,
       wetDryMix: store.state.config.wetDryMix,
       enabled: store.state.config.enabled,
@@ -107,7 +106,6 @@ struct ReverbEffectTests {
     await store.receive(\.updateDebounced)
 
     let config = ReverbConfig.Draft(
-      id: 1,
       roomPreset: store.state.config.roomPreset,
       wetDryMix: store.state.config.wetDryMix,
       enabled: store.state.config.enabled,
@@ -147,7 +145,6 @@ struct ReverbEffectTests {
       await store.receive(\.updateDebounced)
 
       let config = ReverbConfig.Draft(
-        id: 1,
         roomPreset: store.state.config.roomPreset,
         wetDryMix: store.state.config.wetDryMix,
         enabled: store.state.config.enabled,
@@ -169,7 +166,6 @@ struct ReverbEffectTests {
     await store.receive(\.updateDebounced)
 
     let config2 = ReverbConfig.Draft(
-      id: 1,
       roomPreset: store.state.config.roomPreset,
       wetDryMix: store.state.config.wetDryMix,
       enabled: store.state.config.enabled,
@@ -217,7 +213,7 @@ struct ReverbEffectTests {
 
     await store.send(.deinitialize)
 
-    #expect(await device.getTimesChanged() == 0)
+    #expect(await device.getTimesChanged() == 1)
   }
 
   @Test
@@ -237,7 +233,7 @@ struct ReverbEffectTests {
 
     await store.send(.deinitialize)
 
-    #expect(await device.getTimesChanged() == 0)
+    #expect(await device.getTimesChanged() == 1)
   }
 
   @Test(
@@ -265,7 +261,7 @@ struct ReverbEffectTests {
 
       await store.send(.deinitialize)
 
-      #expect(await device.getTimesChanged() == 2)
+      #expect(await device.getTimesChanged() == 3)
     }
   }
 

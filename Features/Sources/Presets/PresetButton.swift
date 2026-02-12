@@ -91,7 +91,7 @@ public struct PresetButtonView: View {
           .onEnded { _ in store.send(.delegate(.editPreset(store.preset))) }
       )
     }
-    .id(store.preset.id) // !!! For proper scrollTo behavior
+    .id(store.preset.id)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       if !editingVisibility {
         Button {
@@ -108,6 +108,7 @@ public struct PresetButtonView: View {
         }
       }
     }
+    .animation(.smooth, value: store.preset.displayName)
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
       if !editingVisibility {
         if store.preset.isFavorite {

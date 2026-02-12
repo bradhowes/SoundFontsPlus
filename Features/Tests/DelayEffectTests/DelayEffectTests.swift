@@ -37,7 +37,7 @@ struct DelayEffectTests {
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
       await store.send(\.activePresetIdChanged, 1) {
         $0.activePresetId = 1
-        $0.config.presetId = 1
+        $0.config.presetId = -1
       }
       await store.send(.deinitialize)
     }
@@ -69,13 +69,12 @@ struct DelayEffectTests {
       await store.receive(\.updateDebounced)
 
       let config = DelayConfig.Draft(
-        id: 1,
         time: store.state.config.time,
         feedback: store.state.config.feedback,
         cutoff: store.state.config.cutoff,
         wetDryMix: store.state.config.wetDryMix,
         enabled: true,
-        presetId: 1
+        presetId: -1
       )
 
       await store.receive(\.saveDebounced) {
@@ -111,7 +110,6 @@ struct DelayEffectTests {
       await store.receive(\.updateDebounced)
 
       let config = DelayConfig.Draft(
-        id: 1,
         time: store.state.config.time,
         feedback: store.state.config.feedback,
         cutoff: store.state.config.cutoff,
@@ -134,7 +132,6 @@ struct DelayEffectTests {
         await store.receive(\.updateDebounced)
 
         let config2 = DelayConfig.Draft(
-          id: 1,
           time: store.state.config.time,
           feedback: store.state.config.feedback,
           cutoff: store.state.config.cutoff,
@@ -185,7 +182,7 @@ struct DelayEffectTests {
 
     await store.send(.deinitialize)
 
-    #expect(await device.getTimesChanged() == 0)
+    #expect(await device.getTimesChanged() == 1)
   }
 
   @Test(
@@ -208,7 +205,7 @@ struct DelayEffectTests {
 
     await store.send(.deinitialize)
 
-    #expect(await device.getTimesChanged() == 0)
+    #expect(await device.getTimesChanged() == 1)
   }
 
   @Test(
@@ -238,7 +235,7 @@ struct DelayEffectTests {
 
       await store.send(.deinitialize)
 
-      #expect(await device.getTimesChanged() == 2)
+      #expect(await device.getTimesChanged() == 3)
     }
   }
 

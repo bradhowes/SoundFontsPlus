@@ -37,7 +37,7 @@ struct PresetsListTests {
 
   func setup(
     activeSoundFontId: SoundFont.ID? = 1,
-    selectedSoundFontId: SoundFont.ID? = 1,
+    selectedSoundFontId: SoundFont.ID? = 2,
     searchText: String? = nil,
     editingVisibility: Bool = false
   ) throws -> TestStoreOf<PresetsList> {
@@ -68,6 +68,8 @@ struct PresetsListTests {
       $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: -1), anchor: .center)
     }
 
+    await store.receive(\.rowsUpdated, Preset.visible(for: 1))
+
     try await closure(store)
 
     await store.send(.deinitialize)
@@ -79,7 +81,7 @@ struct PresetsListTests {
     let store = try setup(activeSoundFontId: nil, selectedSoundFontId: nil)
 
     await store.send(.presetSourceChanged(nil))
-    #expect(store.state.sections.isEmpty)
+    #expect(store.state.sections.count == 1)
 
     await store.send(.deinitialize)
     await store.finish()
@@ -92,14 +94,28 @@ struct PresetsListTests {
     await store.send(.presetSourceChanged(.active(1))) {
       $0.scrollToPresetId = .init(presetId: -1, anchor: .init(x: 0.5, y: 0.5))
     }
+
     await store.send(.deinitialize)
     await store.finish()
   }
 
   @Test
-  func fetchPresets() async throws {
+  func presetSourceChangedFetches() async throws {
     try await initialized { store in
-      #expect(store.state.sections.count == 1)
+      await store.send(.presetSourceChanged(.active(2))) {
+        $0.presetSource = .active(2)
+      }
+      await store.receive(\.rowsUpdated, Preset.visible(for: 2)) {
+        $0.presets = Preset.visible(for: 2)
+        $0.sections = [
+          .init(
+            section: 0,
+            presets: Preset.visible(for: 2)[...],
+            symbolPrefix: "star.circle.fill",
+            presetSource: .active(2)
+          )
+        ]
+      }
     }
   }
 
@@ -123,19 +139,26 @@ struct PresetsListTests {
     try await initialized { store in
       await store.send(\.sections, .element(id: 10_000, action: .delegate(.searchButtonTapped))) {
         $0.scrollToPresetId = nil
-        $0.sections = [.init(section: 0, presets: [], symbolPrefix: "star.circle.fill")]
+        $0.sections = [.init(section: 0, presets: [], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
         $0.isSearchFieldPresented = true
         $0.focusedField = .searchText
       }
 
       await store.send(.searchTextChanged("arp")) {
         $0.searchText = "arp"
-        $0.sections = [.init(section: 0, presets: presets.filter({$0.displayName.contains("arp")})[...], symbolPrefix: "star.circle.fill")]
+        $0.sections = [
+          .init(
+            section: 0,
+            presets: presets.filter({$0.displayName.contains("arp")})[...],
+            symbolPrefix: "star.circle.fill",
+            presetSource: .active(1)
+          )
+        ]
       }
 
       await store.send(.clearSearchTextField) {
         $0.searchText = ""
-        $0.sections = [.init(section: 0, presets: [], symbolPrefix: "star.circle.fill")]
+        $0.sections = [.init(section: 0, presets: [], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
       }
 
       await store.send(.cancelSearchButtonTapped) {
@@ -150,11 +173,13 @@ struct PresetsListTests {
           )]
       }
 
-      await store.receive(\.showActivePreset)
+      await store.receive(\.showPreset, -1)
 
       await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
 
-      await store.receive(\.showActivePresetNow)
+      await store.receive(\.showPresetNow, -1) {
+        $0.scrollToPresetId = .init(presetId: -1, anchor: .init(x: 0.5, y: 0.5))
+      }
     }
   }
 
@@ -169,7 +194,7 @@ struct PresetsListTests {
     try await initialized { store in
 
       await store.send(\.sections, .element(id: PresetsList.noGroupingSize, action: .delegate(.searchButtonTapped))) {
-        $0.sections = [.init(section: 0, presets: [], symbolPrefix: "star.circle.fill")]
+        $0.sections = [.init(section: 0, presets: [], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
         $0.isSearchFieldPresented = true
         $0.focusedField = .searchText
         $0.scrollToPresetId = nil
@@ -208,25 +233,25 @@ struct PresetsListTests {
 
   @Test
   func detectSoundFontIdChange() async throws {
-    let store = try setup()
+    try await initialized { store in
 
-    await store.send(.presetSourceChanged(.active(1))) {
-      $0.scrollToPresetId = .init(presetId: -1, anchor: .init(x: 0.5, y: 0.5))
+      await store.send(.presetSourceChanged(.selected(2))) {
+        $0.presetSource = .selected(2)
+      }
+
+      let presets = Preset.visible(for: 2)
+      await store.receive(\.rowsUpdated, presets) {
+        $0.presets = presets
+        $0.sections = [
+          .init(
+            section: 0,
+            presets: presets[...],
+            symbolPrefix: "star.circle.fill",
+            presetSource: .selected(2)
+          )
+        ]
+      }
     }
-
-    await store.send(.presetSourceChanged(.selected(2))) {
-      $0.sections = [.init(
-        section: 0,
-        presets: Preset.visible(for: 2)[...],
-        symbolPrefix: "star.circle.fill",
-        presetSource: .selected(2)
-      )]
-      $0.scrollToPresetId = .init(presetId: -1, anchor: .init(x: 0.5, y: 0.5))
-      $0.presetSource = .selected(2)
-    }
-
-    await store.send(.deinitialize)
-    await store.finish()
   }
 
   @Test(
@@ -274,9 +299,17 @@ struct PresetsListTests {
     }
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.continuousClock = TestClock()
+    }
+  )
   func deleteFavoriteCancel() async throws {
+    @Dependency(\.continuousClock) var clock
+    let testClock = clock as! TestClock<Duration>
+
     try await initialized { store in
+
       await store.send(
         \.sections,
          .element(
@@ -285,12 +318,25 @@ struct PresetsListTests {
          )
       )
 
-      await store.receive(\.sections[id: store.state.sections[0].id].delegate.createFavorite, presets[0]) {
-        $0.sections[0] = .init(section: 0, presets: presets[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))
+      await store.receive(\.sections[id: store.state.sections[0].id].delegate.createFavorite, presets[0])
+
+      await store.receive(\.showPreset, 13)
+
+      await store.receive(\.rowsUpdated, presets) {
+        $0.presets = presets
+        $0.sections = [
+          .init(section: 0, presets: presets[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))
+        ]
       }
 
-      var updated = Preset.visible(for: 1)
+      var updated = presets
       #expect(updated[1].kind == .favorite)
+
+      await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
+
+      await store.receive(\.showPresetNow, 13) {
+        $0.scrollToPresetId = .init(presetId: 13)
+      }
 
       await store.send(
         \.sections,
@@ -318,8 +364,15 @@ struct PresetsListTests {
     }
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.continuousClock = TestClock()
+    }
+  )
   func deleteFavoriteConfirm() async throws {
+    @Dependency(\.continuousClock) var clock
+    let testClock = clock as! TestClock<Duration>
+
     try await initialized { store in
       await store.send(
         \.sections,
@@ -329,12 +382,25 @@ struct PresetsListTests {
          )
       )
 
-      await store.receive(\.sections[id: store.state.sections[0].id].delegate.createFavorite, presets[0]) {
-        $0.sections[0] = .init(section: 0, presets: presets[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))
+      await store.receive(\.sections[id: store.state.sections[0].id].delegate.createFavorite, presets[0])
+
+      await store.receive(\.showPreset, 13)
+
+      await store.receive(\.rowsUpdated, presets) {
+        $0.presets = presets
+        $0.sections = [
+          .init(section: 0, presets: presets[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))
+        ]
       }
 
-      var updated = Preset.visible(for: 1)
+      var updated = presets
       #expect(updated[1].kind == .favorite)
+
+      await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
+
+      await store.receive(\.showPresetNow, 13) {
+        $0.scrollToPresetId = .init(presetId: 13)
+      }
 
       await store.send(
         \.sections,
@@ -353,9 +419,15 @@ struct PresetsListTests {
         )
       }
 
-      await store.send(.destination(.presented(.alert(.deleteFavoriteConfirmed(updated[1]))))) {
+      await store.send(\.destination.presented.alert.deleteFavoriteConfirmed, updated[1]) {
         $0.destination = nil
-        $0.sections = [.init(section: 0, presets: presets[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
+      }
+
+      await store.receive(\.rowsUpdated, presets) {
+        $0.presets = presets
+        $0.sections = [
+          .init(section: 0, presets: presets[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))
+        ]
       }
 
       updated = Preset.visible(for: 1)
@@ -444,12 +516,19 @@ struct PresetsListTests {
         )
       }
 
-      var updated: [Preset] = .init(presets.dropLast())
-      updated.remove(atOffsets: [1])
+      var updated: [Preset] = presets // .init(presets.dropLast())
 
       await store.send(.destination(.presented(.alert(.hidePresetConfirmed(presets[1]))))) {
         $0.destination = nil
         $0.sections = [.init(section: 0, presets: updated[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
+      }
+
+      updated.remove(atOffsets: [1])
+      await store.receive(\.rowsUpdated, updated) {
+        $0.presets = updated
+        $0.sections = [
+          .init(section: 0, presets: updated[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))
+        ]
       }
 
       updated = Preset.visible(for: 1)
@@ -463,15 +542,26 @@ struct PresetsListTests {
     let store = try setup()
 
     await store.send(.editingVisibilityChanged(true)) {
-      $0.sections = [.init(section: 0, presets: Preset.all(for: 1)[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
       $0.scrollToPresetId = nil
       $0.editingVisibility = true
     }
 
+    let all = Preset.all(for: 1)
+
+    await store.receive(\.rowsUpdated) {
+      $0.presets = all
+      $0.sections = [.init(section: 0, presets: all[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
+    }
+
+    let visible = Preset.visible(for: 1)
     await store.send(.editingVisibilityChanged(false)) {
-      $0.sections = [.init(section: 0, presets: Preset.visible(for: 1)[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
       $0.scrollToPresetId = nil
       $0.editingVisibility = false
+    }
+
+    await store.receive(\.rowsUpdated) {
+      $0.presets = visible
+      $0.sections = [.init(section: 0, presets: visible[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
     }
 
     await store.send(.deinitialize)

@@ -94,6 +94,8 @@ struct AppRootTests {
       $0.toastState = .none
     }
 
+    await store.receive(\.presetsList.rowsUpdated, Preset.visible(for: 1))
+
     await store.receive(\.synth.lastPresetLoadFinished, timeout: .seconds(10)) {
       $0.synth.firstTimePresetLoaded = false
     }
@@ -297,6 +299,8 @@ struct AppRootTests {
       await store.send(\.destination.dismiss) {
         $0.destination = nil
       }
+
+      await store.receive(\.presetsList.rowsUpdated, Preset.visible(for: 1))
     }
   }
 
@@ -311,6 +315,7 @@ struct AppRootTests {
         $0.destination = nil
         $0.presetsList.scrollToPresetId = .init(presetId: 1)
       }
+      await store.receive(\.presetsList.rowsUpdated, Preset.visible(for: 1))
     }
   }
 
@@ -361,9 +366,11 @@ struct AppRootTests {
         await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, true) {
           $0.presetsList.editingVisibility = true
         }
+        await store.receive(\.presetsList.rowsUpdated)
         await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, false) {
           $0.presetsList.editingVisibility = false
         }
+        await store.receive(\.presetsList.rowsUpdated)
       }
     }
   }
@@ -388,6 +395,7 @@ struct AppRootTests {
     try await initialized { store in
       await store.send(\.toolBar.delegate.presetNameTapped)
       await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1), timeout: .seconds(30))
+      await store.receive(\.presetsList.rowsUpdated, Preset.visible(for: 1))
     }
   }
 

@@ -39,6 +39,9 @@ public struct ReverbEffect {
       )
       self.dirty = dirty
       self.activePresetId = activePresetId
+
+      @Dependency(\.reverbDevice) var reverbDevice
+      reverbDevice.setConfig(config)
     }
   }
 

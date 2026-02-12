@@ -258,7 +258,7 @@ extension Preset {
    - parameter soundFontId: the sound font to query for
    - returns: the select query
    */
-  public static func orderedQuery(for soundFontId: SoundFont.ID) -> Select<(), Self, ()> {
+  public static func visibleQuery(for soundFontId: SoundFont.ID) -> Select<(), Self, ()> {
     @Shared(.favoritesOnTop) var favoritesOnTop
     @Shared(.sortPresetsByName) var sortPresetsByName
     let query = presetsQuery(for: soundFontId)
@@ -290,10 +290,17 @@ extension Preset {
    */
   public static func visible(for soundFontId: SoundFont.ID) -> [Preset] {
     withDatabaseReader {
-      try orderedQuery(for: soundFontId).fetchAll($0)
+      try visibleQuery(for: soundFontId).fetchAll($0)
     } ?? []
   }
 
+  public static func allQuery(for soundFontId: SoundFont.ID) -> Select<(), Self, ()> {
+    Self
+      .all
+      .where { $0.soundFontId.eq(soundFontId) }
+      .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.hidden) }
+      .order(by: \.index)
+  }
   /**
    Obtain the collection of presets for a given sound font ID. Does not perform any filtering of hidden presets.
    Used when editing preset visibility.
@@ -302,14 +309,10 @@ extension Preset {
    - returns: the collection of presets
    */
   public static func all(for soundFontId: SoundFont.ID) -> [Preset] {
-    let query = Self
-      .all
-      .where { $0.soundFontId.eq(soundFontId) }
-      .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.hidden) }
-      .order(by: \.index)
-    return withDatabaseReader { try query.fetchAll($0) } ?? []
+    withDatabaseReader {
+      try allQuery(for: soundFontId).fetchAll($0)
+    } ?? []
   }
-
 }
 
 extension Preset.Kind: Hashable, QueryBindable, RawRepresentable, Sendable {}

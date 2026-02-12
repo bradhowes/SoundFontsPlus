@@ -221,7 +221,9 @@ extension Keyboard {
 
     // If first time touching the key, start playing the note for it
     if state.noteCounters[note.midiNoteValue] == 1 {
-      state.midiInstrument?.startNote(UInt8(note.midiNoteValue), withVelocity: 127, onChannel: 0)
+      if !state.muted {
+        state.midiInstrument?.startNote(UInt8(note.midiNoteValue), withVelocity: 127, onChannel: 0)
+      }
       return .send(.delegate(.noteOn(note)))
     }
 

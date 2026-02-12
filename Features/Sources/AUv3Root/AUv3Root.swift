@@ -131,7 +131,7 @@ public struct AUv3Root {
         return deinitialize(&state)
 
       case .destination(.presented(.soundFontEditor(.delegate(.refreshPresets)))):
-        return reduce(into: &state, action: .presetsList(.fetchPresets))
+        return reduce(into: &state, action: .presetsList(.updateFetchAllQuery))
 
       case .destination(.presented(.settings(.delegate(let action)))):
         return processSettingsAction(&state, action: action)
@@ -251,7 +251,7 @@ extension AUv3Root {
       return presetEditorDismissed(&state, editor: editor)
 
     case .settings:
-      return reduce(into: &state, action: .presetsList(.fetchPresets))
+      return reduce(into: &state, action: .presetsList(.updateFetchAllQuery))
 
     default:
       return .none
@@ -301,7 +301,7 @@ extension AUv3Root {
       state.presetsList.updateSection(editor.sectionId, presetId: editor.preset.id, displayName: editor.displayName)
       return .none
     }
-    return reduce(into: &state, action: .presetsList(.fetchPresets))
+    return reduce(into: &state, action: .presetsList(.updateFetchAllQuery))
   }
 
   private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {

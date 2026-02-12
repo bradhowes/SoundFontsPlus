@@ -31,7 +31,7 @@ public struct DelayEffect {
 
       self.config = config
       self.locked = .init(isOn: locked, displayName: "Lock")
-      self.enabled = .init(isOn: false, displayName: "On")
+      self.enabled = .init(isOn: config.enabled, displayName: "On")
       self.time = .init(
         value: config.time,
         displayName: "Time",
@@ -62,6 +62,9 @@ public struct DelayEffect {
       )
       self.dirty = dirty
       self.activePresetId = activePresetId
+
+      @Dependency(\.delayDevice) var delayDevice
+      delayDevice.setConfig(config)
     }
   }
 

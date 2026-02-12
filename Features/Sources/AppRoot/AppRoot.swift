@@ -227,7 +227,7 @@ public struct AppRoot {
         return reinitializeConfirmed(&state)
 
       case .destination(.presented(.soundFontEditor(.delegate(.refreshPresets)))):
-        return reduce(into: &state, action: .presetsList(.fetchPresets))
+        return .none // reduce(into: &state, action: .presetsList(.updateFetchAllQuery))
 
       case .destination(.presented(.settings(.delegate(let action)))):
         return processSettingsAction(&state, action: action)
@@ -414,7 +414,7 @@ extension AppRoot {
       {
         switch state.destination {
         case .presetEditor(let editor): presetEditorDismissed(&state, editor: editor)
-        case .alert, .settings: reduce(into: &state, action: .presetsList(.fetchPresets))
+        case .alert, .settings: reduce(into: &state, action: .presetsList(.updateFetchAllQuery))
         default: .none
         }
       }()
@@ -476,12 +476,13 @@ extension AppRoot {
   }
 
   private func presetEditorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
-    if editor.visible {
-      // Preset is (still) visible -- update its entry in case there were changes.
-      state.presetsList.updateSection(editor.sectionId, presetId: editor.preset.id, displayName: editor.displayName)
-      return .none
+    if editor.preset.id == state.presetsList.activePresetId {
+      return .merge(
+        reduce(into: &state, action: .presetsList(.updateFetchAllQuery)),
+        reduce(into: &state, action: .toolBar(.activePresetIdChanged(state.presetsList.activePresetId)))
+      )
     }
-    return reduce(into: &state, action: .presetsList(.fetchPresets))
+    return reduce(into: &state, action: .presetsList(.updateFetchAllQuery))
   }
 
   private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {
