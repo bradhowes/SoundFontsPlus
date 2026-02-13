@@ -264,7 +264,10 @@ extension SoundFontsList {
 
   private func deleteSoundFontConfirmed(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
     state.destination = deleteSoundFont(&state, soundFontInfo: soundFontInfo)
-    return .merge(deleted(&state, soundFontId: soundFontInfo.id), showActiveSoundFont(&state))
+    return .merge(
+      soundFontDeleted(&state, soundFontId: soundFontInfo.id),
+      showActiveSoundFont(&state)
+    )
   }
 
   private func deleteSoundFont(_ state: inout State, soundFontInfo: SoundFontInfo) -> Destination.State? {
@@ -286,6 +289,11 @@ extension SoundFontsList {
       return .alert(.genericDeleteFailure("Cannot delete built-in sound fonts."))
     }
 
+    withDatabaseWriter { db in
+      try SoundFont.delete(soundFont)
+        .execute(db)
+    }
+
     var alert: Destination.State?
     if kind.deleteWhenRemoved {
       do {
@@ -304,20 +312,6 @@ extension SoundFontsList {
     log.info("removing db entry for \(soundFont.displayName)")
 
     return alert
-  }
-
-  private func deleted(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
-    if state.selectedPresetSource == .selected(soundFontId) {
-      state.selectedPresetSource = nil
-      return .send(.delegate(.presetSourceChanged(state.activePresetSource)))
-    }
-
-    if state.activePresetSource == .active(soundFontId) {
-      state.activePresetSource = nil
-      return .send(.delegate(.presetSourceChanged(state.activePresetSource)))
-    }
-
-    return .none
   }
 
   private func dismissSearch(_ state: inout State) -> Effect<Action> {
@@ -399,6 +393,20 @@ extension SoundFontsList {
        let index = state.rows.index(id: soundFontId) {
       return soundFontSelected(&state, soundFontId: soundFontId, available: state.rows[index].statusInfoTag.available)
     }
+    return .none
+  }
+
+  private func soundFontDeleted(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
+    if state.selectedPresetSource == .selected(soundFontId) {
+      state.selectedPresetSource = nil
+      return .send(.delegate(.presetSourceChanged(state.activePresetSource)))
+    }
+
+    if state.activePresetSource == .active(soundFontId) {
+      state.activePresetSource = nil
+      return .send(.delegate(.presetSourceChanged(state.activePresetSource)))
+    }
+
     return .none
   }
 
