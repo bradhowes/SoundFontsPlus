@@ -116,7 +116,7 @@ latter is built and embedded in the former, and the app is the distribution vehi
 little code to be found in the source folders for these two targets. Instead, the vast majority of the code resides as
 "features" and libraries in the [Features/Sources](Features/Sources) folder. Each one is its own library that is managed
 by Swift Package Manager (SPM) and built according to the [Package.swift](Features/Package.swift) file. Currently, the
-list of libraries are:
+list of libraries is:
 
 - [AppReview][AppReview] -- feature that asks the user for a review at appropriate intervals
 - [AppRoot][AppRoot] -- the top-level feature for the SoundFontsPlus app
