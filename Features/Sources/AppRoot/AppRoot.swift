@@ -250,7 +250,7 @@ public struct AppRoot {
       case .presetsList(.delegate(.activePresetIdChanged(let presetId))):
         return activePresetIdChanged(&state, presetId: presetId)
 
-      case .presetsList(.delegate(.edit(let sectionId, let preset))):
+      case let .presetsList(.delegate(.edit(sectionId, preset))):
         return editPreset(&state, sectionId: sectionId, preset: preset)
 
       case .presetsList(.delegate(.missingSoundFontDetected(let soundFontId))):
@@ -340,7 +340,7 @@ extension AppRoot {
       reduce(into: &state, action: .delayEffect(.activePresetIdChanged(presetId))),
       reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
       reduce(into: &state, action: .reverbEffect(.activePresetIdChanged(presetId))),
-      reduce(into: &state, action: .soundFontsList(.selectedActivated)),
+      reduce(into: &state, action: .soundFontsList(.selectedIsNowActivated)),
       reduce(into: &state, action: .synth(.activePresetIdChanged(presetId))),
       reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId))),
       reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId))))
@@ -421,7 +421,7 @@ extension AppRoot {
     )
   }
 
-  private func editPreset(_ state: inout State, sectionId: Int, preset: Preset) -> Effect<Action> {
+  private func editPreset(_ state: inout State, sectionId: PresetsListSection.State.ID, preset: Preset) -> Effect<Action> {
     state.destination = .presetEditor(
       .init(
         sectionId: sectionId,

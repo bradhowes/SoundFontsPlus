@@ -9,36 +9,8 @@
 /* Begin PBXBuildFile section */
 		BD22B1C82ED5D73900E72F0E /* AppRoot in Frameworks */ = {isa = PBXBuildFile; productRef = BD22B1C72ED5D73900E72F0E /* AppRoot */; };
 		BD22B21A2ED7658400E72F0E /* SF2LibAU in Frameworks */ = {isa = PBXBuildFile; productRef = BD22B2192ED7658400E72F0E /* SF2LibAU */; };
-		BD275B262E93EF2A004F0C7A /* Tuning in Frameworks */ = {isa = PBXBuildFile; productRef = BD275B252E93EF2A004F0C7A /* Tuning */; };
-		BD275B282E93F1CE004F0C7A /* FileImporter in Frameworks */ = {isa = PBXBuildFile; productRef = BD275B272E93F1CE004F0C7A /* FileImporter */; };
-		BD4C249D2E77618800F8B3A9 /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249C2E77618800F8B3A9 /* Engine */; };
-		BD4C249F2E77618800F8B3A9 /* SF2File in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C249E2E77618800F8B3A9 /* SF2File */; };
-		BD4C24A12E77618800F8B3A9 /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BD4C24A02E77618800F8B3A9 /* SF2Lib */; };
 		BD5AE3AD2ED0C2910073F3F2 /* SoundFontsPlusAU.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BD5AE3842ED0C2910073F3F2 /* SoundFontsPlusAU.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		BD7217242E93BE270017DB8C /* AppReview in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217232E93BE270017DB8C /* AppReview */; };
-		BD7217262E93BE270017DB8C /* BaseSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217252E93BE270017DB8C /* BaseSupport */; };
-		BD72172A2E93BE270017DB8C /* DelayEffect in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217292E93BE270017DB8C /* DelayEffect */; };
-		BD72172C2E93BE270017DB8C /* FeatureSupport in Frameworks */ = {isa = PBXBuildFile; productRef = BD72172B2E93BE270017DB8C /* FeatureSupport */; };
-		BD72172E2E93BE270017DB8C /* Keyboard in Frameworks */ = {isa = PBXBuildFile; productRef = BD72172D2E93BE270017DB8C /* Keyboard */; };
-		BD7217302E93BE270017DB8C /* Models in Frameworks */ = {isa = PBXBuildFile; productRef = BD72172F2E93BE270017DB8C /* Models */; };
-		BD7217322E93BE270017DB8C /* ReverbEffect in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217312E93BE270017DB8C /* ReverbEffect */; };
-		BD7217342E93BE270017DB8C /* SF2Resources in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217332E93BE270017DB8C /* SF2Resources */; };
-		BD7217362E93BE270017DB8C /* VolumeMonitor in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217352E93BE270017DB8C /* VolumeMonitor */; };
-		BD7217382E93C08E0017DB8C /* Tutorial in Frameworks */ = {isa = PBXBuildFile; productRef = BD7217372E93C08E0017DB8C /* Tutorial */; };
 		BD86B0552F36036500473ACB /* AUv3Root in Frameworks */ = {isa = PBXBuildFile; productRef = BD86B0542F36036500473ACB /* AUv3Root */; };
-		BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BB92DE259DF00B8FB13 /* Engine */; };
-		BDAF5BBC2DE259DF00B8FB13 /* SF2Lib in Frameworks */ = {isa = PBXBuildFile; productRef = BDAF5BBB2DE259DF00B8FB13 /* SF2Lib */; };
-		BDB8CC192E9508580035EBEA /* Changes in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC182E9508580035EBEA /* Changes */; };
-		BDB8CC1B2E9508580035EBEA /* MIDIAssignments in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC1A2E9508580035EBEA /* MIDIAssignments */; };
-		BDB8CC1D2E9508580035EBEA /* MIDIConnections in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC1C2E9508580035EBEA /* MIDIConnections */; };
-		BDB8CC1F2E9508580035EBEA /* MIDIControllers in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC1E2E9508580035EBEA /* MIDIControllers */; };
-		BDB8CC212E9508580035EBEA /* MIDITrafficIndicator in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC202E9508580035EBEA /* MIDITrafficIndicator */; };
-		BDB8CC232E9508580035EBEA /* Presets in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC222E9508580035EBEA /* Presets */; };
-		BDB8CC272E9508580035EBEA /* Settings in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC262E9508580035EBEA /* Settings */; };
-		BDB8CC292E9508580035EBEA /* SoundFonts in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC282E9508580035EBEA /* SoundFonts */; };
-		BDB8CC2B2E9508580035EBEA /* Synth in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC2A2E9508580035EBEA /* Synth */; };
-		BDB8CC2D2E9508580035EBEA /* Tags in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC2C2E9508580035EBEA /* Tags */; };
-		BDB8CC2F2E9508580035EBEA /* ToolBar in Frameworks */ = {isa = PBXBuildFile; productRef = BDB8CC2E2E9508580035EBEA /* ToolBar */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,7 +44,6 @@
 		BD7DBC892DF36955005A31DE /* Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Development.xcconfig; sourceTree = "<group>"; };
 		BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
-		BDB6A3972E8EC8F400126442 /* Features */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Features; sourceTree = "<group>"; };
 		BDF653892EB2673E00BF74C6 /* Features.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Features.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -109,34 +80,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				BD22B1C82ED5D73900E72F0E /* AppRoot in Frameworks */,
-				BDB8CC2F2E9508580035EBEA /* ToolBar in Frameworks */,
-				BDB8CC2D2E9508580035EBEA /* Tags in Frameworks */,
-				BD7217242E93BE270017DB8C /* AppReview in Frameworks */,
-				BDB8CC1F2E9508580035EBEA /* MIDIControllers in Frameworks */,
-				BD7217322E93BE270017DB8C /* ReverbEffect in Frameworks */,
-				BDB8CC1D2E9508580035EBEA /* MIDIConnections in Frameworks */,
-				BDB8CC1B2E9508580035EBEA /* MIDIAssignments in Frameworks */,
-				BD4C24A12E77618800F8B3A9 /* SF2Lib in Frameworks */,
-				BD7217262E93BE270017DB8C /* BaseSupport in Frameworks */,
-				BD72172A2E93BE270017DB8C /* DelayEffect in Frameworks */,
-				BD275B262E93EF2A004F0C7A /* Tuning in Frameworks */,
-				BDAF5BBC2DE259DF00B8FB13 /* SF2Lib in Frameworks */,
-				BD7217302E93BE270017DB8C /* Models in Frameworks */,
-				BDB8CC192E9508580035EBEA /* Changes in Frameworks */,
-				BD7217342E93BE270017DB8C /* SF2Resources in Frameworks */,
-				BD72172E2E93BE270017DB8C /* Keyboard in Frameworks */,
-				BDB8CC292E9508580035EBEA /* SoundFonts in Frameworks */,
-				BDB8CC212E9508580035EBEA /* MIDITrafficIndicator in Frameworks */,
-				BDB8CC272E9508580035EBEA /* Settings in Frameworks */,
-				BD7217362E93BE270017DB8C /* VolumeMonitor in Frameworks */,
-				BD275B282E93F1CE004F0C7A /* FileImporter in Frameworks */,
-				BDAF5BBA2DE259DF00B8FB13 /* Engine in Frameworks */,
-				BD7217382E93C08E0017DB8C /* Tutorial in Frameworks */,
-				BDB8CC2B2E9508580035EBEA /* Synth in Frameworks */,
-				BD4C249F2E77618800F8B3A9 /* SF2File in Frameworks */,
-				BDB8CC232E9508580035EBEA /* Presets in Frameworks */,
-				BD4C249D2E77618800F8B3A9 /* Engine in Frameworks */,
-				BD72172C2E93BE270017DB8C /* FeatureSupport in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,7 +102,6 @@
 				BD7DBC892DF36955005A31DE /* Development.xcconfig */,
 				BD7DBC8A2DF3696D005A31DE /* Release.xcconfig */,
 				BDF653892EB2673E00BF74C6 /* Features.xctestplan */,
-				BDB6A3972E8EC8F400126442 /* Features */,
 				BD7DBC8B2DF36972005A31DE /* .swiftlint.yml */,
 				BD5AE3F32ED0C5C70073F3F2 /* SoundFontsPlus */,
 				BD5AE3852ED0C2910073F3F2 /* SoundFontsPlusAU */,
@@ -207,34 +149,6 @@
 			);
 			name = SoundFontsPlus;
 			packageProductDependencies = (
-				BDAF5BB92DE259DF00B8FB13 /* Engine */,
-				BDAF5BBB2DE259DF00B8FB13 /* SF2Lib */,
-				BD4C249C2E77618800F8B3A9 /* Engine */,
-				BD4C249E2E77618800F8B3A9 /* SF2File */,
-				BD4C24A02E77618800F8B3A9 /* SF2Lib */,
-				BD7217232E93BE270017DB8C /* AppReview */,
-				BD7217252E93BE270017DB8C /* BaseSupport */,
-				BD7217292E93BE270017DB8C /* DelayEffect */,
-				BD72172B2E93BE270017DB8C /* FeatureSupport */,
-				BD72172D2E93BE270017DB8C /* Keyboard */,
-				BD72172F2E93BE270017DB8C /* Models */,
-				BD7217312E93BE270017DB8C /* ReverbEffect */,
-				BD7217332E93BE270017DB8C /* SF2Resources */,
-				BD7217352E93BE270017DB8C /* VolumeMonitor */,
-				BD7217372E93C08E0017DB8C /* Tutorial */,
-				BD275B252E93EF2A004F0C7A /* Tuning */,
-				BD275B272E93F1CE004F0C7A /* FileImporter */,
-				BDB8CC182E9508580035EBEA /* Changes */,
-				BDB8CC1A2E9508580035EBEA /* MIDIAssignments */,
-				BDB8CC1C2E9508580035EBEA /* MIDIConnections */,
-				BDB8CC1E2E9508580035EBEA /* MIDIControllers */,
-				BDB8CC202E9508580035EBEA /* MIDITrafficIndicator */,
-				BDB8CC222E9508580035EBEA /* Presets */,
-				BDB8CC262E9508580035EBEA /* Settings */,
-				BDB8CC282E9508580035EBEA /* SoundFonts */,
-				BDB8CC2A2E9508580035EBEA /* Synth */,
-				BDB8CC2C2E9508580035EBEA /* Tags */,
-				BDB8CC2E2E9508580035EBEA /* ToolBar */,
 				BD22B1C72ED5D73900E72F0E /* AppRoot */,
 			);
 			productName = SoundFontsPlus;
@@ -294,6 +208,7 @@
 			);
 			mainGroup = BD1D27762B6F13DD005C3ED0;
 			packageReferences = (
+				BD6C83372F3F1CD000798A79 /* XCLocalSwiftPackageReference "Features" */,
 			);
 			productRefGroup = BD1D27802B6F13DD005C3ED0 /* Products */;
 			projectDirPath = "";
@@ -805,6 +720,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		BD6C83372F3F1CD000798A79 /* XCLocalSwiftPackageReference "Features" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Features;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		BD22B1C72ED5D73900E72F0E /* AppRoot */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -814,121 +736,9 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = SF2LibAU;
 		};
-		BD275B252E93EF2A004F0C7A /* Tuning */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Tuning;
-		};
-		BD275B272E93F1CE004F0C7A /* FileImporter */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FileImporter;
-		};
-		BD4C249C2E77618800F8B3A9 /* Engine */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Engine;
-		};
-		BD4C249E2E77618800F8B3A9 /* SF2File */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SF2File;
-		};
-		BD4C24A02E77618800F8B3A9 /* SF2Lib */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SF2Lib;
-		};
-		BD7217232E93BE270017DB8C /* AppReview */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = AppReview;
-		};
-		BD7217252E93BE270017DB8C /* BaseSupport */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BaseSupport;
-		};
-		BD7217292E93BE270017DB8C /* DelayEffect */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = DelayEffect;
-		};
-		BD72172B2E93BE270017DB8C /* FeatureSupport */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FeatureSupport;
-		};
-		BD72172D2E93BE270017DB8C /* Keyboard */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Keyboard;
-		};
-		BD72172F2E93BE270017DB8C /* Models */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Models;
-		};
-		BD7217312E93BE270017DB8C /* ReverbEffect */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ReverbEffect;
-		};
-		BD7217332E93BE270017DB8C /* SF2Resources */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SF2Resources;
-		};
-		BD7217352E93BE270017DB8C /* VolumeMonitor */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = VolumeMonitor;
-		};
-		BD7217372E93C08E0017DB8C /* Tutorial */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Tutorial;
-		};
 		BD86B0542F36036500473ACB /* AUv3Root */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AUv3Root;
-		};
-		BDAF5BB92DE259DF00B8FB13 /* Engine */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Engine;
-		};
-		BDAF5BBB2DE259DF00B8FB13 /* SF2Lib */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SF2Lib;
-		};
-		BDB8CC182E9508580035EBEA /* Changes */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Changes;
-		};
-		BDB8CC1A2E9508580035EBEA /* MIDIAssignments */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MIDIAssignments;
-		};
-		BDB8CC1C2E9508580035EBEA /* MIDIConnections */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MIDIConnections;
-		};
-		BDB8CC1E2E9508580035EBEA /* MIDIControllers */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MIDIControllers;
-		};
-		BDB8CC202E9508580035EBEA /* MIDITrafficIndicator */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MIDITrafficIndicator;
-		};
-		BDB8CC222E9508580035EBEA /* Presets */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Presets;
-		};
-		BDB8CC262E9508580035EBEA /* Settings */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Settings;
-		};
-		BDB8CC282E9508580035EBEA /* SoundFonts */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SoundFonts;
-		};
-		BDB8CC2A2E9508580035EBEA /* Synth */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Synth;
-		};
-		BDB8CC2C2E9508580035EBEA /* Tags */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Tags;
-		};
-		BDB8CC2E2E9508580035EBEA /* ToolBar */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ToolBar;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

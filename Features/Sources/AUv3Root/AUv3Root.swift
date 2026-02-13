@@ -219,7 +219,7 @@ extension AUv3Root {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     .merge(
-      reduce(into: &state, action: .soundFontsList(.selectedActivated)),
+      reduce(into: &state, action: .soundFontsList(.selectedIsNowActivated)),
       reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId)))
     )
   }
@@ -258,7 +258,7 @@ extension AUv3Root {
     }
   }
 
-  private func editPreset(_ state: inout State, sectionId: Int, preset: Preset) -> Effect<Action> {
+  private func editPreset(_ state: inout State, sectionId: PresetsListSection.State.ID, preset: Preset) -> Effect<Action> {
     state.destination = .presetEditor(
       .init(
         sectionId: sectionId,
@@ -296,10 +296,11 @@ extension AUv3Root {
   }
 
   private func presetEditorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
-    if editor.visible {
-      // Preset is (still) visible -- update its entry in case there were changes.
-      state.presetsList.updateSection(editor.sectionId, presetId: editor.preset.id, displayName: editor.displayName)
-      return .none
+    if editor.preset.id == state.presetsList.activePresetId {
+      return .merge(
+        reduce(into: &state, action: .presetsList(.updateFetchAllQuery)),
+        reduce(into: &state, action: .toolBar(.activePresetIdChanged(state.presetsList.activePresetId)))
+      )
     }
     return reduce(into: &state, action: .presetsList(.updateFetchAllQuery))
   }

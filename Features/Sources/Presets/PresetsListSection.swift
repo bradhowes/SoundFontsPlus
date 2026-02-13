@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import FeatureSupport
+import Tagged
 
 /**
  Minor feature that represents section of presets where each section has up to 20 entries in it.
@@ -10,22 +11,30 @@ public struct PresetsListSection {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    public var id: Int { sectionId }
-    public let section: Int
+    public typealias ID = Tagged<Self, Int>
+
+    public let id: ID
+    public let section: Int // 0 is first section, 1 second, etc.
+    public let sectionText: String
+
     public var rows: IdentifiedArrayOf<PresetButton.State>
-    // Make sure section IDs do not conflict with preset IDs.
-    public var sectionId: Int { (section + 1) * PresetsList.noGroupingSize }
     public var presetSource: PresetSource?
     public var activePresetId: Preset.ID?
 
     public init(
       section: Int,
+      sectionText: String,
       presets: ArraySlice<Preset>,
-      symbolPrefix: String? = nil,
-      presetSource: PresetSource? = nil,
-      activePresetId: Preset.ID? = nil,
+      presetSource: PresetSource?,
+      activePresetId: Preset.ID?
     ) {
+      @Shared(.favoriteSymbolName) var symbolName
+      @Shared(.starFavoriteNames) var starFavoriteNames
+      let symbolPrefix = starFavoriteNames ? symbolName : nil
+
+      self.id = .init(rawValue: section)
       self.section = section
+      self.sectionText = sectionText
       self.presetSource = presetSource
       self.activePresetId = activePresetId
       self.rows = .init(
@@ -34,7 +43,8 @@ public struct PresetsListSection {
             preset: $0,
             symbolPrefix: $0.isFavorite ? symbolPrefix : nil
           )
-        })
+        }
+      )
     }
 
     /**
@@ -59,7 +69,7 @@ public struct PresetsListSection {
       case createFavorite(Preset)
       case deleteFavorite(Preset)
       case editPreset(Preset)
-      case headerTapped(scrollTo: Preset.ID)
+      case headerTapped(section: PresetsListSection.State.ID, count: Int)
       case hidePreset(Preset)
       case searchButtonTapped
       case selectPreset(Preset)
@@ -119,13 +129,13 @@ public struct PresetsListSectionView: View {
     } header: {
       StyledHeader {
         sectionHeader
-          .id(store.sectionId)
+          .id(store.id)
       }
       .onTapGesture(count: 2) {
-        store.send(.delegate(.headerTapped(scrollTo: 1)))
+        store.send(.delegate(.headerTapped(section: store.id, count: 2)))
       }
       .onTapGesture(count: 1) {
-        store.send(.delegate(.headerTapped(scrollTo: Preset.ID(rawValue: Int64(store.section - (PresetsList.groupingSize - 1))))))
+        store.send(.delegate(.headerTapped(section: store.id, count: 1)))
       }
     }
     .animation(.smooth, value: store.rows)
@@ -133,7 +143,7 @@ public struct PresetsListSectionView: View {
 
   private var sectionHeader: some View {
     HStack {
-      Text(sectionText)
+      Text(store.sectionText)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
       Spacer()
@@ -151,16 +161,6 @@ public struct PresetsListSectionView: View {
       $0.frame(in: .global).origin.y
     } action: {
       showSearchButton = $0 < 94.0
-    }
-  }
-
-  private var sectionText: String {
-    if searching {
-      return "Found \(store.rows.count)"
-    } else if store.section == 0 {
-      return "Presets"
-    } else {
-      return "\(store.section)"
     }
   }
 

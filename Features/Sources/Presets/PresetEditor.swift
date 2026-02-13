@@ -24,7 +24,7 @@ public struct PresetEditor {
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
 
-    public let sectionId: Int
+    public let sectionId: PresetsListSection.State.ID
     public let preset: Preset
     public let isActive: Bool
     public var displayName: String
@@ -45,7 +45,7 @@ public struct PresetEditor {
 
     public let audioUnit: AUAudioUnit?
 
-    public init(sectionId: Int, preset: Preset, isActive: Bool, audioUnit: AUAudioUnit? = nil) {
+    public init(sectionId: PresetsListSection.State.ID, preset: Preset, isActive: Bool, audioUnit: AUAudioUnit? = nil) {
       self.sectionId = sectionId
       self.preset = preset
       self.isActive = isActive
@@ -432,7 +432,7 @@ extension PresetEditorView {
     }
 
     let presets = Preset.visible(for: 1)
-    return PresetEditorView(store: Store(initialState: .init(sectionId: 0, preset: presets[0], isActive: false)) {
+    return PresetEditorView(store: Store(initialState: .init(sectionId: .init(0), preset: presets[0], isActive: false)) {
       PresetEditor()
     })
   }

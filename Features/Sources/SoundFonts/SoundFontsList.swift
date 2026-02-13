@@ -80,7 +80,7 @@ public struct SoundFontsList {
     case rowsUpdated([SoundFontInfo])
     case searchButtonTapped
     case searchTextChanged(String)
-    case selectedActivated
+    case selectedIsNowActivated
     case showActiveSoundFont
     case updateFetchAllQuery
 
@@ -189,8 +189,8 @@ public struct SoundFontsList {
       case .searchTextChanged(let value):
         return searchTextChanged(&state, searchText: value)
 
-      case .selectedActivated:
-        return selectedActivated(&state)
+      case .selectedIsNowActivated:
+        return selectedIsNowActivated(&state)
 
       case .showActiveSoundFont:
         return showActiveSoundFont(&state)
@@ -355,7 +355,7 @@ extension SoundFontsList {
       return edit(&state, soundFontId: soundFontInfo.id)
 
     case .select(let soundFontInfo, let available):
-      return selected(&state, soundFontId: soundFontInfo.id, available: available)
+      return soundFontSelected(&state, soundFontId: soundFontInfo.id, available: available)
     }
   }
 
@@ -386,20 +386,7 @@ extension SoundFontsList {
     return .none
   }
 
-  private func selected(_ state: inout State, soundFontId: SoundFont.ID, available: Bool) -> Effect<Action> {
-    if state.activePresetSource == .active(soundFontId) {
-      if state.selectedPresetSource != nil {
-        state.selectedPresetSource = nil
-      }
-      return .send(.delegate(.presetSourceChanged(available ? state.activePresetSource : nil)))
-    } else if state.selectedPresetSource != .selected(soundFontId) {
-      state.selectedPresetSource = .selected(soundFontId)
-      return .send(.delegate(.presetSourceChanged(available ? state.selectedPresetSource : nil)))
-    }
-    return .none
-  }
-
-  private func selectedActivated(_ state: inout State) -> Effect<Action> {
+  private func selectedIsNowActivated(_ state: inout State) -> Effect<Action> {
     if let selectedPresetSource = state.selectedPresetSource {
       state.activePresetSource = selectedPresetSource.activated
       state.selectedPresetSource = nil
@@ -410,7 +397,7 @@ extension SoundFontsList {
   private func showActiveSoundFont(_ state: inout State) -> Effect<Action> {
     if let soundFontId = state.activePresetSource?.id,
        let index = state.rows.index(id: soundFontId) {
-      return selected(&state, soundFontId: soundFontId, available: state.rows[index].statusInfoTag.available)
+      return soundFontSelected(&state, soundFontId: soundFontId, available: state.rows[index].statusInfoTag.available)
     }
     return .none
   }
@@ -419,6 +406,19 @@ extension SoundFontsList {
     let update = IdentifiedArrayOf<SoundFontButton.State>(uncheckedUniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
     if state.rows != update {
       state.rows = update
+    }
+    return .none
+  }
+
+  private func soundFontSelected(_ state: inout State, soundFontId: SoundFont.ID, available: Bool) -> Effect<Action> {
+    if state.activePresetSource == .active(soundFontId) {
+      if state.selectedPresetSource != nil {
+        state.selectedPresetSource = nil
+      }
+      return .send(.delegate(.presetSourceChanged(available ? state.activePresetSource : nil)))
+    } else if state.selectedPresetSource != .selected(soundFontId) {
+      state.selectedPresetSource = .selected(soundFontId)
+      return .send(.delegate(.presetSourceChanged(available ? state.selectedPresetSource : nil)))
     }
     return .none
   }

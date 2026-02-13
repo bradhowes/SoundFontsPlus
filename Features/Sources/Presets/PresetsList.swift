@@ -11,10 +11,9 @@ import SQLiteData
  */
 @Reducer
 public struct PresetsList {
-  public static var groupingSize: Int { 20 }
-  public static var noGroupingSize: Int { 10_000 }
+  public static var groupingSize: Int { 20 } // New section ever 20 presets
+  public static var searchGroupingSize: Int { 10_000 } // When searching, just one very large group
   public static var delayBeforeShowingActivePreset: Duration { .milliseconds(200) }
-  public static var playNoteDuration: Duration { .milliseconds(250) }
 
   @Reducer
   public enum Destination {
@@ -67,58 +66,19 @@ public struct PresetsList {
       focusedField: Field? = nil,
       editingVisibility: Bool = false
     ) {
-      @Shared(.favoriteSymbolName) var symbolName
-      @Shared(.starFavoriteNames) var starFavoriteNames
-
       self.presetSource = presetSource
       self.activePresetId = activePresetId
       self.isSearchFieldPresented = searchText != nil
       self.searchText = searchText ?? ""
       self.editingVisibility = editingVisibility
 
-      // TODO: consolidate with code in updateFetchAllQuery
       if let soundFontId = presetSource?.id {
         self.presets = editingVisibility ? Preset.all(for: soundFontId) : Preset.visible(for: soundFontId)
       } else {
         self.presets = []
       }
 
-      let grouping = self.optionalSearchText != nil ? PresetsList.noGroupingSize : PresetsList.groupingSize
-
-      if self.presets.isEmpty {
-        self.sections = .init(
-          uniqueElements: [
-            PresetsListSection.State(
-              section: 0,
-              presets: [],
-              symbolPrefix: starFavoriteNames ? symbolName : nil,
-              presetSource: presetSource,
-              activePresetId: activePresetId
-            )
-          ]
-        )
-      } else {
-        self.sections = .init(
-          uniqueElements: self.presets.indices.chunks(ofCount: grouping).map {
-            PresetsListSection.State(
-              section: $0.lowerBound,
-              presets: presets[$0],
-              symbolPrefix: starFavoriteNames ? symbolName : nil,
-              presetSource: presetSource,
-              activePresetId: activePresetId
-            )
-          }
-        )
-      }
-    }
-
-    public func sectionIndex(for id: Int) -> Int? { sections.index(id: id) }
-
-    public mutating func updateSection(_ id: Int, presetId: Preset.ID, displayName: String) {
-      guard let sectionIndex = sections.index(id: id) else {
-        fatalError("unexpected section indexing failure")
-      }
-      sections[sectionIndex].update(presetId: presetId, displayName: displayName)
+      self.sections = group(presets, presetSource: presetSource, activePresetId: activePresetId, searching: searchText != nil)
     }
   }
 
@@ -136,6 +96,7 @@ public struct PresetsList {
     case rowsUpdated([Preset])
     case searchTextChanged(String)
     case sections(IdentifiedActionOf<PresetsListSection>)
+    case sectionHeaderIndexTapped(String)
     case showPreset(Preset.ID)
     case showPresetNow(Preset.ID)
     case updateFetchAllQuery
@@ -143,7 +104,7 @@ public struct PresetsList {
     @CasePathable
     public enum Delegate {
       case activePresetIdChanged(Preset.ID?)
-      case edit(sectionId: Int, preset: Preset)
+      case edit(sectionId: PresetsListSection.State.ID, preset: Preset)
       case missingSoundFontDetected(SoundFont.ID)
     }
   }
@@ -152,8 +113,6 @@ public struct PresetsList {
   @Dependency(\.fileManager) var fileManager
 
   @Shared(.confirmPresetHiding) private var confirmPresetHiding
-  @Shared(.favoriteSymbolName) private var favoriteSymbolName
-  @Shared(.starFavoriteNames) private var starFavoriteNames
 
   public init() {}
 
@@ -207,6 +166,9 @@ public struct PresetsList {
       case let .sections(.element(id: sectionId, action: .delegate(action))):
         return processSectionAction(&state, sectionId: sectionId, action: action)
 
+      case .sectionHeaderIndexTapped(let title):
+        return sectionHeaderIndexTapped(&state, title: title)
+
       case .showPreset(let presetId):
         return showPreset(&state, presetId: presetId)
 
@@ -252,47 +214,30 @@ extension PresetsList {
     state.isSearchFieldPresented = false
     state.focusedField = nil
     state.scrollToPresetId = nil
-    generatePresetSections(&state)
-    return .send(.showPreset(state.activePresetId ?? -1))
+    return .merge(
+      generatePresetSections(&state),
+      showPreset(&state, presetId: state.activePresetId ?? state.presets[0].id)
+    )
   }
 
   @discardableResult
   private func generatePresetSections(_ state: inout State) -> Effect<Action> {
     log.debug("generatePresetSections BEGIN")
-    let grouping = state.optionalSearchText != nil ? Self.noGroupingSize : Self.groupingSize
 
-    var presets = state.presets
-    if let searchText = state.optionalSearchText {
-      presets = presets.filter {
-        $0.displayName.localizedCaseInsensitiveContains(searchText)
-      }
-    }
-
-    if presets.isEmpty {
-      state.sections = .init(
-        uniqueElements: [
-          PresetsListSection.State(
-            section: 0,
-            presets: [],
-            symbolPrefix: starFavoriteNames ? favoriteSymbolName : nil,
-            presetSource: state.presetSource,
-            activePresetId: state.activePresetId
-          )
-        ]
-      )
-    } else {
-      state.sections = .init(
-        uniqueElements: presets.indices.chunks(ofCount: grouping).map {
-          PresetsListSection.State(
-            section: $0.lowerBound,
-            presets: presets[$0],
-            symbolPrefix: starFavoriteNames ? favoriteSymbolName : nil,
-            presetSource: state.presetSource,
-            activePresetId: state.activePresetId
-          )
+    state.sections = group(
+      {
+        if let searchText = state.optionalSearchText {
+          state.presets.filter {
+            $0.displayName.localizedCaseInsensitiveContains(searchText)
+          }
+        } else {
+          state.presets
         }
-      )
-    }
+      }(),
+      presetSource: state.presetSource,
+      activePresetId: state.activePresetId,
+      searching: state.isSearchFieldPresented
+    )
 
     log.debug("generatePresetSections END")
     return .none
@@ -313,24 +258,21 @@ extension PresetsList {
     $confirmPresetHiding.withLock { $0 = false }
     var preset = preset
     preset.toggleVisibility()
-    return .none // generatePresetSections(&state).animation(.smooth)
+    return .none
   }
 
   private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {
-    log.debug("presetSourceChanged: \(String(describing: presetSource))")
-    if let presetSource,
-       presetSource.isActive {
-      let activePresetId = state.activePresetId ?? -1
-      state.scrollToPresetId = .init(presetId: activePresetId)
-    }
-
+    let presetId: Preset.ID? = (presetSource?.isActive ?? false) ? state.activePresetId : nil
     state.presetSource = presetSource
-    return updateFetchAllQuery(&state)
+    return .merge(
+      updateFetchAllQuery(&state),
+      showPreset(&state, presetId: presetId ?? Preset.ID(rawValue: Int64(PresetsList.searchGroupingSize)))
+    )
   }
 
   private func processSectionAction(
     _ state: inout State,
-    sectionId: Int,
+    sectionId: PresetsListSection.State.ID,
     action: PresetsListSection.Action.Delegate
   ) -> Effect<Action> {
     switch action {
@@ -350,9 +292,8 @@ extension PresetsList {
     case .editPreset(let preset):
       return .send(.delegate(.edit(sectionId: sectionId, preset: preset)))
 
-    case .headerTapped(scrollTo: let presetId):
-      state.scrollToPresetId = .init(presetId: presetId, anchor: .top)
-      return .none
+    case let .headerTapped(sectionId, count):
+      return sectionHeaderTapped(&state, sectionId: sectionId, count: count)
 
     case .hidePreset(let preset):
       return hidePreset(&state, preset: preset)
@@ -380,7 +321,30 @@ extension PresetsList {
     return .none
   }
 
-  private func selectPreset(_ state: inout State, preset: Preset, sectionId: Int) -> Effect<Action> {
+  private func sectionHeaderIndexTapped(_ state: inout State, title: String) -> Effect<Action> {
+//    if let section = state.sections.firstIndex(where: { $0.sectionText == title }) {
+//      state.scrollToView = .header(state.sections[section].id)
+//    }
+    return .none
+  }
+
+  private func sectionHeaderTapped(_ state: inout State, sectionId: PresetsListSection.State.ID, count: Int) -> Effect<Action> {
+    log.info("sectionHeaderTapped BEGIN - sectionId: \(sectionId), count: \(count)")
+    if count == 2 {
+      // Show the first item
+      return showPreset(&state, presetId: state.presets[0].id)
+    } else if count == 1 {
+      let group = sectionId.rawValue
+      if group > 0 {
+        let previousGroup = group - 1
+        let index = previousGroup * Self.groupingSize
+        return showPreset(&state, presetId: state.presets[index].id)
+      }
+    }
+    return .none
+  }
+
+  private func selectPreset(_ state: inout State, preset: Preset, sectionId: PresetsListSection.State.ID) -> Effect<Action> {
     guard let info = PresetLoadingInfo.for(id: preset.id) else { return .none }
     guard
       let kind = try? SoundFontKind(kind: info.kind, location: info.location, displayName: info.soundFontName),
@@ -409,12 +373,13 @@ extension PresetsList {
   }
 
   private func showPreset(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
-    // Delay scrolling to active preset in case the keyboard was shown. We hide the music keyboard when the text
-    // keyboard appears, and restoring it can cause it to obscure the active preset.
+    log.info("showPreset BEGIN - presetId: \(presetId)")
     return .run { send in
       @Dependency(\.continuousClock) var clock
       try await clock.sleep(for: Self.delayBeforeShowingActivePreset)
-      await send(.showPresetNow(presetId))
+      if !Task.isCancelled {
+        await send(.showPresetNow(presetId))
+      }
     }.cancellable(id: CancelId.presetsListShowPresetNow, cancelInFlight: true)
   }
 
@@ -464,6 +429,7 @@ public struct PresetsListView: View {
             )
           }
         }
+        // .overlay(sectionIndexTitles)
         .onChange(of: store.scrollToPresetId) {
           doScrollTo(proxy: proxy)
         }
@@ -480,6 +446,21 @@ public struct PresetsListView: View {
     .animation(.smooth, value: store.editingVisibility)
     .animation(.smooth, value: store.presets)
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
+  }
+
+  var sectionIndexTitles: some View {
+    VStack {
+      ForEach(store.sections.map(\.sectionText), id: \.self) { title in
+        Button {
+          store.send(.sectionHeaderIndexTapped(title))
+        } label: {
+          Text(title)
+            .font(.caption)
+        }
+      }
+    }
+    .frame(maxWidth: .infinity, alignment: .trailing)
+    .padding()
   }
 
   private var searchField: some View {
