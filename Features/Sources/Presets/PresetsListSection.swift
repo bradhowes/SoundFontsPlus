@@ -140,7 +140,7 @@ public struct PresetsListSectionView: View {
         store.send(.delegate(.headerTapped(section: store.id, count: 1)))
       }
     }
-    .id(store.sectionText)
+    .id(store.sectionIndex)
     .animation(.smooth, value: store.rows)
   }
 

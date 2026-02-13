@@ -317,7 +317,7 @@ extension PresetsList {
 
   private func sectionHeaderIndexTapped(_ state: inout State, title: String) -> Effect<Action> {
     log.info("sectionHeaderIndexTapped BEGIN - title: \(title)")
-    if let index = state.sections.firstIndex(where: { $0.sectionText == title }) {
+    if let index = state.sections.firstIndex(where: { $0.sectionIndex == title }) {
       log.info("sectionHeaderIndexTapped section index: \(index)")
       state.scrollToTarget = .section(title)
     }
@@ -409,6 +409,7 @@ extension PresetsList.Destination.State: _EphemeralState { public typealias Acti
 public struct PresetsListView: View {
   @Bindable private var store: StoreOf<PresetsList>
   @FocusState private var focusedField: PresetsList.State.Field?
+  @GestureState private var dragLocation: CGPoint = .zero
 
   public init(store: StoreOf<PresetsList>) {
     self.store = store
@@ -451,20 +452,40 @@ public struct PresetsListView: View {
     VStack(spacing: 0) {
         if store.sections.count > 2 {
           ForEach(store.sections.map(\.sectionIndex), id: \.self) { title in
-            Button {
-              store.send(.sectionHeaderIndexTapped(title))
-            } label: {
-              Text(title)
-                .font(.caption)
-                .padding([.leading, .trailing], 8)
-            }
-            .containerShape(Rectangle())
-            .clipShape(.rect)
+            Text(title)
+              .font(.caption)
+              .foregroundStyle(Color.gray)
+              .padding([.leading, .trailing], 8)
+              .containerShape(Rectangle())
+              .clipShape(.rect)
+              .background(dragObserver(title: title))
           }
         }
     }
-    .background(Color.black.mix(with: .white, by: 0.1))
+    .gesture(
+      DragGesture(minimumDistance: 0, coordinateSpace: .global)
+        .updating($dragLocation) { value, state, _ in
+          state = value.location
+        }
+    )
+    .padding([.top, .bottom], 8)
+    .background(Color.white.opacity(0.1), in: RoundedRectangle(cornerSize: .init(width: 12, height: 12), style: .continuous))
     .frame(maxWidth: .infinity, alignment: .trailing)
+  }
+
+  private func dragObserver(title: String) -> some View {
+    GeometryReader { geometry in
+      dragObserver(geometry: geometry, title: title)
+    }
+  }
+
+  private func dragObserver(geometry: GeometryProxy, title: String) -> some View {
+    if geometry.frame(in: .global).contains(dragLocation) {
+      DispatchQueue.main.async {
+        store.send(.sectionHeaderIndexTapped(title))
+      }
+    }
+    return Rectangle().fill(Color.clear)
   }
 
   private var searchField: some View {
