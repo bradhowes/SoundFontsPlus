@@ -16,6 +16,7 @@ public struct PresetsListSection {
     public let id: ID
     public let section: Int // 0 is first section, 1 second, etc.
     public let sectionText: String
+    public let sectionIndex: String
 
     public var rows: IdentifiedArrayOf<PresetButton.State>
     public var presetSource: PresetSource?
@@ -24,6 +25,7 @@ public struct PresetsListSection {
     public init(
       section: Int,
       sectionText: String,
+      sectionIndex: String,
       presets: ArraySlice<Preset>,
       presetSource: PresetSource?,
       activePresetId: Preset.ID?
@@ -35,6 +37,7 @@ public struct PresetsListSection {
       self.id = .init(rawValue: section)
       self.section = section
       self.sectionText = sectionText
+      self.sectionIndex = sectionIndex
       self.presetSource = presetSource
       self.activePresetId = activePresetId
       self.rows = .init(
@@ -129,7 +132,6 @@ public struct PresetsListSectionView: View {
     } header: {
       StyledHeader {
         sectionHeader
-          .id(store.id)
       }
       .onTapGesture(count: 2) {
         store.send(.delegate(.headerTapped(section: store.id, count: 2)))
@@ -138,6 +140,7 @@ public struct PresetsListSectionView: View {
         store.send(.delegate(.headerTapped(section: store.id, count: 1)))
       }
     }
+    .id(store.sectionText)
     .animation(.smooth, value: store.rows)
   }
 

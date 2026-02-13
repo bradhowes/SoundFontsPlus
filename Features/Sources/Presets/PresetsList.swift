@@ -27,15 +27,9 @@ public struct PresetsList {
     }
   }
 
-  public struct ScrollToTarget: Equatable {
-    public let presetId: Preset.ID
-    public let anchor: UnitPoint
-
-    public init?(presetId: Preset.ID?, anchor: UnitPoint = .center) {
-      guard let presetId = presetId else { return nil }
-      self.presetId = presetId
-      self.anchor = anchor
-    }
+  public enum ScrollToTarget: Equatable {
+    case preset(Preset.ID)
+    case section(String)
   }
 
   @ObservableState
@@ -47,7 +41,7 @@ public struct PresetsList {
     public var isSearchFieldPresented: Bool
     public var focusedField: Field?
     public var optionalSearchText: String? { isSearchFieldPresented ? searchText : nil }
-    public var scrollToPresetId: ScrollToTarget?
+    public var scrollToTarget: ScrollToTarget?
     public var presetSource: PresetSource?
     public var activePresetId: Preset.ID?
 
@@ -85,7 +79,7 @@ public struct PresetsList {
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case cancelSearchButtonTapped
-    case clearScrollToPresetId
+    case clearScrollToTarget
     case clearSearchTextField
     case deinitialize
     case delegate(Delegate)
@@ -128,8 +122,8 @@ public struct PresetsList {
       case .clearSearchTextField:
         return searchTextChanged(&state, searchText: "")
 
-      case .clearScrollToPresetId:
-        state.scrollToPresetId = nil
+      case .clearScrollToTarget:
+        state.scrollToTarget = nil
         return .none
 
       case .deinitialize:
@@ -173,7 +167,7 @@ public struct PresetsList {
         return showPreset(&state, presetId: presetId)
 
       case .showPresetNow(let presetId):
-        state.scrollToPresetId = .init(presetId: presetId)
+        state.scrollToTarget = .preset(presetId)
         return .none
 
       case .updateFetchAllQuery:
@@ -213,7 +207,7 @@ extension PresetsList {
   private func dismissSearch(_ state: inout State) -> Effect<Action> {
     state.isSearchFieldPresented = false
     state.focusedField = nil
-    state.scrollToPresetId = nil
+    state.scrollToTarget = nil
     return .merge(
       generatePresetSections(&state),
       showPreset(&state, presetId: state.activePresetId ?? state.presets[0].id)
@@ -309,7 +303,7 @@ extension PresetsList {
   private func searchButtonTapped(_ state: inout State) -> Effect<Action> {
     state.isSearchFieldPresented = true
     state.focusedField = .searchText
-    state.scrollToPresetId = nil
+    state.scrollToTarget = nil
     return generatePresetSections(&state)
   }
 
@@ -322,9 +316,11 @@ extension PresetsList {
   }
 
   private func sectionHeaderIndexTapped(_ state: inout State, title: String) -> Effect<Action> {
-//    if let section = state.sections.firstIndex(where: { $0.sectionText == title }) {
-//      state.scrollToView = .header(state.sections[section].id)
-//    }
+    log.info("sectionHeaderIndexTapped BEGIN - title: \(title)")
+    if let index = state.sections.firstIndex(where: { $0.sectionText == title }) {
+      log.info("sectionHeaderIndexTapped section index: \(index)")
+      state.scrollToTarget = .section(title)
+    }
     return .none
   }
 
@@ -334,11 +330,14 @@ extension PresetsList {
       // Show the first item
       return showPreset(&state, presetId: state.presets[0].id)
     } else if count == 1 {
+      @Shared(.sortPresetsByName) var sortPresetsByName
+      if !sortPresetsByName {
       let group = sectionId.rawValue
-      if group > 0 {
-        let previousGroup = group - 1
-        let index = previousGroup * Self.groupingSize
-        return showPreset(&state, presetId: state.presets[index].id)
+        if group > 0 {
+          let previousGroup = group - 1
+          let index = previousGroup * Self.groupingSize
+          return showPreset(&state, presetId: state.presets[index].id)
+        }
       }
     }
     return .none
@@ -429,8 +428,8 @@ public struct PresetsListView: View {
             )
           }
         }
-        // .overlay(sectionIndexTitles)
-        .onChange(of: store.scrollToPresetId) {
+        .overlay(sectionIndexTitles)
+        .onChange(of: store.scrollToTarget) {
           doScrollTo(proxy: proxy)
         }
       }
@@ -449,18 +448,23 @@ public struct PresetsListView: View {
   }
 
   var sectionIndexTitles: some View {
-    VStack {
-      ForEach(store.sections.map(\.sectionText), id: \.self) { title in
-        Button {
-          store.send(.sectionHeaderIndexTapped(title))
-        } label: {
-          Text(title)
-            .font(.caption)
+    VStack(spacing: 0) {
+        if store.sections.count > 2 {
+          ForEach(store.sections.map(\.sectionIndex), id: \.self) { title in
+            Button {
+              store.send(.sectionHeaderIndexTapped(title))
+            } label: {
+              Text(title)
+                .font(.caption)
+                .padding([.leading, .trailing], 8)
+            }
+            .containerShape(Rectangle())
+            .clipShape(.rect)
+          }
         }
-      }
     }
+    .background(Color.black.mix(with: .white, by: 0.1))
     .frame(maxWidth: .infinity, alignment: .trailing)
-    .padding()
   }
 
   private var searchField: some View {
@@ -490,12 +494,19 @@ public struct PresetsListView: View {
   }
 
   private func doScrollTo(proxy: ScrollViewProxy) {
-    if let value = store.scrollToPresetId {
-      log.info("doScrollTo - newValue: \(value.presetId)")
-      withAnimation {
-        proxy.scrollTo(value.presetId) // , anchor: value.anchor)
-        store.send(.clearScrollToPresetId)
+    if let value = store.scrollToTarget {
+      switch value {
+      case .preset(let presetId):
+        withAnimation {
+          proxy.scrollTo(presetId)
+        }
+
+      case .section(let sectionId):
+        withAnimation {
+          proxy.scrollTo(sectionId, anchor: .top)
+        }
       }
+      store.send(.clearScrollToTarget)
     }
   }
 }

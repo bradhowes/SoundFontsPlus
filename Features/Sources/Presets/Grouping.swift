@@ -48,6 +48,7 @@ public func groupByCount(
         PresetsListSection.State(
           section: 0,
           sectionText: searching ? "Found 0" : "Presets",
+          sectionIndex: "",
           presets: [],
           presetSource: presetSource,
           activePresetId: activePresetId
@@ -68,6 +69,7 @@ public func groupByCount(
               "\($0.lowerBound)"
             }
           }($0),
+          sectionIndex: numericSectionIndex(from: $0.lowerBound / count),
           presets: presets[$0],
           presetSource: presetSource,
           activePresetId: activePresetId
@@ -75,6 +77,15 @@ public func groupByCount(
       }
     )
   }
+}
+
+private func numericSectionIndex(from section: Int) -> String {
+  "\(section * PresetsList.groupingSize)"
+}
+
+private func alphabeticSectionIndex(from section: Int, sectionText: String) -> String {
+  // swiftlint:disable:next force_unwrapping
+  section == 0 ? "#" : "\(sectionText.first!)"
 }
 
 public func groupByName(
@@ -85,12 +96,18 @@ public func groupByName(
   @Shared(.favoriteSymbolName) var symbolName
   @Shared(.starFavoriteNames) var starFavoriteNames
 
+  func groupingKey(for displayName: String) -> String {
+    let first = displayName.uppercased().first ?? "#"
+    return first.isLetter ? "\(first)" : "#"
+  }
+
   if presets.isEmpty {
     return .init(
       uniqueElements: [
         PresetsListSection.State(
           section: 0,
           sectionText: "Presets",
+          sectionIndex: "",
           presets: [],
           presetSource: presetSource,
           activePresetId: activePresetId
@@ -98,12 +115,13 @@ public func groupByName(
       ]
     )
   } else {
-    let dict = presets.grouped { preset in preset.displayName.uppercased().first ?? " " }
+    let dict = presets.grouped { groupingKey(for: $0.displayName) }
     return .init(
       uniqueElements: dict.sorted(by: {$0.0 < $1.0}).enumerated().map {
         PresetsListSection.State(
           section: $0.0,
           sectionText: "\($0.1.0)",
+          sectionIndex: alphabeticSectionIndex(from: $0.0, sectionText: "\($0.1.0)"),
           presets: $0.1.1[...],
           presetSource: presetSource,
           activePresetId: activePresetId
