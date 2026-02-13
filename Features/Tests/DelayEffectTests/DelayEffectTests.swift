@@ -89,10 +89,13 @@ struct DelayEffectTests {
 
   @Test(
     .dependencies {
-      $0.continuousClock = ImmediateClock()
+      $0.continuousClock = TestClock()
     }
   )
   func wetDryMix() async throws {
+    @Dependency(\.continuousClock) var clock
+    let testClock = clock as! TestClock<Duration>
+
     let store = store()
 
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
@@ -129,6 +132,8 @@ struct DelayEffectTests {
         }
 
         await store.receive(\.wetDryMix)
+
+        await testClock.advance(by: .milliseconds(200)) // FIXME
         await store.receive(\.updateDebounced)
 
         let config2 = DelayConfig.Draft(
