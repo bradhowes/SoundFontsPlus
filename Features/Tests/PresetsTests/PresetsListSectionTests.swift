@@ -21,9 +21,12 @@ struct PresetsListSectionTests {
     let presets = Preset.visible(for: 1)
     let store = TestStore(
       initialState: PresetsListSection.State(
-        section: 40,
+        section: 4,
+        sectionText: "Blah",
+        sectionIndex: "B",
         presets: presets[...],
-        symbolPrefix: "star.circle.fill"
+        presetSource: nil,
+        activePresetId: nil
       )
     ) {
       PresetsListSection()

@@ -5,18 +5,26 @@ import IdentifiedCollections
 import Models
 import Sharing
 
-public func group(
+/**
+ Bundle collection of presets into one or more sections. Honors the `sortPresetsByName` setting as well as if searching is in
+ effect.
+
+ - parameter presets: the presets to bundle
+ - parameter presetSource: the current preset source
+ - parameter activePresetId: the current active preset ID
+ - parameter searching: true if in search mode
+ - returns: IdentifiedArray of PresetListSection.State entities referencing the presets
+ */
+internal func group(
   _ presets: [Preset],
   presetSource: PresetSource?,
   activePresetId: Preset.ID?,
   searching: Bool
 ) -> IdentifiedArrayOf<PresetsListSection.State> {
-
   let grouping = searching ? PresetsList.searchGroupingSize : PresetsList.groupingSize
-
   @Shared(.sortPresetsByName) var sortPresetsByName
-  if searching || !sortPresetsByName {
-    return groupByCount(
+  return if searching || !sortPresetsByName {
+    groupByCount(
       presets,
       count: grouping,
       presetSource: presetSource,
@@ -24,7 +32,7 @@ public func group(
       searching: searching
     )
   } else {
-    return groupByName(
+    groupByName(
       presets,
       presetSource: presetSource,
       activePresetId: activePresetId
@@ -32,29 +40,30 @@ public func group(
   }
 }
 
-public func groupByCount(
+private func emptySection(title: String) -> IdentifiedArrayOf<PresetsListSection.State> {
+  .init(
+    uniqueElements: [
+      PresetsListSection.State(
+        section: 0,
+        sectionText: title,
+        sectionIndex: "",
+        presets: [],
+        presetSource: nil,
+        activePresetId: nil
+      )
+    ]
+  )
+}
+
+private func groupByCount(
   _ presets: [Preset],
   count: Int,
   presetSource: PresetSource?,
   activePresetId: Preset.ID?,
   searching: Bool
 ) -> IdentifiedArrayOf<PresetsListSection.State> {
-  @Shared(.favoriteSymbolName) var symbolName
-  @Shared(.starFavoriteNames) var starFavoriteNames
-
-  return if presets.isEmpty {
-    .init(
-      uniqueElements: [
-        PresetsListSection.State(
-          section: 0,
-          sectionText: searching ? "Found 0" : "Presets",
-          sectionIndex: "",
-          presets: [],
-          presetSource: presetSource,
-          activePresetId: activePresetId
-        )
-      ]
-    )
+  if presets.isEmpty {
+    emptySection(title: searching ? "Found 0" : "Presets")
   } else {
     .init(
       uniqueElements: presets.indices.chunks(ofCount: count).map {
@@ -88,36 +97,21 @@ private func alphabeticSectionIndex(from section: Int, sectionText: String) -> S
   section == 0 ? "#" : "\(sectionText.first!)"
 }
 
-public func groupByName(
+private func groupingKey(for displayName: String) -> String {
+  let first = displayName.uppercased().first ?? "#"
+  return first.isLetter ? "\(first)" : "#"
+}
+
+private func groupByName(
   _ presets: [Preset],
   presetSource: PresetSource?,
   activePresetId: Preset.ID?,
 ) -> IdentifiedArrayOf<PresetsListSection.State> {
-  @Shared(.favoriteSymbolName) var symbolName
-  @Shared(.starFavoriteNames) var starFavoriteNames
-
-  func groupingKey(for displayName: String) -> String {
-    let first = displayName.uppercased().first ?? "#"
-    return first.isLetter ? "\(first)" : "#"
-  }
-
   if presets.isEmpty {
-    return .init(
-      uniqueElements: [
-        PresetsListSection.State(
-          section: 0,
-          sectionText: "Presets",
-          sectionIndex: "",
-          presets: [],
-          presetSource: presetSource,
-          activePresetId: activePresetId
-        )
-      ]
-    )
+    emptySection(title: "Presets")
   } else {
-    let dict = presets.grouped { groupingKey(for: $0.displayName) }
-    return .init(
-      uniqueElements: dict.sorted(by: {$0.0 < $1.0}).enumerated().map {
+    .init(
+      uniqueElements: presets.grouped { groupingKey(for: $0.displayName) }.sorted(by: {$0.0 < $1.0}).enumerated().map {
         PresetsListSection.State(
           section: $0.0,
           sectionText: "\($0.1.0)",

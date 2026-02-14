@@ -85,9 +85,7 @@ struct AppRootTests {
       $0.toastState = .noActivePreset
     }
 
-    await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1)) {
-      $0.presetsList.scrollToPresetId = .init(presetId: 1, anchor: .init(x: 0.5, y: 0.5))
-    }
+    await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1))
 
     await store.receive(\.volumeMonitor.delegate.reasonChanged, .none) {
       $0.keyboard.muted = false
@@ -95,6 +93,10 @@ struct AppRootTests {
     }
 
     await store.receive(\.presetsList.rowsUpdated, Preset.visible(for: 1))
+
+    await store.receive(\.presetsList.showPresetNow, 1) {
+      $0.presetsList.scrollToTarget = .preset(1)
+    }
 
     await store.receive(\.synth.lastPresetLoadFinished, timeout: .seconds(10)) {
       $0.synth.firstTimePresetLoaded = false
@@ -289,11 +291,17 @@ struct AppRootTests {
       await store.send(
         \.presetsList.delegate,
          .edit(
-          sectionId: section.sectionId,
+          sectionId: section.id,
           preset: preset
          )
       ) {
-        $0.destination = .presetEditor(.init(sectionId: section.sectionId, preset: preset, isActive: true))
+        $0.destination = .presetEditor(
+          .init(
+            sectionId: section.id,
+            preset: preset,
+            isActive: true
+          )
+        )
       }
 
       await store.send(\.destination.dismiss) {
@@ -313,7 +321,7 @@ struct AppRootTests {
       }
       await store.send(\.destination.dismiss) {
         $0.destination = nil
-        $0.presetsList.scrollToPresetId = .init(presetId: 1)
+        $0.presetsList.scrollToTarget = .preset(1)
       }
       await store.receive(\.presetsList.rowsUpdated, Preset.visible(for: 1))
     }
@@ -396,6 +404,7 @@ struct AppRootTests {
       await store.send(\.toolBar.delegate.presetNameTapped)
       await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1), timeout: .seconds(30))
       await store.receive(\.presetsList.rowsUpdated, Preset.visible(for: 1))
+      await store.receive(\.presetsList.showPresetNow, 1)
     }
   }
 

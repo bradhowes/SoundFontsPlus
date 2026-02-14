@@ -11,6 +11,7 @@ import TestSupport
 @Suite(
   .dependencies {
     $0.defaultDatabase = TestSupport.testDatabase()
+    $0.continuousClock = TestClock()
   },
   //  .snapshots(record: .failed)
 )
@@ -57,17 +58,7 @@ struct PresetsListTests {
   func initialized(_ closure: (TestStoreOf<PresetsList>) async throws -> Void) async throws {
     let store = try setup()
 
-    await store.send(.presetSourceChanged(.active(1))) {
-      $0.sections = [
-        .init(
-          section: 0,
-          presets: presets[...],
-          symbolPrefix: "star.circle.fill",
-          presetSource: .active(1)
-        )]
-      $0.scrollToPresetId = .init(presetId: Preset.ID(rawValue: -1), anchor: .center)
-    }
-
+    await store.send(.presetSourceChanged(.active(1)))
     await store.receive(\.rowsUpdated, Preset.visible(for: 1))
 
     try await closure(store)
@@ -83,6 +74,8 @@ struct PresetsListTests {
     await store.send(.presetSourceChanged(nil))
     #expect(store.state.sections.count == 1)
 
+    await store.receive(\.rowsUpdated, [])
+
     await store.send(.deinitialize)
     await store.finish()
   }
@@ -91,9 +84,8 @@ struct PresetsListTests {
   func initializeWithSoundFontId() async throws {
     let store = try setup()
 
-    await store.send(.presetSourceChanged(.active(1))) {
-      $0.scrollToPresetId = .init(presetId: -1, anchor: .init(x: 0.5, y: 0.5))
-    }
+    await store.send(.presetSourceChanged(.active(1)))
+    await store.receive(\.rowsUpdated, Preset.visible(for: 1))
 
     await store.send(.deinitialize)
     await store.finish()
@@ -110,8 +102,9 @@ struct PresetsListTests {
         $0.sections = [
           .init(
             section: 0,
+            sectionText: "Presets",
+            sectionIndex: "0",
             presets: Preset.visible(for: 2)[...],
-            symbolPrefix: "star.circle.fill",
             presetSource: .active(2)
           )
         ]
@@ -122,24 +115,30 @@ struct PresetsListTests {
   @Test
   func clearScrollTo() async throws {
     try await initialized { store in
-      await store.send(\.clearScrollToPresetId) {
-        $0.scrollToPresetId = nil
-      }
+      await store.send(\.clearScrollToTarget)
     }
   }
 
   @Test(
     .dependencies {
-      $0.continuousClock = TestClock()
+      $0.defaultDatabase = try! appDatabase(fonts: [.fluidFont], loadAllPresets: true)
     }
   )
   func searchPresets() async throws {
     @Dependency(\.continuousClock) var clock
-    let testClock = clock as! TestClock<Duration>
+    // let testClock = clock as! TestClock<Duration>
     try await initialized { store in
-      await store.send(\.sections, .element(id: 10_000, action: .delegate(.searchButtonTapped))) {
-        $0.scrollToPresetId = nil
-        $0.sections = [.init(section: 0, presets: [], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
+      await store.send(\.sections, .element(id: 0, action: .delegate(.searchButtonTapped))) {
+        $0.scrollToTarget = nil
+        $0.sections = [
+          .init(
+            section: 0,
+            sectionText: "Found 0",
+            sectionIndex: "",
+            presets: [],
+            presetSource: nil
+          )
+        ]
         $0.isSearchFieldPresented = true
         $0.focusedField = .searchText
       }
@@ -149,8 +148,9 @@ struct PresetsListTests {
         $0.sections = [
           .init(
             section: 0,
+            sectionText: "Found 3",
+            sectionIndex: "0",
             presets: presets.filter({$0.displayName.contains("arp")})[...],
-            symbolPrefix: "star.circle.fill",
             presetSource: .active(1)
           )
         ]
@@ -158,76 +158,81 @@ struct PresetsListTests {
 
       await store.send(.clearSearchTextField) {
         $0.searchText = ""
-        $0.sections = [.init(section: 0, presets: [], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
+        $0.sections = [
+          .init(
+            section: 0,
+            sectionText: "Found 0",
+            sectionIndex: "",
+            presets: [],
+            presetSource: nil
+          )
+        ]
       }
 
       await store.send(.cancelSearchButtonTapped) {
         $0.isSearchFieldPresented = false
         $0.focusedField = nil
-        $0.sections = [
-          .init(
-            section: 0,
-            presets: presets[...],
-            symbolPrefix: "star.circle.fill",
-            presetSource: .active(1)
-          )]
-      }
-
-      await store.receive(\.showPreset, -1)
-
-      await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
-
-      await store.receive(\.showPresetNow, -1) {
-        $0.scrollToPresetId = .init(presetId: -1, anchor: .init(x: 0.5, y: 0.5))
+        $0.presets = Preset.visible(for: 1)
+        $0.sections = group(Preset.visible(for: 1), presetSource: .active(1), activePresetId: nil, searching: false)
       }
     }
   }
 
   @Test(
     .dependencies {
-      $0.continuousClock = TestClock()
+      $0.defaultDatabase = try! appDatabase(fonts: [.fluidFont], loadAllPresets: true)
       $0.fileManager = .liveValue
     }
   )
   func selectFromSearch() async throws {
     @Dependency(\.continuousClock) var clock
     try await initialized { store in
-
-      await store.send(\.sections, .element(id: PresetsList.noGroupingSize, action: .delegate(.searchButtonTapped))) {
-        $0.sections = [.init(section: 0, presets: [], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
-        $0.isSearchFieldPresented = true
-        $0.focusedField = .searchText
-        $0.scrollToPresetId = nil
-      }
-
-      await store.send(.searchTextChanged("reset")) {
-        $0.searchText = "reset"
+      await store.send(\.sections, .element(id: 0, action: .delegate(.searchButtonTapped))) {
+        $0.scrollToTarget = nil
         $0.sections = [
           .init(
             section: 0,
-            presets: presets.filter({$0.displayName.contains("reset")})[...],
-            symbolPrefix: "star.circle.fill",
+            sectionText: "Found 0",
+            sectionIndex: "",
+            presets: [],
+            presetSource: nil
+          )
+        ]
+        $0.isSearchFieldPresented = true
+        $0.focusedField = .searchText
+      }
+
+      await store.send(.searchTextChanged("arp")) {
+        $0.searchText = "arp"
+        $0.sections = [
+          .init(
+            section: 0,
+            sectionText: "Found 3",
+            sectionIndex: "0",
+            presets: presets.filter({$0.displayName.contains("arp")})[...],
             presetSource: .active(1)
           )
         ]
       }
 
+      let preset = store.state.sections[0].rows[0].preset
+
       await store.send(
         \.sections,
          .element(
-          id: PresetsList.noGroupingSize,
-          action: .rows(.element(id: 1, action: .delegate(.selectPreset(presets[0]))))
+          id: 0,
+          action: .rows(.element(id: preset.id, action: .delegate(.selectPreset(preset))))
          )
       ) {
         $0.sections[0].presetSource = .active(1)
-        $0.sections[0].activePresetId = 1
+        $0.sections[0].activePresetId = 7
       }
 
-      await store.receive(\.sections[id: PresetsList.noGroupingSize].delegate.selectPreset) {
-        $0.activePresetId = 1
+      await store.receive(\.sections[id: 0].delegate.selectPreset) {
+        $0.activePresetId = 7
       }
 
-      await store.receive(\.delegate.activePresetIdChanged, 1)
+      await store.receive(\.delegate.activePresetIdChanged, 7)
     }
   }
 
@@ -245,8 +250,9 @@ struct PresetsListTests {
         $0.sections = [
           .init(
             section: 0,
+            sectionText: "Presets",
+            sectionIndex: "0",
             presets: presets[...],
-            symbolPrefix: "star.circle.fill",
             presetSource: .selected(2)
           )
         ]
@@ -325,7 +331,13 @@ struct PresetsListTests {
       await store.receive(\.rowsUpdated, presets) {
         $0.presets = presets
         $0.sections = [
-          .init(section: 0, presets: presets[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))
+          .init(
+            section: 0,
+            sectionText: "Presets",
+            sectionIndex: "0",
+            presets: presets[...],
+            presetSource: .active(1)
+          )
         ]
       }
 
@@ -335,7 +347,7 @@ struct PresetsListTests {
       await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
 
       await store.receive(\.showPresetNow, 13) {
-        $0.scrollToPresetId = .init(presetId: 13)
+        $0.scrollToTarget = .preset(13)
       }
 
       await store.send(
@@ -389,7 +401,13 @@ struct PresetsListTests {
       await store.receive(\.rowsUpdated, presets) {
         $0.presets = presets
         $0.sections = [
-          .init(section: 0, presets: presets[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))
+          .init(
+            section: 0,
+            sectionText: "Presets",
+            sectionIndex: "0",
+            presets: presets[...],
+            presetSource: .active(1)
+          )
         ]
       }
 
@@ -399,7 +417,7 @@ struct PresetsListTests {
       await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
 
       await store.receive(\.showPresetNow, 13) {
-        $0.scrollToPresetId = .init(presetId: 13)
+        $0.scrollToTarget = .preset(13)
       }
 
       await store.send(
@@ -426,7 +444,13 @@ struct PresetsListTests {
       await store.receive(\.rowsUpdated, presets) {
         $0.presets = presets
         $0.sections = [
-          .init(section: 0, presets: presets[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))
+          .init(
+            section: 0,
+            sectionText: "Presets",
+            sectionIndex: "0",
+            presets: presets[...],
+            presetSource: .active(1)
+          )
         ]
       }
 
@@ -520,14 +544,28 @@ struct PresetsListTests {
 
       await store.send(.destination(.presented(.alert(.hidePresetConfirmed(presets[1]))))) {
         $0.destination = nil
-        $0.sections = [.init(section: 0, presets: updated[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
+        $0.sections = [
+          .init(
+            section: 0,
+            sectionText: "Presets",
+            sectionIndex: "0",
+            presets: updated[...],
+            presetSource: .active(1)
+          )
+        ]
       }
 
       updated.remove(atOffsets: [1])
       await store.receive(\.rowsUpdated, updated) {
         $0.presets = updated
         $0.sections = [
-          .init(section: 0, presets: updated[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))
+          .init(
+            section: 0,
+            sectionText: "Presets",
+            sectionIndex: "0",
+            presets: updated[...],
+            presetSource: .active(1)
+          )
         ]
       }
 
@@ -542,7 +580,7 @@ struct PresetsListTests {
     let store = try setup()
 
     await store.send(.editingVisibilityChanged(true)) {
-      $0.scrollToPresetId = nil
+      $0.scrollToTarget = nil
       $0.editingVisibility = true
     }
 
@@ -550,18 +588,34 @@ struct PresetsListTests {
 
     await store.receive(\.rowsUpdated) {
       $0.presets = all
-      $0.sections = [.init(section: 0, presets: all[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
+      $0.sections = [
+        .init(
+          section: 0,
+          sectionText: "Presets",
+          sectionIndex: "0",
+          presets: all[...],
+          presetSource: .active(1)
+        )
+      ]
     }
 
     let visible = Preset.visible(for: 1)
     await store.send(.editingVisibilityChanged(false)) {
-      $0.scrollToPresetId = nil
+      $0.scrollToTarget = nil
       $0.editingVisibility = false
     }
 
     await store.receive(\.rowsUpdated) {
       $0.presets = visible
-      $0.sections = [.init(section: 0, presets: visible[...], symbolPrefix: "star.circle.fill", presetSource: .active(1))]
+      $0.sections = [
+        .init(
+          section: 0,
+          sectionText: "Presets",
+          sectionIndex: "0",
+          presets: visible[...],
+          presetSource: .active(1)
+        )
+      ]
     }
 
     await store.send(.deinitialize)

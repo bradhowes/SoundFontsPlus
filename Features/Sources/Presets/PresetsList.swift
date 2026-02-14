@@ -429,7 +429,9 @@ public struct PresetsListView: View {
             )
           }
         }
-        .overlay(sectionIndexTitles)
+        .overlay(alignment: .trailing) {
+          sectionIndexTitlesOverlay
+        }
         .onChange(of: store.scrollToTarget) {
           doScrollTo(proxy: proxy)
         }
@@ -448,19 +450,29 @@ public struct PresetsListView: View {
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
 
-  var sectionIndexTitles: some View {
-    VStack(spacing: 0) {
-        if store.sections.count > 2 {
-          ForEach(store.sections.map(\.sectionIndex), id: \.self) { title in
-            Text(title)
-              .font(.caption)
-              .foregroundStyle(Color.gray)
-              .padding([.leading, .trailing], 8)
-              .containerShape(Rectangle())
-              .clipShape(.rect)
-              .background(dragObserver(title: title))
-          }
+  private var sectionIndexTitlesOverlay: some View {
+    VStack {
+      ViewThatFits(in: [.vertical]) {
+        ForEach(1...4, id: \.self) { stride in
+          sectionIndexTitles(stride: stride)
         }
+      }
+    }
+  }
+
+  private func sectionIndexTitles(stride: Int) -> some View {
+    VStack(spacing: 0) {
+      if store.sections.count > 2 {
+        ForEach(store.sections.map(\.sectionIndex).striding(by: stride), id: \.self) { title in
+          Text(title)
+            .font(.caption)
+            .foregroundStyle(Color.gray)
+            .padding([.leading, .trailing], 8)
+            .containerShape(Rectangle())
+            .clipShape(.rect)
+            .background(dragObserver(title: title))
+        }
+      }
     }
     .gesture(
       DragGesture(minimumDistance: 0, coordinateSpace: .global)
@@ -542,6 +554,7 @@ extension PresetsListView {
     prepareDependencies {
       installApplicationFont()
       $0.defaultDatabase = previewDatabase()
+      @Shared(.sortPresetsByName) var sortPresetsByName = true
     }
     let soundFontId: SoundFont.ID = 1
     return VStack {

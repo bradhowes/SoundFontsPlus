@@ -199,6 +199,14 @@ struct SoundFontsListTests {
 
       #expect(store.state.activePresetSource == nil)
       #expect(store.state.selectedPresetSource == nil)
+
+      let rows = withDatabaseReader { db in
+        try SoundFontInfo.query(for: store.state.activeTagId).fetchAll(db)
+      } ?? []
+
+      await store.receive(\.rowsUpdated, rows) {
+        $0.rows = oldRows
+      }
     }
   }
 
@@ -267,6 +275,14 @@ struct SoundFontsListTests {
       #expect(deleted?.soundFontInfo.displayName == "Font 3")
 
       #expect(removeLog.log.isEmpty)
+
+      let rows = withDatabaseReader { db in
+        try SoundFontInfo.query(for: store.state.activeTagId).fetchAll(db)
+      } ?? []
+
+      await store.receive(\.rowsUpdated, rows) {
+        $0.rows = oldRows
+      }
     }
   }
 
@@ -288,6 +304,14 @@ struct SoundFontsListTests {
       let deleted = oldRows.remove(id: row.id)
       #expect(deleted != nil)
       #expect(deleted?.soundFontInfo.displayName == "Font 4")
+
+      let rows = withDatabaseReader { db in
+        try SoundFontInfo.query(for: store.state.activeTagId).fetchAll(db)
+      } ?? []
+
+      await store.receive(\.rowsUpdated, rows) {
+        $0.rows = oldRows
+      }
     }
   }
 

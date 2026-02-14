@@ -27,8 +27,8 @@ public struct PresetsListSection {
       sectionText: String,
       sectionIndex: String,
       presets: ArraySlice<Preset>,
-      presetSource: PresetSource?,
-      activePresetId: Preset.ID?
+      presetSource: PresetSource? = nil,
+      activePresetId: Preset.ID? = nil
     ) {
       @Shared(.favoriteSymbolName) var symbolName
       @Shared(.starFavoriteNames) var starFavoriteNames
@@ -153,17 +153,25 @@ public struct PresetsListSectionView: View {
       Button {
         store.send(.delegate(.searchButtonTapped))
       } label: {
-        Image(systemName: "magnifyingglass")
-          .imageScale(.small)
-          .contentShape(Rectangle())
+        HStack {
+          Image(systemName: "magnifyingglass")
+            .imageScale(.small)
+            .contentShape(Rectangle())
+          // Here to keep from overlapping the section index overlay from the parent view
+          Color.clear
+            .frame(width: 16)
+        }
       }
       .opacity((showSearchButton || store.section == 0) && !searching && !editingVisibility ? 1.0 : 0.0)
+      .animation(.smooth, value: showSearchButton)
     }
     // Track vertical position of our header -- when it becomes pinned, show the search button
     .onGeometryChange(for: Double.self) {
       $0.frame(in: .global).origin.y
     } action: {
-      showSearchButton = $0 < 94.0
+      // !!! Magic constant hack to signal if section header should have the search button. This works ok except on iPhone in
+      // landscape mode. Better to rely on some signal that the previous section header is going away.
+      showSearchButton = $0 < 74.0
     }
   }
 
@@ -200,7 +208,7 @@ public struct ViewOffsetKey: PreferenceKey {
 #if DEBUG
 
 #Preview {
-  PresetsListView.previewEditing
+  PresetsListView.preview
 }
 
 #endif // DEBUG
