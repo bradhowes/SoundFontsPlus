@@ -62,7 +62,7 @@ public struct IndicatorModifier: ViewModifier {
   public func body(content: Content) -> some View {
     ZStack(alignment: .leading) {
       Rectangle()
-        .fill(state.indicatorGradient(colorScheme: colorScheme))
+        .fill(state.indicatorColor(colorScheme: colorScheme))
         .frame(width: indicatorWidth)
         .cornerRadius(cornerRadius)
         .offset(x: offset)

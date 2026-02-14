@@ -15,6 +15,7 @@ import TestSupport
   .dependencies {
     $0.defaultDatabase = TestSupport.testDatabase()
     $0.mainQueue = .immediate
+    $0.continuousClock = .immediate
     $0.debounceDurations = .testValue
   },
   .snapshots(record: .failed)
@@ -46,13 +47,13 @@ struct DelayEffectTests {
     #expect(store.state.wetDryMix.value.isApproximatelyEqual(to: 50.0))
   }
 
-  @Test(
-    .dependencies {
-      $0.continuousClock = ImmediateClock()
-    }
-  )
+  @Test
   func enabledToggled() async throws {
+    @Dependency(\.mainQueue) var mainQueue
+    @Dependency(\.debounceDurations) var debounceDurations
+
     let store = store()
+
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
 
       await store.send(\.activePresetIdChanged, 1)
@@ -66,6 +67,7 @@ struct DelayEffectTests {
         $0.dirty = true
       }
 
+      try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
       await store.receive(\.updateDebounced)
 
       let config = DelayConfig.Draft(
@@ -77,6 +79,7 @@ struct DelayEffectTests {
         presetId: -1
       )
 
+      try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
       await store.receive(\.saveDebounced) {
         $0.config = config
         $0.dirty = false
@@ -87,14 +90,10 @@ struct DelayEffectTests {
     #expect(await device.getTimesChanged() == 2)
   }
 
-  @Test(
-    .dependencies {
-      $0.continuousClock = TestClock()
-    }
-  )
+  @Test
   func wetDryMix() async throws {
-    @Dependency(\.continuousClock) var clock
-    let testClock = clock as! TestClock<Duration>
+    @Dependency(\.mainQueue) var mainQueue
+    @Dependency(\.debounceDurations) var debounceDurations
 
     let store = store()
 
@@ -110,6 +109,7 @@ struct DelayEffectTests {
         $0.dirty = true
       }
 
+      try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
       await store.receive(\.updateDebounced)
 
       let config = DelayConfig.Draft(
@@ -121,6 +121,7 @@ struct DelayEffectTests {
         presetId: store.state.config.presetId
       )
 
+      try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
       await store.receive(\.saveDebounced) {
         $0.config = config
         $0.dirty = false
@@ -133,7 +134,7 @@ struct DelayEffectTests {
 
         await store.receive(\.wetDryMix)
 
-        await testClock.advance(by: .milliseconds(200)) // FIXME
+        try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
         await store.receive(\.updateDebounced)
 
         let config2 = DelayConfig.Draft(
@@ -145,6 +146,7 @@ struct DelayEffectTests {
           presetId: store.state.config.presetId
         )
 
+        try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
         await store.receive(\.saveDebounced) {
           $0.config = config2
           $0.dirty = false
@@ -157,8 +159,7 @@ struct DelayEffectTests {
   }
 
   @Test(
-    .dependencies {
-      $0.continuousClock = ImmediateClock()
+    .dependencies { _ in
       @Shared(.delayLockEnabled) var locked = true
     }
   )

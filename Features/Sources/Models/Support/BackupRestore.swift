@@ -65,12 +65,6 @@ public enum BackupManager {
     } catch {
       log.error("createDirectory on 'FontFiles' failed - \(error.localizedDescription, privacy: .public)")
     }
-
-    // @Shared(.activeState) var activeState
-    // $activeState.withLock { $0 = .default }
-
-    @Shared(.selectedSoundFontId) var selectedSoundFontId
-    $selectedSoundFontId.withLock { $0 = nil }
   }
 
   // swiftlint:disable:next function_body_length

@@ -31,6 +31,7 @@ extension DelayDevice: DependencyKey {
     )
   }
 
+  // TODO: use mocks for these to speed up tests
   public static let previewValue: DelayDevice = Self.liveValue
   public static let testValue: DelayDevice = Self.liveValue
 }

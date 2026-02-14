@@ -17,10 +17,6 @@ extension SharedKey where Self == AppStorageKey<Double>.Default {
   public static var sqlContentionTimeout: Self { Self[.appStorage("sqlContentionTimeout"), default: 15.0] }
 }
 
-extension SharedKey where Self == FileStorageKey<AppActiveState>.Default {
-  public static var appActiveState: Self { Self[.fileStorage(.appActiveStateURL), default: .default] }
-}
-
 extension SharedKey where Self == InMemoryKey<SoundFont.ID?>.Default {
   public static var selectedSoundFontId: Self { Self[.inMemory("selectedSoundFont"), default: nil] }
 }

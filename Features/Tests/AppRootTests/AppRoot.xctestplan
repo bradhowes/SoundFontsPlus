@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "F21EC2BC-7E12-47D6-98D9-72810114C31C",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "performanceAntipatternCheckerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AppRootTests",
+        "name" : "AppRootTests"
+      }
+    }
+  ],
+  "version" : 1
+}

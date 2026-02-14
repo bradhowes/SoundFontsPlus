@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "DC189F7F-5570-4EFA-8327-2E418BAA5933",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "performanceAntipatternCheckerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SettingsTests",
+        "name" : "SettingsTests"
+      }
+    }
+  ],
+  "version" : 1
+}

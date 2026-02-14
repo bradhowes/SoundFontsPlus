@@ -20,7 +20,7 @@ public struct ReverbDevice: Sendable {
 
 extension ReverbDevice: DependencyKey {
 
-  public static var liveValue: ReverbDevice {
+  public static var liveValue: Self {
     let effect = AVAudioUnitReverb()
     return .init(
       setConfig: {
@@ -31,8 +31,9 @@ extension ReverbDevice: DependencyKey {
     )
   }
 
-  public static let previewValue: ReverbDevice = Self.liveValue
-  public static let testValue: ReverbDevice = Self.liveValue
+  // TODO: use mocks for these to speed up tests
+  public static let previewValue: Self = Self.liveValue
+  public static let testValue: Self = Self.liveValue
 }
 
 private let log: Logger = .init(category: "ReverbDevice")

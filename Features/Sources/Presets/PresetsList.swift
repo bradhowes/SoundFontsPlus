@@ -572,8 +572,6 @@ extension PresetsListView {
 
   static var previewEditing: some View {
     prepareDependencies { $0.defaultDatabase = previewDatabase() }
-    @Shared(.selectedSoundFontId) var selectedSoundFontId
-    $selectedSoundFontId.withLock { $0 = 1 }
     return PresetsListView(store: Store(initialState: .init(presetSource: .active(SoundFont.ID(1)), editingVisibility: true)) {
       PresetsList()
     })

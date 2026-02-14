@@ -90,10 +90,10 @@ public struct AppRoot {
       toolBar: ToolBar.State? = nil,
       toastState: VolumeMonitor.Reason? = nil
     ) {
+      @Dependency(\.appActiveState) var appActiveState
       @Shared(.isAUv3) var isAUv3 = false
-      @Shared(.appActiveState) var appActiveState
 
-      let activePresetSource: PresetSource? =  .makeActive(appActiveState.activeSoundFontId)
+      let activePresetSource: PresetSource? =  .makeActive(appActiveState.getActiveSoundFontId())
 
       self.appReview = appReview ?? .init()
       self.delayEffect = delayEffect ?? .init()
@@ -102,16 +102,16 @@ public struct AppRoot {
       self.keyboard = keyboard ?? .init()
       self.presetsList = presetsList ?? .init(
         presetSource: activePresetSource,
-        activePresetId: appActiveState.activePresetId
+        activePresetId: appActiveState.getActivePresetId()
       )
       self.reverbEffect = reverbEffect ?? .init()
       self.soundFontsList = soundFontsList ?? .init(
-        activeTagId: appActiveState.activeTagId,
+        activeTagId: appActiveState.getActiveTagId(),
         activePresetSource: activePresetSource,
         selectedPresetSource: nil
       )
       self.synth = synth ?? .init()
-      self.tagsList = tagsList ?? .init(activeTagId: appActiveState.activeTagId)
+      self.tagsList = tagsList ?? .init(activeTagId: appActiveState.getActiveTagId())
       self.toolBar = toolBar ?? .init()
       self.toastState = toastState
       self.volumeMonitor = .init()
@@ -183,8 +183,8 @@ public struct AppRoot {
   public init() {}
 
   @Dependency(\.fileManager) private var fileManager
+  @Dependency(\.appActiveState) private var appActiveState
 
-  @Shared(.appActiveState) private var appActiveState
   @Shared(.effectsPanelVisible) private var effectsPanelVisible
   @Shared(.firstVisibleKey) private var firstVisibleKey
   @Shared(.fontsAndPresetsSplitPosition) private var fontsAndPresetsSplitPosition
@@ -276,7 +276,7 @@ public struct AppRoot {
         return audioChainInactive(&state)
 
       case .tagsList(.delegate(.activeTagIdChanged(let tagId))):
-        $appActiveState.activeTagId.withLock { $0 = tagId }
+        appActiveState.setActiveTagId(tagId)
         return reduce(into: &state, action: .soundFontsList(.activeTagIdChanged(tagId)))
 
       case .tagsList(.delegate(.edit(focus: let ordering))):
@@ -334,7 +334,7 @@ extension AppRoot {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     guard state.readyForUse else { return .none }
-    $appActiveState.activePresetId.withLock { $0 = presetId }
+    appActiveState.setActivePresetId(presetId)
     return .merge(
       reduce(into: &state, action: .appReview(.ask)),
       reduce(into: &state, action: .delayEffect(.activePresetIdChanged(presetId))),
@@ -488,9 +488,7 @@ extension AppRoot {
   private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {
     if let presetSource {
       if presetSource.isActive {
-        $appActiveState.withLock {
-          $0.activeSoundFontId = presetSource.id
-        }
+        appActiveState.setActiveSoundFontId(presetSource.id)
       }
     }
     return reduce(into: &state, action: .presetsList(.presetSourceChanged(presetSource)))

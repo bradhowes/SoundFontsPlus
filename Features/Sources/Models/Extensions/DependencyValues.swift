@@ -5,6 +5,11 @@ import Dependencies
 
 extension DependencyValues {
 
+  public var appActiveState: AppActiveState {
+    get { self[AppActiveState.self] }
+    set { self[AppActiveState.self] = newValue }
+  }
+
   public var audioGraph: AudioGraph {
     get { self[AudioGraph.self] }
     set { self[AudioGraph.self] = newValue }

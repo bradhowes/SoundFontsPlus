@@ -92,9 +92,9 @@ struct AppRootTests {
       $0.toastState = .none
     }
 
-    await store.receive(\.presetsList.rowsUpdated, Preset.visible(for: 1))
+    await store.receive(\.presetsList.rowsUpdated, Preset.visible(for: 1), timeout: .seconds(10))
 
-    await store.receive(\.presetsList.showPresetNow, 1) {
+    await store.receive(\.presetsList.showPresetNow, 1, timeout: .seconds(10)) {
       $0.presetsList.scrollToTarget = .preset(1)
     }
 
@@ -370,15 +370,23 @@ struct AppRootTests {
   @Test
   func editingPresetVisibilityChanged() async throws {
     try await initialized { store in
-      _ = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-        await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, true) {
-          $0.presetsList.editingVisibility = true
-        }
-        await store.receive(\.presetsList.rowsUpdated)
-        await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, false) {
-          $0.presetsList.editingVisibility = false
-        }
-        await store.receive(\.presetsList.rowsUpdated)
+
+      await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, true) {
+        $0.presetsList.editingVisibility = true
+      }
+
+      await store.receive(\.presetsList.rowsUpdated) {
+        $0.presetsList.presets = Preset.all(for: 1)
+        $0.presetsList.sections = group(Preset.all(for: 1), presetSource: .active(1), activePresetId: 1, searching: false)
+      }
+
+      await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, false) {
+        $0.presetsList.editingVisibility = false
+      }
+
+      await store.receive(\.presetsList.rowsUpdated) {
+        $0.presetsList.presets = Preset.visible(for: 1)
+        $0.presetsList.sections = group(Preset.visible(for: 1), presetSource: .active(1), activePresetId: 1, searching: false)
       }
     }
   }
