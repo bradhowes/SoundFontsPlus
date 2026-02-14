@@ -2,7 +2,11 @@ PLATFORM_IOS = iOS Simulator,name=iPad mini (A17 Pro)
 IOS_SIM = 8C8C409E-EDE8-4AC3-969D-449731DC9DA1
 PLATFORM_MACOS = macOS
 SCHEME = SoundFontsPlus
-BUILD_FLAGS = -skipMacroValidation -skipPackagePluginValidation -enableCodeCoverage YES -scheme $(SCHEME) \
+BUILD_FLAGS = -skipMacroValidation \
+              -skipPackagePluginValidation \
+              -enableCodeCoverage YES \
+			  -workspace SoundFontsPlus.xcworkspace \
+              -scheme $(SCHEME) \
 			  -clonedSourcePackagesDirPath "$(WORKSPACE)"
 WORKSPACE = $(PWD)/.workspace
 
@@ -33,7 +37,7 @@ coverage-macOS: test-macOS
 	echo "macOS Coverage Pct:"
 	cat coverage_macOS/percentage.txt
 
-test-iOS:
+test-iOS: clean
 	echo "$(XCB)"
 	make -v
 	xcodebuild test \
