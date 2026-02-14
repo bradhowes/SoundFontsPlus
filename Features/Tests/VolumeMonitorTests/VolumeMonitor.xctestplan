@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "CF15C4A2-3D0B-4060-9716-44D9DAD6E73C",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "VolumeMonitorTests",
+        "name" : "VolumeMonitorTests"
+      }
+    }
+  ],
+  "version" : 1
+}

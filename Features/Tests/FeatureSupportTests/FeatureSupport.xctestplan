@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "61C888AB-8AAF-4758-9F88-D08522CB9660",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FeatureSupportTests",
+        "name" : "FeatureSupportTests"
+      }
+    }
+  ],
+  "version" : 1
+}

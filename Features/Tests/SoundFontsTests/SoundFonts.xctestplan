@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "B8650C1C-737E-4AD2-99B1-2CAE8D1FE5F7",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SoundFontsTests",
+        "name" : "SoundFontsTests"
+      }
+    }
+  ],
+  "version" : 1
+}

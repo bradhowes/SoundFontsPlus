@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "096E11D5-ED8A-4B5B-A04E-532100249D0C",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SynthTests",
+        "name" : "SynthTests"
+      }
+    }
+  ],
+  "version" : 1
+}

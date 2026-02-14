@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "DCCD2FA6-65CF-439D-A902-6D448FBA7006",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ModelsTests",
+        "name" : "ModelsTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "D48A7C11-B9F8-4783-A0D9-A4AD3F3A9C7D",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AUv3RootTests",
+        "name" : "AUv3RootTests"
+      }
+    }
+  ],
+  "version" : 1
+}

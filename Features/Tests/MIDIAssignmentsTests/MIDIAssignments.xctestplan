@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "FD7FA5E5-BC3B-45B9-8CDD-7154313F4930",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "MIDIAssignmentsTests",
+        "name" : "MIDIAssignmentsTests"
+      }
+    }
+  ],
+  "version" : 1
+}

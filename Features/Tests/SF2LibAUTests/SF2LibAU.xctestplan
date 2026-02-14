@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "D9EFC8A5-329B-4166-8071-205FB7D804ED",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SF2LibAUTests",
+        "name" : "SF2LibAUTests"
+      }
+    }
+  ],
+  "version" : 1
+}

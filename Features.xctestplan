@@ -15,20 +15,6 @@
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "MIDIConnectionsTests",
-        "name" : "MIDIConnectionsTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "SoundFontsTests",
-        "name" : "SoundFontsTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
         "identifier" : "KeyboardTests",
         "name" : "KeyboardTests"
       }
@@ -36,50 +22,8 @@
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "BaseSupportTests",
-        "name" : "BaseSupportTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "ModelsTests",
-        "name" : "ModelsTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "AppReviewTests",
-        "name" : "AppReviewTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "MIDITrafficIndicatorTests",
-        "name" : "MIDITrafficIndicatorTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "SettingsTests",
-        "name" : "SettingsTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "TutorialTests",
-        "name" : "TutorialTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "SynthTests",
-        "name" : "SynthTests"
+        "identifier" : "DelayEffectTests",
+        "name" : "DelayEffectTests"
       }
     },
     {
@@ -92,64 +36,8 @@
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "PresetsTests",
-        "name" : "PresetsTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "SF2LibAUTests",
-        "name" : "SF2LibAUTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "TagsTests",
-        "name" : "TagsTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "ToolBarTests",
-        "name" : "ToolBarTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "FeatureSupportTests",
-        "name" : "FeatureSupportTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "VolumeMonitorTests",
-        "name" : "VolumeMonitorTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "FileImporterTests",
-        "name" : "FileImporterTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "ChangesTests",
-        "name" : "ChangesTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:Features",
-        "identifier" : "MIDIControllersTests",
-        "name" : "MIDIControllersTests"
+        "identifier" : "SynthTests",
+        "name" : "SynthTests"
       }
     },
     {
@@ -162,15 +50,64 @@
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "TuningTests",
-        "name" : "TuningTests"
+        "identifier" : "ToolBarTests",
+        "name" : "ToolBarTests"
       }
     },
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "SF2ResourcesTests",
-        "name" : "SF2ResourcesTests"
+        "identifier" : "VolumeMonitorTests",
+        "name" : "VolumeMonitorTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "SoundFontsTests",
+        "name" : "SoundFontsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "SettingsTests",
+        "name" : "SettingsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "ModelsTests",
+        "name" : "ModelsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "MIDIControllersTests",
+        "name" : "MIDIControllersTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AUv3RootTests",
+        "name" : "AUv3RootTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "BaseSupportTests",
+        "name" : "BaseSupportTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "SF2LibAUTests",
+        "name" : "SF2LibAUTests"
       }
     },
     {
@@ -183,8 +120,78 @@
     {
       "target" : {
         "containerPath" : "container:Features",
-        "identifier" : "DelayEffectTests",
-        "name" : "DelayEffectTests"
+        "identifier" : "MIDITrafficIndicatorTests",
+        "name" : "MIDITrafficIndicatorTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "TutorialTests",
+        "name" : "TutorialTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "FeatureSupportTests",
+        "name" : "FeatureSupportTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "TagsTests",
+        "name" : "TagsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "SF2ResourcesTests",
+        "name" : "SF2ResourcesTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "AppReviewTests",
+        "name" : "AppReviewTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "FileImporterTests",
+        "name" : "FileImporterTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "MIDIConnectionsTests",
+        "name" : "MIDIConnectionsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "ChangesTests",
+        "name" : "ChangesTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "PresetsTests",
+        "name" : "PresetsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "TuningTests",
+        "name" : "TuningTests"
       }
     }
   ],

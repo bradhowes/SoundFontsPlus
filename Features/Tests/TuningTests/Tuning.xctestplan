@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "942B52F4-2F0B-4C56-A469-5FDA12EF9BEC",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TuningTests",
+        "name" : "TuningTests"
+      }
+    }
+  ],
+  "version" : 1
+}

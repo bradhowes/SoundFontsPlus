@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "F9E4DBB5-B52F-4B62-AA87-6D9546B35718",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ToolBarTests",
+        "name" : "ToolBarTests"
+      }
+    }
+  ],
+  "version" : 1
+}

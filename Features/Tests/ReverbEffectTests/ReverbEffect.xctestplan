@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "1435A027-3D74-4FA7-8E60-A0D73C42CD7E",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ReverbEffectTests",
+        "name" : "ReverbEffectTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "83BB33F4-8ED8-46BF-B8B3-1C96E1067626",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TutorialTests",
+        "name" : "TutorialTests"
+      }
+    }
+  ],
+  "version" : 1
+}

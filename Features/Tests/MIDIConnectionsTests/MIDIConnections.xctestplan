@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "5AE13D16-5D35-4809-A411-6A7ECC1368AB",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "MIDIConnectionsTests",
+        "name" : "MIDIConnectionsTests"
+      }
+    }
+  ],
+  "version" : 1
+}

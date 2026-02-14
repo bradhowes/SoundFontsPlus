@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "A5F7CC92-131C-4B07-9113-48F6B9333BF1",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "MIDITrafficIndicatorTests",
+        "name" : "MIDITrafficIndicatorTests"
+      }
+    }
+  ],
+  "version" : 1
+}

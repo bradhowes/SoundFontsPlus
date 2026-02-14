@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "D58F3D81-7060-49F9-90CB-1A6AAED3C2CD",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SF2ResourcesTests",
+        "name" : "SF2ResourcesTests"
+      }
+    }
+  ],
+  "version" : 1
+}

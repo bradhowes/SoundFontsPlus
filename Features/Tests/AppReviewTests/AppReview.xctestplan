@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "300769B9-E151-40B9-B059-D2BB58C533E3",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "performanceAntipatternCheckerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "AppReviewTests",
+        "name" : "AppReviewTests"
+      }
+    }
+  ],
+  "version" : 1
+}

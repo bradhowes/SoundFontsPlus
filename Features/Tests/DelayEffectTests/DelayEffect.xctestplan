@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "AC97B586-92B6-4956-9E0B-6F8B632F381B",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "DelayEffectTests",
+        "name" : "DelayEffectTests"
+      }
+    }
+  ],
+  "version" : 1
+}

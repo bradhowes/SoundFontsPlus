@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "8349EC68-CFE6-4768-9217-16AD5A224A42",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TagsTests",
+        "name" : "TagsTests"
+      }
+    }
+  ],
+  "version" : 1
+}

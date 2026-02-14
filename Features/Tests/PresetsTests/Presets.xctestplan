@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "2F758F79-C565-4847-B6ED-D36872B42D89",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "PresetsTests",
+        "name" : "PresetsTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "82CADD95-15ED-4C2B-ADAF-0806AEBB3A70",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "KeyboardTests",
+        "name" : "KeyboardTests"
+      }
+    }
+  ],
+  "version" : 1
+}

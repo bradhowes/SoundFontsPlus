@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "B164906C-F267-45BF-BBB4-CCD4AE063AE7",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "MIDIControllersTests",
+        "name" : "MIDIControllersTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "8E1ED742-431F-457D-BF5C-A68C0B1DFA44",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "FileImporterTests",
+        "name" : "FileImporterTests"
+      }
+    }
+  ],
+  "version" : 1
+}

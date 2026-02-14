@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "DFC6C529-09BF-4FF3-AE30-14BBCAA02ED4",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "performanceAntipatternCheckerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "BaseSupportTests",
+        "name" : "BaseSupportTests"
+      }
+    }
+  ],
+  "version" : 1
+}
