@@ -77,6 +77,7 @@ struct TagButtonView: View {
         Spacer()
         Text(count)
           .font(.button)
+          .indicator(indicatorModifierState == .active ? .activeNoIndicator : .none)
       }
       .contentShape(.interaction, Rectangle())
       .simultaneousGesture(
