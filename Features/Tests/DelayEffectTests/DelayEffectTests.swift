@@ -60,33 +60,36 @@ struct DelayEffectTests {
 
       #expect(store.state.config.id == nil)
       #expect(store.state.config.enabled == false)
-
-      await store.send(.enabled(.toggleTapped(true))) {
-        $0.config.enabled = true
-        $0.enabled.isOn = true
-        $0.dirty = true
-      }
-
-      try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
-      await store.receive(\.updateDebounced)
-
-      let config = DelayConfig.Draft(
-        time: store.state.config.time,
-        feedback: store.state.config.feedback,
-        cutoff: store.state.config.cutoff,
-        wetDryMix: store.state.config.wetDryMix,
-        enabled: true,
-        presetId: -1
-      )
-
-      try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
-      await store.receive(\.saveDebounced) {
-        $0.config = config
-        $0.dirty = false
-      }
-
-      await store.send(.deinitialize)
     }
+
+    await store.send(.enabled(.toggleTapped(true))) {
+      $0.config.presetId = store.state.activePresetId!
+      $0.config.enabled = true
+      $0.enabled.isOn = true
+      $0.dirty = true
+    }
+
+    try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
+    await store.receive(\.updateDebounced)
+
+    let config = DelayConfig.Draft(
+      id: 1,
+      time: store.state.config.time,
+      feedback: store.state.config.feedback,
+      cutoff: store.state.config.cutoff,
+      wetDryMix: store.state.config.wetDryMix,
+      enabled: true,
+      presetId: store.state.config.presetId
+    )
+
+    try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
+    await store.receive(\.saveDebounced) {
+      $0.config = config
+      $0.dirty = false
+    }
+
+    await store.send(.deinitialize)
+
     #expect(await device.getTimesChanged() == 2)
   }
 
@@ -102,17 +105,46 @@ struct DelayEffectTests {
 
       #expect(store.state.config.id == nil)
       #expect(store.state.config.enabled == false)
+    }
 
-      await store.send(.enabled(.toggleTapped(true))) {
-        $0.config.enabled = true
-        $0.enabled.isOn = true
-        $0.dirty = true
+    await store.send(.enabled(.toggleTapped(true))) {
+      $0.config.presetId = store.state.activePresetId!
+      $0.config.enabled = true
+      $0.enabled.isOn = true
+      $0.dirty = true
+    }
+
+    try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
+    await store.receive(\.updateDebounced)
+
+    let config = DelayConfig.Draft(
+      id: 1,
+      time: store.state.config.time,
+      feedback: store.state.config.feedback,
+      cutoff: store.state.config.cutoff,
+      wetDryMix: store.state.config.wetDryMix,
+      enabled: true,
+      presetId: store.state.config.presetId
+    )
+
+    try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
+    await store.receive(\.saveDebounced) {
+      $0.config = config
+      $0.dirty = false
+    }
+
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.send(.wetDryMix(.setValue(40))) {
+        $0.config.wetDryMix = 40
       }
+
+      await store.receive(\.wetDryMix)
 
       try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
       await store.receive(\.updateDebounced)
 
-      let config = DelayConfig.Draft(
+      let config2 = DelayConfig.Draft(
+        id: 1,
         time: store.state.config.time,
         feedback: store.state.config.feedback,
         cutoff: store.state.config.cutoff,
@@ -123,39 +155,14 @@ struct DelayEffectTests {
 
       try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
       await store.receive(\.saveDebounced) {
-        $0.config = config
+        $0.config = config2
         $0.dirty = false
       }
-
-      await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-        await store.send(.wetDryMix(.setValue(40))) {
-          $0.config.wetDryMix = 40
-        }
-
-        await store.receive(\.wetDryMix)
-
-        try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
-        await store.receive(\.updateDebounced)
-
-        let config2 = DelayConfig.Draft(
-          time: store.state.config.time,
-          feedback: store.state.config.feedback,
-          cutoff: store.state.config.cutoff,
-          wetDryMix: store.state.config.wetDryMix,
-          enabled: true,
-          presetId: store.state.config.presetId
-        )
-
-        try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
-        await store.receive(\.saveDebounced) {
-          $0.config = config2
-          $0.dirty = false
-        }
-
-        await store.send(.deinitialize)
-      }
-      #expect(await device.getTimesChanged() == 3)
     }
+
+    await store.send(.deinitialize)
+
+    #expect(await device.getTimesChanged() == 3)
   }
 
   @Test(

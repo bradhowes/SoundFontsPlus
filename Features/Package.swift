@@ -16,7 +16,7 @@ extension Package.Dependency {
 
   static var sf2Lib: PackageDescription.Package.Dependency {
     useLocalSF2Lib ? .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib") :
-      .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.10.0")
+      .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.0.0")
   }
 }
 
@@ -54,7 +54,7 @@ let package = Package(
 
   dependencies: [
     .package(url: "https://github.com/bradhowes/AUv3Controls", from: "1.0.0"),
-    .package(url: "https://github.com/bradhowes/brh-splitview", from: "1.0.5"),
+    .package(url: "https://github.com/bradhowes/brh-splitview", from: "1.0.0"),
     //
     .morkAndMIDI,
     .sf2Lib,
@@ -63,12 +63,11 @@ let package = Package(
     // NOTE: only used to gain access to `isApproximatelyEqual` in unit tests
     .package(url: "https://github.com/apple/swift-numerics", from: "1.1.0"),
     .package(url: "https://github.com/athankefalas/swift-toasts", from: "0.9.2"),
-    .package(url: "https://github.com/Charlyk/swift-theme-kit", from: "1.2.4"),
     //
-    .package(url: "https://github.com/pointfreeco/sqlite-data", from: "1.0.0"),
-    .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.2"),
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.22.3"),
-    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.10.0"),
+    .package(url: "https://github.com/pointfreeco/sqlite-data", from: "1.5.0"),
+    .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.0"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.23.0"),
+    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.11.0"),
     .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.7.4"),
     .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.7"),
     .package(url: "https://github.com/pointfreeco/swift-tagged", from: "0.10.0"),
@@ -173,8 +172,7 @@ let package = Package(
         .product(name: "AUv3Controls", package: "AUv3Controls"),
         .product(name: "CasePaths", package: "swift-case-paths"),
         .product(name: "MorkAndMIDI", package: "morkandmidi"),
-        .product(name: "Sharing", package: "swift-sharing"),
-        .product(name: "SwiftThemeKit", package: "swift-theme-kit")
+        .product(name: "Sharing", package: "swift-sharing")
       ],
       resources: [.process("Resources")]
     ),

@@ -262,7 +262,13 @@ extension DelayEffect {
     path: WritableKeyPath<DelayConfig.Draft, T>,
     value: T
   ) -> Effect<Action> {
-    guard state.activePresetId != nil, abs(state.config[keyPath: path] - value) > 1e-8 else { return .none }
+    guard
+      let presetId = state.activePresetId,
+      abs(state.config[keyPath: path] - value) > 1e-8
+    else {
+      return .none
+    }
+    state.config.presetId = presetId
     state.config[keyPath: path] = value
     let config = state.config
     log.info("updateAndSave - \(config, privacy: .public)")
@@ -274,7 +280,13 @@ extension DelayEffect {
     path: WritableKeyPath<DelayConfig.Draft, T>,
     value: T
   ) -> Effect<Action> {
-    guard state.activePresetId != nil, state.config[keyPath: path] != value else { return .none }
+    guard
+      let presetId = state.activePresetId,
+      state.config[keyPath: path] != value
+    else {
+      return .none
+    }
+    state.config.presetId = presetId
     state.config[keyPath: path] = value
     let config = state.config
     log.info("updateAndSave - \(config, privacy: .public)")

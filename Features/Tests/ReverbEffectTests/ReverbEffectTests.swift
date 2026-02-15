@@ -54,12 +54,16 @@ struct ReverbEffectTests {
     let store = store()
 
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+
       await store.send(\.activePresetIdChanged, 1)
+
       #expect(store.state.config.id == nil)
+      #expect(store.state.config.enabled == false)
     }
 
     await store.send(.roomPresetChanged(.plate)) {
       $0.config.roomPreset = .plate
+      $0.config.presetId = store.state.activePresetId!
       $0.dirty = true
     }
 
@@ -67,6 +71,7 @@ struct ReverbEffectTests {
     await store.receive(\.updateDebounced)
 
     let config = ReverbConfig.Draft(
+      id: 1,
       roomPreset: store.state.config.roomPreset,
       wetDryMix: store.state.config.wetDryMix,
       enabled: store.state.config.enabled,
@@ -99,6 +104,7 @@ struct ReverbEffectTests {
     }
 
     await store.send(.enabled(.toggleTapped(true))) {
+      $0.config.presetId = store.state.activePresetId!
       $0.config.enabled = true
       $0.enabled.isOn = true
       $0.dirty = true
@@ -108,6 +114,7 @@ struct ReverbEffectTests {
     await store.receive(\.updateDebounced)
 
     let config = ReverbConfig.Draft(
+      id: 1,
       roomPreset: store.state.config.roomPreset,
       wetDryMix: store.state.config.wetDryMix,
       enabled: store.state.config.enabled,
@@ -137,40 +144,20 @@ struct ReverbEffectTests {
 
       #expect(store.state.config.id == nil)
       #expect(store.state.config.enabled == false)
+    }
 
-      await store.send(.enabled(.toggleTapped(true))) {
-        $0.config.enabled = true
-        $0.enabled.isOn = true
-        $0.dirty = true
-      }
-
-      try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
-      await store.receive(\.updateDebounced)
-
-      let config = ReverbConfig.Draft(
-        roomPreset: store.state.config.roomPreset,
-        wetDryMix: store.state.config.wetDryMix,
-        enabled: store.state.config.enabled,
-        presetId: store.state.config.presetId
-      )
-
-      try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
-      await store.receive(\.saveDebounced) {
-        $0.config = config
-        $0.dirty = false
-      }
-
-      await store.send(.wetDryMix(.setValue(40))) {
-        $0.config.wetDryMix = 40.0
-      }
-
-      await store.receive(\.wetDryMix)
+    await store.send(.enabled(.toggleTapped(true))) {
+      $0.config.presetId = store.state.activePresetId!
+      $0.config.enabled = true
+      $0.enabled.isOn = true
+      $0.dirty = true
     }
 
     try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
     await store.receive(\.updateDebounced)
 
-    let config2 = ReverbConfig.Draft(
+    let config = ReverbConfig.Draft(
+      id: 1,
       roomPreset: store.state.config.roomPreset,
       wetDryMix: store.state.config.wetDryMix,
       enabled: store.state.config.enabled,
@@ -179,8 +166,33 @@ struct ReverbEffectTests {
 
     try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
     await store.receive(\.saveDebounced) {
-      $0.config = config2
+      $0.config = config
       $0.dirty = false
+    }
+
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.send(.wetDryMix(.setValue(40))) {
+        $0.config.wetDryMix = 40.0
+      }
+
+      await store.receive(\.wetDryMix)
+
+      try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
+      await store.receive(\.updateDebounced)
+
+      let config2 = ReverbConfig.Draft(
+        id: 1,
+        roomPreset: store.state.config.roomPreset,
+        wetDryMix: store.state.config.wetDryMix,
+        enabled: store.state.config.enabled,
+        presetId: store.state.config.presetId
+      )
+
+      try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
+      await store.receive(\.saveDebounced) {
+        $0.config = config2
+        $0.dirty = false
+      }
     }
 
     await store.send(.deinitialize)
