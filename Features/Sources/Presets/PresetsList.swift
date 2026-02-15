@@ -76,7 +76,7 @@ public struct PresetsList {
     }
   }
 
-  public enum Action: BindableAction {
+  public enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
     case cancelSearchButtonTapped
     case clearScrollToTarget
@@ -86,17 +86,16 @@ public struct PresetsList {
     case destination(PresentationAction<Destination.Action>)
     case editingVisibilityChanged(Bool)
     case presetSourceChanged(PresetSource?)
-    case restoreActiveState(presetSource: PresetSource, activePresetId: Preset.ID)
-    case rowsUpdated([Preset])
+    case rowsUpdated(presets: [Preset], showActive: Bool)
     case searchTextChanged(String)
     case sections(IdentifiedActionOf<PresetsListSection>)
     case sectionHeaderIndexTapped(String)
-    case showPreset(Preset.ID)
+    case showPresetDelayed(Preset.ID)
     case showPresetNow(Preset.ID)
     case updateFetchAllQuery
 
     @CasePathable
-    public enum Delegate {
+    public enum Delegate: Equatable {
       case activePresetIdChanged(Preset.ID?)
       case edit(sectionId: PresetsListSection.State.ID, preset: Preset)
       case missingSoundFontDetected(SoundFont.ID)
@@ -140,18 +139,16 @@ public struct PresetsList {
 
       case let .editingVisibilityChanged(editing):
         state.editingVisibility = editing
-        return updateFetchAllQuery(&state) // generatePresetSections(&state)
+        return updateFetchAllQuery(&state, showActive: false)
 
       case .presetSourceChanged(let presetSource):
         return presetSourceChanged(&state, presetSource: presetSource)
 
-      case let .restoreActiveState(presetSource, activePresetId):
-        state.presetSource = presetSource
-        state.activePresetId = activePresetId
-        return showPreset(&state, presetId: activePresetId)
-
-      case .rowsUpdated(let rows):
-        state.presets = rows
+      case let .rowsUpdated(presets: presets, showActive: showActive):
+        state.presets = presets
+        if showActive, let activePresetId = state.activePresetId {
+          state.scrollToTarget = .preset(activePresetId)
+        }
         return generatePresetSections(&state)
 
       case .searchTextChanged(let value):
@@ -163,15 +160,15 @@ public struct PresetsList {
       case .sectionHeaderIndexTapped(let title):
         return sectionHeaderIndexTapped(&state, title: title)
 
-      case .showPreset(let presetId):
-        return showPreset(&state, presetId: presetId)
+      case .showPresetDelayed(let presetId):
+        return showPresetDelayed(&state, presetId: presetId)
 
       case .showPresetNow(let presetId):
         state.scrollToTarget = .preset(presetId)
         return .none
 
       case .updateFetchAllQuery:
-        return updateFetchAllQuery(&state)
+        return updateFetchAllQuery(&state, showActive: false)
 
       default:
         return .none
@@ -210,7 +207,7 @@ extension PresetsList {
     state.scrollToTarget = nil
     return .merge(
       generatePresetSections(&state),
-      showPreset(&state, presetId: state.activePresetId ?? state.presets[0].id)
+      showPresetDelayed(&state, presetId: state.activePresetId ?? state.presets[0].id)
     )
   }
 
@@ -234,6 +231,7 @@ extension PresetsList {
     )
 
     log.debug("generatePresetSections END")
+
     return .none
   }
 
@@ -256,12 +254,8 @@ extension PresetsList {
   }
 
   private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {
-    let presetId: Preset.ID? = (presetSource?.isActive ?? false) ? state.activePresetId : nil
     state.presetSource = presetSource
-    return .merge(
-      updateFetchAllQuery(&state),
-      showPreset(&state, presetId: presetId ?? Preset.ID(rawValue: Int64(PresetsList.searchGroupingSize)))
-    )
+    return updateFetchAllQuery(&state, showActive: true)
   }
 
   private func processSectionAction(
@@ -273,7 +267,7 @@ extension PresetsList {
 
     case .createFavorite(let preset):
       if let favorite = preset.clone() {
-        return .send(.showPreset(favorite.id))
+        return .send(.showPresetDelayed(favorite.id))
       }
       return .none
 
@@ -327,17 +321,12 @@ extension PresetsList {
   private func sectionHeaderTapped(_ state: inout State, sectionId: PresetsListSection.State.ID, count: Int) -> Effect<Action> {
     log.info("sectionHeaderTapped BEGIN - sectionId: \(sectionId), count: \(count)")
     if count == 2 {
-      // Show the first item
-      return showPreset(&state, presetId: state.presets[0].id)
+      state.scrollToTarget = .preset(state.presets[0].id)
     } else if count == 1 {
-      @Shared(.sortPresetsByName) var sortPresetsByName
-      if !sortPresetsByName {
-      let group = sectionId.rawValue
-        if group > 0 {
-          let previousGroup = group - 1
-          let index = previousGroup * Self.groupingSize
-          return showPreset(&state, presetId: state.presets[index].id)
-        }
+      let index = sectionId.rawValue
+      if index > 0 {
+        let previous = index - 1
+        state.scrollToTarget = .preset(state.sections[previous].rows[0].preset.id)
       }
     }
     return .none
@@ -347,9 +336,7 @@ extension PresetsList {
     guard let info = PresetLoadingInfo.for(id: preset.id) else { return .none }
     guard
       let kind = try? SoundFontKind(kind: info.kind, location: info.location, displayName: info.soundFontName),
-      kind.url.withSecurityScoping({
-        fileManager.fileExists($0)
-      }) == true
+      kind.url.withSecurityScoping({ fileManager.fileExists($0) }) == true
     else {
       state.destination = .alert(
         .missingFileForSelectedPreset(
@@ -371,7 +358,7 @@ extension PresetsList {
     return .none
   }
 
-  private func showPreset(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
+  private func showPresetDelayed(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
     log.info("showPreset BEGIN - presetId: \(presetId)")
     return .run { send in
       @Dependency(\.continuousClock) var clock
@@ -382,25 +369,28 @@ extension PresetsList {
     }.cancellable(id: CancelId.presetsListShowPresetNow, cancelInFlight: true)
   }
 
-  private func updateFetchAllQuery(_ state: inout State) -> Effect<Action> {
+  private func updateFetchAllQuery(_ state: inout State, showActive: Bool) -> Effect<Action> {
     log.info("updateFetchAllQuery")
 
     let soundFontId = state.presetSource?.id ?? -1
     let query = state.editingVisibility ? Preset.allQuery(for: soundFontId) : Preset.visibleQuery(for: soundFontId)
 
-    return .run(name: "presetsListUpdateFetchAll") { send in
+    return .run(name: "presetsListUpdateFetchAll") { [showActive] send in
+      var showActive = showActive
       @FetchAll var presets: [Preset]
       try await $presets.load(query, animation: .smooth)
       if Task.isCancelled { return }
-      for try await rows in $presets.publisher.values {
+      for try await presets in $presets.publisher.values {
         if Task.isCancelled { break }
-        await send(.rowsUpdated(rows))
+        await send(.rowsUpdated(presets: presets, showActive: showActive))
+        showActive = false
       }
       log.info("updateFetchQuery END")
     }.cancellable(id: CancelId.presetsListUpdateFetchAll, cancelInFlight: true)
   }
 }
 
+extension PresetsList.Destination.Action: Equatable {}
 extension PresetsList.Destination.State: Equatable {}
 extension PresetsList.Destination.State: _EphemeralState { public typealias Action = Alert }
 

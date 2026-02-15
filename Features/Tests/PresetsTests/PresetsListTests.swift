@@ -59,7 +59,7 @@ struct PresetsListTests {
     let store = try setup()
 
     await store.send(.presetSourceChanged(.active(1)))
-    await store.receive(\.rowsUpdated, Preset.visible(for: 1))
+    await store.receive(.rowsUpdated(presets: Preset.visible(for: 1), showActive: true))
 
     try await closure(store)
 
@@ -74,7 +74,7 @@ struct PresetsListTests {
     await store.send(.presetSourceChanged(nil))
     #expect(store.state.sections.count == 1)
 
-    await store.receive(\.rowsUpdated, [])
+    await store.receive(.rowsUpdated(presets: [], showActive: true))
 
     await store.send(.deinitialize)
     await store.finish()
@@ -85,7 +85,7 @@ struct PresetsListTests {
     let store = try setup()
 
     await store.send(.presetSourceChanged(.active(1)))
-    await store.receive(\.rowsUpdated, Preset.visible(for: 1))
+    await store.receive(.rowsUpdated(presets: Preset.visible(for: 1), showActive: true))
 
     await store.send(.deinitialize)
     await store.finish()
@@ -97,14 +97,15 @@ struct PresetsListTests {
       await store.send(.presetSourceChanged(.active(2))) {
         $0.presetSource = .active(2)
       }
-      await store.receive(\.rowsUpdated, Preset.visible(for: 2)) {
-        $0.presets = Preset.visible(for: 2)
+      let presets = Preset.visible(for: 2)
+      await store.receive(.rowsUpdated(presets: presets, showActive: true)) {
+        $0.presets = presets
         $0.sections = [
           .init(
             section: 0,
             sectionText: "Presets",
             sectionIndex: "0",
-            presets: Preset.visible(for: 2)[...],
+            presets: presets[...],
             presetSource: .active(2)
           )
         ]
@@ -245,7 +246,7 @@ struct PresetsListTests {
       }
 
       let presets = Preset.visible(for: 2)
-      await store.receive(\.rowsUpdated, presets) {
+      await store.receive(.rowsUpdated(presets: presets, showActive: true)) {
         $0.presets = presets
         $0.sections = [
           .init(
@@ -326,9 +327,9 @@ struct PresetsListTests {
 
       await store.receive(\.sections[id: store.state.sections[0].id].delegate.createFavorite, presets[0])
 
-      await store.receive(\.showPreset, 13)
+      await store.receive(\.showPresetDelayed, 13)
 
-      await store.receive(\.rowsUpdated, presets) {
+      await store.receive(.rowsUpdated(presets: presets, showActive: false)) {
         $0.presets = presets
         $0.sections = [
           .init(
@@ -396,9 +397,9 @@ struct PresetsListTests {
 
       await store.receive(\.sections[id: store.state.sections[0].id].delegate.createFavorite, presets[0])
 
-      await store.receive(\.showPreset, 13)
+      await store.receive(\.showPresetDelayed, 13)
 
-      await store.receive(\.rowsUpdated, presets) {
+      await store.receive(.rowsUpdated(presets: presets, showActive: false)) {
         $0.presets = presets
         $0.sections = [
           .init(
@@ -441,7 +442,7 @@ struct PresetsListTests {
         $0.destination = nil
       }
 
-      await store.receive(\.rowsUpdated, presets) {
+      await store.receive(.rowsUpdated(presets: presets, showActive: false)) {
         $0.presets = presets
         $0.sections = [
           .init(
@@ -556,7 +557,7 @@ struct PresetsListTests {
       }
 
       updated.remove(atOffsets: [1])
-      await store.receive(\.rowsUpdated, updated) {
+      await store.receive(.rowsUpdated(presets: updated, showActive: false)) {
         $0.presets = updated
         $0.sections = [
           .init(
@@ -645,21 +646,6 @@ struct PresetsListTests {
   func presetsListViewPreview() async throws {
     withSnapshotTesting(record: .failed) {
       TestSupport.assertSnapshot(matching: PresetsListView.preview)
-    }
-  }
-}
-
-extension PresetsList.Action.Delegate: Equatable {
-  public static func == (lhs: PresetsList.Action.Delegate, rhs: PresetsList.Action.Delegate) -> Bool {
-    switch (lhs, rhs) {
-    case let (.activePresetIdChanged(a), .activePresetIdChanged(b)):
-      return a == b
-    case let (.edit(a, b), .edit(c, d)):
-      return (a, b) == (c, d)
-    case let (.missingSoundFontDetected(a), .missingSoundFontDetected(b)):
-      return a == b
-    default:
-      return false
     }
   }
 }

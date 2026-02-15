@@ -92,9 +92,7 @@ struct AppRootTests {
       $0.toastState = .none
     }
 
-    await store.receive(\.presetsList.rowsUpdated, Preset.visible(for: 1), timeout: .seconds(10))
-
-    await store.receive(\.presetsList.showPresetNow, 1, timeout: .seconds(10)) {
+    await store.receive(\.presetsList, .rowsUpdated(presets: Preset.visible(for: 1), showActive: true)) {
       $0.presetsList.scrollToTarget = .preset(1)
     }
 
@@ -308,7 +306,7 @@ struct AppRootTests {
         $0.destination = nil
       }
 
-      await store.receive(\.presetsList.rowsUpdated, Preset.visible(for: 1))
+      await store.receive(\.presetsList, .rowsUpdated(presets: Preset.visible(for: 1), showActive: false))
     }
   }
 
@@ -323,7 +321,7 @@ struct AppRootTests {
         $0.destination = nil
         $0.presetsList.scrollToTarget = .preset(1)
       }
-      await store.receive(\.presetsList.rowsUpdated, Preset.visible(for: 1))
+      await store.receive(\.presetsList, .rowsUpdated(presets: Preset.visible(for: 1), showActive: false))
     }
   }
 
@@ -411,8 +409,7 @@ struct AppRootTests {
     try await initialized { store in
       await store.send(\.toolBar.delegate.presetNameTapped)
       await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1), timeout: .seconds(30))
-      await store.receive(\.presetsList.rowsUpdated, Preset.visible(for: 1))
-      await store.receive(\.presetsList.showPresetNow, 1)
+      await store.receive(\.presetsList, .rowsUpdated(presets: Preset.visible(for: 1), showActive: true))
     }
   }
 

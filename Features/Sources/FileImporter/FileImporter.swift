@@ -145,6 +145,8 @@ extension FileImporter {
       return .none
     }
 
+    try? fileManager.createDirectory(fileManager.fontFilesDirectory())
+
     return importNextFile(&state)
   }
 

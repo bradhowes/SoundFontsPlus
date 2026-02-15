@@ -227,7 +227,7 @@ public struct AppRoot {
         return reinitializeConfirmed(&state)
 
       case .destination(.presented(.soundFontEditor(.delegate(.refreshPresets)))):
-        return .none // reduce(into: &state, action: .presetsList(.updateFetchAllQuery))
+        return .none
 
       case .destination(.presented(.settings(.delegate(let action)))):
         return processSettingsAction(&state, action: action)

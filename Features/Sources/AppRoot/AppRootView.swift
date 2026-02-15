@@ -85,7 +85,7 @@ public struct AppRootView: View {
       // If restoring display of the virtual music keyboard, scroll to the active preset
       // since it could become hidden by the keyboard.
       if !state {
-        store.scope(state: \.presetsList, action: \.presetsList).send(.showPreset(store.presetsList.activePresetId ?? -1))
+        store.scope(state: \.presetsList, action: \.presetsList).send(.showPresetDelayed(store.presetsList.activePresetId ?? -1))
       }
     }
 #endif // os(iOS)

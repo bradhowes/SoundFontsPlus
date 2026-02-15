@@ -75,7 +75,6 @@ public struct SoundFontsList {
     case headerDoubleTapped
     case initialize
     case missingSoundFontDetected(SoundFont.ID)
-    case restoreActiveState(activeTagId: Tag.ID, activePresetSource: PresetSource)
     case rows(IdentifiedActionOf<SoundFontButton>)
     case rowsUpdated([SoundFontInfo])
     case searchButtonTapped
@@ -169,12 +168,6 @@ public struct SoundFontsList {
         if state.selectedPresetSource == .selected(soundFontId) {
           state.selectedPresetSource = nil
         }
-        return .none
-
-      case let .restoreActiveState(activeTagId, activePresetSource):
-        state.activeTagId = activeTagId
-        state.activePresetSource = activePresetSource
-        state.selectedPresetSource = nil
         return .none
 
       case .rows(.element(_, .delegate(let action))):

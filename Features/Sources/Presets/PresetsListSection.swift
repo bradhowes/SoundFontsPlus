@@ -63,12 +63,12 @@ public struct PresetsListSection {
     }
   }
 
-  public enum Action {
+  public enum Action: Equatable {
     case delegate(Delegate)
     case rows(IdentifiedActionOf<PresetButton>)
 
     @CasePathable
-    public enum Delegate {
+    public enum Delegate: Equatable {
       case createFavorite(Preset)
       case deleteFavorite(Preset)
       case editPreset(Preset)

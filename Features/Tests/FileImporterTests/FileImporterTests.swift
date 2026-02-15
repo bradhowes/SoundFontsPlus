@@ -48,7 +48,11 @@ struct FileImporterTests {
     }
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.fileManager = .liveValue
+    }
+  )
   func filePickedOneUnknownFileType() async throws {
     let store = store()
     await store.send(.showFileImporter) {
@@ -64,7 +68,11 @@ struct FileImporterTests {
     await store.receive(\.delegate, .importFinished)
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.fileManager = .liveValue
+    }
+  )
   func filePickedMultipleUnknownFileTypes() async throws {
     let store = store()
     await store.send(.showFileImporter) {
@@ -374,12 +382,20 @@ struct FileImporterTests {
     }
 
     let dir = FileManager.default.temporaryDirectory.appending(path: "filePickedDirectory", directoryHint: .isDirectory)
-    try? FileManager.default.removeItem(at: dir)
-    try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    do {
+      try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    } catch {
+      print("failed to create directory at \(dir)")
+    }
 
-    let url1 = SF2ResourceTag.fluidFont.url
+    let url1 = SF2ResourceTag.freeFont.url
     let dst = dir.appending(path: "filePickedDirectory.sf2", directoryHint: .notDirectory)
-    try? FileManager.default.copyItem(at: url1, to: dst)
+    do {
+      try FileManager.default.copyItem(at: url1, to: dst)
+    } catch {
+      print("*** failed to copy \(url1) to \(dst) - \(error.localizedDescription)")
+    }
+
     try? FileManager.default.removeItem(at: FileManager.default.fontFilesDirectory.appending(path: "filePickedDirectory.sf2"))
 
     await store.send(.filesPicked(.success([dir]))) {
