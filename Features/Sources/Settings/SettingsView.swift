@@ -13,7 +13,6 @@ import Tuning
 public struct SettingsView: View {
   @Bindable private var store: StoreOf<Settings>
   @State private var changingKeyWidth: Bool = false
-  @Shared(.backupRestoreEnabled) private var backupRestoreEnabled
   @Dependency(\.audioSession) private var audioSession
   @Dependency(\.fileManager) private var fileManager
 
@@ -327,44 +326,6 @@ Removes all installed SF2 files and any customizations — same as reinstalling 
             } label: {
               Text("Reinitialize")
             }
-          }
-          if backupRestoreEnabled {
-            HStack {
-              VStack(alignment: .leading, spacing: 8) {
-                Text("Create backup of database and SF2 files")
-                Text(
-"""
-Backups are stored in the SoundFonts+ iCloud folder. Sound font files that were copied onto device are also backed up.
-"""
-                )
-                .font(.settingsDescription)
-              }
-              Spacer()
-              Button {
-                store.send(.createBackupTapped)
-              } label: {
-                Text("Backup")
-              }
-            }
-            .disabled(fileManager.cloudDocumentsDirectory() == nil)
-            HStack {
-              VStack(alignment: .leading, spacing: 8) {
-                Text("Restore from backup")
-                Text(
-"""
-Erases current database and SF2 files with contents of previous backup.
-"""
-                )
-                .font(.settingsDescription)
-              }
-              Spacer()
-              Button {
-                store.send(.restoreBackupTapped)
-              } label: {
-                Text("Restore")
-              }
-            }
-            .disabled(fileManager.cloudDocumentsDirectory() == nil)
           }
         }
       }

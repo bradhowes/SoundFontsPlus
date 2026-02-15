@@ -111,9 +111,6 @@ public struct Settings {
     case midiControllersButtonTapped
     case midiTrafficIndicator(MIDITrafficIndicator.Action)
     case path(StackActionOf<Path>)
-    case restoreBackupTapped
-    case restoreFailed(Error)
-    case restoreFinished
     case reviewAppTapped
     case tuning(Tuning.Action)
 
@@ -159,9 +156,6 @@ public struct Settings {
         }
         return .none
 
-      case .createBackupTapped:
-        return backupToCloud(&state)
-
       case .destination(.presented(.alert(.disableCopyFileConfirmed))):
         state.$copyFileWhenInstalling.withLock { $0 = false }
         return .none
@@ -169,9 +163,6 @@ public struct Settings {
       case .destination(.presented(.alert(.disableIdleTimerConfirmed))):
         state.$disableIdleTimer.withLock { $0 = true }
         return .none
-
-      case .destination(.presented(.backupPicker(.picked(let result)))):
-        return restoreBackupPicked(&state, result: result)
 
       case .dismissButtonTapped:
         return dismissButtonTapped(&state)
@@ -204,17 +195,6 @@ public struct Settings {
           state.midiDevicesCount = midi.sourceConnections.count
           state.midiConnectedCount = midi.sourceConnections.filter { $0.connected }.count
         }
-        return .none
-
-      case .restoreBackupTapped:
-        return restoreBackupTapped(&state)
-
-      case .restoreFailed(let error):
-        state.destination = .alert(.restoreFailed(error))
-        return .none
-
-      case .restoreFinished:
-        state.destination = .alert(.restoreFinished())
         return .none
 
       case let .tuning(.delegate(.tuningChanged(enabled, frequency))):
@@ -265,40 +245,6 @@ extension Settings {
         await send(.midiConnectionsChanged)
       }
     }.cancellable(id: CancelId.settingsMonitorMIDIConnections)
-  }
-
-  private func restoreBackupPicked(_ state: inout State, result: Result<[URL], Error>) -> Effect<Action> {
-    switch result {
-
-    case .success(let urls):
-      guard let url = urls.first else {
-        log.error("Expected to have one URL from picker")
-        return .none
-      }
-
-      return .run { send in
-        do {
-          try await BackupManager.restore(backupDirectory: url)
-          await send(.restoreFinished)
-        } catch {
-          await send(.restoreFailed(error))
-        }
-      }
-
-    case .failure(let error):
-      log.error("Failed to pick backup - \(error.localizedDescription, privacy: .public)")
-      return .none
-    }
-  }
-
-  private func restoreBackupTapped(_ state: inout State) -> Effect<Action> {
-    state.destination = .backupPicker(
-      .init(
-        types: [.folder, .directory],
-        allowsMultipleSelection: false
-      )
-    )
-    return .none
   }
 
   private func tuningChanged(_ state: inout State, enabled: Bool, frequency: Double) -> Effect<Action> {

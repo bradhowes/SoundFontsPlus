@@ -9,9 +9,7 @@ import Tagged
 // MARK: - AppStorage Bool settings
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
-  public static var backupRestoreEnabled: Self { Self[.appStorage("backupRestoreEnabled"), default: false] }
-  public static var confirmPresetHiding: Self { Self[.appStorage("stopConfirmingPresetHiding"), default: true]
-  }
+  public static var confirmPresetHiding: Self { Self[.appStorage("stopConfirmingPresetHiding"), default: true] }
   public static var copyFileWhenInstalling: Self { Self[.appStorage("copyFileWhenInstalling"), default: true] }
   public static var delayLockEnabled: Self { Self[.appStorage("delayLockEnabled"), default: false] }
   public static var disableIdleTimer: Self { Self[.appStorage("disableIdleTimer"), default: false]}
