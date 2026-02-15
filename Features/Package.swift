@@ -113,7 +113,7 @@ let package = Package(
     ),
     .feature("Changes"),
     .feature("DelayEffect"),
-    .feature("FileImporter"),
+    .feature("FileImporter", dependencies: ["SF2Resources"]),
     .feature("Keyboard"),
     .feature("MIDIAssignments"),
     .feature("MIDIConnections", dependencies: ["MIDITrafficIndicator"]),
