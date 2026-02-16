@@ -6,7 +6,10 @@ import CoreAudioKit
 import Engine
 
 /**
- AUv3 component for SF2Lib engine.
+ AUv3 component for SF2Lib engine. Wrapped in an ``AVAudioUnitMIDIInstrument`` when created via ``AVAudioUnit/instantiate``.
+
+ When created for use in the SoundFontsPlus app, it will have no UI. However, the ``SoundFontsPlusAU`` target does, creatd via the
+ ``AUv3Root`` feature.
  */
 public final class SF2LibAU: AUAudioUnit {
 
@@ -86,6 +89,12 @@ extension SF2LibAU: @unchecked Sendable {}
 
 extension SF2LibAU {
 
+  /**
+   Create a new SF2LibAU instance for use in the application.
+
+   - parameter register: if `true` then register the component description to invoke the SF2LibAU class.
+   - returns: created AVAudioUnitMIDIInstrument instance if successful
+   */
   public static func create(register: Bool = false) async -> AVAudioUnitMIDIInstrument? {
     let acd = Bundle.main.audioComponentDescription
     if register {
