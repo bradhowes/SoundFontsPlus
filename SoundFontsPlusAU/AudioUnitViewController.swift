@@ -18,8 +18,7 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
   public override func viewDidLoad() {
     installApplicationFont()
     super.viewDidLoad()
-    if let audioUnit,
-       hostingController == nil {
+    if let audioUnit {
       installView(audioUnit: audioUnit)
     }
   }

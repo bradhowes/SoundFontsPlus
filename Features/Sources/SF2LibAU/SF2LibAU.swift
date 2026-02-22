@@ -3,7 +3,9 @@
 import AudioToolbox
 import BaseSupport
 import CoreAudioKit
+import Dependencies
 import Engine
+import Models
 
 /**
  AUv3 component for SF2Lib engine. Wrapped in an ``AVAudioUnitMIDIInstrument`` when created via ``AVAudioUnit/instantiate``.
@@ -11,15 +13,13 @@ import Engine
  When created for use in the SoundFontsPlus app, it will have no UI. However, the ``SoundFontsPlusAU`` target does, creatd via the
  ``AUv3Root`` feature.
  */
-public final class SF2LibAU: AUAudioUnit {
+@objc public final class SF2LibAU: AUAudioUnit {
 
-  private var _audioUnitName: String?
-  private var _audioUnitShortName: String?
   private var _currentPreset: AUAudioUnitPreset?
 
-  public let uuid = UUID()
+  public private(set) var engine: SF2Engine = SF2Engine()
+  public private(set) var auv3ActiveState: AUv3ActiveState?
 
-  private var engine: SF2Engine = SF2Engine()
   private var dryBus: AUAudioUnitBus
   private var reverbSendBus: AUAudioUnitBus
   private var chorusSendBus: AUAudioUnitBus
@@ -77,7 +77,6 @@ sub: \(componentDescription.componentSubType)
 
     try super.init(componentDescription: componentDescription, options: options)
 
-    log.info("uuid: \(self.uuid.uuidString, privacy: .public)")
     log.info("init - creating parameterTree")
     self.parameterTree = engine.getParameterTree()
 
@@ -147,24 +146,37 @@ extension SF2LibAU {
 
 extension SF2LibAU {
 
-  public override var audioUnitName: String? {
-    get { _audioUnitName }
-    set {
-      log.info("audioUnitName set - \(newValue.debugDescription)")
-      willChangeValue(forKey: "audioUnitName")
-      _audioUnitName = newValue
-      didChangeValue(forKey: "audioUnitName")
+  @objc public dynamic override var audioUnitName: String? {
+    @Dependency(\.defaultDatabase) var defaultDatabase
+    guard
+      let activeState = auv3ActiveState,
+      let presetInfo = PresetLoadingInfo.for(id: activeState.presetId)
+    else {
+      return "-"
     }
+    return "\(presetInfo.soundFontName): \(presetInfo.presetName)"
   }
 
-  public override var audioUnitShortName: String? {
-    get { _audioUnitShortName }
-    set {
-      log.info("audioUnitShortName set - \(newValue.debugDescription)")
-      willChangeValue(forKey: "audioUnitShortName")
-      _audioUnitShortName = newValue
-      didChangeValue(forKey: "audioUnitShortName")
+  @objc public dynamic override var audioUnitShortName: String? {
+    let limit = 16
+    let divider = ": "
+    @Dependency(\.defaultDatabase) var defaultDatabase
+    guard
+      let activeState = auv3ActiveState,
+      let presetInfo = PresetLoadingInfo.for(id: activeState.presetId)
+    else {
+      return "-"
     }
+
+    let soundFontCount = presetInfo.soundFontName.count
+    let presetCount = presetInfo.presetName.count
+
+    if soundFontCount + presetCount + 2 <= limit {
+      return "\(presetInfo.soundFontName)\(divider)\(presetInfo.presetName)"
+    }
+
+    let partLimit = (limit - divider.count) / 2
+    return "\(presetInfo.soundFontName.truncated(to: partLimit))\(divider)\(presetInfo.presetName.truncated(to: partLimit))"
   }
 
   public override func supportedViewConfigurations(_ viewConfigs: [AUAudioUnitViewConfiguration]) -> IndexSet {
@@ -218,77 +230,75 @@ extension SF2LibAU {
 
 extension SF2LibAU {
 
-  private var activeSoundFontPresetKey: String { "soundFontPatch" } // Legacy name -- do not change
-
-  public override var fullState: [String: Any]? {
+  @objc public dynamic override var fullState: [String: Any]? {
     get {
       log.info("fullState GET")
-      var state = [String: Any]()
-      addInstanceSettings(into: &state)
+      var state = super.fullState
+      if let auv3ActiveState {
+        do {
+          state = try FullState(activeState: auv3ActiveState, base: state).state
+        } catch {
+          log.error("failed to generate full state value - \(error.localizedDescription)")
+        }
+      }
+
+      if let state {
+        for (key, value) in state {
+          log.debug(":: \(key): \(String(describing: value))")
+        }
+      }
       return state
     }
     set {
       log.info("fullState SET")
+      willChangeValue(for: \.fullState)
+
+      // Unlike in the getter, the base class throws an exception when given a value here.
+      // super.fullState = newValue
       if let state = newValue {
-        restoreInstanceSettings(from: state)
+
+        // Note: my understanding is `fullState` should not change while the render thread is active. So, using auv3ActiveState to
+        // change the active preset will be OK when done via a change from an AUv3 host.
+        //
+        // However, the SoundFontsPlus app should *not* use this means to change the current preset since, in the app, the render
+        // thread is always running.
+        self.auv3ActiveState = FullState(state: state).activeState
+        if let auv3ActiveState = self.auv3ActiveState {
+          log.info("fullState - activeState: \(auv3ActiveState)")
+          log.info("fullState - displayName: \(self.audioUnitShortName ?? "")")
+
+          if auv3ActiveState.source == .auv3 {
+            @Dependency(\.defaultDatabase) var defaultDatabase
+            if let presetInfo = PresetLoadingInfo.for(id: auv3ActiveState.presetId) {
+              // This active state value originally came from us (not from SoundFontsPlus app) so we can go ahead and command the
+              // engine to load the file and use the preset.
+              if let location = try? SoundFontKind(
+                kind: presetInfo.kind,
+                location: presetInfo.location,
+                displayName: presetInfo.soundFontName
+              ) {
+                if case let .external(bookmark) = location {
+                  if let data = bookmark.bookmark {
+                    engine.loadBookmarkAndPreset(data, presetInfo.presetIndex)
+                  }
+                } else {
+                  engine.loadFileAndPreset(
+                    std.string(location.url.path(percentEncoded: false)),
+                    presetInfo.presetIndex
+                  )
+                }
+
+                let preset = AUAudioUnitPreset()
+                preset.number = -Int(auv3ActiveState.presetId.rawValue)
+                preset.name = presetInfo.presetName
+                currentPreset = preset
+              }
+            }
+          }
+        }
       }
+      didChangeValue(for: \.fullState)
     }
-  }
-
-  /**
-   Save into a state dictionary the settings that are really part of an AUv3 instance
-
-   - parameter state: the storage to hold the settings
-   */
-  private func addInstanceSettings(into state: inout [String: Any]) {
-    log.info("addInstanceSettings BEGIN")
-
-    //    if let dict = self.activePresetManager.active.encodeToDict() {
-    //      state[activeSoundFontPresetKey] = dict
-    //    }
-    //
-    //    state[SettingKeys.activeTagKey.key] = settings.activeTagKey.uuidString
-    //    state[SettingKeys.globalTuning.key] = settings.globalTuning
-    //    state[SettingKeys.pitchBendRange.key] = settings.pitchBendRange
-    //    state[SettingKeys.presetsWidthMultiplier.key] = settings.presetsWidthMultiplier
-    //    state[SettingKeys.showingFavorites.key] = settings.showingFavorites
-
-    log.info("addInstanceSettings END")
-  }
-
-  /**
-   Restore from a state dictionary the settings that are really part of an AUv3 instance
-
-   - parameter state: the storage that holds the settings
-   */
-  private func restoreInstanceSettings(from state: [String: Any]) {
-    log.info("restoreInstanceSettings BEGIN")
-
-    //    settings.setAudioUnitState(state)
-    //
-    //    let value: ActivePresetKind = {
-    //      // First try current representation as a dict
-    //      if let dict = state[activeSoundFontPresetKey] as? [String: Any],
-    //         let value = ActivePresetKind.decodeFromDict(dict) {
-    //        return value
-    //      }
-    //      // Fall back and try Data encoding
-    //      if let data = state[activeSoundFontPresetKey] as? Data,
-    //         let value = ActivePresetKind.decodeFromData(data) {
-    //        return value
-    //      }
-    //      // Nothing known.
-    //      return .none
-    //    }()
-    //
-    //    self.activePresetManager.restoreActive(value)
-    //
-    //    if let activeTagKeyString = state[SettingKeys.activeTagKey.key] as? String,
-    //       let activeTagKey = UUID(uuidString: activeTagKeyString) {
-    //      settings.activeTagKey = activeTagKey
-    //    }
-
-    log.info("restoreInstanceSettings END")
   }
 }
 
@@ -298,21 +308,12 @@ extension SF2LibAU {
 
   public override var supportsUserPresets: Bool { true }
 
-  public override var currentPreset: AUAudioUnitPreset? {
+  @objc public dynamic override var currentPreset: AUAudioUnitPreset? {
     get { _currentPreset }
     set {
-      guard let preset = newValue else {
-        _currentPreset = nil
-        return
-      }
-
-      _currentPreset = preset
-
-      if preset.number < 0 {
-        if let fullState = try? presetState(for: preset) {
-          self.fullState = fullState
-        }
-      }
+      willChangeValue(forKey: "currentPreset")
+      _currentPreset = newValue
+      didChangeValue(forKey: "currentPreset")
     }
   }
 }

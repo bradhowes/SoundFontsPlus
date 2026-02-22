@@ -30,7 +30,7 @@ extension TagInfo {
   public static var filteredQueryBase: Select<(), Tag, ()> {
     @Shared(.hideBuiltinFonts) var hideBuiltinFonts
     if hideBuiltinFonts {
-      return queryBase.where { $0.id != Tag.Ubiquitous.builtIn.id }
+      return queryBase.where { $0.id.neq(Tag.Ubiquitous.builtIn.id) }
     }
     return queryBase
   }

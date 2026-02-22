@@ -30,12 +30,8 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
 // MARK: - AppStorage Double settings
 
 extension SharedKey where Self == AppStorageKey<Double>.Default {
-  public static var fontsAndPresetsSplitPosition: Self {
-    Self[.appStorage("fontsAndPresetsSplitPosition"), default: 0.5]
-  }
-  public static var fontsAndTagsSplitPosition: Self {
-    Self[.appStorage("fontsAndTagsSplitPosition"), default: 0.4]
-  }
+  public static var fontsAndPresetsSplitPosition: Self { Self[.appStorage("fontsAndPresetsSplitPosition"), default: 0.5] }
+  public static var fontsAndTagsSplitPosition: Self { Self[.appStorage("fontsAndTagsSplitPosition"), default: 0.4] }
   public static var keyWidth: Self { Self[.appStorage("keyWidth"), default: 64.0] }
 }
 
@@ -65,17 +61,10 @@ extension SharedKey where Self == AppStorageKey<ColorSchemeBehavior>.Default {
 }
 
 extension SharedKey where Self == AppStorageKey<String>.Default {
-  public static var favoriteSymbolName: Self {
-    unsafe Self[.appStorage("favoriteSymbolName", store: .group), default: "star.circle.fill"]
-  }
+  public static var favoriteSymbolName: Self { unsafe Self[.appStorage("favoriteSymbolName", store: .group), default: "star.circle.fill"] }
 }
 
 // MARK: - InMemory settings
-
-extension SharedKey where Self == InMemoryKey<Double>.Default {
-  public static var activePresetGain: Self { Self[.inMemory("activePresetGain"), default: 0.0] }
-  public static var activePresetPan: Self { Self[.inMemory("activePresetPan"), default: 0.0] }
-}
 
 extension SharedKey where Self == InMemoryKey<MIDI?>.Default {
   public static var midi: Self { Self[.inMemory("midi"), default: nil] }

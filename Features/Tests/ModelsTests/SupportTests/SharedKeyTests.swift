@@ -19,14 +19,6 @@ struct SharingTests {
     boolChecker(.sortPresetsByName)
   }
 
-  @Test
-  func customValues() {
-    @Shared(.selectedSoundFontId) var value3
-    #expect(value3 == nil)
-    $value3.withLock { $0 = 1 }
-    #expect(value3 != nil)
-  }
-
   func boolChecker(_ key: AppStorageKey<Bool>.Default) {
     @Shared(key) var value
     let initValue = value

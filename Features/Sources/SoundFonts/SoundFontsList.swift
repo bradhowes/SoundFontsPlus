@@ -63,6 +63,7 @@ public struct SoundFontsList {
   }
 
   public enum Action: BindableAction {
+    case activeSoundFontIdChanged(SoundFont.ID)
     case activeTagIdChanged(Tag.ID)
     case binding(BindingAction<State>)
     case cancelSearchButtonTapped
@@ -104,6 +105,9 @@ public struct SoundFontsList {
       log.action("SoundFontsList", action)
 
       switch action {
+
+      case .activeSoundFontIdChanged(let soundFontId):
+        return activeSoundFontIdChanged(&state, soundFontId: soundFontId)
 
       case .activeTagIdChanged(let tagId):
         state.activeTagId = tagId
@@ -208,6 +212,12 @@ public struct SoundFontsList {
 }
 
 extension SoundFontsList {
+
+  private func activeSoundFontIdChanged(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
+    state.activePresetSource = .active(soundFontId)
+    state.selectedPresetSource = nil
+    return .send(.delegate(.presetSourceChanged(.active(soundFontId))))
+  }
 
   private func alertInvalidBookmark(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
     state.destination = .alert(.invalidBookmark(displayName: soundFontInfo.displayName))

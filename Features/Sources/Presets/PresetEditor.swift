@@ -3,6 +3,7 @@
 import AVFoundation
 import Engine
 import FeatureSupport
+import StructuredQueries
 import Tuning
 
 private let log: Logger = .init(category: "PresetEditor")
@@ -81,7 +82,7 @@ public struct PresetEditor {
           $0.displayName = displayName
           $0.notes = notes
           if !isFavorite {
-            $0.kind = visible ? .preset : .hidden
+            $0.kind = #bind(visible ? .preset : .hidden)
           }
         }
         .where { $0.id.eq(preset.id) }

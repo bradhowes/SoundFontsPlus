@@ -72,6 +72,8 @@ public struct AppRoot {
     public var audioUnitCrashed = false
     public var toastState: VolumeMonitor.Reason?
 
+    public var avAudioUnit: AVAudioUnit?
+
     /**
      Constructur for main app.
      */
@@ -226,9 +228,6 @@ public struct AppRoot {
       case .destination(.presented(.alert(.reinitializeConfirmed))):
         return reinitializeConfirmed(&state)
 
-      case .destination(.presented(.soundFontEditor(.delegate(.refreshPresets)))):
-        return .none
-
       case .destination(.presented(.settings(.delegate(let action)))):
         return processSettingsAction(&state, action: action)
 
@@ -335,6 +334,24 @@ extension AppRoot {
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     guard state.readyForUse else { return .none }
     appActiveState.setActivePresetId(presetId)
+
+    // Experiment with setting the active preset via AUAudioUnit.fullState attribute.
+    if let presetId,
+       let avAudioUnit = state.avAudioUnit,
+       let preset = Preset.with(id: presetId) {
+      let activeState: AUv3ActiveState = .init(
+        soundFontId: preset.soundFontId,
+        presetId: presetId,
+        tagId: state.tagsList.activeTagId,
+        source: .app
+      )
+      do {
+        avAudioUnit.auAudioUnit.fullState = try FullState(activeState: activeState).state
+      } catch {
+        log.error("activePresetIdChanged - failed to make fullState: \(error.localizedDescription)")
+      }
+    }
+
     return .merge(
       reduce(into: &state, action: .appReview(.ask)),
       reduce(into: &state, action: .delayEffect(.activePresetIdChanged(presetId))),
@@ -347,6 +364,7 @@ extension AppRoot {
   }
 
   private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
+    state.avAudioUnit = avAudioUnit
     if let midiInstrument = avAudioUnit.midiInstrument {
       installMIDIMonitor(midiInstrument: midiInstrument)
     }

@@ -97,7 +97,7 @@ extension Tag {
 
   /**
    Fetch the row for a given ID.
-  
+
    - parameter id: the tag ID to look for
    - returns: the value found or `nil`.
    */
@@ -174,14 +174,14 @@ extension Tag {
 
     @Dependency(\.defaultDatabase) var database
     let existing = try database.read {
-      try Self.select(\.displayName).where({ $0.displayName == displayName }).fetchAll($0)
+      try Self.select(\.displayName).where({ $0.displayName.eq(displayName) }).fetchAll($0)
     }
     guard existing.isEmpty else { throw ModelError.duplicateTag(name: displayName) }
 
     try database.write { db in
       try Tag
         .update { $0.displayName = displayName }
-        .where({ $0.id == id })
+        .where({ $0.id.eq(id) })
         .execute(db)
     }
   }

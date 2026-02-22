@@ -187,7 +187,7 @@ let package = Package(
     .target(
       name: "SF2LibAU",
       dependencies: [
-        "BaseSupport",
+        "Models",
         .product(name: "Engine", package: "SF2Lib")
       ]
     ),

@@ -1,0 +1,211 @@
+// Copyright © 2025 Brad Howes. All rights reserved.
+
+@preconcurrency import AudioToolbox
+import AUv3Controls
+import ComposableArchitecture
+import Foundation
+import HostSupport
+import SwiftUI
+import TypedFullState
+
+@Reducer
+public struct AUv3Button {
+
+  @ObservableState
+  public struct State: Equatable, Identifiable {
+    public typealias ID = AUv3Instance.ID
+    public var instance: AUv3Instance
+    public var displayName: String
+    public var id: ID { instance.id }
+
+    public init(instance: AUv3Instance) {
+      self.instance = instance
+      self.displayName = instance.name
+    }
+  }
+
+  @Shared(.activeAUv3) var activeAUv3
+
+  public enum Action {
+    case activateButtonTapped
+    case deinitialize
+    case delegate(Delegate)
+    case deleteButtonTapped
+    case initialize
+    case playNote
+    case startLoop
+    case stateChanged
+    case stopLoop
+
+    @CasePathable
+    public enum Delegate {
+      case activate(instance: AUv3Instance)
+      case delete(id: State.ID)
+    }
+  }
+
+  public var body: some ReducerOf<Self> {
+    Reduce { state, action in
+      log.info("reduce \(action)")
+      switch action {
+      case .activateButtonTapped: return activateButtonTapped(&state)
+      case .deinitialize: return .merge(CancelId.allCases.map { .cancel(id: $0) })
+      case .delegate: return .none
+      case .deleteButtonTapped: return deleteButtonTapped(&state)
+      case .initialize: return monitorCurrentPreset(&state)
+      case .playNote: return playNote(&state)
+      case .startLoop: return startLoop(&state)
+      case .stateChanged: return stateChanged(&state)
+      case .stopLoop: return stopLoop(&state)
+      }
+    }
+  }
+
+  private enum CancelId: String, CaseIterable {
+    case auv3ButtonMonitorAllParameterValues
+    case auv3ButtonMonitorCurrentPreset
+  }
+}
+
+extension AUv3Button {
+
+  private func activateButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.displayName = state.instance.name
+    $activeAUv3.withLock { $0 = state.id }
+    return .send(.delegate(.activate(instance: state.instance)))
+  }
+
+  private func deleteButtonTapped(_ state: inout State) -> Effect<Action> {
+    return .send(.delegate(.delete(id: state.id)))
+  }
+
+  private func monitorCurrentPreset(_ state: inout State) -> Effect<Action> {
+    log.info("monitorCurrentPreset BEGIN")
+    return .run { [audioUnit = state.instance.audioUnit.auAudioUnit] send in
+      await audioUnit.propertyValueStream(for: \.currentPreset) {
+        log.info("monitorCurrentPreset - changed")
+        await send(.stateChanged)
+      }
+      log.info("monitorCurrentPreset END")
+    }.cancellable(id: CancelId.auv3ButtonMonitorCurrentPreset)
+  }
+
+  private func monitorAllParameterValues(_ state: inout State) -> Effect<Action> {
+    log.info("monitorAllParameterValues BEGIN")
+    return .run { [audioUnit = state.instance.audioUnit.auAudioUnit] send in
+      await audioUnit.propertyValueStream(for: \.allParameterValues) {
+        log.info("monitorAllParameterValues - changed")
+        await send(.stateChanged)
+      }
+      log.info("monitorAllParameterValues END")
+    }.cancellable(id: CancelId.auv3ButtonMonitorAllParameterValues)
+  }
+
+  private func playNote(_ state: inout State) -> Effect<Action> {
+    state.instance.audioUnit.auAudioUnit.playNote()
+    return .none
+  }
+
+  private func startLoop(_ state: inout State) -> Effect<Action> {
+    .run { [audioUnit = state.instance.audioUnit.auAudioUnit] send in
+      await audioUnit.playLoop()
+    }.cancellable(id: state.instance.id)
+  }
+
+  private func stateChanged(_ state: inout State) -> Effect<Action> {
+    state.displayName = state.instance.audioUnit.auAudioUnit.audioUnitShortName ?? "???"
+    return .none
+  }
+
+  private func stopLoop(_ state: inout State) -> Effect<Action> {
+    .cancel(id: state.instance.id)
+  }
+}
+
+public struct AUv3ButtonView: View {
+  @State private var store: StoreOf<AUv3Button>
+  @Shared(.activeAUv3) var activeAUv3
+
+  public init(store: StoreOf<AUv3Button>) {
+    self.store = store
+  }
+
+  public var body: some View {
+    HStack {
+      Button {
+        store.send(.activateButtonTapped)
+      } label: {
+        Text(store.displayName)
+      }
+      Spacer()
+      if store.id == activeAUv3 {
+        Image(systemName: "checkmark")
+      }
+    }
+    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+      Button {
+        store.send(.deleteButtonTapped, animation: .default)
+      } label: {
+        Image(systemName: "trash")
+          .tint(.red)
+      }
+    }
+    .task {
+      await store.send(.initialize).finish()
+    }
+  }
+}
+
+#if DEBUG
+
+extension AUv3ButtonView {
+
+  static var preview: some View {
+    prepareDependencies {
+      $0.uuid = .incrementing
+      $0.componentDescription = .previewValue
+
+      @Dependency(\.uuid) var uuid
+      @Dependency(\.componentDescription) var componentDescription
+
+      return VStack {
+        List {
+          AsyncModel { instance in
+            AUv3ButtonView(
+              store: Store(
+                initialState: .init(
+                  instance: instance
+                )
+              ) {
+                AUv3Button()
+              }
+            )
+          } model: {
+            try await AUv3Instance.make(component: componentDescription)
+          }
+          AsyncModel { instance in
+            AUv3ButtonView(
+              store: Store(
+                initialState: .init(
+                  instance: instance
+                )
+              ) {
+                AUv3Button()
+              }
+            )
+          } model: {
+            try await AUv3Instance.make(component: componentDescription)
+          }
+        }
+      }
+    }
+  }
+}
+
+#Preview("buttons") {
+  AUv3ButtonView.preview
+}
+
+#endif // DEBUG
+
+private let log = Logger(category: "AUv3Button")

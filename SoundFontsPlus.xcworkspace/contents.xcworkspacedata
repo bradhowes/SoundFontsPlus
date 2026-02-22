@@ -7,4 +7,10 @@
    <FileRef
       location = "group:Features">
    </FileRef>
+   <FileRef
+      location = "group:HostFeatures">
+   </FileRef>
+   <FileRef
+      location = "group:Host.xcodeproj">
+   </FileRef>
 </Workspace>

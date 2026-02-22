@@ -2,6 +2,7 @@
 
 import FeatureSupport
 import SQLiteData
+import StructuredQueries
 import Tags
 
 @Reducer
@@ -60,7 +61,7 @@ public struct SoundFontEditor {
           $0.displayName = displayName
           $0.notes = notes
         }
-        .where { $0.id == soundFont.id }
+        .where { $0.id.eq(soundFont.id) }
         .execute(db)
       }
     }
@@ -163,7 +164,7 @@ extension SoundFontEditor {
   func unhidePresets(_ state: inout State) -> Effect<Action> {
     withDatabaseWriter { db in
       try Preset.update {
-        $0.kind = .preset
+        $0.kind = #bind(.preset)
       }
       .where { $0.kind.eq(Preset.Kind.hidden) && $0.soundFontId.eq(state.soundFont.id) }
       .execute(db)
@@ -327,7 +328,7 @@ extension SoundFontEditorView {
           .all
           .where { $0.id.eq(Preset.ID(4)) || $0.id.eq(Preset.ID(3)) }
           .update {
-            $0.kind = .hidden
+            $0.kind = #bind(.hidden)
           }
           .execute(db)
       }

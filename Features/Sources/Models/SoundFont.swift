@@ -116,7 +116,7 @@ extension SoundFont {
   public static func exists(displayName: String) -> Bool {
     let found = withDatabaseReader { db in
       try SoundFont
-        .where { $0.displayName == displayName }
+        .where { $0.displayName.eq(displayName) }
         .select(\.id)
         .fetchAll(db)
     } ?? []

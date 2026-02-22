@@ -3,6 +3,5 @@
 import Foundation
 
 extension UserDefaults {
-  // swiftlint:disable:next force_unwrapping
-  public nonisolated(unsafe) static let group = UserDefaults(suiteName: FileManager.default.applicationGroupIdentifier)!
+  public nonisolated(unsafe) static let group: UserDefaults? = .init(suiteName: FileManager.default.applicationGroupIdentifier)
 }

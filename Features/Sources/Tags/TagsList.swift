@@ -50,6 +50,7 @@ public struct TagsList {
   }
 
   public enum Action {
+    case activeTagIdChanged(Tag.ID)
     case deinitialize
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
@@ -79,6 +80,9 @@ public struct TagsList {
 
       switch action {
 
+      case .activeTagIdChanged(let tagId):
+        return activeTagIdChanged(&state, tagId: tagId)
+
       case .deinitialize:
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
 
@@ -105,7 +109,7 @@ public struct TagsList {
         return processRowAction(&state, action: action)
 
       case .rowsUpdated(let tagInfos):
-        return updateRows(&state, tagInfos: tagInfos)
+        return rowsUpdated(&state, tagInfos: tagInfos)
 
       default:
         return .none
@@ -125,6 +129,11 @@ public struct TagsList {
 }
 
 extension TagsList {
+
+  private func activeTagIdChanged(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
+    state.activeTagId = tagId
+    return .none
+  }
 
   private func confirmDeleteTag(_ state: inout State, tagInfo: TagInfo) -> Effect<Action> {
     state.destination = .alert(
@@ -183,6 +192,13 @@ extension TagsList {
     }
   }
 
+  private func rowsUpdated(_ state: inout State, tagInfos: [TagInfo]) -> Effect<Action> {
+    withAnimation(.smooth) {
+      state.rows = .init(uniqueElements: tagInfos.map { .init(tagInfo: $0) })
+    }
+    return .none
+  }
+
   private func updateFetchAllQuery(_ state: inout State) -> Effect<Action> {
     .run(priority: .utility, name: "updateFetchAllQuery") { send in
       @Shared(.hideEmptyTags) var hideEmptyTags
@@ -196,13 +212,6 @@ extension TagsList {
         await send(.rowsUpdated(rows))
       }
     }.cancellable(id: CancelId.tagsListUpdateFetchAllQuery, cancelInFlight: true)
-  }
-
-  private func updateRows(_ state: inout State, tagInfos: [TagInfo]) -> Effect<Action> {
-    withAnimation(.smooth) {
-      state.rows = .init(uniqueElements: tagInfos.map { .init(tagInfo: $0) })
-    }
-    return .none
   }
 }
 

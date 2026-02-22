@@ -6,17 +6,13 @@ import Sharing
 import Tagged
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
-  public static var favoritesOnTop: Self { Self[.appStorage("favoritesOnTop"), default: false] }
-  public static var hideEmptyTags: Self { Self[.appStorage("hideEmptyTags"), default: true] }
-  public static var hideBuiltinFonts: Self { Self[.appStorage("hideBuiltinFonts"), default: false] }
-  public static var showOnlyFavorites: Self { Self[.appStorage("showOnlyFavorites"), default: false] }
-  public static var sortPresetsByName: Self { Self[.appStorage("sortPresetsByName"), default: false] }
+  public static var favoritesOnTop: Self { unsafe Self[.appStorage("favoritesOnTop", store: .group), default: false] }
+  public static var hideEmptyTags: Self { unsafe Self[.appStorage("hideEmptyTags", store: .group), default: true] }
+  public static var hideBuiltinFonts: Self { unsafe Self[.appStorage("hideBuiltinFonts", store: .group), default: false] }
+  public static var showOnlyFavorites: Self { unsafe Self[.appStorage("showOnlyFavorites", store: .group), default: false] }
+  public static var sortPresetsByName: Self { unsafe Self[.appStorage("sortPresetsByName", store: .group), default: false] }
 }
 
 extension SharedKey where Self == AppStorageKey<Double>.Default {
   public static var sqlContentionTimeout: Self { Self[.appStorage("sqlContentionTimeout"), default: 15.0] }
-}
-
-extension SharedKey where Self == InMemoryKey<SoundFont.ID?>.Default {
-  public static var selectedSoundFontId: Self { Self[.inMemory("selectedSoundFont"), default: nil] }
 }

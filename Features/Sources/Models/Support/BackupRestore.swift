@@ -5,6 +5,7 @@ import Dependencies
 import Foundation
 import GRDB
 import Sharing
+import StructuredQueries
 
 // Based off of code in https://github.com/groue/GRDB.swift/discussions/1798#discussioncomment-13926896
 public enum BackupManager {
@@ -33,7 +34,7 @@ public enum BackupManager {
       log.info("unhiding presets")
       try Preset
         .where { $0.kind.eq(Preset.Kind.hidden) }
-        .update { $0.kind = .preset }
+        .update { $0.kind = #bind(.preset) }
         .execute(db)
 
       log.info("removing custom audio configurations")

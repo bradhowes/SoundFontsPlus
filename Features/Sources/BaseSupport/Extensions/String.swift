@@ -38,3 +38,26 @@ extension String {
     ) == nil
   }
 }
+
+extension String {
+
+  public enum TruncationPosition {
+    case head
+    case middle
+    case tail
+  }
+
+  public func truncated(to limit: Int, with indicator: String = "…", at position: TruncationPosition = .tail) -> String {
+    guard self.count > limit else { return self }
+    switch position {
+    case .head:
+      return indicator + self.suffix(limit - indicator.count)
+    case .middle:
+      let headCharactersCount = Int(ceil(Float(limit - indicator.count) / 2.0))
+      let tailCharactersCount = Int(floor(Float(limit - indicator.count) / 2.0))
+      return "\(self.prefix(headCharactersCount))\(indicator)\(self.suffix(tailCharactersCount))"
+    case .tail:
+      return self.prefix(limit - indicator.count) + indicator
+    }
+  }
+}
