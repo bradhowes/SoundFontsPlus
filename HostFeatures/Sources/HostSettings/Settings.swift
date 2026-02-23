@@ -11,15 +11,12 @@ public struct Settings {
   public struct State: Equatable {
     public var componentSubtype: String
     public var componentManufacturer: String
-    public var auv3InstanceCount: Int
 
     public init() {
       @Shared(.componentSubtype) var componentSubtype
       @Shared(.componentManufacturer) var componentManufacturer
-      @Shared(.auv3InstanceCount) var auv3InstanceCount
       self.componentSubtype = componentSubtype
       self.componentManufacturer = componentManufacturer
-      self.auv3InstanceCount = auv3InstanceCount
     }
   }
 
@@ -66,11 +63,9 @@ extension Settings {
   private func accepted(_ state: inout State) -> Effect<Action> {
     @Shared(.componentSubtype) var componentSubtype
     @Shared(.componentManufacturer) var componentManufacturer
-    @Shared(.auv3InstanceCount) var auv3InstanceCount
 
     $componentSubtype.withLock { $0 = state.componentSubtype }
     $componentManufacturer.withLock { $0 = state.componentManufacturer }
-    $auv3InstanceCount.withLock { $0 = state.auv3InstanceCount }
 
     return .run { send in
       @Dependency(\.dismiss) var dismiss
@@ -131,7 +126,6 @@ public struct SettingsView: View {
           Text(manufacturerIssue)
             .foregroundStyle(.red)
         }
-        Stepper("Instance Count: \(store.auv3InstanceCount)", value: $store.auv3InstanceCount, in: 1...8)
         .navigationTitle("Settings")
         .toolbar {
           ToolbarItem(placement: .cancellationAction) {

@@ -30,7 +30,6 @@ public struct AUv3Button {
     case activateButtonTapped
     case deinitialize
     case delegate(Delegate)
-    case deleteButtonTapped
     case initialize
     case playNote
     case startLoop
@@ -39,8 +38,7 @@ public struct AUv3Button {
 
     @CasePathable
     public enum Delegate {
-      case activate(instance: AUv3Instance)
-      case delete(id: State.ID)
+      case deleteRequested(id: State.ID)
     }
   }
 
@@ -51,7 +49,6 @@ public struct AUv3Button {
       case .activateButtonTapped: return activateButtonTapped(&state)
       case .deinitialize: return .merge(CancelId.allCases.map { .cancel(id: $0) })
       case .delegate: return .none
-      case .deleteButtonTapped: return deleteButtonTapped(&state)
       case .initialize: return monitorCurrentPreset(&state)
       case .playNote: return playNote(&state)
       case .startLoop: return startLoop(&state)
@@ -72,18 +69,13 @@ extension AUv3Button {
   private func activateButtonTapped(_ state: inout State) -> Effect<Action> {
     state.displayName = state.instance.name
     $activeAUv3.withLock { $0 = state.id }
-    return .send(.delegate(.activate(instance: state.instance)))
-  }
-
-  private func deleteButtonTapped(_ state: inout State) -> Effect<Action> {
-    return .send(.delegate(.delete(id: state.id)))
+    return .none
   }
 
   private func monitorCurrentPreset(_ state: inout State) -> Effect<Action> {
     log.info("monitorCurrentPreset BEGIN")
     return .run { [audioUnit = state.instance.audioUnit.auAudioUnit] send in
       await audioUnit.propertyValueStream(for: \.currentPreset) {
-        log.info("monitorCurrentPreset - changed")
         await send(.stateChanged)
       }
       log.info("monitorCurrentPreset END")
@@ -94,7 +86,6 @@ extension AUv3Button {
     log.info("monitorAllParameterValues BEGIN")
     return .run { [audioUnit = state.instance.audioUnit.auAudioUnit] send in
       await audioUnit.propertyValueStream(for: \.allParameterValues) {
-        log.info("monitorAllParameterValues - changed")
         await send(.stateChanged)
       }
       log.info("monitorAllParameterValues END")
@@ -113,7 +104,7 @@ extension AUv3Button {
   }
 
   private func stateChanged(_ state: inout State) -> Effect<Action> {
-    state.displayName = state.instance.audioUnit.auAudioUnit.audioUnitShortName ?? "???"
+    state.displayName = state.instance.audioUnit.auAudioUnit.audioUnitShortName ?? "N/A"
     return .none
   }
 
@@ -136,6 +127,7 @@ public struct AUv3ButtonView: View {
         store.send(.activateButtonTapped)
       } label: {
         Text(store.displayName)
+          .animation(.smooth, value: store.displayName)
       }
       Spacer()
       if store.id == activeAUv3 {
@@ -144,7 +136,7 @@ public struct AUv3ButtonView: View {
     }
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
       Button {
-        store.send(.deleteButtonTapped, animation: .default)
+        store.send(.delegate(.deleteRequested(id: store.id)))
       } label: {
         Image(systemName: "trash")
           .tint(.red)

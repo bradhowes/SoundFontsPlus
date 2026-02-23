@@ -7,6 +7,7 @@ import HostPresets
 import HostSettings
 import HostSupport
 import SwiftUI
+import TypedFullState
 
 @Reducer
 public struct Root {
@@ -31,15 +32,20 @@ public struct Root {
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
 
-    public var instances: AUv3sList.State
-    public var presets: PresetsList.State
+    public var auv3sList: AUv3sList.State
+    public var presetsList: PresetsList.State
     public var songPlaying: Bool
     public let engine = AVAudioEngine()
 
+    @ObservationStateIgnored
+    public var outstandingInstanceCount: Int
+
     public init(instances: AUv3sList.State? = nil, presets: PresetsList.State? = nil) {
-      self.instances = instances ?? .init()
-      self.presets = presets ?? .init()
+      @Shared(.auv3InstanceCount) var auv3InstanceCount
+      self.auv3sList = instances ?? .init()
+      self.presetsList = presets ?? .init()
       self.songPlaying = false
+      self.outstandingInstanceCount = auv3InstanceCount
     }
   }
 
@@ -47,55 +53,35 @@ public struct Root {
     case binding(BindingAction<State>)
     case destination(PresentationAction<Destination.Action>)
     case initialize
-    case instances(AUv3sList.Action)
+    case auv3sList(AUv3sList.Action)
     case noteButtonTapped
     case playButtonTapped
-    case presets(PresetsList.Action)
+    case presetsList(PresetsList.Action)
   }
 
   public init() {}
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
-    Scope(state: \.instances, action: \.instances) { AUv3sList() }
-    Scope(state: \.presets, action: \.presets) { PresetsList() }
+    Scope(state: \.auv3sList, action: \.auv3sList) { AUv3sList() }
+    Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
 
     Reduce { state, action in
       switch action {
 
-      case .binding:
-        return .none
-
-      case .destination(.presented(.settings(.delegate(.accepted)))):
-        return reduce(into: &state, action: .instances(.initialize))
-
-      case .destination:
-        return .none
-
-      case .initialize:
-        return initialize(&state)
-
-      case .instances(.delegate(.settings)):
-        state.destination = .settings(.init())
-        return .none
-
-      case .instances(.delegate(.added(instance: let instance))):
-        return addInstance(&state, instance: instance)
-
-      case .instances(.delegate(.removed(instance: let instance))):
-        return removeInstance(&state, instance: instance)
-
-      case .instances:
-        return .none
-
-      case .noteButtonTapped:
-        return playNote(&state)
-
-      case .playButtonTapped:
-        return playButtonTapped(&state)
-
-      case .presets:
-        return .none
+      case .binding: return .none
+      case .destination(.presented(.settings(.delegate(.accepted)))): return reduce(into: &state, action: .auv3sList(.initialize))
+      case .destination: return .none
+      case .initialize: return initialize(&state)
+      case .auv3sList(.delegate(.settingsButtonTapped)): return settingsButtonTapped(&state)
+      case .auv3sList(.delegate(.added(instance: let instance))): return instanceCreated(&state, instance: instance)
+      case .auv3sList(.delegate(.removed(instance: let instance))): return instanceRemoved(&state, instance: instance)
+      case .auv3sList: return .none
+      case .noteButtonTapped: return playNote(&state)
+      case .playButtonTapped: return playButtonTapped(&state)
+      case .presetsList(.delegate(.presetActivated(let fullStates))): return presetActivated(&state, fullStates: fullStates)
+      case .presetsList(.delegate(.updateActivePresetRequested)): return updateActivePresetRequested(&state)
+      case .presetsList: return .none
       }
     }
     .ifLet(\.$destination, action: \.destination)
@@ -108,17 +94,32 @@ public struct Root {
 
 extension Root {
 
-  private func addInstance(_ state: inout State, instance: AUv3Instance) -> Effect<Action> {
-    log.info("addInstance BEGIN")
+  private func instanceCreated(_ state: inout State, instance: AUv3Instance) -> Effect<Action> {
+    log.info("instanceCreated BEGIN")
     stopPlaying(&state)
     state.engine.attach(instance.audioUnit)
     state.engine.connect(instance.audioUnit, to: state.engine.mainMixerNode, format: AudioSession.audioFormat)
-    log.info("addInstance END")
+    state.outstandingInstanceCount -= 1
+
+    if state.outstandingInstanceCount == 0 {
+      return restoreActivePreset(&state)
+    }
+    log.info("instanceCreated END")
     return .none
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {
     state.engine.connect(state.engine.mainMixerNode, to: state.engine.outputNode, format: AudioSession.audioFormat)
+    return .merge(
+      reduce(into: &state, action: .auv3sList(.initialize)),
+      reduce(into: &state, action: .presetsList(.initialize))
+    )
+  }
+
+  private func instanceRemoved(_ state: inout State, instance: AUv3Instance) -> Effect<Action> {
+    stopPlaying(&state)
+    state.engine.disconnectNodeOutput(instance.audioUnit)
+    state.engine.detach(instance.audioUnit)
     return .none
   }
 
@@ -129,13 +130,46 @@ extension Root {
   private func playNote(_ state: inout State) -> Effect<Action> {
     updateAudioSession(active: true)
     startEngine(&state)
-    return reduce(into: &state, action: .instances(.playNote))
+    return reduce(into: &state, action: .auv3sList(.playNote))
   }
 
-  private func removeInstance(_ state: inout State, instance: AUv3Instance) -> Effect<Action> {
-    stopPlaying(&state)
-    state.engine.disconnectNodeOutput(instance.audioUnit)
-    state.engine.detach(instance.audioUnit)
+  private func presetActivated(_ state: inout State, fullStates: TypedFullStateCollection) -> Effect<Action> {
+    log.info("presetActivated BEGIN")
+    guard state.outstandingInstanceCount <= 0 else { return .none }
+    for index in 0..<max(fullStates.count, state.auv3sList.rows.count) {
+      log.info("presetActivate - updating instance \(index)")
+      if index < state.auv3sList.rows.count {
+        let row = state.auv3sList.rows[index]
+        let audioUnit = row.instance.audioUnit.auAudioUnit
+        let typedFullState = index < fullStates.count ? fullStates[index] : nil
+        log.info("presetActivated - before setting fullState - \(String(describing: typedFullState))")
+        audioUnit.fullState = FullState.make(from: typedFullState)
+        log.info("presetActivated - after setting fullState - audioUnitShortName: \(String(describing: audioUnit.audioUnitShortName))")
+      } else {
+        log.info("presetActivated - no instance for index \(index)")
+      }
+    }
+    return .none
+  }
+
+  private func restoreActivePreset(_ state: inout State) -> Effect<Action> {
+    log.info("restoreActivePreset BEGIN")
+    @Shared(.activePreset) var activePreset
+    guard
+      let activePreset,
+      let index = state.presetsList.rows.index(id: activePreset)
+    else {
+      log.info("restoreActivePreset END - cannot restore active preset")
+      return .none
+    }
+
+    let fullStates = state.presetsList.rows[index].preset.fullStateCollection
+    log.info("restoreActivePreset END")
+    return presetActivated(&state, fullStates: fullStates)
+  }
+
+  private func settingsButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.destination = .settings(.init())
     return .none
   }
 
@@ -155,7 +189,7 @@ extension Root {
     updateAudioSession(active: true)
     startEngine(&state)
     state.songPlaying = true
-    return reduce(into: &state, action: .instances(.startLoops))
+    return reduce(into: &state, action: .auv3sList(.startLoops))
   }
 
   @discardableResult
@@ -166,7 +200,23 @@ extension Root {
     if state.engine.isRunning {
       state.engine.stop()
     }
-    return reduce(into: &state, action: .instances(.stopLoops))
+    return reduce(into: &state, action: .auv3sList(.stopLoops))
+  }
+
+  private func updateActivePresetRequested(_ state: inout State) -> Effect<Action> {
+    log.info("updateActivePresetRequested BEGIN")
+    do {
+      let fullStates: TypedFullStateCollection = try state.auv3sList.rows.map {
+        try $0.instance.audioUnit.auAudioUnit.fullState?.asTypedAny()
+      }
+      log.info("updateActivePresetRequested END - \(fullStates)")
+      return reduce(into: &state, action: .presetsList(.updateActivePreset(fullStates: fullStates)))
+    } catch {
+      log.error("updateActivePresetRequested - failed: \(error.localizedDescription)")
+    }
+
+    log.info("updateActivePresetRequested END")
+    return .none
   }
 
   private func updateAudioSession(active: Bool) {
@@ -195,8 +245,8 @@ public struct RootView: View {
   public var body: some View {
     VStack(spacing: 16) {
       HStack(spacing: 16) {
-        AUv3sListView(store: store.scope(state: \.instances, action: \.instances))
-        PresetsListView(store: store.scope(state: \.presets, action: \.presets))
+        AUv3sListView(store: store.scope(state: \.auv3sList, action: \.auv3sList))
+        PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
       }
       Grid(horizontalSpacing: 16.0) {
         GridRow {
@@ -204,7 +254,7 @@ public struct RootView: View {
             store.send(.playButtonTapped)
           } label: {
             Text(store.songPlaying ? "Stop Notes" : "Play Notes")
-          }.disabled(store.instances.rows.isEmpty)
+          }.disabled(store.auv3sList.rows.isEmpty)
 
           Button {
             store.send(.noteButtonTapped)
@@ -215,8 +265,8 @@ public struct RootView: View {
       }
       Group {
         if let activeAUv3,
-           let index = store.instances.rows.index(id: activeAUv3) {
-          let instance = store.instances.rows[index].instance
+           let index = store.auv3sList.rows.index(id: activeAUv3) {
+          let instance = store.auv3sList.rows[index].instance
           ZStack {
             Color.black
             AUv3View(instance: instance)

@@ -28,9 +28,18 @@ public struct PresetsList {
 
   public enum Action {
     case addButtonTapped
+    case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case initialize
+    case updateActivePreset(fullStates: TypedFullStateCollection)
     case rows(IdentifiedActionOf<PresetButton>)
+    case saveButtonTapped
+
+    @CasePathable
+    public enum Delegate {
+      case presetActivated(fullStates: TypedFullStateCollection)
+      case updateActivePresetRequested
+    }
   }
 
   public init() {}
@@ -44,30 +53,15 @@ public struct PresetsList {
       log.info("reduct \(action)")
       switch action {
 
-      case .addButtonTapped:
-        return addButtonTapped(&state)
-
-      case .destination(.presented(.presetEditor(.delegate(.accepted(let name))))):
-        let id = state.destination?.presetEditor?.id
-        let index = state.rows.firstIndex(where: {$0.preset.id == id})
-        log.info("state.destination?.presetEditor?.id: \(String(describing: id))")
-        log.info("\(String(describing: index))")
-        if let index {
-          state.rows[index].preset.name = name
-        }
-        return .none
-
-      case .destination:
-        return .none
-
-      case .initialize:
-        return initialize(&state)
-
-      case .rows(.element(id: let id, action: .delegate(let action))):
-        return processRowAction(&state, id: id, action: action)
-
-      case .rows:
-        return .none
+      case .addButtonTapped: return addButtonTapped(&state)
+      case .delegate: return .none
+      case .destination(.presented(.presetEditor(.delegate(.accepted(let name))))): return editorDismissed(&state, name: name)
+      case .destination: return .none
+      case .initialize: return initialize(&state)
+      case .rows(.element(id: let id, action: .delegate(let action))): return processRowAction(&state, id: id, action: action)
+      case .rows: return .none
+      case .saveButtonTapped: return updateActivePresetRequested(&state)
+      case .updateActivePreset(let fullStates): return updateActivePreset(&state, fullStates: fullStates)
       }
     }
     .forEach(\.rows, action: \.rows) {
@@ -80,22 +74,54 @@ public struct PresetsList {
 extension PresetsList {
 
   private func addButtonTapped(_ state: inout State) -> Effect<Action> {
+    log.info("addButtonTapped BEGIN")
     state.rows.append(PresetButton.State(preset: .init(name: "New Preset", id: uuid(), fullStateCollection: .init())))
+    log.info("addButtonTapped EBD")
     return .none
   }
 
+  private func editorDismissed(_ state: inout State, name: String) -> Effect<Action> {
+    let id = state.destination?.presetEditor?.id
+    let index = state.rows.firstIndex(where: {$0.preset.id == id})
+    log.info("state.destination?.presetEditor?.id: \(String(describing: id))")
+    log.info("\(String(describing: index))")
+    if let index {
+      state.rows[index].preset.name = name
+    }
+    return updateActivePresetRequested(&state)
+  }
+
   private func initialize(_ state: inout State) -> Effect<Action> {
+    log.info("initialize BEGIN")
     guard let data = presetsStore.restore() else {
+      log.info("failed to reestore presets from disk - creating empty collection")
       state.rows = []
-      save(state)
       return .none
     }
 
-    if let presets = try? JSONDecoder().decode(Array<Preset>.self, from: data) {
+    do {
+      let presets = try JSONDecoder().decode(Array<Preset>.self, from: data)
       state.rows = .init(uniqueElements: presets.map { .init(preset: $0) })
+    } catch {
+      log.error("initialize - failed to decode presets: \(error.localizedDescription)")
     }
 
+    log.info("initialize END")
     return .none
+  }
+
+  private func updateActivePreset(_ state: inout State, fullStates: TypedFullStateCollection) -> Effect<Action> {
+    log.info("updateActivePreset BEGIN")
+    @Shared(.activePreset) var activePreset
+    if let activePreset,
+       state.rows.index(id: activePreset) != nil {
+      return .concatenate(
+        reduce(into: &state, action: .rows(.element(id: activePreset, action: .updated(fullStates)))),
+        savePresets(&state)
+      )
+    }
+    log.info("updateActivePreset END")
+    return savePresets(&state)
   }
 
   private func processRowAction(
@@ -103,28 +129,33 @@ extension PresetsList {
     id: PresetButton.State.ID,
     action: PresetButton.Action.Delegate
   ) -> Effect<Action> {
-    log.info("reduce \(action)")
+    log.info("processRowAction BEGIN - \(action)")
     switch action {
-
-    case .activate(fullStates: let fullStates):
-      log.info("activate: \(fullStates)")
-      break
-
-    case .delete(id: let id):
-      state.rows.remove(id: id)
-      break
-
-    case .edit(id: let id, name: let name):
-      state.destination = .presetEditor(.init(id: id, name: name))
-      break
+    case .activate(fullStates: let fullStates): return .send(.delegate(.presetActivated(fullStates: fullStates)))
+    case .delete(id: let id): state.rows.remove(id: id)
+    case .edit(id: let id, name: let name): state.destination = .presetEditor(.init(id: id, name: name))
     }
+    log.info("processRowAction END")
     return .none
   }
 
-  private func save(_ state: State) {
-    if let data = try? JSONEncoder().encode(state.rows.map(\.preset)) {
+  private func savePresets(_ state: inout State) -> Effect<Action> {
+    log.info("savePresets BEGIN")
+    do {
+      let data = try JSONEncoder().encode(state.rows.map { $0.preset })
       presetsStore.save(data)
+      log.info("savePresets - saved")
+    } catch {
+      log.error("failed to save presets: \(error.localizedDescription)")
     }
+
+    log.info("savePresets END")
+    return .none
+  }
+
+  private func updateActivePresetRequested(_ state: inout State) -> Effect<Action> {
+    log.info("updateActivePresetRequested BEGIN")
+    return .send(.delegate(.updateActivePresetRequested))
   }
 }
 
@@ -143,9 +174,15 @@ public struct PresetsListView: View {
         Text("Presets")
         Spacer()
         Button {
+          store.send(.saveButtonTapped)
+        } label: {
+          Image(systemName: "square.and.arrow.down")
+        }
+        .disabled(store.rows.isEmpty)
+        Button {
           store.send(.addButtonTapped)
         } label: {
-          Text("Add")
+          Image(systemName: "plus")
         }
       }
       List {
@@ -154,9 +191,7 @@ public struct PresetsListView: View {
         }
       }
     }
-    .task {
-      await store.send(.initialize).finish()
-    }
+    .animation(.smooth, value: store.rows)
     .sheet(item: $store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
       PresetEditorView(store: $0)
     }

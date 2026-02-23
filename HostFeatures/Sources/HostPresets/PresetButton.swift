@@ -29,6 +29,7 @@ public struct PresetButton {
     case delegate(Delegate)
     case deleteButtonTapped
     case editButtonTapped
+    case updated(TypedFullStateCollection)
 
     @CasePathable
     public enum Delegate {
@@ -46,6 +47,9 @@ public struct PresetButton {
       case .delegate: return .none
       case .deleteButtonTapped: return deleteButtonTapped(&state)
       case .editButtonTapped: return editButtonTapped(&state)
+      case .updated(let fullStates):
+        state.preset.fullStateCollection = fullStates
+        return .none
       }
     }
   }

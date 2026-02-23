@@ -200,22 +200,23 @@ extension AUv3Root {
    - returns: new `AppRoot` store ready to use in ``AppRootView``
    */
   @MainActor
-  public static func makeWithDependencies(audioUnit: SF2LibAU) -> StoreOf<AUv3Root> {
-    prepareDependencies {
-      if ProcessInfo.processInfo.environment["UITesting"] == "true" {
-        $0.defaultFileStorage = .inMemory
-      } else {
-        $0.defaultFileStorage = .fileSystem
+  public static func makeWithDependencies(audioUnit: SF2LibAU, firstTime: Bool) -> StoreOf<AUv3Root> {
+    if firstTime {
+      prepareDependencies {
+        if ProcessInfo.processInfo.environment["UITesting"] == "true" {
+          $0.defaultFileStorage = .inMemory
+        } else {
+          $0.defaultFileStorage = .fileSystem
+        }
+
+        // swiftlint:disable:next force_try
+        $0.defaultDatabase = try! appDatabase()
+
+        try? $0.fileManager.createDirectory($0.fileManager.fontFilesDirectory())
       }
-
-      @Shared(.isAUv3) var isAUv3 = true
-
-      // swiftlint:disable:next force_try
-      $0.defaultDatabase = try! appDatabase()
-      try? $0.fileManager.createDirectory($0.fileManager.fontFilesDirectory())
-
-      return StoreOf<AUv3Root>(initialState: AUv3Root.State(audioUnit: audioUnit)) { AUv3Root() }
     }
+
+    return StoreOf<AUv3Root>(initialState: AUv3Root.State(audioUnit: audioUnit)) { AUv3Root() }
   }
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {

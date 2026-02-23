@@ -40,6 +40,9 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
   }
 
   private func installView(audioUnit: SF2LibAU) {
+    @Shared(.isAUv3) var isAUv3
+    let firstTime = !isAUv3
+    $isAUv3.withLock { $0 = true }
 
     if let host = hostingController {
       host.removeFromParent()
@@ -47,7 +50,7 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
     }
 
     // Entry point for AUv3 view
-    let content = AUv3RootView(store: AUv3Root.makeWithDependencies(audioUnit: audioUnit))
+    let content = AUv3RootView(store: AUv3Root.makeWithDependencies(audioUnit: audioUnit, firstTime: firstTime))
     let host = AUv3HostingController(rootView: content)
 
     self.addChild(host)
