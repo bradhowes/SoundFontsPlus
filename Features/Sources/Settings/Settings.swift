@@ -67,6 +67,7 @@ public struct Settings {
     @Shared(.showMIDINotesOnKeyboard) public var showMIDINotesOnKeyboard
     @Shared(.showMIDITrafficIndicator) public var showMIDITrafficIndicator
     @Shared(.showOnlyFavorites) public var showOnlyFavorites
+    @Shared(.showPresetIndexView) public var showPresetIndexView
     @Shared(.showSolfegeTags) public var showSolfegeTags
     @Shared(.sortPresetsByName) public var sortPresetsByName
     @Shared(.starFavoriteNames) public var starFavoriteNames

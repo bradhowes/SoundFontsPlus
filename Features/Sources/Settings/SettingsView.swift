@@ -96,6 +96,17 @@ extension SettingsView {
       Toggle(isOn: $store.playSoundOnPresetChange) {
         Text("Play sound on preset change")
       }
+      Toggle(isOn: $store.showPresetIndexView) {
+        VStack(alignment: .leading, spacing: 8) {
+          Text("Show preset index strip")
+          Text(
+"""
+When enabled, show a compact list of indices for quickly jumping to a section of presets.
+"""
+          )
+          .font(.settingsDescription)
+        }
+      }
     }
   }
 

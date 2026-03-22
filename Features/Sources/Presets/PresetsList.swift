@@ -400,6 +400,7 @@ public struct PresetsListView: View {
   @Bindable private var store: StoreOf<PresetsList>
   @FocusState private var focusedField: PresetsList.State.Field?
   @GestureState private var dragLocation: CGPoint = .zero
+  @Shared(.showPresetIndexView) var showPresetIndexView
 
   public init(store: StoreOf<PresetsList>) {
     self.store = store
@@ -420,7 +421,9 @@ public struct PresetsListView: View {
           }
         }
         .overlay(alignment: .trailing) {
-          sectionIndexTitlesOverlay
+          if showPresetIndexView {
+            sectionIndexTitlesOverlay
+          }
         }
         .onChange(of: store.scrollToTarget) {
           doScrollTo(proxy: proxy)
