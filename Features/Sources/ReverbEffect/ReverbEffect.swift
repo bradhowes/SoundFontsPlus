@@ -174,13 +174,13 @@ extension ReverbEffect {
 
     if state.activePresetId == nil {
       return .merge(
-        reduce(into: &state, action: .enabled(.setValue(new.enabled))),
-        reduce(into: &state, action: .wetDryMix(.setValueSilently(new.wetDryMix)))
+        .send(.enabled(.setValue(new.enabled))),
+        .send(.wetDryMix(.setValueSilently(new.wetDryMix)))
       )
     } else if changed {
       return .merge(
-        reduce(into: &state, action: .enabled(.setValue(new.enabled))),
-        reduce(into: &state, action: .wetDryMix(.setValue(new.wetDryMix)))
+        .send(.enabled(.setValue(new.enabled))),
+        .send(.wetDryMix(.setValue(new.wetDryMix)))
       )
     }
 
@@ -188,22 +188,18 @@ extension ReverbEffect {
   }
 
   private func runDebouncers(_ state: inout State) -> Effect<Action> {
+    @Dependency(\.continuousClock) var clock
     state.dirty = true
+    let debounceDurations = self.debounceDurations
     return .merge(
       .run { send in
+        try await clock.sleep(for: debounceDurations.effectsDisplayUpdates)
         await send(.updateDebounced)
-      }.debounce(
-        id: CancelId.reverbEffectUpdateDebouncer,
-        for: debounceDurations.effectsDisplayUpdates,
-        scheduler: mainQueue
-      ),
+      }.cancellable(id: CancelId.reverbEffectUpdateDebouncer, cancelInFlight: true),
       .run(priority: .utility) { send in
+        try await clock.sleep(for: debounceDurations.effectsConfigurationSaves)
         await send(.saveDebounced)
-      }.debounce(
-        id: CancelId.reverbEffectSaveDebouncer,
-        for: debounceDurations.effectsConfigurationSaves,
-        scheduler: mainQueue
-      )
+      }.cancellable(id: CancelId.reverbEffectSaveDebouncer, cancelInFlight: true)
     )
   }
 

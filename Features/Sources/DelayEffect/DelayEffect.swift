@@ -208,19 +208,19 @@ extension DelayEffect {
 
     if state.activePresetId == nil {
       return .merge(
-        reduce(into: &state, action: .enabled(.setValue(new.enabled))),
-        reduce(into: &state, action: .time(.setValueSilently(new.time))),
-        reduce(into: &state, action: .feedback(.setValueSilently(new.feedback))),
-        reduce(into: &state, action: .cutoff(.setValueSilently(new.cutoff))),
-        reduce(into: &state, action: .wetDryMix(.setValueSilently(new.wetDryMix))),
+        .send(.enabled(.setValue(new.enabled))),
+        .send(.time(.setValueSilently(new.time))),
+        .send(.feedback(.setValueSilently(new.feedback))),
+        .send(.cutoff(.setValueSilently(new.cutoff))),
+        .send(.wetDryMix(.setValueSilently(new.wetDryMix))),
       )
     } else if changed {
       return .merge(
-        reduce(into: &state, action: .enabled(.setValue(new.enabled))),
-        reduce(into: &state, action: .time(.setValue(new.time))),
-        reduce(into: &state, action: .feedback(.setValue(new.feedback))),
-        reduce(into: &state, action: .cutoff(.setValue(new.cutoff))),
-        reduce(into: &state, action: .wetDryMix(.setValue(new.wetDryMix))),
+        .send(.enabled(.setValue(new.enabled))),
+        .send(.time(.setValue(new.time))),
+        .send(.feedback(.setValue(new.feedback))),
+        .send(.cutoff(.setValue(new.cutoff))),
+        .send(.wetDryMix(.setValue(new.wetDryMix))),
       )
     }
 
@@ -228,22 +228,18 @@ extension DelayEffect {
   }
 
   private func runDebouncers(_ state: inout State) -> Effect<Action> {
+    @Dependency(\.continuousClock) var clock
     state.dirty = true
+    let debounceDurations = self.debounceDurations
     return .merge(
       .run { send in
+        try await clock.sleep(for: debounceDurations.effectsDisplayUpdates)
         await send(.updateDebounced)
-      }.debounce(
-        id: CancelId.delayEffectUpdateDebouncer,
-        for: debounceDurations.effectsDisplayUpdates,
-        scheduler: mainQueue
-      ),
+      }.cancellable(id: CancelId.delayEffectUpdateDebouncer, cancelInFlight: true),
       .run(priority: .utility) { send in
+        try await clock.sleep(for: debounceDurations.effectsConfigurationSaves)
         await send(.saveDebounced)
-      }.debounce(
-        id: CancelId.delayEffectSaveDebouncer,
-        for: debounceDurations.effectsConfigurationSaves,
-        scheduler: mainQueue
-      )
+      }.cancellable(id: CancelId.delayEffectSaveDebouncer, cancelInFlight: true)
     )
   }
 

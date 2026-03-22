@@ -158,7 +158,7 @@ public struct AUv3Root {
         return editPreset(&state, sectionId: sectionId, preset: preset)
 
       case .presetsList(.delegate(.missingSoundFontDetected(let soundFontId))):
-        return reduce(into: &state, action: .soundFontsList(.missingSoundFontDetected(soundFontId)))
+        return .send(.soundFontsList(.missingSoundFontDetected(soundFontId)))
 
       case .soundFontsList(.delegate(.presetSourceChanged(let presetSource))):
         return presetSourceChanged(&state, presetSource: presetSource)
@@ -168,7 +168,7 @@ public struct AUv3Root {
         return .none
 
       case .tagsList(.delegate(.activeTagIdChanged(let tagId))):
-        return reduce(into: &state, action: .soundFontsList(.activeTagIdChanged(tagId)))
+        return .send(.soundFontsList(.activeTagIdChanged(tagId)))
 
       case .tagsList(.delegate(.edit(focus: let ordering))):
         state.destination = .tagsEditor(TagsEditor.State(focused: ordering))
@@ -223,8 +223,8 @@ extension AUv3Root {
     log.info("activePresetIdChanged BEGIN - presetId: \(presetId ?? -1)")
     refreshFullState(state)
     return .merge(
-      reduce(into: &state, action: .soundFontsList(.selectedIsNowActivated)),
-      reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId)))
+      .send(.soundFontsList(.selectedIsNowActivated)),
+      .send(.toolBar(.activePresetIdChanged(presetId)))
     )
   }
 
@@ -246,17 +246,17 @@ extension AUv3Root {
   private func deinitialize(_ state: inout State) -> Effect<Action> {
     .merge(
       .merge(CancelId.allCases.map { .cancel(id: $0) }),
-      reduce(into: &state, action: .presetsList(.deinitialize)),
-      reduce(into: &state, action: .soundFontsList(.deinitialize)),
-      reduce(into: &state, action: .tagsList(.deinitialize)),
-      reduce(into: &state, action: .toolBar(.deinitialize))
+      .send(.presetsList(.deinitialize)),
+      .send(.soundFontsList(.deinitialize)),
+      .send(.tagsList(.deinitialize)),
+      .send(.toolBar(.deinitialize))
     )
   }
 
   private func destinationDismissed(_ state: inout State) -> Effect<Action> {
     switch state.destination {
     case .presetEditor(let editor): presetEditorDismissed(&state, editor: editor)
-    case .settings: reduce(into: &state, action: .presetsList(.updateFetchAllQuery))
+    case .settings: .send(.presetsList(.updateFetchAllQuery))
     case .soundFontEditor(let editor): soundFontEditorDismissed(&state, editor: editor)
     default: .none
     }
@@ -278,13 +278,13 @@ extension AUv3Root {
     var effects: [Effect<Action>] = []
     if let activeState = state.audioUnit.auv3ActiveState {
       if activeState.tagId != state.tagsList.activeTagId {
-        effects.append(reduce(into: &state, action: .tagsList(.activeTagIdChanged(activeState.tagId))))
+        effects.append(.send(.tagsList(.activeTagIdChanged(activeState.tagId))))
       }
       if activeState.soundFontId != state.soundFontsList.activePresetSource?.id {
-        effects.append(reduce(into: &state, action: .soundFontsList(.activeSoundFontIdChanged(activeState.soundFontId))))
+        effects.append(.send(.soundFontsList(.activeSoundFontIdChanged(activeState.soundFontId))))
       }
       if activeState.presetId != state.presetsList.activePresetId {
-        effects.append(reduce(into: &state, action: .activePresetIdChanged(activeState.presetId)))
+        effects.append(.send(.activePresetIdChanged(activeState.presetId)))
       }
       if activeState.fontsAndTagsSplitPosition != state.fontsAndTagsSplit.position {
         state.fontsAndTagsSplit.position = activeState.fontsAndTagsSplitPosition
@@ -295,7 +295,7 @@ extension AUv3Root {
       if tagsListVisible != activeState.tagsListVisible {
         $tagsListVisible.withLock { $0 = activeState.tagsListVisible }
         let panes: SplitViewVisiblePanes = activeState.tagsListVisible ? .both : .primary
-        effects.append(reduce(into: &state, action: .fontsAndTagsSplit(.updatePanesVisibility(panes))))
+        effects.append(.send(.fontsAndTagsSplit(.updatePanesVisibility(panes))))
       }
     }
     return .merge(effects)
@@ -324,11 +324,11 @@ extension AUv3Root {
     if editor.preset.id == state.presetsList.activePresetId {
       refreshFullState(state)
     }
-    return reduce(into: &state, action: .presetsList(.updateFetchAllQuery))
+    return .send(.presetsList(.updateFetchAllQuery))
   }
 
   private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {
-    return reduce(into: &state, action: .presetsList(.presetSourceChanged(presetSource)))
+    return .send(.presetsList(.presetSourceChanged(presetSource)))
   }
 
   private func processFontsAndPresetsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
@@ -362,10 +362,10 @@ extension AUv3Root {
     switch action {
 
     case .editingPresetVisibilityChanged(let active):
-      return reduce(into: &state, action: .presetsList(.editingVisibilityChanged(active)))
+      return .send(.presetsList(.editingVisibilityChanged(active)))
 
     case .presetNameTapped:
-      return reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
+      return .send(.soundFontsList(.showActiveSoundFont))
 
     case .settingsButtonTapped:
       state.destination = .settings(Settings.State())
@@ -374,7 +374,7 @@ extension AUv3Root {
     case .tagsListVisibilityChanged(let visible):
       $tagsListVisible.withLock { $0 = visible }
       let panes: SplitViewVisiblePanes = visible ? .both : .primary
-      return reduce(into: &state, action: .fontsAndTagsSplit(.updatePanesVisibility(panes)))
+      return .send(.fontsAndTagsSplit(.updatePanesVisibility(panes)))
 
     default:
       return .none

@@ -80,7 +80,7 @@ public struct SoundFontButton {
         return downloadFile(&state)
 
       case .resetDeleting:
-        state.deleting = false
+        Self.resetDeleting(&state)
         return .none
 
       case .statusInfoChanged(let statusInfoTag):
@@ -96,6 +96,10 @@ public struct SoundFontButton {
 }
 
 extension SoundFontButton {
+
+  static public func resetDeleting(_ state: inout State) {
+    state.deleting = false
+  }
 
   private func bookmarkMonitorStart(_ state: inout State) -> Effect<Action> {
     guard state.soundFontInfo.kind == .external else { return .none }

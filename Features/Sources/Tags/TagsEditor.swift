@@ -269,8 +269,10 @@ private extension TagsEditor {
   }
 
   func moveTag(_ state: inout State, at indices: IndexSet, to offset: Int) -> Effect<Action> {
-    state.rows.move(fromOffsets: indices, toOffset: offset)
-    return .none.animation(.smooth)
+    withAnimation(.smooth) {
+      state.rows.move(fromOffsets: indices, toOffset: offset)
+    }
+    return .none
   }
 
   func toggleEditModeActive(_ state: inout State) -> Effect<Action> {

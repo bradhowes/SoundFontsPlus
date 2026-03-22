@@ -153,25 +153,16 @@ public struct SoundFontsList {
 
       case .headerDoubleTapped:
         state.editingMode = .active
-        return .merge(
-          state.rows.map {
-            reduce(
-              into: &state,
-              action: .rows(.element(id: $0.id, action: .resetDeleting))
-            )
-        })
+        state.rows.forEach {
+          state.rows[id: $0.id]?.deleting = false
+        }
+        return .none
 
       case .initialize:
         return monitorHideBuiltinFonts(&state)
 
       case .missingSoundFontDetected(let soundFontId):
-        SoundFont.delete(id: soundFontId)
-        if state.activePresetSource == .active(soundFontId) {
-          state.activePresetSource = nil
-        }
-        if state.selectedPresetSource == .selected(soundFontId) {
-          state.selectedPresetSource = nil
-        }
+        Self.missingSoundFontDetected(&state, soundFontId: soundFontId)
         return .none
 
       case .rows(.element(_, .delegate(let action))):
@@ -212,6 +203,16 @@ public struct SoundFontsList {
 }
 
 extension SoundFontsList {
+
+  public static func missingSoundFontDetected(_ state: inout State, soundFontId: SoundFont.ID) {
+    SoundFont.delete(id: soundFontId)
+    if state.activePresetSource == .active(soundFontId) {
+      state.activePresetSource = nil
+    }
+    if state.selectedPresetSource == .selected(soundFontId) {
+      state.selectedPresetSource = nil
+    }
+  }
 
   private func activeSoundFontIdChanged(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
     state.activePresetSource = .active(soundFontId)

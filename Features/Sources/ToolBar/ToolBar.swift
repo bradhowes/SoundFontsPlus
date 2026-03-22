@@ -11,7 +11,7 @@ import Settings
 private let log: Logger = .init(category: "ToolBar")
 
 /**
- The ToolBar feature provides a strip above the keyboard that hosts controls and a text display. It supports 
+ The ToolBar feature provides a strip above the keyboard that hosts controls and a text display. It supports
  */
 @Reducer
 public struct ToolBar {
@@ -143,18 +143,20 @@ public struct ToolBar {
         return .none
 
       case .addSoundFontButtonTapped:
-        return reduce(into: &state, action: .fileImporter(.showFileImporter))
+        return .send(.fileImporter(.showFileImporter))
 
       case .audioUnitCreated(let audioUnit):
         return audioUnitCreated(&state, audioUnit: audioUnit)
 
       case .clearTemporaryStatus:
-        state.temporaryStatus = nil
-        return .none.animation(.smooth)
+        withAnimation(.smooth) {
+          state.temporaryStatus = nil
+        }
+        return .none
 
       case .deinitialize:
         return .merge(
-          reduce(into: &state, action: .midiTrafficIndicator(.deinitialize)),
+          .send(.midiTrafficIndicator(.deinitialize)),
           .merge(CancelId.allCases.map({ .cancel(id: $0) }))
         )
 
@@ -225,7 +227,7 @@ extension ToolBar {
   private func audioUnitCreated(_ state: inout State, audioUnit: AVAudioUnit) -> Effect<Action> {
     .merge(
       monitorActiveVoiceCount(&state, audioUnit: audioUnit),
-      reduce(into: &state, action: .midiTrafficIndicator(.initialize))
+      .send(.midiTrafficIndicator(.initialize))
     )
   }
 
@@ -233,10 +235,8 @@ extension ToolBar {
     .run { send in
       @Dependency(\.continuousClock) var clock
       try await clock.sleep(for: .seconds(1.8))
-      await send(.clearTemporaryStatus)
-    }
-    .cancellable(id: CancelId.toolBarClearTemporaryStatus, cancelInFlight: true)
-    .animation(.smooth)
+      await send(.clearTemporaryStatus, animation: .smooth)
+    }.cancellable(id: CancelId.toolBarClearTemporaryStatus, cancelInFlight: true)
   }
 
   private func editPresetVisibility(_ state: inout State) -> Effect<Action> {
@@ -246,7 +246,7 @@ extension ToolBar {
 
   private func lastPlayedKeyChanged(_ state: inout State, key: Note) -> Effect<Action> {
     guard showKeyNotes || showSolfegeTags else { return .none }
-    state.temporaryStatus = .lastPlayedKey(key.fullLabel(withSolfege: showSolfegeTags))
+    state.temporaryStatus = .lastPlayedKey(showKeyNotes ? key.fullLabel(withSolfege: showSolfegeTags) : key.solfege)
     return clearTemporaryStatusTask(&state)
   }
 
@@ -343,12 +343,16 @@ extension ToolBar {
   }
 
   private func toggleShowMoreButtons(_ state: inout State) -> Effect<Action> {
-    state.showMoreButtons.toggle()
+    withAnimation(.smooth) {
+      state.showMoreButtons.toggle()
+    }
     if !state.showMoreButtons && state.editingPresetVisibility {
-      state.editingPresetVisibility = false
+      withAnimation(.smooth) {
+        state.editingPresetVisibility = false
+      }
       return .send(.delegate(.editingPresetVisibilityChanged(false)))
     }
-    return .none.animation(.smooth)
+    return .none
   }
 
   private func toggleTagsListVisibility(_ state: inout State) -> Effect<Action> {

@@ -97,7 +97,9 @@ public struct TagNameEditor {
         return .none
 
       case .tagSwipedToDelete:
-        return .send(.delegate(.tagSwipedToDelete(state.id)), animation: .default)
+        return .run { [stateId = state.id] send in
+            await send(.delegate(.tagSwipedToDelete(stateId)), animation: .default)
+        }
 
       case .delegate:
         return .none

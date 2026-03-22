@@ -253,7 +253,7 @@ public struct AppRoot {
         return editPreset(&state, sectionId: sectionId, preset: preset)
 
       case .presetsList(.delegate(.missingSoundFontDetected(let soundFontId))):
-        return reduce(into: &state, action: .soundFontsList(.missingSoundFontDetected(soundFontId)))
+        return .send(.soundFontsList(.missingSoundFontDetected(soundFontId)))
 
       case .scenePhaseChanged(let phase):
         return scenePhaseChanged(&state, phase: phase)
@@ -276,7 +276,7 @@ public struct AppRoot {
 
       case .tagsList(.delegate(.activeTagIdChanged(let tagId))):
         appActiveState.setActiveTagId(tagId)
-        return reduce(into: &state, action: .soundFontsList(.activeTagIdChanged(tagId)))
+        return .send(.soundFontsList(.activeTagIdChanged(tagId)))
 
       case .tagsList(.delegate(.edit(focus: let ordering))):
         state.destination = .tagsEditor(.init(focused: ordering))
@@ -353,14 +353,14 @@ extension AppRoot {
     }
 
     return .merge(
-      reduce(into: &state, action: .appReview(.ask)),
-      reduce(into: &state, action: .delayEffect(.activePresetIdChanged(presetId))),
-      reduce(into: &state, action: .keyboard(.activePresetIdChanged(presetId))),
-      reduce(into: &state, action: .reverbEffect(.activePresetIdChanged(presetId))),
-      reduce(into: &state, action: .soundFontsList(.selectedIsNowActivated)),
-      reduce(into: &state, action: .synth(.activePresetIdChanged(presetId))),
-      reduce(into: &state, action: .toolBar(.activePresetIdChanged(presetId))),
-      reduce(into: &state, action: .volumeMonitor(.activePresetIdChanged(presetId))))
+      .send(.appReview(.ask)),
+      .send(.delayEffect(.activePresetIdChanged(presetId))),
+      .send(.keyboard(.activePresetIdChanged(presetId))),
+      .send(.reverbEffect(.activePresetIdChanged(presetId))),
+      .send(.soundFontsList(.selectedIsNowActivated)),
+      .send(.synth(.activePresetIdChanged(presetId))),
+      .send(.toolBar(.activePresetIdChanged(presetId))),
+      .send(.volumeMonitor(.activePresetIdChanged(presetId))))
   }
 
   private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
@@ -370,14 +370,14 @@ extension AppRoot {
     }
 
     return .merge(
-      reduce(into: &state, action: .toolBar(.audioUnitCreated(avAudioUnit))),
-      reduce(into: &state, action: .keyboard(.midiInstrumentCreated(avAudioUnit)))
+      .send(.toolBar(.audioUnitCreated(avAudioUnit))),
+      .send(.keyboard(.midiInstrumentCreated(avAudioUnit)))
     )
   }
 
   private func audioChainActive(_ state: inout State) -> Effect<Action> {
     // The synth is up and running with an active audio session. Safe to monitor its state now.
-    var actions = [reduce(into: &state, action: .volumeMonitor(.start))]
+    var actions: [Effect<Action>] = [.send(.volumeMonitor(.start))]
     if !state.readyForUse {
       state.readyForUse = true
       actions.append(activePresetIdChanged(&state, presetId: state.presetsList.activePresetId))
@@ -387,7 +387,7 @@ extension AppRoot {
   }
 
   private func audioChainInactive(_ state: inout State) -> Effect<Action> {
-    return reduce(into: &state, action: .volumeMonitor(.stop))
+    return .send(.volumeMonitor(.stop))
   }
 
   private func createCloudDocumentsDirectory() -> Effect<Action> {
@@ -414,25 +414,25 @@ extension AppRoot {
 
     return .merge(
       .merge(CancelId.allCases.map { .cancel(id: $0) }),
-      reduce(into: &state, action: .delayEffect(.deinitialize)),
-      reduce(into: &state, action: .keyboard(.deinitialize)),
-      reduce(into: &state, action: .presetsList(.deinitialize)),
-      reduce(into: &state, action: .reverbEffect(.deinitialize)),
-      reduce(into: &state, action: .soundFontsList(.deinitialize)),
-      reduce(into: &state, action: .synth(.deinitialize)),
-      reduce(into: &state, action: .tagsList(.deinitialize)),
-      reduce(into: &state, action: .toolBar(.deinitialize)),
-      reduce(into: &state, action: .volumeMonitor(.stop))
+      .send(.delayEffect(.deinitialize)),
+      .send(.keyboard(.deinitialize)),
+      .send(.presetsList(.deinitialize)),
+      .send(.reverbEffect(.deinitialize)),
+      .send(.soundFontsList(.deinitialize)),
+      .send(.synth(.deinitialize)),
+      .send(.tagsList(.deinitialize)),
+      .send(.toolBar(.deinitialize)),
+      .send(.volumeMonitor(.stop))
     )
   }
 
   private func destinationDismissed(_ state: inout State) -> Effect<Action> {
     .merge(
-      reduce(into: &state, action: .appReview(.ask)),
+      .send(.appReview(.ask)),
       {
         switch state.destination {
         case .presetEditor(let editor): presetEditorDismissed(&state, editor: editor)
-        case .alert, .settings: reduce(into: &state, action: .presetsList(.updateFetchAllQuery))
+        case .alert, .settings: .send(.presetsList(.updateFetchAllQuery))
         default: .none
         }
       }()
@@ -454,7 +454,7 @@ extension AppRoot {
     .merge(
       createCloudDocumentsDirectory(),
       monitorInvalidationNotification(&state),
-      reduce(into: &state, action: .synth(.initialize)),
+      .send(.synth(.initialize)),
     )
   }
 
@@ -496,11 +496,11 @@ extension AppRoot {
   private func presetEditorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
     if editor.preset.id == state.presetsList.activePresetId {
       return .merge(
-        reduce(into: &state, action: .presetsList(.updateFetchAllQuery)),
-        reduce(into: &state, action: .toolBar(.activePresetIdChanged(state.presetsList.activePresetId)))
+        .send(.presetsList(.updateFetchAllQuery)),
+        .send(.toolBar(.activePresetIdChanged(state.presetsList.activePresetId)))
       )
     }
-    return reduce(into: &state, action: .presetsList(.updateFetchAllQuery))
+    return .send(.presetsList(.updateFetchAllQuery))
   }
 
   private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {
@@ -509,7 +509,7 @@ extension AppRoot {
         appActiveState.setActiveSoundFontId(presetSource.id)
       }
     }
-    return reduce(into: &state, action: .presetsList(.presetSourceChanged(presetSource)))
+    return .send(.presetsList(.presetSourceChanged(presetSource)))
   }
 
   private func processFontsAndPresetsSplitAction(
@@ -544,12 +544,10 @@ extension AppRoot {
   private func processKeyboardAction(_ state: inout State, action: Keyboard.Action.Delegate) -> Effect<Action> {
     switch action {
     case .noteOn(let key):
-      return reduce(into: &state, action: .toolBar(.lastPlayedKeyChanged(key)))
-        .animation(.smooth)
-
+      return .run { send in await send(.toolBar(.lastPlayedKeyChanged(key)), animation: .smooth) }
     case .visibleKeyRangeChanged(let lowest, let highest):
       $firstVisibleKey.withLock { $0 = lowest }
-      return reduce(into: &state, action: .toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
+      return .send(.toolBar(.setVisibleKeyRange(lowest: lowest, highest: highest)))
     }
   }
 
@@ -566,24 +564,26 @@ extension AppRoot {
     switch action {
 
     case .editingPresetVisibilityChanged(let active):
-      return reduce(into: &state, action: .presetsList(.editingVisibilityChanged(active)))
+      return .send(.presetsList(.editingVisibilityChanged(active)))
 
     case .effectsVisibilityChanged(let visible):
-      $effectsPanelVisible.withLock { $0 = visible }
-      return .none.animation(.smooth)
+      withAnimation(.smooth) {
+        $effectsPanelVisible.withLock { $0 = visible }
+      }
+      return .none
 
     case .importFinished:
-      return reduce(into: &state, action: .tagsList(.importFinished))
+      return .send(.tagsList(.importFinished))
 
     case .presetNameTapped:
       return .merge(
-        reduce(into: &state, action: .appReview(.ask)),
-        reduce(into: &state, action: .soundFontsList(.showActiveSoundFont))
+        .send(.appReview(.ask)),
+        .send(.soundFontsList(.showActiveSoundFont))
       )
 
     case .panic:
       _ = state.synth.avAudioUnit?.sendReset()
-      return reduce(into: &state, action: .keyboard(.allOff))
+      return .send(.keyboard(.allOff))
 
     case .settingsButtonTapped:
       state.destination = .settings(Settings.State())
@@ -592,18 +592,20 @@ extension AppRoot {
     case .tagsListVisibilityChanged(let visible):
       $tagsListVisible.withLock { $0 = visible }
       let panes: SplitViewVisiblePanes = visible ? .both : .primary
-      return reduce(into: &state, action: .fontsAndTagsSplit(.updatePanesVisibility(panes)))
+      return .send(.fontsAndTagsSplit(.updatePanesVisibility(panes)))
 
     case .visibleKeyRangeChanged(let lowest, _):
       $firstVisibleKey.withLock { $0 = lowest }
-      return reduce(into: &state, action: .keyboard(.scrollTo(lowest)))
+      return .send(.keyboard(.scrollTo(lowest)))
     }
   }
 
   private func reinitializeConfirmed(_ state: inout State) -> Effect<Action> {
     BackupManager.reinitialize()
-    state.destination = .alert(.reinitialized())
-    return .none.animation(.smooth)
+    withAnimation(.smooth) {
+      state.destination = .alert(.reinitialized())
+    }
+    return .none
   }
 
   private func scenePhaseChanged(_ state: inout State, phase: ScenePhase) -> Effect<Action> {
@@ -612,12 +614,12 @@ extension AppRoot {
     case .active:
       log.info("scene becoming active - resuming DB")
       NotificationCenter.default.post(name: Database.resumeNotification, object: self)
-      return reduce(into: &state, action: .synth(.acquireAudioSession))
+      return .send(.synth(.acquireAudioSession))
 
     case .background, .inactive:
       log.info("scene becoming inactive - suspending DB")
       NotificationCenter.default.post(name: Database.suspendNotification, object: self)
-      return reduce(into: &state, action: .synth(.releaseAudioSession))
+      return .send(.synth(.releaseAudioSession))
 
     @unknown default:
       fatalError("Unhandled ScenePhase \(phase):")
@@ -634,10 +636,7 @@ extension AppRoot {
       state.toastState = nil
     }
 
-    return reduce(
-      into: &state,
-      action: .keyboard(.outputVolumeStateChanged(reason != nil ? .muted : .unmuted))
-    )
+    return .send(.keyboard(.outputVolumeStateChanged(reason != nil ? .muted : .unmuted)))
   }
 }
 

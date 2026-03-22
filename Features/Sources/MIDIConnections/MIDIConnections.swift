@@ -90,7 +90,7 @@ public struct MIDIConnections {
 
       case .initialize:
         return .merge(
-          reduce(into: &state, action: .midiTrafficIndicator(.initialize)),
+          .send(.midiTrafficIndicator(.initialize)),
           monitorMIDIConnections(&state)
         )
 

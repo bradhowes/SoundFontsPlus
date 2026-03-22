@@ -187,8 +187,9 @@ extension TagsList {
       return deleteTagConfirmed(&state, tagInfo: tagInfo)
 
     case .edit(let tagInfo):
-      return .send(.delegate(.edit(focus: tagInfo.ordering)), animation: .smooth)
-
+      return .run { send in
+        await send(.delegate(.edit(focus: tagInfo.ordering)), animation: .smooth)
+      }
     }
   }
 

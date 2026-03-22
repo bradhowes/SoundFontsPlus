@@ -5,12 +5,12 @@ import DependenciesMacros
 import Foundation
 
 public struct DebounceDurations {
-  public let effectsConfigurationSaves: DispatchQueue.SchedulerTimeType.Stride
-  public let effectsDisplayUpdates: DispatchQueue.SchedulerTimeType.Stride
+  public let effectsConfigurationSaves: Duration
+  public let effectsDisplayUpdates: Duration
 
   public init(
-    effectsConfigurationSaves: DispatchQueue.SchedulerTimeType.Stride,
-    effectsDisplayUpdates: DispatchQueue.SchedulerTimeType.Stride,
+    effectsConfigurationSaves: Duration,
+    effectsDisplayUpdates: Duration,
   ) {
     self.effectsConfigurationSaves = effectsConfigurationSaves
     self.effectsDisplayUpdates = effectsDisplayUpdates
@@ -40,4 +40,4 @@ extension DebounceDurations: Sendable, DependencyKey {
   }
 }
 
-extension DispatchQueue.SchedulerTimeType.Stride: @unchecked @retroactive Sendable {}
+// extension DispatchQueue.SchedulerTimeType.Stride: @unchecked @retroactive Sendable {}

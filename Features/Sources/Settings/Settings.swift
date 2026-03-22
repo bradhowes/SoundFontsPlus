@@ -233,7 +233,7 @@ extension Settings {
 
   private func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
-      reduce(into: &state, action: .midiTrafficIndicator(.initialize)),
+      .send(.midiTrafficIndicator(.initialize)),
       monitorMIDIConnections(&state)
     )
   }
