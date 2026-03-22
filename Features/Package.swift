@@ -16,7 +16,7 @@ extension Package.Dependency {
 
   static var sf2Lib: PackageDescription.Package.Dependency {
     useLocalSF2Lib ? .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib") :
-      .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.0.0")
+      .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.12.3")
   }
 }
 
@@ -55,6 +55,7 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/bradhowes/AUv3Controls", from: "1.0.0"),
     .package(url: "https://github.com/bradhowes/brh-splitview", from: "1.0.0"),
+    .package(url: "https://github.com/bradhowes/typedfullstate", branch: "main"),
     //
     .morkAndMIDI,
     .sf2Lib,
@@ -181,7 +182,8 @@ let package = Package(
       dependencies: [
         "BaseSupport",
         "SF2Resources",
-        .product(name: "Tagged", package: "swift-tagged")
+        .product(name: "Tagged", package: "swift-tagged"),
+        .product(name: "TypedFullState", package: "TypedFullState")
       ]
     ),
     .target(
