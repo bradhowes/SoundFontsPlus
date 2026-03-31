@@ -8,30 +8,45 @@ import Sharing
 
 @DependencyClient
 public struct AudioGraph: Sendable {
-  public var start: @Sendable (AVAudioUnitMIDIInstrument?) -> Bool = { _ in false }
-  public var stop: @Sendable (AVAudioUnitMIDIInstrument?) -> Void
+  public let engine: AVAudioEngine?
+  public let start: @Sendable (AVAudioEngine?, AVAudioUnitMIDIInstrument?) -> Bool
+  public let stop: @Sendable (AVAudioEngine?, AVAudioUnitMIDIInstrument?) -> Void
+
+  public init(
+    engine: AVAudioEngine?,
+    start: @Sendable @escaping (AVAudioEngine?, AVAudioUnitMIDIInstrument?) -> Bool,
+    stop: @Sendable @escaping (AVAudioEngine?, AVAudioUnitMIDIInstrument?) -> Void
+  ) {
+    self.engine = engine
+    self.start = start
+    self.stop = stop
+  }
 }
 
 extension AudioGraph: DependencyKey {
   public static var liveValue: AudioGraph {
-    let engine = AVAudioEngine()
-    return .init(
-      start: { startGraph(engine, synth: $0) },
-      stop: { stopGraph(engine, synth: $0) }
+    .init(
+      engine: AVAudioEngine(),
+      start: { startGraph($0, synth: $1) },
+      stop: { stopGraph($0, synth: $1) }
     )
   }
 
   public static var previewValue: AudioGraph {
     .init(
-      start: { _ in true },
-      stop: { _ in }
+      engine: nil,
+      start: { _, _ in true },
+      stop: { _, _ in }
     )
   }
 }
 
-private func startGraph(_ engine: AVAudioEngine, synth: AVAudioUnitMIDIInstrument?) -> Bool {
+private func startGraph(_ engine: AVAudioEngine?, synth: AVAudioUnitMIDIInstrument?) -> Bool {
   log.info("startGraph BEGIN")
-  guard let synth else {
+  guard
+    let engine,
+    let synth
+  else {
     log.info("startGraph END - nil synth")
     return false
   }
@@ -44,13 +59,20 @@ private func startGraph(_ engine: AVAudioEngine, synth: AVAudioUnitMIDIInstrumen
   @Dependency(\.delayDevice) var delayDevice
   @Dependency(\.reverbDevice) var reverbDevice
 
-  engine.attach(delayDevice.effect())
-  engine.attach(reverbDevice.effect())
-  engine.attach(synth)
+  let reverb = reverbDevice.effect
+  if let reverb {
+    engine.attach(reverb)
+    engine.connect(reverb, to: engine.outputNode, format: AudioSession.audioFormat)
+  }
 
-  engine.connect(reverbDevice.effect(), to: engine.outputNode, format: AudioSession.audioFormat)
-  engine.connect(delayDevice.effect(), to: reverbDevice.effect(), format: AudioSession.audioFormat)
-  engine.connect(synth, to: delayDevice.effect(), format: AudioSession.audioFormat)
+  let delay = delayDevice.effect
+  if let delay {
+    engine.attach(delay)
+    engine.connect(delay, to: reverb ?? engine.outputNode, format: AudioSession.audioFormat)
+  }
+
+  engine.attach(synth)
+  engine.connect(synth, to: delay ?? reverb ?? engine.outputNode, format: AudioSession.audioFormat)
 
   let started: Bool
   do {
@@ -66,10 +88,13 @@ private func startGraph(_ engine: AVAudioEngine, synth: AVAudioUnitMIDIInstrumen
   return started
 }
 
-private func stopGraph(_ engine: AVAudioEngine, synth: AVAudioUnitMIDIInstrument?) {
+private func stopGraph(_ engine: AVAudioEngine?, synth: AVAudioUnitMIDIInstrument?) {
   log.info("stopGraph BEGIN")
 
-  guard let synth else {
+  guard
+    let engine,
+    let synth
+  else {
     log.info("stopGraph END - nil synth")
     return
   }
@@ -87,11 +112,15 @@ private func stopGraph(_ engine: AVAudioEngine, synth: AVAudioUnitMIDIInstrument
   log.info("stopGraph - stopping engine")
   engine.stop()
 
-  log.info("stopGraph - detaching delay")
-  engine.detach(delayDevice.effect())
+  if let delay = delayDevice.effect {
+    log.info("stopGraph - detaching delay")
+    engine.detach(delay)
+  }
 
-  log.info("stopGraph - detaching reverb")
-  engine.detach(reverbDevice.effect())
+  if let reverb = reverbDevice.effect {
+    log.info("stopGraph - detaching reverb")
+    engine.detach(reverb)
+  }
 
   log.info("stopGraph - detaching synth")
   engine.detach(synth)

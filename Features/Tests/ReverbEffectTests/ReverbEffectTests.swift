@@ -28,7 +28,7 @@ struct ReverbEffectTests {
     TestStoreOf<ReverbEffect>(initialState: .init(activePresetId: activePresetId)) {
       ReverbEffect()
     } withDependencies: {
-      $0.reverbDevice.setConfig = { config in Task { await device.setConfig(config) } }
+      $0.reverbDevice = .init(effect: nil, setConfig: { _, config in Task { await device.setConfig(config) } })
     }
   }
 
@@ -48,7 +48,7 @@ struct ReverbEffectTests {
 
   @Test
   func roomPresetChanged() async throws {
-    @Dependency(\.mainQueue) var mainQueue
+    @Dependency(\.continuousClock) var clock
     @Dependency(\.debounceDurations) var debounceDurations
 
     let store = store()
@@ -67,7 +67,7 @@ struct ReverbEffectTests {
       $0.dirty = true
     }
 
-    try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
+    try? await clock.sleep(for: debounceDurations.effectsDisplayUpdates)
     await store.receive(\.updateDebounced)
 
     let config = ReverbConfig.Draft(
@@ -78,7 +78,7 @@ struct ReverbEffectTests {
       presetId: store.state.config.presetId
     )
 
-    try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
+    try? await clock.sleep(for: debounceDurations.effectsConfigurationSaves)
     await store.receive(\.saveDebounced) {
       $0.config = config
       $0.dirty = false
@@ -91,7 +91,7 @@ struct ReverbEffectTests {
 
   @Test
   func enabledToggled() async throws {
-    @Dependency(\.mainQueue) var mainQueue
+    @Dependency(\.continuousClock) var clock
     @Dependency(\.debounceDurations) var debounceDurations
 
     let store = store()
@@ -110,7 +110,7 @@ struct ReverbEffectTests {
       $0.dirty = true
     }
 
-    try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
+    try? await clock.sleep(for: debounceDurations.effectsDisplayUpdates)
     await store.receive(\.updateDebounced)
 
     let config = ReverbConfig.Draft(
@@ -121,7 +121,7 @@ struct ReverbEffectTests {
       presetId: store.state.config.presetId
     )
 
-    try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
+    try? await clock.sleep(for: debounceDurations.effectsConfigurationSaves)
     await store.receive(\.saveDebounced) {
       $0.config = config
       $0.dirty = false
@@ -134,7 +134,7 @@ struct ReverbEffectTests {
 
   @Test
   func wetDryMix() async throws {
-    @Dependency(\.mainQueue) var mainQueue
+    @Dependency(\.continuousClock) var clock
     @Dependency(\.debounceDurations) var debounceDurations
 
     let store = store()
@@ -153,7 +153,7 @@ struct ReverbEffectTests {
       $0.dirty = true
     }
 
-    try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
+    try? await clock.sleep(for: debounceDurations.effectsDisplayUpdates)
     await store.receive(\.updateDebounced)
 
     let config = ReverbConfig.Draft(
@@ -164,7 +164,7 @@ struct ReverbEffectTests {
       presetId: store.state.config.presetId
     )
 
-    try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
+    try? await clock.sleep(for: debounceDurations.effectsConfigurationSaves)
     await store.receive(\.saveDebounced) {
       $0.config = config
       $0.dirty = false
@@ -177,7 +177,7 @@ struct ReverbEffectTests {
 
       await store.receive(\.wetDryMix)
 
-      try? await mainQueue.sleep(for: debounceDurations.effectsDisplayUpdates)
+      try? await clock.sleep(for: debounceDurations.effectsDisplayUpdates)
       await store.receive(\.updateDebounced)
 
       let config2 = ReverbConfig.Draft(
@@ -188,7 +188,7 @@ struct ReverbEffectTests {
         presetId: store.state.config.presetId
       )
 
-      try? await mainQueue.sleep(for: debounceDurations.effectsConfigurationSaves)
+      try? await clock.sleep(for: debounceDurations.effectsConfigurationSaves)
       await store.receive(\.saveDebounced) {
         $0.config = config2
         $0.dirty = false

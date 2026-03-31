@@ -64,14 +64,14 @@ struct SettingsTests {
   func copyFileWhenInstalling() async throws {
     try await initialized { store in
       await store.send(\.binding.copyFileWhenInstalling, false) {
-        $0.$copyFileWhenInstalling.withLock { $0 = true }
+        $0.copyFileWhenInstalling = true
         $0.destination = .alert(
           AlertState.confirmDisableCopyFile(action: .disableCopyFileConfirmed)
         )
       }
 
       await store.send(.destination(.presented(.alert(.disableCopyFileConfirmed)))) {
-        $0.$copyFileWhenInstalling.withLock { $0 = false }
+        $0.copyFileWhenInstalling = false
         $0.destination = nil
       }
 
@@ -85,14 +85,14 @@ struct SettingsTests {
   func disableIdleTimer() async throws {
     try await initialized { store in
       await store.send(\.binding.disableIdleTimer, true) {
-        $0.$disableIdleTimer.withLock { $0 = false }
+        $0.disableIdleTimer = false
         $0.destination = .alert(
           AlertState.confirmDisableIdleTimer(action: .disableIdleTimerConfirmed)
         )
       }
 
       await store.send(.destination(.presented(.alert(.disableIdleTimerConfirmed)))) {
-        $0.$disableIdleTimer.withLock { $0 = true }
+        $0.disableIdleTimer = true
         $0.destination = nil
       }
 

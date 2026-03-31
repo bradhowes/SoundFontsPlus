@@ -64,7 +64,7 @@ public struct DelayEffect {
       self.activePresetId = activePresetId
 
       @Dependency(\.delayDevice) var delayDevice
-      delayDevice.setConfig(config)
+      delayDevice.setConfig(delayDevice.effect, config)
     }
   }
 
@@ -109,6 +109,7 @@ public struct DelayEffect {
         return updateAndSave(&state, path: \.cutoff, value: state.cutoff.value)
 
       case .deinitialize:
+        log.info("deinitialize")
         if state.dirty {
           _ = saveDebounced(&state)
         }
@@ -174,11 +175,16 @@ extension DelayEffect {
     }
 
     log.info("activePresetIdChanged END - saving")
-    // Save current changes and then apply new config. Order is important here.
+    // Save current changes and then apply new config. Order is important here. We do not want the `save` to be cancelled or else
+    // we could lose changes made by the user. We do allow cancelling the `applyConfigForPreset` since we only care about the last
+    // call.
     return .concatenate(
-      .run { [toSave = state.config] _ in DelayConfig.save(config: toSave) },
-      .run { send in await send(.applyConfigForPreset(presetId)) }
-        .cancellable(id: CancelId.delayEffectApplyConfigForPreset, cancelInFlight: true)
+      .run { [toSave = state.config] _ in
+        DelayConfig.save(config: toSave)
+      },
+      .run { send in
+        await send(.applyConfigForPreset(presetId))
+      }.cancellable(id: CancelId.delayEffectApplyConfigForPreset, cancelInFlight: true)
     )
   }
 
@@ -201,7 +207,7 @@ extension DelayEffect {
 
     if changed {
       state.config = new
-      delayDevice.setConfig(new)
+      delayDevice.setConfig(delayDevice.effect, new)
     }
 
     defer { state.activePresetId = presetId }
@@ -233,23 +239,29 @@ extension DelayEffect {
     let debounceDurations = self.debounceDurations
     return .merge(
       .run { send in
+        defer { log.info("delayEffectUpdateDebouncer exit") }
         try await clock.sleep(for: debounceDurations.effectsDisplayUpdates)
+        if Task.isCancelled { return }
         await send(.updateDebounced)
       }.cancellable(id: CancelId.delayEffectUpdateDebouncer, cancelInFlight: true),
       .run(priority: .utility) { send in
+        defer { log.info("delayEffectSaveDebouncer exit") }
         try await clock.sleep(for: debounceDurations.effectsConfigurationSaves)
+        if Task.isCancelled { return }
         await send(.saveDebounced)
       }.cancellable(id: CancelId.delayEffectSaveDebouncer, cancelInFlight: true)
     )
   }
 
   private func saveDebounced(_ state: inout State) -> Effect<Action> {
+    log.info("saveDebounced BEGIN")
     state.dirty = false
     if let presetId = state.activePresetId,
        state.config.presetId == presetId,
        let found = DelayConfig.save(config: state.config) {
       state.config = .init(found)
     }
+    log.info("saveDebounced END")
     return .none
   }
 
@@ -290,7 +302,9 @@ extension DelayEffect {
   }
 
   private func updateDebounced(_ state: inout State) -> Effect<Action> {
-    delayDevice.setConfig(state.config)
+    log.info("updateDebounced BEGIN")
+    delayDevice.setConfig(delayDevice.effect, state.config)
+    log.info("updateDebounced END")
     return .none
   }
 
@@ -303,7 +317,7 @@ extension DelayEffect {
     localConfig.wetDryMix = state.config.wetDryMix
     localConfig.enabled = state.config.enabled
     state.config = localConfig
-    delayDevice.setConfig(state.config)
+    delayDevice.setConfig(delayDevice.effect, state.config)
     return saveDebounced(&state)
   }
 
@@ -395,9 +409,7 @@ extension DelayEffectView {
         .execute(db)
       }
 
-      var testValue = DelayDevice.testValue
-      testValue.setConfig = { print("DelayDevice.setConfig:", $0) }
-      $0.delayDevice = testValue
+      $0.delayDevice = .init(effect: nil, setConfig: { print("DelayDevice.setConfig:", $1) })
     }
 
     let store = Store(initialState: .init()) {

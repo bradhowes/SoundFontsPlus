@@ -250,7 +250,7 @@ extension Synth {
   private func destroyAudioGraph(_ state: inout State) {
     log.info("destroyAudioGraph BEGIN")
     if let midiInstrument = state.avAudioUnit?.midiInstrument {
-      audioGraph.stop(midiInstrument)
+      audioGraph.stop(audioGraph.engine, midiInstrument)
     }
     log.info("destroyAudioGraph END")
   }
@@ -295,11 +295,11 @@ extension Synth {
       fatalError("monitorLastLoadFinished - did not find lastLoadFinished parameter")
     }
 
-    let stream: AsyncStream<AUValue>
-    let observerToken: AUParameterObserverToken
-    unsafe (observerToken, stream) = parameter.startObserving()
-
     return .run(priority: .utility, name: "monitorLastLoadFinished") { send in
+      let stream: AsyncStream<AUValue>
+      let observerToken: AUParameterObserverToken
+      unsafe (observerToken, stream) = parameter.startObserving()
+
       defer {
         unsafe parameter.removeParameterObserver(observerToken)
         log.debug("monitorLastLoadFinished - stopped task")
@@ -436,7 +436,7 @@ extension Synth {
       return
     }
 
-    let started = audioGraph.start(midiInstrument)
+    let started = audioGraph.start(audioGraph.engine, midiInstrument)
     log.info("startEngine END - \(started)")
   }
 

@@ -259,11 +259,11 @@ extension ToolBar {
       return .none
     }
 
-    let stream: AsyncStream<AUValue>
-    let observerToken: AUParameterObserverToken
-    unsafe (observerToken, stream) = parameter.startObserving()
-
     return .run(priority: .utility, name: "monitorActiveVoiceCount") { send in
+      let stream: AsyncStream<AUValue>
+      let observerToken: AUParameterObserverToken
+      unsafe (observerToken, stream) = parameter.startObserving()
+
       defer {
         unsafe parameter.removeParameterObserver(observerToken)
         log.info("monitorActiveVoiceCount - END")

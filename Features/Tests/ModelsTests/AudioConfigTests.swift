@@ -62,7 +62,7 @@ struct AudioConfigTests {
         $0.gain = -1.0
         $0.pan = 0.25
         $0.keyboardLowestNoteEnabled = true
-        $0.keyboardLowestNote = .C4.advanced(by: -15)
+        $0.keyboardLowestNote = Note.A2
         $0.pitchBendRange = 1
         $0.customTuningEnabled = true
         $0.customTuning = 430.0

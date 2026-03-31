@@ -2,7 +2,7 @@
 
 import AudioToolbox
 
-extension AUAudioUnit: @unchecked @retroactive Sendable {}
+// extension AUAudioUnit: @unchecked @retroactive Sendable {}
 
 extension AUAudioUnit {
 

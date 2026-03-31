@@ -1,3 +1,3 @@
 import AudioToolbox
 
-extension AUParameterObserverToken: @retroactive @unchecked Sendable {}
+// extension AUParameterObserverToken: @retroactive @unchecked Sendable {}

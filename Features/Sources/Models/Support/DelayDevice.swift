@@ -6,34 +6,33 @@ import Dependencies
 import DependenciesMacros
 
 public struct DelayDevice: Sendable {
-  public var setConfig: @Sendable (DelayConfig.Draft) -> Void
-  public var effect: @Sendable () -> AVAudioUnitDelay
+  public let effect: AVAudioUnitDelay?
+  public var setConfig: @Sendable (AVAudioUnitDelay?, DelayConfig.Draft) -> Void
 
   public init(
-    setConfig: @Sendable @escaping (DelayConfig.Draft) -> Void,
-    effect: @Sendable @escaping () -> AVAudioUnitDelay
+    effect: AVAudioUnitDelay?,
+    setConfig: @Sendable @escaping (AVAudioUnitDelay?, DelayConfig.Draft) -> Void
   ) {
-    self.setConfig = setConfig
     self.effect = effect
+    self.setConfig = setConfig
   }
 }
 
 extension DelayDevice: DependencyKey {
 
-  public static var liveValue: DelayDevice {
-    let effect = AVAudioUnitDelay()
+  public static var liveValue: Self {
     return .init(
+      effect: AVAudioUnitDelay(),
       setConfig: {
-        log.info("setConfig - \($0, privacy: .public)")
-        effect.setConfig($0)
-      },
-      effect: { effect }
+        log.info("setConfig - \($1, privacy: .public)")
+        $0?.setConfig($1)
+      }
     )
   }
 
   // TODO: use mocks for these to speed up tests
-  public static let previewValue: DelayDevice = Self.liveValue
-  public static let testValue: DelayDevice = Self.liveValue
+  public static let previewValue: Self = .init(effect: nil, setConfig: { _, _ in })
+  public static let testValue: Self = .init(effect: nil, setConfig: { _, _ in })
 }
 
 private let log: Logger = .init(category: "DelayDevice")

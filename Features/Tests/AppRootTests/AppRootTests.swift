@@ -33,6 +33,7 @@ import Tutorial
     $0.outputVolume = mockVolume.makeOutputVolume()
     $0.reverbDevice = .liveValue
     $0.continuousClock = ImmediateClock()
+    $0.uuid = .incrementing
   },
   .serialized // due to SF2LibAU creation
 )
@@ -59,54 +60,83 @@ struct AppRootTests {
     let store = store(showedTutorial: showedTutorial)
 
     await store.send(.initialize)
+    await store.receive(\.synth.initialize)
     await store.receive(\.synth.synthAudioUnitCreated) {
       $0.synth.audioSessionActivated = true
       $0.synth.avAudioUnit = avAudioUnit
     }
-    await store.receive(\.synth.delegate.audioUnitCreated) {
-      $0.keyboard.midiInstrument = $0.synth.avAudioUnit
+    await store.receive(\.synth.delegate.audioUnitCreated) { $0.avAudioUnit = avAudioUnit }
+    await store.receive(\.synth.delegate.running) {
+      $0.toolBar.temporaryStatus = .startup
+      $0.toastState = nil
+      $0.readyForUse = true
     }
-
-    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.receive(\.synth.delegate.running) {
-        $0.synth.loadedSoundFontId = 1
-        $0.synth.loadedPresetIndex = 0
-        $0.toolBar.preset = Preset.with(id: 1)
-        $0.toolBar.temporaryStatus = nil
-        $0.toastState = nil
-        $0.readyForUse = true
-        $0.delayEffect.activePresetId = 1
-        $0.volumeMonitor.activePresetId = 1
-      }
+    await store.receive(\.toolBar.audioUnitCreated, avAudioUnit)
+    await store.receive(\.keyboard.midiInstrumentCreated, avAudioUnit) { $0.keyboard.midiInstrument = avAudioUnit }
+    await store.receive(\.volumeMonitor.start) { $0.volumeMonitor.reason = .noActivePreset }
+    await store.receive(\.appReview.ask)
+    await store.receive(\.delayEffect.activePresetIdChanged, 1) { $0.delayEffect.activePresetId = 1 }
+    await store.receive(\.keyboard.activePresetIdChanged, 1)
+    await store.receive(\.reverbEffect.activePresetIdChanged, 1) { $0.reverbEffect.activePresetId = 1 }
+    await store.receive(\.soundFontsList.selectedIsNowActivated)
+    await store.receive(\.synth.activePresetIdChanged, 1) {
+      $0.synth.activePresetId = 1
+      $0.synth.loadedPresetIndex = 0
+      $0.synth.loadedSoundFontId = 1
     }
-
+    await store.receive(\.toolBar.activePresetIdChanged, 1) {
+      $0.toolBar.temporaryStatus = nil
+      $0.toolBar.preset = Preset.with(id: 1)
+    }
+    await store.receive(\.volumeMonitor.activePresetIdChanged, 1) {
+      $0.volumeMonitor.activePresetId = 1
+      $0.volumeMonitor.reason = nil
+    }
+    await store.receive(\.toolBar.midiTrafficIndicator.initialize)
     await store.receive(\.volumeMonitor.delegate.reasonChanged, .noActivePreset) {
-      $0.keyboard.muted = true
+      $0.keyboard.muted = false
       $0.toastState = .noActivePreset
     }
-
+    await store.receive(\.delayEffect.enabled.setValue, false)
+    await store.receive(\.delayEffect.time.setValueSilently, 0.5)
+    await store.receive(\.delayEffect.feedback.setValueSilently, 25.0)
+    await store.receive(\.delayEffect.cutoff.setValueSilently, 12000.0)
+    await store.receive(\.delayEffect.wetDryMix.setValueSilently, 50.0)
+    await store.receive(\.reverbEffect.enabled.setValue, false)
+    await store.receive(\.reverbEffect.wetDryMix.setValueSilently, 50.0)
     await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1))
-
-    await store.receive(\.volumeMonitor.delegate.reasonChanged, .none) {
-      $0.keyboard.muted = false
-      $0.toastState = .none
-    }
-
+    await store.receive(\.volumeMonitor.delegate.reasonChanged, nil) { $0.toastState = nil }
+    await store.receive(\.keyboard.outputVolumeStateChanged, .muted) { $0.keyboard.muted = true }
+    await store.receive(\.delayEffect.time.track.valueChanged, 0.5)
+    await store.receive(\.delayEffect.feedback.track.valueChanged, 25.0)
+    await store.receive(\.delayEffect.cutoff.track.valueChanged, 12000.0)
+    await store.receive(\.delayEffect.wetDryMix.track.valueChanged, 50.0)
+    await store.receive(\.reverbEffect.wetDryMix.track.valueChanged, 50.0)
+    await store.receive(\.presetsList.presetSourceChanged, .active(1))
+    await store.receive(\.keyboard.outputVolumeStateChanged, .unmuted) { $0.keyboard.muted = false }
     await store.receive(\.presetsList, .rowsUpdated(presets: Preset.visible(for: 1), showActive: true)) {
       $0.presetsList.scrollToTarget = .preset(1)
     }
-
-    await store.receive(\.synth.lastPresetLoadFinished, timeout: .seconds(10)) {
-      $0.synth.firstTimePresetLoaded = false
-    }
+    await store.receive(\.synth.lastPresetLoadFinished, timeout: .seconds(10)) { $0.synth.firstTimePresetLoaded = false }
 
     try await store.withExhaustivity(exhaustivity) {
-
       try await closure(store)
-
-      await store.send(.deinitialize)
-      await store.finish()
     }
+
+    await store.send(.deinitialize)
+
+    await store.receive(\.delayEffect.deinitialize)
+    await store.receive(\.keyboard.deinitialize)
+    await store.receive(\.presetsList.deinitialize)
+    await store.receive(\.reverbEffect.deinitialize)
+    await store.receive(\.soundFontsList.deinitialize)
+    await store.receive(\.synth.deinitialize)
+    await store.receive(\.tagsList.deinitialize)
+    await store.receive(\.toolBar.deinitialize)
+    await store.receive(\.volumeMonitor.stop)
+    await store.receive(\.toolBar.midiTrafficIndicator.deinitialize)
+
+    await store.finish()
   }
 
   @Test
@@ -128,6 +158,7 @@ struct AppRootTests {
   func synthStopped() async throws {
     try await initialized { store in
       await store.send(\.synth.delegate.stopped)
+      await store.receive(\.volumeMonitor.stop)
     }
   }
 
@@ -152,8 +183,12 @@ struct AppRootTests {
   )
   func processKeyboardAction() async throws {
     try await initialized { store in
-      await store.send(\.keyboard.delegate.noteOn, .C4) {
+      await store.send(\.keyboard.delegate.noteOn, .C4)
+      await store.receive(\.toolBar.lastPlayedKeyChanged, .C4) {
         $0.toolBar.temporaryStatus = .lastPlayedKey("C4")
+      }
+      await store.receive(\.toolBar.clearTemporaryStatus) {
+        $0.toolBar.temporaryStatus = nil
       }
     }
   }
@@ -258,8 +293,11 @@ struct AppRootTests {
   func scenePhaseChanged() async throws {
     try await initialized { store in
       await store.send(\.scenePhaseChanged, .active)
+      await store.receive(\.synth.acquireAudioSession)
       await store.send(\.scenePhaseChanged, .inactive)
+      await store.receive(\.synth.releaseAudioSession)
       await store.send(\.scenePhaseChanged, .background)
+      await store.receive(\.synth.releaseAudioSession)
     }
   }
 
@@ -268,15 +306,13 @@ struct AppRootTests {
     try await initialized { store in
       await store.send(\.volumeMonitor.delegate.reasonChanged, .volumeLevelIsZero) {
         $0.toastState = .volumeLevelIsZero
-        $0.keyboard.muted = true
       }
 
+      await store.receive(\.keyboard.outputVolumeStateChanged, .muted) { $0.keyboard.muted = true }
       await store.send(\.volumeMonitor.delegate.reasonChanged, .noActivePreset)
-
-      await store.send(\.volumeMonitor.delegate.reasonChanged, .none) {
-        $0.toastState = nil
-        $0.keyboard.muted = false
-      }
+      await store.receive(\.keyboard.outputVolumeStateChanged, .muted)
+      await store.send(\.volumeMonitor.delegate.reasonChanged, .none) { $0.toastState = nil }
+      await store.receive(\.keyboard.outputVolumeStateChanged, .unmuted) { $0.keyboard.muted = false }
     }
   }
 
@@ -285,7 +321,7 @@ struct AppRootTests {
     try await initialized { store in
       #expect(store.state.presetsList.sections.isEmpty == false)
       let section = store.state.presetsList.sections.first!
-      let preset = section.rows.first!.preset
+      let preset = Preset.with(id: 1)! // section.rows.first!.preset
       await store.send(
         \.presetsList.delegate,
          .edit(
@@ -306,6 +342,9 @@ struct AppRootTests {
         $0.destination = nil
       }
 
+      await store.receive(\.appReview.ask)
+      await store.receive(\.presetsList.updateFetchAllQuery)
+      await store.receive(\.toolBar.activePresetIdChanged, 1)
       await store.receive(\.presetsList, .rowsUpdated(presets: Preset.visible(for: 1), showActive: false))
     }
   }
@@ -321,6 +360,8 @@ struct AppRootTests {
         $0.destination = nil
         $0.presetsList.scrollToTarget = .preset(1)
       }
+      await store.receive(\.appReview.ask)
+      await store.receive(\.presetsList.updateFetchAllQuery)
       await store.receive(\.presetsList, .rowsUpdated(presets: Preset.visible(for: 1), showActive: false))
     }
   }
@@ -368,20 +409,14 @@ struct AppRootTests {
   @Test
   func editingPresetVisibilityChanged() async throws {
     try await initialized { store in
-
-      await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, true) {
-        $0.presetsList.editingVisibility = true
-      }
-
+      await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, true)
+      await store.receive(\.presetsList.editingVisibilityChanged, true) { $0.presetsList.editingVisibility = true }
       await store.receive(\.presetsList.rowsUpdated) {
         $0.presetsList.presets = Preset.all(for: 1)
         $0.presetsList.sections = group(Preset.all(for: 1), presetSource: .active(1), activePresetId: 1, searching: false)
       }
-
-      await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, false) {
-        $0.presetsList.editingVisibility = false
-      }
-
+      await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, false)
+      await store.receive(\.presetsList.editingVisibilityChanged, false) { $0.presetsList.editingVisibility = false }
       await store.receive(\.presetsList.rowsUpdated) {
         $0.presetsList.presets = Preset.visible(for: 1)
         $0.presetsList.sections = group(Preset.visible(for: 1), presetSource: .active(1), activePresetId: 1, searching: false)
@@ -408,7 +443,10 @@ struct AppRootTests {
   func presetNameTapped() async throws {
     try await initialized { store in
       await store.send(\.toolBar.delegate.presetNameTapped)
+      await store.receive(\.appReview.ask)
+      await store.receive(\.soundFontsList.showActiveSoundFont)
       await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1), timeout: .seconds(30))
+      await store.receive(\.presetsList.presetSourceChanged, .active(1))
       await store.receive(\.presetsList, .rowsUpdated(presets: Preset.visible(for: 1), showActive: true))
     }
   }
@@ -416,23 +454,22 @@ struct AppRootTests {
   @Test
   func panic() async throws {
     try await initialized { store in
-      await store.send(\.keyboard.visualizeMIDINote, .on(.C4)) {
-        $0.keyboard.noteCounters[60] = 1
-      }
-      await store.send(\.toolBar.delegate.panic) {
-        $0.keyboard.noteCounters[60] = 0
-      }
+      await store.send(\.keyboard.visualizeMIDINote, .on(.C4)) { $0.keyboard.noteCounters[60] = 1 }
+      await store.send(\.toolBar.delegate.panic)
+      await store.receive(\.keyboard.allOff) { $0.keyboard.noteCounters[60] = 0 }
     }
   }
 
   @Test
   func tagsListVisibilityChanged() async throws {
     try await initialized { store in
-      await store.send(\.toolBar.delegate.tagsListVisibilityChanged, true) {
+      await store.send(\.toolBar.delegate.tagsListVisibilityChanged, true)
+      await store.receive(\.fontsAndTagsSplit.updatePanesVisibility, .init(rawValue: 3)) {
         $0.fontsAndTagsSplit.panesVisible = .init(rawValue: 3)
       }
       await store.receive(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: .init(rawValue: 3), position: 0.4))
-      await store.send(\.toolBar.delegate.tagsListVisibilityChanged, false) {
+      await store.send(\.toolBar.delegate.tagsListVisibilityChanged, false)
+      await store.receive(\.fontsAndTagsSplit.updatePanesVisibility, .init(rawValue: 1)) {
         $0.fontsAndTagsSplit.panesVisible = .init(rawValue: 1)
       }
       await store.receive(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: .init(rawValue: 1), position: 0.4))
@@ -442,7 +479,8 @@ struct AppRootTests {
   @Test
   func visibleKeyRangeChanged() async throws {
     try await initialized { store in
-      await store.send(\.toolBar.delegate, .visibleKeyRangeChanged(lowest: .A1, highest: .G3)) {
+      await store.send(\.toolBar.delegate, .visibleKeyRangeChanged(lowest: .A1, highest: .G3))
+      await store.receive(\.keyboard.scrollTo, .init(midiNoteValue: 33)) {
         $0.keyboard.scrollTo = .init(midiNoteValue: 33)
       }
     }

@@ -6,34 +6,33 @@ import Dependencies
 import DependenciesMacros
 
 public struct ReverbDevice: Sendable {
-  public var setConfig: @Sendable (ReverbConfig.Draft) -> Void
-  public var effect: @Sendable () -> AVAudioUnitReverb
+  public let effect: AVAudioUnitReverb?
+  public let setConfig: @Sendable (AVAudioUnitReverb?, ReverbConfig.Draft) -> Void
 
   public init(
-    setConfig: @Sendable @escaping (ReverbConfig.Draft) -> Void,
-    effect: @Sendable @escaping () -> AVAudioUnitReverb
+    effect: AVAudioUnitReverb?,
+    setConfig: @Sendable @escaping (AVAudioUnitReverb?, ReverbConfig.Draft) -> Void,
   ) {
-    self.setConfig = setConfig
     self.effect = effect
+    self.setConfig = setConfig
   }
 }
 
 extension ReverbDevice: DependencyKey {
 
   public static var liveValue: Self {
-    let effect = AVAudioUnitReverb()
     return .init(
+      effect: AVAudioUnitReverb(),
       setConfig: {
-        log.info("setConfig - \($0, privacy: .public)")
-        effect.setConfig($0)
-      },
-      effect: { effect }
+        log.info("setConfig - \($1, privacy: .public)")
+        $0?.setConfig($1)
+      }
     )
   }
 
   // TODO: use mocks for these to speed up tests
-  public static let previewValue: Self = Self.liveValue
-  public static let testValue: Self = Self.liveValue
+  public static let previewValue: Self = .init(effect: nil) { _, _ in }
+  public static let testValue: Self = .init(effect: nil) { _, _ in }
 }
 
 private let log: Logger = .init(category: "ReverbDevice")

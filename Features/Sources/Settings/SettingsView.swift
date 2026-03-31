@@ -77,26 +77,62 @@ extension SettingsView {
 
   private var presetsSection: some View {
     Section("Presets") {
-      Toggle(isOn: $store.favoritesOnTop) {
+      Toggle(
+        isOn: Binding(
+          get: { store.favoritesOnTop },
+          set: { newValue in store.$favoritesOnTop.withLock { $0 = newValue } }
+        )
+      ) {
         Text("Favorites on top")
       }
-      Toggle(isOn: $store.showOnlyFavorites) {
-        Text("Show only favorites")
+      Toggle(
+        isOn: Binding(
+          get: { store.showOnlyFavorites },
+          set: { newValue in store.$showOnlyFavorites.withLock { $0 = newValue } }
+        )
+      ) {
+          Text("Show only favorites")
       }
-      Toggle(isOn: $store.starFavoriteNames) {
+      Toggle(
+        isOn: Binding(
+          get: {
+            store.starFavoriteNames
+          },
+          set: { newValue in
+            store.$starFavoriteNames.withLock { $0 = newValue }
+          }
+        )
+      ) {
         HStack {
           Text("Show")
           Image(systemName: store.favoriteSymbolName)
           Text("in favorites")
         }
       }
-      Toggle(isOn: $store.sortPresetsByName) {
+      Toggle(
+        isOn: Binding(
+          get: { store.sortPresetsByName },
+          set: { newValue in
+            store.$sortPresetsByName.withLock { $0 = newValue }
+          }
+        )
+      ) {
         Text("Presets sorted by name")
       }
-      Toggle(isOn: $store.playSoundOnPresetChange) {
+      Toggle(
+        isOn: Binding(
+          get: { store.playSoundOnPresetChange },
+          set: { newValue in store.$playSoundOnPresetChange.withLock { $0 = newValue } }
+        ),
+      ) {
         Text("Play sound on preset change")
       }
-      Toggle(isOn: $store.showPresetIndexView) {
+      Toggle(
+        isOn: Binding(
+          get: { store.showPresetIndexView },
+          set: { newValue in store.$showPresetIndexView.withLock { $0 = newValue } }
+        )
+      ) {
         VStack(alignment: .leading, spacing: 8) {
           Text("Show preset index strip")
           Text(
@@ -116,7 +152,10 @@ When enabled, show a compact list of indices for quickly jumping to a section of
         Text("Key labels")
         Spacer()
         Picker(
-          selection: $store.keyLabels
+          selection: Binding(
+            get: { store.keyLabels },
+            set: { newValue in store.$keyLabels.withLock { $0 = newValue } }
+          )
         ) {
           ForEach(KeyLabels.allCases) { kind in
             Text(kind.rawValue)
@@ -126,18 +165,39 @@ When enabled, show a compact list of indices for quickly jumping to a section of
         }
         .pickerStyle(.segmented)
       }
-      Toggle(isOn: $store.showKeyNotes) {
+      Toggle(
+        isOn: Binding(
+          get: { store.showKeyNotes },
+          set: { newValue in store.$showKeyNotes.withLock { $0 = newValue } }
+        )
+      ) {
         Text("Show key note in toolbar")
       }
-      Toggle(isOn: $store.showSolfegeTags) {
+      Toggle(
+        isOn: Binding(
+          get: { store.showSolfegeTags },
+          set: { newValue in store.$showSolfegeTags.withLock { $0 = newValue } }
+        )
+      ) {
         Text("Show solfège tag in toolbar")
       }
-      Toggle(isOn: $store.keyboardSlides) {
+      Toggle(
+        isOn: Binding(
+          get: { store.keyboardSlides },
+          set: { newValue in store.$keyboardSlides.withLock { $0 = newValue } }
+        )
+      ) {
         Text("Keyboard slides with touch")
       }
       VStack {
         Text("Key Width")
-        Slider(value: $store.keyWidth, in: 32...96, step: 1) {
+        Slider(
+          value: Binding(
+            get: { store.keyWidth },
+            set: { newValue in store.keyWidth = newValue }
+          ),
+          in: 32...96, step: 1
+        ) {
           Text("Key Width")
         } onEditingChanged: { editing in
           changingKeyWidth = editing
@@ -158,7 +218,14 @@ When enabled, show a compact list of indices for quickly jumping to a section of
           Spacer()
           Text(store.midiChannel == -1 ? "Any" : "\(store.midiChannel + 1)")
           Spacer()
-          Stepper("", value: $store.midiChannel, in: -1...15)
+          Stepper(
+            "",
+            value: Binding(
+              get: { store.midiChannel },
+              set: { newValue in store.$midiChannel.withLock { $0 = newValue } }
+            ),
+            in: -1...15
+          )
             .labelsHidden()
         }
         Text(
@@ -178,13 +245,28 @@ When enabled, show a compact list of indices for quickly jumping to a section of
         }
         Spacer()
       }
-      Toggle(isOn: $store.midiAutoConnect) {
+      Toggle(
+        isOn: Binding(
+          get: { store.midiAutoConnect },
+          set: { newValue in store.$midiAutoConnect.withLock { $0 = newValue } }
+        )
+      ) {
         Text("New devices will auto-connect")
       }
-      Toggle(isOn: $store.showMIDITrafficIndicator) {
+      Toggle(
+        isOn: Binding(
+          get: { store.showMIDITrafficIndicator },
+          set: { newValue in store.$showMIDITrafficIndicator.withLock { $0 = newValue } }
+        )
+      ) {
         Text("Show MIDI activity indicator in toolbar")
       }
-      Toggle(isOn: $store.showMIDINotesOnKeyboard) {
+      Toggle(
+        isOn: Binding(
+          get: { store.showMIDINotesOnKeyboard },
+          set: { newValue in store.$showMIDINotesOnKeyboard.withLock { $0 = newValue } }
+        )
+      ) {
         Text("Show MIDI note activity on keyboard")
       }
       HStack {
@@ -201,8 +283,15 @@ When enabled, show a compact list of indices for quickly jumping to a section of
         Spacer()
         Text("\(store.pitchBendRange)")
         Spacer()
-        Stepper("", value: $store.pitchBendRange, in: 1...24)
-          .labelsHidden()
+        Stepper(
+          "",
+          value: Binding(
+            get: { store.pitchBendRange },
+            set: { newValue in store.$pitchBendRange.withLock { $0 = newValue } }
+          ),
+          in: 1...24
+        )
+        .labelsHidden()
       }
       HStack {
         Spacer()
@@ -232,7 +321,12 @@ When enabled, show a compact list of indices for quickly jumping to a section of
     Section("Fonts") {
       Group {
         if isApp {
-          Toggle(isOn: $store.copyFileWhenInstalling) {
+          Toggle(
+            isOn: Binding(
+              get: { store.copyFileWhenInstalling },
+              set: { newValue in store.copyFileWhenInstalling = newValue }
+            )
+          ) {
             VStack(alignment: .leading, spacing: 8) {
               Text("Copy SF2 files to app folder on device when adding")
               Text(
@@ -245,7 +339,12 @@ Disable to link directly to files in iCloud or on external drives.
             }
           }
         }
-        Toggle(isOn: $store.hideEmptyTags) {
+        Toggle(
+          isOn: Binding(
+            get: { store.hideEmptyTags },
+            set: { newValue in store.$hideEmptyTags.withLock { $0 = newValue  } }
+          )
+        ) {
           VStack(alignment: .leading, spacing: 8) {
             Text("Hide tags with no sound fonts")
             Text(
@@ -256,7 +355,12 @@ Enable to reduce clutter in the main tags view. Tag editors will always show all
             .font(.settingsDescription)
           }
         }
-        Toggle(isOn: $store.hideBuiltinFonts) {
+        Toggle(
+          isOn: Binding(
+            get: { store.hideBuiltinFonts },
+            set: { newValue in store.$hideBuiltinFonts.withLock { $0 = newValue  } }
+          )
+        ) {
           VStack(alignment: .leading, spacing: 8) {
             Text("Hide built-in SF2 files")
             Text(
@@ -279,7 +383,10 @@ Do not show the pre-installed sound fonts when the "All" tag is active.
             Text("Color scheme")
             Spacer()
             Picker(
-              selection: $store.colorSchemeBehavior
+              selection: Binding(
+                get: { store.colorSchemeBehavior },
+                set: { newValue in store.$colorSchemeBehavior.withLock { $0 = newValue  } }
+              )
             ) {
               ForEach(ColorSchemeBehavior.allCases) { kind in
                 Text(kind.rawValue)
@@ -296,29 +403,54 @@ The color scheme can track the device's setting, or it can be fixed to a constan
           )
           .font(.settingsDescription)
         }
-        Toggle(isOn: $store.showActiveVoiceCount) {
+        Toggle(
+          isOn: Binding(
+            get: { store.showActiveVoiceCount },
+            set: { newValue in store.$showActiveVoiceCount.withLock { $0 = newValue } }
+          )
+        ) {
           Text("Show active voice counter")
         }
         if isApp {
 #if os(iOS)
-          Toggle(isOn: $store.mixWithOtherApps) {
+          Toggle(
+            isOn: Binding(
+              get: { store.mixWithOtherApps },
+              set: { newValue in store.$mixWithOtherApps.withLock { $0 = newValue } }
+            )
+          ) {
             Text("Mix audio with other apps on device")
           }
           .onChange(of: store.mixWithOtherApps) {
             _ = audioSession.restart()
           }
-          Toggle(isOn: $store.duckOtherApps) {
+          Toggle(
+            isOn: Binding(
+              get: { store.duckOtherApps },
+              set: { newValue in store.$duckOtherApps.withLock { $0 = newValue } }
+            )
+          ) {
             Text("Reduce audio from other apps")
           }
           .disabled(store.mixWithOtherApps == false)
           .onChange(of: store.duckOtherApps) {
             _ = audioSession.restart()
           }
-          Toggle(isOn: $store.backgroundProcessing) {
+          Toggle(
+            isOn: Binding(
+              get: { store.backgroundProcessing },
+              set: { newValue in store.$backgroundProcessing.withLock { $0 = newValue } }
+          )
+          ) {
             Text("Background processing mode")
           }
 #endif
-          Toggle(isOn: $store.disableIdleTimer) {
+          Toggle(
+            isOn: Binding(
+              get: { store.disableIdleTimer },
+              set: { newValue in store.disableIdleTimer = newValue }
+            )
+          ) {
             Text("Disable device locking while active")
           }
           HStack {

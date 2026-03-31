@@ -84,7 +84,7 @@ public struct AUv3Root {
   }
 
   @frozen
-  public enum Action: BindableAction, @unchecked Sendable {
+  public enum Action: BindableAction {
     case activePresetIdChanged(Preset.ID?)
     case binding(BindingAction<State>)
     case currentPresetChanged

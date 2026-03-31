@@ -24,7 +24,11 @@ public final class MockAudioGraph: @unchecked Sendable {
 extension MockAudioGraph {
 
   public var audioGraph: AudioGraph {
-    .init(start: { self.start(audioUnit: $0) }, stop: { self.stop(audioUnit: $0) })
+    .init(
+      engine: nil,
+      start: { _, audioUnit in self.start(audioUnit: audioUnit) },
+      stop: { _, audioUnit in self.stop(audioUnit: audioUnit) }
+    )
   }
 }
 

@@ -44,32 +44,55 @@ public struct Settings {
     public var midiTrafficIndicator: MIDITrafficIndicator.State
     public var tuning: Tuning.State
     public let hasMIDI: Bool
+    public var copyFileWhenInstalling: Bool
+    public var disableIdleTimer: Bool
+    public var keyWidth: Double
 
+    @ObservationStateIgnored
     @Shared(.backgroundProcessing) public var backgroundProcessing
+    @ObservationStateIgnored
     @Shared(.colorSchemeBehavior) public var colorSchemeBehavior
-    @Shared(.copyFileWhenInstalling) public var copyFileWhenInstalling
-    @Shared(.disableIdleTimer) public var disableIdleTimer
+    @ObservationStateIgnored
     @Shared(.duckOtherApps) public var duckOtherApps
+    @ObservationStateIgnored
     @Shared(.favoritesOnTop) public var favoritesOnTop
+    @ObservationStateIgnored
     @Shared(.favoriteSymbolName) public var favoriteSymbolName
+    @ObservationStateIgnored
     @Shared(.hideBuiltinFonts) public var hideBuiltinFonts
+    @ObservationStateIgnored
     @Shared(.hideEmptyTags) public var hideEmptyTags
+    @ObservationStateIgnored
     @Shared(.keyboardSlides) public var keyboardSlides
+    @ObservationStateIgnored
     @Shared(.keyLabels) public var keyLabels
-    @Shared(.keyWidth) public var keyWidth
+    @ObservationStateIgnored
     @Shared(.midiAutoConnect) public var midiAutoConnect
+    @ObservationStateIgnored
     @Shared(.midiChannel) public var midiChannel
+    @ObservationStateIgnored
     @Shared(.mixWithOtherApps) public var mixWithOtherApps
+    @ObservationStateIgnored
     @Shared(.pitchBendRange) public var pitchBendRange
+    @ObservationStateIgnored
     @Shared(.playSoundOnPresetChange) public var playSoundOnPresetChange
+    @ObservationStateIgnored
     @Shared(.showActiveVoiceCount) public var showActiveVoiceCount
+    @ObservationStateIgnored
     @Shared(.showKeyNotes) public var showKeyNotes
+    @ObservationStateIgnored
     @Shared(.showMIDINotesOnKeyboard) public var showMIDINotesOnKeyboard
+    @ObservationStateIgnored
     @Shared(.showMIDITrafficIndicator) public var showMIDITrafficIndicator
+    @ObservationStateIgnored
     @Shared(.showOnlyFavorites) public var showOnlyFavorites
+    @ObservationStateIgnored
     @Shared(.showPresetIndexView) public var showPresetIndexView
+    @ObservationStateIgnored
     @Shared(.showSolfegeTags) public var showSolfegeTags
+    @ObservationStateIgnored
     @Shared(.sortPresetsByName) public var sortPresetsByName
+    @ObservationStateIgnored
     @Shared(.starFavoriteNames) public var starFavoriteNames
 
     public init(
@@ -88,6 +111,12 @@ public struct Settings {
       self.midiConnectedCount = midi?.sourceConnections.filter { $0.connected }.count ?? midiConnectedCount
       self.midiTrafficIndicator = midiTrafficIndicator
       self.tuning = tuning
+      @Shared(.keyWidth) var keyWidth
+      self.keyWidth = keyWidth
+      @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
+      self.copyFileWhenInstalling = copyFileWhenInstalling
+      @Shared(.disableIdleTimer) var disableIdleTimer
+      self.disableIdleTimer = disableIdleTimer
     }
 
     public static func makeTuningState() -> Tuning.State {
@@ -125,9 +154,6 @@ public struct Settings {
 
   public init() {}
 
-  @Shared(.midi) var midi
-  @Shared(.midiMonitor) var midiMonitor
-
   public var body: some ReducerOf<Self> {
     BindingReducer()
 
@@ -145,24 +171,30 @@ public struct Settings {
 
       case .binding(\.copyFileWhenInstalling):
         if !state.copyFileWhenInstalling {
-          state.$copyFileWhenInstalling.withLock { $0 = true }
+          // Undo change until confirmed.
+          state.copyFileWhenInstalling = true
           state.destination = .alert(.confirmDisableCopyFile(action: .disableCopyFileConfirmed))
         }
         return .none
 
       case .binding(\.disableIdleTimer):
         if state.disableIdleTimer {
-          state.$disableIdleTimer.withLock { $0 = false }
+          // Undo change until confirmed.
+          state.disableIdleTimer = false
           state.destination = .alert(.confirmDisableIdleTimer(action: .disableIdleTimerConfirmed))
         }
         return .none
 
       case .destination(.presented(.alert(.disableCopyFileConfirmed))):
-        state.$copyFileWhenInstalling.withLock { $0 = false }
+        @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
+        $copyFileWhenInstalling.withLock { $0 = false }
+        state.copyFileWhenInstalling = false
         return .none
 
       case .destination(.presented(.alert(.disableIdleTimerConfirmed))):
-        state.$disableIdleTimer.withLock { $0 = true }
+        @Shared(.disableIdleTimer) var disableIdleTimer
+        $disableIdleTimer.withLock { $0 = true }
+        state.disableIdleTimer = true
         return .none
 
       case .dismissButtonTapped:
@@ -180,6 +212,7 @@ public struct Settings {
         return .none
 
       case .midiConnectionsChanged:
+        @Shared(.midi) var midi
         if let midi {
           state.midiDevicesCount = midi.sourceConnections.count
           state.midiConnectedCount = midi.sourceConnections.filter { $0.connected }.count
@@ -191,6 +224,7 @@ public struct Settings {
         return .none
 
       case .path(.popFrom(let id)):
+        @Shared(.midi) var midi
         if case .midiConnections = state.path[id: id],
            let midi {
           state.midiDevicesCount = midi.sourceConnections.count
@@ -240,6 +274,7 @@ extension Settings {
   }
 
   private func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
+    @Shared(.midiMonitor) var midiMonitor
     guard let midiMonitor else { return .none }
     return .run { send in
       for await _ in midiMonitor.$connectivity.values {
