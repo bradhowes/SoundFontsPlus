@@ -22,6 +22,7 @@ struct SettingsTests {
   func initialized(_ closure: (_ store: TestStoreOf<Settings>) async throws -> Void) async throws {
     let store = TestStore(initialState: Settings.State()) { Settings() }
     await store.send(.initialize)
+    await store.receive(\.midiTrafficIndicator.initialize)
     try await closure(store)
   }
 
@@ -53,7 +54,9 @@ struct SettingsTests {
   @Test
   func updateKeyWidth() async throws {
     try await initialized { store in
-      await store.send(\.binding.keyWidth, 21.2)
+      await store.send(\.binding.keyWidth, 21.2) {
+        $0.keyWidth = 21.2
+      }
       @Shared(.keyWidth) var keyWidth
       #expect(keyWidth == 21.2)
       await store.send(.dismissButtonTapped)
