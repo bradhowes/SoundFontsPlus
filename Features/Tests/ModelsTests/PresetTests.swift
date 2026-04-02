@@ -12,6 +12,7 @@ import TestSupport
 @Suite(
   .dependencies {
     $0.defaultDatabase = TestSupport.testDatabase()
+    @Shared(.showOnlyFavorites) var showOnlyFavorites = false
   }
   //  .snapshots(record: .failed)
 )
@@ -20,7 +21,15 @@ struct PresetTests {
 
   @MainActor
   func setup() async throws -> [Preset] {
-    return Preset.visible(for: 1)
+    let all = Preset.all(for: 1)
+    for each in all {
+      print(each.id, each.kind)
+    }
+    let visible = Preset.visible(for: 1)
+    for each in visible {
+      print(each.id, each.kind)
+    }
+    return visible
   }
 
   @Test

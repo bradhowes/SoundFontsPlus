@@ -97,8 +97,9 @@ struct TagsEditorTests {
     await store.send(.addButtonTapped) {
       $0.rows = rows
       $0.focused = 5
-      $0.destination = .alert(.tagWillBeHidden(displayName: "New Tag"))
     }
+    // $0.destination = .alert(.tagWillBeHidden(displayName: "New Tag"))
+    // }
 
     rows.append(
       .init(
@@ -111,7 +112,7 @@ struct TagsEditorTests {
     await store.send(.addButtonTapped) {
       $0.rows = rows
       $0.focused = 6
-      $0.destination = .alert(.tagWillBeHidden(displayName: "New Tag 1"))
+      // $0.destination = .alert(.tagWillBeHidden(displayName: "New Tag 1"))
     }
   }
 

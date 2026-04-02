@@ -35,6 +35,7 @@ struct ToolBarTests {
     }
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -64,6 +65,7 @@ struct ToolBarTests {
     }
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -84,6 +86,7 @@ struct ToolBarTests {
     await store.receive(\.delegate.editingPresetVisibilityChanged, false)
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -112,6 +115,7 @@ struct ToolBarTests {
     #expect(effectsPanelVisible == initValue)
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -122,6 +126,7 @@ struct ToolBarTests {
     await store.send(.helpButtonTapped)
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -129,6 +134,7 @@ struct ToolBarTests {
   func deinitialize() async throws {
     let store = try await store()
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -141,6 +147,7 @@ struct ToolBarTests {
 
     await store.send(.lastPlayedKeyChanged(.A6))
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -156,6 +163,7 @@ struct ToolBarTests {
     }
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -171,6 +179,7 @@ struct ToolBarTests {
     }
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -227,6 +236,7 @@ struct ToolBarTests {
 
     await synth.send(.deinitialize)
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -245,6 +255,7 @@ struct ToolBarTests {
     await store.receive(\.delegate.settingsButtonTapped)
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -258,6 +269,7 @@ struct ToolBarTests {
     }
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -278,6 +290,7 @@ struct ToolBarTests {
     await store.receive(\.delegate.visibleKeyRangeChanged)
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -298,6 +311,7 @@ struct ToolBarTests {
     await store.receive(\.delegate.visibleKeyRangeChanged)
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -323,6 +337,7 @@ struct ToolBarTests {
     await store.receive(\.delegate.editingPresetVisibilityChanged, false)
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -344,6 +359,7 @@ struct ToolBarTests {
     }
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -359,6 +375,7 @@ struct ToolBarTests {
     await store.receive(\.delegate.presetNameTapped)
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -379,6 +396,7 @@ struct ToolBarTests {
     #expect(keyboardSlides == initValue)
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
@@ -401,6 +419,7 @@ struct ToolBarTests {
     #expect(tagsListVisible == initValue)
 
     await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 

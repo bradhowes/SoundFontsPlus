@@ -63,8 +63,8 @@ struct SoundFontEditorTests {
       $0.path.append(.editTags(editorState))
     }
 
-    // Simulate toggling the membership for "external", which cannot normally be done in UI because the UI disables
-    // manipulating ubiquitous tags that the app manages.
+    // Simulate toggling the membership for "external", which cannot normally be done in UI because the UI disables manipulating
+    // ubiquitous tags that the app manages.
     withDatabaseWriter { db in
       try TaggedSoundFont.insert {
         .init(soundFontId: soundFontId, tagId: Tag.Ubiquitous.external.id)
@@ -80,9 +80,13 @@ struct SoundFontEditorTests {
 
   @Test
   func showHiddenPresetsConfirmed() async {
+    @Shared(.showOnlyFavorites) var showOnlyFavorites
+    $showOnlyFavorites.withLock { $0 = false }
     let store = store()
 
-    var presets = Preset.visible(for: 1)
+    var presets = Preset.all(for: 1)
+    let _ = presets.count
+
     #expect(presets[0].kind == .preset)
     #expect(presets[0].displayName == "Font 1 Preset 1")
 

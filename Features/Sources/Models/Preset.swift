@@ -7,9 +7,9 @@ import SQLiteData
 import Tagged
 
 /**
- Defines a sound font preset. Most of the read-only attributes come from the SF2 loaded into the application. A preset
- can be duplicated into a `favorite` which can have its own audio settings, or a preset can be hidden from view. Only a `favorite`
- row can be deleted by the user; otherwise the rows are removed only when the owning ``SoundFont`` entry is removed.
+ Defines a sound font preset. Most of the read-only attributes come from the SF2 loaded into the application. A preset can be
+ duplicated into a `favorite` which can have its own audio settings, or a preset can be hidden from view. Only a `favorite` row can
+ be deleted by the user; otherwise the rows are removed only when the owning ``SoundFont`` entry is removed.
 
  Note that visibility is case of `Kind` and not an attribute of Preset.
  */
@@ -38,9 +38,9 @@ nonisolated public struct Preset {
       self.rawValue = rawValue
     }
 
-    public static let preset = Self(rawValue: 1)
-    public static let favorite = Self(rawValue: 2)
-    public static let hidden = Self(rawValue: 3)
+    public static let preset = Self(rawValue: 0)
+    public static let favorite = Self(rawValue: 1)
+    public static let hidden = Self(rawValue: -1)
 
     public static let allCases: [Self] = [.preset, .favorite, .hidden]
 
@@ -102,8 +102,10 @@ extension Preset {
   /// Determine if row represents a `favorite` or copy of a ``Preset``.
   public var isFavorite: Bool { kind == .favorite }
 
-  /// Obtain the display name for the preset's owning sound font. This is only used when editing the preset meta data, so no
-  /// need to optimize this query.
+  /**
+   Obtain the display name for the preset's owning sound font. This is only used when editing the preset meta data, so no need to
+   optimize this query.
+   */
   public var soundFontName: String {
     (withDatabaseReader { db in
       try SoundFont
@@ -125,9 +127,10 @@ extension Preset {
   /// Obtain the `DelayConfig` value associated with this config/preset. If one does not exist, returns `nil`.
   public var delayConfig: DelayConfig? { DelayConfig.with(presetId: self.id) }
 
-  /// Obtain the `DelayConfig.Draft` value associated with this config/preset. If one does not exist, then
-  /// return one with default values. Goal is to only save an entry when there is a deviation from
-  /// the default values.
+  /**
+   Obtain the `DelayConfig.Draft` value associated with this config/preset. If one does not exist, then return one with default
+   values. Goal is to only save an entry when there is a deviation from the default values.
+   */
   public var delayConfigDraft: DelayConfig.Draft {
     guard let delayConfig = self.delayConfig else { return .init(presetId: self.id) }
     return .init(delayConfig)
@@ -136,9 +139,10 @@ extension Preset {
   /// Obtain the `ReverbConfig` value associated with this config/preset. If one does not exist, returns `nil`.
   public var reverbConfig: ReverbConfig? { ReverbConfig.with(presetId: self.id) }
 
-  /// Obtain the `ReverbConfig.Draft` value associated with this config/preset. If one does not exist, then
-  /// return one with default values. Goal is to only save an entry when there is a deviation from
-  /// the default values.
+  /**
+   Obtain the `ReverbConfig.Draft` value associated with this config/preset. If one does not exist, then return one with default
+   values. Goal is to only save an entry when there is a deviation from the default values.
+   */
   public var reverbConfigDraft: ReverbConfig.Draft {
     guard let reverbConfig = self.reverbConfig else { return .init(presetId: self.id) }
     return .init(reverbConfig)
@@ -148,8 +152,7 @@ extension Preset {
 extension Preset {
 
   /**
-   Create a duplicate of the Preset, cloning the associated AudioConfig, DelayConfig and ReverbConfig rows if they
-   exist.
+   Create a duplicate of the Preset, cloning the associated AudioConfig, DelayConfig and ReverbConfig rows if they exist.
 
    - returns: cloned instance
    */
@@ -184,7 +187,7 @@ extension Preset {
   }
 
   /**
-   Toggle the visibility of the preset.
+   Toggle the visibility of the preset (a favorite is always visible).
    */
   public mutating func toggleVisibility() {
     precondition(self.kind != .favorite)
@@ -236,8 +239,8 @@ extension Preset {
   }
 
   /**
-   Obtain a query that returns the set of presets to show (unordered) for a given sound font ID. Honors the
-   `showOnlyFavorites` setting.
+   Obtain a query that returns the set of presets to show (unordered) for a given sound font ID. Honors the `showOnlyFavorites`
+   setting.
 
    - parameter soundFontId: the sound font to query for
    - returns: a query showing the appropriate contents
@@ -246,14 +249,14 @@ extension Preset {
     @Shared(.showOnlyFavorites) var showOnlyFavorites
     return Preset.all.where { $0.soundFontId.eq(soundFontId) } && (
       showOnlyFavorites
-      ? .where { $0.kind.eq(Preset.Kind.favorite) }
-      : .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.favorite) }
+      ? .where { $0.kind.eq(Kind.favorite) }
+      : .where { $0.kind.neq(Kind.hidden) }
     )
   }
 
   /**
-   Obtain a query that returns an ordered collection of presets to show for a given sound font ID. Honors the
-   `favoritesOnTop` and `sortPresetsByName` settings which affect the ordering.
+   Obtain a query that returns an ordered collection of presets to show for a given sound font ID. Honors the `favoritesOnTop` and
+   `sortPresetsByName` settings which affect the ordering.
 
    - parameter soundFontId: the sound font to query for
    - returns: the select query
@@ -290,20 +293,23 @@ extension Preset {
    */
   public static func visible(for soundFontId: SoundFont.ID) -> [Preset] {
     withDatabaseReader {
-      try visibleQuery(for: soundFontId).fetchAll($0)
+      let found = try visibleQuery(for: soundFontId).fetchAll($0)
+      print("found:", found)
+      return found
     } ?? []
   }
 
+  /// - returns: query for all presets (no favorites).
   public static func allQuery(for soundFontId: SoundFont.ID) -> Select<(), Self, ()> {
     Self
       .all
       .where { $0.soundFontId.eq(soundFontId) }
-      .where { $0.kind.eq(Preset.Kind.preset) || $0.kind.eq(Preset.Kind.hidden) }
+      .where { $0.kind.neq(Kind.favorite) }
       .order(by: \.index)
   }
   /**
-   Obtain the collection of presets for a given sound font ID. Does not perform any filtering of hidden presets.
-   Used when editing preset visibility.
+   Obtain the collection of presets for a given sound font ID. Does not perform any filtering of hidden presets. Used when editing
+   preset visibility.
 
    - parameter soundFontId: the sound font to query for
    - returns: the collection of presets

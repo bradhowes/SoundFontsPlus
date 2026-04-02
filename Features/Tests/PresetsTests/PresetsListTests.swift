@@ -12,6 +12,10 @@ import TestSupport
   .dependencies {
     $0.defaultDatabase = TestSupport.testDatabase()
     $0.continuousClock = TestClock()
+    @Shared(.showOnlyFavorites) var showOnlyFavorites = false
+    @Shared(.favoritesOnTop) var favoritesOnTop = false
+    @Shared(.sortPresetsByName) var sortPresetsByName = false
+    @Shared(.showPresetIndexView) var showPresetIndexView = false
   },
   //  .snapshots(record: .failed)
 )
@@ -34,8 +38,6 @@ struct PresetsListTests {
     }
   }
 
-  var presets: [Preset] { Preset.visible(for: 1) }
-
   func setup(
     activeSoundFontId: SoundFont.ID? = 1,
     selectedSoundFontId: SoundFont.ID? = 2,
@@ -55,13 +57,13 @@ struct PresetsListTests {
     return store
   }
 
-  func initialized(_ closure: (TestStoreOf<PresetsList>) async throws -> Void) async throws {
+  func initialized(_ closure: (TestStoreOf<PresetsList>, [Preset]) async throws -> Void) async throws {
     let store = try setup()
 
     await store.send(.presetSourceChanged(.active(1)))
     await store.receive(.rowsUpdated(presets: Preset.visible(for: 1), showActive: true))
 
-    try await closure(store)
+    try await closure(store, Preset.visible(for: 1))
 
     await store.send(.deinitialize)
     await store.finish()
@@ -82,18 +84,12 @@ struct PresetsListTests {
 
   @Test
   func initializeWithSoundFontId() async throws {
-    let store = try setup()
-
-    await store.send(.presetSourceChanged(.active(1)))
-    await store.receive(.rowsUpdated(presets: Preset.visible(for: 1), showActive: true))
-
-    await store.send(.deinitialize)
-    await store.finish()
+    try await initialized { _, _ in }
   }
 
   @Test
   func presetSourceChangedFetches() async throws {
-    try await initialized { store in
+    try await initialized { store, presets in
       await store.send(.presetSourceChanged(.active(2))) {
         $0.presetSource = .active(2)
       }
@@ -103,8 +99,8 @@ struct PresetsListTests {
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
+            sectionText: "F",
+            sectionIndex: "#",
             presets: presets[...],
             presetSource: .active(2)
           )
@@ -115,7 +111,7 @@ struct PresetsListTests {
 
   @Test
   func clearScrollTo() async throws {
-    try await initialized { store in
+    try await initialized { store, _ in
       await store.send(\.clearScrollToTarget)
     }
   }
@@ -128,7 +124,7 @@ struct PresetsListTests {
   func searchPresets() async throws {
     @Dependency(\.continuousClock) var clock
     // let testClock = clock as! TestClock<Duration>
-    try await initialized { store in
+    try await initialized { store, presets in
       await store.send(\.sections, .element(id: 0, action: .delegate(.searchButtonTapped))) {
         $0.scrollToTarget = nil
         $0.sections = [
@@ -187,7 +183,7 @@ struct PresetsListTests {
   )
   func selectFromSearch() async throws {
     @Dependency(\.continuousClock) var clock
-    try await initialized { store in
+    try await initialized { store, presets in
       await store.send(\.sections, .element(id: 0, action: .delegate(.searchButtonTapped))) {
         $0.scrollToTarget = nil
         $0.sections = [
@@ -226,20 +222,20 @@ struct PresetsListTests {
          )
       ) {
         $0.sections[0].presetSource = .active(1)
-        $0.sections[0].activePresetId = 7
+        $0.sections[0].activePresetId = 131
       }
 
       await store.receive(\.sections[id: 0].delegate.selectPreset) {
-        $0.activePresetId = 7
+        $0.activePresetId = 131
       }
 
-      await store.receive(\.delegate.activePresetIdChanged, 7)
+      await store.receive(\.delegate.activePresetIdChanged, 131)
     }
   }
 
   @Test
   func detectSoundFontIdChange() async throws {
-    try await initialized { store in
+    try await initialized { store, presets in
 
       await store.send(.presetSourceChanged(.selected(2))) {
         $0.presetSource = .selected(2)
@@ -251,8 +247,8 @@ struct PresetsListTests {
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
+            sectionText: "F",
+            sectionIndex: "#",
             presets: presets[...],
             presetSource: .selected(2)
           )
@@ -267,7 +263,7 @@ struct PresetsListTests {
     }
   )
   func buttonTapped() async throws {
-    try await initialized { store in
+    try await initialized { store, presets in
       await store.send(
         \.sections,
          .element(
@@ -290,7 +286,7 @@ struct PresetsListTests {
     }
   )
   func buttonTappedMissingFile() async throws {
-    try await initialized { store in
+    try await initialized { store, presets in
       await store.send(
         \.sections,
          .element(
@@ -306,16 +302,12 @@ struct PresetsListTests {
     }
   }
 
-  @Test(
-    .dependencies {
-      $0.continuousClock = TestClock()
-    }
-  )
+  @Test
   func deleteFavoriteCancel() async throws {
     @Dependency(\.continuousClock) var clock
     let testClock = clock as! TestClock<Duration>
 
-    try await initialized { store in
+    try await initialized { store, presets in
 
       await store.send(
         \.sections,
@@ -329,21 +321,23 @@ struct PresetsListTests {
 
       await store.receive(\.showPresetDelayed, 13)
 
+      let presets = Preset.visible(for: 1)
+
       await store.receive(.rowsUpdated(presets: presets, showActive: false)) {
         $0.presets = presets
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
+            sectionText: "F",
+            sectionIndex: "#",
             presets: presets[...],
             presetSource: .active(1)
           )
         ]
       }
 
-      var updated = presets
-      #expect(updated[1].kind == .favorite)
+      var updated = Preset.visible(for: 1)
+      #expect(updated[0].kind == .favorite)
 
       await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
 
@@ -373,20 +367,17 @@ struct PresetsListTests {
       }
 
       updated = Preset.visible(for: 1)
-      #expect(updated[1].kind == .favorite)
+      #expect(updated[0].kind == .favorite)
     }
   }
 
-  @Test(
-    .dependencies {
-      $0.continuousClock = TestClock()
-    }
-  )
+  @Test
   func deleteFavoriteConfirm() async throws {
     @Dependency(\.continuousClock) var clock
     let testClock = clock as! TestClock<Duration>
 
-    try await initialized { store in
+    try await initialized { store, presets in
+
       await store.send(
         \.sections,
          .element(
@@ -399,21 +390,23 @@ struct PresetsListTests {
 
       await store.receive(\.showPresetDelayed, 13)
 
+      let presets = Preset.visible(for: 1)
+
       await store.receive(.rowsUpdated(presets: presets, showActive: false)) {
         $0.presets = presets
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
+            sectionText: "F",
+            sectionIndex: "#",
             presets: presets[...],
             presetSource: .active(1)
           )
         ]
       }
 
-      var updated = presets
-      #expect(updated[1].kind == .favorite)
+      var updated = Preset.visible(for: 1)
+      #expect(updated[0].kind == .favorite)
 
       await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
 
@@ -425,44 +418,44 @@ struct PresetsListTests {
         \.sections,
          .element(
           id: store.state.sections[0].id,
-          action: .rows(.element(id: updated[1].id, action: .delegate(.deleteFavorite(updated[1]))))
+          action: .rows(.element(id: updated[1].id, action: .delegate(.deleteFavorite(updated[0]))))
          )
       )
 
-      await store.receive(\.sections[id: store.state.sections[0].id].delegate.deleteFavorite, updated[1]) {
+      await store.receive(\.sections[id: store.state.sections[0].id].delegate.deleteFavorite, updated[0]) {
         $0.destination = .alert(
           AlertState.confirmDeleteFavorite(
-            action: .deleteFavoriteConfirmed(updated[1]),
-            displayName: updated[1].displayName
+            action: .deleteFavoriteConfirmed(updated[0]),
+            displayName: updated[0].displayName
           )
         )
       }
 
-      await store.send(\.destination.presented.alert.deleteFavoriteConfirmed, updated[1]) {
+      await store.send(\.destination.presented.alert.deleteFavoriteConfirmed, updated[0]) {
         $0.destination = nil
       }
 
-      await store.receive(.rowsUpdated(presets: presets, showActive: false)) {
-        $0.presets = presets
+      updated = Preset.visible(for: 1)
+      #expect(updated[0].kind == .preset)
+
+      await store.receive(.rowsUpdated(presets: updated, showActive: false)) {
+        $0.presets = updated
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
-            presets: presets[...],
+            sectionText: "F",
+            sectionIndex: "#",
+            presets: updated[...],
             presetSource: .active(1)
           )
         ]
       }
-
-      updated = Preset.visible(for: 1)
-      #expect(updated[1].kind == .preset)
     }
   }
 
   @Test
   func editButtonTapped() async throws {
-    try await initialized { store in
+    try await initialized { store, presets in
       let sectionId = store.state.sections[0].id
       let preset = presets[0]
 
@@ -484,7 +477,7 @@ struct PresetsListTests {
     @Shared(.confirmPresetHiding) var confirmPresetHiding
     #expect(confirmPresetHiding == true)
 
-    try await initialized { store in
+    try await initialized { store, presets in
       let sectionId = store.state.sections[0].id
       let preset = presets[1]
 
@@ -520,7 +513,7 @@ struct PresetsListTests {
     @Shared(.confirmPresetHiding) var confirmPresetHiding
     #expect(confirmPresetHiding == true)
 
-    try await initialized { store in
+    try await initialized { store, presets in
       let sectionId = store.state.sections[0].id
       let preset = presets[1]
 
@@ -548,8 +541,8 @@ struct PresetsListTests {
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
+            sectionText: "F",
+            sectionIndex: "#",
             presets: updated[...],
             presetSource: .active(1)
           )
@@ -562,8 +555,8 @@ struct PresetsListTests {
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
+            sectionText: "F",
+            sectionIndex: "#",
             presets: updated[...],
             presetSource: .active(1)
           )
@@ -592,8 +585,8 @@ struct PresetsListTests {
       $0.sections = [
         .init(
           section: 0,
-          sectionText: "Presets",
-          sectionIndex: "0",
+          sectionText: "F",
+          sectionIndex: "#",
           presets: all[...],
           presetSource: .active(1)
         )
@@ -611,8 +604,8 @@ struct PresetsListTests {
       $0.sections = [
         .init(
           section: 0,
-          sectionText: "Presets",
-          sectionIndex: "0",
+          sectionText: "F",
+          sectionIndex: "#",
           presets: visible[...],
           presetSource: .active(1)
         )
