@@ -26,8 +26,12 @@ struct MIDIAssignmentsTests {
 
   @Test
   func preview() async throws {
-    withSnapshotTesting(record: .failed) {
-      TestSupport.assertSnapshot(matching: MIDIAssignmentsView.preview)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: MIDIAssignmentsView.preview)
+      }
     }
   }
 }

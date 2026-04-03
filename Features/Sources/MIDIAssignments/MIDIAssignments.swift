@@ -114,9 +114,6 @@ public struct MIDIAssignmentsView: View {
 
 extension MIDIAssignmentsView {
   static var preview: some View {
-    prepareDependencies {
-      $0.defaultDatabase = previewDatabase()
-    }
     navigationBarTitleStyle()
     return VStack {
       MIDIAssignmentsView(
@@ -129,6 +126,10 @@ extension MIDIAssignmentsView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    $0.defaultDatabase = previewDatabase()
+  }
   MIDIAssignmentsView.preview
 }
 
