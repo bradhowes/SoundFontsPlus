@@ -135,16 +135,12 @@ public struct PresetButtonView: View {
 
 extension PresetButtonView {
   static var preview: some View {
-    var presets = prepareDependencies {
-      $0.defaultDatabase = previewDatabase()
-      return Preset.visible(for: 1)
-    }
-
-    // swiftlint:disable:next force_unwrapping
-    if let clone = presets.last!.clone() {
-      presets.append(clone)
-    }
-
+    let presets: [Preset] = {
+      var presets = Preset.all(for: 1)
+      // swiftlint:disable:next force_unwrapping
+      presets.append(presets.last!.clone()!)
+      return presets
+    }()
     return VStack {
       Text("Normal")
       List {
@@ -175,6 +171,10 @@ extension PresetButtonView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    $0.defaultDatabase = previewDatabase()
+  }
   PresetButtonView.preview
 }
 

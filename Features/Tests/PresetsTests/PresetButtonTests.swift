@@ -32,7 +32,9 @@ struct PresetButtonTests {
   }
 
   @Test(
-    .dependencies { $0.defaultDatabase = TestSupport.testDatabase(seeder: TestSupport.addMockPresets) }
+    .dependencies {
+      $0.defaultDatabase = TestSupport.testDatabase(seeder: TestSupport.addMockPresets)
+    }
   )
   func toggleVisibility() async throws {
     let store = store()
@@ -43,6 +45,12 @@ struct PresetButtonTests {
 
   @Test
   func presetButtonPreview() async throws {
-    TestSupport.assertSnapshot(matching: PresetButtonView.preview)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: PresetButtonView.preview)
+      }
+    }
   }
 }
