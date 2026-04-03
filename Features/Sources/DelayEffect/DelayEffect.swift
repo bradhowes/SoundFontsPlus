@@ -370,48 +370,6 @@ extension DelayEffectView {
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
 
-    prepareDependencies {
-      installApplicationFont()
-      // swiftlint:disable:next force_try
-      $0.defaultDatabase = try! appDatabase { db in
-        try DelayConfig.insert {
-          DelayConfig.Draft(
-            time: 0.5,
-            feedback: 80,
-            cutoff: 8000.0,
-            wetDryMix: 50.0,
-            enabled: true,
-            presetId: 1
-          )
-        }
-        .execute(db)
-        try DelayConfig.insert {
-          DelayConfig.Draft(
-            time: 1.0,
-            feedback: -70,
-            cutoff: 12000.0,
-            wetDryMix: 100.0,
-            enabled: true,
-            presetId: 2
-          )
-        }
-        .execute(db)
-        try DelayConfig.insert {
-          DelayConfig.Draft(
-            time: 1.5,
-            feedback: 0,
-            cutoff: 3000.0,
-            wetDryMix: 25.0,
-            enabled: false,
-            presetId: 3
-          )
-        }
-        .execute(db)
-      }
-
-      $0.delayDevice = .init(effect: nil, setConfig: { print("DelayDevice.setConfig:", $1) })
-    }
-
     let store = Store(initialState: .init()) {
       DelayEffect()
     }
@@ -437,6 +395,48 @@ extension DelayEffectView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    installApplicationFont()
+    // swiftlint:disable:next force_try
+    $0.defaultDatabase = try! appDatabase { db in
+      try DelayConfig.insert {
+        DelayConfig.Draft(
+          time: 0.5,
+          feedback: 80,
+          cutoff: 8000.0,
+          wetDryMix: 50.0,
+          enabled: true,
+          presetId: 1
+        )
+      }
+      .execute(db)
+      try DelayConfig.insert {
+        DelayConfig.Draft(
+          time: 1.0,
+          feedback: -70,
+          cutoff: 12000.0,
+          wetDryMix: 100.0,
+          enabled: true,
+          presetId: 2
+        )
+      }
+      .execute(db)
+      try DelayConfig.insert {
+        DelayConfig.Draft(
+          time: 1.5,
+          feedback: 0,
+          cutoff: 3000.0,
+          wetDryMix: 25.0,
+          enabled: false,
+          presetId: 3
+        )
+      }
+      .execute(db)
+    }
+
+    $0.delayDevice = .init(effect: nil, setConfig: { print("DelayDevice.setConfig:", $1) })
+  }
   DelayEffectView.preview(presetId: 2)
 }
 
