@@ -11,6 +11,12 @@ import TestSupport
 @Suite(
   .dependencies {
     $0.defaultDatabase = TestSupport.testDatabase()
+    @Shared(.showOnlyFavorites) var showOnlyFavorites
+    $showOnlyFavorites.withLock { $0 = false }
+    @Shared(.favoritesOnTop) var favoritesOnTop
+    $favoritesOnTop.withLock { $0 = false }
+    @Shared(.sortPresetsByName) var sortPresetsByName
+    $sortPresetsByName.withLock { $0 = false }
   },
   //  .snapshots(record: .failed)
 )
@@ -18,7 +24,8 @@ import TestSupport
 struct PresetEditorTests {
 
   func setup(isActive: Bool = false) throws -> (Preset, TestStoreOf<PresetEditor>) {
-    let presets = Preset.visible(for: 1)
+    // TODO: this should be `visible` not `all`.
+    let presets = Preset.all(for: 1)
     let store = TestStore(initialState: PresetEditor.State(sectionId: 123, preset: presets[0], isActive: isActive)) {
       PresetEditor()
     }
@@ -149,8 +156,14 @@ struct PresetEditorTests {
 
   @Test
   func presetEditorPreview() async throws {
-    withSnapshotTesting(record: .failed) {
-      TestSupport.assertSnapshot(matching: PresetEditorView.preview)
+    withDependencies {
+      installApplicationFont()
+      navigationBarTitleStyle()
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: PresetEditorView.preview)
+      }
     }
   }
 }

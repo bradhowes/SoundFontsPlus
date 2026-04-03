@@ -426,13 +426,7 @@ extension View {
 
 extension PresetEditorView {
   static var preview: some View {
-    prepareDependencies {
-      installApplicationFont()
-      $0.defaultDatabase = previewDatabase()
-      navigationBarTitleStyle()
-    }
-
-    let presets = Preset.visible(for: 1)
+    let presets = Preset.all(for: 1)
     return PresetEditorView(store: Store(initialState: .init(sectionId: .init(0), preset: presets[0], isActive: false)) {
       PresetEditor()
     })
@@ -440,6 +434,12 @@ extension PresetEditorView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    installApplicationFont()
+    navigationBarTitleStyle()
+    $0.defaultDatabase = previewDatabase()
+  }
   PresetEditorView.preview
 }
 
