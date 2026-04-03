@@ -192,6 +192,12 @@ extension TagNameEditorView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    installApplicationFont()
+    $0.defaultDatabase = previewDatabase()
+  }
+
   TagNameEditorView.preview
     .environment(\.font, Font.body)
 }

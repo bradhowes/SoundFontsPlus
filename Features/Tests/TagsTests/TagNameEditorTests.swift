@@ -49,9 +49,14 @@ struct TagNameEditorTests {
 
   @Test
   func tagNameEditorPreview() async throws {
-    TestSupport.assertSnapshot(
-      matching: TagNameEditorView.preview,
-      size: .init(width: 400, height: 1200)
-    )
+    withDependencies {
+      installApplicationFont()
+      $0.defaultDatabase = TestSupport.testDatabase()
+    } operation: {
+      TestSupport.assertSnapshot(
+        matching: TagNameEditorView.preview,
+        size: .init(width: 400, height: 1200)
+      )
+    }
   }
 }
