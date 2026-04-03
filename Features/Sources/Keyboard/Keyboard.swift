@@ -505,15 +505,15 @@ struct KeyboardPreview: View {
 }
 
 #Preview {
-  prepareDependencies {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
     $0.defaultDatabase = previewDatabase()
     @Shared(.firstVisibleKey) var firstVisibleKey
     $firstVisibleKey.withLock { $0 = .C4 }
     @Shared(.keyboardSlides) var keyboardSlides
     $keyboardSlides.withLock { $0 = true }
   }
-
-  return KeyboardPreview()
+  KeyboardPreview()
 }
 
 #endif // DEBUG
