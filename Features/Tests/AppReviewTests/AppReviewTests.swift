@@ -85,20 +85,19 @@ struct AppReviewTests {
 
   @Test
   func appReviewPreview() async throws {
-    prepareDependencies {
+    withDependencies {
       let now = Date(timeIntervalSince1970: 0)
       $0.date.now = now
       @Shared(.nextReviewRequestDate) var nextReviewRequestDate = now
       @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion = AppReview.currentVersion
+    } operation: {
+      let store: StoreOf<AppReview> = .init(initialState: AppReview.State(activityCounter: 4)) {
+        AppReview()
+      }
+
+      let view = AppReviewDemoView(store: store)
+      store.send(.ask)
+      TestSupport.assertSnapshot(matching: view)
     }
-
-    let store: StoreOf<AppReview> = .init(initialState: AppReview.State(activityCounter: 4)) {
-      AppReview()
-    }
-
-    _ = AppReviewDemoView(store: store)
-    store.send(.ask)
-
-//    TestSupport.assertSnapshot(matching: view)
   }
 }
