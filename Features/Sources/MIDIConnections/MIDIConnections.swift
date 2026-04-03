@@ -292,9 +292,6 @@ private let log: Logger = .init(category: "MIDIConnections")
 
 extension MIDIConnectionsView {
   static var preview: some View {
-    prepareDependencies {
-      $0.defaultDatabase = previewDatabase(fonts: [])
-    }
     navigationBarTitleStyle()
     return VStack {
       MIDIConnectionsView(
@@ -403,6 +400,10 @@ extension MIDIConnectionsView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    $0.defaultDatabase = previewDatabase(fonts: [])
+  }
   MIDIConnectionsView.preview
 }
 

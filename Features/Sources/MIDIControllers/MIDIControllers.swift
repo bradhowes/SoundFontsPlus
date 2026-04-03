@@ -127,9 +127,6 @@ public struct MIDIControllersView: View {
 
 extension MIDIControllersView {
   static var preview: some View {
-    prepareDependencies {
-      $0.defaultDatabase = previewDatabase()
-    }
     navigationBarTitleStyle()
     return VStack {
       MIDIControllersView(
@@ -142,6 +139,10 @@ extension MIDIControllersView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    $0.defaultDatabase = previewDatabase()
+  }
   MIDIControllersView.preview
 }
 

@@ -26,8 +26,12 @@ struct MIDIControllersTests {
 
   @Test
   func preview() async throws {
-    withSnapshotTesting(record: .failed) {
-      TestSupport.assertSnapshot(matching: MIDIControllersView.preview)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase(fonts: [])
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: MIDIControllersView.preview)
+      }
     }
   }
 }
