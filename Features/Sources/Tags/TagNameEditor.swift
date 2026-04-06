@@ -150,10 +150,6 @@ public struct TagNameEditorView: View {
 extension TagNameEditorView {
 
   static var preview: some View {
-    prepareDependencies {
-      installApplicationFont()
-      $0.defaultDatabase = previewDatabase()
-    }
     _ = try? Tag.make(displayName: "New Tag")
     _ = try? Tag.make(displayName: "Another Tag")
     let tags = Tag.tags

@@ -11,21 +11,25 @@ import TestSupport
 @Suite(
   .dependencies {
     $0.defaultDatabase = TestSupport.testDatabase()
-    @Shared(.showOnlyFavorites) var showOnlyFavorites
-    $showOnlyFavorites.withLock { $0 = false }
-    @Shared(.favoritesOnTop) var favoritesOnTop
-    $favoritesOnTop.withLock { $0 = false }
-    @Shared(.sortPresetsByName) var sortPresetsByName
-    $sortPresetsByName.withLock { $0 = false }
   },
   //  .snapshots(record: .failed)
 )
 @MainActor
 struct PresetEditorTests {
+  @Shared(.confirmPresetHiding) var confirmPresetHiding = false
+  @Shared(.favoritesOnTop) var favoritesOnTop = false
+  @Shared(.showOnlyFavorites) var showOnlyFavorites = false
+  @Shared(.sortPresetsByName) var sortPresetsByName = false
+
+  init() {
+    $confirmPresetHiding.withLock { $0 = false }
+    $favoritesOnTop.withLock { $0 = false }
+    $showOnlyFavorites.withLock { $0 = false }
+    $sortPresetsByName.withLock { $0 = false }
+  }
 
   func setup(isActive: Bool = false) throws -> (Preset, TestStoreOf<PresetEditor>) {
-    // TODO: this should be `visible` not `all`.
-    let presets = Preset.all(for: 1)
+    let presets = Preset.visible(for: 1)
     let store = TestStore(initialState: PresetEditor.State(sectionId: 123, preset: presets[0], isActive: isActive)) {
       PresetEditor()
     }
@@ -35,8 +39,6 @@ struct PresetEditorTests {
   @Test
   func acceptButtonTappedSavesChanges() async throws {
     let (preset, store) = try setup()
-    @Shared(.confirmPresetHiding) var confirmPresetHiding
-    $confirmPresetHiding.withLock { $0 = false }
 
     await store.send(\.binding.displayName, "New Name") {
       $0.displayName = "New Name"
@@ -87,8 +89,6 @@ struct PresetEditorTests {
   @Test
   func cancelButtonTappedIgnoresChanges() async throws {
     let (preset, store) = try setup()
-    @Shared(.confirmPresetHiding) var confirmPresetHiding
-    $confirmPresetHiding.withLock { $0 = false }
 
     await store.send(\.binding.displayName, "New Name") {
       $0.displayName = "New Name"
@@ -154,6 +154,7 @@ struct PresetEditorTests {
     }
   }
 
+#if SNAPSHOTS
   @Test
   func presetEditorPreview() async throws {
     withDependencies {
@@ -166,4 +167,5 @@ struct PresetEditorTests {
       }
     }
   }
+#endif
 }

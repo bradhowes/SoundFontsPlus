@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Dependencies
+import DependenciesTestSupport
 import Foundation
 import SQLiteData
 import Testing

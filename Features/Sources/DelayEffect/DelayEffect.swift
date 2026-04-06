@@ -362,7 +362,6 @@ private let log: Logger = .init(category: "DelayEffect")
 #if DEBUG
 
 extension DelayEffectView {
-  // swiftlint:disable:next function_body_length
   static func preview(presetId: Preset.ID) -> some View {
     var theme = Theme()
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
@@ -370,9 +369,7 @@ extension DelayEffectView {
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
 
-    let store = Store(initialState: .init()) {
-      DelayEffect()
-    }
+    let store = Store(initialState: .init()) { DelayEffect() }
 
     return VStack {
       ScrollView(.horizontal) {

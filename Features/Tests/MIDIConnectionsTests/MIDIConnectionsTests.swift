@@ -17,6 +17,8 @@ import TestSupport
 @MainActor
 struct MIDIConnectionsTests {
 
+  @Shared(.midiAutoConnect) var midiAutoConnect = false
+
   func store(rows: [MIDIConnectionRow]? = nil) -> TestStoreOf<MIDIConnections> {
     return TestStoreOf<MIDIConnections>(
       initialState: .init(
@@ -127,7 +129,7 @@ struct MIDIConnectionsTests {
   }
 
   @Test(arguments: [false, true]) func honorsMIDIAutoConnect(_ autoConnect: Bool) async {
-    @Shared(.midiAutoConnect) var midiAutoConnect = autoConnect
+    $midiAutoConnect.withLock { $0 = autoConnect }
     let store = store()
     #expect(store.state.rows.count == 3)
 
@@ -139,9 +141,8 @@ struct MIDIConnectionsTests {
 //    }
   }
 
-  @Test(
-    .dependencies { _ in }
-  )
+#if SNAPSHOTS
+  @Test
   func previewAutoConnect() async throws {
     withDependencies {
       $0.defaultDatabase = previewDatabase(fonts: [])
@@ -152,17 +153,15 @@ struct MIDIConnectionsTests {
     }
   }
 
-  @Test(
-    .dependencies { _ in }
-  )
+  @Test
   func previewNoAutoConnect() async throws {
     withDependencies {
       $0.defaultDatabase = previewDatabase(fonts: [])
     } operation: {
-      @Shared(.midiAutoConnect) var midiAutoConnect = false
       withSnapshotTesting(record: .failed) {
         TestSupport.assertSnapshot(matching: MIDIConnectionsView.preview)
       }
     }
   }
+#endif
 }

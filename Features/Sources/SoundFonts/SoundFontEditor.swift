@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import FeatureSupport
+import Models
 import SQLiteData
 import StructuredQueries
 import Tags
@@ -320,21 +321,18 @@ extension View {
 
 extension SoundFontEditorView {
   static var preview: some View {
-    // swiftlint:disable:next force_try
-    var soundFonts = try! prepareDependencies {
-      installApplicationFont()
-      $0.defaultDatabase = previewDatabase { db in
-        try Preset
-          .all
-          .where { $0.id.eq(Preset.ID(4)) || $0.id.eq(Preset.ID(3)) }
-          .update {
-            $0.kind = #bind(.hidden)
-          }
-          .execute(db)
-      }
-      navigationBarTitleStyle()
-      return try $0.defaultDatabase.read { try SoundFont.all.fetchAll($0) }
+    withDatabaseWriter { db in
+      try Preset
+        .all
+        .where { $0.id.eq(Preset.ID(4)) || $0.id.eq(Preset.ID(3)) }
+        .update {
+          $0.kind = #bind(.hidden)
+        }
+        .execute(db)
     }
+    navigationBarTitleStyle()
+    let tag = Tag.with(id: Tag.Ubiquitous.all.id)
+    var soundFonts: [SoundFont] = tag?.soundFonts ?? []
 
     soundFonts[0].notes = "This is line 1\nThis is line 2\nThis is line 3\nThis is line 4"
     return SoundFontEditorView(store: Store(initialState: .init(soundFont: soundFonts[0])) { SoundFontEditor() })
@@ -342,6 +340,10 @@ extension SoundFontEditorView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    $0.defaultDatabase = previewDatabase()
+  }
   SoundFontEditorView.preview
     .environment(\.font, Font.body)
 }

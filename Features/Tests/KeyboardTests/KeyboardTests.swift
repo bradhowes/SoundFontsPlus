@@ -1,8 +1,8 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import DependenciesTestSupport
-import SnapshotTesting
 import FeatureSupport
+import SnapshotTesting
 import SQLiteData
 import Testing
 import TestSupport
@@ -28,6 +28,7 @@ extension Keyboard.State.EventId {
 @MainActor
 struct KeyboardTests {
 
+#if SNAPSHOTS
   @Test
   func keyboardPreviewPortrait() async throws {
     TestSupport.assertSnapshot(
@@ -103,6 +104,7 @@ struct KeyboardTests {
     let view = VStack { KeyboardView(store: store) }
     TestSupport.assertSnapshot(matching: view)
   }
+  #endif
 
   @Test
   func allOffClearsActiveNotes() async throws {

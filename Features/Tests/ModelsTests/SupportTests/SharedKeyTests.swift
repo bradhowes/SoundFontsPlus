@@ -1,14 +1,18 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
-import Sharing
+import DependenciesTestSupport
 import SnapshotTesting
 import SwiftUI
 import Testing
 
 @testable import Models
 
-@Suite
+@Suite(
+  .dependencies {
+    $0.defaultFileStorage = .inMemory
+  }
+)
 @MainActor
 struct SharingTests {
 

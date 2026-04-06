@@ -102,11 +102,6 @@ public struct PresetsList {
     }
   }
 
-  @Dependency(\.defaultDatabase) private var database
-  @Dependency(\.fileManager) var fileManager
-
-  @Shared(.confirmPresetHiding) private var confirmPresetHiding
-
   public init() {}
 
   public var body: some ReducerOf<Self> {
@@ -236,6 +231,7 @@ extension PresetsList {
   }
 
   private func hidePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
+    @Shared(.confirmPresetHiding) var confirmPresetHiding
     if confirmPresetHiding {
       state.destination = .alert(
         .confirmHidePreset(action: .hidePresetConfirmed(preset), displayName: preset.displayName)
@@ -247,6 +243,7 @@ extension PresetsList {
 
   private func hidePresetConfirmed(_ state: inout State, preset: Preset) -> Effect<Action> {
     precondition(!preset.isFavorite)
+    @Shared(.confirmPresetHiding) var confirmPresetHiding
     $confirmPresetHiding.withLock { $0 = false }
     var preset = preset
     preset.toggleVisibility()
@@ -333,6 +330,7 @@ extension PresetsList {
   }
 
   private func selectPreset(_ state: inout State, preset: Preset, sectionId: PresetsListSection.State.ID) -> Effect<Action> {
+    @Dependency(\.fileManager) var fileManager
     guard let info = PresetLoadingInfo.for(id: preset.id) else { return .none }
     guard
       let kind = try? SoundFontKind(kind: info.kind, location: info.location, displayName: info.soundFontName),
@@ -371,7 +369,6 @@ extension PresetsList {
 
   private func updateFetchAllQuery(_ state: inout State, showActive: Bool) -> Effect<Action> {
     log.info("updateFetchAllQuery")
-
     let soundFontId = state.presetSource?.id ?? -1
     let query = state.editingVisibility ? Preset.allQuery(for: soundFontId) : Preset.visibleQuery(for: soundFontId)
 
@@ -400,7 +397,7 @@ public struct PresetsListView: View {
   @Bindable private var store: StoreOf<PresetsList>
   @FocusState private var focusedField: PresetsList.State.Field?
   @GestureState private var dragLocation: CGPoint = .zero
-  @Shared(.showPresetIndexView) var showPresetIndexView
+  @Shared(.showPresetIndexView) private var showPresetIndexView
 
   public init(store: StoreOf<PresetsList>) {
     self.store = store
@@ -544,11 +541,6 @@ private let log: Logger = .init(category: "PresetsList")
 extension PresetsListView {
 
   static var preview: some View {
-    prepareDependencies {
-      installApplicationFont()
-      $0.defaultDatabase = previewDatabase()
-      @Shared(.sortPresetsByName) var sortPresetsByName = true
-    }
     let soundFontId: SoundFont.ID = 1
     return VStack {
       let store = Store(initialState: .init(presetSource: .active(soundFontId))) { PresetsList() }
@@ -564,14 +556,18 @@ extension PresetsListView {
   }
 
   static var previewEditing: some View {
-    prepareDependencies { $0.defaultDatabase = previewDatabase() }
-    return PresetsListView(store: Store(initialState: .init(presetSource: .active(SoundFont.ID(1)), editingVisibility: true)) {
+    PresetsListView(store: Store(initialState: .init(presetSource: .active(SoundFont.ID(1)), editingVisibility: true)) {
       PresetsList()
     })
   }
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    installApplicationFont()
+    $0.defaultDatabase = previewDatabase()
+  }
   PresetsListView.preview
 }
 

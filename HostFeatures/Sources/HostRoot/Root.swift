@@ -306,6 +306,10 @@ extension RootView {
 }
 
 #Preview {
+  prepareDependencies {
+    $0.uuid = .incrementing
+    $0.presetsStore = .previewValue
+  }
   RootView.preview
 }
 

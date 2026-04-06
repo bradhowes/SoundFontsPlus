@@ -1,4 +1,5 @@
 import AudioToolbox
+import DependenciesTestSupport
 import XCTest
 import AVFAudio
 

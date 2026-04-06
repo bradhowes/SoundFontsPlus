@@ -226,16 +226,9 @@ private let log: Logger = .init(category: "SoundFontButton")
 
 extension SoundFontButtonView {
   static var preview: some View {
-    // swiftlint:disable:next force_try
-    let soundFontInfos = try! prepareDependencies {
-      @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
-      @Shared(.hideEmptyTags) var hideEmptyTags = false
-      $0.defaultDatabase = previewDatabase()
-      return try $0.defaultDatabase.read { db in
-        try SoundFontInfo.query(for: Tag.Ubiquitous.all.id).fetchAll(db)
-      }
-    }
-
+    let soundFontInfos = withDatabaseReader {
+      try SoundFontInfo.query(for: Tag.Ubiquitous.all.id).fetchAll($0)
+    } ?? []
     return VStack {
       Section {
         List {
@@ -267,6 +260,10 @@ extension SoundFontButtonView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    $0.defaultDatabase = previewDatabase()
+  }
   SoundFontButtonView.preview
     .environment(\.font, Font.body)
 }

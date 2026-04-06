@@ -16,6 +16,7 @@ import TestSupport
 )
 @MainActor
 struct FileImporterTests {
+  @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling = true
 
   func store() -> TestStoreOf<FileImporter> {
     TestStoreOf<FileImporter>(initialState: .init()) {
@@ -100,7 +101,7 @@ struct FileImporterTests {
     try? FileManager.default.createDirectory(at: mockSharedDocumentsDirectory, withIntermediateDirectories: true)
     defer { try? FileManager.default.removeItem(at: mockSharedDocumentsDirectory) }
 
-    @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling = true
+    $copyFileWhenInstalling.withLock { $0 = true }
     let store = TestStoreOf<FileImporter>(initialState: .init()) {
       FileImporter()
     } withDependencies: {
@@ -139,7 +140,8 @@ struct FileImporterTests {
 
   @Test
   func filePickedAddedNoCopy() async throws {
-    @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling = false
+    $copyFileWhenInstalling.withLock { $0 = false }
+
     let store = TestStoreOf<FileImporter>(initialState: .init()) {
       FileImporter()
     } withDependencies: {
@@ -170,7 +172,7 @@ struct FileImporterTests {
 
   @Test
   func filePickedInvalidFormat() async throws {
-    @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling = false
+    $copyFileWhenInstalling.withLock { $0 = false }
     let store = TestStoreOf<FileImporter>(initialState: .init()) {
       FileImporter()
     } withDependencies: {
@@ -206,7 +208,6 @@ struct FileImporterTests {
   )
   func filePickedMultipleFilesCancelConfirm() async throws {
     @Dependency(\.fileManager) var fileManager
-    @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
     $copyFileWhenInstalling.withLock { $0 = true }
 
     let store = store()
@@ -241,7 +242,6 @@ struct FileImporterTests {
   )
   func filePickedDuplicateFilesCancel() async throws {
     @Dependency(\.fileManager) var fileManager
-    @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
     $copyFileWhenInstalling.withLock { $0 = true }
 
     let store = store()
@@ -293,7 +293,6 @@ struct FileImporterTests {
   )
   func filePickedDuplicateFilesAccept() async throws {
     @Dependency(\.fileManager) var fileManager
-    @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
     $copyFileWhenInstalling.withLock { $0 = true }
 
     let store = store()

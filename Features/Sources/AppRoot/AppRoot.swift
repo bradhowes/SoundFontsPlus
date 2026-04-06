@@ -312,12 +312,7 @@ extension AppRoot {
   @MainActor
   public static func makeWithDependencies() -> StoreOf<AppRoot> {
     prepareDependencies {
-      if ProcessInfo.processInfo.environment["UITesting"] == "true" {
-        $0.defaultFileStorage = .inMemory
-      } else {
-        $0.defaultFileStorage = .fileSystem
-      }
-
+      installApplicationFont()
       @Shared(.isAUv3) var isAUv3 = false
 
       // swiftlint:disable:next force_try

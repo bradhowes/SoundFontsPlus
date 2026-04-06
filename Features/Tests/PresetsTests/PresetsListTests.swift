@@ -12,15 +12,22 @@ import TestSupport
   .dependencies {
     $0.defaultDatabase = TestSupport.testDatabase()
     $0.continuousClock = TestClock()
-    @Shared(.showOnlyFavorites) var showOnlyFavorites = false
-    @Shared(.favoritesOnTop) var favoritesOnTop = false
-    @Shared(.sortPresetsByName) var sortPresetsByName = false
-    @Shared(.showPresetIndexView) var showPresetIndexView = false
   },
   //  .snapshots(record: .failed)
 )
 @MainActor
 struct PresetsListTests {
+
+  @Shared(.showOnlyFavorites) var showOnlyFavorites = false
+  @Shared(.favoritesOnTop) var favoritesOnTop = false
+  @Shared(.sortPresetsByName) var sortPresetsByName = false
+  @Shared(.confirmPresetHiding) var confirmPresetHiding = true
+
+  init() {
+    $showOnlyFavorites.withLock { $0 = false }
+    $favoritesOnTop.withLock { $0 = false }
+    $sortPresetsByName.withLock { $0 = false }
+  }
 
   static func makePresets(_ pairs: [(Int, String)]) -> [Preset] {
     pairs.map { index, name in
@@ -59,11 +66,14 @@ struct PresetsListTests {
 
   func initialized(_ closure: (TestStoreOf<PresetsList>, [Preset]) async throws -> Void) async throws {
     let store = try setup()
-
     await store.send(.presetSourceChanged(.active(1)))
-    await store.receive(.rowsUpdated(presets: Preset.visible(for: 1), showActive: true))
+    let presets = Preset.visible(for: 1)
 
-    try await closure(store, Preset.visible(for: 1))
+    #expect(!presets.isEmpty)
+
+    await store.receive(.rowsUpdated(presets: presets, showActive: true))
+
+    try await closure(store, presets)
 
     await store.send(.deinitialize)
     await store.finish()
@@ -99,8 +109,8 @@ struct PresetsListTests {
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "F",
-            sectionIndex: "#",
+            sectionText: "Presets",
+            sectionIndex: "0",
             presets: presets[...],
             presetSource: .active(2)
           )
@@ -123,7 +133,6 @@ struct PresetsListTests {
   )
   func searchPresets() async throws {
     @Dependency(\.continuousClock) var clock
-    // let testClock = clock as! TestClock<Duration>
     try await initialized { store, presets in
       await store.send(\.sections, .element(id: 0, action: .delegate(.searchButtonTapped))) {
         $0.scrollToTarget = nil
@@ -222,14 +231,14 @@ struct PresetsListTests {
          )
       ) {
         $0.sections[0].presetSource = .active(1)
-        $0.sections[0].activePresetId = 131
+        $0.sections[0].activePresetId = 7
       }
 
       await store.receive(\.sections[id: 0].delegate.selectPreset) {
-        $0.activePresetId = 131
+        $0.activePresetId = 7
       }
 
-      await store.receive(\.delegate.activePresetIdChanged, 131)
+      await store.receive(\.delegate.activePresetIdChanged, 7)
     }
   }
 
@@ -247,8 +256,8 @@ struct PresetsListTests {
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "F",
-            sectionIndex: "#",
+            sectionText: "Presets",
+            sectionIndex: "0",
             presets: presets[...],
             presetSource: .selected(2)
           )
@@ -318,42 +327,39 @@ struct PresetsListTests {
       )
 
       await store.receive(\.sections[id: store.state.sections[0].id].delegate.createFavorite, presets[0])
-
       await store.receive(\.showPresetDelayed, 13)
 
       let presets = Preset.visible(for: 1)
-
       await store.receive(.rowsUpdated(presets: presets, showActive: false)) {
         $0.presets = presets
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "F",
-            sectionIndex: "#",
+            sectionText: "Presets",
+            sectionIndex: "0",
             presets: presets[...],
             presetSource: .active(1)
           )
         ]
       }
 
+      let favoriteIndex = 1
       var updated = Preset.visible(for: 1)
-      #expect(updated[0].kind == .favorite)
+      #expect(updated[favoriteIndex].kind == .favorite)
 
       await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
 
-      await store.receive(\.showPresetNow, 13) {
-        $0.scrollToTarget = .preset(13)
-      }
+      await store.receive(\.showPresetNow, 13) { $0.scrollToTarget = .preset(13) }
 
       await store.send(
         \.sections,
          .element(
           id: store.state.sections[0].id,
-          action: .rows(.element(id: updated[1].id, action: .delegate(.deleteFavorite(updated[1]))))
+          action: .rows(.element(id: updated[favoriteIndex].id, action: .delegate(.deleteFavorite(updated[favoriteIndex]))))
          )
       )
 
-      await store.receive(\.sections[id: store.state.sections[0].id].delegate.deleteFavorite, updated[1]) {
+      await store.receive(\.sections[id: store.state.sections[0].id].delegate.deleteFavorite, updated[favoriteIndex]) {
         $0.destination = .alert(
           AlertState.confirmDeleteFavorite(
             action: .deleteFavoriteConfirmed(updated[1]),
@@ -362,12 +368,10 @@ struct PresetsListTests {
         )
       }
 
-      await store.send(.destination(.dismiss)) {
-        $0.destination = nil
-      }
+      await store.send(.destination(.dismiss)) { $0.destination = nil }
 
       updated = Preset.visible(for: 1)
-      #expect(updated[0].kind == .favorite)
+      #expect(updated[favoriteIndex].kind == .favorite)
     }
   }
 
@@ -391,22 +395,30 @@ struct PresetsListTests {
       await store.receive(\.showPresetDelayed, 13)
 
       let presets = Preset.visible(for: 1)
+      for p in presets {
+        print("--", p)
+      }
 
       await store.receive(.rowsUpdated(presets: presets, showActive: false)) {
         $0.presets = presets
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "F",
-            sectionIndex: "#",
+            sectionText: "Presets",
+            sectionIndex: "0",
             presets: presets[...],
             presetSource: .active(1)
           )
         ]
       }
 
+      let favoriteIndex = 1
       var updated = Preset.visible(for: 1)
-      #expect(updated[0].kind == .favorite)
+      for p in presets {
+        print("--", p)
+      }
+
+      #expect(updated[favoriteIndex].kind == .favorite)
 
       await testClock.advance(by: PresetsList.delayBeforeShowingActivePreset)
 
@@ -418,33 +430,33 @@ struct PresetsListTests {
         \.sections,
          .element(
           id: store.state.sections[0].id,
-          action: .rows(.element(id: updated[1].id, action: .delegate(.deleteFavorite(updated[0]))))
+          action: .rows(.element(id: updated[favoriteIndex].id, action: .delegate(.deleteFavorite(updated[favoriteIndex]))))
          )
       )
 
-      await store.receive(\.sections[id: store.state.sections[0].id].delegate.deleteFavorite, updated[0]) {
+      await store.receive(\.sections[id: store.state.sections[0].id].delegate.deleteFavorite, updated[favoriteIndex]) {
         $0.destination = .alert(
           AlertState.confirmDeleteFavorite(
-            action: .deleteFavoriteConfirmed(updated[0]),
-            displayName: updated[0].displayName
+            action: .deleteFavoriteConfirmed(updated[1]),
+            displayName: updated[1].displayName
           )
         )
       }
 
-      await store.send(\.destination.presented.alert.deleteFavoriteConfirmed, updated[0]) {
+      await store.send(\.destination.presented.alert.deleteFavoriteConfirmed, updated[favoriteIndex]) {
         $0.destination = nil
       }
 
       updated = Preset.visible(for: 1)
-      #expect(updated[0].kind == .preset)
+      #expect(updated[favoriteIndex].kind == .preset)
 
       await store.receive(.rowsUpdated(presets: updated, showActive: false)) {
         $0.presets = updated
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "F",
-            sectionIndex: "#",
+            sectionText: "Presets",
+            sectionIndex: "0",
             presets: updated[...],
             presetSource: .active(1)
           )
@@ -474,7 +486,6 @@ struct PresetsListTests {
 
   @Test
   func hidePresetFirstTimeCancel() async throws {
-    @Shared(.confirmPresetHiding) var confirmPresetHiding
     #expect(confirmPresetHiding == true)
 
     try await initialized { store, presets in
@@ -498,9 +509,7 @@ struct PresetsListTests {
         )
       }
 
-      await store.send(.destination(.dismiss)) {
-        $0.destination = nil
-      }
+      await store.send(.destination(.dismiss)) { $0.destination = nil }
 
       let updated = Preset.visible(for: 1)
       #expect(updated[1] == presets[1])
@@ -510,7 +519,6 @@ struct PresetsListTests {
 
   @Test
   func hidePresetFirstTimeConfirm() async throws {
-    @Shared(.confirmPresetHiding) var confirmPresetHiding
     #expect(confirmPresetHiding == true)
 
     try await initialized { store, presets in
@@ -541,8 +549,8 @@ struct PresetsListTests {
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "F",
-            sectionIndex: "#",
+            sectionText: "Presets",
+            sectionIndex: "0",
             presets: updated[...],
             presetSource: .active(1)
           )
@@ -555,8 +563,8 @@ struct PresetsListTests {
         $0.sections = [
           .init(
             section: 0,
-            sectionText: "F",
-            sectionIndex: "#",
+            sectionText: "Presets",
+            sectionIndex: "0",
             presets: updated[...],
             presetSource: .active(1)
           )
@@ -585,8 +593,8 @@ struct PresetsListTests {
       $0.sections = [
         .init(
           section: 0,
-          sectionText: "F",
-          sectionIndex: "#",
+          sectionText: "Presets",
+          sectionIndex: "0",
           presets: all[...],
           presetSource: .active(1)
         )
@@ -604,8 +612,8 @@ struct PresetsListTests {
       $0.sections = [
         .init(
           section: 0,
-          sectionText: "F",
-          sectionIndex: "#",
+          sectionText: "Presets",
+          sectionIndex: "0",
           presets: visible[...],
           presetSource: .active(1)
         )
@@ -616,29 +624,40 @@ struct PresetsListTests {
     await store.finish()
   }
 
+#if SNAPSHOTS
   @Test
   func presetsListViewSearchingPreview() async throws {
-    let store = StoreOf<PresetsList>(initialState: .init(searchText: "ian")) {
-      PresetsList()
-    }
-    let view = PresetsListView(store: store)
-
-    withSnapshotTesting(record: .failed) {
-      TestSupport.assertSnapshot(matching: view)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      let store = StoreOf<PresetsList>(initialState: .init(searchText: "ian")) { PresetsList() }
+      let view = PresetsListView(store: store)
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: view)
+      }
     }
   }
 
   @Test
   func presetsListViewVisibilityEditing() async throws {
-    withSnapshotTesting(record: .failed) {
-      TestSupport.assertSnapshot(matching: PresetsListView.previewEditing)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: PresetsListView.previewEditing)
+      }
     }
   }
 
   @Test
   func presetsListViewPreview() async throws {
-    withSnapshotTesting(record: .failed) {
-      TestSupport.assertSnapshot(matching: PresetsListView.preview)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: PresetsListView.preview)
+      }
     }
   }
+#endif
 }

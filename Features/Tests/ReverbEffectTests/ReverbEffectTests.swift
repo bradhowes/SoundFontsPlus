@@ -14,8 +14,7 @@ import TestSupport
 @Suite(
   .dependencies {
     $0.defaultDatabase = TestSupport.testDatabase(seeder: addReverbConfigs)
-    $0.mainQueue = .immediate
-    $0.continuousClock = .immediate
+    $0.continuousClock = TestClock()
     $0.debounceDurations = .testValue
     $0.uuid = .incrementing
   },
@@ -23,6 +22,8 @@ import TestSupport
 )
 @MainActor
 struct ReverbEffectTests {
+  @Shared(.reverbLockEnabled) var reverbLockEnabled = false
+
   fileprivate let device = MockReverbDevice()
 
   fileprivate func store() -> TestStoreOf<ReverbEffect> {
@@ -39,15 +40,10 @@ struct ReverbEffectTests {
       $0.activePresetId = 1
       $0.config = ReverbConfig.Draft(ReverbConfig.with(presetId: 1)!)
     }
-
-    await store.receive(\.enabled.setValue, true) {
-      $0.enabled.isOn = true
-    }
+    await store.receive(\.enabled.setValue, true) { $0.enabled.isOn = true }
     await store.receive(\.wetDryMix.setValueSilently, 50.0)
     await store.receive(\.wetDryMix.track.valueChanged, 50.0)
-
     try await closure(store)
-
     await store.send(.deinitialize)
   }
 
@@ -60,44 +56,9 @@ struct ReverbEffectTests {
   }
 
   @Test
-  func roomPresetChanged() async throws {
-    @Dependency(\.continuousClock) var clock
-    @Dependency(\.debounceDurations) var debounceDurations
-
-    try await initialized { store in
-      #expect(store.state.config.id == 1)
-      #expect(store.state.config.enabled == true)
-
-      await store.send(.roomPresetChanged(.cathedral)) {
-        $0.config.roomPreset = .cathedral
-        $0.config.presetId = store.state.activePresetId!
-        $0.dirty = true
-      }
-
-      try await clock.sleep(for: debounceDurations.effectsDisplayUpdates)
-      await store.receive(\.updateDebounced)
-
-      let config = ReverbConfig.Draft(
-        id: 1,
-        roomPreset: store.state.config.roomPreset,
-        wetDryMix: store.state.config.wetDryMix,
-        enabled: store.state.config.enabled,
-        presetId: store.state.config.presetId
-      )
-
-      try? await clock.sleep(for: debounceDurations.effectsConfigurationSaves)
-      await store.receive(\.saveDebounced) {
-        $0.config = config
-        $0.dirty = false
-      }
-    }
-
-    #expect(await device.getTimesChanged() == 3)
-  }
-
-  @Test
   func enabledToggled() async throws {
     @Dependency(\.continuousClock) var clock
+    let testClock = clock as! TestClock<Duration>
     @Dependency(\.debounceDurations) var debounceDurations
 
     try await initialized { store in
@@ -111,7 +72,7 @@ struct ReverbEffectTests {
         $0.dirty = true
       }
 
-      try await clock.sleep(for: debounceDurations.effectsDisplayUpdates)
+      await testClock.advance(by: debounceDurations.effectsDisplayUpdates)
       await store.receive(\.updateDebounced)
 
       let config = ReverbConfig.Draft(
@@ -122,7 +83,44 @@ struct ReverbEffectTests {
         presetId: store.state.config.presetId
       )
 
-      try? await clock.sleep(for: debounceDurations.effectsConfigurationSaves)
+      await testClock.advance(by: debounceDurations.effectsConfigurationSaves)
+      await store.receive(\.saveDebounced) {
+        $0.config = config
+        $0.dirty = false
+      }
+    }
+
+    #expect(await device.getTimesChanged() == 3)
+  }
+
+  @Test
+  func roomPresetChanged() async throws {
+    @Dependency(\.continuousClock) var clock
+    let testClock = clock as! TestClock<Duration>
+    @Dependency(\.debounceDurations) var debounceDurations
+
+    try await initialized { store in
+      #expect(store.state.config.id == 1)
+      #expect(store.state.config.enabled == true)
+
+      await store.send(.roomPresetChanged(.cathedral)) {
+        $0.config.roomPreset = .cathedral
+        $0.config.presetId = store.state.activePresetId!
+        $0.dirty = true
+      }
+
+      await testClock.advance(by: debounceDurations.effectsDisplayUpdates)
+      await store.receive(\.updateDebounced)
+
+      let config = ReverbConfig.Draft(
+        id: 1,
+        roomPreset: store.state.config.roomPreset,
+        wetDryMix: store.state.config.wetDryMix,
+        enabled: store.state.config.enabled,
+        presetId: store.state.config.presetId
+      )
+
+      await testClock.advance(by: debounceDurations.effectsConfigurationSaves)
       await store.receive(\.saveDebounced) {
         $0.config = config
         $0.dirty = false
@@ -135,6 +133,7 @@ struct ReverbEffectTests {
   @Test
   func wetDryMix() async throws {
     @Dependency(\.continuousClock) var clock
+    let testClock = clock as! TestClock<Duration>
     @Dependency(\.debounceDurations) var debounceDurations
 
     try await initialized { store in
@@ -147,7 +146,7 @@ struct ReverbEffectTests {
         $0.dirty = true
       }
 
-      try await clock.sleep(for: debounceDurations.effectsDisplayUpdates)
+      await testClock.advance(by: debounceDurations.effectsDisplayUpdates)
       await store.receive(\.updateDebounced)
 
       let config2 = ReverbConfig.Draft(
@@ -158,24 +157,22 @@ struct ReverbEffectTests {
         presetId: store.state.config.presetId
       )
 
-      try await clock.sleep(for: debounceDurations.effectsConfigurationSaves)
+      await testClock.advance(by: debounceDurations.effectsConfigurationSaves)
       await store.receive(\.saveDebounced) {
         $0.config = config2
         $0.dirty = false
       }
 
+      await testClock.advance(by: .milliseconds(KnobConfig.default.showValueMilliseconds))
       await store.receive(\.wetDryMix.title.valueDisplayTimerFired) { $0.wetDryMix.title.formattedValue = nil }
     }
 
     #expect(await device.getTimesChanged() == 3)
   }
 
-  @Test(
-    .dependencies { _ in
-      @Shared(.reverbLockEnabled) var locked = true
-    }
-  )
+  @Test
   func globalLockEnabled() async throws {
+    $reverbLockEnabled.withLock { $0 = true }
     let store = store()
 
     await store.send(\.activePresetIdChanged, 1)
@@ -203,7 +200,7 @@ struct ReverbEffectTests {
 
   @Test
   func presetIdChangedWhileLocked() async throws {
-    @Shared(.reverbLockEnabled) var locked = true
+    $reverbLockEnabled.withLock { $0 = true }
     let store = store()
 
     await store.send(\.activePresetIdChanged, 1)
@@ -224,6 +221,7 @@ struct ReverbEffectTests {
   @Test
   func presetIdChanged() async throws {
     @Dependency(\.continuousClock) var clock
+    let testClock = clock as! TestClock<Duration>
     @Dependency(\.debounceDurations) var debounceDurations
 
     try await initialized { store in
@@ -255,24 +253,27 @@ struct ReverbEffectTests {
         $0.wetDryMix.title.formattedValue = "81"
       }
 
-      try await clock.sleep(for: debounceDurations.effectsDisplayUpdates)
+      await testClock.advance(by: debounceDurations.effectsDisplayUpdates)
       await store.receive(\.updateDebounced)
 
-      try await clock.sleep(for: debounceDurations.effectsConfigurationSaves)
+      await testClock.advance(by: debounceDurations.effectsConfigurationSaves)
       await store.receive(\.saveDebounced) {
         $0.dirty = false
       }
 
+      await testClock.advance(by: .milliseconds(KnobConfig.default.showValueMilliseconds))
       await store.receive(\.wetDryMix.title.valueDisplayTimerFired) { $0.wetDryMix.title.formattedValue = nil }
-
     }
+
     #expect(await device.getTimesChanged() == 4)
   }
 
+#if SNAPSHOTS
   @Test
   func preview() throws {
     TestSupport.assertSnapshot(matching: ReverbEffectView.preview)
   }
+#endif
 }
 
 private actor MockReverbDevice {

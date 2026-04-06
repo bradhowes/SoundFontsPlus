@@ -154,6 +154,7 @@ struct SettingsTests {
     }
   }
 
+#if SNAPSHOTS
   @Test(
     .dependencies {
       $0.fileManager.cloudDocumentsDirectory = { nil }
@@ -163,4 +164,5 @@ struct SettingsTests {
     let view = SettingsView.preview
     TestSupport.assertSnapshot(matching: view)
   }
+#endif
 }

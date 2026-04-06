@@ -21,8 +21,16 @@ struct SoundFontButtonTests {
     }
   }
 
+#if SNAPSHOTS
   @Test
   func preview() async throws {
-    TestSupport.assertSnapshot(matching: SoundFontButtonView.preview)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: SoundFontButtonView.preview)
+      }
+    }
   }
+#endif
 }

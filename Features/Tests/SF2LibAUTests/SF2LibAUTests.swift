@@ -2,17 +2,15 @@
 
 import AVFAudio
 import BaseSupport
-import Foundation
-import Dependencies
 import DependenciesTestSupport
+import Foundation
 import Engine
-import Sharing
 import Testing
 import TestSupport
 
 @testable import SF2LibAU
 
-// SF2LibAU cannot be tested via the SF2LibAU API since it actually creates 
+// SF2LibAU cannot be tested via the SF2LibAU API since it actually creates
 @Suite
 @MainActor
 struct SF2LibAUTests {

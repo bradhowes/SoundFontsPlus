@@ -3,14 +3,12 @@
 import AVFAudio
 import BaseSupport
 import ComposableArchitecture
-import Foundation
 import DelayEffect
-import Dependencies
 import DependenciesTestSupport
+import Foundation
 import Models
 import ReverbEffect
 import SF2LibAU
-import Sharing
 import SnapshotTesting
 import SwiftUI
 import Testing
@@ -33,13 +31,14 @@ import TestSupport
 )
 @MainActor
 struct SynthTests {
+  @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange = false
+  @Shared(.backgroundProcessing) var backgroundProcessing = false
 
   func initialized(exhaustivity: Exhaustivity = .on, _ closure: (TestStoreOf<Synth>) async throws -> Void) async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
 
     @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
     let avAudioUnit = await avAudioUnitMIDIInstrumentGenerator.generate()
-    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange = false
 
     let store = TestStore(initialState: Synth.State()) { Synth() }
 
@@ -85,8 +84,6 @@ struct SynthTests {
   @Test
   func activePresetIdChangeCanPlayNote() async throws {
     try await initialized { store in
-
-      @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
       $playSoundOnPresetChange.withLock { $0 = true }
 
       await store.send(\.activePresetIdChanged, 2) {
@@ -128,19 +125,10 @@ struct SynthTests {
   @Test
   func audioSessionReleaseAcquire() async throws {
     try await initialized { store in
-      await store.send(\.releaseAudioSession)
-      await store.send(\.acquireAudioSession)
-
-      @Shared(.backgroundProcessing) var backgroundProcessing
-      $backgroundProcessing.withLock { $0 = false }
-
-      await store.send(\.releaseAudioSession) {
-        $0.audioSessionActivated = false
-      }
-
-      await store.send(\.acquireAudioSession) {
-        $0.audioSessionActivated = true
-      }
+      await store.send(\.releaseAudioSession) { $0.audioSessionActivated = false }
+      await store.send(\.acquireAudioSession) { $0.audioSessionActivated = true }
+      await store.send(\.releaseAudioSession) { $0.audioSessionActivated = false }
+      await store.send(\.acquireAudioSession) { $0.audioSessionActivated = true }
     }
   }
 }

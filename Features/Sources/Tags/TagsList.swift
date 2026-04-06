@@ -264,7 +264,7 @@ extension TagsListView {
       $0.defaultDatabase = previewDatabase()
       // swiftlint:disable:next force_try
       let tag = try! Tag.make(displayName: "Another Tag")
-      Operations.tagSoundFont(tag.id, soundFontId: 1)
+      SoundFont.link(soundFontId: 1, to: tag.id)
     }
 
     @Shared(.hideEmptyTags) var hideEmptyTags

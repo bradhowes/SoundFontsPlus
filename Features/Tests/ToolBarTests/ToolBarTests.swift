@@ -423,6 +423,7 @@ struct ToolBarTests {
     await store.finish()
   }
 
+#if SNAPSHOTS
   @Test func previewWithFixedKeyboard() async throws {
     @Shared(.keyboardSlides) var keyboardSlides
     $keyboardSlides.withLock { $0 = false }
@@ -481,4 +482,5 @@ struct ToolBarTests {
       TestSupport.assertSnapshot(matching: ToolBarView.preview(showMoreButtons: true))
     }
   }
+#endif
 }

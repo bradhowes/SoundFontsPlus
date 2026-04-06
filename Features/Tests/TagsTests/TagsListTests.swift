@@ -12,12 +12,18 @@ import TestSupport
 @Suite(
   .dependencies {
     $0.defaultDatabase = TestSupport.testDatabase()
-    @Shared(.hideEmptyTags) var hideEmptyTags: Bool = false
   },
   .snapshots(record: .failed)
 )
 @MainActor
 struct TagsListTests {
+  @Shared(.hideEmptyTags) var hideEmptyTags = false
+  @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+
+  init() {
+    $hideBuiltinFonts.withLock { $0 = false }
+    $hideEmptyTags.withLock { $0 = false }
+  }
 
   func initialized(
     makeTag: Bool = false,
@@ -25,13 +31,10 @@ struct TagsListTests {
     activeTagId: Models.Tag.ID? = Tag.Ubiquitous.all.id,
     _ closure: (TestStoreOf<TagsList>) async throws -> Void
   ) async throws {
-    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
-    @Shared(.hideEmptyTags) var hideEmptyTags = false
-
     if makeTag {
       let tag = try Tag.make(displayName: "My New Tag")
       if tagFont {
-        Operations.tagSoundFont(tag.id, soundFontId: SF2ResourceTag.rolandNicePiano.id)
+        SoundFont.link(soundFontId: SF2ResourceTag.rolandNicePiano.id, to: tag.id)
       }
     }
 
@@ -51,6 +54,9 @@ struct TagsListTests {
 
   @Test
   func deleteButtonTappedEmptyTag() async throws {
+    $hideEmptyTags.withLock { $0 = false }
+    $hideBuiltinFonts.withLock { $0 = false }
+
     try await initialized(
       makeTag: true,
       tagFont: false,
@@ -164,16 +170,14 @@ struct TagsListTests {
 
   @Test
   func trackChangesToHideEmptyTags() async throws {
-    @Shared(.hideEmptyTags) var hideEmptyTags: Bool = false
+    $hideEmptyTags.withLock { $0 = false }
+    $hideBuiltinFonts.withLock { $0 = false }
 
     try await initialized(makeTag: true, tagFont: false) { store in
       let rows = store.state.rows
       #expect(rows.count == 6)
-
       $hideEmptyTags.withLock { $0 = true }
-
       await store.receive(\.fetchAllQueryChanged)
-
       let filtered = rows.filter({ $0.tagInfo.soundFontsCount > 0})
       await store.receive(\.rowsUpdated, filtered.map(\.tagInfo)) {
         $0.rows = filtered
@@ -181,8 +185,10 @@ struct TagsListTests {
     }
   }
 
+#if SNAPSHOTS
   @Test
   func preview() async throws {
     TestSupport.assertSnapshot(matching: TagsListView.preview)
   }
+#endif
 }

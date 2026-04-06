@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Dependencies
+import DependenciesTestSupport
 import Foundation
 import SF2Resources
 import SQLiteData
@@ -170,5 +170,52 @@ struct SoundFontTests {
 
     #expect(allTag.soundFonts.count == 3)
     #expect(builtInTag.soundFonts.count == 1)
+  }
+
+  @Test
+  func tagIdsForSoundFont() async throws {
+    #expect(SoundFont.with(id: 1)?.tags.count == 2)
+    #expect(SoundFont.with(id: 2)?.tags.count == 2)
+    #expect(SoundFont.with(id: 3)?.tags.map(\.id) == [-4, -3, -1])
+  }
+
+  @Test
+  func tagSoundFont() async throws {
+    let newTag = try Tag.make(displayName: "New Tag")
+    SoundFont.link(soundFontId: 1, to: newTag.id)
+    #expect(SoundFont.with(id: 1)?.tags.map(\.id) == [-2, -1, 1])
+    SoundFont.link(soundFontId: 1, to: newTag.id)
+    #expect(SoundFont.with(id: 1)?.tags.map(\.id) == [-2, -1, 1])
+    SoundFont.link(soundFontId: 1, to: Tag.Ubiquitous.external.id)
+    #expect(SoundFont.with(id: 1)?.tags.map(\.id) == [-2, -1, 1])
+  }
+
+  @Test
+  func tagSoundFontIgnoresUbiquitousTags() async throws {
+    let newTag = try Tag.make(displayName: "New Tag")
+    SoundFont.link(soundFontId: 1, to: newTag.id)
+    #expect(SoundFont.with(id: 1)?.tags.map(\.id) == [-2, -1, 1])
+    SoundFont.link(soundFontId: 1, to: Tag.Ubiquitous.external.id)
+    #expect(SoundFont.with(id: 1)?.tags.map(\.id) == [-2, -1, 1])
+  }
+
+  @Test
+  func untagSoundFont() async throws {
+    @Dependency(\.defaultDatabase) var database
+    let newTag = try Tag.make(displayName: "New Tag")
+    SoundFont.link(soundFontId: 1, to: newTag.id)
+    #expect(SoundFont.with(id: 1)?.tags.map(\.id) == [-2, -1, 1])
+    SoundFont.unlink(soundFontId: 1, from: newTag.id)
+    #expect(SoundFont.with(id: 1)?.tags.map(\.id) == [-2, -1])
+  }
+
+  @Test
+  func untagSoundFontIgnoresUbiquitousTags() async throws {
+    @Dependency(\.defaultDatabase) var database
+    let newTag = try Tag.make(displayName: "New Tag")
+    SoundFont.link(soundFontId: 1, to: newTag.id)
+    #expect(SoundFont.with(id: 1)?.tags.map(\.id) == [-2, -1, 1])
+    SoundFont.unlink(soundFontId: 1, from: Tag.Ubiquitous.all.id)
+    #expect(SoundFont.with(id: 1)?.tags.map(\.id) == [-2, -1, 1])
   }
 }

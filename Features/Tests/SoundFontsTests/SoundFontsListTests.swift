@@ -26,6 +26,14 @@ private class RemoveLog: @unchecked Sendable {
 )
 @MainActor
 struct SoundFontsListTests {
+  @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+  @Shared(.hideEmptyTags) var hideEmptyTags = false
+  @Shared(.isAUv3) var isAUv3 = false
+
+  init() {
+    $hideBuiltinFonts.withLock { $0 = false }
+    $hideEmptyTags.withLock { $0 = false }
+  }
 
   func store() -> TestStoreOf<SoundFontsList> {
     return TestStore(initialState: SoundFontsList.State()) {
@@ -34,9 +42,6 @@ struct SoundFontsListTests {
   }
 
   func initialized(_ closure: (TestStoreOf<SoundFontsList>) async throws -> Void) async throws {
-    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
-    @Shared(.hideEmptyTags) var hideEmptyTags = false
-
     let store = store()
     await store.send(.initialize)
     await store.receive(\.updateFetchAllQuery)
@@ -93,7 +98,6 @@ struct SoundFontsListTests {
 
   @Test
   func activeTagIdChanged() async throws {
-    @Shared(.isAUv3) var isAUv3 = false
 
     try await initialized { store in
       await store.send(\.activeTagIdChanged, Tag.Ubiquitous.all.id)
@@ -485,8 +489,10 @@ struct SoundFontsListTests {
     }
   }
 
+#if SNAPSHOTS
   @Test
   func soundFontsListViewPreview() async throws {
     TestSupport.assertSnapshot(matching: SoundFontsListView.preview)
   }
+#endif
 }

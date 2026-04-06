@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Dependencies
+import DependenciesTestSupport
 import Foundation
 import Sharing
 import SQLiteData
@@ -16,11 +16,16 @@ import TestSupport
 )
 @MainActor
 struct TagInfoTests {
+  @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+  @Shared(.hideEmptyTags) var hideEmptyTags = false
+
+  init() {
+    $hideBuiltinFonts.withLock { $0 = false }
+    $hideEmptyTags.withLock { $0 = false }
+  }
 
   @Test
   func testQueryAll() async throws {
-    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
-    @Shared(.hideEmptyTags) var hideEmptyTags = false
     let found = withDatabaseReader { try TagInfo.queryAll.fetchAll($0) } ?? []
     #expect(found.count == 5)
     #expect(found[0].soundFontsCount == 4)
@@ -44,8 +49,6 @@ struct TagInfoTests {
 
   @Test
   func testQueryNonEmpty() async throws {
-    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
-    @Shared(.hideEmptyTags) var hideEmptyTags = false
     let found = withDatabaseReader { try TagInfo.queryNonEmpty.fetchAll($0) } ?? []
     #expect(found.count == 5)
     #expect(found[0].soundFontsCount == 4)
@@ -73,8 +76,6 @@ struct TagInfoTests {
     }
   )
   func liveQuery() async throws {
-    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
-    @Shared(.hideEmptyTags) var hideEmptyTags = false
     let found = withDatabaseReader { try TagInfo.queryAll.fetchAll($0) } ?? []
     #expect(found.count == 5)
     #expect(found[0].soundFontsCount == 4)

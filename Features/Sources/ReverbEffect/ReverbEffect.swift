@@ -323,11 +323,6 @@ extension ReverbEffectView {
     theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
     theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
 
-    prepareDependencies {
-      $0.defaultDatabase = previewDatabase()
-      $0.reverbDevice = ReverbDevice.testValue
-    }
-
     let store = Store(initialState: .init()) { ReverbEffect() }
 
     return VStack {
@@ -348,6 +343,12 @@ extension ReverbEffectView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    $0.defaultDatabase = previewDatabase()
+    $0.reverbDevice = ReverbDevice.testValue
+  }
+
   ReverbEffectView.preview
     .environment(\.font, Font.body)
 }

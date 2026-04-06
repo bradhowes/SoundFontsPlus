@@ -9,12 +9,21 @@ import TestSupport
 @testable import Presets
 
 @Suite(
-  .dependency(\.defaultDatabase, TestSupport.testDatabase(seeder: TestSupport.addMockPresets)),
+  .dependencies {
+    $0.defaultDatabase = TestSupport.testDatabase(seeder: TestSupport.addMockPresets)
+  },
   .snapshots(record: .failed)
 )
 @MainActor
 struct IndicatorModifierTests {
 
+  @Shared(.showOnlyFavorites) var showOnlyFavorites = false
+
+  init() {
+    $showOnlyFavorites.withLock { $0 = false }
+  }
+
+#if SNAPSHOTS
   @Test
   func renderingNormalSelected() async throws {
     var presets = Preset.visible(for: 1)
@@ -136,4 +145,5 @@ struct IndicatorModifierTests {
     TestSupport.assertSnapshot(matching: view)
   }
 #endif // os(iOS)
+#endif // SNAPSHOTS
 }

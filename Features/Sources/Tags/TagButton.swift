@@ -113,15 +113,9 @@ private let log: Logger = .init(category: "TagButton")
 
 extension TagButtonView {
   static var preview: some View {
-    // swiftlint:disable:next force_try
-    let tagInfos = try! prepareDependencies {
-      installApplicationFont()
-      $0.defaultDatabase = previewDatabase()
-      return try $0.defaultDatabase.read { db in
-        try TagInfo.queryAll.fetchAll(db)
-      }
-    }
-
+    let tagInfos = withDatabaseReader { db in
+      try TagInfo.queryAll.fetchAll(db)
+    } ?? []
     return VStack {
       StyledList {
         Section {
@@ -145,6 +139,12 @@ extension TagButtonView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    installApplicationFont()
+    $0.defaultDatabase = previewDatabase()
+  }
+
   TagButtonView.preview
     .environment(\.font, Font.body)
 }

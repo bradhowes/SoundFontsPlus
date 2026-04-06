@@ -17,6 +17,10 @@ import TestSupport
 @MainActor
 struct MIDIMonitorTests {
 
+  @Shared(.midi) var sharedMIDI
+  @Shared(.midiAutoConnect) var midiAutoConnect = false
+  @Shared(.midiChannel) var midiChannel = -1
+
   @Test
   func misc() {
     let monitor = MIDIMonitor(instrument: MockAudioUnit())
@@ -27,39 +31,26 @@ struct MIDIMonitorTests {
   @Test
   func autoConnectDisabled() {
     let mau = MockAudioUnit()
-    @Shared(.midiChannel) var midiChannel = 1
-    @Shared(.midiAutoConnect) var midiAudoConnect = false
-
+    $midiChannel.withLock { $0 = 1 }
     let monitor = MIDIMonitor(instrument: mau)
-
-    @Dependency(\.defaultDatabase) var database
-    @Shared(.midiAutoConnect) var midiAutoConnect = false
-
     #expect(!monitor.shouldConnect(to: MIDIUniqueID(123123)))
   }
 
   @Test
   func autoConnectEnabled() {
     let mau = MockAudioUnit()
-    @Shared(.midiChannel) var midiChannel = 1
-    @Shared(.midiAutoConnect) var midiAudoConnect = true
-
+    $midiAutoConnect.withLock { $0 = true }
+    $midiChannel.withLock { $0 = 1 }
     let monitor = MIDIMonitor(instrument: mau)
-
-    @Dependency(\.defaultDatabase) var database
-    @Shared(.midiAutoConnect) var midiAutoConnect = false
-
     #expect(monitor.shouldConnect(to: MIDIUniqueID(123123)))
   }
 
   @Test
   func connectByUniqueIdFalse() {
     let mau = MockAudioUnit()
-    @Shared(.midiChannel) var midiChannel = 1
-    @Shared(.midiAutoConnect) var midiAudoConnect = true
-
+    $midiAutoConnect.withLock { $0 = true }
+    $midiChannel.withLock { $0 = 1 }
     let monitor = MIDIMonitor(instrument: mau)
-
     @Dependency(\.defaultDatabase) var database
     withDatabaseWriter { db in
       try MIDIConfig.upsert {
@@ -67,19 +58,14 @@ struct MIDIMonitorTests {
       }
       .execute(db)
     }
-    @Shared(.midiAutoConnect) var midiAutoConnect = false
-
     #expect(!monitor.shouldConnect(to: MIDIUniqueID(123123)))
   }
 
   @Test
   func connectByUniqueIdTrue() {
     let mau = MockAudioUnit()
-    @Shared(.midiChannel) var midiChannel = 1
-    @Shared(.midiAutoConnect) var midiAudoConnect = false
-
+    $midiChannel.withLock { $0 = 1 }
     let monitor = MIDIMonitor(instrument: mau)
-
     @Dependency(\.defaultDatabase) var database
     withDatabaseWriter { db in
       try MIDIConfig.upsert {
@@ -87,15 +73,12 @@ struct MIDIMonitorTests {
       }
       .execute(db)
     }
-    @Shared(.midiAutoConnect) var midiAutoConnect = false
-
     #expect(monitor.shouldConnect(to: MIDIUniqueID(123123)))
   }
 
   @Test
   func monitorWithSynth() {
     let mau = MockAudioUnit()
-    @Shared(.midiChannel) var midiChannel = -1
 
     let monitor = MIDIMonitor(instrument: mau)
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
@@ -111,7 +94,6 @@ struct MIDIMonitorTests {
   @Test
   func forwarding() {
     let mau = MockAudioUnit()
-    @Shared(.midiChannel) var midiChannel = -1
     let monitor = MIDIMonitor(instrument: mau)
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(mau.events.last! == (.noteOn, 60, 64, 0))
@@ -138,7 +120,6 @@ struct MIDIMonitorTests {
   @Test
   func trafficOmni() {
     let mau = MockAudioUnit()
-    @Shared(.midiChannel) var midiChannel = -1
     let monitor = MIDIMonitor(instrument: mau)
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(monitor.traffic != nil)
@@ -151,7 +132,7 @@ struct MIDIMonitorTests {
   @Test
   func trafficOneChannel() {
     let mau = MockAudioUnit()
-    @Shared(.midiChannel) var midiChannel = 1
+    $midiChannel.withLock { $0 = 1 }
     let monitor = MIDIMonitor(instrument: mau)
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(monitor.traffic != nil)
@@ -163,7 +144,6 @@ struct MIDIMonitorTests {
   @Test
   func notesOmni() {
     let mau = MockAudioUnit()
-    @Shared(.midiChannel) var midiChannel = -1
     let monitor = MIDIMonitor(instrument: mau)
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(monitor.notes != nil)
@@ -175,7 +155,7 @@ struct MIDIMonitorTests {
   @Test
   func notesOneChannel() {
     let mau = MockAudioUnit()
-    @Shared(.midiChannel) var midiChannel = 1
+    $midiChannel.withLock { $0 = 1 }
     let monitor = MIDIMonitor(instrument: mau)
     monitor.noteOn(source: 123, note: 60, velocity: 64, channel: 0)
     #expect(monitor.notes == nil)
@@ -190,11 +170,10 @@ struct MIDIMonitorTests {
   @Test
   func didUpdateConnections() {
     let mau = MockAudioUnit()
-    @Shared(.midiChannel) var midiChannel = 1
+    $midiChannel.withLock { $0 = 1 }
     let monitor = MIDIMonitor(instrument: mau)
 
     let midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
-    @Shared(.midi) var sharedMIDI
     $sharedMIDI.withLock { $0 = midi }
 
     midi.monitor = monitor

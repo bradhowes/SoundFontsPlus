@@ -1,5 +1,4 @@
 import ComposableArchitecture
-import Dependencies
 import DependenciesTestSupport
 import Foundation
 import SnapshotTesting

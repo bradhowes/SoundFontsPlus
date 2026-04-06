@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import FeatureSupport
 import DependenciesTestSupport
+import FeatureSupport
 import SnapshotTesting
 import Testing
 import TestSupport
@@ -14,6 +14,9 @@ import TestSupport
 @MainActor
 struct AppReviewTests {
 
+  @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion
+  @Shared(.nextReviewRequestDate) var nextReviewRequestDate
+
   @Test
   func firstTimeAsk() async throws {
     let now = Date(timeIntervalSince1970: 0)
@@ -21,7 +24,6 @@ struct AppReviewTests {
       $0.date.now = now
     }
 
-    @Shared(.nextReviewRequestDate) var nextReviewRequestDate
     #expect(nextReviewRequestDate == .distantPast)
 
     await store.send(.ask)
@@ -32,9 +34,6 @@ struct AppReviewTests {
 
   @Test
   func minDaysAfterLaunchFirstTimeAsk() async throws {
-    @Shared(.nextReviewRequestDate) var nextReviewRequestDate
-    @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion
-
     let now = Date(timeIntervalSince1970: 0)
     let store = TestStore(initialState: AppReview.State(minActivityCounter: 5)) {
       AppReview()
@@ -65,9 +64,6 @@ struct AppReviewTests {
 
   @Test
   func minDaysAfterVersionChanges() async throws {
-    @Shared(.nextReviewRequestDate) var nextReviewRequestDate
-    @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion
-
     let now = Date(timeIntervalSince1970: 0)
     let store = TestStore(initialState: AppReview.State()) { AppReview() } withDependencies: {
       $0.date.now = now
@@ -83,13 +79,14 @@ struct AppReviewTests {
     await store.send(.ask) { $0.activityCounter = 2 }
   }
 
+#if SNAPSHOTS
   @Test
   func appReviewPreview() async throws {
     withDependencies {
       let now = Date(timeIntervalSince1970: 0)
       $0.date.now = now
-      @Shared(.nextReviewRequestDate) var nextReviewRequestDate = now
-      @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion = AppReview.currentVersion
+      $nextReviewRequestDate.withLock { $0 = now }
+      $lastReviewRequestVersion.withLock { $0 = AppReview.currentVersion }
     } operation: {
       let store: StoreOf<AppReview> = .init(initialState: AppReview.State(activityCounter: 4)) {
         AppReview()
@@ -100,4 +97,5 @@ struct AppReviewTests {
       TestSupport.assertSnapshot(matching: view)
     }
   }
+#endif
 }

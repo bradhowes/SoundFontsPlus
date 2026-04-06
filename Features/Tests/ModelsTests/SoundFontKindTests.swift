@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import BaseSupport
+import DependenciesTestSupport
 import Foundation
 import SF2Resources
 import Testing

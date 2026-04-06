@@ -167,7 +167,7 @@ extension Tag {
     }
   }
 
-  func rename(new displayName: String) throws {
+  public func rename(new displayName: String) throws {
     guard self.isUserDefined else { throw ModelError.renameUbiquitous(name: self.displayName) }
     let trimmed = displayName.trimmedOfWhitespaces
     guard !trimmed.isEmpty else { throw ModelError.emptyTagName }
@@ -186,7 +186,7 @@ extension Tag {
     }
   }
 
-  var soundFonts: [SoundFont] {
+  public var soundFonts: [SoundFont] {
     let query =
       TaggedSoundFont
       .join(SoundFont.all) {
@@ -203,6 +203,22 @@ extension Tag {
       }) ?? []
 
     return found
+  }
+
+  public static func soundFontIds(for tagId: Tag.ID) -> [SoundFont.ID] {
+    let query =
+    TaggedSoundFont
+      .join(SoundFont.all) {
+        $0.soundFontId.eq($1.id) && $0.tagId.eq(tagId)
+      }
+      .select {
+        $1.id
+      }
+
+    @Dependency(\.defaultDatabase) var database
+    return withDatabaseReader {
+      try query.fetchAll($0)
+    } ?? []
   }
 }
 

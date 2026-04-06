@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Dependencies
+import DependenciesTestSupport
 import Foundation
 import Sharing
 import SQLiteData
@@ -12,13 +12,19 @@ import TestSupport
 @Suite(
   .dependencies {
     $0.defaultDatabase = TestSupport.testDatabase()
-    @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
-    @Shared(.hideEmptyTags) var hideEmptyTags = false
   },
   //  .snapshots(record: .failed)
 )
 @MainActor
 struct SoundFontInfoTests {
+
+  @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+  @Shared(.hideEmptyTags) var hideEmptyTags = false
+
+  init() {
+    $hideBuiltinFonts.withLock { $0 = false }
+    $hideEmptyTags.withLock { $0 = false }
+  }
 
   @Test
   func query() async throws {

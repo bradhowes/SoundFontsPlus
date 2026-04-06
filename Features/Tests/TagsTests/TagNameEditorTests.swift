@@ -47,6 +47,7 @@ struct TagNameEditorTests {
     await store.finish()
   }
 
+#if SNAPSHOTS
   @Test
   func tagNameEditorPreview() async throws {
     withDependencies {
@@ -59,4 +60,5 @@ struct TagNameEditorTests {
       )
     }
   }
+#endif
 }

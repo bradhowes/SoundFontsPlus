@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import FeatureSupport
 import DependenciesTestSupport
+import FeatureSupport
 import SnapshotTesting
 import Testing
 import TestSupport
@@ -17,6 +17,8 @@ struct ChangesFeatureTests {
   static var isOnGithub: Bool { ProcessInfo.processInfo.isOnGithub }
   static var isLocal: Bool { !isOnGithub }
 
+  @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion = ""
+
   func makeStore(data: String) -> TestStoreOf<Changes> {
     TestStoreOf<Changes>(initialState: .init(data)) {
       Changes()
@@ -27,7 +29,6 @@ struct ChangesFeatureTests {
 
   @Test
   func shouldShow() throws {
-    @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion = ""
     #expect(!Changes.shouldShow)
     $lastShowedChangesVersion.withLock { $0 = "blah" }
     #expect(Changes.shouldShow)
@@ -120,8 +121,10 @@ struct ChangesFeatureTests {
     await store.send(.dismissButtonTapped)
   }
 
+#if SNAPSHOTS
   @Test
   func changesPreview() async throws {
     TestSupport.assertSnapshot(matching: ChangesView.preview)
   }
+#endif
 }

@@ -573,17 +573,9 @@ private let log: Logger = .init(category: "SoundFontsList")
 
 extension SoundFontsListView {
   static var preview: some View {
-    prepareDependencies {
-      installApplicationFont()
-      @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
-      @Shared(.hideEmptyTags) var hideEmptyTags = false
-      $0.defaultDatabase = previewDatabase()
-    }
-
     // swiftlint:disable:next force_try
     let tag = try! Tag.make(displayName: "My Tag")
-    Operations.tagSoundFont(tag.id, soundFontId: 2)
-
+    SoundFont.link(soundFontId: 2, to: tag.id)
     return VStack {
       SoundFontsListView(store: Store(initialState: .init()) { SoundFontsList() })
       TagsListView(store: Store(initialState: .init(activeTagId: nil)) { TagsList() })
@@ -592,6 +584,15 @@ extension SoundFontsListView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    installApplicationFont()
+    $0.defaultDatabase = previewDatabase()
+  }
+
+  @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
+  @Shared(.hideEmptyTags) var hideEmptyTags = false
+
   SoundFontsListView.preview
     .environment(\.font, Font.body)
 }

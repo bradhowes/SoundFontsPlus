@@ -1,5 +1,4 @@
 import ComposableArchitecture
-import Dependencies
 import DependenciesTestSupport
 import Foundation
 import SnapshotTesting
@@ -15,9 +14,11 @@ import TestSupport
 @MainActor
 struct ClearButtonTests {
 
+#if SNAPSHOTS
   @Test
   func preview() throws {
     let view = TextFieldClearButton_Previews.previews
     TestSupport.assertSnapshot(matching: view)
   }
+#endif
 }

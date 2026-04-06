@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVKit
-import Dependencies
+import DependenciesTestSupport
 import Foundation
 import Models
 import SQLiteData

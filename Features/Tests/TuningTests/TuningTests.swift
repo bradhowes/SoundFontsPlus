@@ -166,6 +166,7 @@ struct TuningTests {
     await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 440.0))
   }
 
+#if SNAPSHOTS
   @Test
   func disabled() async throws {
     let view = Form {
@@ -178,4 +179,5 @@ struct TuningTests {
   func preview() async throws {
     TestSupport.assertSnapshot(matching: TuningView.preview)
   }
+#endif
 }

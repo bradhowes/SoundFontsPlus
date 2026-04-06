@@ -224,7 +224,7 @@ private extension TagsEditor {
     if !hideEmptyTags { return false }
     if let tagId = tagState.tagId {
       // Existing tag, os see if we are removing the sole association to the tag
-      let memberships = Operations.soundFontIds(for: tagId)
+      let memberships = Tag.soundFontIds(for: tagId)
       return memberships.count == 1 && memberships.contains(soundFontId) && !tagState.membership
     } else {
       // New tag and membership was unset
@@ -381,12 +381,6 @@ extension View {
 extension TagsEditorView {
 
   static var preview: some View {
-    prepareDependencies {
-      $0.defaultDatabase = previewDatabase()
-      navigationBarTitleStyle()
-    }
-
-    @Dependency(\.defaultDatabase) var db
     _ = try? Tag.make(displayName: "New Tag")
     let tags = Tag.tags
     return TagsEditorView(store: Store(initialState: .init(focused: tags.last?.ordering)) { TagsEditor() })
@@ -398,10 +392,6 @@ extension TagsEditorView {
   }
 
   static var previewWithMemberships: some View {
-    prepareDependencies {
-      installApplicationFont()
-      $0.defaultDatabase = previewDatabase()
-    }
     _ = try? Tag.make(displayName: "New Tag 1")
     _ = try? Tag.make(displayName: "New Tag 2")
     let tags = Tag.tags
@@ -428,6 +418,11 @@ extension TagsEditorView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    installApplicationFont()
+    $0.defaultDatabase = previewDatabase()
+  }
   TagsEditorView.previewWithMemberships
     .environment(\.font, Font.body)
 }

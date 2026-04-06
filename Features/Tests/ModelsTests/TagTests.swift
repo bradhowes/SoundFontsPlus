@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Dependencies
+import DependenciesTestSupport
 import Foundation
 import SQLiteData
 import Testing
@@ -164,5 +164,13 @@ struct TagTests {
       Tag.Ubiquitous.device.displayName,
       Tag.Ubiquitous.added.displayName
     ])
+  }
+
+  @Test
+  func soundFontIdsForTag() async throws {
+    #expect(Tag.soundFontIds(for: Tag.Ubiquitous.all.id) == [1, 2, 3, 4])
+    #expect(Tag.soundFontIds(for: Tag.Ubiquitous.builtIn.id) == [1, 2])
+    #expect(Tag.soundFontIds(for: Tag.Ubiquitous.added.id) == [3, 4])
+    #expect(Tag.soundFontIds(for: Tag.Ubiquitous.external.id) == [4])
   }
 }

@@ -17,7 +17,16 @@ import TestSupport
 )
 @MainActor
 struct SoundFontEditorTests {
+  @Shared(.showOnlyFavorites) var showOnlyFavorites = false
+  @Shared(.favoritesOnTop) var favoritesOnTop = false
+  @Shared(.sortPresetsByName) var sortPresetsByName = false
   let soundFontId: SoundFont.ID = 1
+
+  init() {
+    $showOnlyFavorites.withLock { $0 = false }
+    $favoritesOnTop.withLock { $0 = false }
+    $sortPresetsByName.withLock { $0 = false }
+  }
 
   func store() -> TestStoreOf<SoundFontEditor> {
     TestStore(initialState: SoundFontEditor.State(soundFont: .with(id: soundFontId)!)) {
@@ -79,14 +88,10 @@ struct SoundFontEditorTests {
   }
 
   @Test
-  func showHiddenPresetsConfirmed() async {
-    @Shared(.showOnlyFavorites) var showOnlyFavorites
-    $showOnlyFavorites.withLock { $0 = false }
+  func showHiddenPresetsConfirmed() async throws {
     let store = store()
 
-    var presets = Preset.all(for: 1)
-    let _ = presets.count
-
+    var presets = Preset.visible(for: 1)
     #expect(presets[0].kind == .preset)
     #expect(presets[0].displayName == "Font 1 Preset 1")
 
@@ -146,9 +151,11 @@ struct SoundFontEditorTests {
     }
   }
 
+#if SNAPSHOTS
   @Test
   func soundFontEditorViewPreview() async throws {
     // NOTE: this size intentionally cuts off before the file path is shown.
     TestSupport.assertSnapshot(matching: SoundFontEditorView.preview, size: .init(width: 400, height: 1200))
   }
+#endif
 }

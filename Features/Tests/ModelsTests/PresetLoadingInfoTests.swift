@@ -1,8 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Dependencies
+import DependenciesTestSupport
 import Foundation
-import Sharing
 import SQLiteData
 import Testing
 import TestSupport
@@ -18,18 +17,13 @@ import TestSupport
 @MainActor
 struct PresetLoadingInfoTests {
 
-  @MainActor
-  func setup() async throws -> [Preset] {
-    return withDatabaseReader { db in try Preset.all.fetchAll(db) } ?? []
-  }
-
   @Test
   func appActivePresetLoadingInfo() async throws {
-    let presets = try await setup()
-    var apli = Operations.presetLoadingInfo(id: 99999)
+    let presets = Preset.all(for: 1)
+    var apli = PresetLoadingInfo.for(id: 99999)
     #expect(apli == nil)
 
-    apli = Operations.presetLoadingInfo(id: 1)
+    apli = PresetLoadingInfo.for(id: 1)
     #expect(apli != nil)
     #expect(apli?.soundFontId == presets[0].soundFontId)
     #expect(apli?.presetIndex == presets[0].index)
@@ -40,12 +34,23 @@ struct PresetLoadingInfoTests {
   }
 
   @Test
+  func activePresetLoadingInfo() async throws {
+    let presets = Preset.all(for: 1)
+    var apli = PresetLoadingInfo.for(id: 2)
+    #expect(apli?.soundFontId == presets[1].soundFontId)
+    #expect(apli?.presetIndex == presets[1].index)
+    apli = PresetLoadingInfo.for(id: 1)
+    #expect(apli?.soundFontId == presets[0].soundFontId)
+    #expect(apli?.presetIndex == presets[0].index)
+  }
+
+  @Test
   func auv3ActivePresetLoadingInfo() async throws {
-    let presets = try await setup()
-    var apli = Operations.presetLoadingInfo(id: 99999)
+    let presets = Preset.all(for: 1)
+    var apli = PresetLoadingInfo.for(id: 99999)
     #expect(apli == nil)
 
-    apli = Operations.presetLoadingInfo(id: 1)
+    apli = PresetLoadingInfo.for(id: 1)
     #expect(apli != nil)
     #expect(apli?.soundFontId == presets[0].soundFontId)
     #expect(apli?.presetIndex == presets[0].index)

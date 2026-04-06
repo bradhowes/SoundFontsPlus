@@ -208,6 +208,11 @@ public struct ViewOffsetKey: PreferenceKey {
 #if DEBUG
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    installApplicationFont()
+    $0.defaultDatabase = previewDatabase()
+  }
   PresetsListView.preview
 }
 

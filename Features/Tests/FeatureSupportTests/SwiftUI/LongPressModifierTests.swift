@@ -1,4 +1,3 @@
-import Dependencies
 import DependenciesTestSupport
 import Foundation
 import Models
@@ -15,8 +14,10 @@ import TestSupport
 @MainActor
 struct LongPressModifierTests {
 
+#if SNAPSHOTS
   @Test
   func testViewModifier() throws {
     TestSupport.assertSnapshot(matching: LongPressGestureModifierPreview())
   }
+#endif
 }

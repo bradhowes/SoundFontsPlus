@@ -262,8 +262,12 @@ extension Preset {
    - returns: the select query
    */
   public static func visibleQuery(for soundFontId: SoundFont.ID) -> Select<(), Self, ()> {
+    @Shared(.showOnlyFavorites) var showOnlyFavorites
+    print("-- visibleQuery showOnlyFavorites:", showOnlyFavorites)
     @Shared(.favoritesOnTop) var favoritesOnTop
+    print("-- visibleQuery favoritesOnTop:", favoritesOnTop)
     @Shared(.sortPresetsByName) var sortPresetsByName
+    print("-- visibleQuery sortPresetsByName:", sortPresetsByName)
     let query = presetsQuery(for: soundFontId)
     if sortPresetsByName {
       return favoritesOnTop
@@ -292,10 +296,8 @@ extension Preset {
    - returns: the collection of presets
    */
   public static func visible(for soundFontId: SoundFont.ID) -> [Preset] {
-    withDatabaseReader {
-      let found = try visibleQuery(for: soundFontId).fetchAll($0)
-      print("found:", found)
-      return found
+    return withDatabaseReader {
+      try visibleQuery(for: soundFontId).fetchAll($0)
     } ?? []
   }
 

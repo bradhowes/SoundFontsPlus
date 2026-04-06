@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import Dependencies
+import DependenciesTestSupport
 import Foundation
 import SF2Resources
 import Testing
@@ -25,13 +26,13 @@ struct BookmarkTests {
 
   @Test
   func testIsUbiquitous() throws {
-    prepareDependencies {
+    withDependencies {
       $0.fileManager = .liveValue
+    } operation: {
+      let url = SF2ResourceTag.freeFont.url
+      let bookmark = Bookmark(url: url, name: SF2ResourceTag.freeFont.name)
+      #expect(bookmark.isUbiquitous == false)
     }
-
-    let url = SF2ResourceTag.freeFont.url
-    let bookmark = Bookmark(url: url, name: SF2ResourceTag.freeFont.name)
-    #expect(bookmark.isUbiquitous == false)
   }
 
   @Test

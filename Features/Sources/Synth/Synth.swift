@@ -158,7 +158,7 @@ extension Synth {
       return .none
     }
 
-    guard let presetInfo = Operations.presetLoadingInfo(id: presetId) else {
+    guard let presetInfo = PresetLoadingInfo.for(id: presetId) else {
       log.info("activePresetIdChanged END - no presetInfo")
       return .none
     }

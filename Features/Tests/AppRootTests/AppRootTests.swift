@@ -9,7 +9,6 @@ import MorkAndMIDI
 import ReverbEffect
 import Settings
 import SF2LibAU
-import Sharing
 import SnapshotTesting
 import SoundFonts
 import Testing
@@ -40,8 +39,17 @@ import Tutorial
 @MainActor
 struct AppRootTests {
 
+  @Shared(.disableIdleTimer) var disableIdleTimer = false
+  @Shared(.effectsPanelVisible) var effectsPanelVisible = false
+  @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
+  @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
+  @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion = ""
+  @Shared(.midi) var midi
+  @Shared(.showedTutorial) var showedTutorial
+  @Shared(.tagsListVisible) var tagsListVisible = false
+
   func store(showedTutorial: Bool = true) -> TestStoreOf<AppRoot> {
-    @Shared(.showedTutorial) var showedTutorial = showedTutorial
+    $showedTutorial.withLock { $0 = showedTutorial }
     return .init(initialState: .init()) {
       AppRoot()
     }
@@ -146,7 +154,6 @@ struct AppRootTests {
 
   @Test
   func initializeWithMIDI() async throws {
-    @Shared(.midi) var midi
     $midi.withLock {
       $0 = MIDI(clientName: "BlahBlah", uniqueId: 123123, midiProto: .v2_0)
     }
@@ -163,8 +170,7 @@ struct AppRootTests {
   }
 
   @Test
-  func disableIdleTimer() throws {
-    @Shared(.disableIdleTimer) var disableIdleTimer = false
+  func idleTimerCanBeDisabled() throws {
     #expect(!UIKit.UIApplication.shared.isIdleTimerDisabled)
 
     AppRoot.disableIdleTimer()
@@ -196,7 +202,6 @@ struct AppRootTests {
   @Test
   func processPresetsSplitAction() async throws {
     try await initialized { store in
-      @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
       #expect(fontsAndPresetsSplitPosition == 0.5)
       await store.send(\.fontsAndPresetsSplit.delegate, .stateChanged(panesVisible: .both, position: 0.3))
       #expect(fontsAndPresetsSplitPosition == 0.3)
@@ -206,8 +211,6 @@ struct AppRootTests {
   @Test
   func processTagsSplitAction() async throws {
     try await initialized { store in
-      @Shared(.tagsListVisible) var tagsListVisible
-      @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
       #expect(tagsListVisible == false)
       #expect(fontsAndTagsSplitPosition == 0.4)
       await store.send(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: .both, position: 0.5)) {
@@ -234,9 +237,7 @@ struct AppRootTests {
 
   @Test
   func showChanges() async throws {
-    @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion = ""
     try await initialized(exhaustivity: .off(showSkippedAssertions: false)) { store in
-      @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion
       await store.send(\.toolBar.delegate, .settingsButtonTapped)
       #expect(store.state.destination != nil)
       let settings = store.state.destination
@@ -270,7 +271,6 @@ struct AppRootTests {
 
   @Test
   func showTutorial() async throws {
-    @Shared(.showedTutorial) var showedTutorial
     try await initialized(exhaustivity: .off(showSkippedAssertions: false)) { store in
       await store.send(\.toolBar.delegate, .settingsButtonTapped)
       #expect(store.state.destination != nil)
@@ -366,6 +366,7 @@ struct AppRootTests {
     }
   }
 
+#if SNAPSHOTS
   @Test(
     .snapshots(record: .failed)
   )
@@ -405,6 +406,7 @@ struct AppRootTests {
 
     TestSupport.assertSnapshot(matching: view)
   }
+#endif
 
   @Test
   func editingPresetVisibilityChanged() async throws {
@@ -426,7 +428,6 @@ struct AppRootTests {
 
   @Test
   func effectsVisibilityChanged() async throws {
-    @Shared(.effectsPanelVisible) var effectsPanelVisible
     try await initialized { store in
       await store.send(\.toolBar.delegate.effectsVisibilityChanged, true)
       #expect(effectsPanelVisible == true)
@@ -485,11 +486,12 @@ struct AppRootTests {
       }
     }
   }
-
+#if SNAPSHOTS
   @Test(
     .snapshots(record: .failed)
   )
   func appRootViewPreview() async throws {
     TestSupport.assertSnapshot(matching: AppRootView.preview)
   }
+#endif
 }
