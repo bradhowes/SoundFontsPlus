@@ -121,10 +121,14 @@ struct ChangesFeatureTests {
     await store.send(.dismissButtonTapped)
   }
 
-#if SNAPSHOTS
   @Test
   func changesPreview() async throws {
-    TestSupport.assertSnapshot(matching: ChangesView.preview)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: ChangesView.preview)
+      }
+    }
   }
-#endif
 }

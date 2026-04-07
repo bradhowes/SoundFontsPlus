@@ -47,18 +47,18 @@ struct TagNameEditorTests {
     await store.finish()
   }
 
-#if SNAPSHOTS
   @Test
   func tagNameEditorPreview() async throws {
     withDependencies {
       installApplicationFont()
       $0.defaultDatabase = TestSupport.testDatabase()
     } operation: {
-      TestSupport.assertSnapshot(
-        matching: TagNameEditorView.preview,
-        size: .init(width: 400, height: 1200)
-      )
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(
+          matching: TagNameEditorView.preview,
+          size: .init(width: 400, height: 1200)
+        )
+      }
     }
   }
-#endif
 }

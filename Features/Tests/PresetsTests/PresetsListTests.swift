@@ -624,7 +624,6 @@ struct PresetsListTests {
     await store.finish()
   }
 
-#if SNAPSHOTS
   @Test
   func presetsListViewSearchingPreview() async throws {
     withDependencies {
@@ -659,5 +658,4 @@ struct PresetsListTests {
       }
     }
   }
-#endif
 }

@@ -43,7 +43,6 @@ struct PresetButtonTests {
     }
   }
 
-#if SNAPSHOTS
   @Test
   func presetButtonPreview() async throws {
     withDependencies {
@@ -54,5 +53,4 @@ struct PresetButtonTests {
       }
     }
   }
-#endif
 }

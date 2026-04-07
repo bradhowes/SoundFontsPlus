@@ -366,7 +366,6 @@ struct AppRootTests {
     }
   }
 
-#if SNAPSHOTS
   @Test(
     .snapshots(record: .failed)
   )
@@ -406,7 +405,6 @@ struct AppRootTests {
 
     TestSupport.assertSnapshot(matching: view)
   }
-#endif
 
   @Test
   func editingPresetVisibilityChanged() async throws {
@@ -486,12 +484,11 @@ struct AppRootTests {
       }
     }
   }
-#if SNAPSHOTS
+
   @Test(
     .snapshots(record: .failed)
   )
   func appRootViewPreview() async throws {
     TestSupport.assertSnapshot(matching: AppRootView.preview)
   }
-#endif
 }

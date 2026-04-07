@@ -154,7 +154,6 @@ struct PresetEditorTests {
     }
   }
 
-#if SNAPSHOTS
   @Test
   func presetEditorPreview() async throws {
     withDependencies {
@@ -167,5 +166,4 @@ struct PresetEditorTests {
       }
     }
   }
-#endif
 }

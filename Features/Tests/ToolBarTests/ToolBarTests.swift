@@ -90,7 +90,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test(arguments: [false, true]) func effectsVisibilityButtonTapped(_ initValue: Bool) async throws {
+  @Test(arguments: [false, true])
+  func effectsVisibilityButtonTapped(_ initValue: Bool) async throws {
     @Shared(.effectsPanelVisible) var effectsPanelVisible = initValue
     let store = try await store()
     #expect(store.state.effectsPanelVisible == initValue)
@@ -379,7 +380,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test(arguments: [false, true]) func slidingKeyboardButtonTappedInitFalse(_ initValue: Bool) async throws {
+  @Test(arguments: [false, true])
+  func slidingKeyboardButtonTappedInitFalse(_ initValue: Bool) async throws {
     @Shared(.keyboardSlides) var keyboardSlides = initValue
 
     let store = try await store()
@@ -400,7 +402,8 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test(arguments: [false, true]) func tagsVisibilityButtonTapped(_ initValue: Bool) async throws {
+  @Test(arguments: [false, true])
+  func tagsVisibilityButtonTapped(_ initValue: Bool) async throws {
     @Shared(.tagsListVisible) var tagsListVisible = initValue
 
     let store = try await store()
@@ -423,64 +426,74 @@ struct ToolBarTests {
     await store.finish()
   }
 
-#if SNAPSHOTS
-  @Test func previewWithFixedKeyboard() async throws {
-    @Shared(.keyboardSlides) var keyboardSlides
-    $keyboardSlides.withLock { $0 = false }
-    let view = ToolBarView(
-      store: Store(
-        initialState: .init(
-          preset: Preset(
-            id: 0,
-            index: 0,
-            bank: 1,
-            program: 1,
-            originalName: "Foo",
-            soundFontId: 0,
-            displayName: "Foo"
-          ),
-          showMoreButtons: true
-        )
-      ) {
-        ToolBar()
-      }, isAUv3: false)
-
-    withSnapshotTesting(record: .failed) {
-      TestSupport.assertSnapshot(matching: view)
+  @Test
+  func previewWithFixedKeyboard() async throws {
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      @Shared(.keyboardSlides) var keyboardSlides
+      $keyboardSlides.withLock { $0 = false }
+      withSnapshotTesting(record: .failed) {
+        let view = ToolBarView(
+          store: Store(
+            initialState: .init(
+              preset: Preset(
+                id: 0,
+                index: 0,
+                bank: 1,
+                program: 1,
+                originalName: "Foo",
+                soundFontId: 0,
+                displayName: "Foo"
+              ),
+              showMoreButtons: true
+            )
+          ) {
+            ToolBar()
+          }, isAUv3: false)
+        TestSupport.assertSnapshot(matching: view)
+      }
     }
   }
 
-  @Test func previewWithFSlidingKeyboard() async throws {
-    @Shared(.keyboardSlides) var keyboardSlides
-    $keyboardSlides.withLock { $0 = true }
-    let view = ToolBarView(
-      store: Store(
-        initialState: .init(
-          preset: Preset(
-            id: 0,
-            index: 0,
-            bank: 1,
-            program: 1,
-            originalName: "Foo",
-            soundFontId: 0,
-            displayName: "Foo"
-          ),
-          showMoreButtons: true
-        )
-      ) {
-        ToolBar()
-      }, isAUv3: false)
-
-    withSnapshotTesting(record: .failed) {
-      TestSupport.assertSnapshot(matching: view)
+  @Test
+  func previewWithFSlidingKeyboard() async throws {
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      @Shared(.keyboardSlides) var keyboardSlides
+      $keyboardSlides.withLock { $0 = true }
+      withSnapshotTesting(record: .failed) {
+        let view = ToolBarView(
+          store: Store(
+            initialState: .init(
+              preset: Preset(
+                id: 0,
+                index: 0,
+                bank: 1,
+                program: 1,
+                originalName: "Foo",
+                soundFontId: 0,
+                displayName: "Foo"
+              ),
+              showMoreButtons: true
+            )
+          ) {
+            ToolBar()
+          }, isAUv3: false)
+        TestSupport.assertSnapshot(matching: view)
+      }
     }
   }
 
   @Test
   func preview() async throws {
-    withSnapshotTesting(record: .failed) {
-      TestSupport.assertSnapshot(matching: ToolBarView.preview(showMoreButtons: true))
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: ToolBarView.preview(showMoreButtons: true))
+      }
     }
   }
-#endif
 }

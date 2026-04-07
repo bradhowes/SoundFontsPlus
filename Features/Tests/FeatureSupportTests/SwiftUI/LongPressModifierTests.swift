@@ -14,10 +14,14 @@ import TestSupport
 @MainActor
 struct LongPressModifierTests {
 
-#if SNAPSHOTS
   @Test
   func testViewModifier() throws {
-    TestSupport.assertSnapshot(matching: LongPressGestureModifierPreview())
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: LongPressGestureModifierPreview())
+      }
+    }
   }
-#endif
 }

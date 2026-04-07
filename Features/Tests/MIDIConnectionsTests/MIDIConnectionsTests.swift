@@ -141,7 +141,6 @@ struct MIDIConnectionsTests {
 //    }
   }
 
-#if SNAPSHOTS
   @Test
   func previewAutoConnect() async throws {
     withDependencies {
@@ -163,5 +162,4 @@ struct MIDIConnectionsTests {
       }
     }
   }
-#endif
 }

@@ -166,18 +166,28 @@ struct TuningTests {
     await store.receive(\.delegate, .tuningChanged(enabled: true, frequency: 440.0))
   }
 
-#if SNAPSHOTS
   @Test
   func disabled() async throws {
-    let view = Form {
-      TuningView(store: Store(initialState: .init(frequency: 587.3295358348151, enabled: false)) { Tuning() })
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        let view = Form {
+          TuningView(store: Store(initialState: .init(frequency: 587.3295358348151, enabled: false)) { Tuning() })
+        }
+        TestSupport.assertSnapshot(matching: view)
+      }
     }
-    TestSupport.assertSnapshot(matching: view)
   }
 
   @Test
   func preview() async throws {
-    TestSupport.assertSnapshot(matching: TuningView.preview)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: TuningView.preview)
+      }
+    }
   }
-#endif
 }

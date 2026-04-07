@@ -28,83 +28,129 @@ extension Keyboard.State.EventId {
 @MainActor
 struct KeyboardTests {
 
-#if SNAPSHOTS
   @Test
   func keyboardPreviewPortrait() async throws {
-    TestSupport.assertSnapshot(
-      matching: KeyboardPreview(),
-      config: .portrait
-    )
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(
+          matching: KeyboardPreview(),
+          config: .portrait
+        )
+      }
+    }
   }
 
   @Test
   func keyboardPreviewLandscape() async throws {
-    TestSupport.assertSnapshot(
-      matching: KeyboardPreview(),
-      config: .landscape
-    )
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+      $0.fileManager.cloudDocumentsDirectory = { nil }
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(
+          matching: KeyboardPreview(),
+          config: .landscape
+        )
+      }
+    }
   }
 
   @Test
   func keyboardRenders64NoLabelsC4() async throws {
-    @Shared(.keyWidth) var keyWidth = 64.0
-    @Shared(.keyLabels) var keyLabels = .none
-    @Shared(.firstVisibleKey) var firstVisibleKey = .C4
-    let view = VStack { KeyboardView(store: Store(initialState: Keyboard.State()) { Keyboard() }) }
-    TestSupport.assertSnapshot(matching: view)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+      $0.fileManager.cloudDocumentsDirectory = { nil }
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        @Shared(.keyWidth) var keyWidth = 64.0
+        @Shared(.keyLabels) var keyLabels = .none
+        @Shared(.firstVisibleKey) var firstVisibleKey = .C4
+        let view = VStack { KeyboardView(store: Store(initialState: Keyboard.State()) { Keyboard() }) }
+        TestSupport.assertSnapshot(matching: view)
+      }
+    }
   }
 
   @Test
   func keyboardRenders48COnlyLabelsA4() async throws {
-    @Shared(.keyWidth) var keyWidth = 48.0
-    @Shared(.keyLabels) var keyLabels = .cOnly
-    @Shared(.firstVisibleKey) var firstVisibleKey = .A4
-    let view = VStack { KeyboardView(store: Store(initialState: Keyboard.State()) { Keyboard() }) }
-    TestSupport.assertSnapshot(matching: view)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+      $0.fileManager.cloudDocumentsDirectory = { nil }
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        @Shared(.keyWidth) var keyWidth = 48.0
+        @Shared(.keyLabels) var keyLabels = .cOnly
+        @Shared(.firstVisibleKey) var firstVisibleKey = .A4
+        let view = VStack { KeyboardView(store: Store(initialState: Keyboard.State()) { Keyboard() }) }
+        TestSupport.assertSnapshot(matching: view)
+      }
+    }
   }
 
   @Test
   func keyboardRenders72AllLabelsE1() async throws {
-    @Shared(.keyWidth) var keyWidth = 72.0
-    @Shared(.keyLabels) var keyLabels = .all
-    @Shared(.firstVisibleKey) var firstVisibleKey = .E1
-    let view = VStack { KeyboardView(store: Store(initialState: Keyboard.State()) { Keyboard() }) }
-    TestSupport.assertSnapshot(matching: view)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+      $0.fileManager.cloudDocumentsDirectory = { nil }
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        @Shared(.keyWidth) var keyWidth = 72.0
+        @Shared(.keyLabels) var keyLabels = .all
+        @Shared(.firstVisibleKey) var firstVisibleKey = .E1
+        let view = VStack { KeyboardView(store: Store(initialState: Keyboard.State()) { Keyboard() }) }
+        TestSupport.assertSnapshot(matching: view)
+      }
+    }
   }
 
   @Test
   func keyboardRendersActiveNotes() async throws {
-    let store = Store(
-      initialState: Keyboard.State(activeNotes: [
-        (.wrap(MockEventId(id: 1)), .C4),
-        (.wrap(MockEventId(id: 2)), .E4),
-        (.wrap(MockEventId(id: 3)), .G4)
-      ])
-    ) {
-      Keyboard()
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+      $0.fileManager.cloudDocumentsDirectory = { nil }
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        let store = Store(
+          initialState: Keyboard.State(activeNotes: [
+            (.wrap(MockEventId(id: 1)), .C4),
+            (.wrap(MockEventId(id: 2)), .E4),
+            (.wrap(MockEventId(id: 3)), .G4)
+          ])
+        ) {
+          Keyboard()
+        }
+        let view = VStack { KeyboardView(store: store) }
+        TestSupport.assertSnapshot(matching: view)
+      }
     }
-    let view = VStack { KeyboardView(store: store) }
-    TestSupport.assertSnapshot(matching: view)
   }
 
   @Test
   func keyboardRendersRedActiveNotesWhenMuted() async throws {
-    let store = Store(
-      initialState: Keyboard.State(
-        muted: true,
-        activeNotes: [
-          (.wrap(MockEventId(id: 1)), .C4),
-          (.wrap(MockEventId(id: 2)), .E4),
-          (.wrap(MockEventId(id: 3)), .G4)
-        ]
-      )
-    ) {
-      Keyboard()
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+      $0.fileManager.cloudDocumentsDirectory = { nil }
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        let store = Store(
+          initialState: Keyboard.State(
+            muted: true,
+            activeNotes: [
+              (.wrap(MockEventId(id: 1)), .C4),
+              (.wrap(MockEventId(id: 2)), .E4),
+              (.wrap(MockEventId(id: 3)), .G4)
+            ]
+          )
+        ) {
+          Keyboard()
+        }
+        let view = VStack { KeyboardView(store: store) }
+        TestSupport.assertSnapshot(matching: view)
+      }
     }
-    let view = VStack { KeyboardView(store: store) }
-    TestSupport.assertSnapshot(matching: view)
   }
-  #endif
 
   @Test
   func allOffClearsActiveNotes() async throws {

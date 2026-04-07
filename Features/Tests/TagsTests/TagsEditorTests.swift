@@ -303,25 +303,47 @@ struct TagsEditorTests {
     }
   }
 
-#if SNAPSHOTS
   @Test
   func preview() async throws {
-    TestSupport.assertSnapshot(matching: TagsEditorView.preview)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: TagsEditorView.preview)
+      }
+    }
   }
 
   @Test
   func previewInEditMode() async throws {
-    TestSupport.assertSnapshot(matching: TagsEditorView.previewInEditMode)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: TagsEditorView.previewInEditMode)
+      }
+    }
   }
 
   @Test
   func previewWithMemberships() async throws {
-    TestSupport.assertSnapshot(matching: TagsEditorView.previewWithMemberships)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: TagsEditorView.previewWithMemberships)
+      }
+    }
   }
 
   @Test
   func previewWithMembershipsInEditMode() async throws {
-    TestSupport.assertSnapshot(matching: TagsEditorView.previewWithMembershipsInEditMode)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: TagsEditorView.previewWithMembershipsInEditMode)
+      }
+    }
   }
-#endif
 }

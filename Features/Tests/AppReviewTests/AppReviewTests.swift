@@ -79,7 +79,6 @@ struct AppReviewTests {
     await store.send(.ask) { $0.activityCounter = 2 }
   }
 
-#if SNAPSHOTS
   @Test
   func appReviewPreview() async throws {
     withDependencies {
@@ -97,5 +96,4 @@ struct AppReviewTests {
       TestSupport.assertSnapshot(matching: view)
     }
   }
-#endif
 }

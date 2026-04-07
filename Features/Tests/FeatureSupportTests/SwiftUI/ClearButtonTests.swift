@@ -14,11 +14,15 @@ import TestSupport
 @MainActor
 struct ClearButtonTests {
 
-#if SNAPSHOTS
   @Test
   func preview() throws {
-    let view = TextFieldClearButton_Previews.previews
-    TestSupport.assertSnapshot(matching: view)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        let view = TextFieldClearButton_Previews.previews
+        TestSupport.assertSnapshot(matching: view)
+      }
+    }
   }
-#endif
 }

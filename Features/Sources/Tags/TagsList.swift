@@ -259,14 +259,6 @@ private let log: Logger = .init(category: "TagsList")
 extension TagsListView {
 
   static var preview: some View {
-    prepareDependencies {
-      installApplicationFont()
-      $0.defaultDatabase = previewDatabase()
-      // swiftlint:disable:next force_try
-      let tag = try! Tag.make(displayName: "Another Tag")
-      SoundFont.link(soundFontId: 1, to: tag.id)
-    }
-
     @Shared(.hideEmptyTags) var hideEmptyTags
     $hideEmptyTags.withLock { $0 = false }
 
@@ -284,6 +276,14 @@ extension TagsListView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    installApplicationFont()
+    $0.defaultDatabase = previewDatabase()
+    // swiftlint:disable:next force_try
+    let tag = try! Tag.make(displayName: "Another Tag")
+    SoundFont.link(soundFontId: 1, to: tag.id)
+  }
   TagsListView.preview
     .environment(\.font, Font.body)
 }

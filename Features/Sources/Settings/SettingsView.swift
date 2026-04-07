@@ -555,6 +555,10 @@ extension SettingsView {
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    $0.defaultDatabase = previewDatabase()
+  }
   SettingsView.preview
 }
 

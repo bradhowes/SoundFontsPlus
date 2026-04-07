@@ -2,13 +2,15 @@
   "configurations" : [
     {
       "id" : "2B38EF4C-2584-47BC-8AD7-132DCB76CDCB",
-      "name" : "Configuration 1",
+      "name" : "Configuration",
       "options" : {
 
       }
     }
   ],
   "defaultOptions" : {
+    "defaultTestExecutionTimeAllowance" : 60,
+    "testExecutionOrdering" : "random",
     "testTimeoutsEnabled" : true
   },
   "testTargets" : [
@@ -87,13 +89,6 @@
         "containerPath" : "container:Features",
         "identifier" : "MIDIControllersTests",
         "name" : "MIDIControllersTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:",
-        "identifier" : "AUv3RootTests",
-        "name" : "AUv3RootTests"
       }
     },
     {
@@ -192,6 +187,13 @@
         "containerPath" : "container:Features",
         "identifier" : "TuningTests",
         "name" : "TuningTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Features",
+        "identifier" : "AUv3RootTests",
+        "name" : "AUv3RootTests"
       }
     }
   ],

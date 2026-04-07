@@ -24,7 +24,6 @@ struct MIDIControllersTests {
     }
   }
 
-#if SNAPSHOTS
   @Test
   func preview() async throws {
     withDependencies {
@@ -35,5 +34,4 @@ struct MIDIControllersTests {
       }
     }
   }
-#endif
 }

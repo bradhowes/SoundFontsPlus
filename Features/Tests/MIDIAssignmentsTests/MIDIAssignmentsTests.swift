@@ -24,7 +24,6 @@ struct MIDIAssignmentsTests {
     }
   }
 
-#if SNAPSHOTS
   @Test
   func preview() async throws {
     withDependencies {
@@ -35,5 +34,4 @@ struct MIDIAssignmentsTests {
       }
     }
   }
-#endif
 }

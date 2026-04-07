@@ -489,10 +489,14 @@ struct SoundFontsListTests {
     }
   }
 
-#if SNAPSHOTS
   @Test
   func soundFontsListViewPreview() async throws {
-    TestSupport.assertSnapshot(matching: SoundFontsListView.preview)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: SoundFontsListView.preview)
+      }
+    }
   }
-#endif
 }

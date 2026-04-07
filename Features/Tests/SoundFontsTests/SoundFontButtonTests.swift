@@ -21,7 +21,6 @@ struct SoundFontButtonTests {
     }
   }
 
-#if SNAPSHOTS
   @Test
   func preview() async throws {
     withDependencies {
@@ -32,5 +31,4 @@ struct SoundFontButtonTests {
       }
     }
   }
-#endif
 }

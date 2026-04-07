@@ -241,22 +241,38 @@ struct DelayEffectTests {
 //    #expect(await device.getTimesChanged() == 5)
 //  }
 
-#if SNAPSHOTS
   @Test
   func preview1() throws {
-    TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 1), config: .landscape)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 1), config: .landscape)
+      }
+    }
   }
 
   @Test
   func preview2() throws {
-    TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 2), config: .landscape)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 2), config: .landscape)
+      }
+    }
   }
 
   @Test
   func preview3() throws {
-    TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 3), config: .landscape)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: DelayEffectView.preview(presetId: 3), config: .landscape)
+      }
+    }
   }
-#endif
 }
 
 private actor MockDelayDevice {

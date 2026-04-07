@@ -185,10 +185,14 @@ struct TagsListTests {
     }
   }
 
-#if SNAPSHOTS
   @Test
   func preview() async throws {
-    TestSupport.assertSnapshot(matching: TagsListView.preview)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: TagsListView.preview)
+      }
+    }
   }
-#endif
 }

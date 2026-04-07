@@ -144,7 +144,6 @@ struct TutorialTests {
     )
   }
 
-#if SNAPSHOTS
   @Test
   func introPage() throws { try snapshotPage(.intro) }
   @Test
@@ -167,5 +166,4 @@ struct TutorialTests {
   func settingsPage() throws { try snapshotPage(.settings) }
   @Test
   func lastPage() throws { try snapshotPage(.last) }
-#endif
 }

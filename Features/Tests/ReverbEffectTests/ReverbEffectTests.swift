@@ -268,12 +268,16 @@ struct ReverbEffectTests {
     #expect(await device.getTimesChanged() == 4)
   }
 
-#if SNAPSHOTS
   @Test
   func preview() throws {
-    TestSupport.assertSnapshot(matching: ReverbEffectView.preview)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: ReverbEffectView.preview)
+      }
+    }
   }
-#endif
 }
 
 private actor MockReverbDevice {

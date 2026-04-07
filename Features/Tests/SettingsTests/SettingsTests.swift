@@ -154,15 +154,15 @@ struct SettingsTests {
     }
   }
 
-#if SNAPSHOTS
-  @Test(
-    .dependencies {
-      $0.fileManager.cloudDocumentsDirectory = { nil }
-    }
-  )
+  @Test
   func settingsViewPreview() async throws {
-    let view = SettingsView.preview
-    TestSupport.assertSnapshot(matching: view)
+    withDependencies {
+      $0.defaultDatabase = previewDatabase()
+      $0.fileManager.cloudDocumentsDirectory = { nil }
+    } operation: {
+      withSnapshotTesting(record: .failed) {
+        TestSupport.assertSnapshot(matching: SettingsView.preview)
+      }
+    }
   }
-#endif
 }
