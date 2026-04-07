@@ -9,12 +9,22 @@
     }
   ],
   "defaultOptions" : {
-    "defaultTestExecutionTimeAllowance" : 60,
-    "testExecutionOrdering" : "random",
-    "testTimeoutsEnabled" : true
+    "defaultTestExecutionTimeAllowance" : 600,
+    "mainThreadCheckerDetectionPolicy" : {
+      "severity" : "failure"
+    },
+    "runtimeIssueDetection" : {
+      "severity" : "failure"
+    },
+    "testRepetitionMode" : "retryOnFailure",
+    "testTimeoutsEnabled" : true,
+    "threadPerformanceCheckerRuntimeIssueDetection" : {
+      "severity" : "failure"
+    }
   },
   "testTargets" : [
     {
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:Features",
         "identifier" : "KeyboardTests",
@@ -22,6 +32,7 @@
       }
     },
     {
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:Features",
         "identifier" : "DelayEffectTests",
@@ -29,6 +40,7 @@
       }
     },
     {
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:Features",
         "identifier" : "AppRootTests",
@@ -106,6 +118,7 @@
       }
     },
     {
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:Features",
         "identifier" : "ReverbEffectTests",
