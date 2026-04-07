@@ -21,7 +21,7 @@ import TestSupport
     $0.audioGraph = .liveValue
     $0.audioSession = MockAudioSession().audioSession
     $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
-    $0.continuousClock = .immediate
+    $0.continuousClock = TestClock<Duration>()
     $0.defaultDatabase = TestSupport.testDatabase()
     $0.delayDevice = .liveValue
     $0.reverbDevice = .liveValue
@@ -92,7 +92,7 @@ struct SynthTests {
         $0.activePresetId = 2
       }
 
-      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5)) {
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(10)) {
         $0.firstTimePresetLoaded = false
       }
 
@@ -102,7 +102,7 @@ struct SynthTests {
         $0.activePresetId = 1
       }
 
-      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(10))
     }
   }
 

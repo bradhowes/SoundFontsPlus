@@ -17,8 +17,6 @@ struct TutorialTests {
   func makeStore(page: Tutorial.Page) -> TestStoreOf<Tutorial> {
     TestStoreOf<Tutorial>(initialState: .init(page: page)) {
       Tutorial()
-    } withDependencies: {
-      $0.mainQueue = .immediate
     }
   }
 

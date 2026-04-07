@@ -394,15 +394,15 @@ extension Synth {
   }
 
   private func sendNoteOnOffSequence(_ state: State) -> Effect<Action> {
-    log.debug("playNote BEGIN - \(playSoundOnPresetChange) ")
+    log.debug("sendNoteOnOffSequence BEGIN - \(playSoundOnPresetChange) ")
 
     guard let avAudioUnit = state.avAudioUnit else {
-      log.debug("playNote END - !avAudioUnit")
+      log.debug("sendNoteOnOffSequence END - !avAudioUnit")
       return .none
     }
 
     guard playSoundOnPresetChange else {
-      log.debug("playNote END - !playSoundOnPresetChange")
+      log.debug("sendNoteOnOffSequence END - !playSoundOnPresetChange")
       return .none
     }
 

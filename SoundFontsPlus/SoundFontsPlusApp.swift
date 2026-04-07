@@ -10,13 +10,22 @@ import SwiftUI
 @main
 struct SoundFontsPlusApp: App {
 
-  init() {
+  static let store: StoreOf<AppRoot>? = {
     if ProcessInfo.processInfo.environment["UI_TESTING"] != nil {
       prepareDependencies {
         $0.defaultAppStorage = .inMemory
         $0.defaultFileStorage = .inMemory
       }
+      return nil
+    } else if isTesting {
+      return nil
+    } else {
+      return AppRoot.makeWithDependencies()
     }
+  }()
+
+  init() {
+    installApplicationFont()
   }
 
   var body: some Scene {
@@ -24,12 +33,11 @@ struct SoundFontsPlusApp: App {
       if isTesting {
         EmptyView()
       } else {
-        let store: StoreOf<AppRoot> = AppRoot.makeWithDependencies()
         @Shared(.colorSchemeBehavior) var colorSchemeBehavior
         ZStack {
           colorSchemeBehavior.rootBackgroundColor
             .ignoresSafeArea()
-          ContentView(store: store)
+          ContentView()
         }
         .tint(.mainAccentColor)
         .environment(\.font, FeatureSupport.Font.body)
@@ -40,14 +48,9 @@ struct SoundFontsPlusApp: App {
 }
 
 struct ContentView: View {
-  private let store: StoreOf<AppRoot>
-
-  init(store: StoreOf<AppRoot>) {
-    self.store = store
-  }
-
   var body: some View {
-    AppRootView(store: store)
+    // swiftlint:disable:next force_unwrapping
+    AppRootView(store: SoundFontsPlusApp.store!)
 #if os(iOS)
     // We don't want to mistake music keyboard activity for iOS app switching or other system gestures
       .defersSystemGestures(on: [.bottom, .leading, .trailing])

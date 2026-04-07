@@ -28,10 +28,9 @@ import Tutorial
     $0.defaultDatabase = TestSupport.testDatabase()
     $0.delayDevice = .liveValue
     $0.fileManager = .liveValue
-    $0.mainQueue = .immediate
     $0.outputVolume = mockVolume.makeOutputVolume()
     $0.reverbDevice = .liveValue
-    $0.continuousClock = ImmediateClock()
+    $0.continuousClock = TestClock<Duration>()
     $0.uuid = .incrementing
   },
   .serialized // due to SF2LibAU creation
@@ -184,15 +183,18 @@ struct AppRootTests {
 
   @Test(
     .dependencies {
-      $0.continuousClock = .immediate
+      $0.continuousClock = TestClock<Duration>()
     }
   )
   func processKeyboardAction() async throws {
+    @Dependency(\.continuousClock) var clock
+    let testClock = clock as! TestClock<Duration>
     try await initialized { store in
       await store.send(\.keyboard.delegate.noteOn, .C4)
       await store.receive(\.toolBar.lastPlayedKeyChanged, .C4) {
         $0.toolBar.temporaryStatus = .lastPlayedKey("C4")
       }
+      await testClock.run()
       await store.receive(\.toolBar.clearTemporaryStatus) {
         $0.toolBar.temporaryStatus = nil
       }
@@ -366,46 +368,6 @@ struct AppRootTests {
     }
   }
 
-  @Test(
-    .snapshots(record: .failed)
-  )
-  func showNoVolumeToast() async throws {
-    let state: AppRoot.State = .init(toastState: .volumeLevelIsZero)
-    let store: StoreOf<AppRoot> = .init(initialState: state) { AppRoot() }
-
-    var view: some View {
-      return ZStack {
-        Color.black
-          .ignoresSafeArea(edges: .all)
-        AppRootView(store: store)
-        // .preferredColorScheme(.dark)
-          .environment(\.colorScheme, .dark)
-      }
-    }
-
-    TestSupport.assertSnapshot(matching: view)
-  }
-
-  @Test(
-    .snapshots(record: .failed)
-  )
-  func showNoPresetToast() async throws {
-    let state: AppRoot.State = .init(toastState: .noActivePreset)
-    let store: StoreOf<AppRoot> = .init(initialState: state) { AppRoot() }
-
-    var view: some View {
-      return ZStack {
-        Color.black
-          .ignoresSafeArea(edges: .all)
-        AppRootView(store: store)
-        // .preferredColorScheme(.dark)
-          .environment(\.colorScheme, .dark)
-      }
-    }
-
-    TestSupport.assertSnapshot(matching: view)
-  }
-
   @Test
   func editingPresetVisibilityChanged() async throws {
     try await initialized { store in
@@ -434,17 +396,13 @@ struct AppRootTests {
     }
   }
 
-  @Test(
-    .dependencies {
-      $0.continuousClock = .immediate
-    }
-  )
+  @Test
   func presetNameTapped() async throws {
     try await initialized { store in
       await store.send(\.toolBar.delegate.presetNameTapped)
       await store.receive(\.appReview.ask)
       await store.receive(\.soundFontsList.showActiveSoundFont)
-      await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1), timeout: .seconds(30))
+      await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1))
       await store.receive(\.presetsList.presetSourceChanged, .active(1))
       await store.receive(\.presetsList, .rowsUpdated(presets: Preset.visible(for: 1), showActive: true))
     }
@@ -485,10 +443,49 @@ struct AppRootTests {
     }
   }
 
-  @Test(
-    .snapshots(record: .failed)
-  )
+  @Test(.snapshots(record: .failed))
+  func showNoVolumeToast() async throws {
+    withDependencies {
+      $0.mainQueue = .immediate
+    } operation: {
+      let state: AppRoot.State = .init(toastState: .volumeLevelIsZero)
+      let store: StoreOf<AppRoot> = .init(initialState: state) { AppRoot() }
+      let view: some View = ZStack {
+        Color.black
+          .ignoresSafeArea(edges: .all)
+        AppRootView(store: store)
+        // .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
+      }
+
+      return TestSupport.assertSnapshot(matching: view)
+    }
+  }
+
+  @Test(.snapshots(record: .failed))
+  func showNoPresetToast() async throws {
+    withDependencies {
+      $0.mainQueue = .immediate
+    } operation: {
+      let state: AppRoot.State = .init(toastState: .noActivePreset)
+      let store: StoreOf<AppRoot> = .init(initialState: state) { AppRoot() }
+      let view: some View = ZStack {
+        Color.black
+          .ignoresSafeArea(edges: .all)
+        AppRootView(store: store)
+        // .preferredColorScheme(.dark)
+          .environment(\.colorScheme, .dark)
+      }
+      TestSupport.assertSnapshot(matching: view)
+    }
+  }
+
+  @Test(.snapshots(record: .failed))
   func appRootViewPreview() async throws {
-    TestSupport.assertSnapshot(matching: AppRootView.preview)
+    withDependencies {
+      $0.mainQueue = .immediate
+    } operation: {
+      TestSupport.assertSnapshot(matching: AppRootView.preview)
+    }
   }
 }

@@ -22,8 +22,6 @@ struct ChangesFeatureTests {
   func makeStore(data: String) -> TestStoreOf<Changes> {
     TestStoreOf<Changes>(initialState: .init(data)) {
       Changes()
-    } withDependencies: {
-      $0.mainQueue = .immediate
     }
   }
 

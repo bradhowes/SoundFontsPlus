@@ -7,6 +7,7 @@ import Changes
 import DelayEffect
 import FeatureSupport
 import Keyboard
+import MorkAndMIDI
 import Presets
 import ReverbEffect
 import Settings
@@ -267,12 +268,24 @@ extension AppRootView {
     ZStack {
       Color.black
         .ignoresSafeArea()
-      AppRootView(store: AppRoot.makeWithDependencies())
+      AppRootView(store: StoreOf<AppRoot>(initialState: AppRoot.State()) { AppRoot() })
     }
   }
 }
 
 #Preview {
+  // swiftlint:disable:next redundant_discardable_let
+  let _ = prepareDependencies {
+    installApplicationFont()
+    @Shared(.isAUv3) var isAUv3 = false
+
+    // swiftlint:disable:next force_try
+    $0.defaultDatabase = try! appDatabase()
+    try? $0.fileManager.createDirectory($0.fileManager.fontFilesDirectory())
+
+    @Shared(.midiInputPortId) var midiInputPortId
+    @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
+  }
   AppRootView.preview
 }
 
