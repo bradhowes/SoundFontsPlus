@@ -84,7 +84,7 @@ public struct PresetButtonView: View {
           .font(.button)
         Spacer()
       }
-      .indicator(editingVisibility ? .favorite : indicatorModifierState)
+      .indicator(editingVisibility ? .presetEditing : indicatorModifierState)
       .contentShape(.interaction, Rectangle())
       .simultaneousGesture(
         LongPressGesture(minimumDuration: 1.0)
