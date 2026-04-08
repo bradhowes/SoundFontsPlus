@@ -25,7 +25,7 @@ coverage-iOS: test-iOS
 	rm -rf coverage_iOS
 	mkdir coverage_iOS
 	cp -r $(PWD)/.DerivedData-iOS/Logs/Test/*.xcresult coverage_iOS/
-	bash coverage_reporter.sh > coverage_iOS/percentage.txt
+	bash $(PWD)/scripts/coverage_reporter.sh > coverage_iOS/percentage.txt
 	echo "iOS Coverage Pct:"
 	cat coverage_iOS/percentage.txt
 
@@ -33,7 +33,7 @@ coverage-macOS: test-macOS
 	rm -rf coverage_macOS
 	mkdir coverage_macOS
 	cp -r $(PWD)/.DerivedData-macOS/Logs/Test/*.xcresult coverage_macOS/
-	bash coverage_reporter.sh > coverage_macOS/percentage.txt
+	bash $(PWD)/scripts/coverage_reporter.sh > coverage_macOS/percentage.txt
 	echo "macOS Coverage Pct:"
 	cat coverage_macOS/percentage.txt
 
