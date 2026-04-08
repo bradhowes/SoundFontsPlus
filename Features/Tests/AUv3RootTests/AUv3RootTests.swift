@@ -98,12 +98,10 @@ struct AUv3RootTests {
     }
   }
 
-#if SNAPSHOTS
   @Test
   func auv3RootViewPreview() async throws {
     TestSupport.assertSnapshot(matching: AUv3RootView.preview)
   }
-#endif
 }
 
 #endif
