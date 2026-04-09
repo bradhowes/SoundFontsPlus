@@ -18,25 +18,23 @@ public struct IndicatorModifier: ViewModifier {
     // Favorite styling -- only for Preset buttons
     case favorite
     // Editing preset visibility
-    case presetEditing
+    case visibilityEditing
 
     func labelColor(colorScheme: ColorScheme) -> Color {
       switch self {
       case .none: return colorScheme == .dark ? .mainAccentColor.darker : .mainAccentColor.lighter
       case .active, .activeNoIndicator: return colorScheme == .dark ? .mainAccentColor.lighter : .mainAccentColor.darker
-      case .activeFavorite: return .alternateAccentColor
-      case .presetEditing, .favorite: return colorScheme == .dark ? .alternateAccentColor.darker : .alternateAccentColor.lighter
+      case .activeFavorite: return colorScheme == .dark ? .alternateAccentColor.lighter : .alternateAccentColor.darker
+      case .visibilityEditing, .favorite: return colorScheme == .dark ? .alternateAccentColor.darker : .alternateAccentColor.lighter
       case .selected: return .selected
       }
     }
 
     func indicatorColor(colorScheme: ColorScheme) -> Color {
       switch self {
-      case .none, .activeNoIndicator, .presetEditing: return .clear
       case .active: return colorScheme == .dark ? .mainAccentColor.lighter : .mainAccentColor.darker
-      case .activeFavorite: return colorScheme == .dark ? .alternateAccentColor.lighter : .alternateAccentColor.darker
-      case .favorite: return colorScheme == .dark ? .alternateAccentColor.darker : .alternateAccentColor.lighter
-      case .selected: return .clear
+      case .activeFavorite: return .alternateAccentColor
+      default: return .clear
       }
     }
 
