@@ -4,7 +4,7 @@ import FeatureSupport
 import Tagged
 
 /**
- Minor feature that represents section of presets where each section has up to 20 entries in it.
+ Minor feature that represents section of presets where each section has N preset buttons in it.
  */
 @Reducer
 public struct PresetsListSection {
@@ -163,7 +163,7 @@ public struct PresetsListSectionView: View {
         }
       }
       .opacity((showSearchButton || store.section == 0) && !searching && !editingVisibility ? 1.0 : 0.0)
-      .animation(.smooth, value: showSearchButton)
+      .animation(.smooth(duration: 0.2), value: showSearchButton)
     }
     // Track vertical position of our header -- when it becomes pinned, show the search button
     .onGeometryChange(for: Double.self) {
