@@ -182,11 +182,12 @@ flagged.
 # History
 
 The original [SoundFonts][0] app is written in Swift and UIKit. The data store is a disk file and a collection of
-UserDefaults keys/value pairs, though there was a brief attempt at moving to CoreData for this storage.
+`UserDefaults` keys/value pairs, though there was a brief attempt at moving to [CoreData][CoreData] for this storage.
 This repo is my attempt to replace the original with SwiftUI and SQLite.
 
-Originally it was based on SwiftData, but I encountered too many issues and hurdles. Another repo of mine
-[SwiftDataTCA][8] contains some of my experiments in this area.
+Originally, this repo was based on [SwiftData][SwiftData], but I encountered too many issues and hurdles. Coincidentially, 
+the Point•Free team released their [sqllite-data][2] package around this time, so I quickly jumped over to that. Another repo of
+mine [SwiftDataTCA][8] contains some of my experiments in this area.
 
 [0]: https://github.com/bradhowes/SoundFonts
 [1]: https://github.com/pointfreeco/swift-composable-architecture
@@ -241,6 +242,9 @@ Originally it was based on SwiftData, but I encountered too many issues and hurd
 [activeTagId]: https://github.com/bradhowes/SoundFontsPlus/blob/b5e786688593cf8ac2f6ab10a7ff1e1cdede9a5d/Features/Sources/Models/Support/ActiveState.swift#L10
 [monitoring]: https://github.com/bradhowes/SoundFontsPlus/blob/b5e786688593cf8ac2f6ab10a7ff1e1cdede9a5d/Features/Sources/SoundFonts/SoundFontsList.swift#L103
 [selectedSoundFontId]: https://github.com/bradhowes/SoundFontsPlus/blob/b5e786688593cf8ac2f6ab10a7ff1e1cdede9a5d/Features/Sources/Presets/PresetsList.swift#L266
+
+[SwiftData]: https://developer.apple.com/documentation/swiftdata
+[CoreData]: https://developer.apple.com/documentation/coredata
 
 [ci]: https://github.com/bradhowes/SoundFontsPlus/actions/workflows/CI.yml
 [status]: https://github.com/bradhowes/SoundFontsPlus/actions/workflows/CI.yml/badge.svg
