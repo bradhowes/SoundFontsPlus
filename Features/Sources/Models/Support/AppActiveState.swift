@@ -37,8 +37,9 @@ public struct AppActiveState: Sendable {
 
 extension AppActiveState: DependencyKey {
 
+  /// - returns: value to use in non-test situations
   public static var liveValue: Self {
-    return .init(
+    .init(
       setActiveSoundFontId: { value in
         @Shared(.appActiveStateValue) var activeStateValue
         $activeStateValue.activeSoundFontId.withLock { $0 = value}
@@ -66,8 +67,9 @@ extension AppActiveState: DependencyKey {
     )
   }
 
+  /// - returns: value to use in preview situations
   public static var previewValue: Self {
-    return .init(
+    .init(
       setActiveSoundFontId: { value in
         @Shared(.tmpActiveStateValue) var activeStateValue
         $activeStateValue.activeSoundFontId.withLock { $0 = value}
@@ -95,6 +97,7 @@ extension AppActiveState: DependencyKey {
     )
   }
 
+  /// - returns: value to use in testing situations
   public static var testValue: Self { previewValue }
 }
 
@@ -106,6 +109,13 @@ public struct AppActiveStateValue {
   public var activePresetId: Preset.ID?
   public var activeTagId: Tag.ID?
 
+  /**
+   Create new container with the given state
+
+   - parameter activeSoundFontId: the active sound font ID
+   - parameter activePresetId: the active preset ID
+   - parameter activeTagId: the active tag ID
+   */
   init(activeSoundFontId: SoundFont.ID? = nil, activePresetId: Preset.ID? = nil, activeTagId: Tag.ID? = nil) {
     self.activeSoundFontId = activeSoundFontId
     self.activePresetId = activePresetId
