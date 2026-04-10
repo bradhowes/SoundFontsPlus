@@ -146,7 +146,7 @@ public struct PresetsListSectionView: View {
 
   private var sectionHeader: some View {
     HStack {
-      Text(store.sectionText)
+      PresetsListView.sectionIndexTitleView(for: store.sectionText)
         .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
       Spacer()

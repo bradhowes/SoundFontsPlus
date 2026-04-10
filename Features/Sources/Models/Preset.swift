@@ -263,11 +263,8 @@ extension Preset {
    */
   public static func visibleQuery(for soundFontId: SoundFont.ID) -> Select<(), Self, ()> {
     @Shared(.showOnlyFavorites) var showOnlyFavorites
-    print("-- visibleQuery showOnlyFavorites:", showOnlyFavorites)
     @Shared(.favoritesOnTop) var favoritesOnTop
-    print("-- visibleQuery favoritesOnTop:", favoritesOnTop)
     @Shared(.sortPresetsByName) var sortPresetsByName
-    print("-- visibleQuery sortPresetsByName:", sortPresetsByName)
     let query = presetsQuery(for: soundFontId)
     if sortPresetsByName {
       return favoritesOnTop
@@ -275,8 +272,8 @@ extension Preset {
         .order { $0.kind.desc() }
         .order { $0.displayName }
       : query
-        .order { $0.kind }
         .order { $0.displayName }
+        .order { $0.kind }
     } else {
       return favoritesOnTop
       ? query
@@ -285,7 +282,6 @@ extension Preset {
       : query
         .order { $0.index }
         .order { $0.kind }
-        .order { $0.displayName }
     }
   }
 

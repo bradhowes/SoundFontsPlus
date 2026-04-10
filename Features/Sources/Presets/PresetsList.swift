@@ -450,11 +450,20 @@ public struct PresetsListView: View {
     }
   }
 
+  @ViewBuilder
+  public static func sectionIndexTitleView(for title: String) -> some View {
+    if title == "!" {
+      Image(systemName: "star.circle")
+    } else {
+      Text(title)
+    }
+  }
+
   private func sectionIndexTitles(stride: Int) -> some View {
     VStack(spacing: 0) {
       if store.sections.count > 2 {
         ForEach(store.sections.map(\.sectionIndex).striding(by: stride), id: \.self) { title in
-          Text(title)
+          Self.sectionIndexTitleView(for: title)
             .font(.caption)
             .foregroundStyle(Color.gray)
             .padding([.leading, .trailing], 8)

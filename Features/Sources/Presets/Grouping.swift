@@ -9,7 +9,7 @@ import Sharing
  Bundle collection of presets into one or more sections. Honors the `sortPresetsByName` setting as well as if searching is in
  effect.
 
- - parameter presets: the presets to bundle
+ - parameter presets: the presets to bundle. The ordering should be based on the `sortPresetsByName` and `favoritesOnTop` settings.
  - parameter presetSource: the current preset source
  - parameter activePresetId: the current active preset ID
  - parameter searching: true if in search mode
@@ -92,14 +92,18 @@ private func numericSectionIndex(from section: Int) -> String {
   "\(section * PresetsList.groupingSize)"
 }
 
-private func alphabeticSectionIndex(from section: Int, sectionText: String) -> String {
-  // swiftlint:disable:next force_unwrapping
-  section == 0 ? "#" : "\(sectionText.first!)"
-}
+private let favoriteSectionText = "!"
+private let numericSectionText = "#"
 
-private func groupingKey(for displayName: String) -> String {
-  let first = displayName.uppercased().first ?? "#"
-  return first.isLetter ? "\(first)" : "#"
+private func sectionGroupingKey(for displayName: String, kind: Preset.Kind) -> String {
+  @Shared(.favoritesOnTop) var favoritesOnTop
+  if kind == .favorite, favoritesOnTop {
+    return favoriteSectionText
+  } else if let first = displayName.trimmedOfWhitespaces.uppercased().first, first.isLetter {
+    return "\(first)"
+  } else {
+    return numericSectionText
+  }
 }
 
 private func groupByName(
@@ -111,12 +115,16 @@ private func groupByName(
     emptySection(title: "Presets")
   } else {
     .init(
-      uniqueElements: presets.grouped { groupingKey(for: $0.displayName) }.sorted(by: {$0.0 < $1.0}).enumerated().map {
-        PresetsListSection.State(
-          section: $0.0,
-          sectionText: "\($0.1.0)",
-          sectionIndex: alphabeticSectionIndex(from: $0.0, sectionText: "\($0.1.0)"),
-          presets: $0.1.1[...],
+      uniqueElements: presets
+        .grouped { preset in sectionGroupingKey(for: preset.displayName, kind: preset.kind) }
+        .sorted(by: {$0.0 < $1.0})
+        .enumerated()
+        .map { (index, group) in
+          PresetsListSection.State(
+          section: index,
+          sectionText: group.0,
+          sectionIndex: group.0,
+          presets: group.1[...],
           presetSource: presetSource,
           activePresetId: activePresetId
         )
