@@ -116,7 +116,7 @@ extension PresetsList {
     if let activePreset,
        state.rows.index(id: activePreset) != nil {
       return .concatenate(
-        reduce(into: &state, action: .rows(.element(id: activePreset, action: .updated(fullStates)))),
+        .send(.rows(.element(id: activePreset, action: .updated(fullStates)))),
         savePresets(&state)
       )
     }

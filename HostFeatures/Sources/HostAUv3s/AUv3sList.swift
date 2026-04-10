@@ -112,7 +112,7 @@ extension AUv3sList {
     log.info("startLoops BEGIN")
     defer { log.info("startLoops END") }
     return .merge(state.rows.map {
-      reduce(into: &state, action: .rows(.element(id: $0.id, action: .startLoop)))
+      .send(.rows(.element(id: $0.id, action: .startLoop)))
     })
   }
 
@@ -120,7 +120,7 @@ extension AUv3sList {
     log.info("stopLoops BEGIN")
     defer { log.info("stoptLoops END") }
     return .merge(state.rows.map {
-      reduce(into: &state, action: .rows(.element(id: $0.id, action: .stopLoop)))
+      .send(.rows(.element(id: $0.id, action: .stopLoop)))
     })
   }
 

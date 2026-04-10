@@ -70,7 +70,7 @@ public struct Root {
       switch action {
 
       case .binding: return .none
-      case .destination(.presented(.settings(.delegate(.accepted)))): return reduce(into: &state, action: .auv3sList(.initialize))
+      case .destination(.presented(.settings(.delegate(.accepted)))): return .send(.auv3sList(.initialize))
       case .destination: return .none
       case .initialize: return initialize(&state)
       case .auv3sList(.delegate(.settingsButtonTapped)): return settingsButtonTapped(&state)
@@ -111,8 +111,8 @@ extension Root {
   private func initialize(_ state: inout State) -> Effect<Action> {
     state.engine.connect(state.engine.mainMixerNode, to: state.engine.outputNode, format: AudioSession.audioFormat)
     return .merge(
-      reduce(into: &state, action: .auv3sList(.initialize)),
-      reduce(into: &state, action: .presetsList(.initialize))
+      .send(.auv3sList(.initialize)),
+      .send(.presetsList(.initialize))
     )
   }
 
@@ -130,7 +130,7 @@ extension Root {
   private func playNote(_ state: inout State) -> Effect<Action> {
     updateAudioSession(active: true)
     startEngine(&state)
-    return reduce(into: &state, action: .auv3sList(.playNote))
+    return .send(.auv3sList(.playNote))
   }
 
   private func presetActivated(_ state: inout State, fullStates: TypedFullStateCollection) -> Effect<Action> {
@@ -189,7 +189,7 @@ extension Root {
     updateAudioSession(active: true)
     startEngine(&state)
     state.songPlaying = true
-    return reduce(into: &state, action: .auv3sList(.startLoops))
+    return .send(.auv3sList(.startLoops))
   }
 
   @discardableResult
@@ -200,7 +200,7 @@ extension Root {
     if state.engine.isRunning {
       state.engine.stop()
     }
-    return reduce(into: &state, action: .auv3sList(.stopLoops))
+    return .send(.auv3sList(.stopLoops))
   }
 
   private func updateActivePresetRequested(_ state: inout State) -> Effect<Action> {
@@ -210,7 +210,7 @@ extension Root {
         try $0.instance.audioUnit.auAudioUnit.fullState?.asTypedAny()
       }
       log.info("updateActivePresetRequested END - \(fullStates)")
-      return reduce(into: &state, action: .presetsList(.updateActivePreset(fullStates: fullStates)))
+      return .send(.presetsList(.updateActivePreset(fullStates: fullStates)))
     } catch {
       log.error("updateActivePresetRequested - failed: \(error.localizedDescription)")
     }
@@ -293,20 +293,17 @@ public struct RootView: View {
 extension RootView {
 
   static var preview: some View {
-    prepareDependencies {
-      $0.uuid = .incrementing
-      $0.presetsStore = .previewValue
-      return RootView(
-        store: Store(initialState: .init(instances: AUv3sList.State(), presets: PresetsList.State())) {
-          Root()
-        }
-      ).safeAreaPadding(16)
-    }
+    RootView(
+      store: Store(initialState: .init(instances: AUv3sList.State(), presets: PresetsList.State())) {
+        Root()
+      }
+    ).safeAreaPadding(16)
   }
 }
 
 #Preview {
-  prepareDependencies {
+  // swiftlint:disable:next
+  let _ = prepareDependencies {
     $0.uuid = .incrementing
     $0.presetsStore = .previewValue
   }
