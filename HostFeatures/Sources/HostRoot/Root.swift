@@ -2,10 +2,10 @@
 
 import AVFAudio
 import ComposableArchitecture
-import HostAUv3s
 import HostPresets
 import HostSettings
 import HostSupport
+import HostSynths
 import SwiftUI
 import TypedFullState
 
@@ -32,7 +32,7 @@ public struct Root {
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
 
-    public var auv3sList: AUv3sList.State
+    public var auv3sList: SynthList.State
     public var presetsList: PresetsList.State
     public var songPlaying: Bool
     public let engine = AVAudioEngine()
@@ -40,7 +40,7 @@ public struct Root {
     @ObservationStateIgnored
     public var outstandingInstanceCount: Int
 
-    public init(instances: AUv3sList.State? = nil, presets: PresetsList.State? = nil) {
+    public init(instances: SynthList.State? = nil, presets: PresetsList.State? = nil) {
       @Shared(.auv3InstanceCount) var auv3InstanceCount
       self.auv3sList = instances ?? .init()
       self.presetsList = presets ?? .init()
@@ -53,7 +53,7 @@ public struct Root {
     case binding(BindingAction<State>)
     case destination(PresentationAction<Destination.Action>)
     case initialize
-    case auv3sList(AUv3sList.Action)
+    case auv3sList(SynthList.Action)
     case noteButtonTapped
     case playButtonTapped
     case presetsList(PresetsList.Action)
@@ -63,7 +63,7 @@ public struct Root {
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
-    Scope(state: \.auv3sList, action: \.auv3sList) { AUv3sList() }
+    Scope(state: \.auv3sList, action: \.auv3sList) { SynthList() }
     Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
 
     Reduce { state, action in
@@ -94,7 +94,7 @@ public struct Root {
 
 extension Root {
 
-  private func instanceCreated(_ state: inout State, instance: AUv3Instance) -> Effect<Action> {
+  private func instanceCreated(_ state: inout State, instance: SynthInstance) -> Effect<Action> {
     log.info("instanceCreated BEGIN")
     stopPlaying(&state)
     state.engine.attach(instance.audioUnit)
@@ -116,7 +116,7 @@ extension Root {
     )
   }
 
-  private func instanceRemoved(_ state: inout State, instance: AUv3Instance) -> Effect<Action> {
+  private func instanceRemoved(_ state: inout State, instance: SynthInstance) -> Effect<Action> {
     stopPlaying(&state)
     state.engine.disconnectNodeOutput(instance.audioUnit)
     state.engine.detach(instance.audioUnit)
@@ -294,7 +294,7 @@ extension RootView {
 
   static var preview: some View {
     RootView(
-      store: Store(initialState: .init(instances: AUv3sList.State(), presets: PresetsList.State())) {
+      store: Store(initialState: .init(instances: SynthList.State(), presets: PresetsList.State())) {
         Root()
       }
     ).safeAreaPadding(16)

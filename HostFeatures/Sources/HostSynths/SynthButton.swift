@@ -9,16 +9,16 @@ import SwiftUI
 import TypedFullState
 
 @Reducer
-public struct AUv3Button {
+public struct SynthButton {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    public typealias ID = AUv3Instance.ID
-    public var instance: AUv3Instance
+    public typealias ID = SynthInstance.ID
+    public var instance: SynthInstance
     public var displayName: String
     public var id: ID { instance.id }
 
-    public init(instance: AUv3Instance) {
+    public init(instance: SynthInstance) {
       self.instance = instance
       self.displayName = instance.name
     }
@@ -64,7 +64,7 @@ public struct AUv3Button {
   }
 }
 
-extension AUv3Button {
+extension SynthButton {
 
   private func activateButtonTapped(_ state: inout State) -> Effect<Action> {
     state.displayName = state.instance.name
@@ -114,10 +114,10 @@ extension AUv3Button {
 }
 
 public struct AUv3ButtonView: View {
-  @State private var store: StoreOf<AUv3Button>
+  @State private var store: StoreOf<SynthButton>
   @Shared(.activeAUv3) var activeAUv3
 
-  public init(store: StoreOf<AUv3Button>) {
+  public init(store: StoreOf<SynthButton>) {
     self.store = store
   }
 
@@ -169,11 +169,11 @@ extension AUv3ButtonView {
                   instance: instance
                 )
               ) {
-                AUv3Button()
+                SynthButton()
               }
             )
           } model: {
-            try await AUv3Instance.make(component: componentDescription)
+            try await SynthInstance.make(component: componentDescription)
           }
           AsyncModel { instance in
             AUv3ButtonView(
@@ -182,11 +182,11 @@ extension AUv3ButtonView {
                   instance: instance
                 )
               ) {
-                AUv3Button()
+                SynthButton()
               }
             )
           } model: {
-            try await AUv3Instance.make(component: componentDescription)
+            try await SynthInstance.make(component: componentDescription)
           }
         }
       }

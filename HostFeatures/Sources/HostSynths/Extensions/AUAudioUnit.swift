@@ -6,7 +6,7 @@ import HostSupport
 extension AUAudioUnit {
 
   public func playNote() {
-    guard let block = scheduleMIDIEventBlock else {
+    guard let scheduleEvent = scheduleMIDIEventBlock else {
       log.info("playNote END - no scheduleMIDIEventBlock")
       return
     }
@@ -21,26 +21,26 @@ extension AUAudioUnit {
       bytes[0] = 0xB0
       bytes[1] = 72
       bytes[2] = 0
-      block(AUEventSampleTimeImmediate, 0, 3, bytes)
+      scheduleEvent(AUEventSampleTimeImmediate, 0, 3, bytes)
       bytes.deallocate()
     }
 
     bytes[0] = 0x90
     bytes[1] = 72
     bytes[2] = 127
-    block(AUEventSampleTimeImmediate, 0, 3, bytes)
+    scheduleEvent(AUEventSampleTimeImmediate, 0, 3, bytes)
 
     usleep(duration)
 
     bytes[2] = 0    // note off
-    block(AUEventSampleTimeImmediate, 0, 3, bytes)
+    scheduleEvent(AUEventSampleTimeImmediate, 0, 3, bytes)
 
     log.info("playNote END")
   }
 
   public func playLoop() async {
     log.info("playLoop BEGIN")
-    guard let block = scheduleMIDIEventBlock else {
+    guard let scheduleEvent = scheduleMIDIEventBlock else {
       log.info("playLoop END - no scheduleMIDIEventBlock")
       return
     }
@@ -67,7 +67,7 @@ extension AUAudioUnit {
       bytes[0] = 0xB0
       bytes[1] = 0x7B
       bytes[2] = 0
-      block(AUEventSampleTimeImmediate, 0, 3, bytes)
+      scheduleEvent(AUEventSampleTimeImmediate, 0, 3, bytes)
       bytes.deallocate()
     }
 
@@ -75,7 +75,7 @@ extension AUAudioUnit {
     bytes[0] = 0xB0
     bytes[1] = 0x7B
     bytes[2] = 0
-    block(AUEventSampleTimeImmediate, 0, 3, bytes)
+    scheduleEvent(AUEventSampleTimeImmediate, 0, 3, bytes)
 
     var note = 0
     var step = 0
@@ -83,13 +83,13 @@ extension AUAudioUnit {
       bytes[0] = 0x90
       bytes[1] = UInt8(60 + note)
       bytes[2] = 127
-      block(AUEventSampleTimeImmediate, 0, 3, bytes)
+      scheduleEvent(AUEventSampleTimeImmediate, 0, 3, bytes)
       usleep(duration * 4)
       if Task.isCancelled { break }
 
       bytes[0] = 0x80
       bytes[1] = UInt8(60 + note)
-      block(AUEventSampleTimeImmediate, 0, 2, bytes)
+      scheduleEvent(AUEventSampleTimeImmediate, 0, 2, bytes)
       usleep(duration)
       if Task.isCancelled { break }
 

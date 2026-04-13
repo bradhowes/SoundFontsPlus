@@ -8,32 +8,32 @@ import SwiftUI
 import TypedFullState
 
 @Reducer
-public struct AUv3sList {
+public struct SynthList {
 
   @ObservableState
   public struct State: Equatable {
-    public var rows: IdentifiedArrayOf<AUv3Button.State>
+    public var rows: IdentifiedArrayOf<SynthButton.State>
 
-    public init(rows: IdentifiedArrayOf<AUv3Button.State> = []) {
+    public init(rows: IdentifiedArrayOf<SynthButton.State> = []) {
       self.rows = rows
     }
   }
 
   public enum Action {
     case addButtonTapped
-    case created(instance: AUv3Instance)
+    case created(instance: SynthInstance)
     case delegate(Delegate)
     case initialize
     case makeInstance
-    case rows(IdentifiedActionOf<AUv3Button>)
+    case rows(IdentifiedActionOf<SynthButton>)
     case playNote
     case startLoops
     case stopLoops
 
     @CasePathable
     public enum Delegate {
-      case added(instance: AUv3Instance)
-      case removed(instance: AUv3Instance)
+      case added(instance: SynthInstance)
+      case removed(instance: SynthInstance)
       case settingsButtonTapped
     }
   }
@@ -59,12 +59,12 @@ public struct AUv3sList {
       }
     }
     .forEach(\.rows, action: \.rows) {
-      AUv3Button()
+      SynthButton()
     }
   }
 }
 
-extension AUv3sList {
+extension SynthList {
 
   private func addButtonTapped(_ state: inout State) -> Effect<Action> {
     log.info("addButtonTapped BEGIN")
@@ -74,7 +74,7 @@ extension AUv3sList {
     return makeInstance(&state)
   }
 
-  private func created(_ state: inout State, instance: AUv3Instance) -> Effect<Action> {
+  private func created(_ state: inout State, instance: SynthInstance) -> Effect<Action> {
     state.rows.append(.init(instance: instance))
     return .send(.delegate(.added(instance: instance)))
   }
@@ -94,7 +94,7 @@ extension AUv3sList {
     log.info("makeInstance BEGIN")
     return .run { send in
       @Dependency(\.componentDescription) var componentDescription
-      let instance = try await AUv3Instance.make(component: componentDescription)
+      let instance = try await SynthInstance.make(component: componentDescription)
       await send(.created(instance: instance))
       log.info("makeInstance END")
     }
@@ -126,8 +126,8 @@ extension AUv3sList {
 
   private func processRowAction(
     _ state: inout State,
-    id: AUv3Button.State.ID,
-    action: AUv3Button.Action.Delegate
+    id: SynthButton.State.ID,
+    action: SynthButton.Action.Delegate
   ) -> Effect<Action> {
     log.info("processRowAction BEGIN - \(action)")
     switch action {
@@ -151,9 +151,9 @@ extension AUv3sList {
 // MARK: - View
 
 public struct AUv3sListView: View {
-  @State private var store: StoreOf<AUv3sList>
+  @State private var store: StoreOf<SynthList>
 
-  public init(store: StoreOf<AUv3sList>) {
+  public init(store: StoreOf<SynthList>) {
     self.store = store
   }
 
@@ -194,7 +194,7 @@ extension AUv3sListView {
       $auv3InstanceCount.withLock { $0 = 3 }
 
       return VStack {
-        AUv3sListView(store: Store(initialState: .init()) { AUv3sList() })
+        AUv3sListView(store: Store(initialState: .init()) { SynthList() })
       }
     }
   }

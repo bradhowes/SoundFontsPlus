@@ -28,7 +28,7 @@ public struct AppRootView: View {
   @State private var isInputKeyboardVisible = false
   @State private var effectsOffset: CGFloat = 0.0
 
-  @Shared(.effectsPanelVisible) private var effectsPanelVisible
+  // @Shared(.effectsPanelVisible) private var effectsPanelVisible
 
   @Environment(\.scenePhase) var scenePhase
   @Environment(\.colorScheme) private var colorScheme
@@ -71,7 +71,7 @@ public struct AppRootView: View {
       controlViews
     }
     .padding(0)
-    .animation(.smooth, value: effectsPanelVisible)
+    .animation(.smooth, value: store.effectsPanelVisible)
     .animation(.smooth, value: isInputKeyboardVisible)
     .environment(\.auv3ControlsTheme, theme)
     .onChange(of: scenePhase) { _, newPhase in
@@ -222,9 +222,9 @@ extension AppRootView {
       dividerBorderColor
         .frame(height: dividerSpan)
     }
-    .frame(height: effectsPanelVisible ? viewHeight : 0.0)
+    .frame(height: store.effectsPanelVisible ? viewHeight : 0.0)
     .frame(maxWidth: .infinity)
-    .offset(y: effectsPanelVisible ? 0.0 : viewHeight / 2 + dividerSpan * 2)
+    .offset(y: store.effectsPanelVisible ? 0.0 : viewHeight / 2 + dividerSpan * 2)
   }
 
   fileprivate var keyboardView: some View {

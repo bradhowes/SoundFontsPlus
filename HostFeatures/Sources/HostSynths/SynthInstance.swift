@@ -17,11 +17,11 @@ import AppKit
 public typealias ViewController = NSViewController
 #endif
 
-public enum AUv3InstanceError: Error {
+public enum SynthInstanceError: Error {
   case noViewController
 }
 
-public struct AUv3Instance: Equatable, Identifiable {
+public struct SynthInstance: Equatable, Identifiable {
   public typealias ID = UUID
   public let id: ID
   public let audioUnit: AVAudioUnit
@@ -42,7 +42,7 @@ public struct AUv3Instance: Equatable, Identifiable {
     self.viewController = viewController
   }
 
-  public static func make(component: AudioComponentDescription) async throws -> AUv3Instance {
+  public static func make(component: AudioComponentDescription) async throws -> SynthInstance {
     log.info("make: \(component.description)")
     let audioUnit = try await AVAudioUnit.instantiate(with: component)
     log.info("created audio unit")
@@ -57,7 +57,7 @@ public struct AUv3Instance: Equatable, Identifiable {
   public static func makeUI(audioUnit: AVAudioUnit) async throws -> ViewController {
     guard let viewController = await audioUnit.auAudioUnit.requestViewController() else {
       log.info("failed to create view controller")
-      throw AUv3InstanceError.noViewController
+      throw SynthInstanceError.noViewController
     }
     log.info("created view controller")
     return viewController

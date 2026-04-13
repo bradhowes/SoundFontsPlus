@@ -73,6 +73,7 @@ public struct AppRoot {
     public var toastState: VolumeMonitor.Reason?
 
     public var avAudioUnit: AVAudioUnit?
+    @Shared(.effectsPanelVisible) public var effectsPanelVisible
 
     /**
      Constructur for main app.
@@ -187,7 +188,6 @@ public struct AppRoot {
   @Dependency(\.fileManager) private var fileManager
   @Dependency(\.appActiveState) private var appActiveState
 
-  @Shared(.effectsPanelVisible) private var effectsPanelVisible
   @Shared(.firstVisibleKey) private var firstVisibleKey
   @Shared(.fontsAndPresetsSplitPosition) private var fontsAndPresetsSplitPosition
   @Shared(.fontsAndTagsSplitPosition) private var fontsAndTagsSplitPosition
@@ -527,7 +527,6 @@ extension AppRoot {
       let visible = panesVisible.contains(.bottom)
       if visible != tagsListVisible {
         $tagsListVisible.withLock { $0 = visible }
-        state.toolBar.setTagsListVisible(visible)
       }
       if position != fontsAndTagsSplitPosition {
         $fontsAndTagsSplitPosition.withLock { $0 = position }
@@ -563,7 +562,7 @@ extension AppRoot {
 
     case .effectsVisibilityChanged(let visible):
       withAnimation(.smooth) {
-        $effectsPanelVisible.withLock { $0 = visible }
+        state.$effectsPanelVisible.withLock { $0 = visible }
       }
       return .none
 

@@ -1,17 +1,16 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import HostAUv3s
+import HostSynths
 import SwiftUI
 
 #if canImport(UIKit)
 
 import UIKit
 
-
 public struct AUv3View: UIViewControllerRepresentable {
-  private let instance: AUv3Instance
+  private let instance: SynthInstance
 
-  public init(instance: AUv3Instance) {
+  public init(instance: SynthInstance) {
     self.instance = instance
   }
 

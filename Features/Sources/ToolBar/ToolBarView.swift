@@ -47,48 +47,77 @@ public struct ToolBarView: View {
   private var fullBar: some View {
     HStack(alignment: .center, spacing: 12) {
       if isApp {
-        addSoundFontButton
+        fullBarApp
+      } else {
+        fullBarAUv3
       }
-      tagsButton
-      if isApp {
-        effectsButton
-      }
-      status
-      if isApp {
-        shiftDownButton
-        slidingKeyboardButton
-        shiftUpButton
-      }
-      editVisibilityButton
-      settingsButton
     }
+  }
+
+  @ViewBuilder
+  private var fullBarApp: some View {
+    addSoundFontButton
+    tagsButton
+    effectsButton
+    status
+    shiftDownButton
+    slidingKeyboardButton
+    shiftUpButton
+    editVisibilityButton
+    settingsButton
+  }
+
+  @ViewBuilder
+  private var fullBarAUv3: some View {
+    tagsButton
+    status
+    editVisibilityButton
+    settingsButton
   }
 
   private var compactBar: some View {
     HStack(alignment: .center, spacing: 12) {
       if isApp {
-        addSoundFontButton
-      }
-      tagsButton
-      if isApp {
-        effectsButton
-      }
-      if store.showMoreButtons {
-        Spacer()
-          .frame(height: 40)
-          .background(.windowBackground)
-        if isApp {
-          shiftDownButton
-          slidingKeyboardButton
-          shiftUpButton
-        }
-        editVisibilityButton
-        settingsButton
+        compactBarApp
       } else {
-        status
+        compactBarAUv3
       }
-      moreButton
     }
+  }
+
+  @ViewBuilder
+  private var compactBarApp: some View {
+    addSoundFontButton
+    tagsButton
+    effectsButton
+    if store.showMoreButtons {
+      Spacer()
+        .frame(height: 40)
+        .background(.windowBackground)
+      shiftDownButton
+      slidingKeyboardButton
+      shiftUpButton
+      editVisibilityButton
+      settingsButton
+    } else {
+      status
+    }
+    moreButton
+  }
+
+  @ViewBuilder
+  private var compactBarAUv3: some View {
+    tagsButton
+    if store.showMoreButtons {
+      Spacer()
+        .frame(height: 40)
+        .background(.windowBackground)
+      editVisibilityButton
+      settingsButton
+    } else {
+      status
+    }
+    moreButton
   }
 
   private var status: some View {
@@ -142,21 +171,22 @@ public struct ToolBarView: View {
     }
   }
 
-  private var tagsButton: some View {
+  private var editVisibilityButton: some View {
     Button {
-      store.send(.tagsListVisibilityButtonTapped)
+      store.send(.presetsVisibilityButtonTapped)
     } label: {
-      Image(systemName: .tagsListButtonImageName)
-        .tint(if: store.tagsListVisible)
+      Image(systemName: .presetsVisibilityButtonImageName)
+        .tint(if: store.editingPresetVisibility)
     }
   }
 
   private var effectsButton: some View {
-    Button {
+    print("effectsButton - \(store.effectsPanelVisible)")
+    return Button {
       store.send(.effectsVisibilityButtonTapped)
     } label: {
       Image(systemName: .effectsButtonImageName)
-        .tint(if: store.effectsPanelVisible)
+        .tint(store.effectsPanelVisible ? Color.alternateAccentColor : Color.mainAccentColor)
     }
   }
 
@@ -170,6 +200,15 @@ public struct ToolBarView: View {
     }
   }
 
+  private var settingsButton: some View {
+    Button {
+      store.send(.settingsButtonTapped)
+    } label: {
+      Image(systemName: .settingsButtonImageName)
+        .tint(.mainAccentColor)
+    }
+  }
+
   private var shiftDownButton: some View {
     Button {
       store.send(.shiftKeyboardDownButtonTapped)
@@ -179,6 +218,17 @@ public struct ToolBarView: View {
         .tint(.mainAccentColor)
     }
     .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
+  }
+
+  private var shiftUpButton: some View {
+    Button {
+      store.send(.shiftKeyboardUpButtonTapped)
+    } label: {
+      Text(store.highestKey.label + .shiftKeyboardRightIndicator)
+        .fixedSize()
+        .tint(.mainAccentColor)
+    }
+    .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
   }
 
   private var slidingKeyboardButton: some View {
@@ -195,32 +245,12 @@ public struct ToolBarView: View {
     }
   }
 
-  private var shiftUpButton: some View {
+ private var tagsButton: some View {
     Button {
-      store.send(.shiftKeyboardUpButtonTapped)
+      store.send(.tagsListVisibilityButtonTapped)
     } label: {
-      Text(store.highestKey.label + .shiftKeyboardRightIndicator)
-        .fixedSize()
-        .tint(.mainAccentColor)
-    }
-    .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
-  }
-
-  private var editVisibilityButton: some View {
-    Button {
-      store.send(.presetsVisibilityButtonTapped)
-    } label: {
-      Image(systemName: .presetsVisibilityButtonImageName)
-        .tint(if: store.editingPresetVisibility)
-    }
-  }
-
-  private var settingsButton: some View {
-    Button {
-      store.send(.settingsButtonTapped)
-    } label: {
-      Image(systemName: .settingsButtonImageName)
-        .tint(.mainAccentColor)
+      Image(systemName: .tagsListButtonImageName)
+        .tint(if: store.tagsListVisible)
     }
   }
 }

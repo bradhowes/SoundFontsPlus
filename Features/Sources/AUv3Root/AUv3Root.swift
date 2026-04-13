@@ -345,7 +345,6 @@ extension AUv3Root {
       let visible = panesVisible.contains(.bottom)
       if visible != tagsListVisible {
         $tagsListVisible.withLock { $0 = visible }
-        state.toolBar.setTagsListVisible(visible)
       }
       if position != fontsAndTagsSplitPosition {
         $fontsAndTagsSplitPosition.withLock { $0 = position }

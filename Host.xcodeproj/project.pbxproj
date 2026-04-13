@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BDD04AA92F47A8E600A826E5 /* HostAUv3s in Frameworks */ = {isa = PBXBuildFile; productRef = BDD04AA82F47A8E600A826E5 /* HostAUv3s */; };
+		BD9843852F8AF3E4005D43B1 /* HostSynths in Frameworks */ = {isa = PBXBuildFile; productRef = BD9843842F8AF3E4005D43B1 /* HostSynths */; };
 		BDD04AAB2F47A8E600A826E5 /* HostPresets in Frameworks */ = {isa = PBXBuildFile; productRef = BDD04AAA2F47A8E600A826E5 /* HostPresets */; };
 		BDD04AAD2F47A8E600A826E5 /* HostRoot in Frameworks */ = {isa = PBXBuildFile; productRef = BDD04AAC2F47A8E600A826E5 /* HostRoot */; };
 		BDD04AAF2F47A8E600A826E5 /* HostSettings in Frameworks */ = {isa = PBXBuildFile; productRef = BDD04AAE2F47A8E600A826E5 /* HostSettings */; };
@@ -32,7 +32,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BDD04AB12F47A8E600A826E5 /* HostSupport in Frameworks */,
-				BDD04AA92F47A8E600A826E5 /* HostAUv3s in Frameworks */,
+				BD9843852F8AF3E4005D43B1 /* HostSynths in Frameworks */,
 				BDD04AAD2F47A8E600A826E5 /* HostRoot in Frameworks */,
 				BDD04AAB2F47A8E600A826E5 /* HostPresets in Frameworks */,
 				BDD04AAF2F47A8E600A826E5 /* HostSettings in Frameworks */,
@@ -86,11 +86,11 @@
 			);
 			name = Host;
 			packageProductDependencies = (
-				BDD04AA82F47A8E600A826E5 /* HostAUv3s */,
 				BDD04AAA2F47A8E600A826E5 /* HostPresets */,
 				BDD04AAC2F47A8E600A826E5 /* HostRoot */,
 				BDD04AAE2F47A8E600A826E5 /* HostSettings */,
 				BDD04AB02F47A8E600A826E5 /* HostSupport */,
+				BD9843842F8AF3E4005D43B1 /* HostSynths */,
 			);
 			productName = AUv3Host;
 			productReference = BDBDE2DC2EDDB88F006FE29A /* Host.app */;
@@ -395,9 +395,9 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		BDD04AA82F47A8E600A826E5 /* HostAUv3s */ = {
+		BD9843842F8AF3E4005D43B1 /* HostSynths */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = HostAUv3s;
+			productName = HostSynths;
 		};
 		BDD04AAA2F47A8E600A826E5 /* HostPresets */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -6,7 +6,7 @@ let package = Package(
   name: "HostFeatures",
   platforms: [.iOS(.v18), .macOS(.v15)],
   products: [
-    .library(name: "HostAUv3s", targets: ["HostAUv3s"]),
+    .library(name: "HostSynths", targets: ["HostSynths"]),
     .library(name: "HostPresets", targets: ["HostPresets"]),
     .library(name: "HostRoot", targets: ["HostRoot"]),
     .library(name: "HostSettings", targets: ["HostSettings"]),
@@ -20,7 +20,7 @@ let package = Package(
     .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.7.4")
   ],
   targets: [
-    .target(name: "HostAUv3s",
+    .target(name: "HostSynths",
             dependencies: [
               "HostSupport",
               .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
@@ -36,7 +36,7 @@ let package = Package(
            ),
     .target(name: "HostRoot",
             dependencies: [
-              "HostAUv3s",
+              "HostSynths",
               "HostPresets",
               "HostSettings",
               "HostSupport",

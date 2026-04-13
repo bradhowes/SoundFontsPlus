@@ -11,10 +11,12 @@ import Settings
 private let log: Logger = .init(category: "ToolBar")
 
 /**
- The ToolBar feature provides a strip above the keyboard that hosts controls and a text display. It supports
+ The ToolBar feature manages a strip above the keyboard that hosts control buttons and a status display. For horizontally compact
+ displays, there is a "more" button on the right-hand side that, when touched, reveals additional controls.
  */
 @Reducer
 public struct ToolBar {
+  public static let temporaryStatusDisplayDuration: Duration = .seconds(1.8)
 
   public enum TemporaryStatus: Equatable {
 
@@ -35,7 +37,7 @@ public struct ToolBar {
   public struct State: Equatable {
     public var activeVoiceCount: Int
     public var editingPresetVisibility: Bool
-    public var effectsPanelVisible: Bool
+    @Shared(.effectsPanelVisible) public var effectsPanelVisible: Bool
     public var fileImporter: FileImporter.State
     public var highestKey: Note
     @ObservationStateIgnored
@@ -45,7 +47,7 @@ public struct ToolBar {
     public var midiTrafficIndicator: MIDITrafficIndicator.State
     public var preset: Preset?
     public var showMoreButtons: Bool
-    public var tagsListVisible: Bool
+    @Shared(.tagsListVisible) public var tagsListVisible
 
     public init(
       activeVoiceCount: Int = 0,
@@ -60,13 +62,10 @@ public struct ToolBar {
       showMoreButtons: Bool = false,
       tagsListVisible: Bool? = nil
     ) {
-      @Shared(.effectsPanelVisible) var savedEffectsPanelVisible
       @Shared(.firstVisibleKey) var savedLowestKey
-      @Shared(.tagsListVisible) var savedTagsListVisible
 
       self.activeVoiceCount = activeVoiceCount
       self.editingPresetVisibility = editingPresetVisibility
-      self.effectsPanelVisible = effectsPanelVisible ?? savedEffectsPanelVisible
       self.fileImporter = fileImporter ?? .init()
       self.highestKey = highestKey ?? .C4
       self.temporaryStatus = temporaryStatus
@@ -74,12 +73,15 @@ public struct ToolBar {
       self.midiTrafficIndicator = midiTrafficIndicator ?? .init(tag: "ToolBar")
       self.preset = preset
       self.showMoreButtons = showMoreButtons
-      self.tagsListVisible = tagsListVisible ?? savedTagsListVisible
       self.temporaryStatus = .startup
-    }
 
-    public mutating func setTagsListVisible(_ state: Bool) {
-      self.tagsListVisible = state
+      if let effectsPanelVisible {
+        self.$effectsPanelVisible.withLock { $0 = effectsPanelVisible }
+      }
+
+      if let tagsListVisible {
+        self.$tagsListVisible.withLock { $0 = tagsListVisible }
+      }
     }
   }
 
@@ -149,10 +151,7 @@ public struct ToolBar {
         return audioUnitCreated(&state, audioUnit: audioUnit)
 
       case .clearTemporaryStatus:
-        withAnimation(.smooth) {
-          state.temporaryStatus = nil
-        }
-        return .none
+        return clearTemporaryStatus(&state)
 
       case .deinitialize:
         return .merge(
@@ -172,14 +171,14 @@ public struct ToolBar {
       case .lastPlayedKeyChanged(let key):
         return lastPlayedKeyChanged(&state, key: key)
 
+      case .presetsVisibilityButtonTapped:
+        return editPresetVisibility(&state)
+
       case .shiftKeyboardDownButtonTapped:
         return shiftKeyboardDownButtonTapped(&state)
 
       case .shiftKeyboardUpButtonTapped:
         return shiftKeyboardUpButtonTapped(&state)
-
-      case .presetsVisibilityButtonTapped:
-        return editPresetVisibility(&state)
 
       case .settingsButtonTapped:
         return settingsButtonTapped(&state)
@@ -190,11 +189,11 @@ public struct ToolBar {
       case .showMoreButtonTapped:
         return toggleShowMoreButtons(&state)
 
-      case .statusTextTapped(let count):
-        return statusTextTapped(&state, count: count)
-
       case .slidingKeyboardButtonTapped:
         return slidingKeyboardButtonTapped(&state)
+
+      case .statusTextTapped(let count):
+        return statusTextTapped(&state, count: count)
 
       case .tagsListVisibilityButtonTapped:
         return toggleTagsListVisibility(&state)
@@ -214,27 +213,33 @@ public struct ToolBar {
 extension ToolBar {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
-    state.temporaryStatus = nil
     if let presetId = presetId,
        let preset = Preset.with(id: presetId) {
       state.preset = preset
     } else {
       state.preset = nil
     }
-    return .none
+    return clearTemporaryStatus(&state)
   }
 
   private func audioUnitCreated(_ state: inout State, audioUnit: AVAudioUnit) -> Effect<Action> {
     .merge(
       monitorActiveVoiceCount(&state, audioUnit: audioUnit),
-      .send(.midiTrafficIndicator(.initialize))
+      .send(.midiTrafficIndicator(.initialize)),
+      clearTemporaryStatusTask(&state)
     )
+  }
+
+  private func clearTemporaryStatus(_ state: inout State) -> Effect<Action> {
+    state.temporaryStatus = nil
+    return .none
   }
 
   private func clearTemporaryStatusTask(_ state: inout State) -> Effect<Action> {
     .run { send in
       @Dependency(\.continuousClock) var clock
-      try await clock.sleep(for: .seconds(1.8))
+      try await clock.sleep(for: Self.temporaryStatusDisplayDuration)
+      if Task.isCancelled { return }
       await send(.clearTemporaryStatus, animation: .smooth)
     }.cancellable(id: CancelId.toolBarClearTemporaryStatus, cancelInFlight: true)
   }
@@ -245,8 +250,9 @@ extension ToolBar {
   }
 
   private func lastPlayedKeyChanged(_ state: inout State, key: Note) -> Effect<Action> {
-    guard showKeyNotes || showSolfegeTags else { return .none }
-    state.temporaryStatus = .lastPlayedKey(showKeyNotes ? key.fullLabel(withSolfege: showSolfegeTags) : key.solfege)
+    if showKeyNotes || showSolfegeTags {
+      state.temporaryStatus = .lastPlayedKey(showKeyNotes ? key.fullLabel(withSolfege: showSolfegeTags) : key.solfege)
+    }
     return clearTemporaryStatusTask(&state)
   }
 
@@ -337,7 +343,7 @@ extension ToolBar {
   }
 
   private func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
-    state.effectsPanelVisible.toggle()
+    state.$effectsPanelVisible.withLock { $0.toggle() }
     state.showMoreButtons = false
     return .send(.delegate(.effectsVisibilityChanged(state.effectsPanelVisible)))
   }
@@ -356,7 +362,7 @@ extension ToolBar {
   }
 
   private func toggleTagsListVisibility(_ state: inout State) -> Effect<Action> {
-    state.tagsListVisible.toggle()
+    state.$tagsListVisible.withLock { $0.toggle() }
     state.showMoreButtons = false
     return .send(.delegate(.tagsListVisibilityChanged(state.tagsListVisible)))
   }
