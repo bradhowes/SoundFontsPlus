@@ -37,17 +37,25 @@ public struct AppRoot {
   @Reducer
   @frozen
   public enum Destination {
+    /// General informational alert. Includes confirmation dialogs.
     case alert(AlertState<Alert>)
+    /// Panel that shows the change log for the app.
     case changes(Changes)
+    /// Panel that shows the preset editor.
     case presetEditor(PresetEditor)
+    /// Panel that edits the settings for the app.
     case settings(Settings)
+    /// Panel that shows the soundfont metadata editor.
     case soundFontEditor(SoundFontEditor)
+    /// Panel that shows the tags editor
     case tagsEditor(TagsEditor)
+    /// Panel that shows the tutorial screens for the app.
     case tutorial(Tutorial)
 
     @CasePathable
     @frozen
     public enum Alert {
+      /// Confirm request to reinitialize the database, removing all customizations.
       case reinitializeConfirmed
     }
   }
@@ -76,7 +84,7 @@ public struct AppRoot {
     @Shared(.effectsPanelVisible) public var effectsPanelVisible
 
     /**
-     Constructur for main app.
+     Constructor for main app.
      */
     public init(
       appReview: AppReview.State? = nil,
@@ -124,10 +132,6 @@ public struct AppRoot {
       } else if Changes.shouldShow {
         showChanges()
       }
-
-      // Deep-linking to a destination at start up for dev/testing
-      //
-      // destination = .settings(SettingsFeature.State(midi: midi, midiMonitor: midiMonitor))
     }
 
     static public func makeFontsAndPresetsSplitState() -> SplitViewReducer.State {

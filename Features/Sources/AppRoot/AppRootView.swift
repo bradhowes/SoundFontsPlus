@@ -25,6 +25,9 @@ public struct AppRootView: View {
 
   private let dividerBorderColor: Color = .splitViewHandleBackgroundColor
   private let dividerSpan: CGFloat = 2
+  private let effectsHeight: CGFloat = 110.0
+  private var effectsViewHeight: CGFloat { effectsHeight + dividerSpan * 4 }
+
   @State private var isInputKeyboardVisible = false
   @State private var effectsOffset: CGFloat = 0.0
 
@@ -83,8 +86,8 @@ public struct AppRootView: View {
 #if os(iOS)
     .onReceive(keyboardVisibilityPublisher) { state in
       isInputKeyboardVisible = state
-      // If restoring display of the virtual music keyboard, scroll to the active preset
-      // since it could become hidden by the keyboard.
+      // If restoring display after showing the iOS input keyboard, scroll to the active preset since it may have become hidden
+      // by the geometry changes when hiding the music keyboard.
       if !state {
         store.scope(state: \.presetsList, action: \.presetsList).send(.showPresetDelayed(store.presetsList.activePresetId ?? -1))
       }
@@ -201,10 +204,7 @@ extension AppRootView {
   }
 
   fileprivate var effectsView: some View {
-    let effectsHeight = 110.0
-    let viewHeight = effectsHeight + dividerSpan * 4
-
-    return VStack(alignment: .leading, spacing: 0) {
+    VStack(alignment: .leading, spacing: 0) {
       ScrollView(.horizontal) {
         HStack(spacing: 0) {
           ReverbEffectView(store: store.scope(state: \.reverbEffect, action: \.reverbEffect))
@@ -222,9 +222,9 @@ extension AppRootView {
       dividerBorderColor
         .frame(height: dividerSpan)
     }
-    .frame(height: store.effectsPanelVisible ? viewHeight : 0.0)
+    .frame(height: store.effectsPanelVisible ? effectsViewHeight : 0.0)
     .frame(maxWidth: .infinity)
-    .offset(y: store.effectsPanelVisible ? 0.0 : viewHeight / 2 + dividerSpan * 2)
+    .offset(y: store.effectsPanelVisible ? 0.0 : effectsViewHeight / 2 + dividerSpan * 2)
   }
 
   fileprivate var keyboardView: some View {

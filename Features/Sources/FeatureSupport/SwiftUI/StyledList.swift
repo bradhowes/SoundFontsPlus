@@ -2,6 +2,11 @@
 
 import SwiftUI
 
+/**
+ Custom view that presents content in a SwiftUI `List` view with desired styling.
+
+ This container is used to show the soundfonts, presets, and tags.
+ */
 public struct StyledList<Content: View>: View {
   private let content: Content
 
@@ -33,6 +38,11 @@ public struct StyledList<Content: View>: View {
 #endif // os(macOS)
 }
 
+/**
+ Custom view that presents an item in a ``StyledList`` view with desired styling.
+
+ Currently, there are no customizations being applied to the content.
+ */
 public struct StyledEntry<Content: View>: View {
   private let content: Content
 
@@ -45,6 +55,11 @@ public struct StyledEntry<Content: View>: View {
   }
 }
 
+/**
+ Custom view that presents a header in a sectioned list.
+
+ The presets list view has multiple sections; the soundfonts and tags list views only have one that serves as the title.
+ */
 public struct StyledHeader<Content: View>: View {
   private let content: Content
 
@@ -55,17 +70,14 @@ public struct StyledHeader<Content: View>: View {
   public var body: some View {
     content
       .frame(maxWidth: .infinity, alignment: .leading)
-      // .contentShape(Rectangle())
-      // .padding([.top, .bottom, .leading], 8)
-      // .background(.black)
       .foregroundStyle(Color.listHeaderText)
-      // .offset(x: -16)
   }
 }
 
 #if DEBUG
 
 #Preview {
+  @Previewable @State var selected = 0
   StyledList {
     ForEach(0...5, id: \.self) { section in
       Section {
@@ -73,12 +85,12 @@ public struct StyledHeader<Content: View>: View {
         ForEach(entries, id: \.self) { entry in
           StyledEntry {
             HStack {
-              Text("Hello \(entry)")
-                .indicator(.active)
+              Button("Hello \(entry)") { selected = entry }
               Spacer()
               Text("\(entry)")
             }
           }
+          .indicator(entry == selected ? .active : .none)
         }
       } header: {
         StyledHeader { Text("Section \(section)") }

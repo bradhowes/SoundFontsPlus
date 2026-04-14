@@ -21,7 +21,7 @@ public func navigationBarTitleStyle() {
 #if os(iOS)
 
   // If the app font is not available, attempt to load it manually so that snapshot tests will use it.
-  if UIFont(name: "Eurostile", size: 30) == nil {
+  if UIFont(name: Font.applicationFontName, size: 30) == nil {
     installApplicationFont()
   }
 

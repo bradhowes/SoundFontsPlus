@@ -3,7 +3,7 @@
 import Sharing
 import SwiftUI
 
-struct DarkModeViewModifier: ViewModifier {
+struct ColorSchemeViewModifier: ViewModifier {
   @Shared(.colorSchemeBehavior) var colorSchemeBehavior
 
   public func body(content: Content) -> some View {
@@ -14,7 +14,7 @@ struct DarkModeViewModifier: ViewModifier {
 
 extension View {
 
-  public func darkMode() -> some View {
-    self.modifier(DarkModeViewModifier())
+  public func useColorScheme() -> some View {
+    self.modifier(ColorSchemeViewModifier())
   }
 }

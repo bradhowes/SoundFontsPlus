@@ -47,7 +47,7 @@ private struct Demo: View {
 
   var body: some View {
     Section(header: Text("Name")) {
-      TextField("Display Name", text: $text)
+      NameFieldView(text: $text, readOnly: false)
         .clearButton { text = "" }
 #if os(iOS)
         .textInputAutocapitalization(.never)

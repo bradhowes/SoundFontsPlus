@@ -216,7 +216,7 @@ struct AppRootTests {
       #expect(tagsListVisible == false)
       #expect(fontsAndTagsSplitPosition == 0.4)
       await store.send(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: .both, position: 0.5)) {
-        $0.toolBar.tagsListVisible.toggle()
+        $0.toolBar.$tagsListVisible.withLock { $0.toggle() }
       }
       #expect(tagsListVisible == true)
       #expect(fontsAndTagsSplitPosition == 0.5)
@@ -389,9 +389,13 @@ struct AppRootTests {
   @Test
   func effectsVisibilityChanged() async throws {
     try await initialized { store in
-      await store.send(\.toolBar.delegate.effectsVisibilityChanged, true)
+      await store.send(\.toolBar.delegate.effectsVisibilityChanged, true) {
+        $0.toolBar.$effectsPanelVisible.withLock { $0 = true }
+      }
       #expect(effectsPanelVisible == true)
-      await store.send(\.toolBar.delegate.effectsVisibilityChanged, false)
+      await store.send(\.toolBar.delegate.effectsVisibilityChanged, false) {
+        $0.toolBar.$effectsPanelVisible.withLock { $0 = false }
+      }
       #expect(effectsPanelVisible == false)
     }
   }
@@ -420,12 +424,16 @@ struct AppRootTests {
   @Test
   func tagsListVisibilityChanged() async throws {
     try await initialized { store in
-      await store.send(\.toolBar.delegate.tagsListVisibilityChanged, true)
+      await store.send(\.toolBar.delegate.tagsListVisibilityChanged, true) {
+        $0.toolBar.$tagsListVisible.withLock { $0 = true }
+      }
       await store.receive(\.fontsAndTagsSplit.updatePanesVisibility, .init(rawValue: 3)) {
         $0.fontsAndTagsSplit.panesVisible = .init(rawValue: 3)
       }
       await store.receive(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: .init(rawValue: 3), position: 0.4))
-      await store.send(\.toolBar.delegate.tagsListVisibilityChanged, false)
+      await store.send(\.toolBar.delegate.tagsListVisibilityChanged, false) {
+        $0.toolBar.$tagsListVisible.withLock { $0 = false }
+      }
       await store.receive(\.fontsAndTagsSplit.updatePanesVisibility, .init(rawValue: 1)) {
         $0.fontsAndTagsSplit.panesVisible = .init(rawValue: 1)
       }

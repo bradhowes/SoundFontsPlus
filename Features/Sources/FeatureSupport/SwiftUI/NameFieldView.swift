@@ -26,8 +26,8 @@ public struct NameFieldView: View {
     textField
       .disabled(readOnly || isEditing)
       .deleteDisabled(readOnly)
-      .foregroundStyle(editable ? .white : .secondary)
-      .font(Font.custom("Eurostile", size: 20))
+      .foregroundStyle(editable ? .primary : .secondary)
+      .font(Font.custom(Font.applicationFontName, size: 20))
   }
 
   @ViewBuilder

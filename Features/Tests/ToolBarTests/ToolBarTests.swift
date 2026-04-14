@@ -96,7 +96,7 @@ struct ToolBarTests {
     #expect(store.state.effectsPanelVisible == initValue)
 
     await store.send(.effectsVisibilityButtonTapped) {
-      $0.effectsPanelVisible.toggle()
+      $0.$effectsPanelVisible.withLock { $0.toggle() }
     }
 
     await store.receive(\.delegate.effectsVisibilityChanged, !initValue)
@@ -106,7 +106,7 @@ struct ToolBarTests {
     }
 
     await store.send(.effectsVisibilityButtonTapped) {
-      $0.effectsPanelVisible.toggle()
+      $0.$effectsPanelVisible.withLock { $0.toggle() }
       $0.showMoreButtons = false
     }
 
@@ -400,12 +400,12 @@ struct ToolBarTests {
     #expect(store.state.tagsListVisible == initValue)
 
     await store.send(.tagsListVisibilityButtonTapped) {
-      $0.tagsListVisible.toggle()
+      $0.$tagsListVisible.withLock { $0.toggle() }
     }
     await store.receive(\.delegate.tagsListVisibilityChanged, !initValue)
 
     await store.send(.tagsListVisibilityButtonTapped) {
-      $0.tagsListVisible.toggle()
+      $0.$tagsListVisible.withLock { $0.toggle() }
     }
     await store.receive(\.delegate.tagsListVisibilityChanged, initValue)
 

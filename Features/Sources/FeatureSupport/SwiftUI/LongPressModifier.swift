@@ -2,10 +2,19 @@
 
 import SwiftUI
 
+/**
+ Custom view modifier for long-press gesture that also supports other gestures such as taps.
+ */
 public struct SimultaneousLongPressGestureModifier: ViewModifier {
   private let minimumDuration: Double
   private let action: () -> Void
 
+  /**
+   Configure long-press gesture to call `action` after `minimumDuration` seconds have passed while pressed.
+
+   - parameter minimumDuration: the duration of the gesture
+   - parameter action: the closure to invoke
+   */
   public init(minimumDuration: Double, action: @escaping () -> Void) {
     self.minimumDuration = minimumDuration
     self.action = action
@@ -18,6 +27,14 @@ public struct SimultaneousLongPressGestureModifier: ViewModifier {
 }
 
 extension View {
+
+  /**
+   Add a simultaneous long-press gesture to a view.
+
+   - parameter minimumDuration: the duration of the long press required to invoke the action
+   - parameter action: the closure to invoke
+   - returns: the modified view
+   */
   public func withLongPressGesture(minimumDuration: Double = 0.75, _ action: @escaping () -> Void) -> some View {
     modifier(SimultaneousLongPressGestureModifier(minimumDuration: minimumDuration, action: action))
   }
@@ -40,9 +57,6 @@ struct LongPressGestureModifierPreview: View {
 
   func setMsg(_ value: String) {
     self.msg = value
-    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-      self.msg = ""
-    }
   }
 }
 

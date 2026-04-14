@@ -7,6 +7,12 @@ import Sharing
 import SQLiteData
 import SwiftUI
 
+/**
+ Entry point for the main app.
+
+ Creates the top-level ``AppRoot`` feature up front in order to ensure that all dependencies are properly initialized before being
+ used. There are checks to ensure that this is *not* done when testing so that tests will instead use test dependencies.
+ */
 @main
 struct SoundFontsPlusApp: App {
 
@@ -29,6 +35,8 @@ struct SoundFontsPlusApp: App {
   }
 
   var body: some Scene {
+    // NOTE: WindowGroup will be evaluated multiple times when starting up, so it is critical that `store` be initialized once and
+    // reused with new `ContentView` instances.
     WindowGroup {
       if isTesting {
         EmptyView()
@@ -37,23 +45,17 @@ struct SoundFontsPlusApp: App {
         ZStack {
           colorSchemeBehavior.rootBackgroundColor
             .ignoresSafeArea()
-          ContentView()
+          // swiftlint:disable:next force_unwrapping
+          AppRootView(store: SoundFontsPlusApp.store!)
+#if os(iOS)
+          // We don't want to mistake music keyboard activity for iOS app switching or other system gestures
+            .defersSystemGestures(on: [.bottom, .leading, .trailing])
+#endif
         }
         .tint(.mainAccentColor)
         .environment(\.font, FeatureSupport.Font.body)
-        .darkMode()
+        .useColorScheme()
       }
     }
-  }
-}
-
-struct ContentView: View {
-  var body: some View {
-    // swiftlint:disable:next force_unwrapping
-    AppRootView(store: SoundFontsPlusApp.store!)
-#if os(iOS)
-    // We don't want to mistake music keyboard activity for iOS app switching or other system gestures
-      .defersSystemGestures(on: [.bottom, .leading, .trailing])
-#endif
   }
 }
