@@ -225,6 +225,7 @@ extension AppRootView {
     .frame(height: store.effectsPanelVisible ? effectsViewHeight : 0.0)
     .frame(maxWidth: .infinity)
     .offset(y: store.effectsPanelVisible ? 0.0 : effectsViewHeight / 2 + dividerSpan * 2)
+    .opacity(store.effectsPanelVisible ? 1.0 : 0.0)
   }
 
   fileprivate var keyboardView: some View {
