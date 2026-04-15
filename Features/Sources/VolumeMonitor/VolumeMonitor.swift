@@ -1,7 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import FeatureSupport
-import SwiftToasts
 
 /**
  Monitor the volume setting for the active audio session. When the volume setting is zero or the active preset ID is

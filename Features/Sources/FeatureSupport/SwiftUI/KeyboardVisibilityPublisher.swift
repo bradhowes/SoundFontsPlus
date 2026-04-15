@@ -26,7 +26,7 @@ extension KeyboardVisibilityPublisher {
         .publisher(for: UIResponder.keyboardWillShowNotification)
         .map { _ in true },
       NotificationCenter.default
-        .publisher(for: UIResponder.keyboardDidHideNotification)
+        .publisher(for: UIResponder.keyboardWillHideNotification)
         .removeDuplicates()
         .map { _ in false }
     )

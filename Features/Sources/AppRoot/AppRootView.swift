@@ -28,7 +28,7 @@ public struct AppRootView: View {
   private let effectsHeight: CGFloat = 110.0
   private var effectsViewHeight: CGFloat { effectsHeight + dividerSpan * 4 }
 
-  @State private var isInputKeyboardVisible = false
+  @State private var isTextInputKeyboardVisible = false
   @State private var effectsOffset: CGFloat = 0.0
 
   // @Shared(.effectsPanelVisible) private var effectsPanelVisible
@@ -44,7 +44,7 @@ public struct AppRootView: View {
   }
 
   private var keyboardHeight: CGFloat {
-    isInputKeyboardVisible
+    isTextInputKeyboardVisible
       ? 1.0
       : maxKeyboardPanelHeight * (verticalSizeClass == .compact ? 0.5 : 1.0)
   }
@@ -75,7 +75,7 @@ public struct AppRootView: View {
     }
     .padding(0)
     .animation(.smooth, value: store.effectsPanelVisible)
-    .animation(.smooth, value: isInputKeyboardVisible)
+    .animation(.smooth, value: isTextInputKeyboardVisible)
     .environment(\.auv3ControlsTheme, theme)
     .onChange(of: scenePhase) { _, newPhase in
       store.send(.scenePhaseChanged(newPhase))
@@ -85,7 +85,7 @@ public struct AppRootView: View {
     }
 #if os(iOS)
     .onReceive(keyboardVisibilityPublisher) { state in
-      isInputKeyboardVisible = state
+      isTextInputKeyboardVisible = state
       // If restoring display after showing the iOS input keyboard, scroll to the active preset since it may have become hidden
       // by the geometry changes when hiding the music keyboard.
       if !state {
@@ -199,7 +199,10 @@ extension AppRootView {
       ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar), isAUv3: false)
       dividerBorderColor
         .frame(height: dividerSpan)
-      keyboardView
+      if !isTextInputKeyboardVisible {
+        KeyboardView(store: store.scope(state: \.keyboard, action: \.keyboard))
+          .transition(.scale.combined(with: .move(edge: .bottom)))
+      }
     }
   }
 
@@ -226,12 +229,6 @@ extension AppRootView {
     .frame(maxWidth: .infinity)
     .offset(y: store.effectsPanelVisible ? 0.0 : effectsViewHeight / 2 + dividerSpan * 2)
     .opacity(store.effectsPanelVisible ? 1.0 : 0.0)
-  }
-
-  fileprivate var keyboardView: some View {
-    KeyboardView(store: store.scope(state: \.keyboard, action: \.keyboard))
-      .frame(height: keyboardHeight)
-      .opacity(isInputKeyboardVisible ? 0.0 : 1.0)
   }
 }
 

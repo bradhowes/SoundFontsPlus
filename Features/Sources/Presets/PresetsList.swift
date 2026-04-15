@@ -13,7 +13,7 @@ import SQLiteData
 public struct PresetsList {
   public static var groupingSize: Int { 20 } // New section ever 20 presets
   public static var searchGroupingSize: Int { 10_000 } // When searching, just one very large group
-  public static var delayBeforeShowingActivePreset: Duration { .milliseconds(200) }
+  public static var delayBeforeShowingActivePreset: Duration { .milliseconds(500) }
 
   @Reducer
   public enum Destination {
