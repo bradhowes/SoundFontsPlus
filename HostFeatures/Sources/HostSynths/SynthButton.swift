@@ -5,6 +5,7 @@ import AUv3Controls
 import ComposableArchitecture
 import Foundation
 import HostSupport
+import OSLog
 import SwiftUI
 import TypedFullState
 
@@ -44,7 +45,7 @@ public struct SynthButton {
 
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
-      log.info("reduce \(action)")
+      log.action("SynthButton", action)
       switch action {
       case .activateButtonTapped: return activateButtonTapped(&state)
       case .deinitialize: return .merge(CancelId.allCases.map { .cancel(id: $0) })

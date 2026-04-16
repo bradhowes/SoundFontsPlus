@@ -6,13 +6,15 @@ import HostPresets
 import HostSettings
 import HostSupport
 import HostSynths
+import OSLog
 import SwiftUI
 import TypedFullState
 
 @Reducer
 public struct Root {
 
-  public static func prepareDependencies(subtype: String, manufacturer: String) {
+  @MainActor
+  public static func makeWithDependencies(subtype: String, manufacturer: String) -> StoreOf<Root> {
     @Shared(.componentSubtype) var componentSubtype
     $componentSubtype.withLock { $0 = subtype }
     @Shared(.componentManufacturer) var componentManufacturer
@@ -20,6 +22,10 @@ public struct Root {
     Dependencies.prepareDependencies {
       $0.componentDescription = .liveValue
       $0.presetsStore = .liveValue
+    }
+
+    return .init(initialState: .init()) {
+      Root()
     }
   }
 
@@ -32,7 +38,7 @@ public struct Root {
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
 
-    public var auv3sList: SynthList.State
+    public var synthsList: SynthsList.State
     public var presetsList: PresetsList.State
     public var songPlaying: Bool
     public let engine = AVAudioEngine()
@@ -40,9 +46,9 @@ public struct Root {
     @ObservationStateIgnored
     public var outstandingInstanceCount: Int
 
-    public init(instances: SynthList.State? = nil, presets: PresetsList.State? = nil) {
+    public init(instances: SynthsList.State? = nil, presets: PresetsList.State? = nil) {
       @Shared(.auv3InstanceCount) var auv3InstanceCount
-      self.auv3sList = instances ?? .init()
+      self.synthsList = instances ?? .init()
       self.presetsList = presets ?? .init()
       self.songPlaying = false
       self.outstandingInstanceCount = auv3InstanceCount
@@ -53,7 +59,7 @@ public struct Root {
     case binding(BindingAction<State>)
     case destination(PresentationAction<Destination.Action>)
     case initialize
-    case auv3sList(SynthList.Action)
+    case synthsList(SynthsList.Action)
     case noteButtonTapped
     case playButtonTapped
     case presetsList(PresetsList.Action)
@@ -63,20 +69,20 @@ public struct Root {
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
-    Scope(state: \.auv3sList, action: \.auv3sList) { SynthList() }
+    Scope(state: \.synthsList, action: \.synthsList) { SynthsList() }
     Scope(state: \.presetsList, action: \.presetsList) { PresetsList() }
 
     Reduce { state, action in
       switch action {
 
       case .binding: return .none
-      case .destination(.presented(.settings(.delegate(.accepted)))): return .send(.auv3sList(.initialize))
+      case .destination(.presented(.settings(.delegate(.configurationChanged)))): return .send(.synthsList(.initialize))
       case .destination: return .none
       case .initialize: return initialize(&state)
-      case .auv3sList(.delegate(.settingsButtonTapped)): return settingsButtonTapped(&state)
-      case .auv3sList(.delegate(.added(instance: let instance))): return instanceCreated(&state, instance: instance)
-      case .auv3sList(.delegate(.removed(instance: let instance))): return instanceRemoved(&state, instance: instance)
-      case .auv3sList: return .none
+      case .synthsList(.delegate(.settingsButtonTapped)): return settingsButtonTapped(&state)
+      case .synthsList(.delegate(.added(instance: let instance))): return instanceCreated(&state, instance: instance)
+      case .synthsList(.delegate(.removed(instance: let instance))): return instanceRemoved(&state, instance: instance)
+      case .synthsList: return .none
       case .noteButtonTapped: return playNote(&state)
       case .playButtonTapped: return playButtonTapped(&state)
       case .presetsList(.delegate(.presetActivated(let fullStates))): return presetActivated(&state, fullStates: fullStates)
@@ -111,7 +117,7 @@ extension Root {
   private func initialize(_ state: inout State) -> Effect<Action> {
     state.engine.connect(state.engine.mainMixerNode, to: state.engine.outputNode, format: AudioSession.audioFormat)
     return .merge(
-      .send(.auv3sList(.initialize)),
+      .send(.synthsList(.initialize)),
       .send(.presetsList(.initialize))
     )
   }
@@ -130,16 +136,16 @@ extension Root {
   private func playNote(_ state: inout State) -> Effect<Action> {
     updateAudioSession(active: true)
     startEngine(&state)
-    return .send(.auv3sList(.playNote))
+    return .send(.synthsList(.playNote))
   }
 
   private func presetActivated(_ state: inout State, fullStates: TypedFullStateCollection) -> Effect<Action> {
     log.info("presetActivated BEGIN")
     guard state.outstandingInstanceCount <= 0 else { return .none }
-    for index in 0..<max(fullStates.count, state.auv3sList.rows.count) {
+    for index in 0..<max(fullStates.count, state.synthsList.rows.count) {
       log.info("presetActivate - updating instance \(index)")
-      if index < state.auv3sList.rows.count {
-        let row = state.auv3sList.rows[index]
+      if index < state.synthsList.rows.count {
+        let row = state.synthsList.rows[index]
         let audioUnit = row.instance.audioUnit.auAudioUnit
         let typedFullState = index < fullStates.count ? fullStates[index] : nil
         log.info("presetActivated - before setting fullState - \(String(describing: typedFullState))")
@@ -189,7 +195,7 @@ extension Root {
     updateAudioSession(active: true)
     startEngine(&state)
     state.songPlaying = true
-    return .send(.auv3sList(.startLoops))
+    return .send(.synthsList(.startLoops))
   }
 
   @discardableResult
@@ -200,13 +206,13 @@ extension Root {
     if state.engine.isRunning {
       state.engine.stop()
     }
-    return .send(.auv3sList(.stopLoops))
+    return .send(.synthsList(.stopLoops))
   }
 
   private func updateActivePresetRequested(_ state: inout State) -> Effect<Action> {
     log.info("updateActivePresetRequested BEGIN")
     do {
-      let fullStates: TypedFullStateCollection = try state.auv3sList.rows.map {
+      let fullStates: TypedFullStateCollection = try state.synthsList.rows.map {
         try $0.instance.audioUnit.auAudioUnit.fullState?.asTypedAny()
       }
       log.info("updateActivePresetRequested END - \(fullStates)")
@@ -245,7 +251,7 @@ public struct RootView: View {
   public var body: some View {
     VStack(spacing: 16) {
       HStack(spacing: 16) {
-        AUv3sListView(store: store.scope(state: \.auv3sList, action: \.auv3sList))
+        AUv3sListView(store: store.scope(state: \.synthsList, action: \.synthsList))
         PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
       }
       Grid(horizontalSpacing: 16.0) {
@@ -254,7 +260,7 @@ public struct RootView: View {
             store.send(.playButtonTapped)
           } label: {
             Text(store.songPlaying ? "Stop Notes" : "Play Notes")
-          }.disabled(store.auv3sList.rows.isEmpty)
+          }.disabled(store.synthsList.rows.isEmpty)
 
           Button {
             store.send(.noteButtonTapped)
@@ -265,8 +271,8 @@ public struct RootView: View {
       }
       Group {
         if let activeAUv3,
-           let index = store.auv3sList.rows.index(id: activeAUv3) {
-          let instance = store.auv3sList.rows[index].instance
+           let index = store.synthsList.rows.index(id: activeAUv3) {
+          let instance = store.synthsList.rows[index].instance
           ZStack {
             Color.black
             AUv3View(instance: instance)
@@ -294,7 +300,7 @@ extension RootView {
 
   static var preview: some View {
     RootView(
-      store: Store(initialState: .init(instances: SynthList.State(), presets: PresetsList.State())) {
+      store: Store(initialState: .init(instances: SynthsList.State(), presets: PresetsList.State())) {
         Root()
       }
     ).safeAreaPadding(16)

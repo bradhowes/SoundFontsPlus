@@ -17,3 +17,7 @@ extension SharedKey where Self == AppStorageKey<UUID?>.Default {
 extension SharedKey where Self == AppStorageKey<Int>.Default {
   public static var auv3InstanceCount: Self { Self[.appStorage("auv3InstanceCount"), default: 1] }
 }
+
+extension SharedKey where Self == AppStorageKey<ColorSchemeBehavior>.Default {
+  public static var colorSchemeBehavior: Self { Self[.appStorage("colorSchemeBehavior"), default: .dark] }
+}

@@ -3,6 +3,7 @@
 @preconcurrency import AVFAudio.AVAudioEngine
 import Dependencies
 import DependenciesMacros
+import OSLog
 import Sharing
 
 public struct AudioGraph: Sendable {

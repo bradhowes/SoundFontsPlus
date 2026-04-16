@@ -2,6 +2,7 @@
 
 import ComposableArchitecture
 import Foundation
+import OSLog
 import Sharing
 import HostSupport
 import SwiftUI
@@ -41,7 +42,7 @@ public struct PresetButton {
 
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
-      log.info("reduce \(action)")
+      log.action("PresetButton", action)
       switch action {
       case .activateButtonTapped: return activateButtonTapped(&state)
       case .delegate: return .none

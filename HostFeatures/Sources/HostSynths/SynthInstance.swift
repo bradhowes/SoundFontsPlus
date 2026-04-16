@@ -6,6 +6,7 @@ import CoreAudioKit
 import Dependencies
 import Foundation
 import HostSupport
+import OSLog
 import SwiftUI
 import TypedFullState
 

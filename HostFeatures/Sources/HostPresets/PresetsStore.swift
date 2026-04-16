@@ -5,6 +5,7 @@ import DependenciesMacros
 import Foundation
 import IdentifiedCollections
 import HostSupport
+import OSLog
 
 @DependencyClient
 public struct PresetsStore: Sendable {

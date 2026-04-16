@@ -2,6 +2,7 @@
 
 import ComposableArchitecture
 import HostSupport
+import Sharing
 import SwiftUI
 
 @Reducer
@@ -11,12 +12,15 @@ public struct Settings {
   public struct State: Equatable {
     public var componentSubtype: String
     public var componentManufacturer: String
+    public var colorSchemeBehavior: ColorSchemeBehavior
 
     public init() {
       @Shared(.componentSubtype) var componentSubtype
       @Shared(.componentManufacturer) var componentManufacturer
+      @Shared(.colorSchemeBehavior) var colorSchemeBehavior
       self.componentSubtype = componentSubtype
       self.componentManufacturer = componentManufacturer
+      self.colorSchemeBehavior = colorSchemeBehavior
     }
   }
 
@@ -31,6 +35,7 @@ public struct Settings {
     public enum Delegate {
       case accepted
       case cancelled
+      case configurationChanged
     }
   }
 
@@ -63,13 +68,20 @@ extension Settings {
   private func accepted(_ state: inout State) -> Effect<Action> {
     @Shared(.componentSubtype) var componentSubtype
     @Shared(.componentManufacturer) var componentManufacturer
+    @Shared(.colorSchemeBehavior) var colorSchemeBehavior
 
-    $componentSubtype.withLock { $0 = state.componentSubtype }
-    $componentManufacturer.withLock { $0 = state.componentManufacturer }
-
+    $colorSchemeBehavior.withLock { $0 = state.colorSchemeBehavior }
+    let action: Action
+    if state.componentSubtype != componentSubtype || state.componentManufacturer != componentManufacturer {
+      $componentSubtype.withLock { $0 = state.componentSubtype }
+      $componentManufacturer.withLock { $0 = state.componentManufacturer }
+      action = .delegate(.configurationChanged)
+    } else {
+      action = .delegate(.accepted)
+    }
     return .run { send in
       @Dependency(\.dismiss) var dismiss
-      await send(.delegate(.accepted))
+      await send(action)
       await dismiss()
     }
   }
@@ -82,6 +94,9 @@ extension Settings {
     }
   }
 }
+
+extension Settings.Action: Sendable {}
+extension Settings.Action.Delegate: Sendable {}
 
 public struct SettingsView: View {
   @Bindable private var store: StoreOf<Settings>
@@ -126,6 +141,28 @@ public struct SettingsView: View {
           Text(manufacturerIssue)
             .foregroundStyle(.red)
         }
+        VStack(alignment: .leading, spacing: 8) {
+          HStack {
+            Text("Color scheme")
+            Spacer()
+            Picker(
+              selection: $store.colorSchemeBehavior
+            ) {
+              ForEach(ColorSchemeBehavior.allCases) { kind in
+                Text(kind.rawValue)
+              }
+            } label: {
+              Text("")
+            }
+            .pickerStyle(.segmented)
+          }
+          Text(
+"""
+The color scheme can track the device's setting, or it can be fixed to a constant scheme.
+"""
+          )
+          .font(.footnote)
+        }
         .navigationTitle("Settings")
         .toolbar {
           ToolbarItem(placement: .cancellationAction) {
@@ -141,6 +178,7 @@ public struct SettingsView: View {
         }
       }
     }
+    .useColorScheme() // TODO: find better approach for updating colorScheme when colorSchemeBehavior changes
   }
 
   private func validateField(_ value: inout String) -> String {

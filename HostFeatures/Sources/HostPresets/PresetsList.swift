@@ -5,6 +5,7 @@ import ComposableArchitecture
 import Dependencies
 import DependenciesMacros
 import HostSupport
+import OSLog
 import SwiftUI
 import TypedFullState
 
@@ -50,7 +51,7 @@ public struct PresetsList {
   public var body: some ReducerOf<Self> {
 
     Reduce { state, action in
-      log.info("reduct \(action)")
+      log.action("PressetsList", action)
       switch action {
 
       case .addButtonTapped: return addButtonTapped(&state)
@@ -129,7 +130,7 @@ extension PresetsList {
     id: PresetButton.State.ID,
     action: PresetButton.Action.Delegate
   ) -> Effect<Action> {
-    log.info("processRowAction BEGIN - \(action)")
+    log.action("processRowAction", action)
     switch action {
     case .activate(fullStates: let fullStates): return .send(.delegate(.presetActivated(fullStates: fullStates)))
     case .delete(id: let id): state.rows.remove(id: id)
@@ -176,7 +177,7 @@ public struct PresetsListView: View {
         Button {
           store.send(.saveButtonTapped)
         } label: {
-          Image(systemName: "square.and.arrow.down")
+          Text("Save")
         }
         .disabled(store.rows.isEmpty)
         Button {

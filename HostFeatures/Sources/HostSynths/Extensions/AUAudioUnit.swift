@@ -2,6 +2,7 @@
 
 import AVFAudio
 import HostSupport
+import OSLog
 
 extension AUAudioUnit {
 

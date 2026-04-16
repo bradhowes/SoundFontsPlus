@@ -4,11 +4,12 @@ import AudioToolbox
 import ComposableArchitecture
 import Sharing
 import HostSupport
+import OSLog
 import SwiftUI
 import TypedFullState
 
 @Reducer
-public struct SynthList {
+public struct SynthsList {
 
   @ObservableState
   public struct State: Equatable {
@@ -43,7 +44,7 @@ public struct SynthList {
   public var body: some ReducerOf<Self> {
 
     Reduce { state, action in
-      log.info("reduce \(action)")
+      log.action("SynthsList", action)
       switch action {
 
       case .addButtonTapped: return addButtonTapped(&state)
@@ -64,7 +65,7 @@ public struct SynthList {
   }
 }
 
-extension SynthList {
+extension SynthsList {
 
   private func addButtonTapped(_ state: inout State) -> Effect<Action> {
     log.info("addButtonTapped BEGIN")
@@ -82,11 +83,15 @@ extension SynthList {
   private func initialize(_ state: inout State) -> Effect<Action> {
     @Shared(.auv3InstanceCount) var auv3InstanceCount
     log.info("initialize BEGIIN - \(auv3InstanceCount)")
-    return .merge(
+    return .concatenate(
       // Remove any existing instances -- for when settings change
-      state.rows.elements.map { .send(.delegate(.removed(instance: $0.instance))) } +
+      state.rows.elements.map {
+        .send(.delegate(.removed(instance: $0.instance)))
+      } +
       // Create new instances
-      (0..<(auv3InstanceCount - state.rows.count)).map { _ in makeInstance(&state) }
+      (0..<(auv3InstanceCount - state.rows.count)).map {
+        _ in makeInstance(&state)
+      }
     )
   }
 
@@ -129,7 +134,7 @@ extension SynthList {
     id: SynthButton.State.ID,
     action: SynthButton.Action.Delegate
   ) -> Effect<Action> {
-    log.info("processRowAction BEGIN - \(action)")
+    log.action("processRowAction", action)
     switch action {
 
     case .deleteRequested(id: let id):
@@ -151,9 +156,9 @@ extension SynthList {
 // MARK: - View
 
 public struct AUv3sListView: View {
-  @State private var store: StoreOf<SynthList>
+  @State private var store: StoreOf<SynthsList>
 
-  public init(store: StoreOf<SynthList>) {
+  public init(store: StoreOf<SynthsList>) {
     self.store = store
   }
 
@@ -194,7 +199,7 @@ extension AUv3sListView {
       $auv3InstanceCount.withLock { $0 = 3 }
 
       return VStack {
-        AUv3sListView(store: Store(initialState: .init()) { SynthList() })
+        AUv3sListView(store: Store(initialState: .init()) { SynthsList() })
       }
     }
   }
