@@ -112,6 +112,7 @@ public struct PresetEditor {
 
   public init() {}
 
+  @Dependency(\.dismiss) var dismiss
   @Shared(.confirmPresetHiding) private var confirmPresetHiding
 
   public var body: some ReducerOf<Self> {
@@ -185,8 +186,7 @@ extension PresetEditor {
     if save {
       state.save()
     }
-    @Dependency(\.dismiss) var dismiss
-    return .run { _ in await dismiss() }
+    return .run { [dismiss] _ in await dismiss() }
   }
 
   private func gainSliderChanged(_ state: inout State) -> Effect<Action> {

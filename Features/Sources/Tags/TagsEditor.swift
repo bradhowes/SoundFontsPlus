@@ -121,6 +121,7 @@ public struct TagsEditor {
   }
 
   @Dependency(\.defaultDatabase) private var database
+  @Dependency(\.dismiss) var dismiss
   @Shared(.hideEmptyTags) private var hideEmptyTags
 
   public var body: some ReducerOf<Self> {
@@ -250,8 +251,7 @@ private extension TagsEditor {
     if save {
       state.save()
     }
-    @Dependency(\.dismiss) var dismiss
-    return .run { _ in await dismiss() }
+    return .run { [dismiss] _ in await dismiss() }
   }
 
   func finalizeDeleteTag(_ state: inout State, rowId: Int) -> Effect<Action> {

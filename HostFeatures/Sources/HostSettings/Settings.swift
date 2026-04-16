@@ -41,6 +41,8 @@ public struct Settings {
 
   public init() {}
 
+  @Dependency(\.dismiss) var dismiss
+
   public var body: some ReducerOf<Self> {
     BindingReducer()
 
@@ -79,16 +81,14 @@ extension Settings {
     } else {
       action = .delegate(.accepted)
     }
-    return .run { send in
-      @Dependency(\.dismiss) var dismiss
+    return .run { [dismiss] send in
       await send(action)
       await dismiss()
     }
   }
 
   private func cancelled(_ state: inout State) -> Effect<Action> {
-    return .run { send in
-      @Dependency(\.dismiss) var dismiss
+    return .run { [dismiss] send in
       await send(.delegate(.cancelled))
       await dismiss()
     }

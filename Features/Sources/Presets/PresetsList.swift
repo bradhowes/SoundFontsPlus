@@ -104,6 +104,9 @@ public struct PresetsList {
 
   public init() {}
 
+  @Dependency(\.continuousClock) var clock
+  @Dependency(\.fileManager) var fileManager
+
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce<State, Action> { state, action in
@@ -330,7 +333,6 @@ extension PresetsList {
   }
 
   private func selectPreset(_ state: inout State, preset: Preset, sectionId: PresetsListSection.State.ID) -> Effect<Action> {
-    @Dependency(\.fileManager) var fileManager
     guard let info = PresetLoadingInfo.for(id: preset.id) else { return .none }
     guard
       let kind = try? SoundFontKind(kind: info.kind, location: info.location, displayName: info.soundFontName),
@@ -358,8 +360,7 @@ extension PresetsList {
 
   private func showPresetDelayed(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
     log.info("showPreset BEGIN - presetId: \(presetId)")
-    return .run { send in
-      @Dependency(\.continuousClock) var clock
+    return .run { [clock] send in
       try await clock.sleep(for: Self.delayBeforeShowingActivePreset)
       if !Task.isCancelled {
         await send(.showPresetNow(presetId))

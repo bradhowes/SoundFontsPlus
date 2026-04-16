@@ -78,6 +78,7 @@ public struct Synth {
   @Dependency(\.audioSession) private var audioSession
   @Dependency(\.defaultDatabase) private var database
   @Dependency(\.avAudioUnitMIDIInstrumentGenerator) private var avAudioUnitGen
+  @Dependency(\.continuousClock) var clock
 
   @Shared(.backgroundProcessing) private var backgroundProcessing
   @Shared(.playSoundOnPresetChange) private var playSoundOnPresetChange
@@ -406,8 +407,7 @@ extension Synth {
       return .none
     }
 
-    return .run(priority: .utility, name: "playNote") { _ in
-      @Dependency(\.continuousClock) var clock
+    return .run(priority: .utility, name: "playNote") { [clock] _ in
       log.debug("sending note on")
       avAudioUnit.startNote(60, withVelocity: 127, onChannel: 0)
       try? await clock.sleep(for: Self.playNoteDurationMilliseconds)

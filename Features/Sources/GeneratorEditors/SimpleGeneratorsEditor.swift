@@ -50,6 +50,12 @@ public struct GeneratorsEditor {
 
   public init() {}
 
+  @Shared(.activeState) private var activeState
+  @Shared(.parameterTree) private var parameterTree
+  @Dependency(\.mainQueue) private var mainQueue
+  @Dependency(\.delayDevice) private var delayDevice
+  @Dependency(\.debounceDurations) private var debounceDurations
+
   public var body: some ReducerOf<Self> {
 
     Scope(state: \.enabled, action: \.enabled) { ToggleFeature() }
@@ -103,12 +109,6 @@ public struct GeneratorsEditor {
       }
     }
   }
-
-  @Shared(.activeState) private var activeState
-  @Shared(.parameterTree) private var parameterTree
-  @Dependency(\.mainQueue) private var mainQueue
-  @Dependency(\.delayDevice) private var delayDevice
-  @Dependency(\.debounceDurations) private var debounceDurations
 
   private enum CancelId: String, CaseIterable {
     case generatorsEditorApplyConfigForPreset

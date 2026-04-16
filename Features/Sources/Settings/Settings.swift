@@ -154,6 +154,8 @@ public struct Settings {
 
   public init() {}
 
+  @Dependency(\.dismiss) var dismiss
+
   public var body: some ReducerOf<Self> {
     BindingReducer()
 
@@ -262,8 +264,7 @@ extension Settings {
   }
 
   private func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
-    @Dependency(\.dismiss) var dismiss
-    return .run { _ in await dismiss() }
+    return .run { [dismiss] _ in await dismiss() }
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {

@@ -48,6 +48,8 @@ public struct Tutorial {
 
   public init() {}
 
+  @Dependency(\.dismiss) var dismiss
+
   public var body: some ReducerOf<Self> {
     BindingReducer()
 
@@ -58,8 +60,7 @@ public struct Tutorial {
         return .none
 
       case .dismissButtonTapped:
-        @Dependency(\.dismiss) var dismiss
-        return .run { _ in await dismiss() }
+        return .run { [dismiss] _ in await dismiss() }
 
       case .next:
         state.page = state.page.next

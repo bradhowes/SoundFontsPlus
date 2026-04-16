@@ -63,6 +63,8 @@ public struct SoundFontButton {
 
   public init() {}
 
+  @Dependency(\.continuousClock) var clock
+
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
@@ -103,11 +105,10 @@ extension SoundFontButton {
 
   private func bookmarkMonitorStart(_ state: inout State) -> Effect<Action> {
     guard state.soundFontInfo.kind == .external else { return .none }
-    @Dependency(\.continuousClock) var clock
     return .run(
       priority: .utility,
       name: "bookmarkMonitor"
-    ) { [currentStatusInfoTag = state.statusInfoTag, soundFontInfo = state.soundFontInfo] send in
+    ) { [currentStatusInfoTag = state.statusInfoTag, soundFontInfo = state.soundFontInfo, clock] send in
       var statusInfoTag = currentStatusInfoTag
       while !Task.isCancelled {
         try await clock.sleep(for: .seconds(2))

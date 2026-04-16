@@ -241,7 +241,6 @@ extension SoundFontsList {
   }
 
   private func deleteSoundFontCollectionConfirmed(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
-    @Dependency(\.fileManager) var fileManager
     state.editingMode = .inactive
 
     let ids = soundFontInfos.map { $0.id }
@@ -275,8 +274,7 @@ extension SoundFontsList {
   }
 
   private func deleteSoundFont(_ state: inout State, soundFontInfo: SoundFontInfo) -> Destination.State? {
-    @Dependency(\.fileManager) var fileManager
-    guard let soundFont = SoundFont.with(id: soundFontInfo.id ) else {
+     guard let soundFont = SoundFont.with(id: soundFontInfo.id ) else {
       log.error("unexpected missing soundfont ID \(soundFontInfo.id)")
       return .alert(.genericDeleteFailure("Sound font ID \(soundFontInfo.id) was not found."))
     }

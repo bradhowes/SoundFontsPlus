@@ -41,6 +41,8 @@ public struct SynthsList {
 
   public init() {}
 
+  @Dependency(\.componentDescription) var componentDescription
+
   public var body: some ReducerOf<Self> {
 
     Reduce { state, action in
@@ -97,8 +99,7 @@ extension SynthsList {
 
   private func makeInstance(_ state: inout State) -> Effect<Action> {
     log.info("makeInstance BEGIN")
-    return .run { send in
-      @Dependency(\.componentDescription) var componentDescription
+    return .run { [componentDescription] send in
       let instance = try await SynthInstance.make(component: componentDescription)
       await send(.created(instance: instance))
       log.info("makeInstance END")

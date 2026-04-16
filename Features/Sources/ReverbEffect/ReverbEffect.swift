@@ -59,6 +59,11 @@ public struct ReverbEffect {
 
   public init() {}
 
+  @Dependency(\.continuousClock) var clock
+  @Dependency(\.mainQueue) private var mainQueue
+  @Dependency(\.reverbDevice) private var reverbDevice
+  @Dependency(\.debounceDurations) private var debounceDurations
+
   public var body: some ReducerOf<Self> {
 
     Scope(state: \.enabled, action: \.enabled) { ToggleFeature() }
@@ -104,10 +109,6 @@ public struct ReverbEffect {
       }
     }
   }
-
-  @Dependency(\.mainQueue) private var mainQueue
-  @Dependency(\.reverbDevice) private var reverbDevice
-  @Dependency(\.debounceDurations) private var debounceDurations
 
   private enum CancelId: String, CaseIterable {
     case reverbEffectApplyConfigForPreset
@@ -188,15 +189,14 @@ extension ReverbEffect {
   }
 
   private func runDebouncers(_ state: inout State) -> Effect<Action> {
-    @Dependency(\.continuousClock) var clock
     state.dirty = true
     let debounceDurations = self.debounceDurations
     return .merge(
-      .run { send in
+      .run { [clock] send in
         try await clock.sleep(for: debounceDurations.effectsDisplayUpdates)
         await send(.updateDebounced)
       }.cancellable(id: CancelId.reverbEffectUpdateDebouncer, cancelInFlight: true),
-      .run(priority: .utility) { send in
+      .run(priority: .utility) { [clock] send in
         try await clock.sleep(for: debounceDurations.effectsConfigurationSaves)
         await send(.saveDebounced)
       }.cancellable(id: CancelId.reverbEffectSaveDebouncer, cancelInFlight: true)

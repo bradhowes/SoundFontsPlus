@@ -84,6 +84,11 @@ public struct DelayEffect {
 
   public init() {}
 
+  @Dependency(\.continuousClock) var clock
+  @Dependency(\.mainQueue) private var mainQueue
+  @Dependency(\.delayDevice) private var delayDevice
+  @Dependency(\.debounceDurations) private var debounceDurations
+
   public var body: some ReducerOf<Self> {
 
     Scope(state: \.enabled, action: \.enabled) { ToggleFeature() }
@@ -138,10 +143,6 @@ public struct DelayEffect {
       }
     }
   }
-
-  @Dependency(\.mainQueue) private var mainQueue
-  @Dependency(\.delayDevice) private var delayDevice
-  @Dependency(\.debounceDurations) private var debounceDurations
 
   private enum CancelId: String, CaseIterable {
     case delayEffectApplyConfigForPreset
@@ -234,17 +235,16 @@ extension DelayEffect {
   }
 
   private func runDebouncers(_ state: inout State) -> Effect<Action> {
-    @Dependency(\.continuousClock) var clock
     state.dirty = true
     let debounceDurations = self.debounceDurations
     return .merge(
-      .run { send in
+      .run { [clock] send in
         defer { log.info("delayEffectUpdateDebouncer exit") }
         try await clock.sleep(for: debounceDurations.effectsDisplayUpdates)
         if Task.isCancelled { return }
         await send(.updateDebounced)
       }.cancellable(id: CancelId.delayEffectUpdateDebouncer, cancelInFlight: true),
-      .run(priority: .utility) { send in
+      .run(priority: .utility) { [clock] send in
         defer { log.info("delayEffectSaveDebouncer exit") }
         try await clock.sleep(for: debounceDurations.effectsConfigurationSaves)
         if Task.isCancelled { return }

@@ -53,10 +53,9 @@ public struct SoundFontEditor {
       (self.presetCount, self.favoriteCount, self.hiddenCount) = soundFont.elementCounts
     }
 
-    public mutating func save() {
+    public mutating func save(database: DatabaseWriter) {
       displayName = displayName.trimmed(or: soundFont.displayName)
       notes = notes.trimmed(or: soundFont.notes)
-      @Dependency(\.defaultDatabase) var database
       try? database.write { db in
         try SoundFont.update {
           $0.displayName = displayName
@@ -92,6 +91,9 @@ public struct SoundFontEditor {
   }
 
   public init() {}
+
+  @Dependency(\.dismiss) private var dismiss
+  @Dependency(\.defaultDatabase) var database
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -144,10 +146,9 @@ extension SoundFontEditor {
 
   private func dismiss(_ state: inout State, save: Bool) -> Effect<Action> {
     if save {
-      state.save()
+      state.save(database: database)
     }
-    @Dependency(\.dismiss) var dismiss
-    return .run { _ in await dismiss() }
+    return .run { [dismiss] _ in await dismiss() }
   }
 
   func editTags(_ state: inout State) -> Effect<Action> {

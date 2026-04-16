@@ -121,6 +121,7 @@ public struct ToolBar {
     }
   }
 
+  @Dependency(\.continuousClock) var clock
   @Shared(.showKeyNotes) private var showKeyNotes
   @Shared(.showSolfegeTags) private var showSolfegeTags
 
@@ -236,8 +237,7 @@ extension ToolBar {
   }
 
   private func clearTemporaryStatusTask(_ state: inout State) -> Effect<Action> {
-    .run { send in
-      @Dependency(\.continuousClock) var clock
+    .run { [clock] send in
       try await clock.sleep(for: Self.temporaryStatusDisplayDuration)
       if Task.isCancelled { return }
       await send(.clearTemporaryStatus, animation: .smooth)

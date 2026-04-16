@@ -48,6 +48,8 @@ public struct AppReview {
 
   public init() {}
 
+  @Dependency(\.date.now) private var now
+
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
@@ -60,8 +62,6 @@ public struct AppReview {
       }
     }
   }
-
-  @Dependency(\.date.now) private var now
 }
 
 extension AppReview {
@@ -77,7 +77,6 @@ extension AppReview {
   static var currentVersion: String { return Bundle.main.releaseVersionNumber }
 
   private func askForReview(_ state: inout State) -> Effect<Action> {
-    @Dependency(\.date.now) var now
     @Shared(.nextReviewRequestDate) var nextReviewRequestDate
     @Shared(.lastReviewRequestVersion) var lastReviewRequestVersion
 

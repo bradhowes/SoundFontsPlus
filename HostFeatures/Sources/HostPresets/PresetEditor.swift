@@ -33,6 +33,8 @@ public struct PresetEditor {
 
   public init() {}
 
+  @Dependency(\.dismiss) var dismiss
+
   public var body: some ReducerOf<Self> {
     BindingReducer()
 
@@ -58,16 +60,14 @@ public struct PresetEditor {
 extension PresetEditor {
 
   private func accepted(_ state: inout State) -> Effect<Action> {
-    return .run { [name = state.name] send in
-      @Dependency(\.dismiss) var dismiss
+    return .run { [name = state.name, dismiss] send in
       await send(.delegate(.accepted(name)))
       await dismiss()
     }
   }
 
   private func cancelled(_ state: inout State) -> Effect<Action> {
-    return .run { send in
-      @Dependency(\.dismiss) var dismiss
+    return .run { [dismiss] send in
       await send(.delegate(.cancelled))
       await dismiss()
     }
