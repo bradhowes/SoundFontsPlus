@@ -100,6 +100,35 @@ public struct AppRootView: View {
     }
     .toastStyle(.plain)
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
+    .helpItemSpotlight(
+      selection: $store.helpItemSelection,
+      orderedIDs: HelpItem.allCases
+    ) { id, actions in
+      spotlightCard(for: id, actions: actions)
+    }
+  }
+
+  private func spotlightCard(
+    for helpItem: HelpItem,
+    actions: HelpItemSpotlightActions
+  ) -> some View {
+    VStack(alignment: .leading, spacing: 16) {
+      Text(helpItem.title)
+        .font(.title3.weight(.bold))
+
+      Text(helpItem.message)
+        .foregroundStyle(.secondary)
+
+      HStack {
+        Button("Next") {
+          actions.advance()
+        }
+        .fontWeight(.semibold)
+      }
+    }
+    .padding(20)
+    .background(Color.panelBackgroundColor, in: .rect(cornerRadius: 28))
+    .shadow(color: .black.opacity(0.12), radius: 24, y: 12)
   }
 
   private func volumeMonitorToast(_ reason: VolumeMonitor.Reason) -> Toast {
@@ -142,9 +171,11 @@ extension AppRootView {
       },
       divider: {
         handleDivider
+          .helpItemTag(.fontsPresetsDivider)
       },
       secondary: {
         PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
+          .helpItemTag(.presetsList)
       }
     ).splitViewConfiguration(
       .init(
@@ -160,12 +191,15 @@ extension AppRootView {
       store: store.scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit),
       primary: {
         SoundFontsListView(store: store.scope(state: \.soundFontsList, action: \.soundFontsList))
+          .helpItemTag(.fontsList)
       },
       divider: {
         handleDivider
+          .helpItemTag(.fontsTagsDivider)
       },
       secondary: {
         TagsListView(store: store.scope(state: \.tagsList, action: \.tagsList))
+          .helpItemTag(.tagsList)
       }
     ).splitViewConfiguration(
       .init(
@@ -196,6 +230,7 @@ extension AppRootView {
       effectsView
         .knobValueEditor()
         .auv3ControlsTheme(theme)
+        .helpItemTag(.effectsPanel)
       ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar), isAUv3: false)
       dividerBorderColor
         .frame(height: dividerSpan)

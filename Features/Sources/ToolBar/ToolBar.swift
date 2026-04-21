@@ -112,6 +112,7 @@ public struct ToolBar {
     public enum Delegate: Equatable {
       case editingPresetVisibilityChanged(Bool)
       case effectsVisibilityChanged(Bool)
+      case helpButtonTapped
       case importFinished
       case panic
       case presetNameTapped
@@ -317,7 +318,7 @@ extension ToolBar {
   }
 
   private func showHelp(_ state: inout State) -> Effect<Action> {
-    return .none
+    return .send(.delegate(.helpButtonTapped))
   }
 
   private func showPanicStatus(_ state: inout State) -> Effect<Action> {

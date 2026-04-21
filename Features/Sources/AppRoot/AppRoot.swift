@@ -83,6 +83,8 @@ public struct AppRoot {
     public var avAudioUnit: AVAudioUnit?
     @Shared(.effectsPanelVisible) public var effectsPanelVisible
 
+    public var helpItemSelection: HelpItem?
+
     /**
      Constructor for main app.
      */
@@ -568,6 +570,10 @@ extension AppRoot {
       withAnimation(.smooth) {
         state.$effectsPanelVisible.withLock { $0 = visible }
       }
+      return .none
+
+    case .helpButtonTapped:
+      state.helpItemSelection = .fontsList
       return .none
 
     case .importFinished:
