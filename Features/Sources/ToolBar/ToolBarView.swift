@@ -192,7 +192,7 @@ public struct ToolBarView: View {
       store.send(.effectsVisibilityButtonTapped)
     } label: {
       Image(systemName: .effectsButtonImageName)
-        .tint(store.effectsPanelVisible ? Color.alternateAccentColor : Color.mainAccentColor)
+        .tint(if: store.effectsPanelVisible)
     }
     .helpItemTag(.effectsButton)
   }
@@ -202,6 +202,7 @@ public struct ToolBarView: View {
       store.send(.helpButtonTapped)
     } label: {
       Image(systemName: .helpButtonImageName)
+        .tint(Color.mainAccentColor)
     }
   }
 

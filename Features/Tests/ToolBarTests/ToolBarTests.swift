@@ -122,9 +122,8 @@ struct ToolBarTests {
   @Test
   func helpButtonTapped() async throws {
     let store = try await store()
-
     await store.send(.helpButtonTapped)
-
+    await store.receive(\.delegate.helpButtonTapped)
     await store.send(.deinitialize)
     await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
