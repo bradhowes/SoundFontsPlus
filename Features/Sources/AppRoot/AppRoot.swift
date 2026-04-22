@@ -177,6 +177,7 @@ public struct AppRoot {
     case activePresetIdChanged(Preset.ID?)
     case appReview(AppReview.Action)
     case audioUnitCrashed
+    case beginHelpSpotlight
     case binding(BindingAction<State>)
     case deinitialize
     case delayEffect(DelayEffect.Action)
@@ -232,6 +233,10 @@ public struct AppRoot {
 
       case .audioUnitCrashed:
         log.error("*** audioUnit crashed")
+        return .none
+
+      case .beginHelpSpotlight:
+        state.helpItemSelection = .fontsList
         return .none
 
       case .binding(\.helpItemSelection):
@@ -640,13 +645,17 @@ extension AppRoot {
     if !tagsListVisible {
       effects.append(.send(.toolBar(.tagsListVisibilityButtonTapped)))
     }
+
     if !state.toolBar.showMoreButtons {
       effects.append(.send(.toolBar(.showMoreButtonTapped)))
     }
 
-    withAnimation(.smooth) {
-      state.helpItemSelection = .fontsList
-    }
+    effects.append(
+      .run {send in
+        try await Task.sleep(for: .milliseconds(500))
+        await send(.beginHelpSpotlight)
+      }
+    )
 
     return .merge(effects)
 
