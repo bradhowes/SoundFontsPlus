@@ -6,7 +6,10 @@ import Sharing
 
 public enum HelpItem: String, CaseIterable {
   case fontsList
+  case fontsListHeader
   case presetsList
+  case presetsListHeader
+  case presetsListIndex
   case tagsList
   case fontsPresetsDivider
   case fontsTagsDivider
@@ -25,7 +28,10 @@ public enum HelpItem: String, CaseIterable {
   public var title: String {
     switch self {
     case .fontsList: return "Fonts"
+    case .fontsListHeader: return "Fonts Header"
     case .presetsList: return "Presets"
+    case .presetsListHeader: return "Presets Header"
+    case .presetsListIndex: return "Presets Index"
     case .tagsList: return "Tags"
     case .fontsPresetsDivider: return "Fonts/Presets Divider"
     case .fontsTagsDivider: return "Fonts/Tags Divider"
@@ -49,34 +55,108 @@ public enum HelpItem: String, CaseIterable {
     @Shared(.keyboardSlides) var keyboardSlides
 
     switch self {
-    case .fontsList: return "The list of available soundfont files. Swipe right or long-press to edit. Swipe left to delete."
+    case .fontsList:
+      return """
+List of available soundfont files. \
+Tap to see presets in a soundfont. \
+Swipe right or long-press to edit soundfont info. \
+Swipe left to delete.
+"""
+    case .fontsListHeader:
+      return """
+Double-tap on header to delete multiple soundfonts. \
+Tap on magnifier to search on soundfont names.
+"""
     case .presetsList:
-      return "The list of presets of the current soundfont. Swipe right to edit or favorite/duplicate. Swipe left to hide/delete."
-    case .tagsList: return "The list of tags used to filter visible soundfonts. Swipe right or long-press to edit."
-    case .fontsPresetsDivider: return "Drag left/right to adjust spacing between the soundfonts and presets lists."
-    case .fontsTagsDivider: return "Drag up/down to adjust spacing between the soundfonts and tags lists."
-    case .effectsPanel: return "Controls for the reverb and delay effects."
-    case .addButton: return "Add a new soundfont to your library."
-    case .tagsButton: return (tagsListVisible ? "Hide" : "Show") + " the tags list."
-    case .effectsButton: return (effectsPanelVisible ? "Hide" : "Show") + " the effects panel."
-    case .statusWindow: return "Shows the active preset. Double tap to cancel all notes."
-    case .shiftDownButton: return "Shifts the keyboard down to play lower notes."
+      return """
+The list of presets and favorites for the selected soundfont. \
+Tap to activate. \
+Swipe right to edit or make favorite/duplicate. Swipe left to hide or delete. \
+See options in Settings panel to change preset ordering.
+"""
+    case .presetsListHeader:
+      return """
+Tap on section header to show previous section header. \
+Double-tap to show first section. \
+Tap on magnifier to search on preset names.
+"""
+    case .presetsListIndex:
+      return """
+Tap to quickly scroll to preset section.
+"""
+    case .tagsList:
+      return """
+List of tags to filter visible soundfonts. \
+Swipe right or long-press to edit tags.
+"""
+    case .fontsPresetsDivider:
+      return """
+Divider between soundfonts and presets lists. \
+Drag left/right to adjust spacing given to each.
+"""
+    case .fontsTagsDivider:
+      return """
+Divider between soundfonts and tags lists. \
+Drag up or down to adjust spacing given to each. \
+Double-tap to hide tags list.
+"""
+    case .effectsPanel:
+      return """
+Controls for the reverb and delay effects. \
+Each preset/favorite can have its own effect settings. \
+Use the lock switch to keep same settings across preset changes.
+"""
+    case .addButton:
+      return """
+Add soundfont to your library. \
+Presents a file browser for selecting one or more files or an entire folder.
+"""
+    case .tagsButton:
+      return "Show or hide the tags list."
+    case .effectsButton:
+      return "Show or hide the effects panel."
+    case .statusWindow:
+      return """
+Shows the active preset. \
+Tap once to show the active preset. \
+Double tap to stop all playing notes, including any from a MIDI controller.
+"""
+    case .shiftDownButton:
+      return """
+Shifts the keyboard down to play lower notes.
+"""
     case .slideToggle:
-      return keyboardSlides ?
-      "Keyboard will slide with touch movements. Tap to disable." :
-      "Played notes change as touch moves. Tap to enable sliding."
-    case .shiftUpButton: return "Shifts the keyboard up to play higher notes."
-    case .editVisibilityButton: return "Edit the visibility of the presets of the current soundfont."
-    case .settingsButton: return "Opens the Settings panel."
-    case .moreButton: return "Show additional buttons in the tool bar."
+      return """
+Toggle how Keyboard behaves when touches move. \
+Slide mode will shift the keyboard as the touch moves. \
+Fixed mode will change the notes being played when the touches change keys.
+"""
+    case .shiftUpButton:
+      return """
+Shifts the keyboard up to play higher notes.
+"""
+    case .editVisibilityButton:
+      return """
+Quickly edit the visibility of the presets of the active soundfont via touch actions.
+"""
+    case .settingsButton:
+      return "Show the Settings panel."
+    case .moreButton:
+      return "Show additional buttons in the tool bar."
     }
   }
 }
 
 extension View {
 
+  /**
+   Attach a HelpItm value to a view.
+
+   - parameter id: the value to attach
+   - returns: modified view
+   */
   @inlinable
   public func helpItemTag(_ id: HelpItem) -> some View {
-    helpItemSpotlightSource(id: id)
+    helpItem(id: id)
   }
 }

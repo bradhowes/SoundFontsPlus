@@ -466,8 +466,8 @@ public struct SoundFontsListView: View {
       if searching {
         searchField
       }
-      StyledList {
-        Section {
+      Section {
+        StyledList {
           ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
             StyledEntry {
               SoundFontButtonView(
@@ -476,13 +476,15 @@ public struct SoundFontsListView: View {
               )
             }
           }
-        } header: {
-          StyledHeader {
-            sectionHeader
-          }
+        }
+      } header: {
+        StyledHeader {
+          sectionHeader
+            .helpItemTag(.fontsListHeader)
         }
       }
     }
+    .helpItemTag(.fontsList)
     .environment(\.editMode, $store.editingMode)
     .animation(.smooth, value: store.isSearchFieldPresented)
     .animation(.smooth, value: store.editingMode)

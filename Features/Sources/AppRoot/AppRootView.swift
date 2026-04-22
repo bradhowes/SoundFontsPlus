@@ -115,20 +115,32 @@ public struct AppRootView: View {
     VStack(alignment: .leading, spacing: 16) {
       Text(helpItem.title)
         .font(.title3.weight(.bold))
-
       Text(helpItem.message)
-        .foregroundStyle(.secondary)
-
+        // .foregroundStyle(.secondary)
       HStack {
-        Button("Next") {
-          actions.advance()
+        Button {
+          actions.previous()
+        } label: {
+          Image(systemName: "arrowshape.left.fill")
         }
-        .fontWeight(.semibold)
+        Spacer()
+        Button {
+          actions.next()
+        } label: {
+          Image(systemName: "arrowshape.right.fill")
+        }
       }
+      .fontWeight(.semibold)
     }
     .padding(20)
-    .background(Color.panelBackgroundColor, in: .rect(cornerRadius: 28))
-    .shadow(color: .black.opacity(0.12), radius: 24, y: 12)
+    .background {
+      RoundedRectangle(cornerRadius: 28)
+        .fill(colorScheme == .dark ? Color.black : Color.white)
+        // .stroke(.primary, lineWidth: 1)
+    }
+//    .animation(.smooth, value: helpItem.title)
+//    .animation(.smooth, value: helpItem.message)
+    // .shadow(color: .black.opacity(0.12), radius: 24, y: 12)
   }
 
   private func volumeMonitorToast(_ reason: VolumeMonitor.Reason) -> Toast {
@@ -175,7 +187,6 @@ extension AppRootView {
       },
       secondary: {
         PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
-          .helpItemTag(.presetsList)
       }
     ).splitViewConfiguration(
       .init(
@@ -191,7 +202,6 @@ extension AppRootView {
       store: store.scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit),
       primary: {
         SoundFontsListView(store: store.scope(state: \.soundFontsList, action: \.soundFontsList))
-          .helpItemTag(.fontsList)
       },
       divider: {
         handleDivider

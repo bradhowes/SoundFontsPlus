@@ -42,6 +42,9 @@ public struct ToolBarView: View {
     .animation(.easeInOut, value: store.showMoreButtons)
     .animation(.smooth, value: store.activeVoiceCount)
     .fileImporterFeature(store.scope(state: \.fileImporter, action: \.fileImporter))
+    .task {
+      await store.send(.initialize(horizontalSizeClass == .compact)).finish()
+    }
   }
 
   private var fullBar: some View {

@@ -418,9 +418,11 @@ public struct PresetsListView: View {
             )
           }
         }
+        .helpItemTag(HelpItem.presetsList)
         .overlay(alignment: .trailing) {
           if showPresetIndexView {
             sectionIndexTitlesOverlay
+              .helpItemTag(.presetsListIndex)
           }
         }
         .onChange(of: store.scrollToTarget) {

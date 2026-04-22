@@ -48,6 +48,7 @@ public struct ToolBar {
     public var preset: Preset?
     public var showMoreButtons: Bool
     @Shared(.tagsListVisible) public var tagsListVisible
+    public var hasMoreButton: Bool = false
 
     public init(
       activeVoiceCount: Int = 0,
@@ -96,6 +97,7 @@ public struct ToolBar {
     case effectsVisibilityButtonTapped
     case fileImporter(FileImporter.Action)
     case helpButtonTapped
+    case initialize(Bool)
     case midiTrafficIndicator(MIDITrafficIndicator.Action)
     case presetsVisibilityButtonTapped
     case settingsButtonTapped
@@ -170,6 +172,10 @@ public struct ToolBar {
       case .helpButtonTapped:
         return showHelp(&state)
 
+      case .initialize(let hasMoreButton):
+        state.hasMoreButton = hasMoreButton
+        return .none
+
       case .lastPlayedKeyChanged(let key):
         return lastPlayedKeyChanged(&state, key: key)
 
@@ -189,7 +195,7 @@ public struct ToolBar {
         return setVisibleKeyRange(&state, lowest: lowest, highest: highest)
 
       case .showMoreButtonTapped:
-        return toggleShowMoreButtons(&state)
+        return state.hasMoreButton ? toggleShowMoreButtons(&state) : .none
 
       case .slidingKeyboardButtonTapped:
         return slidingKeyboardButtonTapped(&state)

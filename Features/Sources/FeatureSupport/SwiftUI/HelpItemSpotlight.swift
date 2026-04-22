@@ -1,13 +1,19 @@
 // Copyright © 2026 Brad Howes. All rights reserved.
 //
-// Original code from: https://github.com/Livsy90/TutorialSpotlight
+// Based on code from: https://github.com/Livsy90/TutorialSpotlight
 
 import SwiftUI
 
 extension View {
-  /// Applies an onboarding spotlight overlay to a common parent view.
-  ///
-  /// Mark focusable elements with `tutorialSpotlightSource(id:)`.
+
+  /**
+   Adds a help item spotlight overlay to a view. Mark focusable elements with `helpItem(id:)` view modifier.
+
+   - parameter selection: binding to use to control activation of spotlight and the item to highlight.
+   - parameter orderedIDs: collection of unique values to cycle through to highlight.
+   - parameter spotlightPadding: padding to apply to the spotlight overlay
+   - parameter cornerRadius: corner radius to apply to the spotlight overlay
+   */
   public func helpItemSpotlight<ID: Hashable, Overlay: View>(
     selection: Binding<ID?>,
     orderedIDs: [ID],
@@ -16,7 +22,7 @@ extension View {
     @ViewBuilder overlay: @escaping (_ id: ID, _ actions: HelpItemSpotlightActions) -> Overlay
   ) -> some View {
     modifier(
-      HelpItemSpotlightContainerModifier(
+      HelpItemSpotlightModifier(
         selection: selection,
         orderedIDs: orderedIDs,
         spotlightPadding: spotlightPadding,
@@ -26,187 +32,204 @@ extension View {
     )
   }
 
-  /// Marks a view as a spotlight target.
-  public func helpItemSpotlightSource<ID: Hashable>(id: ID) -> some View {
-    modifier(HelpItemSpotlightSourceModifier(id: id))
+  /**
+   Assign a HelpItem value to a view.
+
+   - parameter id: the value to assign
+   - returns: modified view
+   */
+  public func helpItem<ID: Hashable>(id: ID) -> some View {
+    modifier(HelpItemModifier(id: id))
   }
 }
 
+/**
+ Collection of actions available in a help spotlight panel overlay.
+ */
 public struct HelpItemSpotlightActions {
   /// Closes the spotlight flow and removes the overlay.
   public let dismiss: () -> Void
-
-  /// Advances to the next spotlight item from `orderedIDs`.
-  public let advance: () -> Void
+  /// Move to the previous spotlight item in `orderedIDs`.
+  public let previous: () -> Void
+  /// Move to the next spotlight item in `orderedIDs`.
+  public let next: () -> Void
 }
 
-private struct HelpItemSpotlightSourceModifier<ID: Hashable>: ViewModifier {
-  let id: ID
+/**
+ Mapping of view help item ID tags and view bounds made available via SwiftUI preferences system.
+ */
+private struct HelpItemPreferenceKey<ID: Hashable>: PreferenceKey {
+  typealias Value = [ID: Anchor<CGRect>]
 
-  func body(content: Content) -> some View {
-    // Store the view bounds as an anchor so the container modifier can later
-    // resolve the highlighted frame inside its own geometry context.
-    content.anchorPreference(
-      key: HelpItemSpotlightPreferenceKey<ID>.self,
-      value: .bounds
-    ) { anchor in
-      [id: anchor]
-    }
+  static var defaultValue: Value { [:] }
+
+  static func reduce(value: inout Value, nextValue: () -> Value) {
+    value.merge(nextValue()) { (_, new) in new }
   }
 }
 
-private struct HelpItemSpotlightContainerModifier<ID: Hashable, Overlay: View>: ViewModifier {
-  @Binding var selection: ID?
+/**
+ View modifier that adds a help item preference value. Use `transformAnchorPreference` so that containers do not shadow
+ entities they hold. Since the default value is an empty dictionary, this is also safe to use for non-container views.
+ */
+private struct HelpItemModifier<ID: Hashable>: ViewModifier {
+  let id: ID
+  @Environment(\.helpSpotlightNamespace) private var namespace
 
+  func body(content: Content) -> some View {
+    content
+      .matchedGeometryEffect(id: id, in: namespace.id, properties: .frame, anchor: .center, isSource: true)
+      .transformAnchorPreference(key: HelpItemPreferenceKey<ID>.self, value: .bounds) {
+        $0[id] = $1
+      }
+  }
+}
+
+/**
+ View modifier that handles the display of a spotlight on a help item.
+ */
+private struct HelpItemSpotlightModifier<ID: Hashable, Overlay: View>: ViewModifier {
+  typealias Value = HelpItemPreferenceKey<ID>.Value
+
+  @Binding var selection: ID?
   let orderedIDs: [ID]
   let spotlightPadding: CGFloat
   let cornerRadius: CGFloat
   let overlay: (ID, HelpItemSpotlightActions) -> Overlay
+  let animationDuration = 0.8
 
-  // This is the animated spotlight frame currently shown on screen.
-  // It allows the cutout and border to move smoothly between targets.
-  @State private var currentFrame: CGRect = .zero
-
-  // The overlay card is measured during layout so its position can be computed
-  // from its actual rendered size rather than hardcoded dimensions.
   @State private var overlaySize: CGSize = .zero
+  @Namespace private var spotlightAnimation
+  @Environment(\.colorScheme) private var colorScheme
 
   func body(content: Content) -> some View {
-    ZStack {
-      content
-      // The content marks spotlight targets inside a named coordinate space.
-      // That gives us a stable local frame for every registered anchor.
-        .coordinateSpace(name: HelpItemSpotlightCoordinateSpace.name)
-    }
-    // Read all registered spotlight source anchors and build the fullscreen overlay
-    // on top of the original content.
-    .overlayPreferenceValue(HelpItemSpotlightPreferenceKey<ID>.self) { preferences in
+    content
+      .coordinateSpace(name: HelpItemSpotlightCoordinateSpace.name)
+      .helpItemSpotlightAnimationNamespace(spotlightAnimation)
+    .overlayPreferenceValue(HelpItemPreferenceKey<ID>.self) { preferences in
       GeometryReader { proxy in
-        ZStack {
-          Color.clear
-          overlayContent(preferences: preferences, proxy: proxy)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        spotlightOverlayContent(preferences: preferences, proxy: proxy)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+      }
+      .animation(.smooth(duration: animationDuration), value: selection)
+    }
+  }
+
+  private func dismissAction() {
+    selection = nil
+  }
+
+  private func previousAction(selected: ID, preferences: Value) {
+    guard var index = orderedIDs.firstIndex(of: selected) else {
+      selection = nil
+      return
+    }
+
+    while true {
+      index = index == orderedIDs.startIndex ? orderedIDs.endIndex - 1 : orderedIDs.index(before: index)
+      let previous = orderedIDs[index]
+      if preferences[previous] != nil {
+        selection = previous
+        break
       }
     }
   }
 
-  @ViewBuilder
-  // swiftlint:disable:next function_body_length
-  private func overlayContent(
-    preferences: [ID: Anchor<CGRect>],
-    proxy: GeometryProxy
-  ) -> some View {
-    if let selected = selection, let anchor = preferences[selected] {
-      // Resolve the selected anchor inside the container coordinate space.
-      let targetFrame = proxy[anchor]
-      let focusFrame = targetFrame.insetBy(dx: -spotlightPadding, dy: -spotlightPadding)
+  private func nextAction(selected: ID, preferences: Value) {
+    guard var index = orderedIDs.firstIndex(of: selected) else {
+      selection = nil
+      return
+    }
 
-      // During the very first frame there is nothing to animate from, so use the
-      // resolved frame immediately. After that we animate via `currentFrame`.
-      let displayedFocusFrame = currentFrame == .zero ? focusFrame : currentFrame
+    while true {
+      index = index == orderedIDs.endIndex - 1 ? orderedIDs.startIndex : orderedIDs.index(after: index)
+      let next = orderedIDs[index]
+      if preferences[next] != nil {
+        selection = next
+        break
+      }
+    }
+  }
 
-      // Expose imperative actions to the overlay content so it can either dismiss
-      // the tutorial or advance through the ordered spotlight sequence.
-      let actions = HelpItemSpotlightActions(
-        dismiss: {
-          withAnimation(.easeInOut(duration: 0.25)) {
-            selection = nil
-          }
-        },
-        advance: {
-          guard let currentSelection = selection else { return }
-          guard let index = orderedIDs.firstIndex(of: currentSelection) else {
-            selection = nil
-            return
-          }
+  private func adjustedFocusFrame(proxy: GeometryProxy, focusFrame: CGRect) -> CGRect {
+    let displayedFocusFrame = focusFrame
+    let safeAreaInsets = proxy.safeAreaInsets
+    return displayedFocusFrame.offsetBy(dx: safeAreaInsets.leading, dy: safeAreaInsets.top)
+  }
 
-          let nextIndex = orderedIDs.index(after: index)
+  private var spotlightBackingColor: Color {
+    colorScheme == .light ? .black : .white
+  }
 
-          withAnimation(.easeInOut(duration: 0.25)) {
-            selection = nextIndex < orderedIDs.endIndex ? orderedIDs[nextIndex] : nil
-          }
+  private func spotlight(bounds: CGRect) -> some View {
+    ZStack {
+      spotlightBackingColor
+      RoundedRectangle(cornerRadius: cornerRadius)
+        .frame(width: bounds.width, height: bounds.height)
+        .position(x: bounds.midX, y: bounds.midY)
+        .matchedGeometryEffect(id: selection, in: spotlightAnimation, properties: .frame, anchor: .center, isSource: false)
+        .foregroundColor(colorScheme == .light ? .white : .black)
+        .blur(radius: 6)
+        .blendMode(.destinationOut)
+    }
+    .compositingGroup()
+    .opacity(0.7)
+    .contentShape(.rect)
+    .onTapGesture {
+      dismissAction()
+    }
+  }
+
+  private func helpInfoPanel(selected: ID, actions: HelpItemSpotlightActions, position: CGPoint, maxWidth: CGFloat) -> some View {
+    overlay(selected, actions)
+      .frame(maxWidth: maxWidth)
+      .background {
+        GeometryReader { overlayProxy in
+          Color.clear
+            .preference(key: HelpItemSpotlightOverlaySizePreferenceKey.self, value: overlayProxy.size)
         }
+      }
+      .clipped()
+      .position(position)
+  }
+
+  @ViewBuilder
+  private func spotlightOverlayContent(preferences: Value, proxy: GeometryProxy) -> some View {
+    if let selected = selection, let anchor = preferences[selected] {
+      let actions = HelpItemSpotlightActions(
+        dismiss: { self.dismissAction() },
+        previous: { self.previousAction(selected: selected, preferences: preferences) },
+        next: { self.nextAction(selected: selected, preferences: preferences) }
       )
 
-      let safeAreaInsets = proxy.safeAreaInsets
-      let containerBounds = CGRect(
-        origin: .zero,
-        size: CGSize(
-          width: proxy.size.width + safeAreaInsets.leading + safeAreaInsets.trailing,
-          height: proxy.size.height + safeAreaInsets.top + safeAreaInsets.bottom
-        )
-      )
-      let overlayFocusFrame = displayedFocusFrame.offsetBy(
-        dx: safeAreaInsets.leading,
-        dy: safeAreaInsets.top
-      )
+      let focusFrame = proxy[anchor].insetBy(dx: -spotlightPadding, dy: -spotlightPadding)
+      let containerBounds = proxy.containerBounds
+      let spotlightFrame = adjustedFocusFrame(proxy: proxy, focusFrame: focusFrame)
+      let position = overlayPosition(for: spotlightFrame, in: containerBounds)
 
       ZStack(alignment: .topLeading) {
-        // Draw a fullscreen dimming layer with an even-odd cutout where the
-        // highlighted control should remain visually visible.
-        HelpItemSpotlightCutoutShape(
-          focusFrame: overlayFocusFrame,
-          cornerRadius: cornerRadius
+        spotlight(bounds: spotlightFrame)
+        helpInfoPanel(
+          selected: selected,
+          actions: actions,
+          position: position,
+          maxWidth: min(320, containerBounds.width - 32)
         )
-        .fill(
-          .black.opacity(0.58),
-          style: FillStyle(eoFill: true)
-        )
-        .contentShape(.rect)
-        .onTapGesture {
-          actions.dismiss()
-        }
-
-        // Render the caller-provided overlay card and measure it in the same
-        // pass so we can place it above or below the spotlight accurately.
-        overlay(selected, actions)
-          .frame(maxWidth: min(320, containerBounds.width - 32))
-          .background {
-            GeometryReader { overlayProxy in
-              Color.clear
-                .preference(
-                  key: HelpItemSpotlightOverlaySizePreferenceKey.self,
-                  value: overlayProxy.size
-                )
-            }
-          }
-          .position(
-            overlayPosition(
-              for: overlayFocusFrame,
-              overlaySize: overlaySize,
-              in: containerBounds
-            )
-          )
-          .transition(unsafe .opacity.combined(with: .scale(scale: 0.96)))
       }
       .frame(width: containerBounds.width, height: containerBounds.height)
-      .offset(x: -safeAreaInsets.leading, y: -safeAreaInsets.top)
-      .onAppear {
-        // Initialize the animated frame when the overlay becomes visible.
-        currentFrame = focusFrame
+      .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
+      .onPreferenceChange(HelpItemSpotlightOverlaySizePreferenceKey.self) {
+        overlaySize = $0
       }
-      .onChange(of: focusFrame) { _, newValue in
-        // Follow target movement, for example while scrolling or switching steps.
-        currentFrame = newValue
-      }
-      .onPreferenceChange(HelpItemSpotlightOverlaySizePreferenceKey.self) { newValue in
-        overlaySize = newValue
-      }
-      // Animate target transitions and late size updates for a smoother presentation.
-      .animation(.spring(duration: 0.32), value: selection)
-      .animation(.spring(duration: 0.32), value: currentFrame)
-      .animation(.spring(duration: 0.32), value: overlaySize)
+      .animation(.smooth(duration: animationDuration), value: selection)
+      .animation(.smooth(duration: animationDuration), value: position)
+      .animation(.smooth(duration: animationDuration), value: overlaySize)
     } else {
       EmptyView()
     }
   }
 
-  private func overlayPosition(
-    for focusFrame: CGRect,
-    overlaySize: CGSize,
-    in container: CGRect
-  ) -> CGPoint {
+  private func overlayPosition(for overlayFrame: CGRect, in container: CGRect) -> CGPoint {
     // Keep a consistent margin around the overlay so it never touches screen edges.
     let horizontalPadding: CGFloat = 16
     let verticalSpacing: CGFloat = 24
@@ -225,24 +248,24 @@ private struct HelpItemSpotlightContainerModifier<ID: Hashable, Overlay: View>: 
     // Try to align the overlay horizontally with the highlighted target,
     // then clamp the center point so the card stays fully visible on screen.
     let centeredX = min(
-      max(focusFrame.midX, container.minX + horizontalPadding + overlayWidth / 2),
+      max(overlayFrame.midX, container.minX + horizontalPadding + overlayWidth / 2),
       container.maxX - horizontalPadding - overlayWidth / 2
     )
 
     // The preferred placement is below the spotlight. We compute the Y center
     // by taking the target's bottom edge, adding vertical spacing, and then
     // shifting by half of the overlay height because `.position` works from center.
-    let preferredBelowY = focusFrame.maxY + verticalSpacing + measuredHeight / 2
+    let preferredBelowY = overlayFrame.maxY + verticalSpacing + measuredHeight / 2
 
     // If the entire overlay still fits within the bottom safe area margin,
     // keep it below the spotlight because that is the primary visual layout.
     if preferredBelowY + measuredHeight / 2 <= container.maxY - verticalPadding {
-      return CGPoint(x: centeredX, y: preferredBelowY)
+      return .init(x: centeredX, y: preferredBelowY)
     }
 
     // Otherwise, move the overlay above the spotlight using the same center-based
     // coordinate calculation.
-    let preferredAboveY = focusFrame.minY - verticalSpacing - measuredHeight / 2
+    let preferredAboveY = overlayFrame.minY - verticalSpacing - measuredHeight / 2
 
     // Clamp the final vertical position so the overlay remains fully inside
     // the visible container even when there is not enough room above either.
@@ -250,17 +273,7 @@ private struct HelpItemSpotlightContainerModifier<ID: Hashable, Overlay: View>: 
       max(preferredAboveY, container.minY + verticalPadding + measuredHeight / 2),
       container.maxY - verticalPadding - measuredHeight / 2
     )
-    return CGPoint(x: centeredX, y: clampedY)
-  }
-}
-
-private struct HelpItemSpotlightPreferenceKey<ID: Hashable>: PreferenceKey {
-  // Each spotlight source contributes a single anchor keyed by its logical ID.
-  static var defaultValue: [ID: Anchor<CGRect>] { [:] }
-
-  static func reduce(value: inout [ID: Anchor<CGRect>], nextValue: () -> [ID: Anchor<CGRect>]) {
-    // If the same ID appears multiple times, keep the most recent value.
-    value.merge(nextValue(), uniquingKeysWith: { _, new in new })
+    return .init(x: centeredX, y: clampedY)
   }
 }
 
@@ -270,12 +283,9 @@ private struct HelpItemSpotlightCutoutShape: Shape {
 
   func path(in rect: CGRect) -> Path {
     var path = Path()
-
-    // Add the full-screen rectangle first, then the rounded spotlight path.
-    // The shape is later filled with even-odd rules so the inner path becomes a hole.
     path.addRect(rect)
     path.addPath(
-      RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+      RoundedRectangle(cornerRadius: cornerRadius)
         .path(in: focusFrame)
     )
     return path
@@ -295,6 +305,56 @@ private struct HelpItemSpotlightOverlaySizePreferenceKey: PreferenceKey {
 private enum HelpItemSpotlightCoordinateSpace {
   // Shared coordinate space name used by spotlight sources and the container.
   static let name = "helpItemSpotlightCoordinateSpace"
+}
+
+fileprivate extension GeometryProxy {
+
+  var containerBounds: CGRect {
+    .init(
+      origin: .zero,
+      size: .init(
+        width: size.width + safeAreaInsets.leading + safeAreaInsets.trailing,
+        height: size.height + safeAreaInsets.top + safeAreaInsets.bottom
+      )
+    )
+  }
+}
+
+/**
+ Container to hold the custom namespace for help spotlight animations.
+ */
+@Observable
+private final class HelpSpotlightNamespace {
+  public var id: Namespace.ID!
+
+  init(_ namespace: Namespace.ID? = nil) {
+    if let namespace = namespace {
+      self.id = namespace
+    }
+  }
+}
+
+/**
+ Custom EnvironmentKey for the help spotlight namespace.
+ */
+private struct HelpSpotlightNamespaceEnvironmentKey: EnvironmentKey {
+  fileprivate static var defaultValue: HelpSpotlightNamespace { HelpSpotlightNamespace() }
+}
+
+extension EnvironmentValues {
+
+  /// Custom EnvironmentValues property that provides the help spotlight animation namespace.
+  fileprivate var helpSpotlightNamespace: HelpSpotlightNamespace {
+    get { self[HelpSpotlightNamespaceEnvironmentKey.self] }
+    set { self[HelpSpotlightNamespaceEnvironmentKey.self] = newValue }
+  }
+}
+
+extension View {
+
+  fileprivate func helpItemSpotlightAnimationNamespace(_ value: Namespace.ID) -> some View {
+    environment(\.helpSpotlightNamespace, HelpSpotlightNamespace(value))
+  }
 }
 
 #if DEBUG
@@ -383,7 +443,7 @@ private enum HelpItemSpotlightCoordinateSpace {
             .frame(maxWidth: .infinity, alignment: .leading)
 
             filterPanel
-              .helpItemSpotlightSource(id: Step.filters)
+              .helpItem(id: Step.filters)
 
             Button("Show Sheet") {
               showSheet.toggle()
@@ -409,13 +469,13 @@ private enum HelpItemSpotlightCoordinateSpace {
           ToolbarItem(placement: .topBarTrailing) {
             // Register the toolbar button as a spotlight source.
             profileButton
-              .helpItemSpotlightSource(id: Step.profile)
+              .helpItem(id: Step.profile)
           }
         }
         .safeAreaInset(edge: .bottom) {
           // Register the bottom call-to-action as another spotlight source.
           checkoutButton
-            .helpItemSpotlightSource(id: Step.checkout)
+            .helpItem(id: Step.checkout)
             .padding()
         }
       }
@@ -538,27 +598,21 @@ private enum HelpItemSpotlightCoordinateSpace {
       VStack(alignment: .leading, spacing: 16) {
         Text(step.title)
           .font(.title3.weight(.bold))
-
         Text(step.message)
           .foregroundStyle(.secondary)
-
         HStack {
-          Button("Skip") {
-            actions.dismiss()
-          }
-          .buttonStyle(.plain)
-          .foregroundStyle(.secondary)
-
+          Button("Previous") { actions.previous() }
           Spacer()
-
-          Button(step.buttonTitle) {
-            actions.advance()
-          }
-          .fontWeight(.semibold)
+          Button("Next") { actions.next() }
         }
+        .fontWeight(.semibold)
       }
       .padding(20)
-      .background(.white, in: .rect(cornerRadius: 28))
+      .background {
+        RoundedRectangle(cornerRadius: 28)
+          .fill(.white)
+          .stroke(.red, lineWidth: 1)
+      }
       .shadow(color: .black.opacity(0.12), radius: 24, y: 12)
     }
   }
@@ -573,7 +627,7 @@ private enum HelpItemSpotlightCoordinateSpace {
           VStack(alignment: .leading, spacing: 12) {
             Text("Plan Summary")
               .font(.title2.bold())
-              .helpItemSpotlightSource(id: TutorialSpotlightDemo.SheetStep.title)
+              .helpItem(id: TutorialSpotlightDemo.SheetStep.title)
 
             Text("Review the details in the sheet before confirming the selection.")
               .foregroundStyle(.secondary)
@@ -605,7 +659,7 @@ private enum HelpItemSpotlightCoordinateSpace {
               .background(.blue.gradient, in: .rect(cornerRadius: 18))
           }
           .buttonStyle(.plain)
-          .helpItemSpotlightSource(id: TutorialSpotlightDemo.SheetStep.action)
+          .helpItem(id: TutorialSpotlightDemo.SheetStep.action)
         }
         .padding(24)
         .navigationTitle("Booking")
@@ -636,7 +690,7 @@ private enum HelpItemSpotlightCoordinateSpace {
               if id == .action {
                 dismiss()
               } else {
-                actions.advance()
+                actions.next()
               }
             }
             .fontWeight(.semibold)

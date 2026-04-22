@@ -60,6 +60,12 @@ public struct AppRoot {
     }
   }
 
+  fileprivate struct HelpItemRestoration: Equatable {
+    let effectsPanelVisible: Bool
+    let tagsListVisible: Bool
+    let moreButtonsVisible: Bool
+  }
+
   @ObservableState
   public struct State: Equatable {
     public var appReview: AppReview.State
@@ -79,11 +85,11 @@ public struct AppRoot {
     public var readyForUse = false
     public var audioUnitCrashed = false
     public var toastState: VolumeMonitor.Reason?
-
     public var avAudioUnit: AVAudioUnit?
     @Shared(.effectsPanelVisible) public var effectsPanelVisible
-
     public var helpItemSelection: HelpItem?
+    @ObservationStateIgnored
+    fileprivate var helpItemRestorations: HelpItemRestoration?
 
     /**
      Constructor for main app.
@@ -227,6 +233,22 @@ public struct AppRoot {
       case .audioUnitCrashed:
         log.error("*** audioUnit crashed")
         return .none
+
+      case .binding(\.helpItemSelection):
+        var effects = [Effect<Action>]()
+        if state.helpItemSelection == nil, let restorations = state.helpItemRestorations {
+          @Shared(.effectsPanelVisible) var effectsPanelVisible
+          $effectsPanelVisible.withLock { $0 = restorations.effectsPanelVisible }
+          if !restorations.tagsListVisible {
+            effects.append(.send(.toolBar(.tagsListVisibilityButtonTapped)))
+          }
+          if !restorations.moreButtonsVisible {
+            effects.append(.send(.toolBar(.showMoreButtonTapped)))
+          }
+
+          state.helpItemRestorations = nil
+        }
+        return .merge(effects)
 
       case .deinitialize:
         return deinitialize(&state)
@@ -573,8 +595,7 @@ extension AppRoot {
       return .none
 
     case .helpButtonTapped:
-      state.helpItemSelection = .fontsList
-      return .none
+      return helpButtonTapped(&state)
 
     case .importFinished:
       return .send(.tagsList(.importFinished))
@@ -604,6 +625,32 @@ extension AppRoot {
     }
   }
 
+  private func helpButtonTapped(_ state: inout State) -> Effect<Action> {
+    @Shared(.effectsPanelVisible) var effectsPanelVisible
+    state.helpItemRestorations = .init(
+      effectsPanelVisible: effectsPanelVisible,
+      tagsListVisible: tagsListVisible,
+      moreButtonsVisible: state.toolBar.showMoreButtons
+    )
+
+    state.$effectsPanelVisible.withLock { $0 = true }
+
+    var effects = [Effect<Action>]()
+
+    if !tagsListVisible {
+      effects.append(.send(.toolBar(.tagsListVisibilityButtonTapped)))
+    }
+    if !state.toolBar.showMoreButtons {
+      effects.append(.send(.toolBar(.showMoreButtonTapped)))
+    }
+
+    withAnimation(.smooth) {
+      state.helpItemSelection = .fontsList
+    }
+
+    return .merge(effects)
+
+  }
   private func reinitializeConfirmed(_ state: inout State) -> Effect<Action> {
     BackupManager.reinitialize()
     withAnimation(.smooth) {
