@@ -113,10 +113,10 @@ public struct AppRootView: View {
     actions: HelpItemSpotlightActions
   ) -> some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text(helpItem.title)
+      helpItem.title
         .font(.title3.weight(.bold))
-      Text(helpItem.message)
-        // .foregroundStyle(.secondary)
+      helpItem.message
+        .font(.footnote)
       HStack {
         Button {
           actions.previous()

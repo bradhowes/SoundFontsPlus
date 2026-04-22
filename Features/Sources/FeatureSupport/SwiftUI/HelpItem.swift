@@ -4,7 +4,7 @@ import Foundation
 import SwiftUI
 import Sharing
 
-public enum HelpItem: String, CaseIterable {
+public enum HelpItem: CaseIterable {
   case fontsList
   case fontsListHeader
   case presetsList
@@ -25,124 +25,121 @@ public enum HelpItem: String, CaseIterable {
   case settingsButton
   case moreButton
 
-  public var title: String {
+  public var title: Text {
     switch self {
-    case .fontsList: return "Fonts"
-    case .fontsListHeader: return "Fonts Header"
-    case .presetsList: return "Presets"
-    case .presetsListHeader: return "Presets Header"
-    case .presetsListIndex: return "Presets Index"
-    case .tagsList: return "Tags"
-    case .fontsPresetsDivider: return "Fonts/Presets Divider"
-    case .fontsTagsDivider: return "Fonts/Tags Divider"
-    case .effectsPanel: return "Effects"
-    case .addButton: return "Add"
-    case .tagsButton: return "Tags"
-    case .effectsButton: return "Effects"
-    case .statusWindow: return "Status"
-    case .shiftDownButton: return "Keyboard Down"
-    case .slideToggle: return "Keyboard Sliding"
-    case .shiftUpButton: return "Keyboard Up"
-    case .editVisibilityButton: return "Preset Visibility"
-    case .settingsButton: return "Settings"
-    case .moreButton: return "More Buttons"
+    case .fontsList: return Text("Fonts")
+    case .fontsListHeader: return Text("Fonts Header")
+    case .presetsList: return Text("Presets")
+    case .presetsListHeader: return Text("Presets Header")
+    case .presetsListIndex: return Text("Presets Index")
+    case .tagsList: return Text("Tags")
+    case .fontsPresetsDivider: return Text("Fonts/Presets Divider")
+    case .fontsTagsDivider: return Text("Fonts/Tags Divider")
+    case .effectsPanel: return Text("Effects")
+    case .addButton: return Text("Add")
+    case .tagsButton: return Text("Tags")
+    case .effectsButton: return Text("Effects")
+    case .statusWindow: return Text("Status")
+    case .shiftDownButton: return Text("Keyboard Down")
+    case .slideToggle: return Text("Keyboard Sliding")
+    case .shiftUpButton: return Text("Keyboard Up")
+    case .editVisibilityButton: return Text("Preset Visibility")
+    case .settingsButton: return Text("Settings")
+    case .moreButton: return Text("More Buttons")
     }
   }
 
-  public var message: String {
-    @Shared(.tagsListVisible) var tagsListVisible
-    @Shared(.effectsPanelVisible) var effectsPanelVisible
-    @Shared(.keyboardSlides) var keyboardSlides
-
+  public var message: Text {
     switch self {
     case .fontsList:
-      return """
-List of available soundfont files. \
-Tap to see presets in a soundfont. \
-Swipe right or long-press to edit soundfont info. \
-Swipe left to delete.
-"""
+      return Text("""
+List of available soundfont files.
+• Tap to see presets in a soundfont.
+• Swipe right or long-press to edit soundfont info.
+• Swipe left to delete.
+""")
     case .fontsListHeader:
-      return """
-Double-tap on header to delete multiple soundfonts. \
-Tap on magnifier to search on soundfont names.
-"""
+      return Text("""
+* Double-tap on header to delete multiple soundfonts.
+• Tap on \(Image(systemName: "magnifyingglass")) to search on soundfont names.
+""")
     case .presetsList:
-      return """
-The list of presets and favorites for the selected soundfont. \
-Tap to activate. \
-Swipe right to edit or make favorite/duplicate. Swipe left to hide or delete. \
+      return Text("""
+The list of presets and favorites for the selected soundfont.
+• Tap to activate.
+• Swipe right to edit or make favorite/duplicate.
+• Swipe left to hide or delete.
 See options in Settings panel to change preset ordering.
-"""
+""")
     case .presetsListHeader:
-      return """
-Tap on section header to show previous section header. \
-Double-tap to show first section. \
-Tap on magnifier to search on preset names.
-"""
+      return Text("""
+• Tap on section header to show previous section header.
+• Double-tap to show first section.
+• Tap on \(Image(systemName: "magnifyingglass")) to search preset names.
+""")
     case .presetsListIndex:
-      return """
+      return Text("""
 Tap to quickly scroll to preset section.
-"""
+""")
     case .tagsList:
-      return """
-List of tags to filter visible soundfonts. \
-Swipe right or long-press to edit tags.
-"""
+      return Text("""
+List of tags to filter visible soundfonts.
+• Swipe right or long-press to edit tags.
+""")
     case .fontsPresetsDivider:
-      return """
-Divider between soundfonts and presets lists. \
-Drag left/right to adjust spacing given to each.
-"""
+      return Text("""
+Divider between soundfonts and presets lists.
+• Drag left/right to adjust spacing given to each.
+""")
     case .fontsTagsDivider:
-      return """
-Divider between soundfonts and tags lists. \
-Drag up or down to adjust spacing given to each. \
-Double-tap to hide tags list.
-"""
+      return Text("""
+Divider between soundfonts and tags lists.
+• Drag up or down to adjust spacing given to each.
+• Double-tap to hide tags list.
+""")
     case .effectsPanel:
-      return """
+      return Text("""
 Controls for the reverb and delay effects. \
 Each preset/favorite can have its own effect settings. \
 Use the lock switch to keep same settings across preset changes.
-"""
+""")
     case .addButton:
-      return """
+      return Text("""
 Add soundfont to your library. \
 Presents a file browser for selecting one or more files or an entire folder.
-"""
+""")
     case .tagsButton:
-      return "Show or hide the tags list."
+      return Text("Show or hide the tags list.")
     case .effectsButton:
-      return "Show or hide the effects panel."
+      return Text("Show or hide the effects panel.")
     case .statusWindow:
-      return """
+      return Text("""
 Shows the active preset. \
-Tap once to show the active preset. \
-Double tap to stop all playing notes, including any from a MIDI controller.
-"""
+• Tap once to show the active preset.
+• Double tap to stop all playing notes, including any from a MIDI controller.
+""")
     case .shiftDownButton:
-      return """
+      return Text("""
 Shifts the keyboard down to play lower notes.
-"""
+""")
     case .slideToggle:
-      return """
+      return Text("""
 Toggle how Keyboard behaves when touches move. \
-Slide mode will shift the keyboard as the touch moves. \
-Fixed mode will change the notes being played when the touches change keys.
-"""
+• Slide mode will shift the keyboard as the touch moves.
+• Fixed mode will change the notes being played when the touches change keys.
+""")
     case .shiftUpButton:
-      return """
+      return Text("""
 Shifts the keyboard up to play higher notes.
-"""
+""")
     case .editVisibilityButton:
-      return """
+      return Text("""
 Quickly edit the visibility of the presets of the active soundfont via touch actions.
-"""
+""")
     case .settingsButton:
-      return "Show the Settings panel."
+      return Text("Show the Settings panel.")
     case .moreButton:
-      return "Show additional buttons in the tool bar."
+      return Text("Show additional buttons in the tool bar.")
     }
   }
 }
