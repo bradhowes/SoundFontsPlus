@@ -77,11 +77,18 @@ private struct HelpItemModifier<ID: Hashable>: ViewModifier {
   @Environment(\.helpSpotlightNamespace) private var namespace
 
   func body(content: Content) -> some View {
-    content
-      .matchedGeometryEffect(id: id, in: namespace.id, properties: .frame, anchor: .center, isSource: true)
-      .transformAnchorPreference(key: HelpItemPreferenceKey<ID>.self, value: .bounds) {
-        $0[id] = $1
-      }
+    if let namespaceId = namespace.id {
+      content
+        .matchedGeometryEffect(id: id, in: namespaceId, properties: .frame, anchor: .center, isSource: true)
+        .transformAnchorPreference(key: HelpItemPreferenceKey<ID>.self, value: .bounds) {
+          $0[id] = $1
+        }
+    } else {
+      content
+        .transformAnchorPreference(key: HelpItemPreferenceKey<ID>.self, value: .bounds) {
+          $0[id] = $1
+        }
+    }
   }
 }
 
@@ -325,12 +332,10 @@ fileprivate extension GeometryProxy {
  */
 @Observable
 private final class HelpSpotlightNamespace {
-  public var id: Namespace.ID!
+  public var id: Namespace.ID?
 
   init(_ namespace: Namespace.ID? = nil) {
-    if let namespace = namespace {
-      self.id = namespace
-    }
+    self.id = namespace
   }
 }
 

@@ -19,10 +19,19 @@ import TestSupport
 )
 @MainActor
 struct ToolBarTests {
-  fileprivate func store() async throws -> TestStoreOf<ToolBar> {
-    TestStoreOf<ToolBar>(initialState: .init()) {
+
+  fileprivate func store(isCompact: Bool = false) async throws -> TestStoreOf<ToolBar> {
+    let store = TestStoreOf<ToolBar>(initialState: .init()) {
       ToolBar()
     }
+
+    if isCompact {
+      await store.send(.initialize(isCompact)) {
+        $0.hasMoreButton = true
+      }
+    }
+
+    return store
   }
 
   @Test
@@ -89,20 +98,24 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test(arguments: [false, true])
-  func effectsVisibilityButtonTapped(_ initValue: Bool) async throws {
-    @Shared(.effectsPanelVisible) var effectsPanelVisible = initValue
-    let store = try await store()
-    #expect(store.state.effectsPanelVisible == initValue)
+  @Test(arguments: [false, true], [false, true])
+  func effectsVisibilityButtonTapped(_ effectsPanelVisibleInit: Bool, _ isCompact: Bool) async throws {
+    @Shared(.effectsPanelVisible) var effectsPanelVisible = effectsPanelVisibleInit
+    let store = try await store(isCompact: isCompact)
+
+    #expect(store.state.hasMoreButton == isCompact)
+    #expect(store.state.effectsPanelVisible == effectsPanelVisibleInit)
 
     await store.send(.effectsVisibilityButtonTapped) {
       $0.$effectsPanelVisible.withLock { $0.toggle() }
     }
 
-    await store.receive(\.delegate.effectsVisibilityChanged, !initValue)
+    await store.receive(\.delegate.effectsVisibilityChanged, !effectsPanelVisibleInit)
 
-    await store.send(.showMoreButtonTapped) {
-      $0.showMoreButtons.toggle()
+    if isCompact {
+      await store.send(.showMoreButtonTapped) {
+        $0.showMoreButtons = true
+      }
     }
 
     await store.send(.effectsVisibilityButtonTapped) {
@@ -110,9 +123,9 @@ struct ToolBarTests {
       $0.showMoreButtons = false
     }
 
-    await store.receive(\.delegate.effectsVisibilityChanged, initValue)
+    await store.receive(\.delegate.effectsVisibilityChanged, effectsPanelVisibleInit)
 
-    #expect(effectsPanelVisible == initValue)
+    #expect(effectsPanelVisible == effectsPanelVisibleInit)
 
     await store.send(.deinitialize)
     await store.receive(\.midiTrafficIndicator.deinitialize)
@@ -239,16 +252,15 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test
-  func settingsButtonTapped() async throws {
-    let store = try await store()
+  @Test(arguments: [false, true])
+  func settingsButtonTapped(_ isCompact: Bool) async throws {
+    let store = try await store(isCompact: isCompact)
 
-    await store.send(.showMoreButtonTapped) {
-      $0.showMoreButtons = true
-    }
-
-    await store.send(.settingsButtonTapped) {
-      $0.showMoreButtons = false
+    if isCompact {
+      await store.send(.showMoreButtonTapped) { $0.showMoreButtons = true }
+      await store.send(.settingsButtonTapped) { $0.showMoreButtons = false }
+    } else {
+      await store.send(.settingsButtonTapped)
     }
 
     await store.receive(\.delegate.settingsButtonTapped)
@@ -316,7 +328,7 @@ struct ToolBarTests {
 
   @Test
   func showMoreButtonTapped() async throws {
-    let store = try await store()
+    let store = try await store(isCompact: true)
 
     await store.send(.showMoreButtonTapped) {
       $0.showMoreButtons = true
@@ -370,11 +382,11 @@ struct ToolBarTests {
   }
 
   @Test(arguments: [false, true])
-  func slidingKeyboardButtonTappedInitFalse(_ initValue: Bool) async throws {
-    @Shared(.keyboardSlides) var keyboardSlides = initValue
+  func slidingKeyboardButtonTappedInitFalse(_ keyboardSlidsInit: Bool) async throws {
+    @Shared(.keyboardSlides) var keyboardSlides = keyboardSlidsInit
 
     let store = try await store()
-    #expect(store.state.keyboardSlides == initValue)
+    #expect(store.state.keyboardSlides == keyboardSlidsInit)
 
     await store.send(.slidingKeyboardButtonTapped) {
       $0.$keyboardSlides.withLock { $0.toggle() }
@@ -384,7 +396,7 @@ struct ToolBarTests {
       $0.$keyboardSlides.withLock { $0.toggle() }
     }
 
-    #expect(keyboardSlides == initValue)
+    #expect(keyboardSlides == keyboardSlidsInit)
 
     await store.send(.deinitialize)
     await store.receive(\.midiTrafficIndicator.deinitialize)
