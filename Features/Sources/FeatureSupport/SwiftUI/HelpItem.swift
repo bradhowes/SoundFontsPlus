@@ -1,9 +1,10 @@
 // Copyright © 2026 Brad Howes. All rights reserved.
 
-import Foundation
 import SwiftUI
-import Sharing
 
+/**
+ Collection of unique IDs for views that can show help information. Used with the `HelpItemSpotlight` view modifier.
+ */
 public enum HelpItem: CaseIterable {
   case fontsList
   case fontsListHeader
@@ -86,7 +87,7 @@ List of available soundfont files.
     case .fontsListHeader:
       return Text("""
 * Double-tap on header to delete multiple soundfonts.
-• Tap on \(Image(systemName: "magnifyingglass")) to search on soundfont names.
+• Tap on \(Image(systemName: .searchButtonImageName)) to search on soundfont names.
 """)
     case .presetsList:
       return Text("""
@@ -100,7 +101,7 @@ See options in Settings panel to change preset ordering.
       return Text("""
 • Tap on section header to show previous section header.
 • Double-tap to show first section.
-• Tap on \(Image(systemName: "magnifyingglass")) to search preset names.
+• Tap on \(Image(systemName: .searchButtonImageName)) to search preset names.
 """)
     case .presetsListIndex:
       return Text("""
@@ -126,7 +127,7 @@ Divider between soundfonts and tags lists.
       return Text("""
 Controls for the reverb and delay effects. \
 Each preset/favorite can have its own effect settings. \
-Use the lock switch to keep same settings across preset changes.
+Use the lock switches to keep the same settings across preset changes.
 """)
     case .addButton:
       return Text("""
@@ -139,30 +140,30 @@ Presents a file browser for selecting one or more files or an entire folder.
       return Text("Show or hide the effects panel.")
     case .statusWindow:
       return Text("""
-Shows the active preset. \
+Shows the active preset.
 • Tap once to show the active preset.
-• Double tap to stop all playing notes, including any from a MIDI controller.
+• Double-tap to stop all notes, including any from a MIDI controller (aka PANIC).
 """)
     case .shiftDownButton:
       return Text("""
-Shifts the keyboard down to play lower notes.
+Shows the name of the first visible key. Tap to shift the keyboard down to show lower notes values.
 """)
     case .slideToggle:
       return Text("""
-Toggle how Keyboard behaves when touches move. \
-• Slide mode will shift the keyboard as the touch moves.
-• Fixed mode will change the notes being played when the touches change keys.
+Controls how Keyboard behaves when touches move while a note is playing.
+• \(Image(systemName: .fixedKeyboardButtonImageName)) keyboard does not move with touch movements
+• \(Image(systemName: .slidingKeyboardButtonImageName)) keyboard moves with touch movements
 """)
     case .shiftUpButton:
       return Text("""
-Shifts the keyboard up to play higher notes.
+Shows the name of the last visible key. Tap to shift the keyboard up to show higher note values.
 """)
     case .editVisibilityButton:
       return Text("""
-Quickly edit the visibility of the presets of the active soundfont via touch actions.
+Show the presets of the active soundfont with toggle buttons to change the preset visibility.
 """)
     case .settingsButton:
-      return Text("Show the Settings panel.")
+      return Text("Show the \(Image(systemName: .settingsButtonImageName)) Settings panel.")
     case .moreButton:
       return Text("Show additional buttons in the tool bar.")
       // Reverb

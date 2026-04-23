@@ -95,7 +95,7 @@ public struct MIDIAssignmentsView: View {
           Button {
             // store.send(.autoConnectToggleTapped(row.id))
           } label: {
-            Image(systemName: false ? "checkmark.circle.fill" : "circle")
+            Image(systemName: false ? .circledCheckMarkOnImageName : .circledCheckMarkOffImageName)
               .frame(width: 40, height: 40)
           }
           .frame(maxWidth: .infinity)

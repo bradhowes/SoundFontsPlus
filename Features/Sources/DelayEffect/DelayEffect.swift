@@ -341,7 +341,9 @@ public struct DelayEffectView: View {
   public var body: some View {
     let onOff = ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
       .helpItemTag(.delayOn)
-    let globalLock = ToggleView(store: store.scope(state: \.locked, action: \.locked)) { Image(systemName: "lock") }
+    let globalLock = ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
+      Image(systemName: .effectsLockButtonImageName)
+    }
       .helpItemTag(.delayLock)
 
     return NamedKnobCollectionContainer(

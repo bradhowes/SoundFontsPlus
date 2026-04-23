@@ -141,7 +141,7 @@ public struct TutorialView: View {
         Button {
           store.send(.dismissButtonTapped, animation: .default)
         } label: {
-          Image(systemName: "checkmark")
+          Image(systemName: .checkmarkImageName)
         }
       }
     }
@@ -523,7 +523,7 @@ to toggle keyboard sliding during playing.
           x: CGFloat(0), y: CGFloat(0))
       Grid(verticalSpacing: 12) {
         GridRow {
-          Image(systemName: "gear")
+          Image(systemName: .settingsButtonImageName)
           Text("Show application settings panel")
             .gridColumnAlignment(.leading)
         }
@@ -633,7 +633,7 @@ tap on label to enter numeric value.
         GridRow {
           HStack {
             Image(systemName: "arrowtriangle.down")
-            Text("\(Image(systemName: "lock"))")
+            Text("\(Image(systemName: .effectsLockButtonImageName))")
           }
           .foregroundStyle(.gray)
           Text("Keep settings when preset changes")

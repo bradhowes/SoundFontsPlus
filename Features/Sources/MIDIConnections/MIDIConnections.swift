@@ -271,7 +271,7 @@ public struct MIDIConnectionsView: View {
     Button {
       store.send(.autoConnectToggleTapped(row.id))
     } label: {
-      Image(systemName: row.autoConnect ? "checkmark.circle.fill" : "circle")
+      Image(systemName: row.autoConnect ? .circledCheckMarkOnImageName : .circledCheckMarkOffImageName)
         .frame(width: 40, height: 40)
     }
     .frame(maxWidth: .infinity)

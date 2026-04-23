@@ -33,7 +33,7 @@ extension View {
     orderedIDs: [ID],
     spotlightPadding: CGFloat = 8,
     cornerRadius: CGFloat = 28,
-    animationDuration: TimeInterval = 0.8,
+    animationDuration: TimeInterval = 0.4,
     blurRadius: CGFloat = 6.0,
     dimmingOpacity: CGFloat = 0.7,
     @ViewBuilder overlay: @escaping (_ id: ID, _ actions: HelpItemSpotlightActions) -> Overlay
@@ -69,12 +69,211 @@ extension View {
 public struct HelpItemSpotlightActions {
   /// Closes the spotlight flow and removes the overlay.
   public let dismiss: () -> Void
-  /// Move to the previous spotlight item in `orderedIDs`. Skips over items that are not found in the collection of registered views.
+  /// Move to the previous item in `orderedIDs`. Skips over items that are not found in the collection of registered views.
   public let previous: () -> Void
-  /// Move to the next spotlight item in `orderedIDs`. Skips over items that are not found in the collection of registred views.
+  /// Move to the next item in `orderedIDs`. Skips over items that are not found in the collection of registered views.
   public let next: () -> Void
+}
 
-  public let reposition: (CGRect) -> Void
+/**
+ View modifier that handles the display of a spotlight on a help item.
+
+ See ``helpItemSpotlight`` View modifier for details.
+ */
+private struct HelpItemSpotlightModifier<ID: Hashable, Overlay: View>: ViewModifier {
+  typealias Value = HelpItemPreferenceKey<ID>.Value
+
+  @Namespace private var spotlightAnimation
+  @Environment(\.colorScheme) private var colorScheme
+
+  /// The current view being spotlit.
+  @Binding var selection: ID?
+  /// The collection of known IDs that may be found in the view attached to this modifier. The ``previous`` and ``next`` actions
+  /// rely on the ordering to move the the previous and next values from the currently selected one.
+  let orderedIDs: [ID]
+  let spotlightPadding: CGFloat
+  let cornerRadius: CGFloat
+  let animationDuration: TimeInterval
+  let blurRadius: CGFloat
+  let dimmingOpacity: CGFloat
+  let helpInfoGenerator: (ID, HelpItemSpotlightActions) -> Overlay
+
+  /// The position of the view displaying the help text. This is dynamically calculated based on the location of the item being
+  /// spotlit, and the size of the help text view.
+  @State private var position: CGPoint = .zero
+
+  func body(content: Content) -> some View {
+    content
+      .coordinateSpace(name: HelpItemSpotlightCoordinateSpace.name)
+      .helpItemSpotlightAnimationNamespace(spotlightAnimation)
+      .overlayPreferenceValue(HelpItemPreferenceKey<ID>.self) { preferences in
+        GeometryReader { proxy in
+          spotlightOverlayContent(preferences: preferences, proxy: proxy)
+        }
+        .animation(.smooth(duration: animationDuration), value: selection)
+      }
+  }
+
+  /**
+   Create the spotlight view to hilight an item in the UI and show help text for it.
+
+   This is the main entry point for spotlight overlay. As the ``selection`` value changes, the spotlight will move to the new view,
+   and the contents of the info view will change to show the help text for the new view.
+
+   NOTE: the shifting effect looks pretty cool, *but* the help contents jumps to the new position. Ideally, the new text would
+   replace the old in the previous location and then move with the panel to the new location. May require using two views with
+   ``matchedGeometryEffect`` to properly morph from one to the other.
+
+   - parameter preferences: the collection of known UI elements with `Anchor<CGRect>` values.
+   - parameter proxy: a `GeometryProxy` to use to obtain frames for the anchors.
+   - returns: new view made up of a spotlight mask and a info view overlay containing the help text for the active item.
+   */
+  @ViewBuilder
+  private func spotlightOverlayContent(preferences: Value, proxy: GeometryProxy) -> some View {
+    if let selected = selection, let anchor = preferences[selected] {
+      let containerBounds = proxy.containerBounds
+      let anchorFrame = proxy[anchor].insetBy(dx: -spotlightPadding, dy: -spotlightPadding)
+      let spotlightFrame = anchorFrame.offsetBy(dx: proxy.safeAreaInsets.leading, dy: proxy.safeAreaInsets.top)
+      let actions = HelpItemSpotlightActions(
+        dismiss: { self.dismissAction() },
+        previous: { self.previousAction(selected: selected, preferences: preferences) },
+        next: { self.nextAction(selected: selected, preferences: preferences) }
+      )
+
+      ZStack(alignment: .topLeading) {
+        spotlightMask(for: spotlightFrame)
+        helpInfoGenerator(selected, actions)
+          .onGeometryChange(for: CGSize.self) {
+            $0.frame(in: .named(HelpItemSpotlightCoordinateSpace.name)).size
+          } action: { panelSize in
+            self.position = helpInfoPosition(for: spotlightFrame, panelSize: panelSize, in: containerBounds)
+          }
+          .clipped()
+          .position(self.position)
+      }
+      .frame(width: containerBounds.width, height: containerBounds.height)
+      .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
+      .animation(.smooth(duration: animationDuration), value: selection)
+      .animation(.smooth(duration: animationDuration), value: position)
+    } else {
+      EmptyView()
+    }
+  }
+
+  private func dismissAction() {
+    selection = nil
+  }
+
+  private func previousAction(selected: ID, preferences: Value) {
+    if var index = orderedIDs.firstIndex(of: selected) {
+      for _ in 0..<orderedIDs.count {
+        index = index == orderedIDs.startIndex ? orderedIDs.endIndex - 1 : orderedIDs.index(before: index)
+        let previous = orderedIDs[index]
+        if preferences[previous] != nil {
+          selection = previous
+          return
+        }
+      }
+    }
+    selection = nil
+  }
+
+  private func nextAction(selected: ID, preferences: Value) {
+    if var index = orderedIDs.firstIndex(of: selected) {
+      for _ in 0..<orderedIDs.count {
+        index = index == orderedIDs.endIndex - 1 ? orderedIDs.startIndex : orderedIDs.index(after: index)
+        let next = orderedIDs[index]
+        if preferences[next] != nil {
+          selection = next
+          return
+        }
+      }
+    }
+    selection = nil
+  }
+
+  private var spotlightBackingColor: Color {
+    colorScheme == .light ? .black : .white
+  }
+
+  /**
+   Create a composite full-screen image that dims everything but the indicated region. Uses `matchedGeometryEffect` so that the
+   spotlight animates from one item to the next. Tapping anywhere in the mask will dismiss the spotlight.
+
+   - parameter focusArea: the area to "punch out" to spotlight an area on the screen.
+   - returns: new mask view
+   */
+  private func spotlightMask(for focusArea: CGRect) -> some View {
+    ZStack {
+      spotlightBackingColor
+      RoundedRectangle(cornerRadius: cornerRadius)
+        .frame(width: focusArea.width, height: focusArea.height)
+        .position(x: focusArea.midX, y: focusArea.midY)
+        .matchedGeometryEffect(id: selection, in: spotlightAnimation, properties: .frame, anchor: .center, isSource: false)
+        .foregroundColor(colorScheme == .light ? .white : .black)
+        .blur(radius: blurRadius)
+        .blendMode(.destinationOut)
+    }
+    .compositingGroup()
+    .opacity(dimmingOpacity)
+    .contentShape(.rect)
+    .onTapGesture {
+      dismissAction()
+    }
+  }
+
+  /**
+   Determine a reasonable location for the help info panel which does not obscure the spotlit item and keeps the info panel
+   fully on the app display.
+
+   - parameter focusFrame: the frame of the item being spotlit.
+   - parameter panelSize: the area of the screen to use for positioning
+   - returns: the location to use for the panel
+   */
+  private func helpInfoPosition(for focusFrame: CGRect, panelSize: CGSize, in container: CGRect) -> CGPoint {
+    // Keep a consistent margin around the overlay so it never touches screen edges.
+    let horizontalPadding: CGFloat = 16
+    let verticalSpacing: CGFloat = 24
+    let verticalPadding: CGFloat = 24
+
+    let panelWidth2 = panelSize.width / 2
+    let panelHeight2 = panelSize.height / 2
+
+    // Try to align the overlay horizontally with the highlighted target,
+    // then clamp the center point so the card stays fully visible on screen.
+    let centeredX = min(
+      max(focusFrame.midX, container.minX + horizontalPadding + panelWidth2),
+      container.maxX - horizontalPadding - panelWidth2
+    )
+
+    // The preferred placement is below the spotlight. We compute the Y center
+    // by taking the target's bottom edge, adding vertical spacing, and then
+    // shifting by half of the overlay height because `.position` works from center.
+    let preferredBelowY = focusFrame.maxY + verticalSpacing + panelHeight2
+
+    // If the entire overlay still fits within the bottom safe area margin,
+    // keep it below the spotlight because that is the primary visual layout.
+    let position: CGPoint
+    if preferredBelowY + panelHeight2 <= container.maxY - verticalPadding {
+      position = .init(x: centeredX, y: preferredBelowY)
+    } else {
+
+      // Otherwise, move the overlay above the spotlight using the same center-based
+      // coordinate calculation.
+      let preferredAboveY = focusFrame.minY - verticalSpacing - panelHeight2
+
+      // Clamp the final vertical position so the overlay remains fully inside
+      // the visible container even when there is not enough room above either.
+      let clampedY = min(
+        max(preferredAboveY, container.minY + verticalPadding + panelHeight2),
+        container.maxY - verticalPadding - panelHeight2
+      )
+      position = .init(x: centeredX, y: clampedY)
+    }
+
+    print("position: ", position)
+    return position
+  }
 }
 
 /**
@@ -111,227 +310,6 @@ private struct HelpItemModifier<ID: Hashable>: ViewModifier {
           $0[id] = $1
         }
     }
-  }
-}
-
-/**
- View modifier that handles the display of a spotlight on a help item.
-
- See ``helpItemSpotlight`` View modifier for details.
- */
-private struct HelpItemSpotlightModifier<ID: Hashable, Overlay: View>: ViewModifier {
-  typealias Value = HelpItemPreferenceKey<ID>.Value
-
-  @Binding var selection: ID?
-  let orderedIDs: [ID]
-  let spotlightPadding: CGFloat
-  let cornerRadius: CGFloat
-  let animationDuration: TimeInterval
-  let blurRadius: CGFloat
-  let dimmingOpacity: CGFloat
-  let helpInfoGenerator: (ID, HelpItemSpotlightActions) -> Overlay
-
-  @State private var position: CGPoint = .zero
-  @State private var infoPanelSize: CGSize = .zero {
-    didSet {
-      if let selection {
-        print(selection, "infoPanelSize: ", infoPanelSize)
-      }
-    }
-  }
-
-  @Namespace private var spotlightAnimation
-  @Environment(\.colorScheme) private var colorScheme
-
-  func body(content: Content) -> some View {
-    content
-      .coordinateSpace(name: HelpItemSpotlightCoordinateSpace.name)
-      .helpItemSpotlightAnimationNamespace(spotlightAnimation)
-      .overlayPreferenceValue(HelpItemPreferenceKey<ID>.self) { preferences in
-        GeometryReader { proxy in
-          spotlightOverlayContent(preferences: preferences, proxy: proxy)
-        }
-        .animation(.smooth(duration: animationDuration), value: selection)
-      }
-  }
-
-  private func dismissAction() {
-    selection = nil
-  }
-
-  private func previousAction(selected: ID, preferences: Value) {
-    guard var index = orderedIDs.firstIndex(of: selected) else {
-      selection = nil
-      return
-    }
-
-    while true {
-      index = index == orderedIDs.startIndex ? orderedIDs.endIndex - 1 : orderedIDs.index(before: index)
-      let previous = orderedIDs[index]
-      if preferences[previous] != nil {
-        selection = previous
-        break
-      }
-    }
-  }
-
-  private func nextAction(selected: ID, preferences: Value) {
-    guard var index = orderedIDs.firstIndex(of: selected) else {
-      selection = nil
-      return
-    }
-
-    while true {
-      index = index == orderedIDs.endIndex - 1 ? orderedIDs.startIndex : orderedIDs.index(after: index)
-      let next = orderedIDs[index]
-      if preferences[next] != nil {
-        selection = next
-        break
-      }
-    }
-  }
-
-  private func adjustedFocusFrame(proxy: GeometryProxy, focusFrame: CGRect) -> CGRect {
-    let displayedFocusFrame = focusFrame
-    let safeAreaInsets = proxy.safeAreaInsets
-    return displayedFocusFrame.offsetBy(dx: safeAreaInsets.leading, dy: safeAreaInsets.top)
-  }
-
-  private var spotlightBackingColor: Color {
-    colorScheme == .light ? .black : .white
-  }
-
-  /**
-   Create a composite full-screen image that dims everything but the indicated region. Uses `matchedGeometryEffect` so that the
-   spotlight animates from one item to the next.
-
-   - parameter bounds: the area to "punch out" to spotlight an area on the screen.
-   - returns: view
-   */
-  private func spotlight(bounds: CGRect) -> some View {
-    ZStack {
-      spotlightBackingColor
-      RoundedRectangle(cornerRadius: cornerRadius)
-        .frame(width: bounds.width, height: bounds.height)
-        .position(x: bounds.midX, y: bounds.midY)
-        .matchedGeometryEffect(id: selection, in: spotlightAnimation, properties: .frame, anchor: .center, isSource: false)
-        .foregroundColor(colorScheme == .light ? .white : .black)
-        .blur(radius: blurRadius)
-        .blendMode(.destinationOut)
-    }
-    .compositingGroup()
-    .opacity(dimmingOpacity)
-    .contentShape(.rect)
-    .onTapGesture {
-      dismissAction()
-    }
-  }
-
-  private func helpInfoPanel(selected: ID, actions: HelpItemSpotlightActions, position: CGPoint) -> some View {
-    helpInfoGenerator(selected, actions)
-      .background {
-        GeometryReader { overlayProxy in
-          Color.clear
-            .preference(key: HelpInfoSizePreferenceKey.self, value: overlayProxy.size)
-        }
-      }
-      .clipped()
-      .position(position)
-  }
-
-  @ViewBuilder
-  private func spotlightOverlayContent(preferences: Value, proxy: GeometryProxy) -> some View {
-    if let selected = selection, let anchor = preferences[selected] {
-      let focusFrame = proxy[anchor].insetBy(dx: -spotlightPadding, dy: -spotlightPadding)
-      let containerBounds = proxy.containerBounds
-      let spotlightFrame = adjustedFocusFrame(proxy: proxy, focusFrame: focusFrame)
-      let position = overlayPosition(for: spotlightFrame, in: containerBounds)
-      let actions = HelpItemSpotlightActions(
-        dismiss: { self.dismissAction() },
-        previous: { self.previousAction(selected: selected, preferences: preferences) },
-        next: { self.nextAction(selected: selected, preferences: preferences) },
-        reposition: { bounds in
-          self.position = self.overlayPosition(for: bounds, in: containerBounds)
-        }
-      )
-
-      ZStack(alignment: .topLeading) {
-        spotlight(bounds: spotlightFrame)
-        helpInfoPanel(selected: selected, actions: actions, position: position)
-      }
-      .frame(width: containerBounds.width, height: containerBounds.height)
-      .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
-      .onPreferenceChange(HelpInfoSizePreferenceKey.self) {
-        infoPanelSize = $0
-      }
-      .animation(.smooth(duration: animationDuration), value: selection)
-      .animation(.smooth(duration: animationDuration), value: position)
-      .animation(.smooth(duration: animationDuration), value: infoPanelSize)
-    } else {
-      EmptyView()
-    }
-  }
-
-  /**
-   Determine a reasonable location for the help info panel which does not obscure the spotlit item and keeps the info panel
-   fully on the app display.
-
-   This is the original code from Artem Mirzabekian
-
-   - parameter overlayFrame: the frame of the item being spotlit.
-   - parameter container: the area of the screen to use for positioning
-   - returns: the location to use for the panel
-   */
-  private func overlayPosition(for overlayFrame: CGRect, in container: CGRect) -> CGPoint {
-    // Keep a consistent margin around the overlay so it never touches screen edges.
-    let horizontalPadding: CGFloat = 16
-    let verticalSpacing: CGFloat = 24
-    let verticalPadding: CGFloat = 24
-
-    // Cap the overlay width to a readable maximum while still respecting
-    // the available horizontal space inside the container.
-    let maxOverlayWidth = min(420, container.width - (horizontalPadding * 2))
-
-    // Use the measured overlay size when available. Fallback values are used
-    // during the first layout pass, before SwiftUI reports the actual size.
-    let measuredWidth = infoPanelSize.width > 0 ? infoPanelSize.width : maxOverlayWidth
-    let measuredHeight = infoPanelSize.height > 0 ? infoPanelSize.height : 180
-    let overlayWidth = min(measuredWidth, maxOverlayWidth)
-
-    // Try to align the overlay horizontally with the highlighted target,
-    // then clamp the center point so the card stays fully visible on screen.
-    let centeredX = min(
-      max(overlayFrame.midX, container.minX + horizontalPadding + overlayWidth / 2),
-      container.maxX - horizontalPadding - overlayWidth / 2
-    )
-
-    // The preferred placement is below the spotlight. We compute the Y center
-    // by taking the target's bottom edge, adding vertical spacing, and then
-    // shifting by half of the overlay height because `.position` works from center.
-    let preferredBelowY = overlayFrame.maxY + verticalSpacing + measuredHeight / 2
-
-    // If the entire overlay still fits within the bottom safe area margin,
-    // keep it below the spotlight because that is the primary visual layout.
-    let position: CGPoint
-    if preferredBelowY + measuredHeight / 2 <= container.maxY - verticalPadding {
-      position = .init(x: centeredX, y: preferredBelowY)
-    } else {
-
-      // Otherwise, move the overlay above the spotlight using the same center-based
-      // coordinate calculation.
-      let preferredAboveY = overlayFrame.minY - verticalSpacing - measuredHeight / 2
-
-      // Clamp the final vertical position so the overlay remains fully inside
-      // the visible container even when there is not enough room above either.
-      let clampedY = min(
-        max(preferredAboveY, container.minY + verticalPadding + measuredHeight / 2),
-        container.maxY - verticalPadding - measuredHeight / 2
-      )
-      position = .init(x: centeredX, y: clampedY)
-    }
-
-    print("position: ", position)
-    return position
   }
 }
 
@@ -433,9 +411,9 @@ Here the user quickly gets to their profile and account settings.
 """
       case .travelPlanner:
 """
-This is a test.
-This is a test.
-This is a test.
+This is a test. \
+This is a test. \
+This is a test. \
 This is a test.
 This is a test.
 """
@@ -501,9 +479,7 @@ The button completes the scenario. The final step may lead to payment or confirm
     }
   }
 
-  // Start the preview with the first onboarding step already selected.
   @State private var selection: Step?
-
   @State private var showSheet: Bool = false
 
   var body: some View {
@@ -677,19 +653,25 @@ The button completes the scenario. The final step may lead to payment or confirm
     .frame(maxWidth: .infinity, alignment: .leading)
   }
 
-  private func spotlightCard(
-    for step: Step,
-    actions: HelpItemSpotlightActions
-  ) -> some View {
-    VStack(alignment: .leading, spacing: 16) {
-      Text(step.title)
-        .font(.title3.weight(.bold))
-      Text(step.message)
-        .foregroundStyle(.secondary)
-      HStack {
-        Button("Previous") { actions.previous() }
-        Spacer()
-        Button("Next") { actions.next() }
+  private func spotlightCard(for step: Step, actions: HelpItemSpotlightActions) -> some View {
+    VStack(spacing: 16) {
+      HelpInfoLayout {
+        Text(step.title)
+          .font(.title3.weight(.bold))
+        Text(step.message)
+          .foregroundStyle(.secondary)
+      }
+      HStack(spacing: 24) {
+        Button {
+          actions.previous()
+        } label: {
+          Image(systemName: "arrowshape.left.fill")
+        }
+        Button {
+          actions.next()
+        } label: {
+          Image(systemName: "arrowshape.right.fill")
+        }
       }
       .fontWeight(.semibold)
     }

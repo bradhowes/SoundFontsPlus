@@ -18,7 +18,7 @@ public struct ClearButton: ViewModifier {
       Button {
         action()
       } label: {
-        Image(systemName: "multiply.circle.fill")
+        Image(systemName: .textFieldClearButtonImageName)
           .foregroundStyle(.gray)
           .frame(width: 32, height: 32)
           .contentShape(Rectangle())

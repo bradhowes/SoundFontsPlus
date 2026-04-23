@@ -72,7 +72,7 @@ public struct PresetButtonView: View {
       HStack {
         if editingVisibility {
           // Show indicator when edititing preset visibility
-          Image(systemName: isHidden ? "circle" : "inset.filled.circle")
+          Image(systemName: isHidden ? .circledCheckMarkOffImageName : .circledCheckMarkOnImageName)
             .foregroundStyle(Color.alternateAccentColor)
             .frame(width: 24)
             .animation(.smooth, value: store.preset.kind) // animate the visibiliity toggle image

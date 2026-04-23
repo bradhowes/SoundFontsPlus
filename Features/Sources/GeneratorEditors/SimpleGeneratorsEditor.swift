@@ -260,7 +260,7 @@ public struct GeneratorsEditorView: View {
       title: "Delay",
       onOff: ToggleView(store: store.scope(state: \.enabled, action: \.enabled)),
       globalLock: ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
-        Image(systemName: "lock")
+        Image(systemName: .effectsLockButtonImageName)
       }
     ) {
       HStack(alignment: .center, spacing: 8) {

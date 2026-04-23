@@ -538,7 +538,7 @@ public struct SoundFontsListView: View {
         Button {
           store.send(.searchButtonTapped)
         } label: {
-          Image(systemName: "magnifyingglass")
+          Image(systemName: .searchButtonImageName)
             .imageScale(.small)
             .contentShape(Rectangle())
         }

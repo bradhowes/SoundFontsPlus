@@ -123,12 +123,12 @@ public struct AppRootView: View {
         Button {
           actions.previous()
         } label: {
-          Image(systemName: "arrowshape.left.fill")
+          Image(systemName: .helpPreviousItemButtonImageName)
         }
         Button {
           actions.next()
         } label: {
-          Image(systemName: "arrowshape.right.fill")
+          Image(systemName: .helpNextItemButtonImageName)
         }
       }
       .fontWeight(.semibold)
@@ -149,7 +149,7 @@ public struct AppRootView: View {
             .font(.toastLabel)
             .foregroundStyle(.teal)
         } icon: {
-          Image(systemName: "speaker.slash")
+          Image(systemName: .noAudioVolumeImageName)
         }
       }
     case .noActivePreset:
@@ -159,7 +159,7 @@ public struct AppRootView: View {
             .font(.toastLabel)
             .foregroundStyle(.teal)
         } icon: {
-          Image(systemName: "speaker.slash")
+          Image(systemName: .noAudioVolumeImageName)
         }
       }
     }

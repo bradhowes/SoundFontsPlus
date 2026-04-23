@@ -155,7 +155,7 @@ public struct PresetsListSectionView: View {
         store.send(.delegate(.searchButtonTapped))
       } label: {
         HStack {
-          Image(systemName: "magnifyingglass")
+          Image(systemName: .searchButtonImageName)
             .imageScale(.small)
             .contentShape(Rectangle())
           // Here to keep from overlapping the section index overlay from the parent view

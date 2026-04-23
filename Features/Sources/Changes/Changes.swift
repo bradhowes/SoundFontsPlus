@@ -133,7 +133,7 @@ public struct ChangesView: View {
         Button {
           store.send(.dismissButtonTapped, animation: .default)
         } label: {
-          Image(systemName: "checkmark")
+          Image(systemName: .checkmarkImageName)
         }
       }
     }

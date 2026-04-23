@@ -2,6 +2,12 @@
 
 import SwiftUI
 
+/**
+ Custom layout for help info text views.
+
+ The layout is not very robust, so best to limit what it manages to one or more `Text` views. It does guarantee the smallest
+ bounding rectangle for the `Text` views it manages, and it will properly honor a `frame` `maxWidth` value if set.
+ */
 public struct HelpInfoLayout: Layout {
   public let spacing: CGFloat
 
@@ -34,6 +40,8 @@ public struct HelpInfoLayout: Layout {
   }
 }
 
+#if DEBUG
+
 #Preview {
   VStack(spacing: 8) {
     VStack {
@@ -46,11 +54,11 @@ public struct HelpInfoLayout: Layout {
       HStack(spacing: 24) {
         Button {
         } label: {
-          Image(systemName: "arrowshape.left.fill")
+          Image(systemName: .helpPreviousItemButtonImageName)
         }
         Button {
         } label: {
-          Image(systemName: "arrowshape.right.fill")
+          Image(systemName: .helpNextItemButtonImageName)
         }
       }
       .fontWeight(.semibold)
@@ -74,11 +82,11 @@ The quick brown fox jumped over the lazy fox.
       HStack(spacing: 24) {
         Button {
         } label: {
-          Image(systemName: "arrowshape.left.fill")
+          Image(systemName: .helpPreviousItemButtonImageName)
         }
         Button {
         } label: {
-          Image(systemName: "arrowshape.right.fill")
+          Image(systemName: .helpNextItemButtonImageName)
         }
      }
       .fontWeight(.semibold)
@@ -88,3 +96,5 @@ The quick brown fox jumped over the lazy fox.
     .background(.yellow)
   }
 }
+
+#endif // DEBUG
