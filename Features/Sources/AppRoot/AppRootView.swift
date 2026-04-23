@@ -112,18 +112,19 @@ public struct AppRootView: View {
     for helpItem: HelpItem,
     actions: HelpItemSpotlightActions
   ) -> some View {
-    VStack(alignment: .leading, spacing: 16) {
-      helpItem.title
-        .font(.title3.weight(.bold))
-      helpItem.message
-        .font(.footnote)
-      HStack {
+    VStack(spacing: 8) {
+      HelpInfoLayout(spacing: 16) {
+        helpItem.title
+          .font(.title3.weight(.bold))
+        helpItem.message
+          .font(.footnote)
+      }
+      HStack(spacing: 24) {
         Button {
           actions.previous()
         } label: {
           Image(systemName: "arrowshape.left.fill")
         }
-        Spacer()
         Button {
           actions.next()
         } label: {
@@ -136,11 +137,7 @@ public struct AppRootView: View {
     .background {
       RoundedRectangle(cornerRadius: 28)
         .fill(colorScheme == .dark ? Color.black : Color.white)
-        // .stroke(.primary, lineWidth: 1)
     }
-//    .animation(.smooth, value: helpItem.title)
-//    .animation(.smooth, value: helpItem.message)
-    // .shadow(color: .black.opacity(0.12), radius: 24, y: 12)
   }
 
   private func volumeMonitorToast(_ reason: VolumeMonitor.Reason) -> Toast {

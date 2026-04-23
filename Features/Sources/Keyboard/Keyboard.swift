@@ -256,6 +256,8 @@ extension Keyboard {
   }
 }
 
+// MARK: - View
+
 public struct KeyboardView: View {
   typealias Event = SpatialEventGesture.Value.Element
   private var store: StoreOf<Keyboard>
