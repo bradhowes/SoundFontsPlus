@@ -284,13 +284,15 @@ public struct ReverbEffectView: View {
   }
 
   public var body: some View {
-    NamedKnobCollectionContainer(
+    let onOff = ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
+      .helpItemTag(.reverbOn)
+    let globalLock = ToggleView(store: store.scope(state: \.locked, action: \.locked)) { Image(systemName: "lock") }
+      .helpItemTag(.reverbLock)
+    return NamedKnobCollectionContainer(
       enabled: store.enabled.isOn,
       title: "Reverb",
-      onOff: ToggleView(store: store.scope(state: \.enabled, action: \.enabled)),
-      globalLock: ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
-        Image(systemName: "lock")
-      }
+      onOff: onOff,
+      globalLock: globalLock
     ) {
       HStack(alignment: .center, spacing: 8) {
         Picker("Room", selection: $store.config.roomPreset.sending(\.roomPresetChanged)) {
@@ -300,11 +302,13 @@ public struct ReverbEffectView: View {
               .foregroundStyle(theme.textColor)
           }
         }
+        .helpItemTag(.reverbRoom)
 #if os(iOS)
         .pickerStyle(.wheel)
         .frame(width: 110)  // !!! Magic size that fits all of the strings without wasted space
 #endif
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
+          .helpItemTag(.reverbAmount)
       }
     }
   }

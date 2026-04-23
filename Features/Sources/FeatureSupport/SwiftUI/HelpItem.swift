@@ -14,6 +14,18 @@ public enum HelpItem: CaseIterable {
   case fontsPresetsDivider
   case fontsTagsDivider
   case effectsPanel
+  // Reverb
+  case reverbOn
+  case reverbLock
+  case reverbRoom
+  case reverbAmount
+  // Delay
+  case delayOn
+  case delayLock
+  case delayTime
+  case delayFeedback
+  case delayCutoff
+  case delayAmount
   case addButton
   case tagsButton
   case effectsButton
@@ -36,6 +48,19 @@ public enum HelpItem: CaseIterable {
     case .fontsPresetsDivider: return Text("Fonts/Presets Divider")
     case .fontsTagsDivider: return Text("Fonts/Tags Divider")
     case .effectsPanel: return Text("Effects")
+      // Reverb
+    case .reverbOn: return Text("Reverb On/Off")
+    case .reverbLock: return Text("Reverb Lock")
+    case .reverbRoom: return Text("Reverb Room")
+    case .reverbAmount: return Text("Reverb Amount")
+      // Delay
+    case .delayOn: return Text("Delay On/Off")
+    case .delayLock: return Text("Delay Lock")
+    case .delayTime: return Text("Delay Time")
+    case .delayFeedback: return Text("Delay Feedback")
+    case .delayCutoff: return Text("Delay Cutoff")
+    case .delayAmount: return Text("Delay Amount")
+      // Toolbar buttons
     case .addButton: return Text("Add")
     case .tagsButton: return Text("Tags")
     case .effectsButton: return Text("Effects")
@@ -140,7 +165,57 @@ Quickly edit the visibility of the presets of the active soundfont via touch act
       return Text("Show the Settings panel.")
     case .moreButton:
       return Text("Show additional buttons in the tool bar.")
+      // Reverb
+    case .reverbOn:
+      return Text("""
+Toggle to enable/disable reverb effect.
+""")
+    case .reverbLock:
+      return Text("""
+Toggle to lock reverb settings to protect from changes when a preset changes.
+""")
+    case .reverbRoom:
+      return Text("""
+The reverb room shape that defines the reverberation engine settings.
+• Touch-drag up/down to change
+""")
+    case .reverbAmount:
+      return Text("""
+The percentage of the audio output made up of the reverb effect.
+• 0% - no reverb effect in the mix.
+• 50% - orignal audio and reverb output mixed in same amount.
+• 100% - only reverb output in mix.
+""")
+      // Delay
+    case .delayOn:
+      return Text("""
+Toggle to enable/disable delay effect.
+""")
+    case .delayLock:
+      return Text("""
+Toggle to lock delay settings to protect from changes when a preset changes.
+""")
+    case .delayTime:
+      return Text("""
+The amount of time between repetitions of the audio from the delay buffer.
+""")
+    case .delayFeedback:
+      return Text("""
+The amount of the recorded audio that remixed and saved to the delay buffer.
+""")
+    case .delayCutoff:
+      return Text("""
+Controls the low-pass filter cutoff frequency (Hz) applied to audio before it is saved to the delay buffer.
+""")
+    case .delayAmount:
+      return Text("""
+The percentage of the audio output made up of the delay effect.
+• 0% - no delay effect in the mix.
+• 50% - orignal audio and delay output mixed in same amount.
+• 100% - only delay output in mix.
+""")
     }
+
   }
 }
 
