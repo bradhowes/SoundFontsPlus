@@ -102,14 +102,14 @@ public struct AppRootView: View {
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     .helpInfoSpotlightOverlay(
       selection: $store.helpInfoSelection,
-      orderedIDs: HelpInfo.allCases
+      orderedIDs: RootHelpInfo.allCases
     ) { id, actions in
-      spotlightCard(for: id, actions: actions)
+      helpInfoOverlay(for: id, actions: actions)
     }
   }
 
-  private func spotlightCard(
-    for helpItem: HelpInfo,
+  private func helpInfoOverlay(
+    for helpItem: RootHelpInfo,
     actions: HelpInfoSpotlightOverlayActions
   ) -> some View {
     VStack(spacing: 8) {

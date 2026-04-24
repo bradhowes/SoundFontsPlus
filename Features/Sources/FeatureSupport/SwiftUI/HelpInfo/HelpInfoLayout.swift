@@ -17,15 +17,15 @@ public struct HelpInfoLayout: Layout {
 
   public func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
     guard !subviews.isEmpty else { return .zero }
-    var width: CGFloat = 0
-    var height: CGFloat = 0
+    var maxWidth: CGFloat = 0
+    var maxHeight: CGFloat = 0
     for subview in subviews {
       let unlimited = subview.sizeThatFits(ProposedViewSize.unspecified)
       let limited = subview.sizeThatFits(proposal)
-      width = max(width, min(unlimited.width, limited.width))
-      height += limited.height + spacing
+      maxWidth = max(maxWidth, min(unlimited.width, limited.width))
+      maxHeight += limited.height + spacing
     }
-    return .init(width: width, height: height - spacing)
+    return .init(width: maxWidth, height: maxHeight - spacing)
   }
 
   public func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {

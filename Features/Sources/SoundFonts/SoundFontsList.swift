@@ -466,8 +466,8 @@ public struct SoundFontsListView: View {
       if searching {
         searchField
       }
-      Section {
-        StyledList {
+      StyledList {
+        Section {
           ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
             StyledEntry {
               SoundFontButtonView(
@@ -476,11 +476,11 @@ public struct SoundFontsListView: View {
               )
             }
           }
-        }
-      } header: {
-        StyledHeader {
-          sectionHeader
-            .helpInfoViewTag(.fontsListHeader)
+        } header: {
+          StyledHeader {
+            sectionHeader
+              .helpInfoViewTag(.fontsListHeader)
+          }
         }
       }
     }

@@ -87,7 +87,7 @@ public struct AppRoot {
     public var toastState: VolumeMonitor.Reason?
     public var avAudioUnit: AVAudioUnit?
     @Shared(.effectsPanelVisible) public var effectsPanelVisible
-    public var helpInfoSelection: HelpInfo?
+    public var helpInfoSelection: RootHelpInfo?
     @ObservationStateIgnored
     fileprivate var helpInfoRestorations: HelpInfoRestoration?
 
