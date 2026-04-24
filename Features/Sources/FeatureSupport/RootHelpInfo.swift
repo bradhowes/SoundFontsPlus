@@ -1,5 +1,6 @@
 // Copyright © 2026 Brad Howes. All rights reserved.
 
+import HelpInfoSpotlightOverlay
 import SwiftUI
 
 /**

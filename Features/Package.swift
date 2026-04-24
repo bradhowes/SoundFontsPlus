@@ -55,7 +55,9 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/bradhowes/AUv3Controls", from: "1.0.0"),
     .package(url: "https://github.com/bradhowes/brh-splitview", from: "1.0.0"),
-    .package(url: "https://github.com/bradhowes/typedfullstate", branch: "main"),
+    .package(url: "https://github.com/bradhowes/HelpInfoSpotlightOverlay", from: "1.0.0"),
+    // .package(name: "HelpInfoSpotlightOverlay", path: "/Users/howes/src/Mine/HelpInfoSpotlightOverlay"),
+    .package(url: "https://github.com/bradhowes/typedfullstate", from: "1.1.1"),
     //
     .morkAndMIDI,
     .sf2Lib,
@@ -171,6 +173,7 @@ let package = Package(
         "Models",
         "Synth",
         .product(name: "AUv3Controls", package: "AUv3Controls"),
+        .product(name: "HelpInfoSpotlightOverlay", package: "HelpInfoSpotlightOverlay"),
         .product(name: "CasePaths", package: "swift-case-paths"),
         .product(name: "MorkAndMIDI", package: "morkandmidi"),
         .product(name: "Sharing", package: "swift-sharing")

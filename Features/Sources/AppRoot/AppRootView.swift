@@ -6,6 +6,7 @@ import BRHSplitView
 import Changes
 import DelayEffect
 import FeatureSupport
+import HelpInfoSpotlightOverlay
 import Keyboard
 import MorkAndMIDI
 import Presets
@@ -52,7 +53,9 @@ public struct AppRootView: View {
   private var theme: AUv3Controls.Theme {
     var theme = Theme(colorScheme: colorScheme)
     theme.controlForegroundColor = .mainAccentColor
-    theme.textColor = colorScheme == .dark ? .mainAccentColor.mix(with: .black, by: 0.2) : .mainAccentColor.mix(with: .white, by: 0.2)
+    theme.textColor = colorScheme == .dark
+    ? .mainAccentColor.mix(with: .black, by: 0.2)
+    : .mainAccentColor.mix(with: .white, by: 0.2)
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
     theme.toggleOnIndicatorSystemName = .effectsToggleOnButtonImageName
