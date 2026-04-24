@@ -339,7 +339,7 @@ public struct TagsEditorView: View {
         Button {
           store.send(.addButtonTapped, animation: .default)
         } label: {
-          Image(systemName: "plus")
+          Image(systemName: .addButtonImageName)
         }
         .disabled(store.editModeActive)
         .font(.button)

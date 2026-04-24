@@ -224,12 +224,12 @@ The panel on the left-hand side shows names of the installed soundfont files.
             Text("Swipe Actions")
               .foregroundStyle(Color.alternateAccentColor)
             GridRow {
-              Image(systemName: "pencil")
+              Image(systemName: .editButtonImageName)
               Text("Edit name and tags")
                 .gridColumnAlignment(.leading)
             }
             GridRow {
-              Image(systemName: "trash")
+              Image(systemName: .deleteButtonImageName)
                 .foregroundStyle(.red)
               Text("Remove from device")
                 .gridColumnAlignment(.leading)
@@ -284,12 +284,12 @@ The list to the right of the fonts list shows the visible presets in the selecte
       HStack(spacing: 18) {
         Grid {
           GridRow {
-            Image(systemName: "pencil")
+            Image(systemName: .editButtonImageName)
             Text("Edit preset")
               .gridColumnAlignment(.leading)
           }
           GridRow {
-            Image(systemName: "star")
+            Image(systemName: .favoriteButtonImageName)
               .foregroundStyle(Color.alternateAccentColor)
             Text("Create favorite")
               .gridColumnAlignment(.leading)
@@ -297,13 +297,13 @@ The list to the right of the fonts list shows the visible presets in the selecte
         }
         Grid {
           GridRow {
-            Image(systemName: "eye.slash")
+            Image(systemName: .hidePresetButtonImageName)
               .foregroundStyle(.gray)
             Text("Hide preset")
               .gridColumnAlignment(.leading)
           }
           GridRow {
-            Image(systemName: "trash")
+            Image(systemName: .deleteButtonImageName)
               .foregroundStyle(.red)
             Text("Remove favorite")
           }
@@ -409,12 +409,12 @@ Tags help organize your font collection as it grows, allowing you to quickly cha
               .foregroundStyle(Color.alternateAccentColor)
             Grid {
               GridRow {
-                Image(systemName: "pencil")
+                Image(systemName: .editButtonImageName)
                 Text("Edit tags")
                   .gridColumnAlignment(.leading)
               }
               GridRow {
-                Image(systemName: "trash")
+                Image(systemName: .deleteButtonImageName)
                   .foregroundStyle(.red)
                 Text("Remove user tag")
               }
@@ -433,14 +433,14 @@ Tap the \(Image(systemName: .tagsListButtonImageName)) button to see the tag pan
         HStack(spacing: 18) {
           Grid {
             GridRow {
-              Image(systemName: "pencil")
+              Image(systemName: .editButtonImageName)
               Text("Edit tags")
                 .gridColumnAlignment(.leading)
             }
           }
           Grid {
             GridRow {
-              Image(systemName: "trash")
+              Image(systemName: .deleteButtonImageName)
                 .foregroundStyle(.red)
               Text("Remove user tag")
             }
@@ -468,35 +468,35 @@ parts of the application.
           x: CGFloat(0), y: CGFloat(0))
       Grid(verticalSpacing: 12) {
         GridRow {
-          Image(systemName: "plus.circle")
+          Image(systemName: .addSoundFontButtonImageName)
             .gridColumnAlignment(.trailing)
           Text("Add a new soundfont file")
             .gridColumnAlignment(.leading)
         }
         GridRow {
-          Image(systemName: "tag")
+          Image(systemName: .tagsListButtonImageName)
             .gridColumnAlignment(.trailing)
           Text("Toggle tag list visibility")
         }
         GridRow {
-          Image(systemName: "waveform")
+          Image(systemName: .effectsButtonImageName)
             .gridColumnAlignment(.trailing)
           Text("Toggle effects panel visibility")
         }
         GridRow {
-          Image(systemName: "chevron.left")
+          Image(systemName: .moreButtonImageName)
             .gridColumnAlignment(.trailing)
           Text("Show more controls (in narrow views)")
         }
         GridRow {
-          Image(systemName: "hand.tap")
+          Image(systemName: .tapImageName)
             .gridColumnAlignment(.trailing)
           Text("Single-tap on the preset name to scroll to its entry.")
         }
         GridRow {
           HStack {
-            Image(systemName: "hand.tap")
-            Image(systemName: "hand.tap")
+            Image(systemName: .tapImageName)
+            Image(systemName: .tapImageName)
           }
           .gridColumnAlignment(.trailing)
           Text("Double-tap on the preset name to cancel all active notes in the synth (aka PANIC).")
@@ -510,10 +510,10 @@ parts of the application.
       title: "More Controls",
       gist:
 """
-Change the visible key range with the ❰ and ❱ buttons. You can have a preset/favorite adjust the keyboard \
-when it becomes active. \
-Tap \(Image(systemName: "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right")) \
-to toggle keyboard sliding during playing.
+Change the visible key range with the \
+\(Image(systemName: .shiftKeyboardLeftIndicator)) and \(Image(systemName: .shiftKeyboardRightIndicator)) buttons. \
+You can have a preset/favorite adjust the keyboard when it becomes active. \
+Tap \(Image(systemName: .fixedKeyboardButtonImageName)) to toggle keyboard sliding during playing.
 """
     ) {
       Image("ToolBar2", bundle: Bundle.module)
@@ -528,15 +528,15 @@ to toggle keyboard sliding during playing.
             .gridColumnAlignment(.leading)
         }
         GridRow {
-          Image(systemName: "list.bullet")
+          Image(systemName: .presetsVisibilityButtonImageName)
           Text("Change visibility of presets")
         }
         GridRow {
-          Image(systemName: "questionmark.circle")
+          Image(systemName: .helpButtonImageName)
           Text("Show quick-help guide")
         }
         GridRow {
-          Image(systemName: "chevron.left")
+          Image(systemName: .moreButtonImageName)
             .foregroundStyle(Color.alternateAccentColor)
           Text("Hide these buttons (in narrow views)")
         }
@@ -570,7 +570,7 @@ Swipe up/down to change room or adjust knob value.
       Grid(verticalSpacing: 12) {
         GridRow {
           HStack {
-            Image(systemName: "arrowtriangle.down")
+            Image(systemName: .arrowDownButtonImageName)
             Text("On")
           }
           .gridColumnAlignment(.trailing)
@@ -580,8 +580,8 @@ Swipe up/down to change room or adjust knob value.
         }
         GridRow {
           HStack {
-            Image(systemName: "arrowtriangle.down")
-            Text("\(Image(systemName: "lock"))")
+            Image(systemName: .arrowDownButtonImageName)
+            Text("\(Image(systemName: .effectsLockButtonImageName))")
           }
           .foregroundStyle(.gray)
           Text("Keep settings when preset changes")
@@ -622,7 +622,7 @@ tap on label to enter numeric value.
       Grid(verticalSpacing: 12) {
         GridRow {
           HStack {
-            Image(systemName: "arrowtriangle.down")
+            Image(systemName: .arrowDownButtonImageName)
             Text("On")
           }
           .gridColumnAlignment(.trailing)
@@ -632,7 +632,7 @@ tap on label to enter numeric value.
         }
         GridRow {
           HStack {
-            Image(systemName: "arrowtriangle.down")
+            Image(systemName: .arrowDownButtonImageName)
             Text("\(Image(systemName: .effectsLockButtonImageName))")
           }
           .foregroundStyle(.gray)
@@ -713,7 +713,7 @@ or globally.
       .font(.body)
       Grid {
         GridRow {
-          Image(systemName: "gear")
+          Image(systemName: .settingsButtonImageName)
             .imageScale(.large)
           Text("Tap to access these settings and more")
             .font(.body)

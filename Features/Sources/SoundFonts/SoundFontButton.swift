@@ -183,7 +183,7 @@ struct SoundFontButtonView: View {
       Button {
         store.send(.delegate(.edit(store.soundFontInfo)), animation: .default)
       } label: {
-        Image(systemName: "pencil")
+        Image(systemName: .editButtonImageName)
           .tint(.cyan)
       }
     }
@@ -192,7 +192,7 @@ struct SoundFontButtonView: View {
         Button {
           store.send(.delegate(.delete(store.soundFontInfo)), animation: .default)
         } label: {
-          Image(systemName: "trash")
+          Image(systemName: .deleteButtonImageName)
             .tint(.red)
         }
       }

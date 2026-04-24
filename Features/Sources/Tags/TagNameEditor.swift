@@ -136,7 +136,7 @@ public struct TagNameEditorView: View {
             Button {
               store.send(.tagSwipedToDelete)
             } label: {
-              Image(systemName: "trash")
+              Image(systemName: .deleteButtonImageName)
                 .tint(.red)
             }
           }

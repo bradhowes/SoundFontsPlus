@@ -55,8 +55,8 @@ public struct AppRootView: View {
     theme.textColor = colorScheme == .dark ? .mainAccentColor.mix(with: .black, by: 0.2) : .mainAccentColor.mix(with: .white, by: 0.2)
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
-    theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
-    theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
+    theme.toggleOnIndicatorSystemName = .effectsToggleOnButtonImageName
+    theme.toggleOffIndicatorSystemName = .effectsToggleOffButtonImageName
     theme.font = .effectsControl
     return theme
   }

@@ -456,7 +456,7 @@ public struct PresetsListView: View {
   @ViewBuilder
   public static func sectionIndexTitleView(for title: String) -> some View {
     if title == "!" {
-      Image(systemName: "star.circle")
+      Image(systemName: .favoriteButtonImageName)
     } else {
       Text(title)
     }
@@ -520,7 +520,7 @@ public struct PresetsListView: View {
       Button {
         store.send(.cancelSearchButtonTapped)
       } label: {
-        Image(systemName: "xmark")
+        Image(systemName: .cancelButtonImageName)
           .frame(width: 32, height: 32)
           .contentShape(Rectangle())
       }

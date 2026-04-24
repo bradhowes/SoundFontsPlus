@@ -516,7 +516,7 @@ Removes all installed SF2 files and any customizations — same as reinstalling 
             Button {
               store.send(.contactDeveloperTapped)
             } label: {
-              Image(systemName: "paperplane")
+              Image(systemName: .emailButtonImageName)
             }
           }
         }

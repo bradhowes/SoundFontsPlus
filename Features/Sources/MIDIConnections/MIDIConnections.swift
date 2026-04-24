@@ -197,9 +197,9 @@ public struct MIDIConnectionsView: View {
               Text("Fixed Velocity")
                 .font(.footnote)
                 .foregroundStyle(.gray)
-              Image(systemName: "app.connected.to.app.below.fill")
+              Image(systemName: .midiDeviceAutoConnectImageName)
                 .foregroundStyle(.gray)
-              Image(systemName: "bolt.fill")
+              Image(systemName: .midiDeviceConnectedImageName)
                 .foregroundStyle(.gray)
             }
             .padding([.top, .bottom], 4)
@@ -212,8 +212,8 @@ public struct MIDIConnectionsView: View {
         """
         Chan — last reported MIDI channel of the device
         Fixed Velocity — velocity for note events from device
-        \(Image(systemName: "app.connected.to.app.below.fill")) — auto-connect device when it appears
-        \(Image(systemName: "bolt.fill")) — current connection state (tap to change)
+        \(Image(systemName: .midiDeviceAutoConnectImageName)) — auto-connect device when it appears
+        \(Image(systemName: .midiDeviceConnectedImageName)) — current connection state (tap to change)
         """
       )
       .font(.footer)
@@ -251,7 +251,7 @@ public struct MIDIConnectionsView: View {
       Button {
         store.send(.fixedVolumeDecrementTapped(row.id))
       } label: {
-        Image(systemName: "arrowtriangle.down")
+        Image(systemName: .arrowDownButtonImageName)
           .frame(width: 30, height: 40)
       }
       .disabled(row.fixedVolume == 1)
@@ -260,7 +260,7 @@ public struct MIDIConnectionsView: View {
       Button {
         store.send(.fixedVolumeIncrementTapped(row.id))
       } label: {
-        Image(systemName: "arrowtriangle.up")
+        Image(systemName: .arrowUpButtonImageName)
           .frame(width: 30, height: 40)
       }
       .disabled(row.fixedVolume == 128)
@@ -279,7 +279,7 @@ public struct MIDIConnectionsView: View {
     Button {
       store.send(.toggleConnected(row.id))
     } label: {
-      Image(systemName: row.connected ? "bolt.circle.fill" : "circle")
+      Image(systemName: row.connected ? .midiDeviceConnectedButtonImageName : .midiDeviceDisconnectedButtonImageName)
         .frame(width: 40, height: 40)
     }
     .frame(maxWidth: .infinity)

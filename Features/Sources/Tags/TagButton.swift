@@ -90,7 +90,7 @@ struct TagButtonView: View {
       Button {
         store.send(.delegate(.edit(store.tagInfo)), animation: .default)
       } label: {
-        Image(systemName: "pencil")
+        Image(systemName: .editButtonImageName)
           .tint(.cyan)
       }
     }
@@ -99,7 +99,7 @@ struct TagButtonView: View {
         Button {
           store.send(.delegate(.delete(store.tagInfo)), animation: .default)
         } label: {
-          Image(systemName: "trash")
+          Image(systemName: .deleteButtonImageName)
             .tint(.red)
         }
       }

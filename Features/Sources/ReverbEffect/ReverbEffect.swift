@@ -326,8 +326,8 @@ extension ReverbEffectView {
     var theme = Theme()
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
-    theme.toggleOnIndicatorSystemName = "arrowtriangle.down.fill"
-    theme.toggleOffIndicatorSystemName = "arrowtriangle.down"
+    theme.toggleOnIndicatorSystemName = .effectsToggleOnButtonImageName
+    theme.toggleOffIndicatorSystemName = .effectsToggleOffButtonImageName
 
     let store = Store(initialState: .init()) { ReverbEffect() }
 

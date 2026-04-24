@@ -75,7 +75,7 @@ public struct MIDIAssignmentsView: View {
 //            Button {
 //              store.send(.fixedVolumeDecrementTapped(row.id))
 //            } label: {
-//              Image(systemName: "arrowtriangle.down")
+//              Image(systemName: .arrowDownButtonImageName)
 //                .frame(width: 30, height: 40)
 //            }
 //            .disabled(row.fixedVolume == 1)
@@ -84,7 +84,7 @@ public struct MIDIAssignmentsView: View {
 //            Button {
 //              store.send(.fixedVolumeIncrementTapped(row.id))
 //            } label: {
-//              Image(systemName: "arrowtriangle.up")
+//              Image(systemName: .arrowUpButtonImageName)
 //                .frame(width: 30, height: 40)
 //            }
 //            .disabled(row.fixedVolume == 128)

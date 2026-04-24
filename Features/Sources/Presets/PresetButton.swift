@@ -72,7 +72,7 @@ public struct PresetButtonView: View {
       HStack {
         if editingVisibility {
           // Show indicator when edititing preset visibility
-          Image(systemName: isHidden ? .circledCheckMarkOffImageName : .circledCheckMarkOnImageName)
+          Image(systemName: isHidden ? .toggleCircleOffImageName : .toggleCircleOnImageName)
             .foregroundStyle(Color.alternateAccentColor)
             .frame(width: 24)
             .animation(.smooth, value: store.preset.kind) // animate the visibiliity toggle image
@@ -97,13 +97,13 @@ public struct PresetButtonView: View {
         Button {
           store.send(.delegate(.editPreset(store.preset)), animation: .default)
         } label: {
-          Image(systemName: "pencil")
+          Image(systemName: .editButtonImageName)
             .tint(.cyan)
         }
         Button {
           store.send(.delegate(.createFavorite(store.preset)), animation: .default)
         } label: {
-          Image(systemName: store.preset.isFavorite ? "document.on.document.fill" : "star")
+          Image(systemName: store.preset.isFavorite ? .duplicateFavoriteButtonName : .favoriteButtonImageName)
             .tint(Color.alternateAccentColor)
         }
       }
@@ -115,14 +115,14 @@ public struct PresetButtonView: View {
           Button {
             store.send(.delegate(.deleteFavorite(store.preset)), animation: .default)
           } label: {
-            Image(systemName: "trash")
+            Image(systemName: .deleteButtonImageName)
               .tint(.red)
           }
         } else {
           Button {
             store.send(.delegate(.hidePreset(store.preset)), animation: .default)
           } label: {
-            Image(systemName: "eye.slash")
+            Image(systemName: .hidePresetButtonImageName)
               .tint(.purple)
           }
         }

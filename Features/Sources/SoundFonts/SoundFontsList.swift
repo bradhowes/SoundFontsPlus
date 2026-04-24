@@ -517,7 +517,7 @@ public struct SoundFontsListView: View {
       Button {
         store.send(.cancelSearchButtonTapped)
       } label: {
-        Image(systemName: "xmark")
+        Image(systemName: .cancelButtonImageName)
           .frame(width: 32, height: 32)
           .contentShape(Rectangle())
       }
