@@ -8,7 +8,7 @@ public extension String {
   static var addButtonImageName: String { "plus" }
   static var addSoundFontButtonImageName: String { "plus.circle" }
   static var arrowDownButtonImageName: String { "arrowtriangle.down" }
-  static var arrowUpButtonImageName: String { "arrowtriangle.down" }
+  static var arrowUpButtonImageName: String { "arrowtriangle.up" }
   static var cancelButtonImageName: String { "xmark" }
   static var checkmarkImageName: String { "checkmark" }
   static var circledCheckMarkOffImageName: String { "circle" }
@@ -22,7 +22,7 @@ public extension String {
   static var effectsToggleOnButtonImageName: String { "arrowtriangle.down.fill" }
   static var emailButtonImageName: String { "paperplane" }
   static var favoriteButtonImageName: String { "star" }
-  static var fixedKeyboardButtonImageName: String { "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right"  }
+  static var fixedKeyboardButtonImageName: String { "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right" }
   static var helpButtonImageName: String { "questionmark.circle"}
   static var helpNextItemButtonImageName: String { "arrowshape.right.fill" }
   static var helpPreviousItemButtonImageName: String { "arrowshape.left.fill" }
@@ -36,12 +36,15 @@ public extension String {
   static var presetsVisibilityButtonImageName: String { "list.bullet" }
   static var searchButtonImageName: String { "magnifyingglass" }
   static var settingsButtonImageName: String { "gear" }
-  static var shiftKeyboardLeftIndicator: String { "❰"}
-  static var shiftKeyboardRightIndicator: String { "❱"}
   static var slidingKeyboardButtonImageName: String { "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right.fill" }
   static var tagsListButtonImageName: String { "tag" }
-  static var tapImageName: String { "hand.tag" }
+  static var tapImageName: String { "hand.tap" }
   static var textFieldClearButtonImageName: String { "multiply.circle.fill" }
   static var toggleCircleOffImageName: String { "circle" }
   static var toggleCircleOnImageName: String { "inset.filled.circle" }
+}
+
+public extension String {
+  static var shiftKeyboardLeftIndicator: String { "❰" }
+  static var shiftKeyboardRightIndicator: String { "❱" }
 }

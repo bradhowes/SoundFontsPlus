@@ -510,8 +510,7 @@ parts of the application.
       title: "More Controls",
       gist:
 """
-Change the visible key range with the \
-\(Image(systemName: .shiftKeyboardLeftIndicator)) and \(Image(systemName: .shiftKeyboardRightIndicator)) buttons. \
+Change the visible key range with the \(.shiftKeyboardLeftIndicator) and \(.shiftKeyboardRightIndicator) buttons. \
 You can have a preset/favorite adjust the keyboard when it becomes active. \
 Tap \(Image(systemName: .fixedKeyboardButtonImageName)) to toggle keyboard sliding during playing.
 """
