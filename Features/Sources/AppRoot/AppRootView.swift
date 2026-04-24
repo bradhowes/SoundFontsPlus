@@ -100,44 +100,11 @@ public struct AppRootView: View {
     }
     .toastStyle(.plain)
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
-    .helpItemSpotlight(
-      selection: $store.helpItemSelection,
-      orderedIDs: HelpItem.allCases
-    ) { id, actions in
-      spotlightCard(for: id, actions: actions)
-    }
-  }
-
-  private func spotlightCard(
-    for helpItem: HelpItem,
-    actions: HelpItemSpotlightActions
-  ) -> some View {
-    VStack(spacing: 8) {
-      HelpInfoLayout(spacing: 16) {
-        helpItem.title
-          .font(.title3.weight(.bold))
-        helpItem.message
-          .font(.footnote)
-      }
-      HStack(spacing: 24) {
-        Button {
-          actions.previous()
-        } label: {
-          Image(systemName: .helpPreviousItemButtonImageName)
-        }
-        Button {
-          actions.next()
-        } label: {
-          Image(systemName: .helpNextItemButtonImageName)
-        }
-      }
-      .fontWeight(.semibold)
-    }
-    .padding(20)
-    .background {
-      RoundedRectangle(cornerRadius: 28)
-        .fill(colorScheme == .dark ? Color.black : Color.white)
-    }
+    .helpInfoSpotlightOverlay(
+      selection: $store.helpInfoSelection,
+      orderedIDs: HelpInfo.allCases,
+      overlay: helpInfoOverlay
+    )
   }
 
   private func volumeMonitorToast(_ reason: VolumeMonitor.Reason) -> Toast {
@@ -180,7 +147,7 @@ extension AppRootView {
       },
       divider: {
         handleDivider
-          .helpItemTag(.fontsPresetsDivider)
+          .helpInfoViewTag(.fontsPresetsDivider)
       },
       secondary: {
         PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
@@ -202,11 +169,11 @@ extension AppRootView {
       },
       divider: {
         handleDivider
-          .helpItemTag(.fontsTagsDivider)
+          .helpInfoViewTag(.fontsTagsDivider)
       },
       secondary: {
         TagsListView(store: store.scope(state: \.tagsList, action: \.tagsList))
-          .helpItemTag(.tagsList)
+          .helpInfoViewTag(.tagsList)
       }
     ).splitViewConfiguration(
       .init(
@@ -237,7 +204,7 @@ extension AppRootView {
       effectsView
         .knobValueEditor()
         .auv3ControlsTheme(theme)
-        .helpItemTag(.effectsPanel)
+        .helpInfoViewTag(.effectsPanel)
       ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar), isAUv3: false)
       dividerBorderColor
         .frame(height: dividerSpan)

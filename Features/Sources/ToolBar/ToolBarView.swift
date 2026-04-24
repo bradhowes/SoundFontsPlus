@@ -141,7 +141,7 @@ public struct ToolBarView: View {
       }
       .animation(.smooth, value: showActiveVoiceCount || showMIDITrafficIndicator)
     }
-    .helpItemTag(.statusWindow)
+    .helpInfoViewTag(.statusWindow)
   }
 
   private var voiceCountAndTrafficIndicator: some View {
@@ -176,7 +176,7 @@ public struct ToolBarView: View {
       Image(systemName: .addSoundFontButtonImageName)
         .tint(.mainAccentColor)
     }
-    .helpItemTag(.addButton)
+    .helpInfoViewTag(.addButton)
   }
 
   private var editVisibilityButton: some View {
@@ -186,7 +186,7 @@ public struct ToolBarView: View {
       Image(systemName: .presetsVisibilityButtonImageName)
         .tint(if: store.editingPresetVisibility)
     }
-    .helpItemTag(.editVisibilityButton)
+    .helpInfoViewTag(.editVisibilityButton)
   }
 
   private var effectsButton: some View {
@@ -197,7 +197,7 @@ public struct ToolBarView: View {
       Image(systemName: .effectsButtonImageName)
         .tint(if: store.effectsPanelVisible)
     }
-    .helpItemTag(.effectsButton)
+    .helpInfoViewTag(.effectsButton)
   }
 
   private var helpButton: some View {
@@ -217,7 +217,7 @@ public struct ToolBarView: View {
         .tint(if: store.showMoreButtons)
         .frame(width: 24)
     }
-    .helpItemTag(.moreButton)
+    .helpInfoViewTag(.moreButton)
   }
 
   private var settingsButton: some View {
@@ -227,7 +227,7 @@ public struct ToolBarView: View {
       Image(systemName: .settingsButtonImageName)
         .tint(.mainAccentColor)
     }
-    .helpItemTag(.settingsButton)
+    .helpInfoViewTag(.settingsButton)
   }
 
   private var shiftDownButton: some View {
@@ -239,7 +239,7 @@ public struct ToolBarView: View {
         .tint(.mainAccentColor)
     }
     .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
-    .helpItemTag(.shiftDownButton)
+    .helpInfoViewTag(.shiftDownButton)
   }
 
   private var shiftUpButton: some View {
@@ -251,7 +251,7 @@ public struct ToolBarView: View {
         .tint(.mainAccentColor)
     }
     .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
-    .helpItemTag(.shiftUpButton)
+    .helpInfoViewTag(.shiftUpButton)
   }
 
   private var slidingKeyboardButton: some View {
@@ -266,7 +266,7 @@ public struct ToolBarView: View {
       .fixedSize()
       .tint(if: store.keyboardSlides)
     }
-    .helpItemTag(.slideToggle)
+    .helpInfoViewTag(.slideToggle)
   }
 
  private var tagsButton: some View {
@@ -276,7 +276,7 @@ public struct ToolBarView: View {
       Image(systemName: .tagsListButtonImageName)
         .tint(if: store.tagsListVisible)
     }
-    .helpItemTag(.tagsButton)
+    .helpInfoViewTag(.tagsButton)
   }
 }
 

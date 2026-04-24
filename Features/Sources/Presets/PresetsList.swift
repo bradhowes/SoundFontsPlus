@@ -418,7 +418,7 @@ public struct PresetsListView: View {
             )
           }
         }
-        .helpItemTag(.presetsList)
+        .helpInfoViewTag(.presetsList)
         .overlay(alignment: .trailing) {
           if showPresetIndexView {
             sectionIndexTitlesOverlay
@@ -449,7 +449,7 @@ public struct PresetsListView: View {
           sectionIndexTitles(stride: stride)
         }
       }
-      .helpItemTag(.presetsListIndex)
+      .helpInfoViewTag(.presetsListIndex)
     }
   }
 

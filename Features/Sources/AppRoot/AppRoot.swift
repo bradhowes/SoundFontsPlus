@@ -60,7 +60,7 @@ public struct AppRoot {
     }
   }
 
-  fileprivate struct HelpItemRestoration: Equatable {
+  fileprivate struct HelpInfoRestoration: Equatable {
     let effectsPanelVisible: Bool
     let tagsListVisible: Bool
     let moreButtonsVisible: Bool
@@ -87,9 +87,9 @@ public struct AppRoot {
     public var toastState: VolumeMonitor.Reason?
     public var avAudioUnit: AVAudioUnit?
     @Shared(.effectsPanelVisible) public var effectsPanelVisible
-    public var helpItemSelection: HelpItem?
+    public var helpInfoSelection: HelpInfo?
     @ObservationStateIgnored
-    fileprivate var helpItemRestorations: HelpItemRestoration?
+    fileprivate var helpInfoRestorations: HelpInfoRestoration?
 
     /**
      Constructor for main app.
@@ -236,12 +236,12 @@ public struct AppRoot {
         return .none
 
       case .beginHelpSpotlight:
-        state.helpItemSelection = .fontsList
+        state.helpInfoSelection = .fontsList
         return .none
 
-      case .binding(\.helpItemSelection):
+      case .binding(\.helpInfoSelection):
         var effects = [Effect<Action>]()
-        if state.helpItemSelection == nil, let restorations = state.helpItemRestorations {
+        if state.helpInfoSelection == nil, let restorations = state.helpInfoRestorations {
           @Shared(.effectsPanelVisible) var effectsPanelVisible
           $effectsPanelVisible.withLock { $0 = restorations.effectsPanelVisible }
           if !restorations.tagsListVisible {
@@ -251,7 +251,7 @@ public struct AppRoot {
             effects.append(.send(.toolBar(.showMoreButtonTapped)))
           }
 
-          state.helpItemRestorations = nil
+          state.helpInfoRestorations = nil
         }
         return .merge(effects)
 
@@ -632,7 +632,7 @@ extension AppRoot {
 
   private func helpButtonTapped(_ state: inout State) -> Effect<Action> {
     @Shared(.effectsPanelVisible) var effectsPanelVisible
-    state.helpItemRestorations = .init(
+    state.helpInfoRestorations = .init(
       effectsPanelVisible: effectsPanelVisible,
       tagsListVisible: tagsListVisible,
       moreButtonsVisible: state.toolBar.showMoreButtons

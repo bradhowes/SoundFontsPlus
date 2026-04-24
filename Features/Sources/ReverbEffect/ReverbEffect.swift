@@ -285,11 +285,11 @@ public struct ReverbEffectView: View {
 
   public var body: some View {
     let onOff = ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
-      .helpItemTag(.reverbOn)
+      .helpInfoViewTag(.reverbOn)
     let globalLock = ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
       Image(systemName: .effectsLockButtonImageName)
     }
-      .helpItemTag(.reverbLock)
+      .helpInfoViewTag(.reverbLock)
     return NamedKnobCollectionContainer(
       enabled: store.enabled.isOn,
       title: "Reverb",
@@ -304,13 +304,13 @@ public struct ReverbEffectView: View {
               .foregroundStyle(theme.textColor)
           }
         }
-        .helpItemTag(.reverbRoom)
+        .helpInfoViewTag(.reverbRoom)
 #if os(iOS)
         .pickerStyle(.wheel)
         .frame(width: 110)  // !!! Magic size that fits all of the strings without wasted space
 #endif
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
-          .helpItemTag(.reverbAmount)
+          .helpInfoViewTag(.reverbAmount)
       }
     }
   }

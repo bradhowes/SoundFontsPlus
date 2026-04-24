@@ -480,11 +480,11 @@ public struct SoundFontsListView: View {
       } header: {
         StyledHeader {
           sectionHeader
-            .helpItemTag(.fontsListHeader)
+            .helpInfoViewTag(.fontsListHeader)
         }
       }
     }
-    .helpItemTag(.fontsList)
+    .helpInfoViewTag(.fontsList)
     .environment(\.editMode, $store.editingMode)
     .animation(.smooth, value: store.isSearchFieldPresented)
     .animation(.smooth, value: store.editingMode)

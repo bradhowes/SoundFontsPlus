@@ -3,9 +3,10 @@
 import SwiftUI
 
 /**
- Collection of unique IDs for views that can show help information. Used with the `HelpItemSpotlight` view modifier.
+ Collection of unique IDs for views that can show help information. Used in tandom with the `HelpInfoSpotlightOverlay` view
+ modifier to identify the views that have help information.
  */
-public enum HelpItem: CaseIterable {
+public enum HelpInfo: HelpInfoProvider, CaseIterable {
   case fontsList
   case fontsListHeader
   case presetsList
@@ -38,185 +39,184 @@ public enum HelpItem: CaseIterable {
   case settingsButton
   case moreButton
 
-  public var title: Text {
+  public var title: String {
     switch self {
-    case .fontsList: return Text("Fonts")
-    case .fontsListHeader: return Text("Fonts Header")
-    case .presetsList: return Text("Presets")
-    case .presetsListHeader: return Text("Presets Header")
-    case .presetsListIndex: return Text("Presets Index")
-    case .tagsList: return Text("Tags")
-    case .fontsPresetsDivider: return Text("Fonts/Presets Divider")
-    case .fontsTagsDivider: return Text("Fonts/Tags Divider")
-    case .effectsPanel: return Text("Effects")
+    case .fontsList: return "Fonts"
+    case .fontsListHeader: return "Fonts Header"
+    case .presetsList: return "Presets"
+    case .presetsListHeader: return "Presets Header"
+    case .presetsListIndex: return "Presets Index"
+    case .tagsList: return "Tags"
+    case .fontsPresetsDivider: return "Fonts/Presets Divider"
+    case .fontsTagsDivider: return "Fonts/Tags Divider"
+    case .effectsPanel: return "Effects"
       // Reverb
-    case .reverbOn: return Text("Reverb On/Off")
-    case .reverbLock: return Text("Reverb Lock")
-    case .reverbRoom: return Text("Reverb Room")
-    case .reverbAmount: return Text("Reverb Amount")
+    case .reverbOn: return "Reverb On/Off"
+    case .reverbLock: return "Reverb Lock"
+    case .reverbRoom: return "Reverb Room"
+    case .reverbAmount: return "Reverb Amount"
       // Delay
-    case .delayOn: return Text("Delay On/Off")
-    case .delayLock: return Text("Delay Lock")
-    case .delayTime: return Text("Delay Time")
-    case .delayFeedback: return Text("Delay Feedback")
-    case .delayCutoff: return Text("Delay Cutoff")
-    case .delayAmount: return Text("Delay Amount")
+    case .delayOn: return "Delay On/Off"
+    case .delayLock: return "Delay Lock"
+    case .delayTime: return "Delay Time"
+    case .delayFeedback: return "Delay Feedback"
+    case .delayCutoff: return "Delay Cutoff"
+    case .delayAmount: return "Delay Amount"
       // Toolbar buttons
-    case .addButton: return Text("Add")
-    case .tagsButton: return Text("Tags")
-    case .effectsButton: return Text("Effects")
-    case .statusWindow: return Text("Status")
-    case .shiftDownButton: return Text("Keyboard Down")
-    case .slideToggle: return Text("Keyboard Sliding")
-    case .shiftUpButton: return Text("Keyboard Up")
-    case .editVisibilityButton: return Text("Preset Visibility")
-    case .settingsButton: return Text("Settings")
-    case .moreButton: return Text("More Buttons")
+    case .addButton: return "Add"
+    case .tagsButton: return "Tags"
+    case .effectsButton: return "Effects"
+    case .statusWindow: return "Status"
+    case .shiftDownButton: return "Keyboard Down"
+    case .slideToggle: return "Keyboard Sliding"
+    case .shiftUpButton: return "Keyboard Up"
+    case .editVisibilityButton: return "Preset Visibility"
+    case .settingsButton: return "Settings"
+    case .moreButton: return "More Buttons"
     }
   }
 
-  public var message: Text {
+  public var text: () -> String {
     switch self {
     case .fontsList:
-      return Text("""
+      return { """
 List of available soundfont files.
 • Tap to see presets in a soundfont.
 • Swipe right or long-press to edit soundfont info.
 • Swipe left to delete.
-""")
+""" }
     case .fontsListHeader:
-      return Text("""
+      return { """
 * Double-tap on header to delete multiple soundfonts.
 • Tap on \(Image(systemName: .searchButtonImageName)) to search on soundfont names.
-""")
+""" }
     case .presetsList:
-      return Text("""
+      return { """
 The list of presets and favorites for the selected soundfont.
 • Tap to activate.
 • Swipe right to edit or make favorite/duplicate.
 • Swipe left to hide or delete.
 See options in Settings panel to change preset ordering.
-""")
+""" }
     case .presetsListHeader:
-      return Text("""
+      return { """
 • Tap on section header to show previous section header.
 • Double-tap to show first section.
 • Tap on \(Image(systemName: .searchButtonImageName)) to search preset names.
-""")
+""" }
     case .presetsListIndex:
-      return Text("""
+      return { """
 Tap to quickly scroll to preset section.
-""")
+""" }
     case .tagsList:
-      return Text("""
+      return { """
 List of tags to filter visible soundfonts.
 • Swipe right or long-press to edit tags.
-""")
+""" }
     case .fontsPresetsDivider:
-      return Text("""
+      return { """
 Divider between soundfonts and presets lists.
 • Drag left/right to adjust spacing given to each.
-""")
+""" }
     case .fontsTagsDivider:
-      return Text("""
+      return { """
 Divider between soundfonts and tags lists.
 • Drag up or down to adjust spacing given to each.
 • Double-tap to hide tags list.
-""")
+""" }
     case .effectsPanel:
-      return Text("""
+      return { """
 Controls for the reverb and delay effects. \
 Each preset/favorite can have its own effect settings. \
 Use the lock switches to keep the same settings across preset changes.
-""")
+""" }
     case .addButton:
-      return Text("""
+      return { """
 Add soundfont to your library. \
 Presents a file browser for selecting one or more files or an entire folder.
-""")
+""" }
     case .tagsButton:
-      return Text("Show or hide the tags list.")
+      return { "Show or hide the tags list." }
     case .effectsButton:
-      return Text("Show or hide the effects panel.")
+      return { "Show or hide the effects panel." }
     case .statusWindow:
-      return Text("""
+      return { """
 Shows the active preset.
 • Tap once to show the active preset.
 • Double-tap to stop all notes, including any from a MIDI controller (aka PANIC).
-""")
+""" }
     case .shiftDownButton:
-      return Text("""
+      return { """
 Shows the name of the first visible key. Tap to shift the keyboard down to show lower notes values.
-""")
+""" }
     case .slideToggle:
-      return Text("""
+      return { """
 Controls how Keyboard behaves when touches move while a note is playing.
 • \(Image(systemName: .fixedKeyboardButtonImageName)) keyboard does not move with touch movements
 • \(Image(systemName: .slidingKeyboardButtonImageName)) keyboard moves with touch movements
-""")
+""" }
     case .shiftUpButton:
-      return Text("""
+      return { """
 Shows the name of the last visible key. Tap to shift the keyboard up to show higher note values.
-""")
+""" }
     case .editVisibilityButton:
-      return Text("""
+      return { """
 Show the presets of the active soundfont with toggle buttons to change the preset visibility.
-""")
+""" }
     case .settingsButton:
-      return Text("Show the \(Image(systemName: .settingsButtonImageName)) Settings panel.")
+      return { "Show the \(Image(systemName: .settingsButtonImageName)) Settings panel." }
     case .moreButton:
-      return Text("Show additional buttons in the tool bar.")
+      return { "Show additional buttons in the tool bar." }
       // Reverb
     case .reverbOn:
-      return Text("""
+      return { """
 Toggle to enable/disable reverb effect.
-""")
+""" }
     case .reverbLock:
-      return Text("""
+      return { """
 Toggle to lock reverb settings to protect from changes when a preset changes.
-""")
+""" }
     case .reverbRoom:
-      return Text("""
+      return { """
 The reverb room shape that defines the reverberation engine settings.
 • Touch-drag up/down to change
-""")
+""" }
     case .reverbAmount:
-      return Text("""
+      return { """
 The percentage of the audio output made up of the reverb effect.
 • 0% - no reverb effect in the mix.
 • 50% - orignal audio and reverb output mixed in same amount.
 • 100% - only reverb output in mix.
-""")
+""" }
       // Delay
     case .delayOn:
-      return Text("""
+      return { """
 Toggle to enable/disable delay effect.
-""")
+""" }
     case .delayLock:
-      return Text("""
+      return { """
 Toggle to lock delay settings to protect from changes when a preset changes.
-""")
+""" }
     case .delayTime:
-      return Text("""
+      return { """
 The amount of time between repetitions of the audio from the delay buffer.
-""")
+""" }
     case .delayFeedback:
-      return Text("""
+      return { """
 The amount of the recorded audio that remixed and saved to the delay buffer.
-""")
+""" }
     case .delayCutoff:
-      return Text("""
+      return { """
 Controls the low-pass filter cutoff frequency (Hz) applied to audio before it is saved to the delay buffer.
-""")
+""" }
     case .delayAmount:
-      return Text("""
+      return { """
 The percentage of the audio output made up of the delay effect.
 • 0% - no delay effect in the mix.
 • 50% - orignal audio and delay output mixed in same amount.
 • 100% - only delay output in mix.
-""")
+""" }
     }
-
   }
 }
 
@@ -229,7 +229,5 @@ extension View {
    - returns: modified view
    */
   @inlinable
-  public func helpItemTag(_ id: HelpItem) -> some View {
-    helpItem(id: id)
-  }
+  public func helpInfoViewTag(_ id: HelpInfo) -> some View { helpInfoViewTag(id: id) }
 }
