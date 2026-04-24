@@ -69,10 +69,10 @@ extension View {
 public protocol HelpInfoProvider {
 
   /// The content to use for the title `Text` view
-  var title: String { get }
+  var title: LocalizedStringKey { get }
   /// The generator to use for the content of the text `Text` view. This delays `String` interpolation to properly honor embedded
   /// `Image(systemName:)` terms.
-  var text: () -> String { get }
+  var text: LocalizedStringKey { get }
 }
 
 /**
@@ -85,11 +85,12 @@ public protocol HelpInfoProvider {
  */
 @MainActor
 public func helpInfoOverlay<ID: Hashable & HelpInfoProvider>(for item: ID, actions: HelpInfoSpotlightOverlayActions) -> some View {
-  VStack(spacing: 16) {
+  @Environment(\.colorScheme) var colorScheme
+  return VStack(spacing: 16) {
     HelpInfoLayout {
       Text(item.title)
         .font(.title3.weight(.bold))
-      Text(item.text())
+      Text(item.text)
         .foregroundStyle(.secondary)
     }
     .overlay(alignment: .topTrailing) {
@@ -116,8 +117,7 @@ public func helpInfoOverlay<ID: Hashable & HelpInfoProvider>(for item: ID, actio
   .padding(20)
   .background {
     RoundedRectangle(cornerRadius: 28)
-      .fill(.white)
-      .stroke(.red, lineWidth: 1)
+      .fill(colorScheme == .light ? .white : .black)
   }
   .shadow(color: .black.opacity(0.12), radius: 24, y: 12)
 }
@@ -406,6 +406,7 @@ extension View {
 #if DEBUG
 
 struct TutorialSpotlightDemo: View {
+  @Environment(\.colorScheme) var colorScheme
 
   enum Step: CaseIterable, HelpInfoProvider {
     case profile
@@ -417,7 +418,7 @@ struct TutorialSpotlightDemo: View {
     case showSheet
     case checkout
 
-    var title: String {
+    var title: LocalizedStringKey {
       switch self {
       case .profile: "Profile"
       case .travelPlanner: "Travel Planner"
@@ -430,45 +431,45 @@ struct TutorialSpotlightDemo: View {
       }
     }
 
-    var text: () -> String {
+    var text: LocalizedStringKey {
       switch self {
-      case .profile: {
+      case .profile:
 """
-Here the user quickly gets to their profile and account settings.
-""" }
-      case .travelPlanner: {
+Here the user quickly gets to their \(Image(systemName: "checkmark")) profile and account settings.
+"""
+      case .travelPlanner:
 """
 This is a test. \
 This is a test. \
 This is a test. \
 This is a test.
 This is a test.
-""" }
-      case .filters: {
+"""
+      case .filters:
 """
 This block manages filters.
 It's usually the second step in onboarding.
-""" }
-      case .budgetFilter: {
+"""
+      case .budgetFilter:
 """
 Apply the 'Budget' smart filter.
-""" }
-      case .familyFilter: {
+"""
+      case .familyFilter:
 """
 Apply the 'Family' smart filter. Do special processing when activated.
-""" }
-      case .foodFilter: {
+"""
+      case .foodFilter:
 """
 Apply the 'Food' smart filter. Nothing special.
-""" }
-      case .showSheet: {
+"""
+      case .showSheet:
 """
 Show the plan summary.
-""" }
-      case .checkout: {
+"""
+      case .checkout:
 """
 The button completes the scenario. The final step may lead to payment or confirmation.
-""" }
+"""
       }
     }
   }
@@ -652,17 +653,17 @@ struct SheetSpotlightDemo: View {
     case title
     case action
 
-    var title: String {
+    var title: LocalizedStringKey {
       switch self {
       case .title: "Sheet Header"
       case .action: "Primary Action"
       }
     }
 
-    var text: () -> String {
+    var text: LocalizedStringKey {
       switch self {
-      case .title: { "This title explains the purpose of the modal flow." }
-      case .action: { "This button confirms the choice and closes the scenario." }
+      case .title: "This title explains the purpose of the modal flow."
+      case .action: "This button confirms the choice and closes the scenario."
       }
     }
   }

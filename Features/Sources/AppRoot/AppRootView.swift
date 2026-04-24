@@ -102,9 +102,52 @@ public struct AppRootView: View {
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     .helpInfoSpotlightOverlay(
       selection: $store.helpInfoSelection,
-      orderedIDs: HelpInfo.allCases,
-      overlay: helpInfoOverlay
-    )
+      orderedIDs: HelpInfo.allCases
+    ) { id, actions in
+      spotlightCard(for: id, actions: actions)
+    }
+  }
+
+  private func spotlightCard(
+    for helpItem: HelpInfo,
+    actions: HelpInfoSpotlightOverlayActions
+  ) -> some View {
+    VStack(spacing: 8) {
+      HelpInfoLayout(spacing: 16) {
+        Text(helpItem.title)
+          .font(.title3.weight(.bold))
+        Text(helpItem.text)
+          .font(.footnote)
+      }
+      .overlay(alignment: .topTrailing) {
+        Button {
+          actions.dismiss()
+        } label: {
+          Image(systemName: .cancelButtonImageName)
+        }
+        .tint(.mainAccentColor)
+      }
+      HStack(spacing: 24) {
+        Button {
+          actions.previous()
+        } label: {
+          Image(systemName: .helpPreviousItemButtonImageName)
+        }
+        .tint(.mainAccentColor)
+        Button {
+          actions.next()
+        } label: {
+          Image(systemName: .helpNextItemButtonImageName)
+        }
+        .tint(.mainAccentColor)
+      }
+      .fontWeight(.semibold)
+    }
+    .padding(20)
+    .background {
+      RoundedRectangle(cornerRadius: 28)
+        .fill(colorScheme == .dark ? Color.black : Color.white)
+    }
   }
 
   private func volumeMonitorToast(_ reason: VolumeMonitor.Reason) -> Toast {
@@ -272,11 +315,16 @@ extension View {
 extension AppRootView {
 
   static var preview: some View {
-    ZStack {
-      Color.black
+    @Shared(.colorSchemeBehavior) var colorSchemeBehavior
+
+    return ZStack {
+      colorSchemeBehavior.rootBackgroundColor
         .ignoresSafeArea()
       AppRootView(store: StoreOf<AppRoot>(initialState: AppRoot.State()) { AppRoot() })
     }
+    .tint(.mainAccentColor)
+    .environment(\.font, FeatureSupport.Font.body)
+    .useColorScheme()
   }
 }
 
@@ -296,4 +344,4 @@ extension AppRootView {
   AppRootView.preview
 }
 
-#endif
+#endif // DEBUG
