@@ -31,6 +31,8 @@ The app is getting close to feature-parity with the the original UIKit version:
 * supports cloning of presets (aka "favorites")
 * tagging fonts
 
+Focus now is finishing up the AUv3 component.
+
 Nearly all app data resides in SQLite database, though there are some `UserDefaults` settings and a file-based `@Shared`
 struct that holds:
 
@@ -55,7 +57,7 @@ The app also relies on in-memory `@Shared` values to simplify the logic and API.
 
 ## Keyboard
 
-The keyboard is one SwiftUI view that leverages the latest SwiftUI features to be able to draw the keys and track
+The keyboard is a SwiftUI view that leverages the latest SwiftUI features to be able to draw the keys and track
 multiple touches that the same time. It too is a [TCA][1] feature but for performance reasons, the amount of info kept
 in the state is minimal. The keyboad can be set to remain in place during a drag, or to slide as a touch moves. This all
 replicates what currently exists in the original [SoundFonts][0] UIKit version.
