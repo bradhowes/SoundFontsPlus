@@ -75,6 +75,14 @@ public struct SettingsView: View {
 
 extension SettingsView {
 
+  private func toggleInfo(_ name: LocalizedStringKey, _ description: () -> LocalizedStringKey) -> some View {
+    VStack(alignment: .leading, spacing: 8) {
+      Text(name)
+      Text(description())
+      .font(.settingsDescription)
+    }
+  }
+
   private var presetsSection: some View {
     Section("Presets") {
       Toggle(
@@ -83,7 +91,11 @@ extension SettingsView {
           set: { newValue in store.$favoritesOnTop.withLock { $0 = newValue } }
         )
       ) {
-        Text("Favorites on top")
+        toggleInfo("Favorites on top") {
+"""
+When enabled, favorites appear before presets. Otherwise, they appear after the preset they originated from.
+"""
+        }
       }
       Toggle(
         isOn: Binding(
@@ -91,7 +103,11 @@ extension SettingsView {
           set: { newValue in store.$showOnlyFavorites.withLock { $0 = newValue } }
         )
       ) {
-          Text("Show only favorites")
+        toggleInfo("Show only favorites") {
+"""
+When enabled, only favorites will appear in the preset list.
+"""
+        }
       }
       Toggle(
         isOn: Binding(
@@ -103,10 +119,10 @@ extension SettingsView {
           }
         )
       ) {
-        HStack {
-          Text("Show")
-          Image(systemName: store.favoriteSymbolName)
-          Text("in favorites")
+        toggleInfo("Show \(Image(systemName: store.favoriteSymbolName)) in favorites") {
+"""
+When enabled, prefix favorite names with a \(Image(systemName: store.favoriteSymbolName)).
+"""
         }
       }
       Toggle(
@@ -117,7 +133,11 @@ extension SettingsView {
           }
         )
       ) {
-        Text("Presets sorted by name")
+        toggleInfo("Sort presets by name") {
+"""
+When enabled, order presets by their name. Otherwise, order them by their index in the soundfont file.
+"""
+        }
       }
       Toggle(
         isOn: Binding(
@@ -125,7 +145,11 @@ extension SettingsView {
           set: { newValue in store.$playSoundOnPresetChange.withLock { $0 = newValue } }
         ),
       ) {
-        Text("Play sound on preset change")
+        toggleInfo("Play sound on preset change") {
+"""
+When enabled, changing a preset will play a short note in the synthesizer using the new preset.
+"""
+        }
       }
       Toggle(
         isOn: Binding(
@@ -133,14 +157,10 @@ extension SettingsView {
           set: { newValue in store.$showPresetIndexView.withLock { $0 = newValue } }
         )
       ) {
-        VStack(alignment: .leading, spacing: 8) {
-          Text("Show preset index strip")
-          Text(
+        toggleInfo("Show preset index strip") {
 """
-When enabled, show a compact list of indices for quickly jumping to a section of presets.
+When enabled, overlay the presets list with a compact list of section indices for quick access to a section.
 """
-          )
-          .font(.settingsDescription)
         }
       }
     }
@@ -148,22 +168,26 @@ When enabled, show a compact list of indices for quickly jumping to a section of
 
   private var keyboardSection: some View {
     Section("Keyboard") {
-      HStack {
-        Text("Key labels")
-        Spacer()
-        Picker(
-          selection: Binding(
-            get: { store.keyLabels },
-            set: { newValue in store.$keyLabels.withLock { $0 = newValue } }
-          )
-        ) {
-          ForEach(KeyLabels.allCases) { kind in
-            Text(kind.rawValue)
+      VStack(alignment: .leading) {
+        HStack {
+          Text("Key labels")
+          Spacer()
+          Picker(
+            selection: Binding(
+              get: { store.keyLabels },
+              set: { newValue in store.$keyLabels.withLock { $0 = newValue } }
+            )
+          ) {
+            ForEach(KeyLabels.allCases) { kind in
+              Text(kind.rawValue)
+            }
+          } label: {
+            Text("Key Labels")
           }
-        } label: {
-          Text("Key Labels")
+          .pickerStyle(.segmented)
         }
-        .pickerStyle(.segmented)
+        Text("Controls what keys will have a MIDI note label on them.")
+          .font(.settingsDescription)
       }
       Toggle(
         isOn: Binding(
@@ -171,7 +195,11 @@ When enabled, show a compact list of indices for quickly jumping to a section of
           set: { newValue in store.$showKeyNotes.withLock { $0 = newValue } }
         )
       ) {
-        Text("Show key note in toolbar")
+        toggleInfo("Show key note in toolbar") {
+"""
+The MIDI note label will briefly appear in the toolbar when a key is touched.
+"""
+        }
       }
       Toggle(
         isOn: Binding(
@@ -179,7 +207,11 @@ When enabled, show a compact list of indices for quickly jumping to a section of
           set: { newValue in store.$showSolfegeTags.withLock { $0 = newValue } }
         )
       ) {
-        Text("Show solfège tag in toolbar")
+        toggleInfo("Show solfège tag in toolbar") {
+          """
+The solfège tag for a note will briefly appear in the toolbar when a key is touched.
+"""
+        }
       }
       Toggle(
         isOn: Binding(
@@ -187,7 +219,13 @@ When enabled, show a compact list of indices for quickly jumping to a section of
           set: { newValue in store.$keyboardSlides.withLock { $0 = newValue } }
         )
       ) {
-        Text("Keyboard slides with touch")
+        toggleInfo("Keyboard slides with touch") {
+"""
+When enabled, the keyboard will slide with the movement of a key touch. Otherwise, it will remain fixed \
+and key touch movements will trigger neighboring keys.
+Controlled by the \(Image(systemName: .fixedKeyboardButtonImageName)) button in the toolbar.
+"""
+        }
       }
       VStack {
         Text("Key Width")
@@ -230,8 +268,14 @@ When enabled, show a compact list of indices for quickly jumping to a section of
         }
         Text(
           store.midiChannel == -1
-          ? "Process any traffic regardless of MIDI channel."
-          : "Only process traffic on MIDI channel \(store.midiChannel + 1)."
+          ? """
+Process any traffic regardless of MIDI channel.
+Change to limit traffic to a specific channel.
+"""
+          : """
+Only process traffic on MIDI channel \(store.midiChannel + 1).
+Adjust to change channel or decrement completely to allow any channel traffic.
+"""
         )
         .font(.settingsDescription)
       }
@@ -251,7 +295,12 @@ When enabled, show a compact list of indices for quickly jumping to a section of
           set: { newValue in store.$midiAutoConnect.withLock { $0 = newValue } }
         )
       ) {
-        Text("New devices will auto-connect")
+        toggleInfo("New devices will auto-connect") {
+"""
+When enabled, new unknown devices will auto-connect to the synthesizer. Otherwise, you must connect the \
+device using the button above.
+"""
+        }
       }
       Toggle(
         isOn: Binding(
@@ -259,7 +308,12 @@ When enabled, show a compact list of indices for quickly jumping to a section of
           set: { newValue in store.$showMIDITrafficIndicator.withLock { $0 = newValue } }
         )
       ) {
-        Text("Show MIDI activity indicator in toolbar")
+        toggleInfo("Show MIDI activity indicator in toolbar") {
+"""
+When enabled, the toolbar will indicate MIDI traffic by flashing small circle. Accepted traffic will flash green and \
+ignored traffic will flash amber.
+"""
+        }
       }
       Toggle(
         isOn: Binding(
@@ -267,7 +321,13 @@ When enabled, show a compact list of indices for quickly jumping to a section of
           set: { newValue in store.$showMIDINotesOnKeyboard.withLock { $0 = newValue } }
         )
       ) {
-        Text("Show MIDI note activity on keyboard")
+        toggleInfo("Show MIDI note activity on keyboard") {
+"""
+When enabled, the virtual keyboard will highlight MIDI note activity that corresponds to the keyboard keys. \
+The keys will normally flash green, but they will flash red if the volume of the device is muted or there is no \
+active preset.
+"""
+        }
       }
       HStack {
         Text("Bluetooth MIDI")
@@ -278,20 +338,24 @@ When enabled, show a compact list of indices for quickly jumping to a section of
           Text("Locate")
         }
       }
-      HStack {
-        Text("Pitch bend range (semitones)")
-        Spacer()
-        Text("\(store.pitchBendRange)")
-        Spacer()
-        Stepper(
-          "",
-          value: Binding(
-            get: { store.pitchBendRange },
-            set: { newValue in store.$pitchBendRange.withLock { $0 = newValue } }
-          ),
-          in: 1...24
-        )
-        .labelsHidden()
+      VStack(alignment: .leading) {
+        HStack {
+          Text("Pitch bend range (semitones)")
+          Spacer()
+          Text("\(store.pitchBendRange)")
+          Spacer()
+          Stepper(
+            "",
+            value: Binding(
+              get: { store.pitchBendRange },
+              set: { newValue in store.$pitchBendRange.withLock { $0 = newValue } }
+            ),
+            in: 1...24
+          )
+          .labelsHidden()
+        }
+        Text("Configures the range of the pitch wheel messages received by the synthesizer. Default is 2 semtones but it can be as much as 2 octaves (24 semitones).")
+          .font(.settingsDescription)
       }
       HStack {
         Spacer()
@@ -327,15 +391,11 @@ When enabled, show a compact list of indices for quickly jumping to a section of
               set: { newValue in store.copyFileWhenInstalling = newValue }
             )
           ) {
-            VStack(alignment: .leading, spacing: 8) {
-              Text("Copy SF2 files to app folder on device when adding")
-              Text(
+            toggleInfo("Copy SF2 files to app folder on device when adding") {
 """
 Enabled is the safest option but files consume space on your device. \
 Disable to link directly to files in iCloud or on external drives.
 """
-              )
-              .font(.settingsDescription)
             }
           }
         }
@@ -345,14 +405,10 @@ Disable to link directly to files in iCloud or on external drives.
             set: { newValue in store.$hideEmptyTags.withLock { $0 = newValue  } }
           )
         ) {
-          VStack(alignment: .leading, spacing: 8) {
-            Text("Hide tags with no sound fonts")
-            Text(
+          toggleInfo("Hide tags with no sound fonts") {
 """
 Enable to reduce clutter in the main tags view. Tag editors will always show all tags.
 """
-            )
-            .font(.settingsDescription)
           }
         }
         Toggle(
@@ -361,14 +417,10 @@ Enable to reduce clutter in the main tags view. Tag editors will always show all
             set: { newValue in store.$hideBuiltinFonts.withLock { $0 = newValue  } }
           )
         ) {
-          VStack(alignment: .leading, spacing: 8) {
-            Text("Hide built-in SF2 files")
-            Text(
+          toggleInfo("Hide built-in SF2 files") {
 """
 Do not show the pre-installed sound fonts when the "All" tag is active.
 """
-            )
-            .font(.settingsDescription)
           }
         }
       }
@@ -409,7 +461,11 @@ The color scheme can track the device's setting, or it can be fixed to a constan
             set: { newValue in store.$showActiveVoiceCount.withLock { $0 = newValue } }
           )
         ) {
-          Text("Show active voice counter")
+          toggleInfo("Show active voice counter") {
+"""
+When active, show in the toolbar the number of voices playing in the synthesizer.
+"""
+          }
         }
         if isApp {
 #if os(iOS)
@@ -419,7 +475,12 @@ The color scheme can track the device's setting, or it can be fixed to a constan
               set: { newValue in store.$mixWithOtherApps.withLock { $0 = newValue } }
             )
           ) {
-            Text("Mix audio with other apps on device")
+            toggleInfo("Mix audio with other apps on device") {
+"""
+When enabled, the synthesizer audio output is mixed with other audio output generated on the device. Otherwise, you will \
+only hear the synthesizer output.
+"""
+            }
           }
           .onChange(of: store.mixWithOtherApps) {
             _ = audioSession.restart()
@@ -430,7 +491,11 @@ The color scheme can track the device's setting, or it can be fixed to a constan
               set: { newValue in store.$duckOtherApps.withLock { $0 = newValue } }
             )
           ) {
-            Text("Reduce audio from other apps")
+            toggleInfo("Reduce audio from other apps") {
+"""
+When enabled, the audio from other apps will be reduced before being mixed with the synthesizer output.
+"""
+            }
           }
           .disabled(store.mixWithOtherApps == false)
           .onChange(of: store.duckOtherApps) {
@@ -442,16 +507,25 @@ The color scheme can track the device's setting, or it can be fixed to a constan
               set: { newValue in store.$backgroundProcessing.withLock { $0 = newValue } }
           )
           ) {
-            Text("Background processing mode")
+            toggleInfo("Background processing mode") {
+"""
+When enabled, the application will continueto process MIDI messages while the app is not active.
+"""
+            }
           }
-#endif
+#endif // os(iOS)
           Toggle(
             isOn: Binding(
               get: { store.disableIdleTimer },
               set: { newValue in store.disableIdleTimer = newValue }
             )
           ) {
-            Text("Disable device locking while active")
+            toggleInfo("Disable device locking while active") {
+"""
+Controls whether the device will stay open and unlocked as long as the app is active. This can increase the drain on the \
+battery.
+"""
+            }
           }
           HStack {
             VStack(alignment: .leading, spacing: 8) {
