@@ -479,7 +479,6 @@ public struct SoundFontsListView: View {
         } header: {
           StyledHeader {
             sectionHeader
-              .helpInfoViewTag(.fontsListHeader)
           }
         }
       }

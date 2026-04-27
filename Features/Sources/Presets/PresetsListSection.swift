@@ -132,7 +132,6 @@ public struct PresetsListSectionView: View {
     } header: {
       StyledHeader {
         sectionHeader
-          .helpInfoViewTag(.presetsListHeader)
       }
       .onTapGesture(count: 2) {
         store.send(.delegate(.headerTapped(section: store.id, count: 2)))

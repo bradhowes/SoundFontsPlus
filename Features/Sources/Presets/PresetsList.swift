@@ -449,7 +449,6 @@ public struct PresetsListView: View {
           sectionIndexTitles(stride: stride)
         }
       }
-      .helpInfoViewTag(.presetsListIndex)
     }
   }
 

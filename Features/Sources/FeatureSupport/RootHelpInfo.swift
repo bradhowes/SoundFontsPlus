@@ -9,10 +9,7 @@ import SwiftUI
  */
 public enum RootHelpInfo: HelpInfoProvider, CaseIterable {
   case fontsList
-  case fontsListHeader
   case presetsList
-  case presetsListHeader
-  case presetsListIndex
   case tagsList
   case fontsPresetsDivider
   case fontsTagsDivider
@@ -43,10 +40,7 @@ public enum RootHelpInfo: HelpInfoProvider, CaseIterable {
   public var title: LocalizedStringKey {
     switch self {
     case .fontsList: return "Fonts"
-    case .fontsListHeader: return "Fonts Header"
     case .presetsList: return "Presets"
-    case .presetsListHeader: return "Presets Header"
-    case .presetsListIndex: return "Presets Index"
     case .tagsList: return "Tags"
     case .fontsPresetsDivider: return "Fonts/Presets Divider"
     case .fontsTagsDivider: return "Fonts/Tags Divider"
@@ -85,9 +79,6 @@ List of available soundfont files.
 • Tap to see presets in a soundfont.
 • Swipe right or long-press to edit soundfont info.
 • Swipe left to delete.
-"""
-    case .fontsListHeader:
-      return """
 * Double-tap on header to delete multiple soundfonts.
 • Tap on \(Image(systemName: .searchButtonImageName)) to search on soundfont names.
 """
@@ -97,17 +88,10 @@ The list of presets and favorites for the selected soundfont.
 • Tap to activate.
 • Swipe right to edit or make favorite/duplicate.
 • Swipe left to hide or delete.
-See options in \(Image(systemName: .settingsButtonImageName)) Settings panel to change preset ordering.
-"""
-    case .presetsListHeader:
-      return """
 • Tap on section header to show previous section header.
 • Double-tap to show first section.
 • Tap on \(Image(systemName: .searchButtonImageName)) to search preset names.
-"""
-    case .presetsListIndex:
-      return """
-Tap to quickly scroll to preset section.
+See options in \(Image(systemName: .settingsButtonImageName)) Settings panel to change preset ordering.
 """
     case .tagsList:
       return """
