@@ -28,6 +28,7 @@ public struct TagsList {
   @ObservableState
   public struct State: Equatable {
     public var activeTagId: Tag.ID = Tag.Ubiquitous.all.id
+    public var activeTagName: String? { self.rows[id: activeTagId]?.tagInfo.displayName }
     public var rows: IdentifiedArrayOf<TagButton.State>
     @Presents public var destination: Destination.State?
 
@@ -45,12 +46,14 @@ public struct TagsList {
           try TagInfo.queryAll.fetchAll(db)
         }
       }
+
       self.rows = .init(uniqueElements: (tagInfos ?? []).map { .init(tagInfo: $0) })
     }
   }
 
   public enum Action {
     case activeTagIdChanged(Tag.ID)
+    case activeTagNameChanged(String)
     case deinitialize
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
@@ -82,6 +85,9 @@ public struct TagsList {
 
       case .activeTagIdChanged(let tagId):
         return activeTagIdChanged(&state, tagId: tagId)
+
+      case .activeTagNameChanged(let tagName):
+        return activeTagNameChanged(&state, tagName: tagName)
 
       case .deinitialize:
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
@@ -132,6 +138,14 @@ extension TagsList {
 
   private func activeTagIdChanged(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
     state.activeTagId = tagId
+    return .none
+  }
+
+  private func activeTagNameChanged(_ state: inout State, tagName: String) -> Effect<Action> {
+    for row in state.rows where row.tagInfo.displayName == tagName {
+      state.activeTagId = row.tagInfo.id
+      return .send(.delegate(.activeTagIdChanged(state.activeTagId)))
+    }
     return .none
   }
 

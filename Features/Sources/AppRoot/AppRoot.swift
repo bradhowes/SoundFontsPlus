@@ -368,10 +368,10 @@ extension AppRoot {
        let avAudioUnit = state.avAudioUnit,
        let preset = Preset.with(id: presetId) {
       let activeState: AUv3ActiveState = .init(
-        soundFontId: preset.soundFontId,
-        presetId: presetId,
-        tagId: state.tagsList.activeTagId,
-        source: .app
+        source: .app,
+        soundFontName: preset.soundFontName,
+        presetIndex: preset.index,
+        tagName: state.tagsList.activeTagName ?? "",
       )
       do {
         avAudioUnit.auAudioUnit.fullState = try FullState(activeState: activeState).state

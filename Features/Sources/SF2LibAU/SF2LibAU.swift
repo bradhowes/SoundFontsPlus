@@ -16,9 +16,25 @@ import Models
 @objc public final class SF2LibAU: AUAudioUnit {
 
   private var _currentPreset: AUAudioUnitPreset?
+  private var _presetLoadingInfo: PresetLoadingInfo?
 
   public private(set) var engine: SF2Engine = SF2Engine()
-  public private(set) var auv3ActiveState: AUv3ActiveState?
+  public private(set) var auv3ActiveState: AUv3ActiveState? {
+    didSet {
+      _presetLoadingInfo = nil
+    }
+  }
+
+  public var presetLoadingInfo: PresetLoadingInfo? {
+    if let presetLoadingInfo = _presetLoadingInfo { return presetLoadingInfo }
+    guard let activeState = auv3ActiveState,
+          let presetInfo = PresetLoadingInfo.for(soundFontName: activeState.soundFontName, presetIndex: activeState.presetIndex)
+    else {
+      return nil
+    }
+    _presetLoadingInfo = presetInfo
+    return presetInfo
+  }
 
   private var dryBus: AUAudioUnitBus
   private var reverbSendBus: AUAudioUnitBus
@@ -147,36 +163,13 @@ extension SF2LibAU {
 extension SF2LibAU {
 
   @objc public dynamic override var audioUnitName: String? {
-    @Dependency(\.defaultDatabase) var defaultDatabase
-    guard
-      let activeState = auv3ActiveState,
-      let presetInfo = PresetLoadingInfo.for(id: activeState.presetId)
-    else {
-      return "-"
-    }
-    return "\(presetInfo.soundFontName): \(presetInfo.presetName)"
+    guard let presetLoadingInfo else { return "-" }
+    return "\(presetLoadingInfo.soundFontName): \(presetLoadingInfo.presetName)"
   }
 
   @objc public dynamic override var audioUnitShortName: String? {
-    let limit = 16
-    let divider = ": "
-    @Dependency(\.defaultDatabase) var defaultDatabase
-    guard
-      let activeState = auv3ActiveState,
-      let presetInfo = PresetLoadingInfo.for(id: activeState.presetId)
-    else {
-      return "-"
-    }
-
-    let soundFontCount = presetInfo.soundFontName.count
-    let presetCount = presetInfo.presetName.count
-
-    if soundFontCount + presetCount + 2 <= limit {
-      return "\(presetInfo.soundFontName)\(divider)\(presetInfo.presetName)"
-    }
-
-    let partLimit = (limit - divider.count) / 2
-    return "\(presetInfo.soundFontName.truncated(to: partLimit))\(divider)\(presetInfo.presetName.truncated(to: partLimit))"
+    guard let presetLoadingInfo else { return "-" }
+    return presetLoadingInfo.presetName
   }
 
   public override func supportedViewConfigurations(_ viewConfigs: [AUAudioUnitViewConfiguration]) -> IndexSet {
@@ -263,34 +256,34 @@ extension SF2LibAU {
         // However, the SoundFontsPlus app should *not* use this means to change the current preset since, in the app, the render
         // thread is always running.
         self.auv3ActiveState = FullState(state: state).activeState
-        if let auv3ActiveState = self.auv3ActiveState {
+
+        if let auv3ActiveState {
           log.info("fullState - activeState: \(auv3ActiveState)")
-          log.info("fullState - displayName: \(self.audioUnitShortName ?? "")")
 
           if auv3ActiveState.source == .auv3 {
-            @Dependency(\.defaultDatabase) var defaultDatabase
-            if let presetInfo = PresetLoadingInfo.for(id: auv3ActiveState.presetId) {
-              // This active state value originally came from us (not from SoundFontsPlus app) so we can go ahead and command the
-              // engine to load the file and use the preset.
+            if let presetLoadingInfo {
               if let location = try? SoundFontKind(
-                kind: presetInfo.kind,
-                location: presetInfo.location,
-                displayName: presetInfo.soundFontName
+                kind: presetLoadingInfo.kind,
+                location: presetLoadingInfo.location,
+                displayName: presetLoadingInfo.soundFontName
               ) {
                 if case let .external(bookmark) = location {
                   if let data = bookmark.bookmark {
-                    engine.loadBookmarkAndPreset(data, presetInfo.presetIndex)
+                    engine.loadBookmarkAndPreset(data, presetLoadingInfo.presetIndex)
                   }
                 } else {
                   engine.loadFileAndPreset(
                     std.string(location.url.path(percentEncoded: false)),
-                    presetInfo.presetIndex
+                    presetLoadingInfo.presetIndex
                   )
                 }
 
+                // For the associated AUAudioUnitPreset we use the name of the preset and the negative preset index value
+                // (non-negative integer values are for factory presets). These are just unique placeholders, not actually used
+                // for addressing presets.
                 let preset = AUAudioUnitPreset()
-                preset.number = -Int(auv3ActiveState.presetId.rawValue)
-                preset.name = presetInfo.presetName
+                preset.number = -Int(auv3ActiveState.presetIndex)
+                preset.name = presetLoadingInfo.presetName
                 currentPreset = preset
               }
             }

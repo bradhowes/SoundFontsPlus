@@ -54,8 +54,6 @@ public struct AUv3Root {
       tagsList: TagsList.State? = nil,
       toolBar: ToolBar.State? = nil,
     ) {
-      @Shared(.isAUv3) var isAUv3 = true
-
       self.audioUnit = audioUnit
       self.fontsAndPresetsSplit = fontsAndPresetsSplit ?? Self.makeFontsAndPresetsSplitState()
       self.fontsAndTagsSplit = fontsAndTagsSplit ?? Self.makeFontsAndTagsSplitState()
@@ -200,22 +198,7 @@ extension AUv3Root {
    - returns: new `AppRoot` store ready to use in ``AppRootView``
    */
   @MainActor
-  public static func makeWithDependencies(audioUnit: SF2LibAU, firstTime: Bool) -> StoreOf<AUv3Root> {
-    if firstTime {
-      prepareDependencies {
-        if ProcessInfo.processInfo.environment["UITesting"] == "true" {
-          $0.defaultFileStorage = .inMemory
-        } else {
-          $0.defaultFileStorage = .fileSystem
-        }
-
-        // swiftlint:disable:next force_try
-        $0.defaultDatabase = try! appDatabase()
-
-        try? $0.fileManager.createDirectory($0.fileManager.fontFilesDirectory())
-      }
-    }
-
+  public static func make(audioUnit: SF2LibAU) -> StoreOf<AUv3Root> {
     return StoreOf<AUv3Root>(initialState: AUv3Root.State(audioUnit: audioUnit)) { AUv3Root() }
   }
 
@@ -276,15 +259,15 @@ extension AUv3Root {
   private func fullStateChanged(_ state: inout State) -> Effect<Action> {
     log.info("fullStateChanged BEGIN")
     var effects: [Effect<Action>] = []
-    if let activeState = state.audioUnit.auv3ActiveState {
-      if activeState.tagId != state.tagsList.activeTagId {
-        effects.append(.send(.tagsList(.activeTagIdChanged(activeState.tagId))))
+    if let activeState = state.audioUnit.auv3ActiveState, let presetLoadingInfo = state.audioUnit.presetLoadingInfo {
+      if activeState.tagName != state.tagsList.activeTagName {
+        effects.append(.send(.tagsList(.activeTagNameChanged(activeState.tagName))))
       }
-      if activeState.soundFontId != state.soundFontsList.activePresetSource?.id {
-        effects.append(.send(.soundFontsList(.activeSoundFontIdChanged(activeState.soundFontId))))
+      if presetLoadingInfo.soundFontId != state.soundFontsList.activePresetSource?.id {
+        effects.append(.send(.soundFontsList(.activeSoundFontIdChanged(presetLoadingInfo.soundFontId))))
       }
-      if activeState.presetId != state.presetsList.activePresetId {
-        effects.append(.send(.activePresetIdChanged(activeState.presetId)))
+      if presetLoadingInfo.presetIndex != state.presetsList.activePresetIndex {
+        effects.append(.send(.presetsList(.selectPreset(presetId: presetLoadingInfo.presetId, info: presetLoadingInfo))))
       }
       if activeState.fontsAndTagsSplitPosition != state.fontsAndTagsSplit.position {
         state.fontsAndTagsSplit.position = activeState.fontsAndTagsSplitPosition
@@ -385,10 +368,10 @@ extension AUv3Root {
     if let presetId = state.presetsList.activePresetId,
        let preset = Preset.with(id: presetId) {
       let activeState: AUv3ActiveState = .init(
-        soundFontId: preset.soundFontId,
-        presetId: presetId,
-        tagId: state.tagsList.activeTagId,
-        source: .auv3
+        source: .auv3,
+        soundFontName: preset.soundFontName,
+        presetIndex: preset.index,
+        tagName: state.tagsList.activeTagName ?? "",
       )
       log.info("refreshFullState - setting fullState with \(activeState)")
       do {

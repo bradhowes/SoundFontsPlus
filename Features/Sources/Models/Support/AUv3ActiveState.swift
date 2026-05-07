@@ -20,9 +20,9 @@ public struct AUv3ActiveState: Codable {
   }
 
   public let source: Source
-  public let soundFontId: SoundFont.ID
-  public let presetId: Preset.ID
-  public let tagId: Tag.ID
+  public let soundFontName: String
+  public let presetIndex: Int
+  public let tagName: String
 
   public let activePresetGain: Double
   public let activePresetPan: Double
@@ -31,11 +31,16 @@ public struct AUv3ActiveState: Codable {
   public let starFavoriteNames: Bool
   public let tagsListVisible: Bool
 
-  public init(soundFontId: SoundFont.ID, presetId: Preset.ID, tagId: Tag.ID, source: Source = .auv3) {
-    self.soundFontId = soundFontId
-    self.presetId = presetId
-    self.tagId = tagId
+  public init(
+    source: Source,
+    soundFontName: String,
+    presetIndex: Int,
+    tagName: String
+  ) {
     self.source = source
+    self.soundFontName = soundFontName
+    self.presetIndex = presetIndex
+    self.tagName = tagName
 
     @Shared(.auv3ActivePresetGain) var activePresetGain
     @Shared(.auv3ActivePresetPan) var activePresetPan
@@ -78,7 +83,7 @@ public struct AUv3ActiveState: Codable {
 extension AUv3ActiveState: CustomStringConvertible {
   public var description: String {
     """
-    <AUv3ActiveState soundFontId=\(soundFontId) presetId=\(presetId) tagId=\(tagId)/>
+    <AUv3ActiveState soundFontId=\(soundFontName) presetIndex=\(presetIndex) tagName=\(tagName)/>
     """
   }
 }

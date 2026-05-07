@@ -44,6 +44,10 @@ public struct PresetsList {
     public var scrollToTarget: ScrollToTarget?
     public var presetSource: PresetSource?
     public var activePresetId: Preset.ID?
+    public var activePresetIndex: Int? {
+      guard let activePresetId else { return nil }
+      return presets.first(where: { $0.id == activePresetId })?.index
+    }
 
     public enum Field: String, Hashable {
       case searchText
@@ -90,6 +94,7 @@ public struct PresetsList {
     case searchTextChanged(String)
     case sections(IdentifiedActionOf<PresetsListSection>)
     case sectionHeaderIndexTapped(String)
+    case selectPreset(presetId: Preset.ID, info: PresetLoadingInfo)
     case showPresetDelayed(Preset.ID)
     case showPresetNow(Preset.ID)
     case updateFetchAllQuery
@@ -158,6 +163,9 @@ public struct PresetsList {
       case .sectionHeaderIndexTapped(let title):
         return sectionHeaderIndexTapped(&state, title: title)
 
+      case let .selectPreset(presetId: presetId, info: presetLoadingInfo):
+        return selectPreset(&state, presetId: presetId, info: presetLoadingInfo)
+
       case .showPresetDelayed(let presetId):
         return showPresetDelayed(&state, presetId: presetId)
 
@@ -212,7 +220,6 @@ extension PresetsList {
   @discardableResult
   private func generatePresetSections(_ state: inout State) -> Effect<Action> {
     log.debug("generatePresetSections BEGIN")
-
     state.sections = group(
       {
         if let searchText = state.optionalSearchText {
@@ -229,7 +236,6 @@ extension PresetsList {
     )
 
     log.debug("generatePresetSections END")
-
     return .none
   }
 
@@ -290,7 +296,7 @@ extension PresetsList {
       return searchButtonTapped(&state)
 
     case .selectPreset(let preset):
-      return selectPreset(&state, preset: preset, sectionId: sectionId)
+      return selectPreset(&state, preset: preset)
     }
   }
 
@@ -332,7 +338,32 @@ extension PresetsList {
     return .none
   }
 
-  private func selectPreset(_ state: inout State, preset: Preset, sectionId: PresetsListSection.State.ID) -> Effect<Action> {
+  private func selectPreset(_ state: inout State, presetId: Preset.ID, info: PresetLoadingInfo) -> Effect<Action> {
+    guard
+      let kind = try? SoundFontKind(kind: info.kind, location: info.location, displayName: info.soundFontName),
+      kind.url.withSecurityScoping({ fileManager.fileExists($0) }) == true
+    else {
+      state.destination = .alert(
+        .missingFileForSelectedPreset(
+          action: .missingFileForSelectedPreset(info.soundFontId),
+          displayName: info.soundFontName
+        )
+      )
+      return .none
+    }
+
+    if state.activePresetId != presetId {
+      state.presetSource = state.presetSource?.activated
+      state.activePresetId = presetId
+      return .merge(
+        generatePresetSections(&state),
+        .send(.delegate(.activePresetIdChanged(presetId)))
+      )
+    }
+    return .none
+  }
+
+  private func selectPreset(_ state: inout State, preset: Preset) -> Effect<Action> {
     guard let info = PresetLoadingInfo.for(id: preset.id) else { return .none }
     guard
       let kind = try? SoundFontKind(kind: info.kind, location: info.location, displayName: info.soundFontName),

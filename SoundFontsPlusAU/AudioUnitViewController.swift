@@ -30,7 +30,26 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
    - returns: new AUAudioUnit instance
    */
   nonisolated public func createAudioUnit(with componentDescription: AudioComponentDescription) throws -> AUAudioUnit {
-    try DispatchQueue.main.sync {
+    @Shared(.isAUv3) var isAUv3
+    let firstTime = !isAUv3
+    $isAUv3.withLock { $0 = true }
+
+    if firstTime {
+      prepareDependencies {
+        if ProcessInfo.processInfo.environment["UITesting"] == "true" {
+          $0.defaultFileStorage = .inMemory
+        } else {
+          $0.defaultFileStorage = .fileSystem
+        }
+
+        // swiftlint:disable:next force_try
+        $0.defaultDatabase = try! appDatabase()
+
+        try? $0.fileManager.createDirectory($0.fileManager.fontFilesDirectory())
+      }
+    }
+
+    return try DispatchQueue.main.sync {
       let audioUnit = try SF2LibAU(componentDescription: componentDescription, options: [])
       DispatchQueue.main.async { [weak self] in
         self?.installView(audioUnit: audioUnit)
@@ -40,17 +59,13 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
   }
 
   private func installView(audioUnit: SF2LibAU) {
-    @Shared(.isAUv3) var isAUv3
-    let firstTime = !isAUv3
-    $isAUv3.withLock { $0 = true }
-
     if let host = hostingController {
       host.removeFromParent()
       host.view.removeFromSuperview()
     }
 
     // Entry point for AUv3 view
-    let content = AUv3RootView(store: AUv3Root.makeWithDependencies(audioUnit: audioUnit, firstTime: firstTime))
+    let content = AUv3RootView(store: AUv3Root.make(audioUnit: audioUnit))
     let host = AUv3HostingController(rootView: content)
 
     self.addChild(host)

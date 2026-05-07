@@ -11,7 +11,7 @@ extension Package.Dependency {
 
   static var morkAndMIDI: PackageDescription.Package.Dependency {
     useLocalMorkAndMIDI ? .package(name: "MorkAndMIDI", path: "/Users/howes/src/Mine/morkandmidi") :
-      .package(url: "https://github.com/bradhowes/morkandmidi", from: "5.0.0")
+      .package(url: "https://github.com/bradhowes/morkandmidi", from: "5.1.0")
   }
 
   static var sf2Lib: PackageDescription.Package.Dependency {

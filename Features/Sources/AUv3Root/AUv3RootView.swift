@@ -136,7 +136,7 @@ extension AUv3RootView {
     let acd = Bundle.main.audioComponentDescription
     // swiftlint:disable:next force_try
     let audioUnit = try! SF2LibAU(componentDescription: acd)
-    return AUv3RootView(store: AUv3Root.makeWithDependencies(audioUnit: audioUnit, firstTime: true))
+    return AUv3RootView(store: AUv3Root.make(audioUnit: audioUnit))
   }
 }
 
