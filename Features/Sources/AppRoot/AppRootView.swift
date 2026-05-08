@@ -81,7 +81,9 @@ public struct AppRootView: View {
     .animation(.smooth, value: isTextInputKeyboardVisible)
     .environment(\.auv3ControlsTheme, theme)
     .onChange(of: scenePhase) { _, newPhase in
-      store.send(.scenePhaseChanged(newPhase))
+      Task { @MainActor in
+        await store.send(.scenePhaseChanged(newPhase)).finish()
+      }
     }
     .task {
       await store.send(.initialize).finish()
