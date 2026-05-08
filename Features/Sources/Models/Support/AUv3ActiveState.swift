@@ -19,9 +19,13 @@ public struct AUv3ActiveState: Codable {
     case auv3
   }
 
+  /// The source of the active state, whether the application or an AUv3 app extension.
   public let source: Source
+  /// The name of the sound font that is currently active.
   public let soundFontName: String
+  /// The index of the sound font preset that is currently active.
   public let presetIndex: Int
+  /// The name of the tag that is currently active.
   public let tagName: String
 
   public let activePresetGain: Double
@@ -77,6 +81,13 @@ public struct AUv3ActiveState: Codable {
     $tagsListVisible.withLock { $0 = tagsListVisible }
 
     return activeState
+  }
+
+  public var presetLoadingInfo: PresetLoadingInfo? {
+    PresetLoadingInfo.for(
+      soundFontName: self.soundFontName,
+      presetIndex: self.presetIndex
+    )
   }
 }
 

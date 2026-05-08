@@ -259,7 +259,7 @@ extension AUv3Root {
   private func fullStateChanged(_ state: inout State) -> Effect<Action> {
     log.info("fullStateChanged BEGIN")
     var effects: [Effect<Action>] = []
-    if let activeState = state.audioUnit.auv3ActiveState, let presetLoadingInfo = state.audioUnit.presetLoadingInfo {
+    if let activeState = state.audioUnit.auv3ActiveState, let presetLoadingInfo = activeState.presetLoadingInfo {
       if activeState.tagName != state.tagsList.activeTagName {
         effects.append(.send(.tagsList(.activeTagNameChanged(activeState.tagName))))
       }
@@ -287,7 +287,8 @@ extension AUv3Root {
   private func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
       createCloudDocumentsDirectory(),
-      monitorFullState(&state)
+      monitorFullState(&state),
+      monitorCurrentPreset(&state)
     )
   }
 
@@ -365,21 +366,27 @@ extension AUv3Root {
 
   private func refreshFullState(_ state: State) {
     log.info("refreshFullState BEGIN")
-    if let presetId = state.presetsList.activePresetId,
-       let preset = Preset.with(id: presetId) {
-      let activeState: AUv3ActiveState = .init(
-        source: .auv3,
-        soundFontName: preset.soundFontName,
-        presetIndex: preset.index,
-        tagName: state.tagsList.activeTagName ?? "",
-      )
-      log.info("refreshFullState - setting fullState with \(activeState)")
-      do {
-        state.audioUnit.fullState = try FullState(activeState: activeState).state
-      } catch {
-        log.error("refreshFullState - failed to make fullState: \(error.localizedDescription)")
-      }
+    guard
+      let presetId = state.presetsList.activePresetId,
+      let preset = Preset.with(id: presetId)
+    else {
+      log.info("refreshFullState END")
+      return
     }
+
+    let activeState: AUv3ActiveState = .init(
+      source: .auv3,
+      soundFontName: preset.soundFontName,
+      presetIndex: preset.index,
+      tagName: state.tagsList.activeTagName ?? "",
+    )
+    log.info("refreshFullState - setting fullState with \(activeState, privacy: .public)")
+    do {
+      state.audioUnit.fullState = try FullState(activeState: activeState).state
+    } catch {
+      log.error("refreshFullState - failed to make fullState: \(error.localizedDescription, privacy: .public)")
+    }
+    log.info("refreshFullState BEGIN")
   }
 
   private func soundFontEditorDismissed(_ state: inout State, editor: SoundFontEditor.State) -> Effect<Action> {

@@ -47,7 +47,7 @@ extension Logger {
 //  }
 
   public func action<T>(_ label: String, _ action: T) {
-    self.debug("\(label) action: \(String(describing: action), privacy: .public)")
+    self.debug("\(label, privacy: .public) action: \(String(describing: action), privacy: .public)")
   }
 }
 
