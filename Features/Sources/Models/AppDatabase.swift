@@ -123,6 +123,7 @@ private func performMigrations(
   migrator.eraseDatabaseOnSchemaChange = true
 #endif // DEBUG
 
+  // NOTE: order is important here.
   SoundFont.migrate(&migrator)
   Preset.migrate(&migrator)
   AudioConfig.migrate(&migrator)
