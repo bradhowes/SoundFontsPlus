@@ -162,8 +162,7 @@ public struct SoundFontsList {
         return monitorHideBuiltinFonts(&state)
 
       case .missingSoundFontDetected(let soundFontId):
-        Self.missingSoundFontDetected(&state, soundFontId: soundFontId)
-        return .none
+        return missingSoundFontDetected(&state, soundFontId: soundFontId)
 
       case .rows(.element(_, .delegate(let action))):
         return processRowAction(&state, action: action)
@@ -204,17 +203,8 @@ public struct SoundFontsList {
 
 extension SoundFontsList {
 
-  public static func missingSoundFontDetected(_ state: inout State, soundFontId: SoundFont.ID) {
-    SoundFont.delete(id: soundFontId)
-    if state.activePresetSource == .active(soundFontId) {
-      state.activePresetSource = nil
-    }
-    if state.selectedPresetSource == .selected(soundFontId) {
-      state.selectedPresetSource = nil
-    }
-  }
-
   private func activeSoundFontIdChanged(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
+    guard state.activePresetSource != .active(soundFontId) || state.selectedPresetSource != nil else { return .none }
     state.activePresetSource = .active(soundFontId)
     state.selectedPresetSource = nil
     return .send(.delegate(.presetSourceChanged(.active(soundFontId))))
@@ -333,6 +323,25 @@ extension SoundFontsList {
     return .none
   }
 
+  public func missingSoundFontDetected(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
+    SoundFont.delete(id: soundFontId)
+    if state.activePresetSource == .active(soundFontId) {
+      state.activePresetSource = nil
+    }
+    if state.selectedPresetSource == .selected(soundFontId) {
+      state.selectedPresetSource = nil
+    }
+    return .none
+  }
+
+  private func monitorHideBuiltinFonts(_ state: inout State) -> Effect<Action> {
+    .run { [$hideBuiltinFonts] send in
+      for await _ in UncheckedSendable($hideBuiltinFonts.publisher.values.removeDuplicates()) {
+        await send(.updateFetchAllQuery)
+      }
+    }.cancellable(id: CancelId.soundFontsListMonitorHideBuiltinFonts)
+  }
+
   private func processRowAction(_ state: inout State, action: SoundFontButton.Delegate) -> Effect<Action> {
     log.action("processRowAction", action)
 
@@ -353,14 +362,6 @@ extension SoundFontsList {
     case .select(let soundFontInfo, let available):
       return soundFontSelected(&state, soundFontId: soundFontInfo.id, available: available)
     }
-  }
-
-  private func monitorHideBuiltinFonts(_ state: inout State) -> Effect<Action> {
-    .run { [$hideBuiltinFonts] send in
-      for await _ in UncheckedSendable($hideBuiltinFonts.publisher.values.removeDuplicates()) {
-        await send(.updateFetchAllQuery)
-      }
-    }.cancellable(id: CancelId.soundFontsListMonitorHideBuiltinFonts)
   }
 
   private func searchButtonTapped(_ state: inout State) -> Effect<Action> {

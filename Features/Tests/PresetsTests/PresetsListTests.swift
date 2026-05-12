@@ -66,12 +66,13 @@ struct PresetsListTests {
 
   func initialized(_ closure: (TestStoreOf<PresetsList>, [Preset]) async throws -> Void) async throws {
     let store = try setup()
-    await store.send(.presetSourceChanged(.active(1)))
+    await store.send(.initialize)
+
     let presets = Preset.visible(for: 1)
 
     #expect(!presets.isEmpty)
 
-    await store.receive(.rowsUpdated(presets: presets, showActive: true))
+    await store.receive(.rowsUpdated(presets: presets, showActive: false))
 
     try await closure(store, presets)
 
@@ -82,12 +83,9 @@ struct PresetsListTests {
   @Test
   func initializeWithNoSoundFontId() async throws {
     let store = try setup(activeSoundFontId: nil, selectedSoundFontId: nil)
-
-    await store.send(.presetSourceChanged(nil))
-    #expect(store.state.sections.count == 1)
-
-    await store.receive(.rowsUpdated(presets: [], showActive: true))
-
+    await store.send(.initialize)
+    await store.receive(.rowsUpdated(presets: [], showActive: false))
+   #expect(store.state.sections.count == 1)
     await store.send(.deinitialize)
     await store.finish()
   }

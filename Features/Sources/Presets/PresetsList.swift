@@ -89,6 +89,7 @@ public struct PresetsList {
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case editingVisibilityChanged(Bool)
+    case initialize
     case presetSourceChanged(PresetSource?)
     case rowsUpdated(presets: [Preset], showActive: Bool)
     case searchTextChanged(String)
@@ -142,6 +143,9 @@ public struct PresetsList {
 
       case let .editingVisibilityChanged(editing):
         state.editingVisibility = editing
+        return updateFetchAllQuery(&state, showActive: false)
+
+      case .initialize:
         return updateFetchAllQuery(&state, showActive: false)
 
       case .presetSourceChanged(let presetSource):
@@ -260,6 +264,7 @@ extension PresetsList {
   }
 
   private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {
+    guard state.presetSource != presetSource else { return .none }
     state.presetSource = presetSource
     return updateFetchAllQuery(&state, showActive: true)
   }
@@ -470,6 +475,7 @@ public struct PresetsListView: View {
     .animation(.smooth, value: store.isSearchFieldPresented)
     .animation(.smooth, value: store.editingVisibility)
     .animation(.smooth, value: store.presets)
+    .task { await store.send(.initialize).finish() }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
 

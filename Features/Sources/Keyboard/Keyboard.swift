@@ -106,7 +106,7 @@ public struct Keyboard {
       switch action {
 
       case let .activePresetIdChanged(presetId):
-        return Self.activePresetIdChanged(&state, presetId: presetId)
+        return activePresetIdChanged(&state, presetId: presetId)
 
       case .allOff:
         state.eventNoteMap.removeAll()
@@ -172,7 +172,7 @@ extension Keyboard.State.EventId {
 
 extension Keyboard {
 
-  public static func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+  private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     guard let presetId = presetId else { return .none }
     guard let audioConfig = AudioConfig.with(presetId: presetId) else { return .none }
     guard audioConfig.keyboardLowestNoteEnabled else { return .none }
