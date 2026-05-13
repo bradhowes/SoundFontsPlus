@@ -359,27 +359,11 @@ extension AppRoot {
     }
   }
 
-  private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
+  private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?, forced: Bool = false) -> Effect<Action> {
     guard state.readyForUse else { return .none }
+    guard presetId != appActiveState.getActivePresetId() || forced else { return .none }
+
     appActiveState.setActivePresetId(presetId)
-
-    // Experiment with setting the active preset via AUAudioUnit.fullState attribute.
-    if let presetId,
-       let avAudioUnit = state.avAudioUnit,
-       let preset = Preset.with(id: presetId) {
-      let activeState: AUv3ActiveState = .init(
-        source: .app,
-        soundFontName: preset.soundFontName,
-        presetIndex: preset.index,
-        tagName: state.tagsList.activeTagName ?? "",
-      )
-      do {
-        avAudioUnit.auAudioUnit.fullState = try FullState(activeState: activeState).state
-      } catch {
-        log.error("activePresetIdChanged - failed to make fullState: \(error.localizedDescription)")
-      }
-    }
-
     return .merge(
       .send(.appReview(.ask)),
       .send(.delayEffect(.activePresetIdChanged(presetId))),
@@ -408,7 +392,7 @@ extension AppRoot {
     var actions: [Effect<Action>] = [.send(.volumeMonitor(.start))]
     if !state.readyForUse {
       state.readyForUse = true
-      actions.append(activePresetIdChanged(&state, presetId: state.presetsList.activePresetId))
+      actions.append(activePresetIdChanged(&state, presetId: state.presetsList.activePresetId, forced: true))
     }
 
     return .merge(actions)
