@@ -351,7 +351,6 @@ extension ToolBar {
 
   private func toggleEffectsVisibility(_ state: inout State) -> Effect<Action> {
     state.$effectsPanelVisible.withLock { $0.toggle() }
-    state.showMoreButtons = false
     return .send(.delegate(.effectsVisibilityChanged(state.effectsPanelVisible)))
   }
 
@@ -370,7 +369,6 @@ extension ToolBar {
 
   private func toggleTagsListVisibility(_ state: inout State) -> Effect<Action> {
     state.$tagsListVisible.withLock { $0.toggle() }
-    state.showMoreButtons = false
     return .send(.delegate(.tagsListVisibilityChanged(state.tagsListVisible)))
   }
 }

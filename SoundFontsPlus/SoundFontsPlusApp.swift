@@ -38,23 +38,10 @@ struct SoundFontsPlusApp: App {
     // NOTE: WindowGroup will be evaluated multiple times when starting up, so it is critical that `store` be initialized once and
     // reused with new `ContentView` instances.
     WindowGroup {
-      if isTesting {
-        EmptyView()
+      if let store = Self.store {
+        ContentView(store: store)
       } else {
-        @Shared(.colorSchemeBehavior) var colorSchemeBehavior
-        ZStack {
-          colorSchemeBehavior.rootBackgroundColor
-            .ignoresSafeArea()
-          // swiftlint:disable:next force_unwrapping
-          AppRootView(store: SoundFontsPlusApp.store!)
-#if os(iOS)
-          // We don't want to mistake music keyboard activity for iOS app switching or other system gestures
-            .defersSystemGestures(on: [.bottom, .leading, .trailing])
-#endif
-        }
-        .tint(.mainAccentColor)
-        .environment(\.font, FeatureSupport.Font.body)
-        .useColorScheme()
+        EmptyView()
       }
     }
   }

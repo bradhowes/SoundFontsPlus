@@ -63,7 +63,6 @@ public struct AppRoot {
   fileprivate struct HelpInfoRestoration: Equatable {
     let effectsPanelVisible: Bool
     let tagsListVisible: Bool
-    let moreButtonsVisible: Bool
   }
 
   @ObservableState
@@ -86,7 +85,6 @@ public struct AppRoot {
     public var audioUnitCrashed = false
     public var toastState: VolumeMonitor.Reason?
     public var avAudioUnit: AVAudioUnit?
-    @Shared(.effectsPanelVisible) public var effectsPanelVisible
     public var helpInfoSelection: RootHelpInfo?
     @ObservationStateIgnored
     fileprivate var helpInfoRestorations: HelpInfoRestoration?
@@ -201,6 +199,7 @@ public struct AppRoot {
   @Dependency(\.fileManager) private var fileManager
   @Dependency(\.appActiveState) private var appActiveState
 
+  @Shared(.effectsPanelVisible) private var effectsPanelVisible
   @Shared(.firstVisibleKey) private var firstVisibleKey
   @Shared(.fontsAndPresetsSplitPosition) private var fontsAndPresetsSplitPosition
   @Shared(.fontsAndTagsSplitPosition) private var fontsAndTagsSplitPosition
@@ -240,20 +239,7 @@ public struct AppRoot {
         return .none
 
       case .binding(\.helpInfoSelection):
-        var effects = [Effect<Action>]()
-        if state.helpInfoSelection == nil, let restorations = state.helpInfoRestorations {
-          @Shared(.effectsPanelVisible) var effectsPanelVisible
-          $effectsPanelVisible.withLock { $0 = restorations.effectsPanelVisible }
-          if !restorations.tagsListVisible {
-            effects.append(.send(.toolBar(.tagsListVisibilityButtonTapped)))
-          }
-          if !restorations.moreButtonsVisible {
-            effects.append(.send(.toolBar(.showMoreButtonTapped)))
-          }
-
-          state.helpInfoRestorations = nil
-        }
-        return .merge(effects)
+        return helpInfoSelectionChanged(&state)
 
       case .deinitialize:
         return deinitialize(&state)
@@ -462,6 +448,58 @@ extension AppRoot {
     return .none
   }
 
+  private func helpButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.helpInfoRestorations = .init(
+      effectsPanelVisible: effectsPanelVisible,
+      tagsListVisible: tagsListVisible
+    )
+
+    if !effectsPanelVisible {
+      $effectsPanelVisible.withLock { $0 = true }
+    }
+
+    var effects = [Effect<Action>]()
+    if !tagsListVisible {
+      effects.append(.send(.toolBar(.tagsListVisibilityButtonTapped)))
+    }
+    if state.toolBar.hasMoreButton && !state.toolBar.showMoreButtons {
+      effects.append(.send(.toolBar(.showMoreButtonTapped)))
+    }
+
+    if effects.isEmpty {
+      state.helpInfoSelection = .fontsList
+      return .none
+    } else {
+      effects.append(
+        .run { send in
+          try await Task.sleep(for: .seconds(0.5))
+          await send(.beginHelpSpotlight)
+        }
+      )
+      return .merge(effects)
+    }
+  }
+
+  private func helpInfoSelectionChanged(_ state: inout State) -> Effect<Action> {
+    // We only care about when the help info is dismissed
+    guard state.helpInfoSelection == nil else { return .none }
+    guard let restorations = state.helpInfoRestorations else { return .none }
+
+    // There is a subtle difference between effectsPanelVisible and tagsListVisible. Treating them the same way breaks the UI.
+    if restorations.effectsPanelVisible != state.toolBar.effectsPanelVisible {
+      $effectsPanelVisible.withLock { $0 = false }
+    }
+
+    var effects = [Effect<Action>]()
+    if restorations.tagsListVisible != state.toolBar.tagsListVisible {
+      effects.append(.send(.toolBar(.tagsListVisibilityButtonTapped)))
+    }
+
+    state.toolBar.showMoreButtons = false
+
+    return .merge(effects)
+  }
+
   private func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
       createCloudDocumentsDirectory(),
@@ -579,7 +617,7 @@ extension AppRoot {
 
     case .effectsVisibilityChanged(let visible):
       withAnimation(.smooth) {
-        state.$effectsPanelVisible.withLock { $0 = visible }
+        $effectsPanelVisible.withLock { $0 = visible }
       }
       return .none
 
@@ -614,36 +652,6 @@ extension AppRoot {
     }
   }
 
-  private func helpButtonTapped(_ state: inout State) -> Effect<Action> {
-    @Shared(.effectsPanelVisible) var effectsPanelVisible
-    state.helpInfoRestorations = .init(
-      effectsPanelVisible: effectsPanelVisible,
-      tagsListVisible: tagsListVisible,
-      moreButtonsVisible: state.toolBar.showMoreButtons
-    )
-
-    state.$effectsPanelVisible.withLock { $0 = true }
-
-    var effects = [Effect<Action>]()
-
-    if !tagsListVisible {
-      effects.append(.send(.toolBar(.tagsListVisibilityButtonTapped)))
-    }
-
-    if !state.toolBar.showMoreButtons {
-      effects.append(.send(.toolBar(.showMoreButtonTapped)))
-    }
-
-    effects.append(
-      .run {send in
-        try await Task.sleep(for: .milliseconds(500))
-        await send(.beginHelpSpotlight)
-      }
-    )
-
-    return .merge(effects)
-
-  }
   private func reinitializeConfirmed(_ state: inout State) -> Effect<Action> {
     BackupManager.reinitialize()
     withAnimation(.smooth) {

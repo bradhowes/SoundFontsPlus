@@ -32,7 +32,7 @@ public struct AppRootView: View {
   @State private var isTextInputKeyboardVisible = false
   @State private var effectsOffset: CGFloat = 0.0
 
-  // @Shared(.effectsPanelVisible) private var effectsPanelVisible
+  @Shared(.effectsPanelVisible) private var effectsPanelVisible
 
   @Environment(\.scenePhase) var scenePhase
   @Environment(\.colorScheme) private var colorScheme
@@ -77,7 +77,7 @@ public struct AppRootView: View {
       controlViews
     }
     .padding(0)
-    .animation(.smooth, value: store.effectsPanelVisible)
+    .animation(.smooth, value: effectsPanelVisible)
     .animation(.smooth, value: isTextInputKeyboardVisible)
     .environment(\.auv3ControlsTheme, theme)
     .onChange(of: scenePhase) { _, newPhase in
@@ -107,10 +107,9 @@ public struct AppRootView: View {
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     .helpInfoSpotlightOverlay(
       selection: $store.helpInfoSelection,
-      orderedIDs: RootHelpInfo.allCases
-    ) { id, actions in
-      helpInfoOverlay(for: id, actions: actions)
-    }
+      orderedIDs: RootHelpInfo.allCases,
+      overlay: helpInfoOverlay
+    )
   }
 
   private func helpInfoOverlay(
@@ -282,10 +281,10 @@ extension AppRootView {
       dividerBorderColor
         .frame(height: dividerSpan)
     }
-    .frame(height: store.effectsPanelVisible ? effectsViewHeight : 0.0)
+    .frame(height: effectsPanelVisible ? effectsViewHeight : 0.0)
     .frame(maxWidth: .infinity)
-    .offset(y: store.effectsPanelVisible ? 0.0 : effectsViewHeight / 2 + dividerSpan * 2)
-    .opacity(store.effectsPanelVisible ? 1.0 : 0.0)
+    .offset(y: effectsPanelVisible ? 0.0 : effectsViewHeight / 2 + dividerSpan * 2)
+    .opacity(effectsPanelVisible ? 1.0 : 0.0)
   }
 }
 

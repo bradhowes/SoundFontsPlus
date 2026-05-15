@@ -39,7 +39,7 @@ public enum RootHelpInfo: HelpInfoProvider, CaseIterable {
 
   public var title: LocalizedStringKey {
     switch self {
-    case .fontsList: return "Fonts"
+    case .fontsList: return "Files"
     case .presetsList: return "Presets"
     case .tagsList: return "Tags"
     case .fontsPresetsDivider: return "Fonts/Presets Divider"
