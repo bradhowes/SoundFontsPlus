@@ -21,43 +21,51 @@ nonisolated public struct TagInfo {
 
 extension TagInfo {
 
-  public static var queryBase: Select<(), Tag, ()> {
-    Tag.all
+  private static var tagQueryBase: Select<(), Tag, ()> {
+    Tag.queryBase
       .group(by: \.id)
-      .order(by: \.ordering)
   }
 
-  public static var filteredQueryBase: Select<(), Tag, ()> {
+  private static var filteredQueryBase: Select<(), Tag, ()> {
     @Shared(.hideBuiltinFonts) var hideBuiltinFonts
     if hideBuiltinFonts {
-      return queryBase.where { $0.id.neq(Tag.Ubiquitous.builtIn.id) }
+      return tagQueryBase.where { $0.id.neq(Tag.Ubiquitous.builtIn.id) }
     }
-    return queryBase
+    return tagQueryBase
   }
 
-  /// - returns: query that returns a ``TagInfo`` for every ``Tag`` that has one or more ``TaggedSoundFont`` associations.
-  /// If `hideBuiltinFonts` is `true`, then do not count associations from built-in sound fonts
-  public static var queryNonEmpty: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont> {
+  public static var query: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont?> {
     @Shared(.hideBuiltinFonts) var hideBuiltinFonts
+    @Shared(.hideEmptyTags) var hideEmptyTags
+    // The negative SoundFont.ID values are the built-in sound fonts.
+    let firstFontId = SoundFont.ID(hideBuiltinFonts ? 0 : -4)
+    // User tags are always non-negative.
+    let firstUserTagId = Tag.ID(0)
+    // Adjust the minimum font count to hide empty tags if enabled.
+    let minFontCountToShow = hideEmptyTags ? 1 : 0
     return filteredQueryBase
-      .join(hideBuiltinFonts ? TaggedSoundFont.all.where { $0.soundFontId > SoundFont.ID(4) } : TaggedSoundFont.all) {
+      .leftJoin(TaggedSoundFont.all) {
         $0.id.eq($1.tagId)
       }
-      .select {
-        TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count(), ordering: $0.ordering)
+      .having { tag, taggedSoundFont in
+        // Filter to remove built-in sound fonts from counting.
+        (taggedSoundFont.soundFontId ?? SoundFont.ID(0)).gte(firstFontId) &&
+        (
+          // Filter to hide empty tags.
+          taggedSoundFont.soundFontId.count().gte(minFontCountToShow) ||
+          // Always show 'All' tag even if built-in are not shown and count is zero.
+          tag.id.eq(Tag.Ubiquitous.all.id) ||
+          // Always show user tags.
+          tag.id.gte(firstUserTagId)
+        )
       }
-  }
-
-  /// - returns: query that returns a ``TagInfo`` for every ``Tag`` even if it has no ``TaggedSoundFont`` associations.
-  /// If `hideBuiltinFonts` is `true`, then do not count associations from built-in sound fonts
-  public static var queryAll: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont?> {
-    @Shared(.hideBuiltinFonts) var hideBuiltinFonts
-    return filteredQueryBase
-      .leftJoin(hideBuiltinFonts ? TaggedSoundFont.all.where { $0.soundFontId > SoundFont.ID(4) } : TaggedSoundFont.all) {
-        $0.id.eq($1.tagId)
-      }
       .select {
-        TagInfo.Columns(id: $0.id, displayName: $0.displayName, soundFontsCount: $1.soundFontId.count(), ordering: $0.ordering)
+        TagInfo.Columns(
+          id: $0.id,
+          displayName: $0.displayName,
+          soundFontsCount: $1.soundFontId.count(),
+          ordering: $0.ordering
+        )
       }
   }
 }

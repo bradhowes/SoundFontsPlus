@@ -95,6 +95,11 @@ extension Tag {
 
 extension Tag {
 
+  public static var queryBase: Select<(), Tag, ()> {
+    Self.all
+      .order(by: \.ordering)
+  }
+
   /**
    Fetch the row for a given ID.
 
@@ -133,13 +138,10 @@ extension Tag {
     return result[0]
   }
 
-  public static var tagsQuery: Select<(), Tag, ()> {
-    Self.all
-      .order(by: \.ordering)
-  }
-
   public static var tags: [Self] {
-    withDatabaseReader { try tagsQuery.fetchAll($0) } ?? []
+    withDatabaseReader {
+      try queryBase.fetchAll($0)
+    } ?? []
   }
 
   public func delete() throws {

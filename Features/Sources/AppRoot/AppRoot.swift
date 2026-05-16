@@ -430,7 +430,7 @@ extension AppRoot {
       {
         switch state.destination {
         case .presetEditor(let editor): presetEditorDismissed(&state, editor: editor)
-        case .alert, .settings: .send(.presetsList(.updateFetchAllQuery))
+        case .alert, .settings: .none // .send(.presetsList(.updateFetchAllQuery))
         default: .none
         }
       }()

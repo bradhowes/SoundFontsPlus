@@ -33,21 +33,8 @@ public struct TagsList {
     @Presents public var destination: Destination.State?
 
     public init(activeTagId: Tag.ID? = nil) {
-      @Shared(.hideEmptyTags) var hideEmptyTags
       self.activeTagId = activeTagId ?? Tag.Ubiquitous.all.id
-
-      let tagInfos: [TagInfo]?
-      if hideEmptyTags {
-        tagInfos = withDatabaseReader { db in
-          try TagInfo.queryNonEmpty.fetchAll(db)
-        }
-      } else {
-        tagInfos = withDatabaseReader { db in
-          try TagInfo.queryAll.fetchAll(db)
-        }
-      }
-
-      self.rows = .init(uniqueElements: (tagInfos ?? []).map { .init(tagInfo: $0) })
+      self.rows = .init(uniqueElements: [])
     }
   }
 
@@ -99,10 +86,9 @@ public struct TagsList {
         return deleteTagConfirmed(&state, tagInfo: tagInfo)
 
       case .fetchAllQueryChanged:
-        return updateFetchAllQuery(&state)
+        return fetchAllQueryChanged(&state)
 
       case .importFinished:
-        // Make sure that the user can see the new additions in the font list
         if state.activeTagId != Tag.Ubiquitous.all.id && state.activeTagId != Tag.Ubiquitous.added.id {
           state.activeTagId = Tag.Ubiquitous.added.id
         }
@@ -171,6 +157,18 @@ extension TagsList {
     return .none
   }
 
+  private func fetchAllQueryChanged(_ state: inout State) -> Effect<Action> {
+    .run(priority: .utility, name: "fetchAllQueryChanged") { send in
+      @FetchAll var query: [TagInfo]
+      try await $query.load(TagInfo.query)
+      if Task.isCancelled { return }
+      for await rows in $query.publisher.values {
+        if Task.isCancelled { break }
+        await send(.rowsUpdated(rows))
+      }
+    }.cancellable(id: CancelId.tagsListUpdateFetchAllQuery, cancelInFlight: true)
+  }
+
   private func initialize(_ state: inout State) -> Effect<Action> {
     monitorQueryDependecies(&state)
   }
@@ -212,21 +210,6 @@ extension TagsList {
       state.rows = .init(uniqueElements: tagInfos.map { .init(tagInfo: $0) })
     }
     return .none
-  }
-
-  private func updateFetchAllQuery(_ state: inout State) -> Effect<Action> {
-    .run(priority: .utility, name: "updateFetchAllQuery") { send in
-      @Shared(.hideEmptyTags) var hideEmptyTags
-      @FetchAll var query: [TagInfo]
-      if hideEmptyTags {
-        try await $query.load(TagInfo.queryNonEmpty)
-      } else {
-        try await $query.load(TagInfo.queryAll)
-      }
-      for await rows in $query.publisher.values {
-        await send(.rowsUpdated(rows))
-      }
-    }.cancellable(id: CancelId.tagsListUpdateFetchAllQuery, cancelInFlight: true)
   }
 }
 
@@ -275,6 +258,8 @@ extension TagsListView {
   static var preview: some View {
     @Shared(.hideEmptyTags) var hideEmptyTags
     $hideEmptyTags.withLock { $0 = false }
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts
+    $hideBuiltinFonts.withLock { $0 = false }
 
     return VStack {
       Toggle(
@@ -284,6 +269,15 @@ extension TagsListView {
           set: { newValue in $hideEmptyTags.withLock { $0 = newValue }}
         )
       )
+      .padding([.leading, .trailing], 16)
+      Toggle(
+        "Hide built-in fonts",
+        isOn: Binding(
+          get: { hideBuiltinFonts },
+          set: { newValue in $hideBuiltinFonts.withLock { $0 = newValue }}
+        )
+      )
+      .padding([.leading, .trailing], 16)
       TagsListView(store: Store(initialState: .init(activeTagId: nil)) { TagsList() })
     }
   }
@@ -294,9 +288,10 @@ extension TagsListView {
   let _ = prepareDependencies {
     installApplicationFont()
     $0.defaultDatabase = previewDatabase()
-    // swiftlint:disable:next force_try
-    let tag = try! Tag.make(displayName: "Another Tag")
-    SoundFont.link(soundFontId: 1, to: tag.id)
+    _ = try? Tag.make(displayName: "Empty Tag")
+    if let tag = try? Tag.make(displayName: "Another Tag") {
+      SoundFont.link(soundFontId: 1, to: tag.id)
+    }
   }
   TagsListView.preview
     .environment(\.font, Font.body)

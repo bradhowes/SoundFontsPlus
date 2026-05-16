@@ -114,7 +114,7 @@ private let log: Logger = .init(category: "TagButton")
 extension TagButtonView {
   static var preview: some View {
     let tagInfos = withDatabaseReader { db in
-      try TagInfo.queryAll.fetchAll(db)
+      try TagInfo.query.fetchAll(db)
     } ?? []
     return VStack {
       StyledList {

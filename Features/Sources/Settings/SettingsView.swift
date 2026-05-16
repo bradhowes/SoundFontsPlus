@@ -412,7 +412,7 @@ Disable to link directly to files in iCloud or on external drives.
         ) {
           toggleInfo("Hide tags with no sound fonts") {
 """
-Enable to reduce clutter in the main tags view. Tag editors will always show all tags.
+Enable to reduce clutter in the main tags view. Your tags will always appear regardless of content.
 """
           }
         }

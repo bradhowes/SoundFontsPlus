@@ -211,13 +211,6 @@ private extension TagsEditor {
 
     state.focused = rowId
 
-    // Show alert about empty tags not appearing in main view. Only show in the editor from the tags view -- there are different
-    // conditions for presenting the alert when editing tags of a sound font.
-    if state.mode == .tagEditing,
-       hideEmptyTags {
-      state.destination = .alert(.tagWillBeHidden(displayName: newName))
-    }
-
     return .none
   }
 
