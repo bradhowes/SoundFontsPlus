@@ -3,7 +3,8 @@
 import Foundation
 import os
 
-extension FileManager: @unchecked @retroactive Sendable {
+extension FileManager {
+
   public static let documentsDirectoryName = "Documents"
   public static let fontFilesDirectoryName = "FontFiles"
 

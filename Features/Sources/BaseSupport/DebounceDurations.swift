@@ -39,5 +39,3 @@ extension DebounceDurations: Sendable, DependencyKey {
     )
   }
 }
-
-// extension DispatchQueue.SchedulerTimeType.Stride: @unchecked @retroactive Sendable {}
