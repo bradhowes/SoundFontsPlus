@@ -10,6 +10,13 @@ struct ContentView: View {
 
   var body: some View {
     AppRootView(store: store)
+      .tint(.mainAccentColor)
+      .environment(\.font, FeatureSupport.Font.body)
+      .useColorScheme()
+#if os(iOS)
+    // We don't want to mistake music keyboard activity for iOS app switching or other system gestures
+      .defersSystemGestures(on: [.bottom, .leading, .trailing])
+#endif
   }
 }
 
