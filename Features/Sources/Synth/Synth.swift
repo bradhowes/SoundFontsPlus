@@ -28,21 +28,17 @@ public struct Synth {
     public var activePresetId: Preset.ID?
 
     @ObservationStateIgnored
-    public var firstTimePresetLoaded: Bool = true
-    @ObservationStateIgnored
-    public var audioSessionActivated: Bool = false
+    public var audioSessionActivated: Bool
     @ObservationStateIgnored
     public var avAudioUnit: AVAudioUnitMIDIInstrument?
 
     public init(
       loadedSoundFontId: SoundFont.ID? = nil,
       loadedPresetIndex: Int? = nil,
-      firstTimePresetLoaded: Bool = true,
       audioSessionActivated: Bool = false
     ) {
       self.loadedSoundFontId = loadedSoundFontId
       self.loadedPresetIndex = loadedPresetIndex
-      self.firstTimePresetLoaded = firstTimePresetLoaded
       self.audioSessionActivated = audioSessionActivated
     }
   }
@@ -201,8 +197,8 @@ extension Synth {
   private func beginMonitoring(_ state: inout State) -> Effect<Action> {
     log.info("beginMonitoring - BEGIN")
     var actions = [
-      .send(.delegate(.running)),
-      monitorLastLoadFinished(&state)
+      monitorLastLoadFinished(&state),
+      .send(.delegate(.running))
     ]
 
 #if os(iOS)
@@ -242,9 +238,9 @@ extension Synth {
     }
 
     log.info("createSynthAudioUnitDone END")
-    return .concatenate(
-      .send(.delegate(.audioUnitCreated(avAudioUnit))),
-      beginMonitoring(&state)
+    return .merge(
+      beginMonitoring(&state),
+      .send(.delegate(.audioUnitCreated(avAudioUnit)))
     )
   }
 
@@ -257,8 +253,7 @@ extension Synth {
   }
 
   private func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
-    let firstTimePresetLoaded = state.firstTimePresetLoaded
-    log.info("lastPresetLoadFinished BEGIN - \(firstTimePresetLoaded)")
+    log.info("lastPresetLoadFinished BEGIN")
 
     guard
       let parameterTree = state.avAudioUnit?.parameterTree,
@@ -278,10 +273,8 @@ extension Synth {
       unsafe panParameter?.setValue(audioConfig.pan.panGeneratorValue, originator: nil)
     }
 
-    state.firstTimePresetLoaded = false
-
     log.info("lastPresetLoadFinished END")
-    return firstTimePresetLoaded ? .none : sendNoteOnOffSequence(state)
+    return sendNoteOnOffSequence(state)
   }
 
   private func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
@@ -308,6 +301,7 @@ extension Synth {
       if Task.isCancelled { return }
       for await _ in stream {
         if Task.isCancelled { break }
+        log.info("monitorLastLoadFinished - detected")
         await send(.lastPresetLoadFinished)
       }
     }.cancellable(id: CancelId.synthMonitorLastLoadFinished, cancelInFlight: true)
