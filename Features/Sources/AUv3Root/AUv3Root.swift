@@ -293,14 +293,28 @@ extension AUv3Root {
   }
 
   private func monitorCurrentPreset(_ state: inout State) -> Effect<Action> {
-    .run { [audioUnit = state.audioUnit] send in
-      await audioUnit.propertyValueStream(for: \.currentPreset) { await send(.currentPresetChanged) }
+    let (stream, continuation) = AsyncStream<Bool>.makeStream()
+    let observerToken = state.audioUnit.observe(\.currentPreset, options: [.initial, .new]) { _, _ in continuation.yield(false) }
+    let silenceWarning: (NSKeyValueObservation) -> Void = { _ in }
+    silenceWarning(observerToken)
+    return .run { send in
+      for await _ in stream {
+        if Task.isCancelled { break }
+        await send(.currentPresetChanged)
+      }
     }.cancellable(id: CancelId.auv3RootMonitorCurrentPreset, cancelInFlight: true)
   }
 
   private func monitorFullState(_ state: inout State) -> Effect<Action> {
-    .run { [audioUnit = state.audioUnit] send in
-      await audioUnit.propertyValueStream(for: \.fullState) { await send(.fullStateChanged) }
+    let (stream, continuation) = AsyncStream<Bool>.makeStream()
+    let observerToken = state.audioUnit.observe(\.fullState, options: [.initial, .new]) { _, _ in continuation.yield(false) }
+    let silenceWarning: (NSKeyValueObservation) -> Void = { _ in }
+    silenceWarning(observerToken)
+    return .run { send in
+      for await _ in stream {
+        if Task.isCancelled { break }
+        await send(.fullStateChanged)
+      }
     }.cancellable(id: CancelId.auv3RootMonitorFullState, cancelInFlight: true)
   }
 

@@ -93,8 +93,6 @@ sub: \(componentDescription.componentSubType.stringValue, privacy: .public)
   }
 }
 
-extension SF2LibAU: @unchecked Sendable {}
-
 extension SF2LibAU {
 
   /**
