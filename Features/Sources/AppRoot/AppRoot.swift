@@ -323,8 +323,7 @@ public struct AppRoot {
 extension AppRoot {
 
   /**
-   Create and return new instance of AppRoot store after first establishing runtime dependencies. See ``SoundFontsApp.swift`` for
-   usage.
+   Create and return new instance of AppRoot store after first establishing runtime dependencies.
 
    - returns: new `AppRoot` store ready to use in ``AppRootView``
    */

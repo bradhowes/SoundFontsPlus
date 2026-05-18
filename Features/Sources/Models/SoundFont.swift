@@ -69,7 +69,7 @@ extension SoundFont {
       CREATE TABLE "\(raw: Self.tableName)" (
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
         "displayName" TEXT NOT NULL,
-        "kind" TEXT NOT NULL,
+        "kind" INTEGER NOT NULL,
         "location" BLOB NOT NULL,
         "originalName" TEXT NOT NULL,
         "embeddedName" TEXT NOT NULL,
@@ -103,6 +103,7 @@ extension SoundFont {
     withErrorReporting {
       _ = try insertWithAssociations(
         db: db,
+        displayName: sf2.name,
         insertion: try makeInsertion(soundFontKind: soundFontKind, name: sf2.name, fileInfo: fileInfo),
         fileInfo: fileInfo,
         tagIds: soundFontKind.tagIds,
@@ -132,27 +133,31 @@ extension SoundFont {
    */
   @discardableResult
   public static func add(displayName: String, soundFontKind: SoundFontKind) throws -> SoundFont {
-    let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()
-    guard let value = withDatabaseWriter(
-      { db in
-        guard let value = try insertWithAssociations(
-          db: db,
-          insertion: try makeInsertion(
-            soundFontKind: soundFontKind,
-            name: displayName,
-            fileInfo: fileInfo
-          ),
-        fileInfo: fileInfo,
-        tagIds: soundFontKind.tagIds,
-        limitedLoading: false
-      ) else {
-        throw ModelError.failedToInsertSoundFont(name: displayName)
-      }
-      return value
-    }) else {
-      throw ModelError.failedToInsertSoundFont(name: displayName)
+    let soundFont = withDatabaseWriter { db in
+      try add(db: db, displayName: displayName, soundFontKind: soundFontKind)
     }
-    return value
+
+    if let soundFont {
+      return soundFont
+    }
+
+    throw ModelError.failedToInsertSoundFont(name: displayName)
+  }
+
+  public static func add(db: Database, displayName: String, soundFontKind: SoundFontKind) throws -> SoundFont {
+    let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()
+    return try insertWithAssociations(
+      db: db,
+      displayName: displayName,
+      insertion: try makeInsertion(
+        soundFontKind: soundFontKind,
+        name: displayName,
+        fileInfo: fileInfo
+      ),
+      fileInfo: fileInfo,
+      tagIds: soundFontKind.tagIds,
+      limitedLoading: false
+    )
   }
 
   /**
@@ -168,17 +173,19 @@ extension SoundFont {
     }
   }
 
+  // swiftlint:disable:next function_parameter_count
   private static func insertWithAssociations(
     db: Database,
+    displayName: String,
     insertion: Insert<SoundFont, SoundFont>,
     fileInfo: SF2FileInfo,
     tagIds: [Tag.ID],
     limitedLoading: Bool
-  ) throws -> SoundFont? {
+  ) throws -> SoundFont {
     guard
       let soundFont = try insertion.fetchOne(db)
     else {
-      return nil
+      throw ModelError.failedToInsertSoundFont(name: displayName)
     }
 
     try TaggedSoundFont.insert {

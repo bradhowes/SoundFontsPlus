@@ -8,7 +8,7 @@ import os
 import SF2Resources
 
 /**
- Indicators for the various types of SoundFont file locations. These mirror the values found in ``SoundFont.Kind``, and the 1-1
+ Indicators for the various types of SoundFont file locations. These mirror the values found in `SoundFont.Kind`, and the 1-1
  relationship must be maintained between the two.
  */
 public enum SoundFontKind {
@@ -19,7 +19,7 @@ public enum SoundFontKind {
 
   /// Sound font file that was installed by the user into the app groupd directory on the device where the app is
   /// running. Holds the file name with extension. The full path to the file is always generated using
-  /// ``FileManagerClient.fontFilePath``.
+  /// `FileManagerClient.fontFilePath`.
   case installed(filename: String)
 
   /// Sound font file that was installed by the user but that was *not* copied into the app's working
@@ -31,7 +31,7 @@ public enum SoundFontKind {
    Create a new instance value.
 
    - parameter kind: the mirror value from the ``SoundFont`` model.
-   - parameter location: location information encoded in a ``Data`` value.
+   - parameter location: location information encoded in a `Data` value.
    - parameter displayName: the display name of the SoundFont (only for logging)
    - throws a ``ModelError`` exception if unable to decode the `location` value or if `kind` has an unknown value.
    */
@@ -50,7 +50,7 @@ extension SoundFontKind: Equatable {}
 extension SoundFontKind {
 
   /**
-   Destructure the enum into a ``SoundFont.Kind`` value and a ``Data`` value that encodes the location of the SF2 file.
+   Destructure the enum into a ``SoundFont.Kind`` value and a `Data` value that encodes the location of the SF2 file.
 
    - returns 2-tuple value to be used when writing to the ``SoundFont`` database table.
    */
@@ -99,7 +99,7 @@ extension SoundFontKind {
     return false
   }
 
-  /// - returns: A list of ``Tag.ID`` values to associate with when adding a new file.
+  /// - returns: A list of `Tag.ID` values to associate with when adding a new file.
   public var tagIds: [Tag.ID] {
     var ubiTags: [Tag.Ubiquitous] = [.all]
     switch self {
@@ -117,7 +117,7 @@ extension SoundFontKind {
   /// - returns: True if the SF2 file should be deleted when removed from the application
   public var deleteWhenRemoved: Bool { isInstalled }
 
-  /// - returns a ``SF2FileInfo`` instance that can return meta data associated with the SF2 file.
+  /// - returns a `SF2FileInfo` instance that can return meta data associated with the SF2 file.
   public func fileInfo() throws -> SF2FileInfo {
     var fileInfo = SF2FileInfo(std.string(url.path(percentEncoded: false)))
     guard fileInfo.load() else { throw ModelError.loadFailure(url: url) }

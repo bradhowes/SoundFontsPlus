@@ -71,8 +71,6 @@ extension DependencyValues {
 
   /**
    A dependency that returns the current ``UbiquitousItemState`` for a URL.
-
-   The "live" implementation invokes the ``URL/resource``
    */
   public var ubiquitousItemState: UbiquitousItemStateProvider {
     get { self[UbiquitousItemStateProviderKey.self] }

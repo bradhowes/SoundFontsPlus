@@ -65,7 +65,7 @@ extension AudioConfig {
   /**
    Fetch the row for a given ID.
 
-   - parameter id: the preset ID to look for
+   - parameter presetId: the preset ID to look for
    - returns: the value found or `nil`.
    */
   public static func with(presetId: Preset.ID?) -> AudioConfig? {

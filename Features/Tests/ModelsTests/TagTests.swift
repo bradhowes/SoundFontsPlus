@@ -19,7 +19,7 @@ struct TagTests {
 
   @Test
   func migration() async throws {
-    @FetchAll(Tag.tagsQuery) var tags
+    @FetchAll(Tag.queryBase) var tags
     try await $tags.load()
 
     #expect(tags.count == Tag.Ubiquitous.allCases.count)
@@ -39,7 +39,7 @@ struct TagTests {
 
   @Test
   func tagged() async throws {
-    @FetchAll(Tag.tagsQuery) var tags
+    @FetchAll(Tag.queryBase) var tags
     try await $tags.load()
 
     #expect(tags[0].soundFonts.count == 4)
@@ -51,7 +51,7 @@ struct TagTests {
 
   @Test
   func create() async throws {
-    @FetchAll(Tag.tagsQuery) var tags
+    @FetchAll(Tag.queryBase) var tags
     let displayName = "new tag"
     let tag = try Tag.make(displayName: displayName)
     #expect(tag.displayName == displayName)
@@ -63,7 +63,7 @@ struct TagTests {
 
   @Test
   func deletingUbiquitous() async throws {
-    @FetchAll(Tag.tagsQuery) var tags
+    @FetchAll(Tag.queryBase) var tags
     try await $tags.load()
     for each in Tag.Ubiquitous.allCases {
       #expect(throws: ModelError.deleteUbiquitous(name: each.displayName!)) {
@@ -74,7 +74,7 @@ struct TagTests {
 
   @Test
   func delete() async throws {
-    @FetchAll(Tag.tagsQuery) var tags
+    @FetchAll(Tag.queryBase) var tags
     let displayName = "tag to delete"
     let tag = try Tag.make(displayName: displayName)
     try await $tags.load()
@@ -87,7 +87,7 @@ struct TagTests {
 
   @Test
   func renameUbiquitous() async throws {
-    @FetchAll(Tag.tagsQuery) var tags
+    @FetchAll(Tag.queryBase) var tags
     try await $tags.load()
     for each in Tag.Ubiquitous.allCases {
       #expect(throws: ModelError.renameUbiquitous(name: each.displayName!)) {
@@ -98,7 +98,7 @@ struct TagTests {
 
   @Test
   func renameToBlank() async throws {
-    @FetchAll(Tag.tagsQuery) var tags
+    @FetchAll(Tag.queryBase) var tags
     let displayName = "tag to rename"
     let tag = try Tag.make(displayName: displayName)
     try await $tags.load()
@@ -115,7 +115,7 @@ struct TagTests {
 
   @Test
   func rename() async throws {
-    @FetchAll(Tag.tagsQuery) var tags
+    @FetchAll(Tag.queryBase) var tags
     let displayName = "tag to rename"
     let tag = try Tag.make(displayName: displayName)
     try await $tags.load()
@@ -128,7 +128,7 @@ struct TagTests {
 
   @Test
   func createWithInvalidName() async throws {
-    @FetchAll(Tag.tagsQuery) var tags
+    @FetchAll(Tag.queryBase) var tags
     #expect(throws: ModelError.emptyTagName) {
       try Tag.make(displayName: "")
     }
@@ -152,7 +152,7 @@ struct TagTests {
 
   @Test
   func reorder() async throws {
-    @FetchAll(Tag.tagsQuery) var tags
+    @FetchAll(Tag.queryBase) var tags
     try await $tags.load()
     try Tag.reorder(tagIds: [tags[4], tags[1], tags[0], tags[3], tags[2]].map(\.id))
     try await $tags.load()

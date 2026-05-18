@@ -55,7 +55,6 @@ public struct PresetsListSection {
 
      - parameter presetId: the preset to update
      - parameter displayName: the new display name to show
-     - returns: true if updated
      */
     public mutating func update(presetId: Preset.ID, displayName: String) {
       guard let index = rows.firstIndex(where: { $0.id == presetId }) else { return }

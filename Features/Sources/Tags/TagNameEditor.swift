@@ -14,7 +14,7 @@ public struct TagNameEditor {
   @ObservableState
   public struct State: Equatable, Identifiable {
 
-    /// The unique ID to use -- since new tags do not have a Tag.ID, use ``Tag.Draft.ordering`` to provide a unique value.
+    /// The unique ID to use -- since new tags do not have a Tag.ID, use `Tag.Draft.ordering` to provide a unique value.
     public var id: Int { draft.ordering }
     public var draft: Tag.Draft
     public var tagId: Tag.ID?

@@ -46,10 +46,10 @@ extension SoundFontInfo {
 
   /**
    Obtain a query to get ``SoundFontInfo`` rows for each ``SoundFont`` associated with the given tagId. The query honors the
-   ``hideBuiltinFonts`` app setting such that when enabled, there will be no entries for the built-in sound fonts in the
+   `hideBuiltinFonts` app setting such that when enabled, there will be no entries for the built-in sound fonts in the
    query output.
 
-   - parameter tagId: the tag to look for. If `nil` then use the value found in ``ActiveState``. If that is also `nil` then
+   - parameter tagId: the tag to look for. If `nil` then use the value found in `ActiveState`. If that is also `nil` then
    return rows for all ``SoundFont`` entries.
    - returns: a query that produces a row for each associated ``SoundFont``
    */

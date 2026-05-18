@@ -192,10 +192,9 @@ public struct AUv3Root {
 extension AUv3Root {
 
   /**
-   Create and return new instance of AppRoot store after first establishing runtime dependencies. See ``SoundFontsApp.swift`` for
-   usage.
+   Create and return new instance of AppRoot store after first establishing runtime dependencies.
 
-   - returns: new `AppRoot` store ready to use in ``AppRootView``
+   - returns: new `AppRoot` store ready to use in ``AUv3RootView``
    */
   @MainActor
   public static func make(audioUnit: SF2LibAU) -> StoreOf<AUv3Root> {

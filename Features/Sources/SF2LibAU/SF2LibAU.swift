@@ -59,6 +59,7 @@ private let unsetAudioUnitShortName = "-"
    Construct a new AUv3 component.
 
    - parameter componentDescription: the definition used when locating the component to create
+   - parameter options: instantiation options to apply
    */
   public override init(componentDescription: AudioComponentDescription, options: AudioComponentInstantiationOptions = []) throws {
     log.info(

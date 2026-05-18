@@ -120,7 +120,7 @@ struct ToolBarTests {
 
     await store.send(.effectsVisibilityButtonTapped) {
       $0.$effectsPanelVisible.withLock { $0.toggle() }
-      $0.showMoreButtons = false
+      $0.showMoreButtons = isCompact
     }
 
     await store.receive(\.delegate.effectsVisibilityChanged, effectsPanelVisibleInit)
@@ -220,16 +220,14 @@ struct ToolBarTests {
       $0.audioSessionActivated = true
       $0.avAudioUnit = avAudioUnit
     }
-    await synth.receive(\.delegate.audioUnitCreated)
     await synth.receive(\.delegate.running)
+    await synth.receive(\.delegate.audioUnitCreated)
     await synth.send(\.activePresetIdChanged, 2) {
       $0.loadedSoundFontId = 1
       $0.loadedPresetIndex = 1
       $0.activePresetId = 2
     }
-    await synth.receive(\.lastPresetLoadFinished, timeout: .seconds(5)) {
-      $0.firstTimePresetLoaded = false
-    }
+    await synth.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
 
     let store = try await store()
 

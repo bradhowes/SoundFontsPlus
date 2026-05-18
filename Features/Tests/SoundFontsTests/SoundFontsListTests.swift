@@ -44,11 +44,6 @@ struct SoundFontsListTests {
   func initialized(_ closure: (TestStoreOf<SoundFontsList>) async throws -> Void) async throws {
     let store = store()
     await store.send(.initialize)
-    await store.receive(\.updateFetchAllQuery)
-
-    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.receive(\.rowsUpdated)
-    }
 
     #expect(store.state.rows.count == 4)
 
@@ -203,14 +198,6 @@ struct SoundFontsListTests {
 
       #expect(store.state.activePresetSource == nil)
       #expect(store.state.selectedPresetSource == nil)
-
-      let rows = withDatabaseReader { db in
-        try SoundFontInfo.query(for: store.state.activeTagId).fetchAll(db)
-      } ?? []
-
-      await store.receive(\.rowsUpdated, rows) {
-        $0.rows = oldRows
-      }
     }
   }
 
@@ -279,14 +266,6 @@ struct SoundFontsListTests {
       #expect(deleted?.soundFontInfo.displayName == "Font 3")
 
       #expect(removeLog.log.isEmpty)
-
-      let rows = withDatabaseReader { db in
-        try SoundFontInfo.query(for: store.state.activeTagId).fetchAll(db)
-      } ?? []
-
-      await store.receive(\.rowsUpdated, rows) {
-        $0.rows = oldRows
-      }
     }
   }
 
@@ -308,14 +287,6 @@ struct SoundFontsListTests {
       let deleted = oldRows.remove(id: row.id)
       #expect(deleted != nil)
       #expect(deleted?.soundFontInfo.displayName == "Font 4")
-
-      let rows = withDatabaseReader { db in
-        try SoundFontInfo.query(for: store.state.activeTagId).fetchAll(db)
-      } ?? []
-
-      await store.receive(\.rowsUpdated, rows) {
-        $0.rows = oldRows
-      }
     }
   }
 
@@ -381,7 +352,6 @@ struct SoundFontsListTests {
         $0.editingMode = .active
       }
 
-      var rows = store.state.rows
       let idx3 = store.state.rows.index(id: 3)!
       let idx4 = store.state.rows.index(id: 4)!
 
@@ -406,12 +376,6 @@ struct SoundFontsListTests {
 
       await store.send(\.destination.presented.alert.deleteSoundFontCollectionConfirmed, selected) {
         $0.editingMode = .inactive
-      }
-
-      rows.remove(id: 3)
-      rows.remove(id: 4)
-      await store.receive(\.rowsUpdated) {
-        $0.rows = rows
       }
     }
   }
@@ -493,6 +457,9 @@ struct SoundFontsListTests {
   func soundFontsListViewPreview() async throws {
     withDependencies {
       $0.defaultDatabase = previewDatabase()
+      $0.fileManager.fontFilePath = {
+        SF2ResourceTag.rolandNicePiano.url.deletingLastPathComponent().appendingPathComponent($0, isDirectory: false)
+      }
     } operation: {
       withSnapshotTesting(record: .failed) {
         TestSupport.assertSnapshot(matching: SoundFontsListView.preview)

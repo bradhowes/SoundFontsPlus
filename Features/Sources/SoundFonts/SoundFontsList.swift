@@ -21,7 +21,7 @@ public struct SoundFontsList {
   @ObservableState
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
-    public var rows: IdentifiedArrayOf<SoundFontButton.State>
+    public var rows: IdentifiedArrayOf<SoundFontButton.State> = []
     public var activeTagId: Tag.ID
     public var activePresetSource: PresetSource?
     public var selectedPresetSource: PresetSource?
@@ -46,19 +46,26 @@ public struct SoundFontsList {
       destination: Destination.State? = nil,
       editingMode: EditMode = .inactive
     ) {
-      self.activeTagId = activeTagId ?? Tag.Ubiquitous.all.id
+      let activeTagId = activeTagId ?? Tag.Ubiquitous.all.id
+      self.activeTagId = activeTagId
       self.activePresetSource = activePresetSource
       self.selectedPresetSource = selectedPresetSource
 
-      let soundFontInfos: [SoundFontInfo] = withDatabaseReader { db in
-        try SoundFontInfo.query(for: Tag.Ubiquitous.all.id).fetchAll(db)
-      } ?? []
-      self.rows = .init(uncheckedUniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
       self.editingMode = editingMode
 
       self.searchSource = []
       self.searchText = ""
       self.isSearchFieldPresented = false
+
+      let soundFontInfos: [SoundFontInfo] = withDatabaseReader { db in
+        try SoundFontInfo.query(for: activeTagId).fetchAll(db)
+      } ?? []
+
+      Self.setRows(&self, soundFontInfos: soundFontInfos)
+    }
+
+    public static func setRows(_ state: inout Self, soundFontInfos: [SoundFontInfo]) {
+      state.rows = .init(uniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
     }
   }
 
@@ -77,7 +84,7 @@ public struct SoundFontsList {
     case initialize
     case missingSoundFontDetected(SoundFont.ID)
     case rows(IdentifiedActionOf<SoundFontButton>)
-    case rowsUpdated([SoundFontInfo])
+    case rowsUpdated(rows: [SoundFontInfo])
     case searchButtonTapped
     case searchTextChanged(String)
     case selectedIsNowActivated
@@ -159,7 +166,7 @@ public struct SoundFontsList {
         return .none
 
       case .initialize:
-        return monitorHideBuiltinFonts(&state)
+        return monitorFetchAllQueryOptions(&state)
 
       case .missingSoundFontDetected(let soundFontId):
         return missingSoundFontDetected(&state, soundFontId: soundFontId)
@@ -167,7 +174,7 @@ public struct SoundFontsList {
       case .rows(.element(_, .delegate(let action))):
         return processRowAction(&state, action: action)
 
-      case .rowsUpdated(let soundFontInfos):
+      case .rowsUpdated(rows: let soundFontInfos):
         return soundFontInfosChanged(&state, soundFontInfos: soundFontInfos)
 
       case .searchButtonTapped:
@@ -196,7 +203,7 @@ public struct SoundFontsList {
   }
 
   private enum CancelId: String, CaseIterable {
-    case soundFontsListMonitorHideBuiltinFonts
+    case soundFontsListMonitorFetchAllQueryOptions
     case soundFontsListUpdateFetchAll
   }
 }
@@ -334,12 +341,19 @@ extension SoundFontsList {
     return .none
   }
 
-  private func monitorHideBuiltinFonts(_ state: inout State) -> Effect<Action> {
+  private func monitorFetchAllQueryOptions(_ state: inout State) -> Effect<Action> {
     .run { [$hideBuiltinFonts] send in
-      for await _ in UncheckedSendable($hideBuiltinFonts.publisher.values.removeDuplicates()) {
+      let makeState = { $hideBuiltinFonts.wrappedValue }
+      var state = makeState()
+      let optionsChanged = {
+        let newState = makeState()
+        defer { state = newState }
+        return state != newState
+      }
+      for await _ in $hideBuiltinFonts.publisher.values.removeDuplicates() where optionsChanged() {
         await send(.updateFetchAllQuery)
       }
-    }.cancellable(id: CancelId.soundFontsListMonitorHideBuiltinFonts)
+    }.cancellable(id: CancelId.soundFontsListMonitorFetchAllQueryOptions)
   }
 
   private func processRowAction(_ state: inout State, action: SoundFontButton.Delegate) -> Effect<Action> {
@@ -435,11 +449,11 @@ extension SoundFontsList {
   }
 
   private func updateFetchAllQuery(_ tagId: Tag.ID) -> Effect<Action> {
-    .run(priority: .utility, name: "monitorFetchAll") { send in
+    .run(priority: .utility, name: "soundFontsListUpdateFetchAllQuery") { send in
       @FetchAll var soundFontInfos: [SoundFontInfo]
       try await $soundFontInfos.load(SoundFontInfo.query(for: tagId))
       for try await rows in $soundFontInfos.publisher.values {
-        await send(.rowsUpdated(rows))
+        await send(.rowsUpdated(rows: rows))
       }
 
     }.cancellable(id: CancelId.soundFontsListUpdateFetchAll, cancelInFlight: true)
@@ -572,11 +586,39 @@ private let log: Logger = .init(category: "SoundFontsList")
 #if DEBUG
 
 extension SoundFontsListView {
+
   static var preview: some View {
-    // swiftlint:disable:next force_try
-    let tag = try! Tag.make(displayName: "My Tag")
-    SoundFont.link(soundFontId: 2, to: tag.id)
+
+    @Shared(.hideEmptyTags) var hideEmptyTags
+    $hideEmptyTags.withLock { $0 = false }
+    @Shared(.hideBuiltinFonts) var hideBuiltinFonts
+    $hideBuiltinFonts.withLock { $0 = false }
+
+    let mine = try? SoundFont.add(
+      displayName: "My Font",
+      soundFontKind: .installed(filename: SF2ResourceTag.rolandNicePiano.url.lastPathComponent)
+    )
+    if let tag = try? Tag.make(displayName: "My Tag"), let mine {
+      SoundFont.link(soundFontId: mine.id, to: tag.id)
+    }
+
     return VStack {
+      Toggle(
+        "Hide empty tags",
+        isOn: Binding(
+          get: { hideEmptyTags },
+          set: { newValue in $hideEmptyTags.withLock { $0 = newValue }}
+        )
+      )
+      .padding([.leading, .trailing], 16)
+      Toggle(
+        "Hide built-in fonts",
+        isOn: Binding(
+          get: { hideBuiltinFonts },
+          set: { newValue in $hideBuiltinFonts.withLock { $0 = newValue }}
+        )
+      )
+      .padding([.leading, .trailing], 16)
       SoundFontsListView(store: Store(initialState: .init()) { SoundFontsList() })
       TagsListView(store: Store(initialState: .init(activeTagId: nil)) { TagsList() })
     }
@@ -588,6 +630,20 @@ extension SoundFontsListView {
   let _ = prepareDependencies {
     installApplicationFont()
     $0.defaultDatabase = previewDatabase()
+    $0.fileManager.fontFilePath = {
+      SF2ResourceTag.rolandNicePiano.url.deletingLastPathComponent().appendingPathComponent($0, isDirectory: false)
+    }
+//    $0.defaultDatabase = previewDatabase { db in
+//      let mine = try SoundFont.add(
+//        db: db,
+//        displayName: "Mine",
+//        soundFontKind: .installed(filename: SF2Resource.resources[2].absoluteString)
+//      )
+//
+//      if let tag = try? Tag.make(displayName: "My Tag") {
+//        SoundFont.link(soundFontId: mine.id, to: tag.id)
+//      }
+//    }
   }
 
   @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false

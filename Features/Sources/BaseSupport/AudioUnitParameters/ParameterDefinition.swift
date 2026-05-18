@@ -79,6 +79,7 @@ public struct ParameterDefinition {
    - parameter unit: the unit of the value
    - parameter unitName: the optional name of the unit
    - parameter ramping: true if the value should ramp over time when being set to a new value (default is true)
+   - parameter logScale: true if the values follow a logarithmic curve
    - returns: new ParameterDefinition instance
    */
   public static func float(
@@ -109,6 +110,8 @@ public struct ParameterDefinition {
    - parameter identifier: the unique identifier for the parameter
    - parameter localized: the localized name for the parameter
    - parameter address: the unique address for the parameter
+   - parameter minValue: the lowest value of the parameter
+   - parameter maxValue: the maximum value of the parameter
    - returns: new ParameterDefinition instance
    */
   public static func percent(

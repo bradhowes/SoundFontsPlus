@@ -91,7 +91,7 @@ public struct PresetsList {
     case editingVisibilityChanged(Bool)
     case initialize
     case presetSourceChanged(PresetSource?)
-    case rowsUpdated(presets: [Preset], showActive: Bool)
+    case rowsUpdated(rows: [Preset], showActive: Bool)
     case searchTextChanged(String)
     case sections(IdentifiedActionOf<PresetsListSection>)
     case sectionHeaderIndexTapped(String)
@@ -155,7 +155,7 @@ public struct PresetsList {
       case .presetSourceChanged(let presetSource):
         return presetSourceChanged(&state, presetSource: presetSource)
 
-      case let .rowsUpdated(presets: presets, showActive: showActive):
+      case let .rowsUpdated(rows: presets, showActive: showActive):
         state.presets = presets
         if showActive, let activePresetId = state.activePresetId {
           state.scrollToTarget = .preset(activePresetId)
@@ -195,7 +195,7 @@ public struct PresetsList {
   }
 
   private enum CancelId: String, CaseIterable {
-    case presetsListMonitorQueryOptions
+    case presetsListMonitorFetchAllQueryOptions
     case presetsListShowPresetNow
     case presetsListUpdateFetchAll
   }
@@ -269,22 +269,30 @@ extension PresetsList {
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {
-    .merge(
-      monitorQueryOptions(&state),
-      updateFetchAllQuery(&state, showActive: false)
-    )
+    monitorFetchAllQueryOptions(&state)
   }
 
-  private func monitorQueryOptions(_ state: inout State) -> Effect<Action> {
+  private func monitorFetchAllQueryOptions(_ state: inout State) -> Effect<Action> {
     .run { [$favoritesOnTop, $showOnlyFavorites, $starFavoriteNames, $sortPresetsByName] send in
+      // swiftlint:disable:next large_tuple
+      var state: (Bool?, Bool?, Bool?, Bool?) = (nil, nil, nil, nil)
       for await _ in $favoritesOnTop
         .publisher
         .merge(
           with: $showOnlyFavorites.publisher, $starFavoriteNames.publisher, $sortPresetsByName.publisher
         ).values {
-        await send(.updateFetchAllQuery)
+        let newState = (
+          $favoritesOnTop.wrappedValue,
+          $showOnlyFavorites.wrappedValue,
+          $starFavoriteNames.wrappedValue,
+          $sortPresetsByName.wrappedValue
+        )
+        if state != newState {
+          state = newState
+          await send(.updateFetchAllQuery)
+        }
       }
-    }.cancellable(id: CancelId.presetsListMonitorQueryOptions, cancelInFlight: true)
+    }.cancellable(id: CancelId.presetsListMonitorFetchAllQueryOptions, cancelInFlight: true)
   }
 
   private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {
@@ -433,14 +441,14 @@ extension PresetsList {
     let soundFontId = state.presetSource?.id ?? -1
     let query = state.editingVisibility ? Preset.allQuery(for: soundFontId) : Preset.visibleQuery(for: soundFontId)
 
-    return .run(name: "presetsListUpdateFetchAll") { [showActive] send in
+    return .run(priority: .utility, name: "presetsListUpdateFetchAllQuery") { [showActive] send in
       var showActive = showActive
       @FetchAll var presets: [Preset]
       try await $presets.load(query, animation: .smooth)
       if Task.isCancelled { return }
-      for try await presets in $presets.publisher.values {
+      for try await rows in $presets.publisher.values {
         if Task.isCancelled { break }
-        await send(.rowsUpdated(presets: presets, showActive: showActive))
+        await send(.rowsUpdated(rows: rows, showActive: showActive))
         showActive = false
       }
       log.info("updateFetchQuery END")

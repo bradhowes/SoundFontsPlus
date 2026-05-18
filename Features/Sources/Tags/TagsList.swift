@@ -27,14 +27,20 @@ public struct TagsList {
 
   @ObservableState
   public struct State: Equatable {
+    @ObservationStateIgnored
+    @FetchAll(TagInfo.query) var tagInfos: [TagInfo]
     public var activeTagId: Tag.ID = Tag.Ubiquitous.all.id
     public var activeTagName: String? { self.rows[id: activeTagId]?.tagInfo.displayName }
-    public var rows: IdentifiedArrayOf<TagButton.State>
+    public var rows: IdentifiedArrayOf<TagButton.State> = .init(uniqueElements: [])
     @Presents public var destination: Destination.State?
 
     public init(activeTagId: Tag.ID? = nil) {
       self.activeTagId = activeTagId ?? Tag.Ubiquitous.all.id
-      self.rows = .init(uniqueElements: [])
+      Self.setRows(&self, tagInfos: tagInfos)
+    }
+
+    public static func setRows(_ state: inout Self, tagInfos: [TagInfo]) {
+      state.rows = .init(uniqueElements: tagInfos.map { .init(tagInfo: $0) })
     }
   }
 
@@ -44,11 +50,11 @@ public struct TagsList {
     case deinitialize
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
-    case fetchAllQueryChanged
     case importFinished
     case initialize
     case rows(IdentifiedActionOf<TagButton>)
-    case rowsUpdated([TagInfo])
+    case rowsUpdated(rows: [TagInfo])
+    case updateFetchAllQuery
 
     @CasePathable
     public enum Delegate: Equatable {
@@ -85,9 +91,6 @@ public struct TagsList {
       case .destination(.presented(.alert(.deleteTagConfirmed(let tagInfo)))):
         return deleteTagConfirmed(&state, tagInfo: tagInfo)
 
-      case .fetchAllQueryChanged:
-        return fetchAllQueryChanged(&state)
-
       case .importFinished:
         if state.activeTagId != Tag.Ubiquitous.all.id && state.activeTagId != Tag.Ubiquitous.added.id {
           state.activeTagId = Tag.Ubiquitous.added.id
@@ -103,6 +106,9 @@ public struct TagsList {
       case .rowsUpdated(let tagInfos):
         return rowsUpdated(&state, tagInfos: tagInfos)
 
+      case .updateFetchAllQuery:
+        return updateFetchAllQuery(&state)
+
       default:
         return .none
       }
@@ -114,8 +120,7 @@ public struct TagsList {
   }
 
   private enum CancelId: CaseIterable {
-    case tagsListMonitorHideEmptyTags
-    case tagsListMonitorHideBuiltinFonts
+    case tagsListMonitorFetchAllQueryOptions
     case tagsListUpdateFetchAllQuery
   }
 }
@@ -157,31 +162,26 @@ extension TagsList {
     return .none
   }
 
-  private func fetchAllQueryChanged(_ state: inout State) -> Effect<Action> {
-    .run(priority: .utility, name: "fetchAllQueryChanged") { send in
-      @FetchAll var query: [TagInfo]
-      try await $query.load(TagInfo.query)
-      if Task.isCancelled { return }
-      for await rows in $query.publisher.values {
-        if Task.isCancelled { break }
-        await send(.rowsUpdated(rows))
-      }
-    }.cancellable(id: CancelId.tagsListUpdateFetchAllQuery, cancelInFlight: true)
-  }
-
   private func initialize(_ state: inout State) -> Effect<Action> {
-    monitorQueryDependecies(&state)
+    .merge(
+      monitorFetchAllQueryOptions(&state)
+    )
   }
 
-  private func monitorQueryDependecies(_ state: inout State) -> Effect<Action> {
+  private func monitorFetchAllQueryOptions(_ state: inout State) -> Effect<Action> {
     .run { [$hideEmptyTags, $hideBuiltinFonts] send in
-      for await _ in merge(
-        UncheckedSendable($hideEmptyTags.publisher.values),
-        UncheckedSendable($hideBuiltinFonts.publisher.values)
-      ) {
-        await send(.fetchAllQueryChanged)
+      let makeState = { ($hideEmptyTags.wrappedValue, $hideBuiltinFonts.wrappedValue) }
+      var state = makeState()
+      let optionsChanged = {
+        let newState = makeState()
+        defer { state = newState }
+        return state != newState
       }
-    }.cancellable(id: CancelId.tagsListMonitorHideEmptyTags)
+
+      for await _ in $hideEmptyTags.publisher.merge(with: $hideBuiltinFonts.publisher).values where optionsChanged() {
+        await send(.updateFetchAllQuery)
+      }
+    }.cancellable(id: CancelId.tagsListMonitorFetchAllQueryOptions)
   }
 
   private func processRowAction(_ state: inout State, action: TagButton.Delegate) -> Effect<Action> {
@@ -207,9 +207,21 @@ extension TagsList {
 
   private func rowsUpdated(_ state: inout State, tagInfos: [TagInfo]) -> Effect<Action> {
     withAnimation(.smooth) {
-      state.rows = .init(uniqueElements: tagInfos.map { .init(tagInfo: $0) })
+      State.setRows(&state, tagInfos: tagInfos)
     }
     return .none
+  }
+
+  private func updateFetchAllQuery(_ state: inout State) -> Effect<Action> {
+    let tagInfos = state.$tagInfos
+    return .run(priority: .utility, name: "TagsListUpdateFetchAllQuery") { [tagInfos] send in
+      try await tagInfos.load(TagInfo.query)
+      if Task.isCancelled { return }
+      for await rows in tagInfos.publisher.values {
+        if Task.isCancelled { break }
+        await send(.rowsUpdated(rows: rows))
+      }
+    }.cancellable(id: CancelId.tagsListUpdateFetchAllQuery, cancelInFlight: true)
   }
 }
 
@@ -261,6 +273,15 @@ extension TagsListView {
     @Shared(.hideBuiltinFonts) var hideBuiltinFonts
     $hideBuiltinFonts.withLock { $0 = false }
 
+    let mine = try? SoundFont.add(
+      displayName: "My Font",
+      soundFontKind: .installed(filename: SF2ResourceTag.rolandNicePiano.url.lastPathComponent)
+    )
+
+    if let tag = try? Tag.make(displayName: "My Tag"), let mine {
+      SoundFont.link(soundFontId: mine.id, to: tag.id)
+    }
+
     return VStack {
       Toggle(
         "Hide empty tags",
@@ -288,9 +309,8 @@ extension TagsListView {
   let _ = prepareDependencies {
     installApplicationFont()
     $0.defaultDatabase = previewDatabase()
-    _ = try? Tag.make(displayName: "Empty Tag")
-    if let tag = try? Tag.make(displayName: "Another Tag") {
-      SoundFont.link(soundFontId: 1, to: tag.id)
+    $0.fileManager.fontFilePath = {
+      SF2ResourceTag.rolandNicePiano.url.deletingLastPathComponent().appendingPathComponent($0, isDirectory: false)
     }
   }
   TagsListView.preview

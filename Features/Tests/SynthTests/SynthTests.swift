@@ -50,8 +50,8 @@ struct SynthTests {
         $0.avAudioUnit = avAudioUnit
       }
 
-      await store.receive(\.delegate.audioUnitCreated)
       await store.receive(\.delegate.running)
+      await store.receive(\.delegate.audioUnitCreated)
 
       try await closure(store)
 
@@ -75,9 +75,7 @@ struct SynthTests {
         $0.activePresetId = 2
       }
 
-      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5)) {
-        $0.firstTimePresetLoaded = false
-      }
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
     }
   }
 
@@ -92,9 +90,7 @@ struct SynthTests {
         $0.activePresetId = 2
       }
 
-      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(10)) {
-        $0.firstTimePresetLoaded = false
-      }
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(10))
 
       await store.send(\.activePresetIdChanged, 1) {
         $0.loadedSoundFontId = 1

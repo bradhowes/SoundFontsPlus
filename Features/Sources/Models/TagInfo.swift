@@ -34,34 +34,31 @@ extension TagInfo {
     return tagQueryBase
   }
 
-  public static var query: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont?> {
+  public static var query: Select<TagInfo.Columns.QueryValue, Tag, (TaggedSoundFont?, SoundFont?)> {
     @Shared(.hideBuiltinFonts) var hideBuiltinFonts
     @Shared(.hideEmptyTags) var hideEmptyTags
-    // There are 4 built-in SoundFont.ID values starting at 1. Better would be additional join on SoundFont table to filter
-    // on `kind` column.
-    let firstFontId = SoundFont.ID(hideBuiltinFonts ? 5 : 0)
     // User tags are always non-negative.
     let firstUserTagId = Tag.ID(0)
     // The minimum font count to hide empty tags if enabled.
     let minFontCountToShow = hideEmptyTags ? 1 : 0
+    let filteredKind: SoundFont.Kind = hideBuiltinFonts ? .installed : .builtin
     return tagQueryBase
       .leftJoin(TaggedSoundFont.all) { tag, tagged in
         tag.id.eq(tagged.tagId)
       }
-      .having { tag, tagged in
-        // Filter to hide empty tags, where empty depends on having no fonts or only having built-in fonts.
-        // TODO: remove duplication in `select` expression
-        tagged.soundFontId.count(filter: (tagged.soundFontId ?? SoundFont.ID(0)).gte(firstFontId)).gte(minFontCountToShow) ||
-        // Always show 'All' tag even if count is zero.
+      .leftJoin(SoundFont.all) { _, tagged, soundFont in
+        tagged.soundFontId.eq(soundFont.id)
+      }
+      .having { tag, _, soundFont in
+        soundFont.id.count(filter: (soundFont.kind ?? SoundFont.Kind.installed).gte(filteredKind)).gte(minFontCountToShow) ||
         tag.id.eq(Tag.Ubiquitous.all.id) ||
-        // Always show user tags.
         tag.id.gte(firstUserTagId)
       }
-      .select { tag, tagged in
+      .select { tag, _, soundFont in
         TagInfo.Columns(
           id: tag.id,
           displayName: tag.displayName,
-          soundFontsCount: tagged.soundFontId.count(filter: (tagged.soundFontId ?? SoundFont.ID(0)).gte(firstFontId)),
+          soundFontsCount: soundFont.id.count(filter: (soundFont.kind ?? SoundFont.Kind.installed).gte(filteredKind)),
           ordering: tag.ordering
         )
       }
@@ -69,35 +66,3 @@ extension TagInfo {
 }
 
 extension TagInfo: Equatable, Identifiable, Sendable {}
-
-// Select all:
-//
-// SELECT "tags"."id" AS "id", "tags"."displayName" AS "displayName", count("taggedSoundFonts"."soundFontId") AS "soundFontsCount", "tags"."ordering" AS "ordering"
-// FROM "tags"
-// LEFT JOIN "taggedSoundFonts" ON ("tags"."id") = ("taggedSoundFonts"."tagId")
-// GROUP BY "tags"."id"
-// ORDER BY "tags"."ordering";
-
-// Select all no built-in:
-//
-// SELECT "tags"."id" AS "id", "tags"."displayName" AS "displayName", count("taggedSoundFonts"."soundFontId") AS "soundFontsCount", "tags"."ordering" AS "ordering"
-// FROM "tags"
-// LEFT JOIN "taggedSoundFonts" ON ("tags"."id") = ("taggedSoundFonts"."tagId") AND ("taggedSoundFonts"."soundFontId") > 4
-// GROUP BY "tags"."id"
-// ORDER BY "tags"."ordering";
-
-// Select non-empty
-//
-// SELECT "tags"."id" AS "id", "tags"."displayName" AS "displayName", count("taggedSoundFonts"."soundFontId") AS "soundFontsCount", "tags"."ordering" AS "ordering"
-// FROM "tags"
-// JOIN "taggedSoundFonts" ON ("tags"."id") = ("taggedSoundFonts"."tagId")
-// GROUP BY "tags"."id"
-// ORDER BY "tags"."ordering";
-
-// Select non-empty no built-in
-//
-// SELECT "tags"."id" AS "id", "tags"."displayName" AS "displayName", count("taggedSoundFonts"."soundFontId") AS "soundFontsCount", "tags"."ordering" AS "ordering"
-// FROM "tags"
-// JOIN "taggedSoundFonts" ON ("tags"."id") = ("taggedSoundFonts"."tagId") AND ("taggedSoundFonts"."soundFontId") > 4
-// GROUP BY "tags"."id"
-// ORDER BY "tags"."ordering";

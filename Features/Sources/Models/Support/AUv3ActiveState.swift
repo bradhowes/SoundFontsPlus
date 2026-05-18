@@ -7,7 +7,7 @@ import Sharing
 /**
  Collection of attributes that define the active state of an SF2LibAU instance. There can be more than one instance of an SF2LibAU
  active at the same time in the same AUv3 host. The safest way to save and restore state is to rely on the values store in the
- ``AUAudioUnit/fullState`` attribute which would come from the AUv3 host when it loads a document.
+ `AUAudioUnit/fullState` attribute which would come from the AUv3 host when it loads a document.
 
  The state contains the unique IDs for the active soundfont, preset, and tag, and additional shared state values that affect the
  UI.

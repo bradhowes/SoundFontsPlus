@@ -116,6 +116,11 @@ extension Tag {
   }
 
   public static func make(displayName: String) throws -> Tag {
+    @Dependency(\.defaultDatabase) var database
+    return try make(db: database, displayName: displayName)
+  }
+
+  public static func make(db: DatabaseWriter, displayName: String) throws -> Tag {
     let base = displayName.trimmedOfWhitespaces
     if base.isEmpty {
       throw ModelError.emptyTagName
@@ -133,8 +138,7 @@ extension Tag {
       Draft(displayName: newName, ordering: existingNames.count)
     }.returning(\.self)
 
-    @Dependency(\.defaultDatabase) var database
-    let result: [Self] = try database.write { try insertTag.fetchAll($0) }
+    let result: [Self] = try db.write { try insertTag.fetchAll($0) }
     return result[0]
   }
 

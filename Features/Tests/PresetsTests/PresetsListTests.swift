@@ -72,7 +72,8 @@ struct PresetsListTests {
 
     #expect(!presets.isEmpty)
 
-    await store.receive(.rowsUpdated(presets: presets, showActive: false))
+    await store.receive(.updateFetchAllQuery)
+    await store.receive(.rowsUpdated(rows: presets, showActive: false))
 
     try await closure(store, presets)
 
@@ -84,8 +85,9 @@ struct PresetsListTests {
   func initializeWithNoSoundFontId() async throws {
     let store = try setup(activeSoundFontId: nil, selectedSoundFontId: nil)
     await store.send(.initialize)
-    await store.receive(.rowsUpdated(presets: [], showActive: false))
-   #expect(store.state.sections.count == 1)
+    await store.receive(.updateFetchAllQuery)
+    await store.receive(.rowsUpdated(rows: [], showActive: false))
+    #expect(store.state.sections.count == 1)
     await store.send(.deinitialize)
     await store.finish()
   }
@@ -102,7 +104,7 @@ struct PresetsListTests {
         $0.presetSource = .active(2)
       }
       let presets = Preset.visible(for: 2)
-      await store.receive(.rowsUpdated(presets: presets, showActive: true)) {
+      await store.receive(.rowsUpdated(rows: presets, showActive: true)) {
         $0.presets = presets
         $0.sections = [
           .init(
@@ -249,7 +251,7 @@ struct PresetsListTests {
       }
 
       let presets = Preset.visible(for: 2)
-      await store.receive(.rowsUpdated(presets: presets, showActive: true)) {
+      await store.receive(.rowsUpdated(rows: presets, showActive: true)) {
         $0.presets = presets
         $0.sections = [
           .init(
@@ -328,7 +330,7 @@ struct PresetsListTests {
       await store.receive(\.showPresetDelayed, 13)
 
       let presets = Preset.visible(for: 1)
-      await store.receive(.rowsUpdated(presets: presets, showActive: false)) {
+      await store.receive(.rowsUpdated(rows: presets, showActive: false)) {
         $0.presets = presets
         $0.sections = [
           .init(
@@ -397,7 +399,7 @@ struct PresetsListTests {
         print("--", p)
       }
 
-      await store.receive(.rowsUpdated(presets: presets, showActive: false)) {
+      await store.receive(.rowsUpdated(rows: presets, showActive: false)) {
         $0.presets = presets
         $0.sections = [
           .init(
@@ -448,7 +450,7 @@ struct PresetsListTests {
       updated = Preset.visible(for: 1)
       #expect(updated[favoriteIndex].kind == .preset)
 
-      await store.receive(.rowsUpdated(presets: updated, showActive: false)) {
+      await store.receive(.rowsUpdated(rows: updated, showActive: false)) {
         $0.presets = updated
         $0.sections = [
           .init(
@@ -556,7 +558,7 @@ struct PresetsListTests {
       }
 
       updated.remove(atOffsets: [1])
-      await store.receive(.rowsUpdated(presets: updated, showActive: false)) {
+      await store.receive(.rowsUpdated(rows: updated, showActive: false)) {
         $0.presets = updated
         $0.sections = [
           .init(

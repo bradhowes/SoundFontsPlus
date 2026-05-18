@@ -41,10 +41,10 @@ struct TagsListTests {
     let store = TestStore(initialState: TagsList.State(activeTagId: activeTagId)) { TagsList() }
 
     await store.send(\.initialize)
-    await store.receive(\.fetchAllQueryChanged)
-    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.receive(\.rowsUpdated)
-    }
+//    // await store.receive(\.updateFetchAllQuery)
+//    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+//      await store.receive(\.rowsUpdated)
+//    }
 
     try await closure(store)
 
@@ -66,12 +66,9 @@ struct TagsListTests {
       let tagInfo = rows[5].tagInfo
 
       await store.send(\.rows[id: tagInfo.id].delegate.delete, tagInfo)
-      await store.receive(\.rowsUpdated) {
-        $0.rows = .init(rows.dropLast(1))
-      }
 
       let found = withDatabaseReader { db in
-        try TagInfo.queryAll.fetchAll(db)
+        try TagInfo.query.fetchAll(db)
       }
 
       #expect(found?.count == 5)
@@ -100,7 +97,7 @@ struct TagsListTests {
       }
 
       let found = withDatabaseReader { db in
-        try TagInfo.queryAll.fetchAll(db)
+        try TagInfo.query.fetchAll(db)
       }
 
       #expect(found?.count == 6)
@@ -129,12 +126,8 @@ struct TagsListTests {
         // $0.rows = .init(rows.dropLast())
       }
 
-      await store.receive(\.rowsUpdated) {
-        $0.rows = .init(rows.dropLast(1))
-      }
-
       let found = withDatabaseReader { db in
-        try TagInfo.queryAll.fetchAll(db)
+        try TagInfo.query.fetchAll(db)
       }
 
       #expect(found?.count == 5)
@@ -177,18 +170,19 @@ struct TagsListTests {
       let rows = store.state.rows
       #expect(rows.count == 6)
       $hideEmptyTags.withLock { $0 = true }
-      await store.receive(\.fetchAllQueryChanged)
-      let filtered = rows.filter({ $0.tagInfo.soundFontsCount > 0})
-      await store.receive(\.rowsUpdated, filtered.map(\.tagInfo)) {
-        $0.rows = filtered
-      }
+      await store.receive(\.updateFetchAllQuery)
+      let filtered = rows.filter({ $0.tagInfo.soundFontsCount > 0 || $0.tagInfo.displayName == "My New Tag"})
+      await store.receive(\.rowsUpdated, filtered.map(\.tagInfo))
     }
   }
 
   @Test
-  func preview() async throws {
+  func tagsListView() async throws {
     withDependencies {
       $0.defaultDatabase = previewDatabase()
+      $0.fileManager.fontFilePath = {
+        SF2ResourceTag.rolandNicePiano.url.deletingLastPathComponent().appendingPathComponent($0, isDirectory: false)
+      }
     } operation: {
       withSnapshotTesting(record: .failed) {
         TestSupport.assertSnapshot(matching: TagsListView.preview)

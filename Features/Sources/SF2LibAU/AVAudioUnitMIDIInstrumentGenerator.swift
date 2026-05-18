@@ -33,7 +33,7 @@ public struct AVAudioUnitMIDIInstrumentGenerator: Sendable {
   /**
    Initializes a generator that generates a value from a closure.
 
-   - parameter generate: A closure that returns the current date when called.
+   - parameter generator: A closure that returns the current date when called.
    */
   public init(_ generator: @escaping @Sendable () async -> AVAudioUnitMIDIInstrument?) {
     self.generator = generator

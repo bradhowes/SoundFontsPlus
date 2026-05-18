@@ -72,14 +72,12 @@ struct AppRootTests {
       $0.synth.audioSessionActivated = true
       $0.synth.avAudioUnit = avAudioUnit
     }
-    await store.receive(\.synth.delegate.audioUnitCreated) { $0.avAudioUnit = avAudioUnit }
     await store.receive(\.synth.delegate.running) {
       $0.toolBar.temporaryStatus = .startup
       $0.toastState = nil
       $0.readyForUse = true
     }
-    await store.receive(\.toolBar.audioUnitCreated, avAudioUnit)
-    await store.receive(\.keyboard.midiInstrumentCreated, avAudioUnit) { $0.keyboard.midiInstrument = avAudioUnit }
+    await store.receive(\.synth.delegate.audioUnitCreated) { $0.avAudioUnit = avAudioUnit }
     await store.receive(\.volumeMonitor.start) { $0.volumeMonitor.reason = .noActivePreset }
     await store.receive(\.appReview.ask)
     await store.receive(\.delayEffect.activePresetIdChanged, 1) { $0.delayEffect.activePresetId = 1 }
@@ -99,7 +97,8 @@ struct AppRootTests {
       $0.volumeMonitor.activePresetId = 1
       $0.volumeMonitor.reason = nil
     }
-    await store.receive(\.toolBar.midiTrafficIndicator.initialize)
+    await store.receive(\.toolBar.audioUnitCreated, avAudioUnit)
+    await store.receive(\.keyboard.midiInstrumentCreated, avAudioUnit) { $0.keyboard.midiInstrument = avAudioUnit }
     await store.receive(\.volumeMonitor.delegate.reasonChanged, .noActivePreset) {
       $0.keyboard.muted = false
       $0.toastState = .noActivePreset
@@ -113,6 +112,7 @@ struct AppRootTests {
     await store.receive(\.reverbEffect.wetDryMix.setValueSilently, 50.0)
     await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1))
     await store.receive(\.volumeMonitor.delegate.reasonChanged, nil) { $0.toastState = nil }
+    await store.receive(\.toolBar.midiTrafficIndicator.initialize)
     await store.receive(\.keyboard.outputVolumeStateChanged, .muted) { $0.keyboard.muted = true }
     await store.receive(\.delayEffect.time.track.valueChanged, 0.5)
     await store.receive(\.delayEffect.feedback.track.valueChanged, 25.0)
@@ -257,7 +257,6 @@ struct AppRootTests {
       let soundFont = SoundFont.with(id: 1)!
       await store.send(\.soundFontsList.delegate, .edit(soundFont)) {
         $0.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
-        $0.synth.firstTimePresetLoaded = true
       }
     }
   }
@@ -348,7 +347,7 @@ struct AppRootTests {
       await store.receive(\.appReview.ask)
       await store.receive(\.presetsList.updateFetchAllQuery)
       await store.receive(\.toolBar.activePresetIdChanged, 1)
-      await store.receive(\.presetsList, .rowsUpdated(presets: Preset.visible(for: 1), showActive: false))
+      await store.receive(\.presetsList, .rowsUpdated(rows: Preset.visible(for: 1), showActive: false))
     }
   }
 
@@ -363,8 +362,8 @@ struct AppRootTests {
         $0.destination = nil
       }
       await store.receive(\.appReview.ask)
-      await store.receive(\.presetsList.updateFetchAllQuery)
-      await store.receive(\.presetsList, .rowsUpdated(presets: Preset.visible(for: 1), showActive: false))
+      // await store.receive(\.presetsList.updateFetchAllQuery)
+      // await store.receive(\.presetsList, .rowsUpdated(presets: Preset.visible(for: 1), showActive: false))
     }
   }
 

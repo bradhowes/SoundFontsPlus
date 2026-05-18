@@ -92,7 +92,8 @@ extension PresetLoadingInfo {
   /**
    Obtain the loading info for a given sound font name and preset index. Used when directing the AUv3 synth to begin using the preset.
 
-   - parameter id: the preset to query for
+   - parameter soundFontName: the name of the sound font to query for
+   - parameter presetIndex: the index of the preset to query for in the named sound font
    - returns: the optional `PresetLoadingInfo` for the preset
    */
   public static func `for`(soundFontName: String, presetIndex: Int) -> PresetLoadingInfo? {
