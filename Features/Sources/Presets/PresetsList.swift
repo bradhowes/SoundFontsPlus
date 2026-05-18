@@ -112,6 +112,10 @@ public struct PresetsList {
 
   @Dependency(\.continuousClock) var clock
   @Dependency(\.fileManager) var fileManager
+  @Shared(.favoritesOnTop) public var favoritesOnTop
+  @Shared(.showOnlyFavorites) public var showOnlyFavorites
+  @Shared(.sortPresetsByName) public var sortPresetsByName
+  @Shared(.starFavoriteNames) public var starFavoriteNames
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -146,7 +150,7 @@ public struct PresetsList {
         return updateFetchAllQuery(&state, showActive: false)
 
       case .initialize:
-        return updateFetchAllQuery(&state, showActive: false)
+        return initialize(&state)
 
       case .presetSourceChanged(let presetSource):
         return presetSourceChanged(&state, presetSource: presetSource)
@@ -191,6 +195,7 @@ public struct PresetsList {
   }
 
   private enum CancelId: String, CaseIterable {
+    case presetsListMonitorQueryOptions
     case presetsListShowPresetNow
     case presetsListUpdateFetchAll
   }
@@ -261,6 +266,25 @@ extension PresetsList {
     var preset = preset
     preset.toggleVisibility()
     return .none
+  }
+
+  private func initialize(_ state: inout State) -> Effect<Action> {
+    .merge(
+      monitorQueryOptions(&state),
+      updateFetchAllQuery(&state, showActive: false)
+    )
+  }
+
+  private func monitorQueryOptions(_ state: inout State) -> Effect<Action> {
+    .run { [$favoritesOnTop, $showOnlyFavorites, $starFavoriteNames, $sortPresetsByName] send in
+      for await _ in $favoritesOnTop
+        .publisher
+        .merge(
+          with: $showOnlyFavorites.publisher, $starFavoriteNames.publisher, $sortPresetsByName.publisher
+        ).values {
+        await send(.updateFetchAllQuery)
+      }
+    }.cancellable(id: CancelId.presetsListMonitorQueryOptions, cancelInFlight: true)
   }
 
   private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {
