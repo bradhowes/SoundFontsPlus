@@ -37,34 +37,32 @@ extension TagInfo {
   public static var query: Select<TagInfo.Columns.QueryValue, Tag, TaggedSoundFont?> {
     @Shared(.hideBuiltinFonts) var hideBuiltinFonts
     @Shared(.hideEmptyTags) var hideEmptyTags
-    // The negative SoundFont.ID values are the built-in sound fonts.
-    let firstFontId = SoundFont.ID(hideBuiltinFonts ? 0 : -4)
+    // There are 4 built-in SoundFont.ID values starting at 1. Better would be additional join on SoundFont table to filter
+    // on `kind` column.
+    let firstFontId = SoundFont.ID(hideBuiltinFonts ? 5 : 0)
     // User tags are always non-negative.
     let firstUserTagId = Tag.ID(0)
-    // Adjust the minimum font count to hide empty tags if enabled.
+    // The minimum font count to hide empty tags if enabled.
     let minFontCountToShow = hideEmptyTags ? 1 : 0
-    return filteredQueryBase
-      .leftJoin(TaggedSoundFont.all) {
-        $0.id.eq($1.tagId)
+    return tagQueryBase
+      .leftJoin(TaggedSoundFont.all) { tag, tagged in
+        tag.id.eq(tagged.tagId)
       }
-      .having { tag, taggedSoundFont in
-        // Filter to remove built-in sound fonts from counting.
-        (taggedSoundFont.soundFontId ?? SoundFont.ID(0)).gte(firstFontId) &&
-        (
-          // Filter to hide empty tags.
-          taggedSoundFont.soundFontId.count().gte(minFontCountToShow) ||
-          // Always show 'All' tag even if built-in are not shown and count is zero.
-          tag.id.eq(Tag.Ubiquitous.all.id) ||
-          // Always show user tags.
-          tag.id.gte(firstUserTagId)
-        )
+      .having { tag, tagged in
+        // Filter to hide empty tags, where empty depends on having no fonts or only having built-in fonts.
+        // TODO: remove duplication in `select` expression
+        tagged.soundFontId.count(filter: (tagged.soundFontId ?? SoundFont.ID(0)).gte(firstFontId)).gte(minFontCountToShow) ||
+        // Always show 'All' tag even if count is zero.
+        tag.id.eq(Tag.Ubiquitous.all.id) ||
+        // Always show user tags.
+        tag.id.gte(firstUserTagId)
       }
-      .select {
+      .select { tag, tagged in
         TagInfo.Columns(
-          id: $0.id,
-          displayName: $0.displayName,
-          soundFontsCount: $1.soundFontId.count(),
-          ordering: $0.ordering
+          id: tag.id,
+          displayName: tag.displayName,
+          soundFontsCount: tagged.soundFontId.count(filter: (tagged.soundFontId ?? SoundFont.ID(0)).gte(firstFontId)),
+          ordering: tag.ordering
         )
       }
   }
