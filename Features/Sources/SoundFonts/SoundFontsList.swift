@@ -118,7 +118,7 @@ public struct SoundFontsList {
 
       case .activeTagIdChanged(let tagId):
         state.activeTagId = tagId
-        return updateFetchAllQuery(tagId)
+        return updateFetchAllQuery(&state)
 
       case .cancelSearchButtonTapped:
         return dismissSearch(&state)
@@ -190,7 +190,7 @@ public struct SoundFontsList {
         return showActiveSoundFont(&state)
 
       case .updateFetchAllQuery:
-        return updateFetchAllQuery(state.activeTagId)
+        return updateFetchAllQuery(&state)
 
       default:
         return .none
@@ -199,7 +199,7 @@ public struct SoundFontsList {
     .forEach(\.rows, action: \.rows) {
       SoundFontButton()
     }
-    // .ifLet(\.destination, action: \.destination)
+    .ifLet(\.destination, action: \.destination)
   }
 
   private enum CancelId: String, CaseIterable {
@@ -262,14 +262,6 @@ extension SoundFontsList {
     return showActiveSoundFont(&state)
   }
 
-  private func deleteSoundFontConfirmed(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
-    state.destination = deleteSoundFont(&state, soundFontInfo: soundFontInfo)
-    return .merge(
-      soundFontDeleted(&state, soundFontId: soundFontInfo.id),
-      showActiveSoundFont(&state)
-    )
-  }
-
   private func deleteSoundFont(_ state: inout State, soundFontInfo: SoundFontInfo) -> Destination.State? {
      guard let soundFont = SoundFont.with(id: soundFontInfo.id ) else {
       log.error("unexpected missing soundfont ID \(soundFontInfo.id)")
@@ -293,6 +285,10 @@ extension SoundFontsList {
         .execute(db)
     }
 
+    log.info("removed db entry for \(soundFont.displayName)")
+
+    state.rows.removeAll(where: { $0.id == soundFontInfo.id })
+
     var alert: Destination.State?
     if kind.deleteWhenRemoved {
       do {
@@ -308,9 +304,15 @@ extension SoundFontsList {
       }
     }
 
-    log.info("removing db entry for \(soundFont.displayName)")
-
     return alert
+  }
+
+  private func deleteSoundFontConfirmed(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
+    state.destination = deleteSoundFont(&state, soundFontInfo: soundFontInfo)
+    return .merge(
+      soundFontDeleted(&state, soundFontId: soundFontInfo.id),
+      showActiveSoundFont(&state)
+    )
   }
 
   private func dismissSearch(_ state: inout State) -> Effect<Action> {
@@ -448,8 +450,8 @@ extension SoundFontsList {
     return .none
   }
 
-  private func updateFetchAllQuery(_ tagId: Tag.ID) -> Effect<Action> {
-    .run(priority: .utility, name: "soundFontsListUpdateFetchAllQuery") { send in
+  private func updateFetchAllQuery(_ state: inout State) -> Effect<Action> {
+    .run(priority: .utility, name: "soundFontsListUpdateFetchAllQuery") { [tagId = state.activeTagId] send in
       @FetchAll var soundFontInfos: [SoundFontInfo]
       try await $soundFontInfos.load(SoundFontInfo.query(for: tagId))
       for try await rows in $soundFontInfos.publisher.values {
