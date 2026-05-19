@@ -31,16 +31,14 @@ public struct SettingsView: View {
     NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
       Form {
         presetsSection
-        if !isAUv3 {
-          if isApp {
-            keyboardSection
-            if store.hasMIDI {
-              midiSection
-            }
+        fontsSection
+        if isApp {
+          keyboardSection
+          if store.hasMIDI {
+            midiSection
           }
         }
         tuningSection
-        fontsSection
         if isApp {
           appSection
         }
