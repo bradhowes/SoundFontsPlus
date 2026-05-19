@@ -1,16 +1,17 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AsyncAlgorithms
 import FeatureSupport
 import SQLiteData
 
 /**
- Feature that shows a list of tag buttons.
+ Feature that shows a list of tag buttons, one per known tag in the database.
 
  - Touching a button makes the associated tag active, and this will affect which fonts are shown in the font view
  - Swiping left offers a button to edit the tags
  - Swiping right shows a button to delete a user's tag
- - Long-press on a tag to show the tag editor
+ - Long-press on any tag to edit the tags
+
+ The number of tags shown is affected by the `hideBuiltinFonts` and `hideEmptyTags` option settings.
  */
 @Reducer
 public struct TagsList {
@@ -29,18 +30,13 @@ public struct TagsList {
   public struct State: Equatable {
     @ObservationStateIgnored
     @FetchAll(TagInfo.query) var tagInfos: [TagInfo]
+    public var rows: IdentifiedArrayOf<TagInfo> { .init(uniqueElements: tagInfos) }
     public var activeTagId: Tag.ID = Tag.Ubiquitous.all.id
-    public var activeTagName: String? { self.rows[id: activeTagId]?.tagInfo.displayName }
-    public var rows: IdentifiedArrayOf<TagButton.State> = .init(uniqueElements: [])
+    public var activeTagName: String? { self.rows[id: activeTagId]?.displayName }
     @Presents public var destination: Destination.State?
 
     public init(activeTagId: Tag.ID? = nil) {
       self.activeTagId = activeTagId ?? Tag.Ubiquitous.all.id
-      Self.setRows(&self, tagInfos: tagInfos)
-    }
-
-    public static func setRows(_ state: inout Self, tagInfos: [TagInfo]) {
-      state.rows = .init(uniqueElements: tagInfos.map { .init(tagInfo: $0) })
     }
   }
 
@@ -52,8 +48,9 @@ public struct TagsList {
     case destination(PresentationAction<Destination.Action>)
     case importFinished
     case initialize
-    case rows(IdentifiedActionOf<TagButton>)
-    case rowsUpdated(rows: [TagInfo])
+    case tagInfoButtonTapped(TagInfo)
+    case tagInfoDeleteTapped(TagInfo)
+    case tagInfoEditTapped(TagInfo)
     case updateFetchAllQuery
 
     @CasePathable
@@ -94,17 +91,21 @@ public struct TagsList {
       case .importFinished:
         if state.activeTagId != Tag.Ubiquitous.all.id && state.activeTagId != Tag.Ubiquitous.added.id {
           state.activeTagId = Tag.Ubiquitous.added.id
+          return .send(.delegate(.activeTagIdChanged(state.activeTagId)))
         }
-        return .send(.delegate(.activeTagIdChanged(state.activeTagId)))
+        return .none
 
       case .initialize:
         return initialize(&state)
 
-      case .rows(.element(_, .delegate(let action))):
-        return processRowAction(&state, action: action)
+      case .tagInfoButtonTapped(let tagInfo):
+        return tagInfoButtonTapped(&state, tagInfo: tagInfo)
 
-      case .rowsUpdated(let tagInfos):
-        return rowsUpdated(&state, tagInfos: tagInfos)
+      case .tagInfoDeleteTapped(let tagInfo):
+        return tagInfoDeleteTapped(&state, tagInfo: tagInfo)
+
+      case .tagInfoEditTapped(let tagInfo):
+        return tagInfoEditTapped(&state, tagInfo: tagInfo)
 
       case .updateFetchAllQuery:
         return updateFetchAllQuery(&state)
@@ -112,9 +113,6 @@ public struct TagsList {
       default:
         return .none
       }
-    }
-    .forEach(\.rows, action: \.rows) {
-      TagButton()
     }
     .ifLet(\.destination, action: \.destination)
   }
@@ -133,8 +131,8 @@ extension TagsList {
   }
 
   private func activeTagNameChanged(_ state: inout State, tagName: String) -> Effect<Action> {
-    for row in state.rows where row.tagInfo.displayName == tagName {
-      state.activeTagId = row.tagInfo.id
+    for row in state.rows where row.displayName == tagName {
+      state.activeTagId = row.id
       return .send(.delegate(.activeTagIdChanged(state.activeTagId)))
     }
     return .none
@@ -169,7 +167,7 @@ extension TagsList {
   }
 
   private func monitorFetchAllQueryOptions(_ state: inout State) -> Effect<Action> {
-    .run { [$hideEmptyTags, $hideBuiltinFonts] send in
+    return .run { [$hideEmptyTags, $hideBuiltinFonts] send in
       let makeState = { ($hideEmptyTags.wrappedValue, $hideBuiltinFonts.wrappedValue) }
       var state = makeState()
       let optionsChanged = {
@@ -177,50 +175,36 @@ extension TagsList {
         defer { state = newState }
         return state != newState
       }
-
       for await _ in $hideEmptyTags.publisher.merge(with: $hideBuiltinFonts.publisher).values where optionsChanged() {
+        // We could do the update here directly, but the additional reducer activity allows us to easily test that the monitoring
+        // worked.
         await send(.updateFetchAllQuery)
       }
     }.cancellable(id: CancelId.tagsListMonitorFetchAllQueryOptions)
   }
 
-  private func processRowAction(_ state: inout State, action: TagButton.Delegate) -> Effect<Action> {
-    log.action("processRowAction", action)
-    switch action {
-
-    case .activate(let tagInfo):
-      state.activeTagId = tagInfo.id
-      return .send(.delegate(.activeTagIdChanged(state.activeTagId)))
-
-    case .delete(let tagInfo):
-      if tagInfo.soundFontsCount > 0 {
-        return confirmDeleteTag(&state, tagInfo: tagInfo)
-      }
-      return deleteTagConfirmed(&state, tagInfo: tagInfo)
-
-    case .edit(let tagInfo):
-      return .run { send in
-        await send(.delegate(.edit(focus: tagInfo.ordering)), animation: .smooth)
-      }
-    }
+  private func tagInfoButtonTapped(_ state: inout State, tagInfo: TagInfo) -> Effect<Action> {
+    state.activeTagId = tagInfo.id
+    return .send(.delegate(.activeTagIdChanged(state.activeTagId)))
   }
 
-  private func rowsUpdated(_ state: inout State, tagInfos: [TagInfo]) -> Effect<Action> {
-    withAnimation(.smooth) {
-      State.setRows(&state, tagInfos: tagInfos)
+  private func tagInfoDeleteTapped(_ state: inout State, tagInfo: TagInfo) -> Effect<Action> {
+    if tagInfo.soundFontsCount > 0 {
+      return confirmDeleteTag(&state, tagInfo: tagInfo)
     }
-    return .none
+    return deleteTagConfirmed(&state, tagInfo: tagInfo)
+  }
+
+  private func tagInfoEditTapped(_ state: inout State, tagInfo: TagInfo) -> Effect<Action> {
+    return .run { send in
+      await send(.delegate(.edit(focus: tagInfo.ordering)), animation: .smooth)
+    }
   }
 
   private func updateFetchAllQuery(_ state: inout State) -> Effect<Action> {
     let tagInfos = state.$tagInfos
-    return .run(priority: .utility, name: "TagsListUpdateFetchAllQuery") { [tagInfos] send in
+    return .run(priority: .utility, name: "TagsListUpdateFetchAllQuery") { [tagInfos] _ in
       try await tagInfos.load(TagInfo.query)
-      if Task.isCancelled { return }
-      for await rows in tagInfos.publisher.values {
-        if Task.isCancelled { break }
-        await send(.rowsUpdated(rows: rows))
-      }
     }.cancellable(id: CancelId.tagsListUpdateFetchAllQuery, cancelInFlight: true)
   }
 }
@@ -242,9 +226,9 @@ public struct TagsListView: View {
   public var body: some View {
     StyledList {
       Section {
-        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+        ForEach(store.rows) { row in
           StyledEntry {
-            TagButtonView(store: rowStore, indicatorModifierState: indicatorState(for: rowStore.id))
+            tagButtonView(row: row)
           }
         }
       } header: {
@@ -258,6 +242,49 @@ public struct TagsListView: View {
 
   private func indicatorState(for tagId: Tag.ID) -> IndicatorModifier.State {
     tagId == store.activeTagId ? .active : .none
+  }
+
+  private func tagButtonView(row: TagInfo) -> some View {
+    let count = row.soundFontsCount > 0 ? "\(row.soundFontsCount)" : ""
+    let indicatorModifierState = indicatorState(for: row.id)
+    return Button {
+      store.send(.tagInfoButtonTapped(row))
+    } label: {
+      HStack {
+        Text(row.displayName)
+          .font(.button)
+          .opacity(count.isEmpty ? 0.75 : 1.0)
+          .indicator(indicatorModifierState)
+        Spacer()
+        Text(count)
+          .font(.button)
+          .indicator(indicatorModifierState == .active ? .activeNoIndicator : .none)
+      }
+      .contentShape(.interaction, Rectangle())
+      .simultaneousGesture(
+        LongPressGesture(minimumDuration: 1.0)
+          .onEnded { _ in store.send(.tagInfoEditTapped(row)) }
+      )
+    }
+    .disabled(count.isEmpty)
+    .swipeActions(edge: .leading, allowsFullSwipe: false) {
+      Button {
+        store.send(.tagInfoEditTapped(row), animation: .default)
+      } label: {
+        Image(systemName: .editButtonImageName)
+          .tint(.cyan)
+      }
+    }
+    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+      if !row.isUbiquitous {
+        Button {
+          store.send(.tagInfoDeleteTapped(row), animation: .default)
+        } label: {
+          Image(systemName: .deleteButtonImageName)
+            .tint(.red)
+        }
+      }
+    }
   }
 }
 

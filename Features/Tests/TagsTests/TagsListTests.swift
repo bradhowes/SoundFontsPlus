@@ -63,9 +63,9 @@ struct TagsListTests {
       activeTagId: Models.Tag.Ubiquitous.external.id
     ) { store in
       let rows = store.state.rows
-      let tagInfo = rows[5].tagInfo
+      let tagInfo = rows[5]
 
-      await store.send(\.rows[id: tagInfo.id].delegate.delete, tagInfo)
+      await store.send(\.tagInfoDeleteTapped, tagInfo)
 
       let found = withDatabaseReader { db in
         try TagInfo.query.fetchAll(db)
@@ -80,9 +80,9 @@ struct TagsListTests {
   func deleteButtonTappedCancel() async throws {
     try await initialized(makeTag: true, tagFont: true, activeTagId: Models.Tag.Ubiquitous.external.id) { store in
       let rows = store.state.rows
-      let tagInfo = rows[5].tagInfo
+      let tagInfo = rows[5]
 
-      await store.send(\.rows[id: tagInfo.id].delegate.delete, tagInfo) {
+      await store.send(\.tagInfoDeleteTapped, tagInfo) {
         $0.destination = .alert(
           .confirmDeleteTag(
             action: .deleteTagConfirmed(tagInfo),
@@ -109,9 +109,9 @@ struct TagsListTests {
   func deleteButtonTappedConfirmed() async throws {
     try await initialized(makeTag: true, tagFont: true, activeTagId: 6) { store in
       let rows = store.state.rows
-      let tagInfo = rows[5].tagInfo
+      let tagInfo = rows[5]
 
-      await store.send(\.rows[id: tagInfo.id].delegate.delete, tagInfo) {
+      await store.send(\.tagInfoDeleteTapped, tagInfo) {
         $0.destination = .alert(
           .confirmDeleteTag(
             action: .deleteTagConfirmed(tagInfo),
@@ -139,9 +139,9 @@ struct TagsListTests {
   func tagButtonTapped() async throws {
     try await initialized(makeTag: true, tagFont: true, activeTagId: Tag.Ubiquitous.all.id) { store in
       let rows = store.state.rows
-      let tagInfo = rows[5].tagInfo
+      let tagInfo = rows[5]
 
-      await store.send(\.rows[id: tagInfo.id].delegate.activate, tagInfo) {
+      await store.send(\.tagInfoButtonTapped, tagInfo) {
         $0.activeTagId = 1
       }
       await store.receive(\.delegate.activeTagIdChanged, tagInfo.id)
@@ -154,25 +154,31 @@ struct TagsListTests {
   func editButtonTapped() async throws {
     try await initialized(makeTag: true, tagFont: true, activeTagId: Tag.Ubiquitous.all.id) { store in
       let rows = store.state.rows
-      let tagInfo = rows[5].tagInfo
+      let tagInfo = rows[5]
 
-      await store.send(\.rows[id: tagInfo.id].delegate.edit, tagInfo)
+      await store.send(\.tagInfoEditTapped, tagInfo)
       await store.receive(\.delegate.edit, 5)
     }
   }
 
   @Test
-  func trackChangesToHideEmptyTags() async throws {
-    $hideEmptyTags.withLock { $0 = false }
+  func trackChangesToQueryOptions() async throws {
     $hideBuiltinFonts.withLock { $0 = false }
-
+    $hideEmptyTags.withLock { $0 = false }
     try await initialized(makeTag: true, tagFont: false) { store in
-      let rows = store.state.rows
-      #expect(rows.count == 6)
+      #expect(store.state.tagInfos.count == 6)
+      $hideBuiltinFonts.withLock { $0 = true }
+      await store.receive(\.updateFetchAllQuery)
+      try await store.state.$tagInfos.load()
+      #expect(store.state.tagInfos.count == 6)
       $hideEmptyTags.withLock { $0 = true }
       await store.receive(\.updateFetchAllQuery)
-      let filtered = rows.filter({ $0.tagInfo.soundFontsCount > 0 || $0.tagInfo.displayName == "My New Tag"})
-      await store.receive(\.rowsUpdated, filtered.map(\.tagInfo))
+      try await store.state.$tagInfos.load()
+      #expect(store.state.tagInfos.count == 5)
+      $hideBuiltinFonts.withLock { $0 = false }
+      await store.receive(\.updateFetchAllQuery)
+      try await store.state.$tagInfos.load()
+      #expect(store.state.tagInfos.count == 6)
     }
   }
 
