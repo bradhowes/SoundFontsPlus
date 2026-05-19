@@ -47,6 +47,8 @@ struct SoundFontsListTests {
 
     #expect(store.state.rows.count == 4)
 
+    await store.receive(\.rowsSourceUpdated)
+
     try await closure(store)
 
     await store.send(.deinitialize)
@@ -193,6 +195,8 @@ struct SoundFontsListTests {
         $0.rows.removeAll(where: {$0.id == row.id})
       }
 
+      await store.receive(\.rowsSourceUpdated)
+
       #expect(deleted != nil)
       #expect(deleted?.soundFontInfo.displayName == "Font 3")
 
@@ -265,6 +269,8 @@ struct SoundFontsListTests {
         $0.rows.removeAll(where: {$0.id == row.id})
       }
 
+      await store.receive(\.rowsSourceUpdated)
+
       let deleted = oldRows.remove(id: row.id)
       #expect(deleted != nil)
       #expect(deleted?.soundFontInfo.displayName == "Font 3")
@@ -288,6 +294,8 @@ struct SoundFontsListTests {
         $0.destination = nil
         $0.rows.removeAll(where: {$0.id == row.id})
       }
+
+      await store.receive(\.rowsSourceUpdated)
 
       let deleted = oldRows.remove(id: row.id)
       #expect(deleted != nil)
@@ -384,6 +392,8 @@ struct SoundFontsListTests {
         $0.rows.removeAll(where: {$0.id == 3 || $0.id == 4})
         $0.destination = nil
       }
+
+      await store.receive(\.rowsSourceUpdated)
     }
   }
 

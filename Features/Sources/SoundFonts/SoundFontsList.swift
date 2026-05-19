@@ -183,7 +183,7 @@ public struct SoundFontsList {
         return updateFetchAllQuery(&state)
 
       case .initialize:
-        return monitorFetchAllQueryOptions(&state)
+        return initialize(&state)
 
       case .missingSoundFontDetected(let soundFontId):
         return missingSoundFontDetected(&state, soundFontId: soundFontId)
@@ -370,7 +370,14 @@ extension SoundFontsList {
     return .none
   }
 
-  public func missingSoundFontDetected(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
+  private func initialize(_ state: inout State) -> Effect<Action> {
+    .merge(
+      monitorFetchAllQueryOptions(&state),
+      updateFetchAllQuery(&state)
+    )
+  }
+
+  private func missingSoundFontDetected(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
     SoundFont.delete(id: soundFontId)
     if state.activePresetSource == .active(soundFontId) {
       state.activePresetSource = nil
