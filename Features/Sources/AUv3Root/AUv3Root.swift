@@ -266,7 +266,7 @@ extension AUv3Root {
         effects.append(.send(.soundFontsList(.activeSoundFontIdChanged(presetLoadingInfo.soundFontId))))
       }
       if presetLoadingInfo.presetIndex != state.presetsList.activePresetIndex {
-        effects.append(.send(.presetsList(.selectPreset(presetId: presetLoadingInfo.presetId, info: presetLoadingInfo))))
+        effects.append(.send(.presetsList(.activePresetChanged(presetId: presetLoadingInfo.presetId, info: presetLoadingInfo))))
       }
       if activeState.fontsAndTagsSplitPosition != state.fontsAndTagsSplit.position {
         state.fontsAndTagsSplit.position = activeState.fontsAndTagsSplitPosition

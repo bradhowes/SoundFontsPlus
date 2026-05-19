@@ -10,15 +10,11 @@ import Sharing
  effect.
 
  - parameter presets: the presets to bundle. The ordering should be based on the `sortPresetsByName` and `favoritesOnTop` settings.
- - parameter presetSource: the current preset source
- - parameter activePresetId: the current active preset ID
  - parameter searching: true if in search mode
  - returns: IdentifiedArray of PresetListSection.State entities referencing the presets
  */
 internal func group(
   _ presets: [Preset],
-  presetSource: PresetSource?,
-  activePresetId: Preset.ID?,
   searching: Bool
 ) -> IdentifiedArrayOf<PresetsListSection.State> {
   let grouping = searching ? PresetsList.searchGroupingSize : PresetsList.groupingSize
@@ -27,15 +23,11 @@ internal func group(
     groupByCount(
       presets,
       count: grouping,
-      presetSource: presetSource,
-      activePresetId: activePresetId,
       searching: searching
     )
   } else {
     groupByName(
-      presets,
-      presetSource: presetSource,
-      activePresetId: activePresetId
+      presets
     )
   }
 }
@@ -47,9 +39,7 @@ private func emptySection(title: String) -> IdentifiedArrayOf<PresetsListSection
         section: 0,
         sectionText: title,
         sectionIndex: "",
-        presets: [],
-        presetSource: nil,
-        activePresetId: nil
+        presets: []
       )
     ]
   )
@@ -58,8 +48,6 @@ private func emptySection(title: String) -> IdentifiedArrayOf<PresetsListSection
 private func groupByCount(
   _ presets: [Preset],
   count: Int,
-  presetSource: PresetSource?,
-  activePresetId: Preset.ID?,
   searching: Bool
 ) -> IdentifiedArrayOf<PresetsListSection.State> {
   if presets.isEmpty {
@@ -79,9 +67,7 @@ private func groupByCount(
             }
           }($0),
           sectionIndex: numericSectionIndex(from: $0.lowerBound / count),
-          presets: presets[$0],
-          presetSource: presetSource,
-          activePresetId: activePresetId
+          presets: presets[$0]
         )
       }
     )
@@ -108,8 +94,6 @@ private func sectionGroupingKey(for displayName: String, kind: Preset.Kind) -> S
 
 private func groupByName(
   _ presets: [Preset],
-  presetSource: PresetSource?,
-  activePresetId: Preset.ID?,
 ) -> IdentifiedArrayOf<PresetsListSection.State> {
   if presets.isEmpty {
     emptySection(title: "Presets")
@@ -124,9 +108,7 @@ private func groupByName(
           section: index,
           sectionText: group.0,
           sectionIndex: group.0,
-          presets: group.1[...],
-          presetSource: presetSource,
-          activePresetId: activePresetId
+          presets: group.1[...]
         )
       }
     )

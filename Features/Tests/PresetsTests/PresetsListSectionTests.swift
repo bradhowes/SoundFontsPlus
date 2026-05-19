@@ -24,9 +24,7 @@ struct PresetsListSectionTests {
         section: 4,
         sectionText: "Blah",
         sectionIndex: "B",
-        presets: presets[...],
-        presetSource: nil,
-        activePresetId: nil
+        presets: presets[...]
       )
     ) {
       PresetsListSection()

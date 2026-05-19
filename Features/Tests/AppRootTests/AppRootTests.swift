@@ -347,7 +347,7 @@ struct AppRootTests {
       await store.receive(\.appReview.ask)
       await store.receive(\.presetsList.updateFetchAllQuery)
       await store.receive(\.toolBar.activePresetIdChanged, 1)
-      await store.receive(\.presetsList, .rowsUpdated(rows: Preset.visible(for: 1), showActive: false))
+      await store.receive(\.presetsList, .rowsSourceUpdated(source: Preset.visible(for: 1), showActive: false))
     }
   }
 
@@ -372,15 +372,15 @@ struct AppRootTests {
     try await initialized { store in
       await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, true)
       await store.receive(\.presetsList.editingVisibilityChanged, true) { $0.presetsList.editingVisibility = true }
-      await store.receive(\.presetsList.rowsUpdated) {
+      await store.receive(\.presetsList.rowsSourceUpdated) {
         $0.presetsList.presets = Preset.all(for: 1)
-        $0.presetsList.sections = group(Preset.all(for: 1), presetSource: .active(1), activePresetId: 1, searching: false)
+        $0.presetsList.sections = group(Preset.all(for: 1), searching: false)
       }
       await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, false)
       await store.receive(\.presetsList.editingVisibilityChanged, false) { $0.presetsList.editingVisibility = false }
-      await store.receive(\.presetsList.rowsUpdated) {
+      await store.receive(\.presetsList.rowsSourceUpdated) {
         $0.presetsList.presets = Preset.visible(for: 1)
-        $0.presetsList.sections = group(Preset.visible(for: 1), presetSource: .active(1), activePresetId: 1, searching: false)
+        $0.presetsList.sections = group(Preset.visible(for: 1), searching: false)
       }
     }
   }

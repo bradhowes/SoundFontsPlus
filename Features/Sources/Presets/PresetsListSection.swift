@@ -17,18 +17,13 @@ public struct PresetsListSection {
     public let section: Int // 0 is first section, 1 second, etc.
     public let sectionText: String
     public let sectionIndex: String
-
     public var rows: IdentifiedArrayOf<PresetButton.State>
-    public var presetSource: PresetSource?
-    public var activePresetId: Preset.ID?
 
     public init(
       section: Int,
       sectionText: String,
       sectionIndex: String,
       presets: ArraySlice<Preset>,
-      presetSource: PresetSource? = nil,
-      activePresetId: Preset.ID? = nil
     ) {
       @Shared(.favoriteSymbolName) var symbolName
       @Shared(.starFavoriteNames) var starFavoriteNames
@@ -38,8 +33,6 @@ public struct PresetsListSection {
       self.section = section
       self.sectionText = sectionText
       self.sectionIndex = sectionIndex
-      self.presetSource = presetSource
-      self.activePresetId = activePresetId
       self.rows = .init(
         uniqueElements: presets.map {
           .init(
@@ -68,13 +61,13 @@ public struct PresetsListSection {
 
     @CasePathable
     public enum Delegate: Equatable {
-      case createFavorite(Preset)
-      case deleteFavorite(Preset)
-      case editPreset(Preset)
+      case createFavoriteTapped(Preset)
+      case deleteFavoriteTapped(Preset)
+      case editPresetTapped(Preset)
       case headerTapped(section: PresetsListSection.State.ID, count: Int)
-      case hidePreset(Preset)
+      case hidePresetTapped(Preset)
       case searchButtonTapped
-      case selectPreset(Preset)
+      case presetButtonTapped(Preset)
     }
   }
 
@@ -98,14 +91,11 @@ public struct PresetsListSection {
 
   private func processRowAction(_ state: inout State, action: PresetButton.Action.Delegate) -> Effect<Action> {
     switch action {
-    case let .createFavorite(preset): return .send(.delegate(.createFavorite(preset)))
-    case let .deleteFavorite(preset): return .send(.delegate(.deleteFavorite(preset)))
-    case let .editPreset(preset): return .send(.delegate(.editPreset(preset)))
-    case let .hidePreset(preset): return .send(.delegate(.hidePreset(preset)))
-    case let .selectPreset(preset):
-      state.activePresetId = preset.id
-      state.presetSource = state.presetSource?.activated
-      return .send(.delegate(.selectPreset(preset)))
+    case let .createFavoriteTapped(preset): return .send(.delegate(.createFavoriteTapped(preset)))
+    case let .deleteFavoriteTapped(preset): return .send(.delegate(.deleteFavoriteTapped(preset)))
+    case let .editPresetTapped(preset): return .send(.delegate(.editPresetTapped(preset)))
+    case let .hidePresetTapped(preset): return .send(.delegate(.hidePresetTapped(preset)))
+    case let .presetButtonTapped(preset): return .send(.delegate(.presetButtonTapped(preset)))
     }
   }
 }
@@ -113,16 +103,22 @@ public struct PresetsListSection {
 public struct PresetsListSectionView: View {
   private var store: StoreOf<PresetsListSection>
   private let searching: Bool
+  private let activePresetId: Preset.ID?
+  private let presetSource: PresetSource?
   @State private var showSearchButton: Bool = false
   @Environment(\.editMode) private var editMode
   private var editingVisibility: Bool { (editMode?.wrappedValue ?? .inactive) == .active }
 
   public init(
     store: StoreOf<PresetsListSection>,
-    searching: Bool
+    searching: Bool,
+    activePresetId: Preset.ID?,
+    presetSource: PresetSource?
   ) {
     self.store = store
     self.searching = searching
+    self.activePresetId = activePresetId
+    self.presetSource = presetSource
   }
 
   public var body: some View {
@@ -186,9 +182,9 @@ public struct PresetsListSectionView: View {
   }
 
   private func indicatorModifierState(for preset: Preset) -> IndicatorModifier.State {
-    if store.presetSource?.isActive ?? false,
-       store.presetSource?.id == preset.soundFontId,
-       store.activePresetId == preset.id {
+    if presetSource?.isActive ?? false,
+       presetSource?.id == preset.soundFontId,
+       activePresetId == preset.id {
       return preset.isFavorite ? .activeFavorite : .active
     }
     return preset.isFavorite ? .favorite : .none

@@ -26,11 +26,11 @@ public struct PresetButton {
 
     @CasePathable
     public enum Delegate: Equatable {
-      case createFavorite(Preset)
-      case deleteFavorite(Preset)
-      case editPreset(Preset)
-      case hidePreset(Preset)
-      case selectPreset(Preset)
+      case createFavoriteTapped(Preset)
+      case deleteFavoriteTapped(Preset)
+      case editPresetTapped(Preset)
+      case hidePresetTapped(Preset)
+      case presetButtonTapped(Preset)
     }
   }
 
@@ -67,7 +67,7 @@ public struct PresetButtonView: View {
 
   public var body: some View {
     Button {
-      store.send(editingVisibility ? .toggleVisibility : .delegate(.selectPreset(store.preset)), animation: .default)
+      store.send(editingVisibility ? .toggleVisibility : .delegate(.presetButtonTapped(store.preset)), animation: .default)
     } label: {
       HStack {
         if editingVisibility {
@@ -88,20 +88,20 @@ public struct PresetButtonView: View {
       .contentShape(.interaction, Rectangle())
       .simultaneousGesture(
         LongPressGesture(minimumDuration: 1.0)
-          .onEnded { _ in store.send(.delegate(.editPreset(store.preset))) }
+          .onEnded { _ in store.send(.delegate(.editPresetTapped(store.preset))) }
       )
     }
     .id(store.preset.id)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       if !editingVisibility {
         Button {
-          store.send(.delegate(.editPreset(store.preset)), animation: .default)
+          store.send(.delegate(.editPresetTapped(store.preset)), animation: .default)
         } label: {
           Image(systemName: .editButtonImageName)
             .tint(.cyan)
         }
         Button {
-          store.send(.delegate(.createFavorite(store.preset)), animation: .default)
+          store.send(.delegate(.createFavoriteTapped(store.preset)), animation: .default)
         } label: {
           Image(systemName: store.preset.isFavorite ? .duplicateFavoriteButtonName : .favoriteButtonImageName)
             .tint(Color.alternateAccentColor)
@@ -113,14 +113,14 @@ public struct PresetButtonView: View {
       if !editingVisibility {
         if store.preset.isFavorite {
           Button {
-            store.send(.delegate(.deleteFavorite(store.preset)), animation: .default)
+            store.send(.delegate(.deleteFavoriteTapped(store.preset)), animation: .default)
           } label: {
             Image(systemName: .deleteButtonImageName)
               .tint(.red)
           }
         } else {
           Button {
-            store.send(.delegate(.hidePreset(store.preset)), animation: .default)
+            store.send(.delegate(.hidePresetTapped(store.preset)), animation: .default)
           } label: {
             Image(systemName: .hidePresetButtonImageName)
               .tint(.purple)

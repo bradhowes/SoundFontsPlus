@@ -96,12 +96,12 @@ struct SoundFontsListTests {
 
     try await initialized { store in
       await store.send(\.activeTagIdChanged, Tag.Ubiquitous.all.id)
-      await store.receive(\.rowsUpdated)
+      await store.receive(\.rowsSourceUpdated)
       await store.send(\.activeTagIdChanged, Tag.Ubiquitous.external.id) {
         $0.activeTagId = -5
       }
       await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-        await store.receive(\.rowsUpdated)
+        await store.receive(\.rowsSourceUpdated)
       }
       #expect(store.state.rows.count == 1)
     }
@@ -145,7 +145,9 @@ struct SoundFontsListTests {
                                                         displayName: "Font 2"))
       }
 
-      await store.send(.destination(.dismiss))
+      await store.send(.destination(.dismiss)) {
+        $0.destination = nil
+      }
     }
   }
 
@@ -185,11 +187,12 @@ struct SoundFontsListTests {
                                                         displayName: "Font 3"))
       }
 
+      let deleted = oldRows.remove(id: row.id)
       await store.send(.destination(.presented(.alert(.deleteSoundFontConfirmed(row.soundFontInfo))))) {
         $0.destination = nil
+        $0.rows.removeAll(where: {$0.id == row.id})
       }
 
-      let deleted = oldRows.remove(id: row.id)
       #expect(deleted != nil)
       #expect(deleted?.soundFontInfo.displayName == "Font 3")
 
@@ -259,6 +262,7 @@ struct SoundFontsListTests {
 
       await store.send(.destination(.presented(.alert(.deleteSoundFontConfirmed(row.soundFontInfo))))) {
         $0.destination = .alert(.genericDeleteFailure("Failed to remove sound font file GeneralUser GS MuseScore v1.442.sf2."))
+        $0.rows.removeAll(where: {$0.id == row.id})
       }
 
       let deleted = oldRows.remove(id: row.id)
@@ -282,6 +286,7 @@ struct SoundFontsListTests {
 
       await store.send(.destination(.presented(.alert(.deleteSoundFontConfirmed(row.soundFontInfo))))) {
         $0.destination = nil
+        $0.rows.removeAll(where: {$0.id == row.id})
       }
 
       let deleted = oldRows.remove(id: row.id)
@@ -376,6 +381,8 @@ struct SoundFontsListTests {
 
       await store.send(\.destination.presented.alert.deleteSoundFontCollectionConfirmed, selected) {
         $0.editingMode = .inactive
+        $0.rows.removeAll(where: {$0.id == 3 || $0.id == 4})
+        $0.destination = nil
       }
     }
   }
