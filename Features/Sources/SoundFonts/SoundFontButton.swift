@@ -5,8 +5,10 @@ import Dependencies
 import FeatureSupport
 
 /**
- Feature that handles activity for SoundFont buttons shown in the list of fonts. Provides a visual indication of
- the availability of the font file when the file exist in an iCloud folder or on an external device.
+ Feature that handles activity for SoundFont buttons shown in the list of fonts.
+
+ Provides a dynamic visual indication of the availability of the font file when the file exist in an iCloud folder or on an
+ external device.
  */
 @Reducer
 public struct SoundFontButton {

@@ -4,6 +4,18 @@ import FeatureSupport
 import SQLiteData
 import Tags
 
+/**
+ Feature that manages a list of sound fonts, each entry of which is a `SoundFontButton` feature.
+
+ The contents of the list comes from a `@FetchAll` query that operates on the active tag ID. When the tag changes, the query
+ updates and ultimately so does the list.
+
+ - Touching a button makes the associated sound font "selected" and the presets list will show the presets for the sound font.
+ - Swiping right offers a button to edit the meta data associated with the font, including its display name.
+ - Swiping left on user-installed fonts offers a button to delete the font.
+ - Double-tapping on the "Files" header
+ - Tap magnifying glass in "Files" header to search font display names
+ */
 @Reducer
 public struct SoundFontsList {
 
@@ -32,6 +44,7 @@ public struct SoundFontsList {
     public var searchText: String
     public var isSearchFieldPresented: Bool
     public var focusedField: Field?
+
     @ObservationStateIgnored
     public var lastSearchText: String?
 
@@ -81,10 +94,11 @@ public struct SoundFontsList {
     case deinitialize
     case destination(PresentationAction<Destination.Action>)
     case headerDoubleTapped
+    case importFinished
     case initialize
     case missingSoundFontDetected(SoundFont.ID)
     case rows(IdentifiedActionOf<SoundFontButton>)
-    case rowsUpdated(rows: [SoundFontInfo])
+    case rowsSourceUpdated(source: [SoundFontInfo])
     case searchButtonTapped
     case searchTextChanged(String)
     case selectedIsNowActivated
@@ -102,7 +116,6 @@ public struct SoundFontsList {
 
   @Dependency(\.defaultDatabase) private var database
   @Dependency(\.fileManager) private var fileManager
-
   @Shared(.hideBuiltinFonts) private var hideBuiltinFonts
 
   public var body: some ReducerOf<Self> {
@@ -159,11 +172,15 @@ public struct SoundFontsList {
         return .none
 
       case .headerDoubleTapped:
+        guard state.rows.first(where: { $0.soundFontInfo.isInstalled }) != nil else { return .none }
         state.editingMode = .active
         state.rows.forEach {
           state.rows[id: $0.id]?.deleting = false
         }
         return .none
+
+      case .importFinished:
+        return updateFetchAllQuery(&state)
 
       case .initialize:
         return monitorFetchAllQueryOptions(&state)
@@ -174,8 +191,8 @@ public struct SoundFontsList {
       case .rows(.element(_, .delegate(let action))):
         return processRowAction(&state, action: action)
 
-      case .rowsUpdated(rows: let soundFontInfos):
-        return soundFontInfosChanged(&state, soundFontInfos: soundFontInfos)
+      case .rowsSourceUpdated(source: let soundFontInfos):
+        return rowsSourceUpdated(&state, source: soundFontInfos)
 
       case .searchButtonTapped:
         return searchButtonTapped(&state)
@@ -237,29 +254,50 @@ extension SoundFontsList {
     return .none
   }
 
-  private func deleteSoundFontCollectionConfirmed(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
+  private func deleteSoundFontCollection(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Destination.State? {
     state.editingMode = .inactive
-
+    var errors: [String] = []
     let ids = soundFontInfos.map { $0.id }
-    withDatabaseWriter { db in
-      try SoundFont.delete()
-        .where { ids.contains($0.id) }
-        .execute(db)
+
+    @Dependency(\.defaultDatabase) var database
+    do {
+      try database.write { db in
+        try SoundFont.delete()
+          .where { ids.contains($0.id) }
+          .execute(db)
+      }
+    } catch {
+      errors.append("Failed to remove one or more sound font entries from the database - \(error.localizedDescription)")
     }
 
-    let urls = soundFontInfos
-      .filter { $0.isInstalled }
-      .compactMap { try? SoundFontKind(kind: $0.kind, location: $0.location, displayName: $0.displayName).url }
+    state.rows.removeAll(where: { ids.contains($0.id) })
 
-    for url in urls {
+    for entry in soundFontInfos {
+      // Should not happen if UI logic is correct.
+      if !entry.isInstalled { continue }
       do {
+        let url = try SoundFontKind(kind: entry.kind, location: entry.location, displayName: entry.displayName).url
         try fileManager.removeItem(url)
       } catch {
-        log.error("failed to remove sound font at \(url): \(error)")
+        errors.append("Failed to remove sound font '\(entry.displayName)' - \(error.localizedDescription)")
       }
     }
 
-    return showActiveSoundFont(&state)
+    guard !errors.isEmpty else { return nil }
+
+    let msg = errors.reduce(into: "Failed to delete one or more sound fonts:\n") {
+      $0.append("• " + $1 + "\n")
+    }
+
+    return .alert(.genericDeleteFailure(msg))
+  }
+
+  private func deleteSoundFontCollectionConfirmed(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
+    state.destination = deleteSoundFontCollection(&state, soundFontInfos: soundFontInfos)
+    return .merge(
+      soundFontsDeleted(&state, soundFontIds: soundFontInfos.map(\.id)),
+      showActiveSoundFont(&state)
+    )
   }
 
   private func deleteSoundFont(_ state: inout State, soundFontInfo: SoundFontInfo) -> Destination.State? {
@@ -310,7 +348,7 @@ extension SoundFontsList {
   private func deleteSoundFontConfirmed(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
     state.destination = deleteSoundFont(&state, soundFontInfo: soundFontInfo)
     return .merge(
-      soundFontDeleted(&state, soundFontId: soundFontInfo.id),
+      soundFontsDeleted(&state, soundFontIds: [soundFontInfo.id]),
       showActiveSoundFont(&state)
     )
   }
@@ -345,14 +383,8 @@ extension SoundFontsList {
 
   private func monitorFetchAllQueryOptions(_ state: inout State) -> Effect<Action> {
     .run { [$hideBuiltinFonts] send in
-      let makeState = { $hideBuiltinFonts.wrappedValue }
-      var state = makeState()
-      let optionsChanged = {
-        let newState = makeState()
-        defer { state = newState }
-        return state != newState
-      }
-      for await _ in $hideBuiltinFonts.publisher.values.removeDuplicates() where optionsChanged() {
+      var stateMonitor = StateMonitor { $hideBuiltinFonts.wrappedValue }
+      for await _ in $hideBuiltinFonts.publisher.values where stateMonitor.changed() {
         await send(.updateFetchAllQuery)
       }
     }.cancellable(id: CancelId.soundFontsListMonitorFetchAllQueryOptions)
@@ -415,22 +447,24 @@ extension SoundFontsList {
     return .none
   }
 
-  private func soundFontDeleted(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
-    if state.selectedPresetSource == .selected(soundFontId) {
-      state.selectedPresetSource = nil
-      return .send(.delegate(.presetSourceChanged(state.activePresetSource)))
-    }
+  private func soundFontsDeleted(_ state: inout State, soundFontIds: [SoundFont.ID]) -> Effect<Action> {
+    for soundFontId in soundFontIds {
+      if state.selectedPresetSource == .selected(soundFontId) {
+        state.selectedPresetSource = nil
+        return .send(.delegate(.presetSourceChanged(state.activePresetSource)))
+      }
 
-    if state.activePresetSource == .active(soundFontId) {
-      state.activePresetSource = nil
-      return .send(.delegate(.presetSourceChanged(state.activePresetSource)))
+      if state.activePresetSource == .active(soundFontId) {
+        state.activePresetSource = nil
+        return .send(.delegate(.presetSourceChanged(state.activePresetSource)))
+      }
     }
 
     return .none
   }
 
-  private func soundFontInfosChanged(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
-    let update = IdentifiedArrayOf<SoundFontButton.State>(uncheckedUniqueElements: soundFontInfos.map { .init(soundFontInfo: $0) })
+  private func rowsSourceUpdated(_ state: inout State, source: [SoundFontInfo]) -> Effect<Action> {
+    let update = IdentifiedArrayOf<SoundFontButton.State>(uncheckedUniqueElements: source.map { .init(soundFontInfo: $0) })
     if state.rows != update {
       state.rows = update
     }
@@ -454,8 +488,8 @@ extension SoundFontsList {
     .run(priority: .utility, name: "soundFontsListUpdateFetchAllQuery") { [tagId = state.activeTagId] send in
       @FetchAll var soundFontInfos: [SoundFontInfo]
       try await $soundFontInfos.load(SoundFontInfo.query(for: tagId))
-      for try await rows in $soundFontInfos.publisher.values {
-        await send(.rowsUpdated(rows: rows))
+      for try await source in $soundFontInfos.publisher.values {
+        await send(.rowsSourceUpdated(source: source))
       }
 
     }.cancellable(id: CancelId.soundFontsListUpdateFetchAll, cancelInFlight: true)

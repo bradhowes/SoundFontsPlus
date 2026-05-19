@@ -7,8 +7,8 @@ import SQLiteData
  Feature that shows a list of tag buttons, one per known tag in the database.
 
  - Touching a button makes the associated tag active, and this will affect which fonts are shown in the font view
- - Swiping left offers a button to edit the tags
- - Swiping right shows a button to delete a user's tag
+ - Swiping right offers a button to edit the tags
+ - Swiping left shows a button to delete a user's tag
  - Long-press on any tag to edit the tags
 
  The number of tags shown is affected by the `hideBuiltinFonts` and `hideEmptyTags` option settings.
@@ -168,14 +168,8 @@ extension TagsList {
 
   private func monitorFetchAllQueryOptions(_ state: inout State) -> Effect<Action> {
     return .run { [$hideEmptyTags, $hideBuiltinFonts] send in
-      let makeState = { ($hideEmptyTags.wrappedValue, $hideBuiltinFonts.wrappedValue) }
-      var state = makeState()
-      let optionsChanged = {
-        let newState = makeState()
-        defer { state = newState }
-        return state != newState
-      }
-      for await _ in $hideEmptyTags.publisher.merge(with: $hideBuiltinFonts.publisher).values where optionsChanged() {
+      var stateMonitor = StateMonitor { [$hideEmptyTags.wrappedValue, $hideBuiltinFonts.wrappedValue] }
+      for await _ in $hideEmptyTags.publisher.merge(with: $hideBuiltinFonts.publisher).values where stateMonitor.changed() {
         // We could do the update here directly, but the additional reducer activity allows us to easily test that the monitoring
         // worked.
         await send(.updateFetchAllQuery)

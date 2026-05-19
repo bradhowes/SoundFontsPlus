@@ -91,7 +91,7 @@ public struct PresetsList {
     case editingVisibilityChanged(Bool)
     case initialize
     case presetSourceChanged(PresetSource?)
-    case rowsUpdated(rows: [Preset], showActive: Bool)
+    case rowsSourceUpdated(source: [Preset], showActive: Bool)
     case searchTextChanged(String)
     case sections(IdentifiedActionOf<PresetsListSection>)
     case sectionHeaderIndexTapped(String)
@@ -155,7 +155,7 @@ public struct PresetsList {
       case .presetSourceChanged(let presetSource):
         return presetSourceChanged(&state, presetSource: presetSource)
 
-      case let .rowsUpdated(rows: presets, showActive: showActive):
+      case let .rowsSourceUpdated(source: presets, showActive: showActive):
         state.presets = presets
         if showActive, let activePresetId = state.activePresetId {
           state.scrollToTarget = .preset(activePresetId)
@@ -274,23 +274,19 @@ extension PresetsList {
 
   private func monitorFetchAllQueryOptions(_ state: inout State) -> Effect<Action> {
     .run { [$favoritesOnTop, $showOnlyFavorites, $starFavoriteNames, $sortPresetsByName] send in
-      // swiftlint:disable:next large_tuple
-      var state: (Bool?, Bool?, Bool?, Bool?) = (nil, nil, nil, nil)
-      for await _ in $favoritesOnTop
-        .publisher
-        .merge(
-          with: $showOnlyFavorites.publisher, $starFavoriteNames.publisher, $sortPresetsByName.publisher
-        ).values {
-        let newState = (
+      var stateMonitor = StateMonitor {
+        [
           $favoritesOnTop.wrappedValue,
           $showOnlyFavorites.wrappedValue,
           $starFavoriteNames.wrappedValue,
           $sortPresetsByName.wrappedValue
-        )
-        if state != newState {
-          state = newState
-          await send(.updateFetchAllQuery)
-        }
+        ]
+      }
+
+      for await _ in $favoritesOnTop.publisher
+        .merge(with: $showOnlyFavorites.publisher, $starFavoriteNames.publisher, $sortPresetsByName.publisher)
+        .values where stateMonitor.changed() {
+        await send(.updateFetchAllQuery)
       }
     }.cancellable(id: CancelId.presetsListMonitorFetchAllQueryOptions, cancelInFlight: true)
   }
@@ -446,9 +442,9 @@ extension PresetsList {
       @FetchAll var presets: [Preset]
       try await $presets.load(query, animation: .smooth)
       if Task.isCancelled { return }
-      for try await rows in $presets.publisher.values {
+      for try await source in $presets.publisher.values {
         if Task.isCancelled { break }
-        await send(.rowsUpdated(rows: rows, showActive: showActive))
+        await send(.rowsSourceUpdated(source: source, showActive: showActive))
         showActive = false
       }
       log.info("updateFetchQuery END")

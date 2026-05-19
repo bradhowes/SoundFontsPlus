@@ -624,7 +624,10 @@ extension AppRoot {
       return helpButtonTapped(&state)
 
     case .importFinished:
-      return .send(.tagsList(.importFinished))
+      return .merge(
+        .send(.tagsList(.importFinished)),
+        .send(.soundFontsList(.importFinished))
+      )
 
     case .presetNameTapped:
       return .merge(

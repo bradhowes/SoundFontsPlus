@@ -31,7 +31,7 @@ extension DatabaseWriter {
 
 }
 
-public func witDatabaseWriter(_ closure: (Database) throws -> Void) {
+public func withDatabaseWriter(_ closure: (Database) throws -> Void) {
   @Dependency(\.defaultDatabase) var database
   database.withWriter(closure)
 }
