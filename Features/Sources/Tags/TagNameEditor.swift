@@ -14,23 +14,39 @@ public struct TagNameEditor {
   @ObservableState
   public struct State: Equatable, Identifiable {
 
+    public enum Editing {
+      case visibility
+      case membership
+    }
+
+    public let editing: Editing
+
     /// The unique ID to use -- since new tags do not have a Tag.ID, use `Tag.Draft.ordering` to provide a unique value.
     public var id: Int { draft.ordering }
     public var draft: Tag.Draft
     public var tagId: Tag.ID?
+
     public var membership: Bool
+    public var visible: Bool
 
     public let originalMembership: Bool?
     public let originalDisplayName: String
+    public let originalVisibility: Bool?
 
     public var isUbiquitous: Bool { tagId?.isUbiquitous ?? false }
 
-    public init(tagId: Tag.ID? = nil, draft: Tag.Draft, membership: Bool? = nil) {
+    public init(tagId: Tag.ID? = nil, draft: Tag.Draft, membership: Bool? = nil, visible: Bool = true) {
+      self.editing = membership != nil ? .membership : .visibility
+
       self.tagId = tagId
       self.draft = draft
+
       self.originalDisplayName = draft.displayName
       self.originalMembership = membership
+      self.originalVisibility = visible
+
       self.membership = tagId == nil ? true : (membership ?? false)
+      self.visible = visible
     }
 
     public mutating func save(_ db: Database, ordering: Int, soundFontId: SoundFont.ID?) {
@@ -38,9 +54,10 @@ public struct TagNameEditor {
         let newName = draft.displayName.trimmed(or: originalDisplayName)
 
         // Only update DB if there is a change to record. Be sure to capture the ID any new Tag
-        if tagId == nil || newName != originalDisplayName || ordering != draft.ordering {
+        if tagId == nil || newName != originalDisplayName || ordering != draft.ordering || visible != draft.visible {
           draft.displayName = newName
           draft.ordering = ordering
+          draft.visible = visible
           let query = Tag.upsert {
             draft
           }.returning(\.id)
@@ -49,6 +66,7 @@ public struct TagNameEditor {
           }
         }
 
+        // Update membership info but only if editing a sound font
         guard let soundFontId else { return }
 
         if let tagId, membership != originalMembership {
@@ -90,7 +108,6 @@ public struct TagNameEditor {
       switch action {
 
       case .binding(\.membership):
-        print(action)
         return .none
 
       case .binding:
@@ -103,7 +120,6 @@ public struct TagNameEditor {
 
       case .delegate:
         return .none
-
       }
     }
   }
@@ -124,12 +140,15 @@ public struct TagNameEditorView: View {
 
   private var toggleNameField: some View {
     HStack {
-      if store.originalMembership != nil {
-        Toggle("", isOn: $store.membership)
-          .toggleStyle(.circledCheckMarkNoLabel)
-          .disabled(store.isUbiquitous)
-          .buttonStyle(.plain)
-      }
+      Toggle("", isOn: store.editing == .membership ? $store.membership : $store.visible)
+        .toggleStyle(.circledCheckMarkNoLabel)
+        .disabled(
+          // Cannot change membership with built-in tags
+          (store.isUbiquitous && store.editing == .membership) ||
+          // Cannot change visibility of the 'All' tag
+          (store.tagId == Tag.Ubiquitous.all.id && store.editing == .visibility)
+        )
+        .buttonStyle(.plain)
       NameFieldView(text: $store.draft.displayName, readOnly: readOnly)
         .swipeActions(edge: .trailing) {
           if editable {
@@ -161,7 +180,8 @@ extension TagNameEditorView {
               initialState: .init(
                 tagId: tag.id,
                 draft: .init(tag),
-                membership: tag.isUbiquitous ? nil : tag.id.rawValue % 2 == 0
+                membership: tag.isUbiquitous ? nil : tag.id.rawValue % 2 == 0,
+                visible: true
               )
             ) {
               TagNameEditor()

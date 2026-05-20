@@ -50,8 +50,11 @@ public struct SettingsView: View {
       .navigationTitle("Settings")
       .toolbar {
         ToolbarItem(placement: .automatic) {
-          Button("Done") { store.send(.dismissButtonTapped, animation: .default) }
-            .font(.button)
+          Button {
+            store.send(.dismissButtonTapped, animation: .default)
+          } label: {
+            Image(systemName: .saveButtonImageName)
+          }
         }
       }
       .animation(.smooth, value: changingKeyWidth)

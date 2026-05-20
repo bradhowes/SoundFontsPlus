@@ -61,7 +61,9 @@ public struct TagsEditor {
       editModeActive: Bool = false
     ) {
       self.mode = .tagEditing
-      self.rows = .init(uniqueElements: Tag.tags .map { .init(tagId: $0.id, draft: .init($0), membership: nil) })
+      self.rows = .init(uniqueElements: Tag.tags .map {
+        .init(tagId: $0.id, draft: .init($0), membership: nil, visible: $0.visible)
+      })
       self.editModeActive = editModeActive
       self.soundFontId = nil
     }
@@ -85,7 +87,8 @@ public struct TagsEditor {
             .init(
               tagId: $0.id,
               draft: .init($0),
-              membership: memberships[$0.id] ?? false
+              membership: memberships[$0.id] ?? false,
+              visible: $0.visible
             )
           }
       )
@@ -291,27 +294,56 @@ public struct TagsEditorView: View {
 
   public var body: some View {
     List {
-      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-        TagNameEditorView(store: rowStore)
-          .deleteDisabled(rowStore.isUbiquitous)
-          .focused($focused, equals: rowStore.id)
+      Section {
+        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+          TagNameEditorView(store: rowStore)
+            .deleteDisabled(rowStore.isUbiquitous)
+            .focused($focused, equals: rowStore.id)
+        }
+        .onMove { indices, destination in
+          store.send(.tagMoved(at: indices, to: destination), animation: .default)
+        }
+        .onDelete {
+          store.send(.deleteButtonTapped(at: $0), animation: .default)
+        }
+        .bind($store.focused, to: self.$focused)
+      } footer: {
+        if store.mode == .tagEditing {
+          VStack(alignment: .leading, spacing: 12) {
+            Text("•  Create new tags by tapping \(Image(systemName: .addButtonImageName)).")
+            Text(
+"""
+•  Rearrange by tapping \(Image(systemName: .editButtonImageName)) and moving \(Image(systemName: .moveButtonImageName)) handles.
+"""
+            )
+            Text(
+              "•  Tap the \(Image(systemName: .circledCheckMarkOnImageName)) button to change a tag's visibility in the tags list."
+            )
+            Text("The All tag is always visible.")
+          }
+        } else {
+          VStack(alignment: .leading, spacing: 12) {
+            Text("•  Create new tags by tapping \(Image(systemName: .addButtonImageName)).")
+            Text("•  Tap the \(Image(systemName: .circledCheckMarkOnImageName)) button to change the association with a tag.")
+            Text("•  Tap the name to edit.")
+            Text("You cannot change the associations of built-in tags, nor can you rename them.")
+          }
+        }
       }
-      .onMove { indices, destination in
-        store.send(.tagMoved(at: indices, to: destination), animation: .default)
-      }
-      .onDelete {
-        store.send(.deleteButtonTapped(at: $0), animation: .default)
-      }
-      .bind($store.focused, to: self.$focused)
+      .font(.footnote)
     }
     .font(.tagsEditor)
     .navigationTitle(store.mode.title)
     .toolbar {
       if store.mode == .tagEditing {
         ToolbarItem(placement: .cancellationAction) {
-          Button("Cancel") { store.send(.cancelButtonTapped, animation: .default) }
-            .disabled(store.editModeActive)
-            .font(.button)
+          Button {
+            store.send(.cancelButtonTapped, animation: .default)
+          } label: {
+            Image(systemName: .cancelButtonImageName)
+          }
+          .disabled(store.editModeActive)
+          .font(.button)
         }
 
         ToolbarItem(placement: .automatic) {
@@ -322,7 +354,7 @@ public struct TagsEditorView: View {
               Text("Done")
                 .foregroundStyle(.red)
             } else {
-              Text("Edit")
+              Image(systemName: .editButtonImageName)
             }
           }
           .font(.button)
@@ -338,9 +370,13 @@ public struct TagsEditorView: View {
         .font(.button)
       }
       ToolbarItem(placement: .confirmationAction) {
-        Button("Save") { store.send(.saveButtonTapped, animation: .default) }
-          .disabled(store.editModeActive)
-          .font(.button)
+        Button {
+          store.send(.saveButtonTapped, animation: .default)
+        } label: {
+          Image(systemName: .checkmarkImageName)
+        }
+        .disabled(store.editModeActive)
+        .font(.button)
       }
     }
     .animation(.smooth, value: store.rows)
@@ -354,6 +390,7 @@ public struct TagsEditorView: View {
        )
     )
 #endif // os(iOS)
+
   }
 }
 

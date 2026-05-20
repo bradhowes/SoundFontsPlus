@@ -23,6 +23,7 @@ extension TagInfo {
 
   private static var tagQueryBase: Select<(), Tag, ()> {
     Tag.queryBase
+      .where(\.visible)
       .group(by: \.id)
   }
 

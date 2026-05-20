@@ -64,14 +64,16 @@ nonisolated public struct Tag {
   public let id: ID
   public var displayName: String
   public var ordering: Int
+  public var visible: Bool = true
 
   public var isUbiquitous: Bool { id.isUbiquitous }
   public var isUserDefined: Bool { id.isUserDefined }
 
-  public init(id: ID, displayName: String, ordering: Int) {
+  public init(id: ID, displayName: String, ordering: Int, visible: Bool) {
     self.id = id
     self.displayName = displayName
     self.ordering = ordering
+    self.visible = visible
   }
 }
 
@@ -84,7 +86,8 @@ extension Tag {
         CREATE TABLE "\(raw: Self.tableName)" (
           "id" INTEGER PRIMARY KEY AUTOINCREMENT,
           "displayName" TEXT NOT NULL,
-          "ordering" INTEGER NOT NULL
+          "ordering" INTEGER NOT NULL,
+          "visible" INTEGER NOT NULL CHECK ("visible" in (0, 1))
         ) STRICT
         """
       )

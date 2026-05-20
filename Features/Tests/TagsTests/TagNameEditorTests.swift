@@ -15,7 +15,7 @@ import TestSupport
 struct TagNameEditorTests {
 
   func store(membership: Bool? = nil) throws -> TestStoreOf<TagNameEditor> {
-    let tag = Tag(id: 5, displayName: "New Tag", ordering: 5)
+    let tag = Tag(id: 5, displayName: "New Tag", ordering: 5, visible: true)
     return TestStore(
       initialState: TagNameEditor.State(
         tagId: tag.id,

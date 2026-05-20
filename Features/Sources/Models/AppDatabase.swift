@@ -135,7 +135,7 @@ private func performMigrations(
 
   migrator.registerMigration("Add ubiquitous tags") { db in
     let tags: [Tag] = Tag.Ubiquitous.allCases.enumerated().map {
-      .init(id: Tag.ID(rawValue: $0.1.rawValue), displayName: $0.1.displayName ?? "???", ordering: $0.0)
+      .init(id: Tag.ID(rawValue: $0.1.rawValue), displayName: $0.1.displayName ?? "???", ordering: $0.0, visible: true)
     }
     try Tag.insert {
       tags

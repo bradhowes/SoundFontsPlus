@@ -252,17 +252,18 @@ public struct PresetEditorView: View {
       .navigationTitle("Preset Editor")
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button("Cancel") {
+          Button {
             store.send(.cancelButtonTapped, animation: .default)
-
+          } label: {
+            Image(systemName: .cancelButtonImageName)
           }
-          .font(.button)
         }
         ToolbarItem(placement: .confirmationAction) {
-          Button("Save") {
+          Button {
             store.send(.saveButtonTapped, animation: .default)
+          } label: {
+            Image(systemName: .saveButtonImageName)
           }
-          .font(.button)
         }
       }
     }
