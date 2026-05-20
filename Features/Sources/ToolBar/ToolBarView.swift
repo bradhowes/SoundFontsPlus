@@ -176,7 +176,7 @@ public struct ToolBarView: View {
       Image(systemName: .addSoundFontButtonImageName)
         .tint(.mainAccentColor)
     }
-    .helpInfoViewTag(.addButton)
+    .helpInfoViewTag(RootHelpInfo.addButton)
   }
 
   private var editVisibilityButton: some View {

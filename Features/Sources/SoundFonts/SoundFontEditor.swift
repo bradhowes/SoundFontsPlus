@@ -180,6 +180,7 @@ extension SoundFontEditor {
 public struct SoundFontEditorView: View {
   @Bindable private var store: StoreOf<SoundFontEditor>
   @Environment(\.openURL) private var openURL
+  @Environment(\.colorScheme) var colorScheme
 
   public init(store: StoreOf<SoundFontEditor>) {
     self.store = store
@@ -214,8 +215,9 @@ public struct SoundFontEditorView: View {
         }
       }
     } destination: { store in
-      switch store.case {
-      case .editTags(let store): TagsEditorView(store: store)
+      if case .editTags(let editorStore) = store.case {
+        TagsEditorView(store: editorStore)
+          .environment(\.colorScheme, colorScheme)
       }
     }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))

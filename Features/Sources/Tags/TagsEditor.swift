@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import FeatureSupport
+import HelpInfoSpotlightOverlay
 
 private let log: Logger = .init(category: "TagsEditor")
 
@@ -48,6 +49,7 @@ public struct TagsEditor {
     public var focused: Int?
     public var deleting: Set<Tag.ID> = []
     public let soundFontId: SoundFont.ID?
+    public var helpInfoSelection: TagsEditorHelpInfo?
     @Presents public var destination: Destination.State?
 
     /**
@@ -116,6 +118,7 @@ public struct TagsEditor {
     case deleteButtonTapped(at: IndexSet)
     case destination(PresentationAction<Destination.Action>)
     case finalizeDeleteTag(rowId: Int)
+    case helpButtonTapped
     case rows(IdentifiedActionOf<TagNameEditor>)
     case saveButtonTapped
     case editModeActiveChanged(Bool)
@@ -148,6 +151,10 @@ public struct TagsEditor {
 
       case .finalizeDeleteTag(let rowId):
         return finalizeDeleteTag(&state, rowId: rowId)
+
+      case .helpButtonTapped:
+        state.helpInfoSelection = state.mode == .fontEditing ? .tagsListMembership : .tagsListVisibility
+        return .none
 
       case let .rows(.element(id: id, action: \.delegate.tagSwipedToDelete)):
         return deleteTag(&state, rowId: id)
@@ -287,6 +294,7 @@ extension TagsEditor.Destination.State: _EphemeralState {
 public struct TagsEditorView: View {
   @Bindable private var store: StoreOf<TagsEditor>
   @FocusState private var focused: Int?
+  @Environment(\.colorScheme) var colorScheme
 
   public init(store: StoreOf<TagsEditor>) {
     self.store = store
@@ -294,47 +302,31 @@ public struct TagsEditorView: View {
 
   public var body: some View {
     List {
-      Section {
-        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-          TagNameEditorView(store: rowStore)
-            .deleteDisabled(rowStore.isUbiquitous)
-            .focused($focused, equals: rowStore.id)
-        }
-        .onMove { indices, destination in
-          store.send(.tagMoved(at: indices, to: destination), animation: .default)
-        }
-        .onDelete {
-          store.send(.deleteButtonTapped(at: $0), animation: .default)
-        }
-        .bind($store.focused, to: self.$focused)
-      } footer: {
-        if store.mode == .tagEditing {
-          VStack(alignment: .leading, spacing: 12) {
-            Text("•  Create new tags by tapping \(Image(systemName: .addButtonImageName)).")
-            Text(
-"""
-•  Rearrange by tapping \(Image(systemName: .editButtonImageName)) and moving \(Image(systemName: .moveButtonImageName)) handles.
-"""
-            )
-            Text(
-              "•  Tap the \(Image(systemName: .circledCheckMarkOnImageName)) button to change a tag's visibility in the tags list."
-            )
-            Text("The All tag is always visible.")
-          }
-        } else {
-          VStack(alignment: .leading, spacing: 12) {
-            Text("•  Create new tags by tapping \(Image(systemName: .addButtonImageName)).")
-            Text("•  Tap the \(Image(systemName: .circledCheckMarkOnImageName)) button to change the association with a tag.")
-            Text("•  Tap the name to edit.")
-            Text("You cannot change the associations of built-in tags, nor can you rename them.")
-          }
-        }
+      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+        TagNameEditorView(store: rowStore)
+          .deleteDisabled(rowStore.isUbiquitous)
+          .focused($focused, equals: rowStore.id)
       }
-      .font(.footnote)
+      .onMove { indices, destination in
+        store.send(.tagMoved(at: indices, to: destination), animation: .default)
+      }
+      .onDelete {
+        store.send(.deleteButtonTapped(at: $0), animation: .default)
+      }
+      .bind($store.focused, to: self.$focused)
     }
     .font(.tagsEditor)
+    .helpInfoViewTag(store.mode == .tagEditing ? .tagsListVisibility : .tagsListMembership)
     .navigationTitle(store.mode.title)
     .toolbar {
+      ToolbarItem(placement: .automatic) {
+        Button {
+          store.send(.helpButtonTapped)
+        } label: {
+          Image(systemName: .helpButtonImageName)
+            .tint(Color.mainAccentColor)
+        }
+      }
       if store.mode == .tagEditing {
         ToolbarItem(placement: .cancellationAction) {
           Button {
@@ -343,9 +335,8 @@ public struct TagsEditorView: View {
             Image(systemName: .cancelButtonImageName)
           }
           .disabled(store.editModeActive)
-          .font(.button)
+          .helpInfoViewTag(.cancelButton)
         }
-
         ToolbarItem(placement: .automatic) {
           Button {
             store.send(.toggleEditModeActive, animation: .default)
@@ -357,7 +348,7 @@ public struct TagsEditorView: View {
               Image(systemName: .editButtonImageName)
             }
           }
-          .font(.button)
+          .helpInfoViewTag(store.editModeActive ? .doneButton : .editButton)
         }
       }
       ToolbarItem(placement: .automatic) {
@@ -367,7 +358,7 @@ public struct TagsEditorView: View {
           Image(systemName: .addButtonImageName)
         }
         .disabled(store.editModeActive)
-        .font(.button)
+        .helpInfoViewTag(TagsEditorHelpInfo.addButton)
       }
       ToolbarItem(placement: .confirmationAction) {
         Button {
@@ -376,7 +367,7 @@ public struct TagsEditorView: View {
           Image(systemName: .checkmarkImageName)
         }
         .disabled(store.editModeActive)
-        .font(.button)
+        .helpInfoViewTag(.saveButton)
       }
     }
     .animation(.smooth, value: store.rows)
@@ -390,8 +381,55 @@ public struct TagsEditorView: View {
        )
     )
 #endif // os(iOS)
-
+    .helpInfoSpotlightOverlay(
+      selection: $store.helpInfoSelection,
+      orderedIDs: TagsEditorHelpInfo.allCases,
+      overlay: helpInfoOverlay
+    )
   }
+
+  private func helpInfoOverlay(
+    for helpItem: TagsEditorHelpInfo,
+    actions: HelpInfoSpotlightOverlayActions
+  ) -> some View {
+    VStack(spacing: 8) {
+      HelpInfoLayout(spacing: 16) {
+        Text(helpItem.title)
+          .font(.title3.weight(.bold))
+        Text(helpItem.text)
+          .font(.footnote)
+      }
+      .overlay(alignment: .topTrailing) {
+        Button {
+          actions.dismiss()
+        } label: {
+          Image(systemName: .cancelButtonImageName)
+        }
+        .tint(.mainAccentColor)
+      }
+      HStack(spacing: 24) {
+        Button {
+          actions.previous()
+        } label: {
+          Image(systemName: .helpPreviousItemButtonImageName)
+        }
+        .tint(.mainAccentColor)
+        Button {
+          actions.next()
+        } label: {
+          Image(systemName: .helpNextItemButtonImageName)
+        }
+        .tint(.mainAccentColor)
+      }
+      .fontWeight(.semibold)
+    }
+    .padding(20)
+    .background {
+      RoundedRectangle(cornerRadius: 28)
+        .fill(colorScheme == .dark ? Color.black : Color.white)
+    }
+  }
+
 }
 
 extension View {
@@ -430,15 +468,17 @@ extension TagsEditorView {
     memberships[tags[1].id] = true
     memberships[tags[4].id] = true
 
-    return TagsEditorView(
-      store: Store(
-        initialState: .init(
-          soundFontId: SoundFont.ID(rawValue: 1),
-          memberships: memberships)
-      ) {
-        TagsEditor()
-      }
-    )
+    return NavigationView {
+      TagsEditorView(
+        store: Store(
+          initialState: .init(
+            soundFontId: SoundFont.ID(rawValue: 1),
+            memberships: memberships)
+        ) {
+          TagsEditor()
+        }
+      )
+    }
   }
 
   static var previewWithMembershipsInEditMode: some View {
