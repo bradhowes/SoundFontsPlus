@@ -29,24 +29,21 @@ public struct TagNameEditor {
     public var membership: Bool
     public var visible: Bool
 
-    public let originalMembership: Bool?
     public let originalDisplayName: String
+    public let originalMembership: Bool?
     public let originalVisibility: Bool?
 
     public var isUbiquitous: Bool { tagId?.isUbiquitous ?? false }
 
     public init(tagId: Tag.ID? = nil, draft: Tag.Draft, membership: Bool? = nil, visible: Bool = true) {
       self.editing = membership != nil ? .membership : .visibility
-
-      self.tagId = tagId
       self.draft = draft
-
+      self.tagId = tagId
+      self.membership = tagId == nil ? true : (membership ?? false)
+      self.visible = visible
       self.originalDisplayName = draft.displayName
       self.originalMembership = membership
       self.originalVisibility = visible
-
-      self.membership = tagId == nil ? true : (membership ?? false)
-      self.visible = visible
     }
 
     public mutating func save(_ db: Database, ordering: Int, soundFontId: SoundFont.ID?) {
@@ -105,22 +102,12 @@ public struct TagNameEditor {
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
-      switch action {
-
-      case .binding(\.membership):
-        return .none
-
-      case .binding:
-        return .none
-
-      case .tagSwipedToDelete:
+      if case .tagSwipedToDelete = action {
         return .run { [stateId = state.id] send in
-            await send(.delegate(.tagSwipedToDelete(stateId)), animation: .default)
+          await send(.delegate(.tagSwipedToDelete(stateId)), animation: .default)
         }
-
-      case .delegate:
-        return .none
       }
+      return .none
     }
   }
 }

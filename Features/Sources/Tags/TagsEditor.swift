@@ -232,7 +232,7 @@ private extension TagsEditor {
   func checkForEmptyTag(soundFontId: SoundFont.ID, tagState: TagNameEditor.State) -> Bool {
     if !hideEmptyTags { return false }
     if let tagId = tagState.tagId {
-      // Existing tag, os see if we are removing the sole association to the tag
+      // Existing tag, so see if we are removing the sole association to the tag
       let memberships = Tag.soundFontIds(for: tagId)
       return memberships.count == 1 && memberships.contains(soundFontId) && !tagState.membership
     } else {
