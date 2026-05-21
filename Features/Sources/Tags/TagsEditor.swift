@@ -11,9 +11,14 @@ private let log: Logger = .init(category: "TagsEditor")
  tags, rename previously-created ones, and delete user-created tags. The four built-in tags cannot be modified nor
  deleted.
 
- * When editing from the tags panel, one can also rearrange the order of the tags by entering "edit mode" and then
-   dragging them around.
- * When editing from the font editor, one can change the membership of the font and a user tag.
+ When editing from the tags panel:
+
+ * one can rearrange the order of the tags by entering "edit mode" then dragging them up and down.
+ * tag visibility can be toggled
+
+ When editing from the font editor:
+
+ * one can change the membership of the font and a user tag.
 
  */
 @Reducer
@@ -291,6 +296,8 @@ extension TagsEditor.Destination.State: _EphemeralState {
   public typealias Action = Alert
 }
 
+// MARK: - view
+
 public struct TagsEditorView: View {
   @Bindable private var store: StoreOf<TagsEditor>
   @FocusState private var focused: Int?
@@ -384,52 +391,11 @@ public struct TagsEditorView: View {
     .helpInfoSpotlightOverlay(
       selection: $store.helpInfoSelection,
       orderedIDs: TagsEditorHelpInfo.allCases,
-      overlay: helpInfoOverlay
+      overlay: { helpItem, actions in
+        customHelpInfoOverlay(for: helpItem, actions: actions, colorScheme: colorScheme)
+      }
     )
   }
-
-  private func helpInfoOverlay(
-    for helpItem: TagsEditorHelpInfo,
-    actions: HelpInfoSpotlightOverlayActions
-  ) -> some View {
-    VStack(spacing: 8) {
-      HelpInfoLayout(spacing: 16) {
-        Text(helpItem.title)
-          .font(.title3.weight(.bold))
-        Text(helpItem.text)
-          .font(.footnote)
-      }
-      .overlay(alignment: .topTrailing) {
-        Button {
-          actions.dismiss()
-        } label: {
-          Image(systemName: .cancelButtonImageName)
-        }
-        .tint(.mainAccentColor)
-      }
-      HStack(spacing: 24) {
-        Button {
-          actions.previous()
-        } label: {
-          Image(systemName: .helpPreviousItemButtonImageName)
-        }
-        .tint(.mainAccentColor)
-        Button {
-          actions.next()
-        } label: {
-          Image(systemName: .helpNextItemButtonImageName)
-        }
-        .tint(.mainAccentColor)
-      }
-      .fontWeight(.semibold)
-    }
-    .padding(20)
-    .background {
-      RoundedRectangle(cornerRadius: 28)
-        .fill(colorScheme == .dark ? Color.black : Color.white)
-    }
-  }
-
 }
 
 extension View {
