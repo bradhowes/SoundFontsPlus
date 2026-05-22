@@ -9,17 +9,17 @@ import SwiftUI
  */
 public enum TagsEditorHelpInfo: HelpInfoProvider, CaseIterable {
   case cancelButton
-  case saveButton
-  case addButton
   case editButton
   case doneButton
+  case addButton
+  case saveButton
   case tagsListVisibility
   case tagsListMembership
 
   public var title: LocalizedStringKey {
     switch self {
-    case .cancelButton: return "Cancel"
-    case .saveButton: return "Save"
+    case .cancelButton: return "Cancel & Close"
+    case .saveButton: return "Save & Close"
     case .addButton: return "New Tag"
     case .editButton: return "Edit Mode"
     case .doneButton: return "Exit Edit Mode"

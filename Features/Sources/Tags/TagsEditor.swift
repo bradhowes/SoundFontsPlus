@@ -391,8 +391,15 @@ public struct TagsEditorView: View {
     .helpInfoSpotlightOverlay(
       selection: $store.helpInfoSelection,
       orderedIDs: TagsEditorHelpInfo.allCases,
-      overlay: { helpItem, actions in
+      generator: { helpItem, actions in
         customHelpInfoOverlay(for: helpItem, actions: actions, colorScheme: colorScheme)
+      },
+      framer: { id, anchor, proxy, config in
+        var frame = config.calculateItemFrame(anchor: anchor, proxy: proxy)
+        if id == TagsEditorHelpInfo.tagsListMembership || id == TagsEditorHelpInfo.tagsListVisibility {
+          frame.size.height = min(frame.size.height, 300.0)
+        }
+        return frame
       }
     )
   }
