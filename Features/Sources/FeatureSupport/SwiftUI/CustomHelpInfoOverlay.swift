@@ -16,7 +16,7 @@ public func customHelpInfoOverlay(
   colorScheme: ColorScheme
 ) -> some View {
   VStack(spacing: 8) {
-    HelpInfoLayout(spacing: 16) {
+    HelpInfoOverlayLayout(spacing: 16) {
       Text(helpItem.title)
         .font(.title3.weight(.bold))
       Text(helpItem.text)
@@ -49,6 +49,10 @@ public func customHelpInfoOverlay(
   .padding(20)
   .background {
     RoundedRectangle(cornerRadius: 28)
-      .fill(colorScheme == .dark ? Color.black : Color.white)
+      .fill(colorScheme == .light ? .white.mix(with: .black, by: 0.2) : .black.mix(with: .white, by: 0.2))
   }
+  .overlay(
+    RoundedRectangle(cornerRadius: 28)
+      .strokeBorder(.quinary, lineWidth: 2)
+  )
 }

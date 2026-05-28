@@ -391,9 +391,7 @@ public struct TagsEditorView: View {
     .helpInfoSpotlightOverlay(
       selection: $store.helpInfoSelection,
       orderedIDs: TagsEditorHelpInfo.allCases,
-      generator: { helpItem, actions in
-        customHelpInfoOverlay(for: helpItem, actions: actions, colorScheme: colorScheme)
-      },
+      generator: customHelpInfoOverlay,
       framer: { id, anchor, proxy, config in
         var frame = config.calculateItemFrame(anchor: anchor, proxy: proxy)
         if id == TagsEditorHelpInfo.tagsListMembership || id == TagsEditorHelpInfo.tagsListVisibility {

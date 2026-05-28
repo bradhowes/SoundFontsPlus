@@ -108,9 +108,7 @@ public struct AppRootView: View {
     .helpInfoSpotlightOverlay(
       selection: $store.helpInfoSelection,
       orderedIDs: RootHelpInfo.allCases,
-      generator: { helpItem, actions in
-        customHelpInfoOverlay(for: helpItem, actions: actions, colorScheme: colorScheme)
-      }
+      generator: customHelpInfoOverlay
     )
   }
 
