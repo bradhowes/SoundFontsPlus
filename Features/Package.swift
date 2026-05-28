@@ -6,6 +6,7 @@ import PackageDescription
 
 let useLocalMorkAndMIDI = false
 let useLocalSF2Lib = false
+let useLocalHelpInfoSpotlightOverlay = false
 
 extension Package.Dependency {
 
@@ -17,6 +18,11 @@ extension Package.Dependency {
   static var sf2Lib: PackageDescription.Package.Dependency {
     useLocalSF2Lib ? .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib") :
       .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.12.3")
+  }
+
+  static var helpInfoSpotlightOverlay: PackageDescription.Package.Dependency {
+    useLocalHelpInfoSpotlightOverlay ? .package(name: "HelpInfoSpotlightOverlay", path: "/Users/howes/src/Mine/HelpInfoSpotlightOverlay") :
+      .package(url: "https://github.com/bradhowes/HelpInfoSpotlightOverlay", from: "1.5.3")
   }
 }
 
@@ -55,8 +61,9 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/bradhowes/AUv3Controls", from: "1.0.0"),
     .package(url: "https://github.com/bradhowes/brh-splitview", from: "1.0.0"),
-    .package(url: "https://github.com/bradhowes/HelpInfoSpotlightOverlay", from: "1.0.0"),
-    // .package(name: "HelpInfoSpotlightOverlay", path: "/Users/howes/src/Mine/HelpInfoSpotlightOverlay"),
+    //
+    .helpInfoSpotlightOverlay,
+    //
     .package(url: "https://github.com/bradhowes/typedfullstate", from: "1.1.1"),
     //
     .morkAndMIDI,
