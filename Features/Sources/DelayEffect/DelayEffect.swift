@@ -372,7 +372,10 @@ private let log: Logger = .init(category: "DelayEffect")
 
 extension DelayEffectView {
   static func preview(presetId: Preset.ID) -> some View {
+    installApplicationFont()
+
     var theme = Theme()
+    theme.font = .effectsControl
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
     theme.toggleOnIndicatorSystemName = .effectsToggleOnButtonImageName
@@ -403,7 +406,6 @@ extension DelayEffectView {
 #Preview {
   // swiftlint:disable:next redundant_discardable_let
   let _ = prepareDependencies {
-    installApplicationFont()
     // swiftlint:disable:next force_try
     $0.defaultDatabase = try! appDatabase { db in
       try DelayConfig.insert {
@@ -443,6 +445,7 @@ extension DelayEffectView {
 
     $0.delayDevice = .init(effect: nil, setConfig: { print("DelayDevice.setConfig:", $1) })
   }
+
   DelayEffectView.preview(presetId: 2)
 }
 

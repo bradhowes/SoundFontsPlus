@@ -299,15 +299,17 @@ public struct ReverbEffectView: View {
       HStack(alignment: .center, spacing: 8) {
         Picker("Room", selection: $store.config.roomPreset.sending(\.roomPresetChanged)) {
           ForEach(AVAudioUnitReverbPreset.allCases, id: \.self) { room in
-            Text(room.name).tag(room)
+            Text(room.name)
+              .tag(room)
               .font(theme.font)
               .foregroundStyle(theme.textColor)
           }
         }
         .helpInfoViewTag(.reverbRoom)
 #if os(iOS)
-        .pickerStyle(.wheel)
-        .frame(width: 110)  // !!! Magic size that fits all of the strings without wasted space
+        .pickerStyle(.menu)
+        .tint(.alternateAccentColor)
+        .frame(width: 130)  // !!! Magic size that fits all of the strings without wasted space
 #endif
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
           .helpInfoViewTag(.reverbAmount)
@@ -323,7 +325,10 @@ private let log: Logger = .init(category: "ReverbEffect")
 extension ReverbEffectView {
   static var preview: some View {
 
+    installApplicationFont()
+
     var theme = Theme()
+    theme.font = .effectsControl
     theme.controlTrackStrokeStyle = StrokeStyle(lineWidth: 5, lineCap: .round)
     theme.controlValueStrokeStyle = StrokeStyle(lineWidth: 3, lineCap: .round)
     theme.toggleOnIndicatorSystemName = .effectsToggleOnButtonImageName
@@ -351,6 +356,7 @@ extension ReverbEffectView {
 #Preview {
   // swiftlint:disable:next redundant_discardable_let
   let _ = prepareDependencies {
+    installApplicationFont()
     $0.defaultDatabase = previewDatabase()
     $0.reverbDevice = ReverbDevice.testValue
   }
