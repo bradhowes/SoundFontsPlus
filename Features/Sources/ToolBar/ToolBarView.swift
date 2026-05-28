@@ -12,6 +12,7 @@ public struct ToolBarView: View {
   @Shared(.favoriteSymbolName) private var favoriteSymbolName
   @Shared(.starFavoriteNames) private var starFavoriteNames
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.colorScheme) private var colorScheme
 
   private let isAUv3: Bool
   private var isApp: Bool { !isAUv3 }
@@ -21,6 +22,8 @@ public struct ToolBarView: View {
   private var statusTextColor: Color {
     (store.preset?.kind == .favorite || store.temporaryStatus != nil) ? .alternateAccentColor : .mainAccentColor
   }
+
+  private var height: CGFloat { store.showMoreButtons ? 82 : 40 }
 
   public init(store: StoreOf<ToolBar>, isAUv3: Bool) {
     self.store = store
@@ -36,10 +39,11 @@ public struct ToolBarView: View {
       }
     }
     .imageScale(.large)
+    .padding([.leading, .trailing], 8)
     .background(.windowBackground)
-    .frame(height: 40)
-    .frame(maxHeight: 40)
-    .animation(.easeInOut, value: store.showMoreButtons)
+    .frame(height: height)
+    .frame(maxHeight: height)
+    .animation(.smooth, value: store.showMoreButtons)
     .animation(.smooth, value: store.activeVoiceCount)
     .fileImporterFeature(store.scope(state: \.fileImporter, action: \.fileImporter))
     .task {
@@ -81,11 +85,30 @@ public struct ToolBarView: View {
   }
 
   private var compactBar: some View {
-    HStack(alignment: .center, spacing: 12) {
-      if isApp {
-        compactBarApp
-      } else {
-        compactBarAUv3
+    VStack(alignment: .center, spacing: 0) {
+      HStack(alignment: .center, spacing: 12) {
+        if isApp {
+          compactBarApp
+        } else {
+          compactBarAUv3
+        }
+      }
+      if store.showMoreButtons {
+        Color.splitViewHandleBackgroundColor
+          .frame(height: 2)
+        HStack(alignment: .center, spacing: 12) {
+          Spacer()
+          shiftDownButton
+          slidingKeyboardButton
+          shiftUpButton
+          Spacer()
+          editVisibilityButton
+          settingsButton
+          helpButton
+        }
+        .frame(height: 40)
+        .frame(maxHeight: 40)
+        .opacity(store.showMoreButtons ? 1.0 : 0.0)
       }
     }
   }
@@ -95,19 +118,7 @@ public struct ToolBarView: View {
     addSoundFontButton
     tagsButton
     effectsButton
-    if store.showMoreButtons {
-      Spacer()
-        .frame(height: 40)
-        .background(.windowBackground)
-      shiftDownButton
-      slidingKeyboardButton
-      shiftUpButton
-      editVisibilityButton
-      settingsButton
-    } else {
-      status
-      helpButton
-    }
+    status
     moreButton
   }
 
@@ -213,7 +224,7 @@ public struct ToolBarView: View {
     Button {
       store.send(.showMoreButtonTapped)
     } label: {
-      Image(systemName: .moreButtonImageName)
+      Image(systemName: store.showMoreButtons ? .lessButtonImageName : .moreButtonImageName)
         .tint(if: store.showMoreButtons)
         .frame(width: 24)
     }
@@ -283,14 +294,9 @@ public struct ToolBarView: View {
 #if DEBUG
 
 extension ToolBarView {
-  static func preview(showMoreButtons: Bool) -> some View {
+  static func preview() -> some View {
     struct Preview: View {
       @Shared(.showActiveVoiceCount) var showActiveVoiceCount
-      @State var showMoreButtons: Bool
-
-      init(showMoreButtons: Bool) {
-        self.showMoreButtons = showMoreButtons
-      }
 
       var body: some View {
         VStack {
@@ -302,8 +308,6 @@ extension ToolBarView {
             )
           )
           .circledCheckMarkToggleStyle()
-          Toggle("Show more buttons", isOn: $showMoreButtons)
-            .circledCheckMarkToggleStyle()
           ToolBarView(
             store: Store(
               initialState: .init(
@@ -315,8 +319,7 @@ extension ToolBarView {
                   originalName: "Foo",
                   soundFontId: 0,
                   displayName: "Foo"
-                ),
-                showMoreButtons: showMoreButtons
+                )
               )
             ) {
             ToolBar()
@@ -326,12 +329,12 @@ extension ToolBarView {
       }
     }
 
-    return Preview(showMoreButtons: showMoreButtons)
+    return Preview()
   }
 }
 
 #Preview {
-  ToolBarView.preview(showMoreButtons: false)
+  ToolBarView.preview()
 }
 
 #endif // DEBUG

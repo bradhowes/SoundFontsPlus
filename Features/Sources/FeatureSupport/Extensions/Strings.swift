@@ -32,6 +32,7 @@ public extension String {
   static var midiDeviceConnectedButtonImageName: String { "bolt.circle.fill" }
   static var midiDeviceDisconnectedButtonImageName: String { "circle" }
   static var moreButtonImageName: String { "chevron.left"}
+  static var lessButtonImageName: String { "chevron.down"}
   static var moveButtonImageName: String { "line.3.horizontal" }
   static var noAudioVolumeImageName: String { "speaker.slash" }
   static var presetsVisibilityButtonImageName: String { "list.bullet" }
