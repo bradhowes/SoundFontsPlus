@@ -428,6 +428,7 @@ struct ToolBarTests {
   @Test
   func previewWithFixedKeyboard() async throws {
     withDependencies {
+      $0.mainQueue = .immediate
       $0.defaultDatabase = previewDatabase()
     } operation: {
       @Shared(.keyboardSlides) var keyboardSlides
@@ -458,6 +459,7 @@ struct ToolBarTests {
   @Test
   func previewWithFSlidingKeyboard() async throws {
     withDependencies {
+      $0.mainQueue = .immediate
       $0.defaultDatabase = previewDatabase()
     } operation: {
       @Shared(.keyboardSlides) var keyboardSlides
@@ -488,10 +490,11 @@ struct ToolBarTests {
   @Test
   func preview() async throws {
     withDependencies {
+      $0.mainQueue = .immediate
       $0.defaultDatabase = previewDatabase()
     } operation: {
       withSnapshotTesting(record: .failed) {
-        TestSupport.assertSnapshot(matching: ToolBarView.preview(showMoreButtons: true))
+        TestSupport.assertSnapshot(matching: ToolBarView.preview())
       }
     }
   }

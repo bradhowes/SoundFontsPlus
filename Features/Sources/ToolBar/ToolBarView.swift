@@ -50,6 +50,9 @@ public struct ToolBarView: View {
       await store.send(.initialize(horizontalSizeClass == .compact)).finish()
     }
   }
+}
+
+extension ToolBarView {
 
   private var fullBar: some View {
     HStack(alignment: .center, spacing: 12) {
@@ -93,23 +96,23 @@ public struct ToolBarView: View {
           compactBarAUv3
         }
       }
-      if store.showMoreButtons {
-        Color.splitViewHandleBackgroundColor
-          .frame(height: 2)
-        HStack(alignment: .center, spacing: 12) {
-          Spacer()
-          shiftDownButton
-          slidingKeyboardButton
-          shiftUpButton
-          Spacer()
-          editVisibilityButton
-          settingsButton
-          helpButton
-        }
-        .frame(height: 40)
-        .frame(maxHeight: 40)
-        .opacity(store.showMoreButtons ? 1.0 : 0.0)
+      Color.splitViewHandleBackgroundColor
+        .frame(height: store.showMoreButtons ? 2 : 0)
+        .frame(maxHeight: store.showMoreButtons ? 2 : 0)
+        .clipped()
+      HStack(alignment: .center, spacing: 12) {
+        Spacer()
+        shiftDownButton
+        slidingKeyboardButton
+        shiftUpButton
+        Spacer()
+        editVisibilityButton
+        settingsButton
+        helpButton
       }
+      .frame(height: store.showMoreButtons ? 40 : 0)
+      .frame(maxHeight: store.showMoreButtons ? 40 : 0)
+      .clipped()
     }
   }
 
@@ -228,6 +231,7 @@ public struct ToolBarView: View {
         .tint(if: store.showMoreButtons)
         .frame(width: 24)
     }
+    .contentTransition(.symbolEffect(.replace))
     .helpInfoViewTag(.moreButton)
   }
 
@@ -246,7 +250,7 @@ public struct ToolBarView: View {
       store.send(.shiftKeyboardDownButtonTapped)
     } label: {
       Text(.shiftKeyboardLeftIndicator + store.lowestKey.label)
-        .fixedSize()
+        .frame(width: 40, alignment: .trailing)
         .tint(.mainAccentColor)
     }
     .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
@@ -258,7 +262,7 @@ public struct ToolBarView: View {
       store.send(.shiftKeyboardUpButtonTapped)
     } label: {
       Text(store.highestKey.label + .shiftKeyboardRightIndicator)
-        .fixedSize()
+        .frame(width: 40, alignment: .leading)
         .tint(.mainAccentColor)
     }
     .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
@@ -297,6 +301,7 @@ extension ToolBarView {
   static func preview() -> some View {
     struct Preview: View {
       @Shared(.showActiveVoiceCount) var showActiveVoiceCount
+      @Shared(.showMIDITrafficIndicator) var showMIDITrafficIndicator
 
       var body: some View {
         VStack {
@@ -306,6 +311,14 @@ extension ToolBarView {
               get: { showActiveVoiceCount },
               set: { newValue in $showActiveVoiceCount.withLock { $0 = newValue }}
             )
+          )
+          .circledCheckMarkToggleStyle()
+          Toggle(
+              "Show MIDI traffic indicator",
+              isOn: Binding(
+                get: { showMIDITrafficIndicator },
+                set: { newValue in $showMIDITrafficIndicator.withLock { $0 = newValue }}
+              )
           )
           .circledCheckMarkToggleStyle()
           ToolBarView(
