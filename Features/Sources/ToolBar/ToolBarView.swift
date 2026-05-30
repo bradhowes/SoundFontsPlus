@@ -128,16 +128,9 @@ extension ToolBarView {
   @ViewBuilder
   private var compactBarAUv3: some View {
     tagsButton
-    if store.showMoreButtons {
-      Spacer()
-        .frame(height: 40)
-        .background(.windowBackground)
-      editVisibilityButton
-      settingsButton
-    } else {
-      status
-    }
-    moreButton
+    editVisibilityButton
+    settingsButton
+    status
   }
 
   private var status: some View {
@@ -298,10 +291,16 @@ extension ToolBarView {
 #if DEBUG
 
 extension ToolBarView {
-  static func preview() -> some View {
+  static func preview(showMoreButtons: Bool = false) -> some View {
+
     struct Preview: View {
       @Shared(.showActiveVoiceCount) var showActiveVoiceCount
       @Shared(.showMIDITrafficIndicator) var showMIDITrafficIndicator
+      let showMoreButtons: Bool
+
+      init(showMoreButtons: Bool) {
+        self.showMoreButtons = showMoreButtons
+      }
 
       var body: some View {
         VStack {
@@ -332,7 +331,8 @@ extension ToolBarView {
                   originalName: "Foo",
                   soundFontId: 0,
                   displayName: "Foo"
-                )
+                ),
+                showMoreButtons: showMoreButtons
               )
             ) {
             ToolBar()
@@ -342,12 +342,12 @@ extension ToolBarView {
       }
     }
 
-    return Preview()
+    return Preview(showMoreButtons: showMoreButtons)
   }
 }
 
 #Preview {
-  ToolBarView.preview()
+  ToolBarView.preview(showMoreButtons: false)
 }
 
 #endif // DEBUG
