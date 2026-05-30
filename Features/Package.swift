@@ -17,12 +17,12 @@ extension Package.Dependency {
 
   static var sf2Lib: PackageDescription.Package.Dependency {
     useLocalSF2Lib ? .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib") :
-      .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.12.3")
+      .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.14.2")
   }
 
   static var helpInfoSpotlightOverlay: PackageDescription.Package.Dependency {
     useLocalHelpInfoSpotlightOverlay ? .package(name: "HelpInfoSpotlightOverlay", path: "/Users/howes/src/Mine/HelpInfoSpotlightOverlay") :
-      .package(url: "https://github.com/bradhowes/HelpInfoSpotlightOverlay", from: "1.5.3")
+      .package(url: "https://github.com/bradhowes/HelpInfoSpotlightOverlay", from: "1.5.8")
   }
 }
 
@@ -59,8 +59,8 @@ let package = Package(
   ],
 
   dependencies: [
-    .package(url: "https://github.com/bradhowes/AUv3Controls", from: "1.0.0"),
-    .package(url: "https://github.com/bradhowes/brh-splitview", from: "1.0.0"),
+    .package(url: "https://github.com/bradhowes/AUv3Controls", from: "1.1.3"),
+    .package(url: "https://github.com/bradhowes/brh-splitview", from: "1.1.2"),
     //
     .helpInfoSpotlightOverlay,
     //
@@ -71,15 +71,15 @@ let package = Package(
     //
     .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.1"),
     // NOTE: only used to gain access to `isApproximatelyEqual` in unit tests
-    .package(url: "https://github.com/apple/swift-numerics", from: "1.1.0"),
-    .package(url: "https://github.com/athankefalas/swift-toasts", from: "0.9.2"),
+    .package(url: "https://github.com/apple/swift-numerics", from: "1.1.1"),
+    .package(url: "https://github.com/athankefalas/swift-toasts", from: "0.9.3"),
     //
-    .package(url: "https://github.com/pointfreeco/sqlite-data", from: "1.5.0"),
-    .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.0"),
-    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.23.0"),
-    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.11.0"),
-    .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.7.4"),
-    .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.18.7"),
+    .package(url: "https://github.com/pointfreeco/sqlite-data", from: "1.6.2"),
+    .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.3"),
+    .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.25.5"),
+    .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.12.0"),
+    .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.8.0"),
+    .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.19.2"),
     .package(url: "https://github.com/pointfreeco/swift-tagged", from: "0.10.0"),
   ],
 
