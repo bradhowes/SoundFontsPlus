@@ -333,6 +333,7 @@ extension DelayEffect {
 
 public struct DelayEffectView: View {
   @Bindable private var store: StoreOf<DelayEffect>
+  @Environment(\.controlSpacing) var controlSpacing
 
   public init(store: StoreOf<DelayEffect>) {
     self.store = store
@@ -352,7 +353,7 @@ public struct DelayEffectView: View {
       onOff: onOff,
       globalLock: globalLock
     ) {
-      HStack(alignment: .center, spacing: 8) {
+      HStack(alignment: .center, spacing: controlSpacing) {
         KnobView(store: store.scope(state: \.time, action: \.time))
           .helpInfoViewTag(.delayTime)
         KnobView(store: store.scope(state: \.feedback, action: \.feedback))

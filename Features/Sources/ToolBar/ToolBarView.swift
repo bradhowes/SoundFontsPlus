@@ -10,9 +10,9 @@ public struct ToolBarView: View {
   @Shared(.favoriteSymbolName) private var favoriteSymbolName
   @Shared(.starFavoriteNames) private var starFavoriteNames
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.controlSpacing) var controlSpacing
 
   private let minWIdthNoMoreButtons: CGFloat = 400
-  private let buttonSeparation: CGFloat = 8
   private let rowHeight: CGFloat = 28
   private let isAUv3: Bool
   private var isApp: Bool { !isAUv3 }
@@ -23,7 +23,7 @@ public struct ToolBarView: View {
     (store.preset?.kind == .favorite || store.temporaryStatus != nil) ? .alternateAccentColor : .mainAccentColor
   }
 
-  private var height: CGFloat { store.showMoreButtons ? rowHeight * 2 + buttonSeparation : rowHeight }
+  private var height: CGFloat { store.showMoreButtons ? rowHeight * 2 + controlSpacing : rowHeight }
 
   public init(store: StoreOf<ToolBar>, isAUv3: Bool) {
     self.store = store
@@ -40,7 +40,7 @@ public struct ToolBarView: View {
     }
     .imageScale(.large)
     .frame(height: height)
-    .padding([.top, .bottom], buttonSeparation)
+    .padding([.top, .bottom], controlSpacing)
     .background(.windowBackground)
     .animation(.smooth, value: store.showMoreButtons)
     .animation(.smooth, value: store.activeVoiceCount)
@@ -51,7 +51,7 @@ public struct ToolBarView: View {
 extension ToolBarView {
 
   private var fullBar: some View {
-    HStack(alignment: .center, spacing: buttonSeparation) {
+    HStack(alignment: .center, spacing: controlSpacing) {
       if isApp {
         fullBarApp
       } else {
@@ -87,8 +87,8 @@ extension ToolBarView {
   }
 
   private var compactBar: some View {
-    VStack(alignment: .center, spacing: buttonSeparation) {
-      HStack(alignment: .center, spacing: buttonSeparation) {
+    VStack(alignment: .center, spacing: controlSpacing) {
+      HStack(alignment: .center, spacing: controlSpacing) {
         addSoundFontButton
         tagsButton
         effectsButton
@@ -96,9 +96,9 @@ extension ToolBarView {
         helpButton
         moreButton
       }
-      .padding([.horizontal], buttonSeparation)
+      .padding([.horizontal], controlSpacing)
       if store.showMoreButtons {
-        HStack(alignment: .center, spacing: buttonSeparation) {
+        HStack(alignment: .center, spacing: controlSpacing) {
           Spacer()
           shiftDownButton
           slidingKeyboardButton
@@ -106,7 +106,7 @@ extension ToolBarView {
           editVisibilityButton
           settingsButton
         }
-        .padding([.horizontal], buttonSeparation)
+        .padding([.horizontal], controlSpacing)
         .animation(.smooth, value: store.lowestKey)
         .animation(.smooth, value: store.highestKey)
       }

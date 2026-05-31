@@ -278,6 +278,8 @@ extension ReverbEffect {
 public struct ReverbEffectView: View {
   @Bindable private var store: StoreOf<ReverbEffect>
   @Environment(\.auv3ControlsTheme) private var theme
+  @Environment(\.controlSpacing) var controlSpacing
+  private let pickerWidth = 140.0
 
   public init(store: StoreOf<ReverbEffect>) {
     self.store = store
@@ -296,21 +298,28 @@ public struct ReverbEffectView: View {
       onOff: onOff,
       globalLock: globalLock
     ) {
-      HStack(alignment: .center, spacing: 8) {
-        Picker("Room", selection: $store.config.roomPreset.sending(\.roomPresetChanged)) {
-          ForEach(AVAudioUnitReverbPreset.allCases, id: \.self) { room in
-            Text(room.name)
-              .tag(room)
-              .font(theme.font)
-              .foregroundStyle(theme.textColor)
+      HStack(alignment: .center, spacing: controlSpacing) {
+        VStack {
+          Picker("Room", selection: $store.config.roomPreset.sending(\.roomPresetChanged)) {
+            ForEach(AVAudioUnitReverbPreset.allCases, id: \.self) { room in
+              Text(room.name)
+                .tag(room)
+                .font(theme.font)
+                .foregroundStyle(theme.textColor)
+                .fixedSize()
+            }
           }
-        }
-        .helpInfoViewTag(.reverbRoom)
+          .fixedSize()
+          .helpInfoViewTag(.reverbRoom)
 #if os(iOS)
-        .pickerStyle(.menu)
-        .tint(.alternateAccentColor)
-        .frame(width: 130)  // !!! Magic size that fits all of the strings without wasted space
+          .pickerStyle(.menu)
+          .tint(.alternateAccentColor)
+          .frame(width: pickerWidth)
 #endif
+          Text("Environment")
+            .foregroundStyle(theme.controlForegroundColor)
+            .font(theme.font)
+        }
         KnobView(store: store.scope(state: \.wetDryMix, action: \.wetDryMix))
           .helpInfoViewTag(.reverbAmount)
       }
