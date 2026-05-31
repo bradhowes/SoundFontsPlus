@@ -256,7 +256,7 @@ struct ToolBarTests {
 
     if isCompact {
       await store.send(.showMoreButtonTapped) { $0.showMoreButtons = true }
-      await store.send(.settingsButtonTapped) { $0.showMoreButtons = false }
+      await store.send(.settingsButtonTapped)
     } else {
       await store.send(.settingsButtonTapped)
     }
