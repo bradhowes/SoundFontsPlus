@@ -11,6 +11,7 @@ public struct ToolBarView: View {
   @Shared(.starFavoriteNames) private var starFavoriteNames
   @Environment(\.colorScheme) private var colorScheme
 
+  private let minWIdthNoMoreButtons: CGFloat = 400
   private let buttonSeparation: CGFloat = 8
   private let rowHeight: CGFloat = 28
   private let isAUv3: Bool
@@ -31,7 +32,7 @@ public struct ToolBarView: View {
 
   public var body: some View {
     GeometryReader { geometryProxy in
-      if geometryProxy.size.width < 500 {
+      if geometryProxy.size.width < minWIdthNoMoreButtons {
         compactBar
       } else {
         fullBar
@@ -261,26 +262,28 @@ extension ToolBarView {
   static func preview() -> some View {
 
     struct Preview: View {
+      let store = Store(
+        initialState: .init(
+          preset: Preset(
+            id: 0,
+            index: 0,
+            bank: 1,
+            program: 1,
+            originalName: "Foo",
+            soundFontId: 0,
+            displayName: "Foo"
+          )
+        )
+      ) {
+        ToolBar()
+      }
+
       var body: some View {
         VStack(spacing: 0) {
-          ToolBarView(
-            store: Store(
-              initialState: .init(
-                preset: Preset(
-                  id: 0,
-                  index: 0,
-                  bank: 1,
-                  program: 1,
-                  originalName: "Foo",
-                  soundFontId: 0,
-                  displayName: "Foo"
-                )
-              )
-            ) {
-              ToolBar()
-            }, isAUv3: false)
+          ToolBarView(store: store, isAUv3: false)
           KeyboardView(store: Store(initialState: .init()) { Keyboard() })
         }
+        .animation(.smooth, value: store.state.showMoreButtons)
       }
     }
 
