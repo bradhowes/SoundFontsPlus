@@ -23,7 +23,7 @@ public struct ToolBarView: View {
     (store.preset?.kind == .favorite || store.temporaryStatus != nil) ? .alternateAccentColor : .mainAccentColor
   }
 
-  private var height: CGFloat { store.showMoreButtons ? rowHeight * 2 + controlSpacing : rowHeight }
+  private var height: CGFloat { store.showMoreButtons ? rowHeight * 2 + controlSpacing - 5 : rowHeight }
 
   public init(store: StoreOf<ToolBar>, isAUv3: Bool) {
     self.store = store
@@ -39,10 +39,11 @@ public struct ToolBarView: View {
       }
     }
     .imageScale(.large)
-    .frame(height: height)
+    .frame(maxHeight: height)
     .padding([.top, .bottom], controlSpacing)
     .background(.windowBackground)
     .animation(.smooth, value: store.showMoreButtons)
+    .animation(.smooth, value: height)
     .animation(.smooth, value: store.activeVoiceCount)
     .fileImporterFeature(store.scope(state: \.fileImporter, action: \.fileImporter))
   }
@@ -88,33 +89,45 @@ extension ToolBarView {
 
   private var compactBar: some View {
     VStack(alignment: .center, spacing: controlSpacing) {
-      HStack(alignment: .center, spacing: controlSpacing) {
-        addSoundFontButton
-        tagsButton
-        effectsButton
-        status
-        helpButton
-        moreButton
-      }
-      .padding([.horizontal], controlSpacing)
+      compactBarRow1
       if store.showMoreButtons {
-        HStack(alignment: .center, spacing: controlSpacing) {
-          Spacer()
-          shiftDownButton
-          slidingKeyboardButton
-          shiftUpButton
-          editVisibilityButton
-          settingsButton
-        }
-        .padding([.horizontal], controlSpacing)
-        .animation(.smooth, value: store.lowestKey)
-        .animation(.smooth, value: store.highestKey)
+        compactBarRow2
+          .transition(.move(edge: .bottom))
       }
     }
+    .fixedSize(horizontal: false, vertical: true)
     .padding(0)
     .task {
       await store.send(.initialize(true)).finish()
     }
+  }
+
+  private var compactBarRow1: some View {
+    HStack(alignment: .center, spacing: controlSpacing) {
+      addSoundFontButton
+      tagsButton
+      effectsButton
+      status
+      helpButton
+      moreButton
+    }
+    .frame(maxHeight: .infinity)
+    .padding([.horizontal], controlSpacing)
+  }
+
+  private var compactBarRow2: some View {
+    HStack(alignment: .center, spacing: controlSpacing) {
+      Spacer()
+      shiftDownButton
+      slidingKeyboardButton
+      shiftUpButton
+      editVisibilityButton
+      settingsButton
+    }
+    .frame(maxHeight: .infinity)
+    .padding([.horizontal], controlSpacing)
+    .animation(.smooth, value: store.lowestKey)
+    .animation(.smooth, value: store.highestKey)
   }
 
   @ViewBuilder
