@@ -7,13 +7,12 @@ import SwiftUI
 
 public struct ToolBarView: View {
   private var store: StoreOf<ToolBar>
-  @Shared(.showActiveVoiceCount) private var showActiveVoiceCount
-  @Shared(.showMIDITrafficIndicator) private var showMIDITrafficIndicator
   @Shared(.favoriteSymbolName) private var favoriteSymbolName
   @Shared(.starFavoriteNames) private var starFavoriteNames
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @Environment(\.colorScheme) private var colorScheme
 
+  private let buttonSeparation: CGFloat = 8
+  private let rowHeight: CGFloat = 28
   private let isAUv3: Bool
   private var isApp: Bool { !isAUv3 }
 
@@ -23,7 +22,7 @@ public struct ToolBarView: View {
     (store.preset?.kind == .favorite || store.temporaryStatus != nil) ? .alternateAccentColor : .mainAccentColor
   }
 
-  private var height: CGFloat { store.showMoreButtons ? 82 : 40 }
+  private var height: CGFloat { store.showMoreButtons ? rowHeight * 2 + buttonSeparation : rowHeight }
 
   public init(store: StoreOf<ToolBar>, isAUv3: Bool) {
     self.store = store
@@ -31,36 +30,35 @@ public struct ToolBarView: View {
   }
 
   public var body: some View {
-    Group {
-      if horizontalSizeClass == .compact {
+    GeometryReader { geometryProxy in
+      if geometryProxy.size.width < 500 {
         compactBar
       } else {
         fullBar
       }
     }
     .imageScale(.large)
-    .padding([.leading, .trailing], 8)
-    .background(.windowBackground)
     .frame(height: height)
-    .frame(maxHeight: height)
+    .padding([.top, .bottom], buttonSeparation)
+    .background(.windowBackground)
     .animation(.smooth, value: store.showMoreButtons)
     .animation(.smooth, value: store.activeVoiceCount)
     .fileImporterFeature(store.scope(state: \.fileImporter, action: \.fileImporter))
-    .task {
-      await store.send(.initialize(horizontalSizeClass == .compact)).finish()
-    }
   }
 }
 
 extension ToolBarView {
 
   private var fullBar: some View {
-    HStack(alignment: .center, spacing: 12) {
+    HStack(alignment: .center, spacing: buttonSeparation) {
       if isApp {
         fullBarApp
       } else {
         fullBarAUv3
       }
+    }
+    .task {
+      await store.send(.initialize(false)).finish()
     }
   }
 
@@ -88,41 +86,34 @@ extension ToolBarView {
   }
 
   private var compactBar: some View {
-    VStack(alignment: .center, spacing: 0) {
-      HStack(alignment: .center, spacing: 12) {
-        if isApp {
-          compactBarApp
-        } else {
-          compactBarAUv3
-        }
-      }
-      Color.splitViewHandleBackgroundColor
-        .frame(height: store.showMoreButtons ? 2 : 0)
-        .frame(maxHeight: store.showMoreButtons ? 2 : 0)
-        .clipped()
-      HStack(alignment: .center, spacing: 12) {
-        Spacer()
-        shiftDownButton
-        slidingKeyboardButton
-        shiftUpButton
-        Spacer()
-        editVisibilityButton
-        settingsButton
+    VStack(alignment: .center, spacing: buttonSeparation) {
+      HStack(alignment: .center, spacing: buttonSeparation) {
+        addSoundFontButton
+        tagsButton
+        effectsButton
+        status
         helpButton
+        moreButton
       }
-      .frame(height: store.showMoreButtons ? 40 : 0)
-      .frame(maxHeight: store.showMoreButtons ? 40 : 0)
-      .clipped()
+      .padding([.horizontal], buttonSeparation)
+      if store.showMoreButtons {
+        HStack(alignment: .center, spacing: buttonSeparation) {
+          Spacer()
+          shiftDownButton
+          slidingKeyboardButton
+          shiftUpButton
+          editVisibilityButton
+          settingsButton
+        }
+        .padding([.horizontal], buttonSeparation)
+        .animation(.smooth, value: store.lowestKey)
+        .animation(.smooth, value: store.highestKey)
+      }
     }
-  }
-
-  @ViewBuilder
-  private var compactBarApp: some View {
-    addSoundFontButton
-    tagsButton
-    effectsButton
-    status
-    moreButton
+    .padding(0)
+    .task {
+      await store.send(.initialize(true)).finish()
+    }
   }
 
   @ViewBuilder
@@ -134,29 +125,8 @@ extension ToolBarView {
   }
 
   private var status: some View {
-    ZStack(alignment: .leading) {
-      if showMIDITrafficIndicator {
-        MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
-          .zIndex(-99)
-      }
-      HStack {
-        if showActiveVoiceCount || showMIDITrafficIndicator {
-          voiceCountAndTrafficIndicator
-            .transition(.slide)
-        }
-        statusText
-      }
-      .animation(.smooth, value: showActiveVoiceCount || showMIDITrafficIndicator)
-    }
-    .helpInfoViewTag(.statusWindow)
-  }
-
-  private var voiceCountAndTrafficIndicator: some View {
-    Text(store.activeVoiceCount > 0 ? "\(store.activeVoiceCount)" : "")
-      .font(.activeVoiceCount)
-      .indicator(.activeNoIndicator)
-      .contentTransition(.interpolate)
-      .frame(width: 24, alignment: .center)
+    statusText
+      .helpInfoViewTag(.statusWindow)
   }
 
   private var statusText: some View {
@@ -222,9 +192,9 @@ extension ToolBarView {
     } label: {
       Image(systemName: store.showMoreButtons ? .lessButtonImageName : .moreButtonImageName)
         .tint(if: store.showMoreButtons)
-        .frame(width: 24)
+        .contentTransition(.symbolEffect(.replace))
+        .animation(.smooth, value: store.showMoreButtons)
     }
-    .contentTransition(.symbolEffect(.replace))
     .helpInfoViewTag(.moreButton)
   }
 
@@ -243,7 +213,6 @@ extension ToolBarView {
       store.send(.shiftKeyboardDownButtonTapped)
     } label: {
       Text(.shiftKeyboardLeftIndicator + store.lowestKey.label)
-        .frame(width: 40, alignment: .trailing)
         .tint(.mainAccentColor)
     }
     .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
@@ -255,7 +224,6 @@ extension ToolBarView {
       store.send(.shiftKeyboardUpButtonTapped)
     } label: {
       Text(store.highestKey.label + .shiftKeyboardRightIndicator)
-        .frame(width: 40, alignment: .leading)
         .tint(.mainAccentColor)
     }
     .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
@@ -271,7 +239,6 @@ extension ToolBarView {
         ? .slidingKeyboardButtonImageName
         : .fixedKeyboardButtonImageName
       )
-      .fixedSize()
       .tint(if: store.keyboardSlides)
     }
     .helpInfoViewTag(.slideToggle)
@@ -291,35 +258,11 @@ extension ToolBarView {
 #if DEBUG
 
 extension ToolBarView {
-  static func preview(showMoreButtons: Bool = false) -> some View {
+  static func preview() -> some View {
 
     struct Preview: View {
-      @Shared(.showActiveVoiceCount) var showActiveVoiceCount
-      @Shared(.showMIDITrafficIndicator) var showMIDITrafficIndicator
-      let showMoreButtons: Bool
-
-      init(showMoreButtons: Bool) {
-        self.showMoreButtons = showMoreButtons
-      }
-
       var body: some View {
-        VStack {
-          Toggle(
-            "Show active voice count",
-            isOn: Binding(
-              get: { showActiveVoiceCount },
-              set: { newValue in $showActiveVoiceCount.withLock { $0 = newValue }}
-            )
-          )
-          .circledCheckMarkToggleStyle()
-          Toggle(
-              "Show MIDI traffic indicator",
-              isOn: Binding(
-                get: { showMIDITrafficIndicator },
-                set: { newValue in $showMIDITrafficIndicator.withLock { $0 = newValue }}
-              )
-          )
-          .circledCheckMarkToggleStyle()
+        VStack(spacing: 0) {
           ToolBarView(
             store: Store(
               initialState: .init(
@@ -331,23 +274,22 @@ extension ToolBarView {
                   originalName: "Foo",
                   soundFontId: 0,
                   displayName: "Foo"
-                ),
-                showMoreButtons: showMoreButtons
+                )
               )
             ) {
-            ToolBar()
-          }, isAUv3: false)
+              ToolBar()
+            }, isAUv3: false)
           KeyboardView(store: Store(initialState: .init()) { Keyboard() })
         }
       }
     }
 
-    return Preview(showMoreButtons: showMoreButtons)
+    return Preview()
   }
 }
 
 #Preview {
-  ToolBarView.preview(showMoreButtons: false)
+  ToolBarView.preview()
 }
 
 #endif // DEBUG

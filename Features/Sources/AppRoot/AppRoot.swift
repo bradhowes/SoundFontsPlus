@@ -63,6 +63,7 @@ public struct AppRoot {
   fileprivate struct HelpInfoRestoration: Equatable {
     let effectsPanelVisible: Bool
     let tagsListVisible: Bool
+    let moreButtonsVisible: Bool
   }
 
   @ObservableState
@@ -450,7 +451,8 @@ extension AppRoot {
   private func helpButtonTapped(_ state: inout State) -> Effect<Action> {
     state.helpInfoRestorations = .init(
       effectsPanelVisible: effectsPanelVisible,
-      tagsListVisible: tagsListVisible
+      tagsListVisible: tagsListVisible,
+      moreButtonsVisible: state.toolBar.showMoreButtons
     )
 
     if !effectsPanelVisible {
@@ -461,8 +463,9 @@ extension AppRoot {
     if !tagsListVisible {
       effects.append(.send(.toolBar(.tagsListVisibilityButtonTapped)))
     }
+
     if state.toolBar.hasMoreButton && !state.toolBar.showMoreButtons {
-      effects.append(.send(.toolBar(.showMoreButtonTapped)))
+      state.toolBar.showMoreButtons = true
     }
 
     if effects.isEmpty {
@@ -489,14 +492,15 @@ extension AppRoot {
       $effectsPanelVisible.withLock { $0 = false }
     }
 
-    var effects = [Effect<Action>]()
-    if restorations.tagsListVisible != state.toolBar.tagsListVisible {
-      effects.append(.send(.toolBar(.tagsListVisibilityButtonTapped)))
+    if !restorations.moreButtonsVisible {
+      state.toolBar.showMoreButtons = false
     }
 
-    state.toolBar.showMoreButtons = false
+    if restorations.tagsListVisible != state.toolBar.tagsListVisible {
+      return .send(.toolBar(.tagsListVisibilityButtonTapped))
+    }
 
-    return .merge(effects)
+    return .none
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {

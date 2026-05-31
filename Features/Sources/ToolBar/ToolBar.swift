@@ -174,6 +174,7 @@ public struct ToolBar {
 
       case .initialize(let hasMoreButton):
         state.hasMoreButton = hasMoreButton
+        state.showMoreButtons = false
         return .none
 
       case .lastPlayedKeyChanged(let key):
@@ -289,7 +290,6 @@ extension ToolBar {
   }
 
   private func settingsButtonTapped(_ state: inout State) -> Effect<Action> {
-    state.showMoreButtons = false
     return .send(.delegate(.settingsButtonTapped))
   }
 
@@ -355,13 +355,9 @@ extension ToolBar {
   }
 
   private func toggleShowMoreButtons(_ state: inout State) -> Effect<Action> {
-    withAnimation(.smooth) {
-      state.showMoreButtons.toggle()
-    }
+    state.showMoreButtons.toggle()
     if !state.showMoreButtons && state.editingPresetVisibility {
-      withAnimation(.smooth) {
-        state.editingPresetVisibility = false
-      }
+      state.editingPresetVisibility = false
       return .send(.delegate(.editingPresetVisibilityChanged(false)))
     }
     return .none
