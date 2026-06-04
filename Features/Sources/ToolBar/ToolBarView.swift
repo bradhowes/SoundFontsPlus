@@ -25,6 +25,8 @@ public struct ToolBarView: View {
 
   private var height: CGFloat { store.showMoreButtons ? rowHeight * 2 + controlSpacing - 5 : rowHeight }
 
+  @State private var animationState: AnimationState = .init()
+
   public init(store: StoreOf<ToolBar>, isAUv3: Bool) {
     self.store = store
     self.isAUv3 = isAUv3
@@ -204,9 +206,16 @@ extension ToolBarView {
     Button {
       store.send(.showMoreButtonTapped)
     } label: {
-      Image(systemName: store.showMoreButtons ? .lessButtonImageName : .moreButtonImageName)
+      Image(systemName: .moreButtonImageName)
         .tint(if: store.showMoreButtons)
-        .contentTransition(.symbolEffect(.replace))
+        .keyframeAnimator(initialValue: animationState, trigger: store.showMoreButtons) { content, value in
+          content
+            .rotationEffect(value.angle)
+        } keyframes: { _ in
+          KeyframeTrack(\.angle) {
+            CubicKeyframe(.degrees(store.showMoreButtons ? -90 : 0), duration: 0.28)
+          }
+        }
         .animation(.smooth, value: store.showMoreButtons)
     }
     .helpInfoViewTag(.moreButton)
@@ -267,6 +276,10 @@ extension ToolBarView {
     }
     .helpInfoViewTag(.tagsButton)
   }
+}
+
+private struct AnimationState {
+  var angle: Angle = .zero
 }
 
 #if DEBUG

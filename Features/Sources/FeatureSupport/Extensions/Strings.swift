@@ -27,12 +27,12 @@ public extension String {
   static var helpNextItemButtonImageName: String { "arrowshape.right.fill" }
   static var helpPreviousItemButtonImageName: String { "arrowshape.left.fill" }
   static var hidePresetButtonImageName: String { "eye.slash" }
-  static var lessButtonImageName: String { "arrowtriangle.up.fill"}
+  static var lessButtonImageName: String { "arrowtriangle.down.fill"}
   static var midiDeviceAutoConnectImageName: String { "app.connected.to.app.below.fill" }
   static var midiDeviceConnectedImageName: String { "bolt.fill" }
   static var midiDeviceConnectedButtonImageName: String { "bolt.circle.fill" }
   static var midiDeviceDisconnectedButtonImageName: String { "circle" }
-  static var moreButtonImageName: String { "arrowtriangle.down.fill"}
+  static var moreButtonImageName: String { "arrowtriangle.left.fill"}
   static var moveButtonImageName: String { "line.3.horizontal" }
   static var noAudioVolumeImageName: String { "speaker.slash" }
   static var presetsVisibilityButtonImageName: String { "list.bullet" }
