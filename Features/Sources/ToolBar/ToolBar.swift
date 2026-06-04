@@ -33,6 +33,12 @@ public struct ToolBar {
     }
   }
 
+  struct HelpInfoRestoration: Equatable {
+    let effectsPanelVisible: Bool
+    let tagsListVisible: Bool
+    let moreButtonsVisible: Bool
+  }
+
   @ObservableState
   public struct State: Equatable {
     public var activeVoiceCount: Int
@@ -49,6 +55,8 @@ public struct ToolBar {
     public var showMoreButtons: Bool
     @Shared(.tagsListVisible) public var tagsListVisible
     public var hasMoreButton: Bool = false
+    @ObservationStateIgnored
+    var helpInfoRestoration: HelpInfoRestoration?
 
     public init(
       activeVoiceCount: Int = 0,
@@ -96,7 +104,8 @@ public struct ToolBar {
     case delegate(Delegate)
     case effectsVisibilityButtonTapped
     case fileImporter(FileImporter.Action)
-    case helpButtonTapped
+    case helpInfoButtonTapped
+    case helpInfoFinished
     case initialize(Bool)
     case midiTrafficIndicator(MIDITrafficIndicator.Action)
     case presetsVisibilityButtonTapped
@@ -169,8 +178,11 @@ public struct ToolBar {
       case .fileImporter(.delegate(.importFinished)):
         return .send(.delegate(.importFinished))
 
-      case .helpButtonTapped:
-        return showHelp(&state)
+      case .helpInfoButtonTapped:
+        return helpInfoButtonTapped(&state)
+
+      case .helpInfoFinished:
+        return helpInfoFinished(&state)
 
       case .initialize(let hasMoreButton):
         state.hasMoreButton = hasMoreButton
@@ -323,8 +335,50 @@ extension ToolBar {
     return .send(.delegate(.visibleKeyRangeChanged(lowest: newLow, highest: newHigh)))
   }
 
-  private func showHelp(_ state: inout State) -> Effect<Action> {
-    return .send(.delegate(.helpButtonTapped))
+  private func helpInfoButtonTapped(_ state: inout State) -> Effect<Action> {
+    let helpInfoRestoration: HelpInfoRestoration = .init(
+      effectsPanelVisible: state.effectsPanelVisible,
+      tagsListVisible: state.tagsListVisible,
+      moreButtonsVisible: state.showMoreButtons
+    )
+
+    state.helpInfoRestoration = helpInfoRestoration
+
+    return .run { [hasMoreButton = state.hasMoreButton] send in
+      if hasMoreButton && !helpInfoRestoration.moreButtonsVisible {
+        await send(.showMoreButtonTapped)
+      }
+
+      if !helpInfoRestoration.effectsPanelVisible {
+        await send(.effectsVisibilityButtonTapped)
+      }
+
+      if !helpInfoRestoration.tagsListVisible {
+        await send(.tagsListVisibilityButtonTapped)
+      }
+
+      try? await Task.sleep(nanoseconds: 400_000_000)
+      await send(.delegate(.helpButtonTapped))
+    }
+  }
+
+  private func helpInfoFinished(_ state: inout State) -> Effect<Action> {
+    guard let helpInfoRestoration = state.helpInfoRestoration else { return .none }
+    state.helpInfoRestoration = nil
+
+    return .run { [hasMoreButton = state.hasMoreButton] send in
+      if hasMoreButton && !helpInfoRestoration.moreButtonsVisible {
+        await send(.showMoreButtonTapped)
+      }
+
+      if !helpInfoRestoration.effectsPanelVisible {
+        await send(.effectsVisibilityButtonTapped)
+      }
+
+      if !helpInfoRestoration.tagsListVisible {
+        await send(.tagsListVisibilityButtonTapped)
+      }
+    }
   }
 
   private func showPanicStatus(_ state: inout State) -> Effect<Action> {
@@ -355,6 +409,7 @@ extension ToolBar {
   }
 
   private func toggleShowMoreButtons(_ state: inout State) -> Effect<Action> {
+    guard state.hasMoreButton else { return .none }
     state.showMoreButtons.toggle()
     if !state.showMoreButtons && state.editingPresetVisibility {
       state.editingPresetVisibility = false

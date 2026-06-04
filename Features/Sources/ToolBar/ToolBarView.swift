@@ -41,7 +41,8 @@ public struct ToolBarView: View {
       }
     }
     .imageScale(.large)
-    .frame(maxHeight: height)
+    .frame(minHeight: height)
+    .frame(height: height)
     .padding([.top, .bottom], controlSpacing)
     .background(.windowBackground)
     .animation(.smooth, value: store.showMoreButtons)
@@ -113,7 +114,6 @@ extension ToolBarView {
       helpButton
       moreButton
     }
-    .frame(maxHeight: .infinity)
     .padding([.horizontal], controlSpacing)
   }
 
@@ -126,7 +126,6 @@ extension ToolBarView {
       editVisibilityButton
       settingsButton
     }
-    .frame(maxHeight: .infinity)
     .padding([.horizontal], controlSpacing)
     .animation(.smooth, value: store.lowestKey)
     .animation(.smooth, value: store.highestKey)
@@ -195,7 +194,7 @@ extension ToolBarView {
 
   private var helpButton: some View {
     Button {
-      store.send(.helpButtonTapped)
+      store.send(.helpInfoButtonTapped)
     } label: {
       Image(systemName: .helpButtonImageName)
         .tint(Color.mainAccentColor)

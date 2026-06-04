@@ -60,12 +60,6 @@ public struct AppRoot {
     }
   }
 
-  fileprivate struct HelpInfoRestoration: Equatable {
-    let effectsPanelVisible: Bool
-    let tagsListVisible: Bool
-    let moreButtonsVisible: Bool
-  }
-
   @ObservableState
   public struct State: Equatable {
     public var appReview: AppReview.State
@@ -87,8 +81,6 @@ public struct AppRoot {
     public var toastState: VolumeMonitor.Reason?
     public var avAudioUnit: AVAudioUnit?
     public var helpInfoSelection: RootHelpInfo?
-    @ObservationStateIgnored
-    fileprivate var helpInfoRestorations: HelpInfoRestoration?
 
     /**
      Constructor for main app.
@@ -449,58 +441,14 @@ extension AppRoot {
   }
 
   private func helpButtonTapped(_ state: inout State) -> Effect<Action> {
-    state.helpInfoRestorations = .init(
-      effectsPanelVisible: effectsPanelVisible,
-      tagsListVisible: tagsListVisible,
-      moreButtonsVisible: state.toolBar.showMoreButtons
-    )
-
-    if !effectsPanelVisible {
-      $effectsPanelVisible.withLock { $0 = true }
-    }
-
-    var effects = [Effect<Action>]()
-    if !tagsListVisible {
-      effects.append(.send(.toolBar(.tagsListVisibilityButtonTapped)))
-    }
-
-    if state.toolBar.hasMoreButton && !state.toolBar.showMoreButtons {
-      state.toolBar.showMoreButtons = true
-    }
-
-    if effects.isEmpty {
-      state.helpInfoSelection = .fontsList
-      return .none
-    } else {
-      effects.append(
-        .run { send in
-          try await Task.sleep(for: .seconds(0.5))
-          await send(.beginHelpSpotlight)
-        }
-      )
-      return .merge(effects)
-    }
+    state.helpInfoSelection = .fontsList
+    return .none
   }
 
   private func helpInfoSelectionChanged(_ state: inout State) -> Effect<Action> {
     // We only care about when the help info is dismissed
     guard state.helpInfoSelection == nil else { return .none }
-    guard let restorations = state.helpInfoRestorations else { return .none }
-
-    // There is a subtle difference between effectsPanelVisible and tagsListVisible. Treating them the same way breaks the UI.
-    if restorations.effectsPanelVisible != state.toolBar.effectsPanelVisible {
-      $effectsPanelVisible.withLock { $0 = false }
-    }
-
-    if !restorations.moreButtonsVisible {
-      state.toolBar.showMoreButtons = false
-    }
-
-    if restorations.tagsListVisible != state.toolBar.tagsListVisible {
-      return .send(.toolBar(.tagsListVisibilityButtonTapped))
-    }
-
-    return .none
+    return .send(.toolBar(.helpInfoFinished))
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {

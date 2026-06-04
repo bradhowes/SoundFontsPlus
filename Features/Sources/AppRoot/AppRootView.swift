@@ -79,6 +79,7 @@ public struct AppRootView: View {
     .padding(0)
     .animation(.smooth, value: effectsPanelVisible)
     .animation(.smooth, value: isTextInputKeyboardVisible)
+    .animation(.smooth, value: store.toolBar.showMoreButtons)
     .environment(\.auv3ControlsTheme, theme)
     .onChange(of: scenePhase) { _, newPhase in
       Task { @MainActor in
