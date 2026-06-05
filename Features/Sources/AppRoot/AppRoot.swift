@@ -440,7 +440,7 @@ extension AppRoot {
     return .none
   }
 
-  private func helpButtonTapped(_ state: inout State) -> Effect<Action> {
+  private func helpInfoButtonTapped(_ state: inout State) -> Effect<Action> {
     state.helpInfoSelection = .fontsList
     return .none
   }
@@ -572,8 +572,8 @@ extension AppRoot {
       }
       return .none
 
-    case .helpButtonTapped:
-      return helpButtonTapped(&state)
+    case .helpInfoButtonTapped:
+      return helpInfoButtonTapped(&state)
 
     case .importFinished:
       return .merge(

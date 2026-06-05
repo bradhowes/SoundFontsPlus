@@ -123,7 +123,7 @@ public struct TagsEditor {
     case deleteButtonTapped(at: IndexSet)
     case destination(PresentationAction<Destination.Action>)
     case finalizeDeleteTag(rowId: Int)
-    case helpButtonTapped
+    case helpInfoButtonTapped
     case rows(IdentifiedActionOf<TagNameEditor>)
     case saveButtonTapped
     case editModeActiveChanged(Bool)
@@ -157,7 +157,7 @@ public struct TagsEditor {
       case .finalizeDeleteTag(let rowId):
         return finalizeDeleteTag(&state, rowId: rowId)
 
-      case .helpButtonTapped:
+      case .helpInfoButtonTapped:
         state.helpInfoSelection = state.mode == .fontEditing ? .tagsListMembership : .tagsListVisibility
         return .none
 
@@ -328,7 +328,7 @@ public struct TagsEditorView: View {
     .toolbar {
       ToolbarItem(placement: .automatic) {
         Button {
-          store.send(.helpButtonTapped)
+          store.send(.helpInfoButtonTapped)
         } label: {
           Image(systemName: .helpButtonImageName)
             .tint(Color.mainAccentColor)

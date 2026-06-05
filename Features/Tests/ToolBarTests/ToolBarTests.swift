@@ -20,15 +20,21 @@ import TestSupport
 @MainActor
 struct ToolBarTests {
 
-  fileprivate func store(isCompact: Bool = false) async throws -> TestStoreOf<ToolBar> {
-    let store = TestStoreOf<ToolBar>(initialState: .init()) {
+  fileprivate func store(
+    isCompact: Bool = false,
+    effectsPanelVisible: Bool = false,
+    tagsListVisible: Bool = false,
+    moreButtonsVisible: Bool = false
+  ) async throws -> TestStoreOf<ToolBar> {
+    let store = TestStoreOf<ToolBar>(
+      initialState: .init(
+        hasMoreButton: isCompact,
+        effectsPanelVisible: effectsPanelVisible,
+        showMoreButtons: moreButtonsVisible,
+        tagsListVisible: tagsListVisible
+      )
+    ) {
       ToolBar()
-    }
-
-    if isCompact {
-      await store.send(.initialize(isCompact)) {
-        $0.hasMoreButton = true
-      }
     }
 
     return store
@@ -98,19 +104,24 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test(arguments: [false, true], [false, true])
-  func effectsVisibilityButtonTapped(_ effectsPanelVisibleInit: Bool, _ isCompact: Bool) async throws {
-    @Shared(.effectsPanelVisible) var effectsPanelVisible = effectsPanelVisibleInit
-    let store = try await store(isCompact: isCompact)
+  @Test(arguments: [
+    (false, false),
+    (false, true),
+    (true, false),
+    (true, true)
+  ])
+  func effectsVisibilityButtonTapped(_ effectsPanelVisible: Bool, _ isCompact: Bool) async throws {
+    @Shared(.effectsPanelVisible) var epv = effectsPanelVisible
+    let store = try await store(isCompact: isCompact, effectsPanelVisible: effectsPanelVisible)
 
     #expect(store.state.hasMoreButton == isCompact)
-    #expect(store.state.effectsPanelVisible == effectsPanelVisibleInit)
+    #expect(store.state.effectsPanelVisible == effectsPanelVisible)
 
     await store.send(.effectsVisibilityButtonTapped) {
       $0.$effectsPanelVisible.withLock { $0.toggle() }
     }
 
-    await store.receive(\.delegate.effectsVisibilityChanged, !effectsPanelVisibleInit)
+    await store.receive(\.delegate.effectsVisibilityChanged, !effectsPanelVisible)
 
     if isCompact {
       await store.send(.showMoreButtonTapped) {
@@ -123,20 +134,146 @@ struct ToolBarTests {
       $0.showMoreButtons = isCompact
     }
 
-    await store.receive(\.delegate.effectsVisibilityChanged, effectsPanelVisibleInit)
+    await store.receive(\.delegate.effectsVisibilityChanged, effectsPanelVisible)
 
-    #expect(effectsPanelVisible == effectsPanelVisibleInit)
+    #expect(epv == effectsPanelVisible)
 
     await store.send(.deinitialize)
     await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
   }
 
-  @Test
-  func helpButtonTapped() async throws {
-    let store = try await store()
-    await store.send(.helpButtonTapped)
-    await store.receive(\.delegate.helpButtonTapped)
+  @Test("helpInfoButtonTappedCompact", arguments: [
+    (false, false, false),
+    (false, false, true),
+    (false, true, false),
+    (false, true, true),
+    (true, false, false),
+    (true, false, true),
+    (true, true, false),
+    (true, true, true)
+  ])
+  func helpInfoButtonTappedCompact(
+    _ effectsPanelVisible: Bool,
+    _ tagsListVisible: Bool,
+    _ moreButtonsVisible: Bool
+  ) async throws {
+    @Shared(.effectsPanelVisible) var epv = effectsPanelVisible
+    @Shared(.tagsListVisible) var tlv = tagsListVisible
+
+    let store = try await store(
+      isCompact: true,
+      effectsPanelVisible: effectsPanelVisible,
+      tagsListVisible: tagsListVisible,
+      moreButtonsVisible: moreButtonsVisible
+    )
+
+    var didStateChange = false
+
+    await store.send(.helpInfoButtonTapped) {
+      $0.helpInfoRestoration = .init(
+        effectsPanelVisible: effectsPanelVisible,
+        tagsListVisible: tagsListVisible,
+        moreButtonsVisible: moreButtonsVisible
+      )
+    }
+
+    if !moreButtonsVisible {
+      await store.receive(\.showMoreButtonTapped) {
+        $0.$effectsPanelVisible.withLock { $0 = true }
+        $0.$tagsListVisible.withLock { $0 = true }
+        $0.showMoreButtons = true
+      }
+      didStateChange = true
+    }
+
+    if !effectsPanelVisible {
+      if didStateChange {
+        await store.receive(\.effectsVisibilityButtonTapped)
+      } else {
+        await store.receive(\.effectsVisibilityButtonTapped) {
+          $0.$effectsPanelVisible.withLock { $0 = true }
+          $0.$tagsListVisible.withLock { $0 = true }
+        }
+        didStateChange = true
+      }
+      await store.receive(\.delegate.effectsVisibilityChanged, true)
+    }
+
+    if !tagsListVisible {
+      if didStateChange {
+        await store.receive(\.tagsListVisibilityButtonTapped)
+      } else {
+        await store.receive(\.tagsListVisibilityButtonTapped) {
+          $0.$effectsPanelVisible.withLock { $0 = true }
+          $0.$tagsListVisible.withLock { $0 = true }
+        }
+        didStateChange = true
+      }
+      await store.receive(\.delegate.tagsListVisibilityChanged, true)
+    }
+
+    await store.receive(\.delegate.helpInfoButtonTapped)
+
+    await store.send(.deinitialize)
+    await store.receive(\.midiTrafficIndicator.deinitialize)
+    await store.finish()
+  }
+
+  @Test("helpInfoButtonTapped", arguments: [
+    (false, false),
+    (false, true),
+    (true, false),
+    (true, true)
+  ])
+  func helpInfoButtonTapped(
+    _ effectsPanelVisible: Bool,
+    _ tagsListVisible: Bool
+  ) async throws {
+    @Shared(.effectsPanelVisible) var epv = effectsPanelVisible
+    @Shared(.tagsListVisible) var tlv = tagsListVisible
+
+    let store = try await store(
+      isCompact: false,
+      effectsPanelVisible: effectsPanelVisible,
+      tagsListVisible: tagsListVisible,
+      moreButtonsVisible: false
+    )
+
+    var didStateChange = false
+
+    await store.send(.helpInfoButtonTapped) {
+      $0.helpInfoRestoration = .init(
+        effectsPanelVisible: effectsPanelVisible,
+        tagsListVisible: tagsListVisible,
+        moreButtonsVisible: false
+      )
+    }
+
+    if !effectsPanelVisible {
+      await store.receive(\.effectsVisibilityButtonTapped) {
+        $0.$effectsPanelVisible.withLock { $0 = true }
+        $0.$tagsListVisible.withLock { $0 = true }
+      }
+      didStateChange = true
+      await store.receive(\.delegate.effectsVisibilityChanged, true)
+    }
+
+    if !tagsListVisible {
+      if didStateChange {
+        await store.receive(\.tagsListVisibilityButtonTapped)
+      } else {
+        await store.receive(\.tagsListVisibilityButtonTapped) {
+          $0.$effectsPanelVisible.withLock { $0 = true }
+          $0.$tagsListVisible.withLock { $0 = true }
+        }
+        didStateChange = true
+      }
+      await store.receive(\.delegate.tagsListVisibilityChanged, true)
+    }
+
+    await store.receive(\.delegate.helpInfoButtonTapped)
+
     await store.send(.deinitialize)
     await store.receive(\.midiTrafficIndicator.deinitialize)
     await store.finish()
@@ -401,24 +538,29 @@ struct ToolBarTests {
     await store.finish()
   }
 
-  @Test(arguments: [false, true])
-  func tagsVisibilityButtonTapped(_ initValue: Bool) async throws {
-    @Shared(.tagsListVisible) var tagsListVisible = initValue
+  @Test(arguments: [
+    (false, false),
+    (false, true),
+    (true, false),
+    (true, true)
+  ])
+  func tagsVisibilityButtonTapped(_ tagsListVisible: Bool, isCompact: Bool) async throws {
+    @Shared(.tagsListVisible) var tlv = tagsListVisible
 
-    let store = try await store()
-    #expect(store.state.tagsListVisible == initValue)
+    let store = try await store(isCompact: isCompact, tagsListVisible: tagsListVisible)
+    #expect(store.state.tagsListVisible == tagsListVisible)
 
     await store.send(.tagsListVisibilityButtonTapped) {
       $0.$tagsListVisible.withLock { $0.toggle() }
     }
-    await store.receive(\.delegate.tagsListVisibilityChanged, !initValue)
+    await store.receive(\.delegate.tagsListVisibilityChanged, !tagsListVisible)
 
     await store.send(.tagsListVisibilityButtonTapped) {
       $0.$tagsListVisible.withLock { $0.toggle() }
     }
-    await store.receive(\.delegate.tagsListVisibilityChanged, initValue)
+    await store.receive(\.delegate.tagsListVisibilityChanged, tagsListVisible)
 
-    #expect(tagsListVisible == initValue)
+    #expect(tlv == tagsListVisible)
 
     await store.send(.deinitialize)
     await store.receive(\.midiTrafficIndicator.deinitialize)

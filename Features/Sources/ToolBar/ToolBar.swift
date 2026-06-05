@@ -54,12 +54,13 @@ public struct ToolBar {
     public var preset: Preset?
     public var showMoreButtons: Bool
     @Shared(.tagsListVisible) public var tagsListVisible
-    public var hasMoreButton: Bool = false
+    public var hasMoreButton: Bool
     @ObservationStateIgnored
     var helpInfoRestoration: HelpInfoRestoration?
 
     public init(
       activeVoiceCount: Int = 0,
+      hasMoreButton: Bool = false,
       editingPresetVisibility: Bool = false,
       effectsPanelVisible: Bool? = nil,
       fileImporter: FileImporter.State? = nil,
@@ -69,11 +70,12 @@ public struct ToolBar {
       midiTrafficIndicator: MIDITrafficIndicator.State? = nil,
       preset: Preset? = nil,
       showMoreButtons: Bool = false,
-      tagsListVisible: Bool? = nil
+      tagsListVisible: Bool? = nil,
     ) {
       @Shared(.firstVisibleKey) var savedLowestKey
 
       self.activeVoiceCount = activeVoiceCount
+      self.hasMoreButton = hasMoreButton
       self.editingPresetVisibility = editingPresetVisibility
       self.fileImporter = fileImporter ?? .init()
       self.highestKey = highestKey ?? .C4
@@ -123,7 +125,7 @@ public struct ToolBar {
     public enum Delegate: Equatable {
       case editingPresetVisibilityChanged(Bool)
       case effectsVisibilityChanged(Bool)
-      case helpButtonTapped
+      case helpInfoButtonTapped
       case importFinished
       case panic
       case presetNameTapped
@@ -358,7 +360,7 @@ extension ToolBar {
       }
 
       try? await Task.sleep(nanoseconds: 400_000_000)
-      await send(.delegate(.helpButtonTapped))
+      await send(.delegate(.helpInfoButtonTapped))
     }
   }
 
