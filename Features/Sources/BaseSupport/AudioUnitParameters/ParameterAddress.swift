@@ -7,7 +7,7 @@ import AudioUnit.AUParameters
  is divided into two parts, one for the AUv3 plug-in (addresses \< 2000) and the main app (addreses >= 2000). This is
  only of concern for the app and not for the AUv3 plug-in.
  */
-public enum ParameterAddress: AUParameterAddress {
+public enum ParameterAddress: AUParameterAddress, Sendable {
 
   case delayEnabled = 2000 // make sure no overlap with SF2Lib AUv3 plug-in which uses / reserves 0-1999
   case delayTime

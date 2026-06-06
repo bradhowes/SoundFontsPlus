@@ -12,10 +12,9 @@ extension AUParameterTree {
    - parameter address: the address to fetch
    - returns: the found value
    */
+  @inlinable
   public subscript(address: ParameterAddress) -> AUParameter {
-    guard let param = parameter(withAddress: address.rawValue) else {
-      fatalError("unknown parameter address: \(address)")
-    }
-    return param
+    // swiftlint:disable:next force_unwrapping
+    parameter(withAddress: address.rawValue)!
   }
 }

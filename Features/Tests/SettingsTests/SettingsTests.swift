@@ -139,6 +139,26 @@ struct SettingsTests {
   }
 
   @Test
+  func tuningChanged() async throws {
+    @Shared(.globalTuningEnabled) var gte = false
+    @Shared(.globalTuningFrequency) var gtf = 440.0
+
+    try await initialized { store in
+      await store.send(\.tuning.delegate, .tuningChanged(enabled: true, frequency: 440.0))
+      #expect(gte == true)
+      #expect(gtf == 440.0)
+
+      await store.send(\.tuning.delegate, .tuningChanged(enabled: true, frequency: 432.0))
+      #expect(gte == true)
+      #expect(gtf == 432.0)
+
+      await store.send(\.tuning.delegate, .tuningChanged(enabled: false, frequency: 432.0))
+      #expect(gte == false)
+      #expect(gtf == 432.0)
+    }
+  }
+
+  @Test
   func viewChangesTapped() async throws {
     try await initialized { store in
       await store.send(.delegate(.showChanges))
