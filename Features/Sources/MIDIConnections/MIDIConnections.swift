@@ -48,7 +48,6 @@ public struct MIDIConnections {
     case initialize
     case midiConnectionsChanged
     case midiTrafficIndicator(MIDITrafficIndicator.Action)
-    case sawMIDITraffic(MIDITrafficStat)
     case toggleConnected(MIDIUniqueID)
   }
 
@@ -97,11 +96,11 @@ public struct MIDIConnections {
       case .midiConnectionsChanged:
         return updateMIDIConnections(&state)
 
+      case .midiTrafficIndicator(.showMIDITraffic(let traffic)):
+        return updateMIDIChannel(&state, traffic: traffic)
+
       case .midiTrafficIndicator:
         return .none
-
-      case .sawMIDITraffic(let traffic):
-        return updateMIDIChannel(&state, traffic: traffic)
 
       case .toggleConnected(let id):
         return toggleConnected(&state, id: id)
@@ -161,6 +160,7 @@ extension MIDIConnections {
 public struct MIDIConnectionsView: View {
   private var store: StoreOf<MIDIConnections>
   @State private var animating: MIDIUniqueID?
+  @State private var firstTime: Bool = true
 
   public init(store: StoreOf<MIDIConnections>) {
     self.store = store
@@ -225,7 +225,10 @@ public struct MIDIConnectionsView: View {
       await store.send(.initialize).finish()
     }
     .onReceive(store.midiTrafficIndicator.midiTrafficPublisher) { traffic in
-      store.send(.sawMIDITraffic(traffic))
+      if firstTime {
+        firstTime = false
+        return
+      }
       withAnimation(.smooth(duration: 0.5)) {
         animating = traffic.id
       } completion: {

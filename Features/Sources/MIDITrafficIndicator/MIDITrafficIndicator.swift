@@ -128,3 +128,32 @@ extension View {
 }
 
 private let log: Logger = .init(category: "MIDITrafficIndicator")
+
+#if DEBUG
+
+extension MIDITrafficIndicatorView {
+
+  @ViewBuilder
+  public static var preview: any View {
+    let store: StoreOf<MIDITrafficIndicator> = .init(initialState: .init(tag: "preview")) { MIDITrafficIndicator() }
+    VStack {
+      MIDITrafficIndicatorView(store: store)
+      Button {
+        store.send(.showMIDITraffic(.init(id: 1, channel: 2, accepted: true)))
+      } label: {
+        Text("Trigger Accepted")
+      }
+      Button {
+        store.send(.showMIDITraffic(.init(id: 1, channel: 2, accepted: false)))
+      } label: {
+        Text("Trigger Not Accepted")
+      }
+    }
+  }
+}
+
+#Preview {
+  MIDITrafficIndicatorView.preview
+}
+
+#endif

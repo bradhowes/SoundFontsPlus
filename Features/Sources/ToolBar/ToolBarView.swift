@@ -7,6 +7,8 @@ import SwiftUI
 
 public struct ToolBarView: View {
   private var store: StoreOf<ToolBar>
+  @Shared(.showActiveVoiceCount) private var showActiveVoiceCount
+  @Shared(.showMIDITrafficIndicator) private var showMIDITrafficIndicator
   @Shared(.favoriteSymbolName) private var favoriteSymbolName
   @Shared(.starFavoriteNames) private var starFavoriteNames
   @Environment(\.colorScheme) private var colorScheme
@@ -140,8 +142,28 @@ extension ToolBarView {
   }
 
   private var status: some View {
-    statusText
-      .helpInfoViewTag(.statusWindow)
+    ZStack(alignment: .leading) {
+      if showMIDITrafficIndicator {
+        MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
+          .zIndex(-99)
+      }
+      HStack {
+        if showActiveVoiceCount {
+          voiceCountIndicator
+        }
+        statusText
+          .helpInfoViewTag(.statusWindow)
+      }
+    }
+    .animation(.smooth, value: showActiveVoiceCount)
+  }
+
+  private var voiceCountIndicator: some View {
+    Text(store.activeVoiceCount > 0 ? "\(store.activeVoiceCount)" : "")
+      .font(.activeVoiceCount)
+      .indicator(.activeNoIndicator)
+      .contentTransition(.interpolate)
+      .frame(width: 24, alignment: .center)
   }
 
   private var statusText: some View {
@@ -153,6 +175,8 @@ extension ToolBarView {
       Spacer()
     }
     .font(.status)
+    .lineLimit(1)
+    .truncationMode(.tail)
     .foregroundStyle(statusTextColor)
     .contentTransition(.interpolate)
     .animation(.smooth, value: statusTextValue)
