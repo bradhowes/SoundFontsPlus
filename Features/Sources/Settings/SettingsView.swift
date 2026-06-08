@@ -10,6 +10,13 @@ import Sharing
 import SwiftUI
 import Tuning
 
+extension Tab {
+
+  init(_ value: Value, @ViewBuilder content: () -> Content) where Value == Settings.TabId, Label == DefaultTabLabel, Content: View {
+    self.init(value.title, systemImage: value.systemImage, value: value, content: content)
+  }
+}
+
 public struct SettingsView: View {
   @Bindable private var store: StoreOf<Settings>
   @State private var changingKeyWidth: Bool = false
@@ -28,43 +35,57 @@ public struct SettingsView: View {
   }
 
   public var body: some View {
-    NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
-      Form {
+//    NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+    TabView(selection: $store.activeTab) {
+      Tab(.presets) {
         presetsSection
+      }
+      Tab(.fonts) {
         fontsSection
-        if isApp {
+      }
+      if isApp {
+        Tab(.keys) {
           keyboardSection
-          if store.hasMIDI {
+        }
+        if store.hasMIDI {
+          Tab(.midi) {
             midiSection
           }
         }
+      }
+      Tab(.tuning) {
         tuningSection
-        if isApp {
+      }
+      if isApp {
+        Tab(.app) {
           appSection
         }
+      }
+      Tab(.about) {
         aboutSection
       }
-      .font(.settings)
-      .formStyle(.grouped)
-      .circledCheckMarkToggleStyle()
-      .navigationTitle("Settings")
-      .toolbar {
-        ToolbarItem(placement: .automatic) {
-          Button {
-            store.send(.dismissButtonTapped, animation: .default)
-          } label: {
-            Image(systemName: .saveButtonImageName)
-          }
-        }
-      }
-      .animation(.smooth, value: changingKeyWidth)
-    } destination: { store in
-      switch store.case {
-      case .midiAssignments(let store): MIDIAssignmentsView(store: store)
-      case .midiConnections(let store): MIDIConnectionsView(store: store)
-      case .midiControllers(let store): MIDIControllersView(store: store)
-      }
     }
+//      .font(.settings)
+//      .formStyle(.grouped)
+//      .circledCheckMarkToggleStyle()
+//      .navigationTitle("Settings")
+//      .toolbar {
+//        ToolbarItem(placement: .automatic) {
+//          Button {
+//            store.send(.dismissButtonTapped, animation: .default)
+//          } label: {
+//            Image(systemName: .saveButtonImageName)
+//          }
+//        }
+//      }
+//      .animation(.smooth, value: changingKeyWidth)
+//    } destination: { store in
+//      switch store.case {
+//      case .midiAssignments(let store): MIDIAssignmentsView(store: store)
+//      case .midiConnections(let store): MIDIConnectionsView(store: store)
+//      case .midiControllers(let store): MIDIControllersView(store: store)
+//      }
+//    }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     .filePicker($store.scope(state: \.destination?.backupPicker, action: \.destination.backupPicker))
     .task {
@@ -85,7 +106,7 @@ extension SettingsView {
   }
 
   private var presetsSection: some View {
-    Section("Presets") {
+    Form {
       Toggle(
         isOn: Binding(
           get: { store.favoritesOnTop },
@@ -168,7 +189,7 @@ When enabled, overlay the presets list with a compact list of section indices fo
   }
 
   private var keyboardSection: some View {
-    Section("Keyboard") {
+    Form {
       VStack(alignment: .leading) {
         HStack {
           Text("Key labels")
@@ -250,145 +271,157 @@ Controlled by the \(Image(systemName: .fixedKeyboardButtonImageName)) button in 
   }
 
   private var midiSection: some View {
-    Section("MIDI") {
-      VStack(alignment: .leading, spacing: 8) {
-        HStack {
-          Text("Channel")
-          Spacer()
-          Text(store.midiChannel == -1 ? "Any" : "\(store.midiChannel + 1)")
-          Spacer()
-          Stepper(
-            "",
-            value: Binding(
-              get: { store.midiChannel },
-              set: { newValue in store.$midiChannel.withLock { $0 = newValue } }
-            ),
-            in: -1...15
-          )
+    NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+      Form {
+        VStack(alignment: .leading, spacing: 8) {
+          HStack {
+            Text("Channel")
+            Spacer()
+            Text(store.midiChannel == -1 ? "Any" : "\(store.midiChannel + 1)")
+            Spacer()
+            Stepper(
+              "",
+              value: Binding(
+                get: { store.midiChannel },
+                set: { newValue in store.$midiChannel.withLock { $0 = newValue } }
+              ),
+              in: -1...15
+            )
             .labelsHidden()
-        }
-        Text(
-          store.midiChannel == -1
-          ? """
+          }
+          Text(
+            store.midiChannel == -1
+            ? """
 Process any traffic regardless of MIDI channel.
 Change to limit traffic to a specific channel.
 """
-          : """
+            : """
 Only process traffic on MIDI channel \(store.midiChannel + 1).
 Adjust to change channel or decrement completely to allow any channel traffic.
 """
-        )
-        .font(.settingsDescription)
-      }
-      HStack {
-        Spacer()
-        MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
-        Button {
-          store.send(.midiConnectionsButtonTapped)
-        } label: {
-          Text("^[\(store.midiDevicesCount) device](inflect: true) / ^[\(store.midiConnectedCount) connected](inflect: true)")
+          )
+          .font(.settingsDescription)
         }
-        Spacer()
-      }
-      Toggle(
-        isOn: Binding(
-          get: { store.midiAutoConnect },
-          set: { newValue in store.$midiAutoConnect.withLock { $0 = newValue } }
-        )
-      ) {
-        toggleInfo("New devices will auto-connect") {
+        .animation(.smooth, value: store.midiChannel)
+        HStack {
+          Spacer()
+          MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
+          Button {
+            store.send(.midiConnectionsButtonTapped)
+          } label: {
+            Text("^[\(store.midiDevicesCount) device](inflect: true) / ^[\(store.midiConnectedCount) connected](inflect: true)")
+          }
+          Spacer()
+        }
+        .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+        Toggle(
+          isOn: Binding(
+            get: { store.midiAutoConnect },
+            set: { newValue in store.$midiAutoConnect.withLock { $0 = newValue } }
+          )
+        ) {
+          toggleInfo("New devices will auto-connect") {
 """
 When enabled, new unknown devices will auto-connect to the synthesizer. Otherwise, you must connect the \
 device using the button above.
 """
+          }
         }
-      }
-      Toggle(
-        isOn: Binding(
-          get: { store.showMIDITrafficIndicator },
-          set: { newValue in store.$showMIDITrafficIndicator.withLock { $0 = newValue } }
-        )
-      ) {
-        toggleInfo("Show MIDI activity indicator in toolbar") {
+        Toggle(
+          isOn: Binding(
+            get: { store.showMIDITrafficIndicator },
+            set: { newValue in store.$showMIDITrafficIndicator.withLock { $0 = newValue } }
+          )
+        ) {
+          toggleInfo("Show MIDI activity indicator in toolbar") {
 """
 When enabled, the toolbar will indicate MIDI traffic by flashing small circle. Accepted traffic will flash green and \
 ignored traffic will flash amber.
 """
+          }
         }
-      }
-      Toggle(
-        isOn: Binding(
-          get: { store.showMIDINotesOnKeyboard },
-          set: { newValue in store.$showMIDINotesOnKeyboard.withLock { $0 = newValue } }
-        )
-      ) {
-        toggleInfo("Show MIDI note activity on keyboard") {
+        Toggle(
+          isOn: Binding(
+            get: { store.showMIDINotesOnKeyboard },
+            set: { newValue in store.$showMIDINotesOnKeyboard.withLock { $0 = newValue } }
+          )
+        ) {
+          toggleInfo("Show MIDI note activity on keyboard") {
 """
 When enabled, the virtual keyboard will highlight MIDI note activity that corresponds to the keyboard keys. \
 The keys will normally flash green, but they will flash red if the volume of the device is muted or there is no \
 active preset.
 """
+          }
         }
-      }
-      HStack {
-        Text("Bluetooth MIDI")
-        Spacer()
-        Button {
-          store.send(.bluetoothMIDILocateButtonTapped)
-        } label: {
-          Text("Locate")
-        }
-      }
-      VStack(alignment: .leading) {
         HStack {
-          Text("Pitch bend range (semitones)")
+          Text("Bluetooth MIDI")
           Spacer()
-          Text("\(store.pitchBendRange)")
-          Spacer()
-          Stepper(
-            "",
-            value: Binding(
-              get: { store.pitchBendRange },
-              set: { newValue in store.$pitchBendRange.withLock { $0 = newValue } }
-            ),
-            in: 1...24
-          )
-          .labelsHidden()
+          Button {
+            store.send(.bluetoothMIDILocateButtonTapped)
+          } label: {
+            Text("Locate")
+          }
         }
-        Text(
+        VStack(alignment: .leading) {
+          HStack {
+            Text("Pitch bend range (semitones)")
+            Spacer()
+            Text("\(store.pitchBendRange)")
+            Spacer()
+            Stepper(
+              "",
+              value: Binding(
+                get: { store.pitchBendRange },
+                set: { newValue in store.$pitchBendRange.withLock { $0 = newValue } }
+              ),
+              in: 1...24
+            )
+            .labelsHidden()
+          }
+          Text(
 """
 Configures the range of the pitch wheel messages received by the synthesizer. Default is 2 semtones but it can be as much \
 as 2 octaves (24 semitones).
 """
-        )
+          )
           .font(.settingsDescription)
-      }
-      HStack {
-        Spacer()
-        Button {
-          store.send(.midiControllersButtonTapped)
-        } label: {
-          Text("MIDI Controllers")
         }
-        Spacer()
-        Button {
-          store.send(.midiAssignmentsButtonTapped)
-        } label: {
-          Text("MIDI Assignments")
+        HStack {
+          Spacer()
+          Button {
+            store.send(.midiControllersButtonTapped)
+          } label: {
+            Text("MIDI Controllers")
+          }
+          Spacer()
+          Button {
+            store.send(.midiAssignmentsButtonTapped)
+          } label: {
+            Text("MIDI Assignments")
+          }
+          Spacer()
         }
-        Spacer()
+        .buttonStyle(.borderless) // !!! keep from activating entire row and *both* buttons when one is touched
       }
-      .buttonStyle(.borderless) // !!! keep from activating entire row and *both* buttons when one is touched
+      .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+    } destination: { store in
+      switch store.case {
+      case .midiAssignments(let store): MIDIAssignmentsView(store: store)
+      case .midiConnections(let store): MIDIConnectionsView(store: store)
+      case .midiControllers(let store): MIDIControllersView(store: store)
+      }
     }
-    .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
   }
 
   private var tuningSection: some View {
-    TuningView(store: store.scope(state: \.tuning, action: \.tuning))
+    Form {
+      TuningView(store: store.scope(state: \.tuning, action: \.tuning))
+    }
   }
 
   private var fontsSection: some View {
-    Section("Fonts") {
+    Form {
       Group {
         if isApp {
           Toggle(
@@ -434,7 +467,7 @@ Do not show the pre-installed sound fonts when the "All" tag is active.
   }
 
   private var appSection: some View {
-    Section("Application") {
+    Form {
       Group {
         VStack(alignment: .leading, spacing: 8) {
           HStack {
@@ -556,7 +589,7 @@ Removes all installed SF2 files and any customizations — same as reinstalling 
   }
 
   private var aboutSection: some View {
-    Section("About") {
+    Form {
       Group {
         if isApp {
           HStack {

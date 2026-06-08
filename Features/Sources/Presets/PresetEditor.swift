@@ -396,7 +396,11 @@ public struct PresetEditorView: View {
   }
 
   var tuningSection: some View {
-    TuningView(store: store.scope(state: \.tuning, action: \.tuning))
+    Section {
+      TuningView(store: store.scope(state: \.tuning, action: \.tuning))
+    } header: {
+      Text("Tuning")
+    }
   }
 }
 

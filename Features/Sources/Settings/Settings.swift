@@ -35,6 +35,40 @@ public struct Settings {
     }
   }
 
+  public enum TabId {
+    case presets
+    case fonts
+    case keys
+    case midi
+    case tuning
+    case app
+    case about
+
+    public var title: LocalizedStringKey {
+      switch self {
+      case .presets: return "Presets"
+      case .fonts: return "Fonts"
+      case .keys: return "Keys"
+      case .midi: return "MIDI"
+      case .tuning: return "Tuning"
+      case .app: return "App"
+      case .about: return "Info"
+      }
+    }
+
+    public var systemImage: String {
+      switch self {
+      case .presets: return "music.note.list"
+      case .fonts: return "list.bullet"
+      case .keys: return "pianokeys"
+      case .midi: return "app.connected.to.app.below.fill"
+      case .tuning: return "tuningfork"
+      case .app: return "app.specular"
+      case .about: return "info.circle"
+      }
+    }
+  }
+
   @ObservableState
   public struct State: Equatable {
     public var path = StackState<Path.State>()
@@ -47,6 +81,7 @@ public struct Settings {
     public var copyFileWhenInstalling: Bool
     public var disableIdleTimer: Bool
     public var keyWidth: Double
+    public var activeTab: TabId = .presets
 
     @ObservationStateIgnored
     @Shared(.backgroundProcessing) public var backgroundProcessing
