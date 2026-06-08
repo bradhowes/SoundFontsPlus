@@ -11,8 +11,10 @@ import SwiftUI
 import Tuning
 
 public struct SettingsView: View {
+
   @Bindable private var store: StoreOf<Settings>
   @State private var changingKeyWidth: Bool = false
+
   @Dependency(\.audioSession) private var audioSession
   @Dependency(\.fileManager) private var fileManager
 
@@ -20,6 +22,7 @@ public struct SettingsView: View {
   private var isApp: Bool { !isAUv3 }
   private let showFakeKeyboard: Bool
   private let bundle = Bundle.main
+  private let anchor: UnitPoint = .topLeading
 
   public init(store: StoreOf<Settings>, showFakeKeyboard: Bool, isAUv3: Bool) {
     self.store = store
@@ -29,35 +32,50 @@ public struct SettingsView: View {
 
   public var body: some View {
     NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
-      Form {
-        presetsSection
-        fontsSection
-        if isApp {
-          keyboardSection
-          if store.hasMIDI {
-            midiSection
+      ScrollViewReader { scrollViewProxy in
+        Form {
+          presetsSection
+          fontsSection
+          if isApp {
+            keyboardSection
+            if store.hasMIDI {
+              midiSection
+            }
+          }
+          tuningSection
+          if isApp {
+            appSection
+          }
+          aboutSection
+        }
+        .font(.settings)
+        .formStyle(.grouped)
+        .circledCheckMarkToggleStyle()
+        .navigationTitle("Settings")
+        .toolbar {
+          ToolbarItem(placement: .topBarLeading) {
+            Picker("", selection: $store.currentSection) {
+              ForEach(Settings.SectionId.allCases, id: \.self) {
+                Text($0.label)
+              }
+            }
+            .pickerStyle(.menu)
+          }
+          ToolbarItem(placement: .automatic) {
+            Button {
+              store.send(.dismissButtonTapped, animation: .default)
+            } label: {
+              Image(systemName: .saveButtonImageName)
+            }
           }
         }
-        tuningSection
-        if isApp {
-          appSection
-        }
-        aboutSection
+        .animation(.smooth, value: changingKeyWidth)
+//         .onChange(of: $store.sectionJummp) { old, new in
+//          if old != new {
+//            scrollViewProxy.scrollTo(new, anchor: .top)
+//          }
+//         }
       }
-      .font(.settings)
-      .formStyle(.grouped)
-      .circledCheckMarkToggleStyle()
-      .navigationTitle("Settings")
-      .toolbar {
-        ToolbarItem(placement: .automatic) {
-          Button {
-            store.send(.dismissButtonTapped, animation: .default)
-          } label: {
-            Image(systemName: .saveButtonImageName)
-          }
-        }
-      }
-      .animation(.smooth, value: changingKeyWidth)
     } destination: { store in
       switch store.case {
       case .midiAssignments(let store): MIDIAssignmentsView(store: store)
@@ -74,6 +92,23 @@ public struct SettingsView: View {
   }
 }
 
+private struct SettingsSection<Content: View>: View {
+  private let id: Settings.SectionId
+  private let content: Content
+
+  init(id: Settings.SectionId, @ViewBuilder content: () -> Content) {
+    self.id = id
+    self.content = content()
+  }
+
+  var body: some View {
+    Section(id.label) {
+      content
+    }
+    .id(id)
+  }
+}
+
 extension SettingsView {
 
   private func toggleInfo(_ name: LocalizedStringKey, _ description: () -> LocalizedStringKey) -> some View {
@@ -85,7 +120,7 @@ extension SettingsView {
   }
 
   private var presetsSection: some View {
-    Section("Presets") {
+    SettingsSection(id: .presets) {
       Toggle(
         isOn: Binding(
           get: { store.favoritesOnTop },
@@ -168,7 +203,7 @@ When enabled, overlay the presets list with a compact list of section indices fo
   }
 
   private var keyboardSection: some View {
-    Section("Keyboard") {
+    SettingsSection(id: .keys) {
       VStack(alignment: .leading) {
         HStack {
           Text("Key labels")
@@ -250,7 +285,7 @@ Controlled by the \(Image(systemName: .fixedKeyboardButtonImageName)) button in 
   }
 
   private var midiSection: some View {
-    Section("MIDI") {
+    SettingsSection(id: .midi) {
       VStack(alignment: .leading, spacing: 8) {
         HStack {
           Text("Channel")
@@ -384,11 +419,13 @@ as 2 octaves (24 semitones).
   }
 
   private var tuningSection: some View {
-    TuningView(store: store.scope(state: \.tuning, action: \.tuning))
+    SettingsSection(id: .tuning) {
+      TuningView(store: store.scope(state: \.tuning, action: \.tuning))
+    }
   }
 
   private var fontsSection: some View {
-    Section("Fonts") {
+    SettingsSection(id: .fonts) {
       Group {
         if isApp {
           Toggle(
@@ -434,7 +471,7 @@ Do not show the pre-installed sound fonts when the "All" tag is active.
   }
 
   private var appSection: some View {
-    Section("Application") {
+    SettingsSection(id: .app) {
       Group {
         VStack(alignment: .leading, spacing: 8) {
           HStack {
@@ -556,7 +593,7 @@ Removes all installed SF2 files and any customizations — same as reinstalling 
   }
 
   private var aboutSection: some View {
-    Section("About") {
+    SettingsSection(id: .about) {
       Group {
         if isApp {
           HStack {

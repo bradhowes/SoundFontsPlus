@@ -13,6 +13,30 @@ import Tuning
 @Reducer
 public struct Settings {
 
+  public enum SectionId: Equatable, Hashable, Identifiable, CaseIterable {
+    public var id: Self { self }
+
+    case presets
+    case fonts
+    case keys
+    case midi
+    case tuning
+    case app
+    case about
+
+    public var label: String {
+      switch self {
+      case .presets: return "Presets"
+      case .fonts: return "Fonts"
+      case .keys: return "Keys"
+      case .midi: return "MIDI"
+      case .tuning: return "Tuning"
+      case .app: return "App"
+      case .about: return "About"
+      }
+    }
+  }
+
   @Reducer
   public enum Path {
     case midiAssignments(MIDIAssignments)
@@ -47,6 +71,8 @@ public struct Settings {
     public var copyFileWhenInstalling: Bool
     public var disableIdleTimer: Bool
     public var keyWidth: Double
+    public var currentSection: SectionId = .presets
+    public var sectionJump: SectionId = .presets
 
     @ObservationStateIgnored
     @Shared(.backgroundProcessing) public var backgroundProcessing
@@ -168,9 +194,6 @@ public struct Settings {
 
       switch action {
 
-      case .binding(\.keyWidth):
-        return updateKeyWidth(&state)
-
       case .binding(\.copyFileWhenInstalling):
         if !state.copyFileWhenInstalling {
           // Undo change until confirmed.
@@ -185,6 +208,13 @@ public struct Settings {
           state.disableIdleTimer = false
           state.destination = .alert(.confirmDisableIdleTimer(action: .disableIdleTimerConfirmed))
         }
+        return .none
+
+      case .binding(\.keyWidth):
+        return updateKeyWidth(&state)
+
+      case .binding(\.currentSection):
+        state.sectionJump = state.currentSection
         return .none
 
       case .destination(.presented(.alert(.disableCopyFileConfirmed))):
