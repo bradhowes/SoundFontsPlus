@@ -12,7 +12,7 @@ public struct ToolBarView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.controlSpacing) var controlSpacing
 
-  private let minWIdthNoMoreButtons: CGFloat = 400
+  private let maxCompactBarWidth: CGFloat = 400
   private let rowHeight: CGFloat = 28
   private let isAUv3: Bool
   private var isApp: Bool { !isAUv3 }
@@ -34,7 +34,7 @@ public struct ToolBarView: View {
 
   public var body: some View {
     GeometryReader { geometryProxy in
-      if geometryProxy.size.width < minWIdthNoMoreButtons {
+      if geometryProxy.size.width <= maxCompactBarWidth {
         compactBar
       } else {
         fullBar
