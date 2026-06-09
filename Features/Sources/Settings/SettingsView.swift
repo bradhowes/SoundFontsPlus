@@ -51,30 +51,39 @@ public struct SettingsView: View {
         .font(.settings)
         .formStyle(.grouped)
         .circledCheckMarkToggleStyle()
-        .navigationTitle("Settings")
-        .toolbar {
-          ToolbarItem(placement: .topBarLeading) {
-            Picker("", selection: $store.currentSection) {
-              ForEach(Settings.SectionId.allCases, id: \.self) {
-                Text($0.label)
-              }
-            }
-            .pickerStyle(.menu)
-          }
-          ToolbarItem(placement: .automatic) {
-            Button {
-              store.send(.dismissButtonTapped, animation: .default)
-            } label: {
-              Image(systemName: .saveButtonImageName)
-            }
+        .onChange(of: store.scrollTo) { _, new in
+          if let new {
+            scrollViewProxy.scrollTo(new, anchor: .top)
           }
         }
-        .animation(.smooth, value: changingKeyWidth)
-//         .onChange(of: $store.sectionJummp) { old, new in
-//          if old != new {
-//            scrollViewProxy.scrollTo(new, anchor: .top)
-//          }
-//         }
+      }
+      .task {
+        await store.send(.initialize).finish()
+      }
+      .navigationTitle("Settings")
+      .toolbar {
+        ToolbarItem(placement: .topBarLeading) {
+          Picker(
+            "",
+            selection: Binding(
+              get: { store.currentSection },
+              set: { store.send(.currentSectionSelected($0)) }
+            )
+          ) {
+            ForEach(Settings.SectionId.allCases, id: \.self) {
+              Text($0.label)
+                .lineLimit(1)
+            }
+          }
+          .pickerStyle(.menu)
+        }
+        ToolbarItem(placement: .automatic) {
+          Button {
+            store.send(.dismissButtonTapped, animation: .default)
+          } label: {
+            Image(systemName: .saveButtonImageName)
+          }
+        }
       }
     } destination: { store in
       switch store.case {
@@ -85,9 +94,6 @@ public struct SettingsView: View {
     }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     .filePicker($store.scope(state: \.destination?.backupPicker, action: \.destination.backupPicker))
-    .task {
-      await store.send(.initialize).finish()
-    }
     .useColorScheme() // TODO: find better approach for updating colorScheme when colorSchemeBehavior changes
   }
 }
@@ -102,10 +108,12 @@ private struct SettingsSection<Content: View>: View {
   }
 
   var body: some View {
-    Section(id.label) {
+    Section {
       content
+    } header: {
+      Text(id.label)
+        .id(id)
     }
-    .id(id)
   }
 }
 
@@ -206,7 +214,7 @@ When enabled, overlay the presets list with a compact list of section indices fo
     SettingsSection(id: .keys) {
       VStack(alignment: .leading) {
         HStack {
-          Text("Key labels")
+          Text("Labels")
           Spacer()
           Picker(
             selection: Binding(
@@ -218,11 +226,11 @@ When enabled, overlay the presets list with a compact list of section indices fo
               Text(kind.rawValue)
             }
           } label: {
-            Text("Key Labels")
+            Text("Labels")
           }
           .pickerStyle(.segmented)
         }
-        Text("Controls what keys will have a MIDI note label on them.")
+        Text("Which keys display a MIDI note label.")
           .font(.settingsDescription)
       }
       Toggle(
@@ -258,28 +266,23 @@ The solfège tag for a note will briefly appear in the toolbar when a key is tou
         toggleInfo("Keyboard slides with touch") {
 """
 When enabled, the keyboard will slide with the movement of a key touch. Otherwise, it will remain fixed \
-and key touch movements will trigger neighboring keys.
+and key touch movements will trigger neighboring keys. \
 Controlled by the \(Image(systemName: .fixedKeyboardButtonImageName)) button in the toolbar.
 """
         }
       }
       VStack {
-        Text("Key Width")
+        Text("Width")
         Slider(
-          value: Binding(
-            get: { store.keyWidth },
-            set: { newValue in store.keyWidth = newValue }
-          ),
-          in: 32...96, step: 1
-        ) {
-          Text("Key Width")
-        } onEditingChanged: { editing in
-          changingKeyWidth = editing
-        }
+          value: $store.keyWidth,
+          in: 32...96, step: 1,
+          onEditingChanged: { changingKeyWidth = $0 }
+        )
       }
       if showFakeKeyboard && changingKeyWidth {
         KeyboardView(store: Store(initialState: .init(settingsDemo: true)) { Keyboard() })
           .transition(.opacity)
+          .animation(.smooth, value: changingKeyWidth)
       }
     }
   }
@@ -321,7 +324,7 @@ Adjust to change channel or decrement completely to allow any channel traffic.
         Button {
           store.send(.midiConnectionsButtonTapped)
         } label: {
-          Text("^[\(store.midiDevicesCount) device](inflect: true) / ^[\(store.midiConnectedCount) connected](inflect: true)")
+          Text(store.midiDevicesConnected)
         }
         Spacer()
       }

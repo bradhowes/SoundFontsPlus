@@ -65,6 +65,7 @@ public struct Settings {
     @Presents public var destination: Destination.State?
     public var midiDevicesCount: Int = 0
     public var midiConnectedCount: Int = 0
+    public var midiDevicesConnected: String = ""
     public var midiTrafficIndicator: MIDITrafficIndicator.State
     public var tuning: Tuning.State
     public let hasMIDI: Bool
@@ -72,7 +73,7 @@ public struct Settings {
     public var disableIdleTimer: Bool
     public var keyWidth: Double
     public var currentSection: SectionId = .presets
-    public var sectionJump: SectionId = .presets
+    public var scrollTo: SectionId?
 
     @ObservationStateIgnored
     @Shared(.backgroundProcessing) public var backgroundProcessing
@@ -143,6 +144,8 @@ public struct Settings {
       self.copyFileWhenInstalling = copyFileWhenInstalling
       @Shared(.disableIdleTimer) var disableIdleTimer
       self.disableIdleTimer = disableIdleTimer
+
+      self.midiDevicesConnected = makeConnectedString()
     }
 
     public static func makeTuningState() -> Tuning.State {
@@ -150,12 +153,19 @@ public struct Settings {
       @Shared(.globalTuningFrequency) var globalTuningFrequency
       return .init(frequency: globalTuningFrequency, enabled: globalTuningEnabled)
     }
+
+    public func makeConnectedString() -> String {
+      let deviceUnit: String = midiDevicesCount == 1 ? "device" : "devices"
+      return "\(midiDevicesCount) \(deviceUnit) / \(midiConnectedCount) connected"
+    }
   }
 
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case bluetoothMIDILocateButtonTapped
     case contactDeveloperTapped
+    case currentSectionSelected(SectionId)
+    case currentSectionVisible(SectionId)
     case createBackupTapped
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
@@ -213,8 +223,15 @@ public struct Settings {
       case .binding(\.keyWidth):
         return updateKeyWidth(&state)
 
-      case .binding(\.currentSection):
-        state.sectionJump = state.currentSection
+      case .currentSectionSelected(let sectionId):
+        state.currentSection = sectionId
+        withAnimation(.easeInOut(duration: 2.0)) {
+          state.scrollTo = sectionId
+        }
+        return .none
+
+      case .currentSectionVisible(let sectionId):
+        state.currentSection = sectionId
         return .none
 
       case .destination(.presented(.alert(.disableCopyFileConfirmed))):
@@ -246,8 +263,7 @@ public struct Settings {
       case .midiConnectionsChanged:
         @Shared(.midi) var midi
         if let midi {
-          state.midiDevicesCount = midi.sourceConnections.count
-          state.midiConnectedCount = midi.sourceConnections.filter { $0.connected }.count
+          updateMIDIInfo(&state, midi: midi)
         }
         return .none
 
@@ -259,8 +275,7 @@ public struct Settings {
         @Shared(.midi) var midi
         if case .midiConnections = state.path[id: id],
            let midi {
-          state.midiDevicesCount = midi.sourceConnections.count
-          state.midiConnectedCount = midi.sourceConnections.filter { $0.connected }.count
+          updateMIDIInfo(&state, midi: midi)
         }
         return .none
 
@@ -330,6 +345,12 @@ extension Settings {
     }
 
     return updateShared(.keyWidth, value: value)
+  }
+
+  private func updateMIDIInfo(_ state: inout State, midi: MIDI) {
+    state.midiDevicesCount = midi.sourceConnections.count
+    state.midiConnectedCount = midi.sourceConnections.filter { $0.connected }.count
+    state.midiDevicesConnected = state.makeConnectedString()
   }
 
   private func updateShared<T>(_ key: AppStorageKey<T>.Default, value: T) -> Effect<Action> {
