@@ -395,7 +395,7 @@ active preset.
         }
         Text(
 """
-Configures the range of the pitch wheel messages received by the synthesizer. Default is 2 semtones but it can be as much \
+The range of the pitch wheel messages received by the synthesizer. Default is 2 semtones but it can be as much \
 as 2 octaves (24 semitones).
 """
         )
