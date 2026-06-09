@@ -13,7 +13,7 @@ import Tuning
 @Reducer
 public struct Settings {
 
-  public enum SectionId: Equatable, Hashable, Identifiable, CaseIterable {
+  public enum SectionId: Equatable, Hashable, Identifiable, CaseIterable, Sendable {
     public var id: Self { self }
 
     case presets
@@ -225,9 +225,7 @@ public struct Settings {
 
       case .currentSectionSelected(let sectionId):
         state.currentSection = sectionId
-        withAnimation(.easeInOut(duration: 2.0)) {
-          state.scrollTo = sectionId
-        }
+        state.scrollTo = sectionId
         return .none
 
       case .currentSectionVisible(let sectionId):
@@ -364,6 +362,14 @@ extension Settings.Path.State: Equatable {}
 extension Settings.Destination.State: Equatable {}
 extension Settings.Destination.State: _EphemeralState {
   public typealias Action = Alert
+}
+
+public struct SettingsSectionPositionKey: PreferenceKey {
+  static public var defaultValue: [Settings.SectionId: CGFloat] { [:] }
+
+  static public func reduce(value: inout [Settings.SectionId: CGFloat], nextValue: () -> [Settings.SectionId: CGFloat]) {
+    value.merge(nextValue(), uniquingKeysWith: { $1 })
+  }
 }
 
 private let log: Logger = .init(category: "AppSettings")

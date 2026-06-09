@@ -11,9 +11,11 @@ import SwiftUI
 import Tuning
 
 public struct SettingsView: View {
+  static let coordinateSpaceName = "settingsScrollView"
 
   @Bindable private var store: StoreOf<Settings>
   @State private var changingKeyWidth: Bool = false
+  @State private var beingDismissed = false
 
   @Dependency(\.audioSession) private var audioSession
   @Dependency(\.fileManager) private var fileManager
@@ -48,11 +50,23 @@ public struct SettingsView: View {
           }
           aboutSection
         }
+        .coordinateSpace(name: Self.coordinateSpaceName)
         .font(.settings)
         .formStyle(.grouped)
         .circledCheckMarkToggleStyle()
+        .onPreferenceChange(SettingsSectionPositionKey.self) { positions in
+          // Originally moved to reducer, but that caused runtime warnings when the view was dismissed, apparently due to queued
+          // preference change events.
+          let update = positions
+            .sorted { $0.value < $1.value }
+            .first?.key
+          if let update,
+             store.currentSection != update {
+            store.currentSection = update
+          }
+        }
         .onChange(of: store.scrollTo) { _, new in
-          if let new {
+          if let new, !beingDismissed {
             scrollViewProxy.scrollTo(new, anchor: .top)
           }
         }
@@ -79,6 +93,7 @@ public struct SettingsView: View {
         }
         ToolbarItem(placement: .automatic) {
           Button {
+            beingDismissed = true
             store.send(.dismissButtonTapped, animation: .default)
           } label: {
             Image(systemName: .saveButtonImageName)
@@ -113,6 +128,14 @@ private struct SettingsSection<Content: View>: View {
     } header: {
       Text(id.label)
         .id(id)
+        .background(
+          GeometryReader { proxy in
+            Color.clear.preference(
+              key: SettingsSectionPositionKey.self,
+              value: [id: proxy.frame(in: .named(SettingsView.coordinateSpaceName)).minY]
+            )
+          }
+        )
     }
   }
 }
