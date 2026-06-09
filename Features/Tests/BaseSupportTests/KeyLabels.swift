@@ -9,8 +9,8 @@ struct KeyLabelsTests {
 
   @Test
   func attributes() async throws {
-    #expect(KeyLabels.none.id.rawValue == "Off")
-    #expect(KeyLabels.cOnly.id.rawValue == "C")
+    #expect(KeyLabels.none.id.rawValue == "None")
+    #expect(KeyLabels.cOnly.id.rawValue == "Only C")
     #expect(KeyLabels.all.id.rawValue == "All")
     #expect(KeyLabels.none.cOnly == false)
     #expect(KeyLabels.none.all == false)
