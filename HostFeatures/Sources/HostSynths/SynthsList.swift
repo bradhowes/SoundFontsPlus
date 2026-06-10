@@ -165,19 +165,23 @@ public struct AUv3sListView: View {
 
   public var body: some View {
     VStack {
-      HStack {
+      HStack(spacing: 32) {
         Text("AUv3 Instances")
-        Spacer()
-        Button {
-          store.send(.addButtonTapped)
-        } label: {
-          Image(systemName: "plus")
+          .bold()
+        HStack(spacing: 16) {
+          Button {
+            store.send(.delegate(.settingsButtonTapped))
+          } label: {
+            Image(systemName: "gear")
+          }
+          Button {
+            store.send(.addButtonTapped)
+          } label: {
+            Image(systemName: "plus")
+          }
         }
-        Button {
-          store.send(.delegate(.settingsButtonTapped))
-        } label: {
-          Image(systemName: "gear")
-        }
+        .buttonStyle(.bordered)
+        .imageScale(.large)
       }
       List {
         ForEach(store.scope(state: \.rows, action: \.rows)) {
@@ -185,6 +189,7 @@ public struct AUv3sListView: View {
         }
       }
     }
+    .padding()
   }
 }
 
@@ -199,16 +204,13 @@ extension AUv3sListView {
       @Shared(.auv3InstanceCount) var auv3InstanceCount
       $auv3InstanceCount.withLock { $0 = 3 }
 
-      return VStack {
-        AUv3sListView(store: Store(initialState: .init()) { SynthsList() })
-      }
+      return AUv3sListView(store: Store(initialState: .init()) { SynthsList() })
     }
   }
 }
 
 #Preview {
   AUv3sListView.preview
-    .padding()
 }
 
 #endif // DEBUG

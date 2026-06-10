@@ -140,21 +140,23 @@ extension Root {
   }
 
   private func presetActivated(_ state: inout State, fullStates: TypedFullStateCollection) -> Effect<Action> {
-    log.info("presetActivated BEGIN")
-    guard state.outstandingInstanceCount <= 0 else { return .none }
-    for index in 0..<max(fullStates.count, state.synthsList.rows.count) {
-      log.info("presetActivate - updating instance \(index)")
-      if index < state.synthsList.rows.count {
-        let row = state.synthsList.rows[index]
-        let audioUnit = row.instance.audioUnit.auAudioUnit
-        let typedFullState = index < fullStates.count ? fullStates[index] : nil
-        log.info("presetActivated - before setting fullState - \(String(describing: typedFullState))")
-        audioUnit.fullState = FullState.make(from: typedFullState)
-        log.info("presetActivated - after setting fullState - audioUnitShortName: \(String(describing: audioUnit.audioUnitShortName))")
-      } else {
-        log.info("presetActivated - no instance for index \(index)")
-      }
+    log.info("presetActivated BEGIN - fullStates count: \(fullStates.count)")
+    guard state.outstandingInstanceCount <= 0 else {
+      log.info("presetActivated END - pending instances")
+      return .none
     }
+
+    for index in 0..<min(fullStates.count, state.synthsList.rows.count) {
+      log.info("presetActivate - updating instance \(index)")
+      let row = state.synthsList.rows[index]
+      let audioUnit = row.instance.audioUnit.auAudioUnit
+      let typedFullState = index < fullStates.count ? fullStates[index] : nil
+      log.info("presetActivated - before setting fullState - \(String(describing: typedFullState))")
+      audioUnit.fullState = FullState.make(from: typedFullState)
+      log.info("presetActivated - after setting fullState - audioUnitShortName: \(String(describing: audioUnit.audioUnitShortName))")
+    }
+
+    log.info("presetActivated END")
     return .none
   }
 
@@ -170,7 +172,6 @@ extension Root {
     }
 
     let fullStates = state.presetsList.rows[index].preset.fullStateCollection
-    log.info("restoreActivePreset END")
     return presetActivated(&state, fullStates: fullStates)
   }
 
@@ -254,31 +255,33 @@ public struct RootView: View {
         AUv3sListView(store: store.scope(state: \.synthsList, action: \.synthsList))
         PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
       }
-      Grid(horizontalSpacing: 16.0) {
-        GridRow {
+      HStack(spacing: 32) {
+        Text("AUv3 View")
+          .bold()
+        HStack(spacing: 16) {
           Button {
             store.send(.playButtonTapped)
           } label: {
             Text(store.songPlaying ? "Stop Notes" : "Play Notes")
-          }.disabled(store.synthsList.rows.isEmpty)
+          }
+          .disabled(store.synthsList.rows.isEmpty)
 
           Button {
             store.send(.noteButtonTapped)
           } label: {
             Text("Instance Note")
-          }.disabled(activeAUv3 == nil)
-        }.frame(maxWidth: .infinity)
+          }
+          .disabled(activeAUv3 == nil)
+        }
+        .buttonStyle(.bordered)
       }
+
       Group {
         if let activeAUv3,
            let index = store.synthsList.rows.index(id: activeAUv3) {
           let instance = store.synthsList.rows[index].instance
-          ZStack {
-            Color.black
-            AUv3View(instance: instance)
-              .id(instance.id)
-              .preferredColorScheme(.dark)
-          }
+          AUv3View(instance: instance)
+            .id(instance.id)
         } else {
           Text("No AUv3 instance selected")
             .frame(maxHeight: .infinity)

@@ -49,7 +49,6 @@ public struct SynthInstance: Equatable, Identifiable {
     log.info("created audio unit")
 
     let viewController = try await makeUI(audioUnit: audioUnit)
-    log.info("created view controller")
     @Dependency(\.uuid) var uuid
     return .init(id: uuid(), audioUnit: audioUnit, viewController: viewController)
   }
@@ -57,7 +56,7 @@ public struct SynthInstance: Equatable, Identifiable {
   @MainActor
   public static func makeUI(audioUnit: AVAudioUnit) async throws -> ViewController {
     guard let viewController = await audioUnit.auAudioUnit.requestViewController() else {
-      log.info("failed to create view controller")
+      log.error("failed to create view controller")
       throw SynthInstanceError.noViewController
     }
     log.info("created view controller")
