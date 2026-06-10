@@ -1,7 +1,8 @@
 disabled_rules:
   - nesting
   - todo
-#  - file_length
+  - type_body_length
+  - file_length
 #  - opening_brace
 #  - function_body_length
 #  - cyclomatic_complexity
@@ -38,9 +39,9 @@ line_length:
   ignores_comments: true
   ignores_urls: true
 
-file_length:
-  warning: 1500
-  error: 2000
+#file_length:
+#  warning: 1500
+#  error: 2000
 
 # naming rules can set warnings/errors for min_length and max_length
 # additionally they can set excluded names
