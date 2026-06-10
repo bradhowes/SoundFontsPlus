@@ -9,6 +9,10 @@ import OSLog
 import SwiftUI
 import TypedFullState
 
+/**
+ Manages a list of Preset values. New entries can be created, names can be changed, and existing entries
+ can be deleted.
+ */
 @Reducer
 public struct PresetsList {
 
@@ -53,7 +57,6 @@ public struct PresetsList {
     Reduce { state, action in
       log.action("PressetsList", action)
       switch action {
-
       case .addButtonTapped: return addButtonTapped(&state)
       case .delegate: return .none
       case .destination(.presented(.presetEditor(.delegate(.accepted(let name))))): return editorDismissed(&state, name: name)
@@ -111,20 +114,6 @@ extension PresetsList {
     return .none
   }
 
-  private func updateActivePreset(_ state: inout State, fullStates: TypedFullStateCollection) -> Effect<Action> {
-    log.info("updateActivePreset BEGIN")
-    @Shared(.activePreset) var activePreset
-    if let activePreset,
-       state.rows.index(id: activePreset) != nil {
-      return .concatenate(
-        .send(.rows(.element(id: activePreset, action: .updated(fullStates)))),
-        savePresets(&state)
-      )
-    }
-    log.info("updateActivePreset END")
-    return savePresets(&state)
-  }
-
   private func processRowAction(
     _ state: inout State,
     id: PresetButton.State.ID,
@@ -154,6 +143,20 @@ extension PresetsList {
     return .none
   }
 
+  private func updateActivePreset(_ state: inout State, fullStates: TypedFullStateCollection) -> Effect<Action> {
+    log.info("updateActivePreset BEGIN")
+    @Shared(.activePreset) var activePreset
+    if let activePreset,
+       state.rows.index(id: activePreset) != nil {
+      return .concatenate(
+        .send(.rows(.element(id: activePreset, action: .updated(fullStates)))),
+        savePresets(&state)
+      )
+    }
+    log.info("updateActivePreset END")
+    return savePresets(&state)
+  }
+
   private func updateActivePresetRequested(_ state: inout State) -> Effect<Action> {
     log.info("updateActivePresetRequested BEGIN")
     return .send(.delegate(.updateActivePresetRequested))
@@ -171,20 +174,24 @@ public struct PresetsListView: View {
 
   public var body: some View {
     VStack {
-      HStack {
+      HStack(spacing: 32) {
         Text("Presets")
-        Spacer()
-        Button {
-          store.send(.saveButtonTapped)
-        } label: {
-          Text("Save")
+          .bold()
+        HStack(spacing: 16) {
+          Button {
+            store.send(.saveButtonTapped)
+          } label: {
+            Text("Save")
+          }
+          .disabled(store.rows.isEmpty)
+          Button {
+            store.send(.addButtonTapped)
+          } label: {
+            Image(systemName: "plus")
+          }
         }
-        .disabled(store.rows.isEmpty)
-        Button {
-          store.send(.addButtonTapped)
-        } label: {
-          Image(systemName: "plus")
-        }
+        .buttonStyle(.bordered)
+        .imageScale(.large)
       }
       List {
         ForEach(store.scope(state: \.rows, action: \.rows)) { store in
@@ -192,6 +199,7 @@ public struct PresetsListView: View {
         }
       }
     }
+    .padding()
     .animation(.smooth, value: store.rows)
     .sheet(item: $store.scope(state: \.destination?.presetEditor, action: \.destination.presetEditor)) {
       PresetEditorView(store: $0)
@@ -207,16 +215,13 @@ extension PresetsListView {
     prepareDependencies {
       $0.uuid = .incrementing
       $0.presetsStore = .previewValue
-      return VStack {
-        PresetsListView(store: Store(initialState: .init()) { PresetsList() })
-      }
+      return PresetsListView(store: Store(initialState: .init()) { PresetsList() })
     }
   }
 }
 
 #Preview {
   PresetsListView.preview
-    .padding()
 }
 
 #endif // DEBUG

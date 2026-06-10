@@ -8,7 +8,9 @@ import HostSupport
 import SwiftUI
 import TypedFullState
 
-
+/**
+ Represents a Preset in a list.
+ */
 @Reducer
 public struct PresetButton {
 

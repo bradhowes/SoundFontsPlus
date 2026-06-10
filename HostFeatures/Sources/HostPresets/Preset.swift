@@ -3,6 +3,9 @@
 import Foundation
 import TypedFullState
 
+/**
+ A named preset that contains one or more fullState values from a set of AUv3 synths.
+ */
 public struct Preset: Codable, Equatable, Identifiable {
   public typealias ID = UUID
   public let id: ID
