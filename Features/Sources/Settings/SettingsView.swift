@@ -84,7 +84,7 @@ public struct SettingsView: View {
               set: { store.send(.currentSectionSelected($0)) }
             )
           ) {
-            ForEach(Settings.SectionId.allCases, id: \.self) {
+            ForEach(Settings.SectionId.filteredAllCases(isAUv3), id: \.self) {
               Text($0.label)
                 .lineLimit(1)
             }

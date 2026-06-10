@@ -24,6 +24,20 @@ public struct Settings {
     case app
     case about
 
+    static public func filteredAllCases(_ isAUv3: Bool) -> [Self] {
+      Self.allCases.filter { isAUv3 == false || $0.availableOnAUv3 == isAUv3 }
+    }
+
+    public var availableOnAUv3: Bool {
+      switch self {
+      case .presets: return true
+      case .fonts: return true
+      case .tuning: return true
+      case .about: return true
+      default: return false
+      }
+    }
+
     public var label: String {
       switch self {
       case .presets: return "Presets"
@@ -296,7 +310,6 @@ public struct Settings {
 extension Settings {
 
   private func backupToCloud(_ state: inout State) -> Effect<Action> {
-
     do {
       let url = try BackupManager.backup()
       state.destination = .alert(.notifyBackupName(url.lastPathComponent))
@@ -307,7 +320,7 @@ extension Settings {
   }
 
   private func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
-    return .run { [dismiss] _ in await dismiss() }
+    .run { [dismiss] _ in await dismiss() }
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {

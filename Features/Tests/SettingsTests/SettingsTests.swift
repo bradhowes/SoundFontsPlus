@@ -27,6 +27,13 @@ struct SettingsTests {
   }
 
   @Test
+  func sectionIds() async throws {
+    #expect(Settings.SectionId.allCases == Settings.SectionId.filteredAllCases(false))
+    #expect(Settings.SectionId.allCases != Settings.SectionId.filteredAllCases(true))
+    #expect(Settings.SectionId.filteredAllCases(true) == [.presets, .fonts, .tuning, .about])
+  }
+
+  @Test
   func initializeNoMidi() async throws {
     try await initialized { store in
       await store.send(.dismissButtonTapped)
