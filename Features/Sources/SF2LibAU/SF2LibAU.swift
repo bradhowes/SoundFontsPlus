@@ -281,7 +281,9 @@ extension SF2LibAU {
     preset.name = presetLoadingInfo.presetName
     currentPreset = preset
 
+    willChangeValue(for: \.audioUnitShortName)
     _audioUnitShortName = presetLoadingInfo.presetName
+    didChangeValue(for: \.audioUnitShortName)
   }
 }
 
