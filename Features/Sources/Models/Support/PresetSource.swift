@@ -12,11 +12,14 @@ public enum PresetSource: Codable, Equatable, Sendable {
     if let soundFontId { return .active(soundFontId) } else { return nil }
   }
 
-  public static func makeSelected(_ soundFontId: SoundFont.ID?) -> PresetSource? {
-    if let soundFontId { return .selected(soundFontId) } else { return nil }
+  public var isActive: Bool {
+    if case .active = self {
+      return true
+    } else {
+      return false
+    }
   }
 
-  public var isActive: Bool { if case .active = self { return true } else { return false } }
   public var isSelected: Bool { !isActive }
   public var activated: PresetSource { .active(id) }
 
