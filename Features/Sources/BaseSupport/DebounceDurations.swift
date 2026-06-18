@@ -27,15 +27,15 @@ extension DebounceDurations: Sendable, DependencyKey {
 
   public static var previewValue: DebounceDurations {
     .init(
-      effectsConfigurationSaves: .milliseconds(1000),
-      effectsDisplayUpdates: .milliseconds(100)
+      effectsConfigurationSaves: .milliseconds(100),
+      effectsDisplayUpdates: .milliseconds(10)
     )
   }
 
   public static var testValue: DebounceDurations {
     .init(
-      effectsConfigurationSaves: .milliseconds(1000),
-      effectsDisplayUpdates: .milliseconds(100)
+      effectsConfigurationSaves: .milliseconds(10),
+      effectsDisplayUpdates: .milliseconds(1)
     )
   }
 }

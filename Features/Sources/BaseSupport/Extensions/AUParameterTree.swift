@@ -7,15 +7,12 @@ import Dependencies
 extension AUParameterTree {
 
   /**
-   Access parameter in tree via ParameterAddressProvider (eg enum).
+   Access parameter in tree via `ParameterAddress` enum.
 
    - parameter address: the address to fetch
-   - returns: the found value
+   - returns: the current value
    */
-  public subscript(address: ParameterAddress) -> AUParameter {
-    guard let param = parameter(withAddress: address.rawValue) else {
-      fatalError("unknown parameter address: \(address)")
-    }
-    return param
+  public subscript(address: ParameterAddress) -> AUParameter? {
+    parameter(withAddress: address.rawValue)
   }
 }

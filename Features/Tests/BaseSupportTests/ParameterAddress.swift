@@ -23,13 +23,13 @@ struct ParameterAddressTests {
   @Test
   func lookup() async throws {
     let tree = ParameterAddress.createParameterTree()
-    #expect(tree[.delayEnabled].displayName == "Enabled")
-    #expect(tree[.delayTime].displayName == "Time")
-    #expect(tree[.delayFeedback].displayName == "Feedback")
-    #expect(tree[.delayCutoff].displayName == "Cutoff")
-    #expect(tree[.delayAmount].displayName == "Amount")
-    #expect(tree[.reverbEnabled].displayName == "Enabled")
-    #expect(tree[.reverbRoomIndex].displayName == "Room")
-    #expect(tree[.reverbAmount].displayName == "Amount")
+    #expect(tree[.delayEnabled]?.displayName == "Enabled")
+    #expect(tree[.delayTime]?.displayName == "Time")
+    #expect(tree[.delayFeedback]?.displayName == "Feedback")
+    #expect(tree[.delayCutoff]?.displayName == "Cutoff")
+    #expect(tree[.delayAmount]?.displayName == "Amount")
+    #expect(tree[.reverbEnabled]?.displayName == "Enabled")
+    #expect(tree[.reverbRoomIndex]?.displayName == "Room")
+    #expect(tree[.reverbAmount]?.displayName == "Amount")
   }
 }

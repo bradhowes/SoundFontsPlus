@@ -35,4 +35,13 @@ struct StringTests {
     #expect("a b".isAlphanumeric() == false)
     #expect("a*".isAlphanumeric() == false)
   }
+
+  @Test
+  func truncated() {
+    #expect("This is a test".truncated(to: 1) == "…")
+    #expect("This is a test".truncated(to: 2) == "T…")
+    #expect("This is a test".truncated(to: 99) == "This is a test")
+    #expect("This is a test".truncated(to: 5, at: .head) == "…test")
+    #expect("This is a test".truncated(to: 5, at: .middle) == "Th…st")
+  }
 }

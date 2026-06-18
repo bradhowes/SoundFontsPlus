@@ -96,3 +96,4 @@ extension ParameterAddress {
 }
 
 extension ParameterAddress: CaseIterable {}
+extension ParameterAddress: Sendable {}
