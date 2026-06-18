@@ -44,40 +44,6 @@ and reduced security when unattended.
       )
     }
   }
-
-  static public func notifyBackupName(_ backupName: String) -> Self {
-    Self {
-      TextState("Backup Created")
-    } actions: {
-      ButtonState(role: .cancel) {
-        TextState("OK")
-      }
-    } message: {
-      TextState(
-"""
-New backup created in \(backupName) folder.
-"""
-      )
-    }
-  }
-
-  static public func notifyBackupFailure(_ error: String) -> Self {
-    Self {
-      TextState("Backup Failed")
-    } actions: {
-      ButtonState(role: .cancel) {
-        TextState("OK")
-      }
-    } message: {
-      TextState(
-"""
-Failed to create backup:
-
- \(error)
-"""
-      )
-    }
-  }
 }
 
 // MARK: - Preset alerts
@@ -255,21 +221,6 @@ Deleting the tag cannot be undone.
       )
     }
   }
-
-  static public func tagWillBeHidden(displayName: String) -> Self {
-    Self {
-      TextState("Empty Tags are Hidden")
-    } actions: {
-      ButtonState(role: .cancel) { TextState("OK") }
-    } message: {
-      TextState(
-"""
-Due to the "Hide tags with no fonts" setting, the '\(displayName)' tag will not appear in the main tag view since it is not \
-associated with any sound fonts.
-"""
-      )
-    }
-  }
 }
 
 extension AlertState {
@@ -284,7 +235,7 @@ extension AlertState {
       TextState(
 """
 Reinitializing will delete any changes made since you first installed the app. It will also remove \
-any sont files installed onto the device, leaving only the 4 original sound fonts.
+any font files installed on the device, leaving only the four original sound fonts.
 
 This action cannot be undone.
 """
@@ -301,51 +252,6 @@ This action cannot be undone.
       TextState(
 """
 All customizations have been removed.
-"""
-      )
-    }
-  }
-
-  public static func confirmBackupRestore(action: Action, displayName: String) -> Self {
-    Self {
-      TextState("Restore from Backup \(displayName)?")
-    } actions: {
-      ButtonState(role: .cancel) { TextState("Cancel") }
-      ButtonState(role: .destructive, action: action) { TextState("Confirm") }
-    } message: {
-      TextState(
-"""
-Restoring from a backup will delete any changes made since the backup was created, and will replace all installed \
-sound font files with those in the backup.
-
-This action cannot be undone."
-"""
-      )
-    }
-  }
-
-  public static func restoreFailed(_ error: Error) -> Self {
-    Self {
-      TextState("Restore Failed")
-    } actions: {
-      ButtonState(role: .cancel) { TextState("OK") }
-    } message: {
-      TextState(
-"""
-Unable to restore from the backup: \(error.localizedDescription)
-"""
-      )
-    }
-  }
-
-  public static func restoreFinished() -> Self {
-    Self {
-      TextState("Restore Complete")
-    } actions: {
-    } message: {
-      TextState(
-"""
-Restored from backup. You must quit the app and restart it to being using the restored data.
 """
       )
     }

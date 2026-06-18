@@ -449,6 +449,33 @@ struct AppRootTests {
     }
   }
 
+  @Test
+  func reinitializeShowPromptCancel() async throws {
+    try await initialized(exhaustivity: .off(showSkippedAssertions: false)) { store in
+      await store.send(\.toolBar.delegate, .settingsButtonTapped)
+      #expect(store.state.destination != nil)
+      await store.send(\.destination.presented.settings.delegate, .reinitialize) {
+        $0.destination = .alert(.confirmReinitialize(action: .reinitializeConfirmed))
+      }
+      await store.send(\.destination.dismiss) {
+        $0.destination = nil
+      }
+      await store.receive(\.appReview.ask)
+    }
+  }
+
+  @Test
+  func reinitializeShowPromptOK() async throws {
+    try await initialized(exhaustivity: .off(showSkippedAssertions: false)) { store in
+      await store.send(\.toolBar.delegate, .settingsButtonTapped)
+      #expect(store.state.destination != nil)
+      await store.send(\.destination.presented.settings.delegate, .reinitialize) {
+        $0.destination = .alert(.confirmReinitialize(action: .reinitializeConfirmed))
+      }
+      await store.send(\.destination.presented.alert.reinitializeConfirmed)
+    }
+  }
+
   @Test(.snapshots(record: .failed))
   func showNoVolumeToast() async throws {
     withDependencies {

@@ -164,22 +164,6 @@ public struct TagsEditor {
       case let .rows(.element(id: id, action: \.delegate.tagSwipedToDelete)):
         return deleteTag(&state, rowId: id)
 
-        // TODO: add test
-      case let .rows(.element(id: id, action: \.binding.membership)):
-        // This is only called when editing a sound font, so soundFontId must be non-nil
-        guard
-          let soundFontId = state.soundFontId,
-          let index = state.rows.index(id: id)
-        else {
-          return .none
-        }
-
-        let tagState = state.rows[index]
-        if checkForEmptyTag(soundFontId: soundFontId, tagState: tagState) {
-          state.destination = .alert(.tagWillBeHidden(displayName: tagState.draft.displayName))
-        }
-        return .none
-
       case .saveButtonTapped:
         return dismiss(&state, save: true)
 

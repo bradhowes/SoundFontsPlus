@@ -309,16 +309,6 @@ public struct Settings {
 
 extension Settings {
 
-  private func backupToCloud(_ state: inout State) -> Effect<Action> {
-    do {
-      let url = try BackupManager.backup()
-      state.destination = .alert(.notifyBackupName(url.lastPathComponent))
-    } catch {
-      state.destination = .alert(.notifyBackupFailure(error.description))
-    }
-    return .none
-  }
-
   private func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
     .run { [dismiss] _ in await dismiss() }
   }
