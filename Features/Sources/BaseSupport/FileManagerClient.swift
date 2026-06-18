@@ -26,7 +26,7 @@ public struct FileManagerClient: Sendable {
 
 extension FileManagerClient: DependencyKey {
 
-  /// Mapping of FileManager functionality to use in "live" situations. Note that there is no state here in order 
+  /// Mapping of FileManager functionality to use in "live" situations. Note that there is no state here in order
   /// to satisfy Sendable conformance.
   public static var liveValue: FileManagerClient {
     .init(
@@ -59,31 +59,23 @@ extension FileManagerClient: DependencyKey {
 
   /// Mapping of FileManager functionality to use in SwiftUI previews
   public static var previewValue: FileManagerClient {
-    .init(
-      localDocumentsDirectory: { FileManager.default.localDocumentsDirectory },
-      sharedDocumentsDirectory: { FileManager.default.sharedDocumentsDirectory },
+    let liveValue = Self.liveValue
+    return .init(
+      localDocumentsDirectory: liveValue.localDocumentsDirectory,
+      sharedDocumentsDirectory: liveValue.sharedDocumentsDirectory,
       cloudDocumentsDirectory: { nil },
-      fontFilesDirectory: { FileManager.default.fontFilesDirectory },
-      fontFilePath: { FileManager.default.fontFilesDirectory.appendingPathComponent($0, isDirectory: false) },
-      fileSizeOf: { FileManager.default.fileSizeOf(url: $0) },
+      fontFilesDirectory: liveValue.fontFilesDirectory,
+      fontFilePath: liveValue.fontFilePath,
+      fileSizeOf: liveValue.fileSizeOf,
       isUbiquitousItem: { _ in false },
       copyItem: { _, _ in },
       removeItem: { _ in },
       createDirectory: { _ in },
-      contentsOfDirectory: {
-        try FileManager.default.contentsOfDirectory(
-          at: $0,
-          includingPropertiesForKeys: [.typeIdentifierKey],
-          options: [.skipsHiddenFiles]
-        )
-      },
-      fileExists: { FileManager.default.fileExists(atPath: $0.path(percentEncoded: false)) },
-      startDownloadingUbiquitousItem: { try FileManager.default.startDownloadingUbiquitousItem(at: $0) },
-      databaseFileURL: { FileManager.default.sharedDocumentsDirectory.appending(path: "db.sqlite", directoryHint: .notDirectory) },
-      moveItem: {
-        precondition($0.lastPathComponent == $1.lastPathComponent)
-        try FileManager.default.moveItem(at: $0, to: $1)
-      }
+      contentsOfDirectory: liveValue.contentsOfDirectory,
+      fileExists: liveValue.fileExists,
+      startDownloadingUbiquitousItem: liveValue.startDownloadingUbiquitousItem,
+      databaseFileURL: liveValue.databaseFileURL,
+      moveItem: liveValue.moveItem
     )
   }
 

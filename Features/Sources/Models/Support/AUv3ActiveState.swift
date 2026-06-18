@@ -12,15 +12,8 @@ import Sharing
  The state contains the unique IDs for the active soundfont, preset, and tag, and additional shared state values that affect the
  UI.
  */
-public struct AUv3ActiveState: Codable {
+public struct AUv3ActiveState: Codable, Equatable {
 
-  public enum Source: Codable {
-    case app
-    case auv3
-  }
-
-  /// The source of the active state, whether the application or an AUv3 app extension.
-  public let source: Source
   /// The name of the sound font that is currently active.
   public let soundFontName: String
   /// The index of the sound font preset that is currently active.
@@ -36,12 +29,10 @@ public struct AUv3ActiveState: Codable {
   public let tagsListVisible: Bool
 
   public init(
-    source: Source,
     soundFontName: String,
     presetIndex: Int,
     tagName: String
   ) {
-    self.source = source
     self.soundFontName = soundFontName
     self.presetIndex = presetIndex
     self.tagName = tagName

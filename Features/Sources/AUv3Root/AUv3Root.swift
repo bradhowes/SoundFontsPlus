@@ -388,7 +388,6 @@ extension AUv3Root {
     }
 
     let activeState: AUv3ActiveState = .init(
-      source: .auv3,
       soundFontName: preset.soundFontName,
       presetIndex: preset.index,
       tagName: state.tagsList.activeTagName ?? "",

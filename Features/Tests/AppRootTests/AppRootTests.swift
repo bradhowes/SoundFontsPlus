@@ -21,7 +21,7 @@ import Tutorial
 @Suite(
   .dependencies {
     let mockVolume = OutputVolumeFlipFlop()
-    $0.audioGraph = .liveValue // MockAudioGraph().audioGraph
+    $0.audioGraph = .liveValue
     $0.audioSession = .liveValue
     $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
     $0.date = .constant(.now)

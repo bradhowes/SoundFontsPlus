@@ -255,7 +255,6 @@ extension SF2LibAU {
 
     log.info("fullState - activeState: \(auv3ActiveState, privacy: .public)")
     guard
-      auv3ActiveState.source == .auv3,
       let presetLoadingInfo = auv3ActiveState.presetLoadingInfo,
       let location = try? SoundFontKind(
         kind: presetLoadingInfo.kind,

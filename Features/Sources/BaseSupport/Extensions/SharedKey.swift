@@ -25,7 +25,7 @@ extension SharedKey where Self == AppStorageKey<Note>.Default {
   public static var firstVisibleKey: Self { Self[.appStorage("firstVisibleKey"), default: .C4] }
 }
 
-// MARK: - InMemory Bool settings
+// MARK: - InMemory Bool settings (AUv3)
 
 extension SharedKey where Self == InMemoryKey<Bool>.Default {
   public static var auv3ShowOnlyFavorites: Self { Self[.inMemory(.auv3ShowOnlyFavorites), default: false] }
@@ -34,10 +34,10 @@ extension SharedKey where Self == InMemoryKey<Bool>.Default {
   public static var isAUv3: Self { Self[.inMemory("isAUv3"), default: false] }
 }
 
-// MARK: - InMemory Double settings
+// MARK: - InMemory Double settings (AUv3)
 
 extension SharedKey where Self == InMemoryKey<Double>.Default {
-  public static var auv3ActivePresetGain: Self { Self[.inMemory(.auv3ActivePresetGain), default: 0.0] }
+  public static var auv3ActivePresetGain: Self { Self[.inMemory(.auv3ActivePresetGain), default: 1.0] }
   public static var auv3ActivePresetPan: Self { Self[.inMemory(.auv3ActivePresetPan), default: 0.0] }
   public static var auv3FontsAndPresetsSplitPosition: Self { Self[.inMemory(.auv3FontsAndPresetsSplitPosition), default: 0.5] }
   public static var auv3FontsAndTagsSplitPosition: Self { Self[.inMemory(.auv3FontsAndTagsSplitPosition), default: 0.4] }
