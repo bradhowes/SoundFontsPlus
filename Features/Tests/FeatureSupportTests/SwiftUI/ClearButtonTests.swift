@@ -1,10 +1,4 @@
-import ComposableArchitecture
-import DependenciesTestSupport
-import Foundation
-import SnapshotTesting
-import SwiftUI
 import Testing
-import TestSupport
 
 @testable import FeatureSupport
 
@@ -12,17 +6,32 @@ import TestSupport
   .snapshots(record: .failed)
 )
 @MainActor
-struct ClearButtonTests {
+struct ColorSchemeBehaviorTests {
 
-  @Test
-  func preview() throws {
-    withDependencies {
-      $0.defaultDatabase = previewDatabase()
-    } operation: {
-      withSnapshotTesting(record: .failed) {
-        let view = TextFieldClearButton_Previews.previews
-        TestSupport.assertSnapshot(matching: view)
-      }
-    }
+  @Test(arguments: ColorSchemeBehavior.allCases)
+  func id(value: ColorSchemeBehavior) throws {
+    #expect(value.id == value)
+  }
+
+  @Test(
+    arguments: [
+      (ColorSchemeBehavior.system, nil),
+      (.light, ColorScheme.light),
+      (.dark, .dark)
+    ]
+  )
+  func preferredColorScheme(_ behavior: ColorSchemeBehavior, colorScheme: ColorScheme?) throws {
+    #expect(behavior.preferredColorScheme == colorScheme)
+  }
+
+  @Test(
+    arguments: [
+      (ColorSchemeBehavior.system, Color.clear),
+      (.light, .white),
+      (.dark, .black)
+    ]
+  )
+  func rootBackgroundColor(_ behavior: ColorSchemeBehavior, color: Color) throws {
+    #expect(behavior.rootBackgroundColor == color)
   }
 }
