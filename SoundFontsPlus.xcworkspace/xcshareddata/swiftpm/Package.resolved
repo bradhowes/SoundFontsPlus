@@ -1,5 +1,5 @@
 {
-  "originHash" : "dc92822184a297927f8d88972e86f667816ebacea87ab9b59451917519594daf",
+  "originHash" : "d76c212ddf13bcd6a51628b49412dbf4fc991af84753b412503997f4ddfe3d92",
   "pins" : [
     {
       "identity" : "auv3controls",
@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/SF2Lib",
       "state" : {
-        "revision" : "70ebec25a07f0a198c72708c409527149df89e31",
-        "version" : "8.14.2"
+        "revision" : "4a4489a2196a40e664fa28b04df39290157bae8c",
+        "version" : "8.14.3"
       }
     },
     {

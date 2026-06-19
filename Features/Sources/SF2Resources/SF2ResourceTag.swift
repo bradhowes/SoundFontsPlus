@@ -66,6 +66,6 @@ extension SF2ResourceTag {
   /// Obtain info and preset info about an SF2 file
   public var fileInfo: Engine.SF2FileInfo? {
     var fileInfo = Engine.SF2FileInfo(std.string(url.path(percentEncoded: false)))
-    return fileInfo.load() ? fileInfo : nil
+    return fileInfo.load() ? consume fileInfo : nil
   }
 }
