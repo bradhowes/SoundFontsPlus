@@ -60,3 +60,5 @@ extension View {
   @inlinable
   public func helpInfoViewTag(_ id: TagsEditorHelpInfo) -> some View { helpInfoViewTag(id: id) }
 }
+
+extension TagsEditorHelpInfo: Sendable {}

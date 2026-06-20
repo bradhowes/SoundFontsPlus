@@ -119,10 +119,11 @@ extension TestSupport {
     file: StaticString = #filePath,
     testName: StaticString = #function,
     line: Int = #line,
-    col: Int = #column
+    col: Int = #column,
+    tag: String = ""
   ) {
     installApplicationFont()
-    let uniqueTestName = makeUniqueSnapshotName(testName)
+    let uniqueTestName = makeUniqueSnapshotName(testName, tag: tag)
     log.info("assertSnapshot - \(uniqueTestName)")
     //    for (key, value) in ProcessInfo.processInfo.environment {
     //      log.info("environment[\(key)]: \(value)")
@@ -177,12 +178,12 @@ extension TestSupport {
 extension TestSupport {
 
   @inlinable
-  static func makeUniqueSnapshotName(_ funcName: StaticString) -> String {
+  static func makeUniqueSnapshotName(_ funcName: StaticString, tag: String) -> String {
 #if os(iOS)
-    "\(funcName)-iOS"
+    "\(funcName)\(tag)-iOS"
 #endif // os(iOS)
 #if os(macOS)
-    "\(funcName)-macOS"
+    "\(funcName)\(tag)-macOS"
 #endif // os(macOS)
   }
 

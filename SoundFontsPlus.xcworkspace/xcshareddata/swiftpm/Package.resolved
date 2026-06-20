@@ -60,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bradhowes/HelpInfoSpotlightOverlay",
       "state" : {
-        "revision" : "02062993a12d37be8face2980598496f0af5f7c6",
-        "version" : "1.5.8"
+        "revision" : "20fd50b6417d3bf9dbc2afa30611c8f29fa02ace",
+        "version" : "1.5.10"
       }
     },
     {

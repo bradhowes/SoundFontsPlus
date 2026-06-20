@@ -205,6 +205,8 @@ The percentage of the audio output made up of the delay effect.
   }
 }
 
+extension RootHelpInfo: Sendable {}
+
 extension View {
 
   /**
