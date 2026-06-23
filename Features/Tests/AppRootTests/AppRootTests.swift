@@ -43,7 +43,6 @@ struct AppRootTests {
   @Shared(.fontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
   @Shared(.fontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
   @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion = ""
-  @Shared(.midi) var midi
   @Shared(.showedTutorial) var showedTutorial
   @Shared(.tagsListVisible) var tagsListVisible = false
 
@@ -152,12 +151,13 @@ struct AppRootTests {
     try await initialized { _ in }
   }
 
-  @Test
-  func initializeWithMIDI() async throws {
-    $midi.withLock {
-      $0 = MIDI(clientName: "BlahBlah", uniqueId: 123123, midiProto: .v2_0)
+  @Test(
+    .dependencies {
+      let midi = MIDIProvider.makeMIDI(clientName: "BlahBlah")
+      $0.midiProvider = .init(midiProvider: { midi })
     }
-
+  )
+  func initializeWithMIDI() async throws {
     try await initialized { _ in }
   }
 

@@ -191,6 +191,7 @@ public struct AppRoot {
 
   @Dependency(\.fileManager) private var fileManager
   @Dependency(\.appActiveState) private var appActiveState
+  @Dependency(\.midiProvider) private var midiProvider
 
   @Shared(.effectsPanelVisible) private var effectsPanelVisible
   @Shared(.firstVisibleKey) private var firstVisibleKey
@@ -330,9 +331,6 @@ extension AppRoot {
       $0.defaultDatabase = try! appDatabase()
       try? $0.fileManager.createDirectory($0.fileManager.fontFilesDirectory())
 
-      @Shared(.midiInputPortId) var midiInputPortId
-      @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
-
       return StoreOf<AppRoot>(initialState: AppRoot.State()) { AppRoot() }
     }
   }
@@ -395,8 +393,7 @@ extension AppRoot {
 
     // By design MIDI does not have a complete 'stop' function, so there could be messages coming over after we are
     // deinitialized. Remove any installed MIDIMonitor so that it will no longer try to access the database.
-    @Shared(.midi) var midi
-    if let midi {
+    if let midi = midiProvider.midi() {
       midi.monitor = nil
       midi.receiver = nil
       midi.stop()
@@ -462,8 +459,7 @@ extension AppRoot {
   private func installMIDIMonitor(midiInstrument: AVAudioUnitMIDIInstrument) {
     log.info("install MIDIMonitor")
 
-    @Shared(.midi) var midi
-    guard let midi else {
+    guard let midi = midiProvider.midi() else {
       log.info("no MIDI to use")
       return
     }
@@ -478,9 +474,6 @@ extension AppRoot {
 
     midi.receiver = monitor
     midi.monitor = monitor
-
-    log.info("starting MIDI service")
-    midi.start()
   }
 
   private func monitorInvalidationNotification(_ state: inout State) -> Effect<Action> {

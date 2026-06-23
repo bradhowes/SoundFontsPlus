@@ -4,6 +4,9 @@ import Foundation
 
 /**
  Utility that checks for changes in a user-defined state.
+
+ Holds a closure that creates the current state. The `changed` method creates a new state representation and returns `true` if the
+ values differ (updating the held representation with the new one).
  */
 public struct StateMonitor<State: Equatable> {
   private let make: () -> State

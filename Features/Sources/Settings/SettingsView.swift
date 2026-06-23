@@ -19,6 +19,7 @@ public struct SettingsView: View {
 
   @Dependency(\.audioSession) private var audioSession
   @Dependency(\.fileManager) private var fileManager
+  @Dependency(\.midiProvider) private var midiProvider
 
   private let isAUv3: Bool
   private var isApp: Bool { !isAUv3 }
@@ -40,7 +41,7 @@ public struct SettingsView: View {
           fontsSection
           if isApp {
             keyboardSection
-            if store.hasMIDI {
+            if midiProvider.midi() != nil {
               midiSection
             }
           }
@@ -682,9 +683,11 @@ extension View {
 
 extension SettingsView {
   static var preview: some View {
-    @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
-    midi?.start()
-    navigationBarTitleStyle()
+    prepareDependencies {
+      let midi = MIDIProvider.makeMIDI(clientName: "Test")
+      $0.midiProvider = .init(midiProvider: { midi })
+      navigationBarTitleStyle()
+    }
     return VStack {
       SettingsView(
         store: Store(initialState: .init()) {

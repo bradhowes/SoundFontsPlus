@@ -40,10 +40,15 @@ struct SettingsTests {
     }
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      let midi = MIDIProvider.makeMIDI(clientName: "Test")
+      $0.midiProvider = .init(midiProvider: { midi })
+    }
+  )
   func initializeWithMidi() async throws {
-    @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
-    midi?.start()
+    @Dependency(\.midiProvider) var midiProvider
+    let midi = midiProvider.midi()
     @Shared(.midiMonitor) var midiMonitor = MIDIMonitor(instrument: MockAudioUnit())
     midi?.receiver = midiMonitor
 

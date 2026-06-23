@@ -301,8 +301,8 @@ extension AppRootView {
     $0.defaultDatabase = try! appDatabase()
     try? $0.fileManager.createDirectory($0.fileManager.fontFilesDirectory())
 
-    @Shared(.midiInputPortId) var midiInputPortId
-    @Shared(.midi) var midi = MIDI(clientName: "Test", uniqueId: Int32(midiInputPortId), midiProto: .v1_0)
+    let midi = MIDIProvider.makeMIDI(clientName: "Test")
+    $0.midiProvider = .init(midiProvider: { midi })
   }
   AppRootView.preview
 }

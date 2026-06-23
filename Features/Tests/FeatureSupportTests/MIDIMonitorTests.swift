@@ -17,7 +17,6 @@ import TestSupport
 @MainActor
 struct MIDIMonitorTests {
 
-  @Shared(.midi) var sharedMIDI
   @Shared(.midiAutoConnect) var midiAutoConnect = false
   @Shared(.midiChannel) var midiChannel = -1
 
@@ -167,18 +166,21 @@ struct MIDIMonitorTests {
     #expect(monitor.notes! == .off(.init(midi: 60)))
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      let midi = MIDIProvider.makeMIDI(clientName: "MIDIMonitorTests")
+      $0.midiProvider = .init(midiProvider: { midi })
+    }
+  )
   func didUpdateConnections() {
     let mau = MockAudioUnit()
     $midiChannel.withLock { $0 = 1 }
     let monitor = MIDIMonitor(instrument: mau)
 
-    let midi = MIDI(clientName: "Test", uniqueId: 123, midiProto: .v1_0)
-    $sharedMIDI.withLock { $0 = midi }
-
-    midi.monitor = monitor
-    midi.receiver = monitor
-    midi.start()
+    @Dependency(\.midiProvider) var midiProvider
+    let midi = midiProvider.midi()
+    midi?.monitor = monitor
+    midi?.receiver = monitor
 
     monitor.didUpdateConnections(connected: [], disappeared: [])
   }

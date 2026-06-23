@@ -25,6 +25,14 @@ public enum MIDINote: Equatable, Sendable {
   case off(Note)
 }
 
+public struct MIDITrafficStreamProvider: Sendable {
+  public let create: @Sendable () -> AsyncStream<MIDITrafficStat>
+
+  public init(create: @escaping @Sendable () -> AsyncStream<MIDITrafficStat>) {
+    self.create = create
+  }
+}
+
 public final class MIDIMonitor: @unchecked Sendable {
 
   let midiInstrument: AVAudioUnitMIDIInstrument
@@ -41,8 +49,6 @@ public final class MIDIMonitor: @unchecked Sendable {
   @Published public var traffic: MIDITrafficStat?
   /// Publisher of note ON/OFF commands that were sent to the synth
   @Published public var notes: MIDINote?
-
-  @Shared(.midi) private var midi
 
   /**
    Create new instance that sends MIDI traffic to the given MIDI instrument (SF2LibAU).
@@ -83,7 +89,8 @@ extension MIDIMonitor: Monitor {
 
   public func didUpdateConnections(connected: any Sequence<MIDIEndpointRef>, disappeared: any Sequence<MIDIUniqueID>) {
     log.debug("didUpdateConnections: \(connected.map(\.uniqueId.asHex)) - \(String(describing: disappeared), privacy: .public)")
-    if let midi {
+    @Dependency(\.midiProvider) var midiProvider
+    if let midi = midiProvider.midi() {
       self.connectivity = midi.sourceConnections
     }
   }

@@ -54,7 +54,7 @@ public struct MIDIConnections {
 
   public init() {}
 
-  @Shared(.midi) var midi
+  @Dependency(\.midiProvider) var midiProvider
   @Shared(.midiMonitor) var midiMonitor
 
   public var body: some ReducerOf<Self> {
@@ -129,7 +129,7 @@ extension MIDIConnections {
   }
 
   private func toggleConnected(_ state: inout State, id: MIDIUniqueID) -> Effect<Action> {
-    guard let midi else { return .none }
+    guard let midi = midiProvider.midi() else { return .none }
     if let index = state.rows.index(id: id) {
       if state.rows[index].connected {
         state.rows[index].connected = false
@@ -151,7 +151,7 @@ extension MIDIConnections {
 
   private func updateMIDIConnections(_ state: inout State) -> Effect<Action> {
     // Hack to allow preview data to exist
-    if let midi {
+    if let midi = midiProvider.midi() {
       state.rows = state.makeRows(from: midi.sourceConnections)
     }
     return .none

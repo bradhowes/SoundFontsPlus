@@ -7,3 +7,12 @@ import Testing
 import TestSupport
 
 @testable import MIDITrafficIndicator
+
+@Suite
+struct MIDITrafficIndicatorTests {
+
+  @Test
+  func blinker() {
+
+  }
+}

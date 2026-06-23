@@ -82,7 +82,6 @@ public struct Settings {
     public var midiDevicesConnected: String = ""
     public var midiTrafficIndicator: MIDITrafficIndicator.State
     public var tuning: Tuning.State
-    public let hasMIDI: Bool
     public var copyFileWhenInstalling: Bool
     public var disableIdleTimer: Bool
     public var keyWidth: Double
@@ -144,8 +143,9 @@ public struct Settings {
       midiTrafficIndicator: MIDITrafficIndicator.State = .init(tag: "Settings"),
       tuning: Tuning.State = Self.makeTuningState()
     ) {
-      @Shared(.midi) var midi
-      hasMIDI = midi != nil
+      @Dependency(\.midiProvider) var midiProvider
+      let midi = midiProvider.midi()
+
       self.path = path
       self.destination = destination
       self.midiDevicesCount = midi?.sourceConnections.count ?? midiDevicesCount
@@ -205,6 +205,7 @@ public struct Settings {
   public init() {}
 
   @Dependency(\.dismiss) var dismiss
+  @Dependency(\.midiProvider) var midiProvider
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -273,8 +274,7 @@ public struct Settings {
         return .none
 
       case .midiConnectionsChanged:
-        @Shared(.midi) var midi
-        if let midi {
+        if let midi = midiProvider.midi() {
           updateMIDIInfo(&state, midi: midi)
         }
         return .none
@@ -284,7 +284,7 @@ public struct Settings {
         return .none
 
       case .path(.popFrom(let id)):
-        @Shared(.midi) var midi
+        let midi = midiProvider.midi()
         if case .midiConnections = state.path[id: id],
            let midi {
           updateMIDIInfo(&state, midi: midi)

@@ -66,10 +66,6 @@ extension SharedKey where Self == AppStorageKey<String>.Default {
 
 // MARK: - InMemory settings
 
-extension SharedKey where Self == InMemoryKey<MIDI?>.Default {
-  public static var midi: Self { Self[.inMemory("midi"), default: nil] }
-}
-
 extension SharedKey where Self == InMemoryKey<MIDIMonitor?>.Default {
   public static var midiMonitor: Self { Self[.inMemory("midiMonitor"), default: nil] }
 }
