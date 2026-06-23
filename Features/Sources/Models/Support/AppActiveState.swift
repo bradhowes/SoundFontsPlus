@@ -134,9 +134,9 @@ public struct AppActiveStateValue {
 extension AppActiveStateValue: Codable, Equatable, Sendable {}
 
 extension SharedKey where Self == FileStorageKey<AppActiveStateValue>.Default {
-  fileprivate static var appActiveStateValue: Self { Self[.fileStorage(.appActiveStateURL), default: .default] }
+  static var appActiveStateValue: Self { Self[.fileStorage(.appActiveStateURL), default: .default] }
 }
 
 extension SharedKey where Self == InMemoryKey<AppActiveStateValue>.Default {
-  fileprivate static var tmpActiveStateValue: Self { Self[.inMemory("tmpActiveStateValue"), default: .default] }
+  static var tmpActiveStateValue: Self { Self[.inMemory("tmpActiveStateValue"), default: .default] }
 }
