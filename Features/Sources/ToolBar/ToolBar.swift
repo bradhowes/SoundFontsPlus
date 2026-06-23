@@ -425,3 +425,11 @@ extension ToolBar {
     return .send(.delegate(.tagsListVisibilityChanged(state.tagsListVisible)))
   }
 }
+
+#if DEBUG
+
+#Preview {
+  ToolBarView.preview()
+}
+
+#endif // DEBUG

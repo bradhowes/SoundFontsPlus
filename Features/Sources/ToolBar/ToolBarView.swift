@@ -47,6 +47,9 @@ public struct ToolBarView: View {
     .frame(height: height)
     .padding([.top, .bottom], controlSpacing)
     .background(.windowBackground)
+    .animation(.smooth, value: showActiveVoiceCount)
+    .animation(.smooth, value: showMIDITrafficIndicator)
+    .animation(.smooth, value: starFavoriteNames)
     .animation(.smooth, value: store.showMoreButtons)
     .animation(.smooth, value: height)
     .animation(.smooth, value: store.activeVoiceCount)
@@ -74,6 +77,9 @@ extension ToolBarView {
     addSoundFontButton
     tagsButton
     effectsButton
+    if showActiveVoiceCount || showMIDITrafficIndicator {
+      voiceCountAndMIDITrafficIndicator
+    }
     status
     shiftDownButton
     slidingKeyboardButton
@@ -112,6 +118,9 @@ extension ToolBarView {
       addSoundFontButton
       tagsButton
       effectsButton
+      if showActiveVoiceCount || showMIDITrafficIndicator {
+        voiceCountAndMIDITrafficIndicator
+      }
       status
       helpButton
       moreButton
@@ -142,27 +151,15 @@ extension ToolBarView {
   }
 
   private var status: some View {
-    ZStack(alignment: .leading) {
-      if showMIDITrafficIndicator {
-        MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
-          .zIndex(-99)
-      }
-      HStack {
-        if showActiveVoiceCount || showMIDITrafficIndicator {
-          voiceCountAndTrafficIndicator
-            .transition(.slide)
-        }
-        statusText
-      }
-      .animation(.smooth, value: showActiveVoiceCount || showMIDITrafficIndicator)
-    }
-    .helpInfoViewTag(.statusWindow)
+    statusText
+      .helpInfoViewTag(.statusWindow)
   }
 
   private var statusText: some View {
     HStack {
       if showingPresetSymbol {
         Image(systemName: favoriteSymbolName)
+          .imageScale(.medium)
       }
       Text(statusTextValue)
       Spacer()
@@ -176,12 +173,18 @@ extension ToolBarView {
     .onTapGesture(count: 1) { store.send(.statusTextTapped(count: 1)) }
   }
 
-  private var voiceCountAndTrafficIndicator: some View {
-    Text(store.activeVoiceCount > 0 ? "\(store.activeVoiceCount)" : "")
-      .font(.activeVoiceCount)
-      .indicator(.activeNoIndicator)
-      .contentTransition(.interpolate)
-      .frame(width: 24, alignment: .center)
+  private var voiceCountAndMIDITrafficIndicator: some View {
+    ZStack(alignment: .center) {
+      MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
+        .opacity(showMIDITrafficIndicator ? 1.0 : 0.0)
+      Text(store.activeVoiceCount > 0 ? "\(store.activeVoiceCount)" : "")
+        .font(.activeVoiceCount)
+        .indicator(.activeNoIndicator)
+        .opacity(showActiveVoiceCount ? 1.0 : 0.0)
+        .contentTransition(.interpolate)
+        .transition(.slide)
+    }
+    .frame(width: 16, alignment: .center)
   }
 
   private var addSoundFontButton: some View {
