@@ -97,6 +97,9 @@ public struct MIDIConnections {
       case .midiConnectionsChanged:
         return updateMIDIConnections(&state)
 
+      case .midiTrafficIndicator(.showMIDITraffic(let traffic)):
+        return updateMIDIChannel(&state, traffic: traffic)
+
       case .midiTrafficIndicator:
         return .none
 
@@ -225,11 +228,12 @@ public struct MIDIConnectionsView: View {
       await store.send(.initialize).finish()
     }
     .onReceive(store.midiTrafficIndicator.midiTrafficPublisher) { traffic in
-      store.send(.sawMIDITraffic(traffic))
+      // store.send(.sawMIDITraffic(traffic))
+      guard animating == nil else { return }
       withAnimation(.smooth(duration: 0.5)) {
         animating = traffic.id
       } completion: {
-        withAnimation(.smooth(duration: 0.25)) {
+        withAnimation(.smooth(duration: 0.5)) {
           animating = nil
         }
       }
