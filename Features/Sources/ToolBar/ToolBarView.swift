@@ -8,6 +8,8 @@ import SwiftUI
 public struct ToolBarView: View {
   private var store: StoreOf<ToolBar>
   @Shared(.favoriteSymbolName) private var favoriteSymbolName
+  @Shared(.showActiveVoiceCount) private var showActiveVoiceCount
+  @Shared(.showMIDITrafficIndicator) private var showMIDITrafficIndicator
   @Shared(.starFavoriteNames) private var starFavoriteNames
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.controlSpacing) var controlSpacing
@@ -140,8 +142,21 @@ extension ToolBarView {
   }
 
   private var status: some View {
-    statusText
-      .helpInfoViewTag(.statusWindow)
+    ZStack(alignment: .leading) {
+      if showMIDITrafficIndicator {
+        MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
+          .zIndex(-99)
+      }
+      HStack {
+        if showActiveVoiceCount || showMIDITrafficIndicator {
+          voiceCountAndTrafficIndicator
+            .transition(.slide)
+        }
+        statusText
+      }
+      .animation(.smooth, value: showActiveVoiceCount || showMIDITrafficIndicator)
+    }
+    .helpInfoViewTag(.statusWindow)
   }
 
   private var statusText: some View {
@@ -159,6 +174,14 @@ extension ToolBarView {
     .contentShape(Rectangle())
     .onTapGesture(count: 2) { store.send(.statusTextTapped(count: 2)) }
     .onTapGesture(count: 1) { store.send(.statusTextTapped(count: 1)) }
+  }
+
+  private var voiceCountAndTrafficIndicator: some View {
+    Text(store.activeVoiceCount > 0 ? "\(store.activeVoiceCount)" : "")
+      .font(.activeVoiceCount)
+      .indicator(.activeNoIndicator)
+      .contentTransition(.interpolate)
+      .frame(width: 24, alignment: .center)
   }
 
   private var addSoundFontButton: some View {
