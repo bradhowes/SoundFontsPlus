@@ -21,20 +21,6 @@ nonisolated public struct TagInfo {
 
 extension TagInfo {
 
-  private static var tagQueryBase: Select<(), Tag, ()> {
-    Tag.queryBase
-      .where(\.visible)
-      .group(by: \.id)
-  }
-
-  private static var filteredQueryBase: Select<(), Tag, ()> {
-    @Shared(.hideBuiltinFonts) var hideBuiltinFonts
-    if hideBuiltinFonts {
-      return tagQueryBase.where { $0.id.neq(Tag.Ubiquitous.builtIn.id) }
-    }
-    return tagQueryBase
-  }
-
   public static var query: Select<TagInfo.Columns.QueryValue, Tag, (TaggedSoundFont?, SoundFont?)> {
     @Shared(.hideBuiltinFonts) var hideBuiltinFonts
     @Shared(.hideEmptyTags) var hideEmptyTags
@@ -42,8 +28,11 @@ extension TagInfo {
     let firstUserTagId = Tag.ID(0)
     // The minimum font count to hide empty tags if enabled.
     let minFontCountToShow = hideEmptyTags ? 1 : 0
+    // The minimum 'kind' to show
     let filteredKind: SoundFont.Kind = hideBuiltinFonts ? .installed : .builtin
-    return tagQueryBase
+    return Tag.queryBase
+      .where(\.visible)
+      .group(by: \.id)
       .leftJoin(TaggedSoundFont.all) { tag, tagged in
         tag.id.eq(tagged.tagId)
       }
@@ -51,7 +40,9 @@ extension TagInfo {
         tagged.soundFontId.eq(soundFont.id)
       }
       .having { tag, _, soundFont in
-        soundFont.id.count(filter: (soundFont.kind ?? SoundFont.Kind.installed).gte(filteredKind)).gte(minFontCountToShow) ||
+        soundFont.id
+          .count(filter: (soundFont.kind ?? SoundFont.Kind.installed).gte(filteredKind))
+          .gte(minFontCountToShow) ||
         tag.id.eq(Tag.Ubiquitous.all.id) ||
         tag.id.gte(firstUserTagId)
       }
@@ -59,7 +50,8 @@ extension TagInfo {
         TagInfo.Columns(
           id: tag.id,
           displayName: tag.displayName,
-          soundFontsCount: soundFont.id.count(filter: (soundFont.kind ?? SoundFont.Kind.installed).gte(filteredKind)),
+          soundFontsCount: soundFont.id
+            .count(filter: (soundFont.kind ?? SoundFont.Kind.installed).gte(filteredKind)),
           ordering: tag.ordering
         )
       }
