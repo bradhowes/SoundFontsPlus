@@ -44,9 +44,6 @@ public final class MIDIMonitor: @unchecked Sendable {
 
   @Shared(.midi) private var midi
 
-  // TODO: we should be able to use @Dependency(\.defaultDatabase) but during tests it is not being properly set
-  private var database: DatabaseWriter
-
   /**
    Create new instance that sends MIDI traffic to the given MIDI instrument (SF2LibAU).
 
@@ -55,8 +52,6 @@ public final class MIDIMonitor: @unchecked Sendable {
   public init(instrument: AVAudioUnitMIDIInstrument) {
     self.midiInstrument = instrument
     self.connectivity = []
-    @Dependency(\.defaultDatabase) var database
-    self.database = database
   }
 }
 
@@ -69,6 +64,7 @@ extension MIDIMonitor: Monitor {
    - returns: true if connection should be established
    */
   public func shouldConnect(to uniqueId: MIDIUniqueID) -> Bool {
+    @Dependency(\.defaultDatabase) var database
     let midiConfig = withErrorReporting {
       try database.read {
         try MIDIConfig.all.find(uniqueId).fetchOne($0)
