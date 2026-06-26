@@ -61,6 +61,7 @@ nonisolated public struct SoundFont {
 }
 
 extension SoundFont {
+  static public var indexedNameColumnIndexName: String { "\(tableName)-originalName" }
 
   static func migrate(_ migrator: inout DatabaseMigrator) {
     migrator.registerMigration(Self.tableName) { db in
@@ -78,6 +79,15 @@ extension SoundFont {
         "embeddedCopyright" TEXT NOT NULL,
         "notes" TEXT NOT NULL
       ) STRICT
+      """
+      )
+      .execute(db)
+
+      try #sql(
+      """
+      CREATE INDEX IF NOT EXISTS "\(raw: Self.indexedNameColumnIndexName)" ON "\(raw: Self.tableName)" (
+        "originalName"
+      )
       """
       )
       .execute(db)
