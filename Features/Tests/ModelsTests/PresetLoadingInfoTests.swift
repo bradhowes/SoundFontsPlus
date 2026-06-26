@@ -28,7 +28,7 @@ struct PresetLoadingInfoTests {
     #expect(apli?.soundFontId == presets[0].soundFontId)
     #expect(apli?.presetIndex == presets[0].index)
     #expect(apli?.presetName == presets[0].displayName)
-    #expect(apli?.soundFontName == presets[0].soundFontName)
+    #expect(apli?.originalSoundFontName == "Original " + presets[0].soundFontName)
     #expect(apli?.gain == 0.0)
     #expect(apli?.pan == 0.0)
   }
@@ -55,7 +55,7 @@ struct PresetLoadingInfoTests {
     #expect(apli?.soundFontId == presets[0].soundFontId)
     #expect(apli?.presetIndex == presets[0].index)
     #expect(apli?.presetName == presets[0].displayName)
-    #expect(apli?.soundFontName == presets[0].soundFontName)
+    #expect(apli?.originalSoundFontName == "Original " + presets[0].soundFontName)
     #expect(apli?.gain == 0.0)
     #expect(apli?.pan == 0.0)
   }

@@ -2,36 +2,90 @@
 
 import AVFAudio
 import BaseSupport
+import Dependencies
 import DependenciesTestSupport
-import Foundation
 import Engine
+import Foundation
+import Models
 import Testing
 import TestSupport
 
 @testable import SF2LibAU
 
-// SF2LibAU cannot be tested via the SF2LibAU API since it actually creates
-@Suite
+@Suite(
+  .dependencies {
+    $0.audioGraph = .liveValue
+    $0.audioSession = AudioSession.liveValue
+    $0.defaultDatabase = TestSupport.testDatabase()
+  }
+  // .serialized // due to SF2LibAU creation
+)
 @MainActor
 struct SF2LibAUTests {
 
+  func initialized(_ closure: (AVAudioUnitMIDIInstrument) async throws -> Void) async throws {
+    @Dependency(\.audioGraph) var audioGraph
+    @Dependency(\.audioSession) var audioSession
+    let au: AVAudioUnitMIDIInstrument! = await SF2LibAU.create(register: true)
+    #expect(au != nil)
+    #expect(au.parameterTree != nil)
+
+    #expect(audioSession.start() == true)
+    #expect(audioGraph.start(audioGraph.engine, au) == true)
+
+    try await closure(au)
+  }
+
   @Test
-  func engineTests() async throws {
-    var engine = SF2Engine()
-    engine.create(48000.0, 16)
+  func creation() async throws {
+    try await initialized { _ in }
+  }
 
-    _ = SF2Engine.createResetCommandPayload()
-    _ = SF2Engine.createUseBankProgramPayload(1, 2)
-    _ = SF2Engine.createChannelMessagePayload(1, 2)
-    _ = SF2Engine.createAllSoundOffPayload()
-    _ = SF2Engine.createAllNotesOffPayload()
+  @Test
+  func sendMIDI() async throws {
+    try await initialized { au in
+      let presetInfo: PresetLoadingInfo! = PresetLoadingInfo.for(id: 1)
+      #expect(presetInfo != nil)
 
-    #expect(engine.activePresetName() == "")
-    #expect(engine.activeVoiceCount() == 0)
-    #expect(engine.monophonicModeEnabled() == false)
-    #expect(engine.polyphonicModeEnabled() == true)
-    #expect(engine.portamentoModeEnabled() == false)
-    #expect(engine.oneVoicePerKeyModeEnabled() == false)
-    #expect(engine.retriggerModeEnabled() == true)
+      let location = try SoundFontKind(
+        kind: presetInfo.kind,
+        location: presetInfo.location,
+        displayName: presetInfo.originalSoundFontName,
+      )
+
+      #expect(
+        au.sendLoadFileUsePreset(
+          path: location.url.path(percentEncoded: false),
+          preset: presetInfo.presetIndex,
+          gain: presetInfo.gain,
+          pan: presetInfo.pan
+        ) == true
+      )
+
+      au.startNote(60, withVelocity: 127, onChannel: 0)
+    }
+  }
+
+  @Test
+  func setFullState() async throws {
+    try await initialized { au in
+      let presetInfo: PresetLoadingInfo! = PresetLoadingInfo.for(id: 1)
+      #expect(presetInfo != nil)
+
+      let location = try SoundFontKind(
+        kind: presetInfo.kind,
+        location: presetInfo.location,
+        displayName: presetInfo.originalSoundFontName,
+      )
+
+      let activeState: AUv3ActiveState = .init(
+        soundFontName: presetInfo.originalSoundFontName,
+        presetIndex: presetInfo.presetIndex,
+        tagName: Tag.Ubiquitous.all.displayName ?? ""
+      )
+
+      let fullState = try FullState(activeState: activeState)
+      let state = au.auAudioUnit.fullState
+    }
   }
 }

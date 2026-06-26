@@ -88,15 +88,15 @@ struct AUv3ActiveStateTests {
 
   @Test
   func presetLoadingInfo() throws {
-    let value = AUv3ActiveState(soundFontName: "Font 1", presetIndex: 1, tagName: Tag.Ubiquitous.all.displayName!)
+    let value = AUv3ActiveState(soundFontName: "Original Font 1", presetIndex: 1, tagName: Tag.Ubiquitous.all.displayName!)
     let pli = value.presetLoadingInfo
     #expect(pli != nil)
   }
 
   @Test
   func description() throws {
-    let value = AUv3ActiveState(soundFontName: "Font 1", presetIndex: 1, tagName: Tag.Ubiquitous.all.displayName!)
-    #expect(value.description == "<AUv3ActiveState soundFontId=Font 1 presetIndex=1 tagName=All/>")
+    let value = AUv3ActiveState(soundFontName: "Original Font 1", presetIndex: 1, tagName: Tag.Ubiquitous.all.displayName!)
+    #expect(value.description == "<AUv3ActiveState soundFontName=\"Original Font 1\" presetIndex=1 tagName=\"All\"/>")
   }
 
   @Test

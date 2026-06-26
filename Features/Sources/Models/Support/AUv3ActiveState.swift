@@ -8,13 +8,10 @@ import Sharing
  Collection of attributes that define the active state of an SF2LibAU instance. There can be more than one instance of an SF2LibAU
  active at the same time in the same AUv3 host. The safest way to save and restore state is to rely on the values store in the
  `AUAudioUnit/fullState` attribute which would come from the AUv3 host when it loads a document.
-
- The state contains the unique IDs for the active soundfont, preset, and tag, and additional shared state values that affect the
- UI.
  */
 public struct AUv3ActiveState: Codable, Equatable {
 
-  /// The name of the sound font that is currently active.
+  /// The name of the sound font that is currently active. This is the _original_ name of the sound font.
   public let soundFontName: String
   /// The index of the sound font preset that is currently active.
   public let presetIndex: Int
@@ -85,12 +82,13 @@ public struct AUv3ActiveState: Codable, Equatable {
 extension AUv3ActiveState: CustomStringConvertible {
   public var description: String {
     """
-    <AUv3ActiveState soundFontId=\(soundFontName) presetIndex=\(presetIndex) tagName=\(tagName)/>
+    <AUv3ActiveState soundFontName="\(soundFontName)" presetIndex=\(presetIndex) tagName="\(tagName)"/>
     """
   }
 }
 
 public struct FullState {
+  public static let presetVersionValue = FourCharCode(67072)
   public let state: [String: Any]
 
   public var activeState: AUv3ActiveState? {
@@ -109,7 +107,7 @@ public struct FullState {
     state[kAUPresetTypeKey] = component.componentType
     state[kAUPresetSubtypeKey] = component.componentSubType
     state[kAUPresetManufacturerKey] = component.componentManufacturer
-    state[kAUPresetVersionKey] = FourCharCode(67072)
+    state[kAUPresetVersionKey] = Self.presetVersionValue
     self.state = state
   }
 }

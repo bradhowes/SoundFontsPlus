@@ -15,6 +15,7 @@ nonisolated public struct PresetLoadingInfo {
   public let kind: SoundFont.Kind
   public let location: Data
   public let presetName: String
+  public let originalSoundFontName: String
   public let soundFontName: String
   public let gain: Double
   public let pan: Double
@@ -23,14 +24,16 @@ nonisolated public struct PresetLoadingInfo {
 extension PresetLoadingInfo {
 
   static func query(
-    for soundFontName: String,
+    for originalSoundFontName: String,
     presetIndex: Int
   ) -> Select<Self.Columns.QueryValue, SoundFont, (Preset, AudioConfig?)> {
-    return SoundFont
+    SoundFont
       .where {
-        $0.displayName.eq(soundFontName)
+        // NOTE: this column should match the one that is used when creating the index on SoundFont to lookup by name.
+        $0.originalName.eq(originalSoundFontName)
       }
       .join(Preset.all) {
+        $1.index.eq(presetIndex) &&
         $0.id.eq($1.soundFontId)
       }
       .leftJoin(AudioConfig.all) {
@@ -44,6 +47,7 @@ extension PresetLoadingInfo {
           kind: $0.kind,
           location: $0.location,
           presetName: $1.displayName,
+          originalSoundFontName: $0.originalName,
           soundFontName: $0.displayName,
           gain: $2.gain ?? 0.0,
           pan: $2.pan ?? 0.0
@@ -64,7 +68,7 @@ extension PresetLoadingInfo {
   }
 
   static func query(for id: Preset.ID) -> Select<Self.Columns.QueryValue, Preset, (SoundFont, AudioConfig?)> {
-    return Preset
+    Preset
       .where {
         $0.id.eq(id)
       }
@@ -82,6 +86,7 @@ extension PresetLoadingInfo {
           kind: $1.kind,
           location: $1.location,
           presetName: $0.displayName,
+          originalSoundFontName: $1.originalName,
           soundFontName: $1.displayName,
           gain: $2.gain ?? 0.0,
           pan: $2.pan ?? 0.0
@@ -108,10 +113,11 @@ extension PresetLoadingInfo: CustomStringConvertible {
     """
     <PresetLoadingInfo
       id=\(soundFontId)
+      soundFontName="\(soundFontName)"
       presetIndex=\(presetIndex)
       kind="\(kind)"
       presetName="\(presetName)"
-      soundFontName="\(soundFontName)"
+      originalSoundFontName="\(originalSoundFontName)"
       gain=\(gain)
       pan=\(pan)
     />

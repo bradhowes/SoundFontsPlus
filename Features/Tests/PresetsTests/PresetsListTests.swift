@@ -29,22 +29,6 @@ struct PresetsListTests {
     $sortPresetsByName.withLock { $0 = false }
   }
 
-  static func makePresets(_ pairs: [(Int, String)]) -> [Preset] {
-    pairs.map { index, name in
-      Preset(
-        id: .init(rawValue: Int64(index + 1)),
-        index: index,
-        bank: 0,
-        program: index,
-        originalName: "Original Preset \(index + 1)",
-        soundFontId: 1,
-        displayName: name,
-        notes: "",
-        kind: index == 2 ? .hidden : .preset
-      )
-    }
-  }
-
   func setup(
     activeSoundFontId: SoundFont.ID? = 1,
     selectedSoundFontId: SoundFont.ID? = 2,
