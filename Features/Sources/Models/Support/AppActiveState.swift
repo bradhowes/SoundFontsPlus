@@ -1,12 +1,16 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import BaseSupport
 import Dependencies
 import Foundation
 import Sharing
 
 /**
- Getters and setters for active soundfont ID, preset ID, and tag ID. Use `@Dependency(\.appActiveState)` to access the right
- environmental collection.
+ Getters and setters for active soundfont ID, preset ID, and tag ID state values for the app.
+
+ Use `@Dependency(\.appActiveState)` to access the right environmental collection.
+
+ Note that this is **not** used by the AUv3 component.
  */
 public struct AppActiveState: Sendable {
 
@@ -37,30 +41,44 @@ public struct AppActiveState: Sendable {
 
 extension AppActiveState: DependencyKey {
 
+  @inlinable
+  static func validateNotAUv3() {
+#if DEBUG
+    @Shared(.isAUv3) var isAUv3
+    precondition(isAUv3 == false)
+#endif
+  }
+
   /// - returns: value to use in non-test situations
   public static var liveValue: Self {
     .init(
       setActiveSoundFontId: { value in
+        validateNotAUv3()
         @Shared(.appActiveStateValue) var activeStateValue
         $activeStateValue.activeSoundFontId.withLock { $0 = value}
       },
       setActivePresetId: { value in
+        validateNotAUv3()
         @Shared(.appActiveStateValue) var activeStateValue
         $activeStateValue.activePresetId.withLock { $0 = value}
       },
       setActiveTagId: { value in
+        validateNotAUv3()
         @Shared(.appActiveStateValue) var activeStateValue
         $activeStateValue.activeTagId.withLock { $0 = value}
       },
       getActiveSoundFontId: {
+        validateNotAUv3()
         @Shared(.appActiveStateValue) var activeStateValue
         return activeStateValue.activeSoundFontId
       },
       getActivePresetId: {
+        validateNotAUv3()
         @Shared(.appActiveStateValue) var activeStateValue
         return activeStateValue.activePresetId
       },
       getActiveTagId: {
+        validateNotAUv3()
         @Shared(.appActiveStateValue) var activeStateValue
         return activeStateValue.activeTagId
       }
@@ -71,26 +89,32 @@ extension AppActiveState: DependencyKey {
   public static var previewValue: Self {
     .init(
       setActiveSoundFontId: { value in
+        validateNotAUv3()
         @Shared(.tmpActiveStateValue) var activeStateValue
         $activeStateValue.activeSoundFontId.withLock { $0 = value}
       },
       setActivePresetId: { value in
+        validateNotAUv3()
         @Shared(.tmpActiveStateValue) var activeStateValue
         $activeStateValue.activePresetId.withLock { $0 = value}
       },
       setActiveTagId: { value in
+        validateNotAUv3()
         @Shared(.tmpActiveStateValue) var activeStateValue
         $activeStateValue.activeTagId.withLock { $0 = value}
       },
       getActiveSoundFontId: {
+        validateNotAUv3()
         @Shared(.tmpActiveStateValue) var activeStateValue
         return activeStateValue.activeSoundFontId
       },
       getActivePresetId: {
+        validateNotAUv3()
         @Shared(.tmpActiveStateValue) var activeStateValue
         return activeStateValue.activePresetId
       },
       getActiveTagId: {
+        validateNotAUv3()
         @Shared(.tmpActiveStateValue) var activeStateValue
         return activeStateValue.activeTagId
       }

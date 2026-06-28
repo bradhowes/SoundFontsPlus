@@ -181,7 +181,7 @@ struct ToolBarTests {
     if !moreButtonsVisible {
       await store.receive(\.showMoreButtonTapped) {
         $0.$effectsPanelVisible.withLock { $0 = true }
-        $0.$tagsListVisible.withLock { $0 = true }
+        $0.setTagsListVisible(true)
         $0.showMoreButtons = true
       }
       didStateChange = true
@@ -193,7 +193,7 @@ struct ToolBarTests {
       } else {
         await store.receive(\.effectsVisibilityButtonTapped) {
           $0.$effectsPanelVisible.withLock { $0 = true }
-          $0.$tagsListVisible.withLock { $0 = true }
+          $0.setTagsListVisible(true)
         }
         didStateChange = true
       }
@@ -206,7 +206,7 @@ struct ToolBarTests {
       } else {
         await store.receive(\.tagsListVisibilityButtonTapped) {
           $0.$effectsPanelVisible.withLock { $0 = true }
-          $0.$tagsListVisible.withLock { $0 = true }
+          $0.setTagsListVisible(true)
         }
         didStateChange = true
       }
@@ -253,7 +253,7 @@ struct ToolBarTests {
     if !effectsPanelVisible {
       await store.receive(\.effectsVisibilityButtonTapped) {
         $0.$effectsPanelVisible.withLock { $0 = true }
-        $0.$tagsListVisible.withLock { $0 = true }
+        $0.setTagsListVisible(true)
       }
       didStateChange = true
       await store.receive(\.delegate.effectsVisibilityChanged, true)
@@ -265,7 +265,7 @@ struct ToolBarTests {
       } else {
         await store.receive(\.tagsListVisibilityButtonTapped) {
           $0.$effectsPanelVisible.withLock { $0 = true }
-          $0.$tagsListVisible.withLock { $0 = true }
+          $0.setTagsListVisible(true)
         }
         didStateChange = true
       }
@@ -551,12 +551,12 @@ struct ToolBarTests {
     #expect(store.state.tagsListVisible == tagsListVisible)
 
     await store.send(.tagsListVisibilityButtonTapped) {
-      $0.$tagsListVisible.withLock { $0.toggle() }
+      $0.tagsListVisibleToggle()
     }
     await store.receive(\.delegate.tagsListVisibilityChanged, !tagsListVisible)
 
     await store.send(.tagsListVisibilityButtonTapped) {
-      $0.$tagsListVisible.withLock { $0.toggle() }
+      $0.tagsListVisibleToggle()
     }
     await store.receive(\.delegate.tagsListVisibilityChanged, tagsListVisible)
 

@@ -83,7 +83,7 @@ public struct AppRoot {
     public var helpInfoSelection: RootHelpInfo?
 
     /**
-     Constructor for main app.
+     Constructor for main app state.
      */
     public init(
       appReview: AppReview.State? = nil,

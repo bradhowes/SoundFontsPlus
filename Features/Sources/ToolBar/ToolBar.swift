@@ -59,10 +59,10 @@ public struct ToolBar {
     public var midiTrafficIndicator: MIDITrafficIndicator.State
     public var preset: Preset?
     public var showMoreButtons: Bool
-    @Shared(.tagsListVisible) public var tagsListVisible
     public var hasMoreButton: Bool
     @ObservationStateIgnored
     public var helpInfoRestoration: HelpInfoRestoration?
+    public let isAUv3: Bool
 
     public init(
       activeVoiceCount: Int = 0,
@@ -92,12 +92,45 @@ public struct ToolBar {
       self.showMoreButtons = showMoreButtons
       self.temporaryStatus = .startup
 
+      @Shared(.isAUv3) var isAUv3
+      self.isAUv3 = isAUv3
+
       if let effectsPanelVisible {
         self.$effectsPanelVisible.withLock { $0 = effectsPanelVisible }
       }
 
       if let tagsListVisible {
-        self.$tagsListVisible.withLock { $0 = tagsListVisible }
+        setTagsListVisible(tagsListVisible)
+      }
+    }
+
+    public var tagsListVisible: Bool {
+      if isAUv3 {
+        @Shared(.auv3TagsListVisible) var auv3TagsListVisible
+        return auv3TagsListVisible
+      } else {
+        @Shared(.tagsListVisible) var appTagsListVisible
+        return appTagsListVisible
+      }
+    }
+
+    public func setTagsListVisible(_ value: Bool) {
+      if isAUv3 {
+        @Shared(.auv3TagsListVisible) var auv3TagsListVisible
+        $auv3TagsListVisible.withLock { $0 = value }
+      } else {
+        @Shared(.tagsListVisible) var appTagsListVisible
+        $appTagsListVisible.withLock { $0 = value }
+      }
+    }
+
+    public func tagsListVisibleToggle() {
+      if isAUv3 {
+        @Shared(.auv3TagsListVisible) var auv3TagsListVisible
+        $auv3TagsListVisible.withLock { $0.toggle() }
+      } else {
+        @Shared(.tagsListVisible) var appTagsListVisible
+        $appTagsListVisible.withLock { $0.toggle() }
       }
     }
   }
@@ -345,7 +378,7 @@ extension ToolBar {
 
   private func helpInfoButtonTapped(_ state: inout State) -> Effect<Action> {
     let helpInfoRestoration: HelpInfoRestoration = .init(
-      effectsPanelVisible: state.effectsPanelVisible,
+      effectsPanelVisible: state.isAUv3 ? true : state.effectsPanelVisible,
       tagsListVisible: state.tagsListVisible,
       moreButtonsVisible: state.showMoreButtons
     )
@@ -365,7 +398,7 @@ extension ToolBar {
         await send(.tagsListVisibilityButtonTapped)
       }
 
-      try? await Task.sleep(nanoseconds: 400_000_000)
+      try? await Task.sleep(nanoseconds: 400_000_000) // TODO: remove magic constant
       await send(.delegate(.helpInfoButtonTapped))
     }
   }
@@ -427,7 +460,7 @@ extension ToolBar {
   }
 
   private func toggleTagsListVisibility(_ state: inout State) -> Effect<Action> {
-    state.$tagsListVisible.withLock { $0.toggle() }
+    state.tagsListVisibleToggle()
     return .send(.delegate(.tagsListVisibilityChanged(state.tagsListVisible)))
   }
 }

@@ -28,7 +28,6 @@ private class RemoveLog: @unchecked Sendable {
 struct SoundFontsListTests {
   @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false
   @Shared(.hideEmptyTags) var hideEmptyTags = false
-  @Shared(.isAUv3) var isAUv3 = false
 
   init() {
     $hideBuiltinFonts.withLock { $0 = false }

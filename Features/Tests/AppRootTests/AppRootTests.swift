@@ -26,13 +26,13 @@ import Tutorial
     $0.audioGraph = .liveValue
     $0.audioSession = .liveValue
     $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
+    $0.continuousClock = TestClock<Duration>()
     $0.date = .constant(.now)
     $0.defaultDatabase = TestSupport.testDatabase()
     $0.delayDevice = .liveValue
     $0.fileManager = .liveValue
     $0.outputVolume = mockVolume.makeOutputVolume()
     $0.reverbDevice = .liveValue
-    $0.continuousClock = TestClock<Duration>()
     $0.uuid = .incrementing
   },
   .serialized // due to SF2LibAU creation
@@ -250,7 +250,7 @@ struct AppRootTests {
       #expect(tagsListVisible == false)
       #expect(fontsAndTagsSplitPosition == 0.4)
       await store.send(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: .both, position: 0.5)) {
-        $0.toolBar.$tagsListVisible.withLock { $0.toggle() }
+        $0.toolBar.tagsListVisibleToggle()
       }
       #expect(tagsListVisible == true)
       #expect(fontsAndTagsSplitPosition == 0.5)
@@ -456,14 +456,14 @@ struct AppRootTests {
   func tagsListVisibilityChanged() async throws {
     try await initialized { store in
       await store.send(\.toolBar.delegate.tagsListVisibilityChanged, true) {
-        $0.toolBar.$tagsListVisible.withLock { $0 = true }
+        $0.toolBar.tagsListVisibleToggle()
       }
       await store.receive(\.fontsAndTagsSplit.updatePanesVisibility, .init(rawValue: 3)) {
         $0.fontsAndTagsSplit.panesVisible = .init(rawValue: 3)
       }
       await store.receive(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: .init(rawValue: 3), position: 0.4))
       await store.send(\.toolBar.delegate.tagsListVisibilityChanged, false) {
-        $0.toolBar.$tagsListVisible.withLock { $0 = false }
+        $0.toolBar.tagsListVisibleToggle()
       }
       await store.receive(\.fontsAndTagsSplit.updatePanesVisibility, .init(rawValue: 1)) {
         $0.fontsAndTagsSplit.panesVisible = .init(rawValue: 1)

@@ -43,7 +43,7 @@ public struct AUv3Root {
     public var toolBar: ToolBar.State
 
     /**
-     Constructor for AUv3
+     Constructor for AUv3 component state.
      */
     public init(
       audioUnit: SF2LibAU,

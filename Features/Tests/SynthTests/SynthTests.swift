@@ -56,7 +56,6 @@ struct SynthTests {
       try await closure(store)
 
       await store.send(.deinitialize)
-      // await store.finish(timeout: .seconds(1))
     }
   }
 

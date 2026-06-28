@@ -109,11 +109,12 @@ extension SF2LibAU {
     }
 
     log.info(
-      """
-      create - instantiating audio unit for \
-      \(acd.componentSubType.stringValue, privacy: .public), \
-      \(acd.componentManufacturer.stringValue, privacy: .public)
-      """)
+"""
+create - instantiating audio unit for \
+\(acd.componentSubType.stringValue, privacy: .public), \
+\(acd.componentManufacturer.stringValue, privacy: .public)
+"""
+    )
 #if os(iOS)
     let options: AudioComponentInstantiationOptions = []
 #endif
