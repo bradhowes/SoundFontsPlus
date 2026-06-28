@@ -6,6 +6,17 @@ import Dependencies
 import DependenciesMacros
 import Sharing
 
+/**
+ An audio graph is a collection of audio units that are connected in an audio engine to generate audio output.
+
+ There are two operations on a graph:
+
+ - start -- create a graph in the engine and then start the engine
+ - stop -- stop the engine and tear down the graph
+
+ Currently, there is no mocking of an AVAudioEngine; the preview and test values default to a nil engine, and the action closures
+ do not do anything.
+ */
 @DependencyClient
 public struct AudioGraph: Sendable {
   public let engine: AVAudioEngine?
