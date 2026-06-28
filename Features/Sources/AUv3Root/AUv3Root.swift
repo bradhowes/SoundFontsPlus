@@ -3,6 +3,7 @@
 import AVFoundation
 import AudioUnit.AUParameters
 import BRHSplitView
+import Engine
 import FeatureSupport
 import Presets
 import SF2LibAU
@@ -92,6 +93,7 @@ public struct AUv3Root {
     case fontsAndTagsSplit(SplitViewReducer.Action)
     case fullStateChanged
     case initialize
+    case lastPresetLoadFinished
     case presetsList(PresetsList.Action)
     case soundFontsList(SoundFontsList.Action)
     case tagsList(TagsList.Action)
@@ -149,6 +151,9 @@ public struct AUv3Root {
       case .initialize:
         return initialize(&state)
 
+      case .lastPresetLoadFinished:
+        return .none
+
       case .presetsList(.delegate(.activePresetIdChanged(let presetId))):
         return activePresetIdChanged(&state, presetId: presetId)
 
@@ -186,6 +191,7 @@ public struct AUv3Root {
     case auv3RootCreateCloudDocumentsDirectory
     case auv3RootMonitorCurrentPreset
     case auv3RootMonitorFullState
+    case auv3RootMonitorLastLoadFinished
   }
 }
 
@@ -287,7 +293,8 @@ extension AUv3Root {
     .merge(
       createCloudDocumentsDirectory(),
       monitorFullState(&state),
-      monitorCurrentPreset(&state)
+      monitorCurrentPreset(&state),
+      monitorLastLoadFinished(&state)
     )
   }
 
@@ -315,6 +322,36 @@ extension AUv3Root {
         await send(.fullStateChanged)
       }
     }.cancellable(id: CancelId.auv3RootMonitorFullState, cancelInFlight: true)
+  }
+
+  private func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
+    log.info("monitorLastLoadFinished BEGIN")
+    guard let parameterTree = state.audioUnit.parameterTree else {
+      fatalError("monitorLastLoadFinished - unexpected nil parameterTree chain")
+    }
+
+    guard
+      let parameter = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.lastLoadFinished.rawValue)
+    else {
+      fatalError("monitorLastLoadFinished - did not find lastLoadFinished parameter")
+    }
+
+    return .run(priority: .utility, name: "monitorLastLoadFinished") { send in
+      let stream: AsyncStream<AUValue>
+      let observerToken: AUParameterObserverToken
+      unsafe (observerToken, stream) = parameter.startObserving()
+
+      defer {
+        unsafe parameter.removeParameterObserver(observerToken)
+        log.debug("monitorLastLoadFinished - stopped task")
+      }
+      if Task.isCancelled { return }
+      for await _ in stream {
+        if Task.isCancelled { break }
+        log.info("monitorLastLoadFinished - detected")
+        await send(.lastPresetLoadFinished)
+      }
+    }.cancellable(id: CancelId.auv3RootMonitorLastLoadFinished, cancelInFlight: true)
   }
 
   private func presetEditorDismissed(_ state: inout State, editor: PresetEditor.State) -> Effect<Action> {
