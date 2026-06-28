@@ -447,7 +447,7 @@ extension PresetsList {
       try await $presets.load(query, animation: .smooth)
       log.info("updateFetchAllQuery - updated query")
       if Task.isCancelled { return }
-      for try await source in $presets.publisher.values {
+      for try await source in $presets.publisher.values.removeDuplicates() {
         log.info("updateFetchAllQuery - query changed")
         if Task.isCancelled { break }
         await send(.rowsSourceUpdated(source: source, showActive: showActive))
