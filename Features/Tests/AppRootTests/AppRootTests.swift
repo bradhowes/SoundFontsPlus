@@ -551,6 +551,48 @@ struct AppRootTests {
     }
   }
 
+  @Test
+  func helpInfoSelectionChanged() async throws {
+    try await initialized { store in
+      // Begin showing help info
+      await store.send(\.toolBar.helpInfoButtonTapped) {
+        $0.toolBar.helpInfoRestoration = .init(effectsPanelVisible: false, tagsListVisible: false, moreButtonsVisible: false)
+      }
+      await store.receive(\.toolBar.effectsVisibilityButtonTapped)
+      await store.receive(\.toolBar.delegate.effectsVisibilityChanged, true)
+      await store.receive(\.toolBar.tagsListVisibilityButtonTapped)
+      await store.receive(\.toolBar.delegate.tagsListVisibilityChanged, true)
+      var visiblePanes = SplitViewVisiblePanes(rawValue: 3)
+      await store.receive(\.fontsAndTagsSplit.updatePanesVisibility, visiblePanes) {
+        $0.fontsAndTagsSplit.panesVisible = visiblePanes
+      }
+      await store.receive(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: visiblePanes, position: 0.4))
+      await store.receive(\.toolBar.delegate.helpInfoButtonTapped) {
+        $0.helpInfoSelection = .fontsList
+      }
+      // Change help info focus
+      await store.send(\.binding.helpInfoSelection.some, .addButton) {
+        $0.helpInfoSelection = .addButton
+      }
+      // Stop showing help info
+      await store.send(\.binding.helpInfoSelection.none) {
+        $0.helpInfoSelection = nil
+      }
+      await store.receive(\.toolBar.helpInfoFinished) {
+        $0.toolBar.helpInfoRestoration = nil
+      }
+      await store.receive(\.toolBar.effectsVisibilityButtonTapped)
+      await store.receive(\.toolBar.delegate.effectsVisibilityChanged, false)
+      await store.receive(\.toolBar.tagsListVisibilityButtonTapped)
+      await store.receive(\.toolBar.delegate.tagsListVisibilityChanged, false)
+      visiblePanes = SplitViewVisiblePanes(rawValue: 1)
+      await store.receive(\.fontsAndTagsSplit.updatePanesVisibility, visiblePanes) {
+        $0.fontsAndTagsSplit.panesVisible = visiblePanes
+      }
+      await store.receive(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: visiblePanes, position: 0.4))
+    }
+  }
+
   // MARK: - snapshots
 
   @Test(.snapshots(record: .failed))
