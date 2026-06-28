@@ -409,16 +409,11 @@ extension AppRoot {
   }
 
   private func destinationDismissed(_ state: inout State) -> Effect<Action> {
-    .merge(
-      .send(.appReview(.ask)),
-      {
-        switch state.destination {
-        case .presetEditor(let editor): presetEditorDismissed(&state, editor: editor)
-        case .alert, .settings: .none // .send(.presetsList(.updateFetchAllQuery))
-        default: .none
-        }
-      }()
-    )
+    var actions: [Effect<Action>] = [.send(.appReview(.ask))]
+    if case let .presetEditor(editor) = state.destination {
+      actions.append(presetEditorDismissed(&state, editor: editor))
+    }
+    return .merge(actions)
   }
 
   private func editPreset(_ state: inout State, sectionId: PresetsListSection.State.ID, preset: Preset) -> Effect<Action> {
