@@ -8,6 +8,10 @@ import Sharing
 
 /**
  Collection of AVAudioSession dependencies to allow for mocking and controlling in tests.
+
+ An audio session is really only applicable to iOS/iPadOS devices, but we always use an AudioSession dependency regardless of
+ platform and we do not do anything in the closure operations on macOS platforms.
+
  Currently only the `Synth` feature interacts with an `AudioSession` instance.
  */
 @DependencyClient
@@ -20,8 +24,16 @@ public struct AudioSession: Sendable {
     interleaved: false
   )
 
-  public var start: @Sendable () -> Bool = { false }
-  public var stop: @Sendable () -> Void
+  public let start: @Sendable () -> Bool
+  public let stop: @Sendable () -> Void
+
+  public init(
+    start: @Sendable @escaping () -> Bool,
+    stop: @Sendable @escaping () -> Void
+  ) {
+    self.start = start
+    self.stop = stop
+  }
 }
 
 extension AudioSession {
