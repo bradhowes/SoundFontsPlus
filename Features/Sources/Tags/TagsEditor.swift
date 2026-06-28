@@ -34,6 +34,13 @@ public struct TagsEditor {
       case .fontEditing: return "Font Tags"
       }
     }
+
+    var description: String {
+      switch self {
+      case .tagEditing: return "visibility of tag in tags list"
+      case .fontEditing: return "membership in user tags"
+      }
+    }
   }
 
   @Reducer
@@ -292,22 +299,31 @@ public struct TagsEditorView: View {
   }
 
   public var body: some View {
-    List {
-      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-        TagNameEditorView(store: rowStore)
-          .deleteDisabled(rowStore.isUbiquitous)
-          .focused($focused, equals: rowStore.id)
+    VStack {
+      List {
+        ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+          TagNameEditorView(store: rowStore)
+            .deleteDisabled(rowStore.isUbiquitous)
+            .focused($focused, equals: rowStore.id)
+        }
+        .onMove { indices, destination in
+          store.send(.tagMoved(at: indices, to: destination), animation: .default)
+        }
+        .onDelete {
+          store.send(.deleteButtonTapped(at: $0), animation: .default)
+        }
+        .bind($store.focused, to: self.$focused)
       }
-      .onMove { indices, destination in
-        store.send(.tagMoved(at: indices, to: destination), animation: .default)
-      }
-      .onDelete {
-        store.send(.deleteButtonTapped(at: $0), animation: .default)
-      }
-      .bind($store.focused, to: self.$focused)
+      .font(.tagsEditor)
+      .helpInfoViewTag(store.mode == .tagEditing ? .tagsListVisibility : .tagsListMembership)
+      Text(
+"""
+Toggle \(Image(systemName: .circledCheckMarkOnImageName)) to change \(store.mode.description).
+"""
+      )
+        .font(.footer)
     }
-    .font(.tagsEditor)
-    .helpInfoViewTag(store.mode == .tagEditing ? .tagsListVisibility : .tagsListMembership)
+    .padding(16)
     .navigationTitle(store.mode.title)
     .toolbar {
       ToolbarItem(placement: .automatic) {
