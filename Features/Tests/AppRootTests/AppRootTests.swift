@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFAudio
+import BRHSplitView
 import DelayEffect
 import DependenciesTestSupport
 import FeatureSupport
@@ -11,6 +12,7 @@ import Settings
 import SF2LibAU
 import SnapshotTesting
 import SoundFonts
+import SQLiteData
 import Testing
 import TestSupport
 import Tutorial
@@ -121,11 +123,6 @@ struct AppRootTests {
     await store.receive(\.presetsList.presetSourceChanged, .active(1))
     await store.receive(\.keyboard.outputVolumeStateChanged, .unmuted) { $0.keyboard.muted = false }
 
-//    await store.receive(\.presetsList, .rowsUpdated(presets: Preset.visible(for: 1), showActive: true)) {
-//      $0.presetsList.scrollToTarget = .preset(1)
-//    }
-//    await store.receive(\.synth.lastPresetLoadFinished, timeout: .seconds(10)) { $0.synth.firstTimePresetLoaded = false }
-
     try await store.withExhaustivity(exhaustivity) {
       try await closure(store)
     }
@@ -162,6 +159,44 @@ struct AppRootTests {
   }
 
   @Test
+  func activePresetIdChangedDuplicate() async throws {
+    try await initialized { store in
+      #expect(store.state.readyForUse == true)
+      // Ignore duplicate same preset ID.
+      await store.send(\.activePresetIdChanged, 1)
+    }
+  }
+
+  @Test
+  func activePresetIdChangedDifferent() async throws {
+    try await initialized { store in
+      #expect(store.state.readyForUse == true)
+      await store.send(\.activePresetIdChanged, 2)
+
+      await store.receive(\.appReview.ask)
+      await store.receive(\.delayEffect.activePresetIdChanged, 2) { $0.delayEffect.activePresetId = 2 }
+      await store.receive(\.keyboard.activePresetIdChanged, 2)
+      await store.receive(\.reverbEffect.activePresetIdChanged, 2) { $0.reverbEffect.activePresetId = 2 }
+      await store.receive(\.soundFontsList.selectedIsNowActivated)
+      await store.receive(\.synth.activePresetIdChanged, 2) {
+        $0.synth.activePresetId = 2
+        $0.synth.loadedPresetIndex = 1
+        $0.synth.loadedSoundFontId = 1
+      }
+      await store.receive(\.toolBar.activePresetIdChanged, 2) {
+        $0.toolBar.temporaryStatus = nil
+        $0.toolBar.preset = Preset.with(id: 2)
+      }
+      await store.receive(\.volumeMonitor.activePresetIdChanged, 2) {
+        $0.volumeMonitor.activePresetId = 2
+        $0.volumeMonitor.reason = nil
+      }
+      await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1))
+      await store.receive(\.presetsList.presetSourceChanged, .active(1))
+    }
+  }
+
+  @Test
   func synthStopped() async throws {
     try await initialized { store in
       await store.send(\.synth.delegate.stopped)
@@ -178,8 +213,6 @@ struct AppRootTests {
 
     $disableIdleTimer.withLock { $0 = true }
     AppRoot.disableIdleTimer()
-    // NOTE: does not appear to work in test environment
-    // #expect(UIKit.UIApplication.shared.isIdleTimerDisabled)
   }
 
   @Test(
@@ -475,6 +508,50 @@ struct AppRootTests {
       await store.send(\.destination.presented.alert.reinitializeConfirmed)
     }
   }
+
+  @Test
+  func makeWithDependencies() {
+    let store = AppRoot.makeWithDependencies()
+    #expect(store.state.readyForUse == false)
+    @Shared(.isAUv3) var isAUv3
+    #expect(isAUv3 == false)
+  }
+
+  @Test
+  func helpInfoButtonTapped() async throws {
+    try await initialized { store in
+      await store.send(\.toolBar.helpInfoButtonTapped) {
+        $0.toolBar.helpInfoRestoration = .init(effectsPanelVisible: false, tagsListVisible: false, moreButtonsVisible: false)
+      }
+      await store.receive(\.toolBar.effectsVisibilityButtonTapped)
+      await store.receive(\.toolBar.delegate.effectsVisibilityChanged, true)
+      await store.receive(\.toolBar.tagsListVisibilityButtonTapped)
+      await store.receive(\.toolBar.delegate.tagsListVisibilityChanged, true)
+      let visiblePanes = SplitViewVisiblePanes(rawValue: 3)
+      await store.receive(\.fontsAndTagsSplit.updatePanesVisibility, visiblePanes) {
+        $0.fontsAndTagsSplit.panesVisible = visiblePanes
+      }
+      await store.receive(\.fontsAndTagsSplit.delegate, .stateChanged(panesVisible: visiblePanes, position: 0.4))
+      await store.receive(\.toolBar.delegate.helpInfoButtonTapped) {
+        $0.helpInfoSelection = .fontsList
+      }
+    }
+  }
+
+  @Test
+  func importFinished() async throws {
+    try await initialized { store in
+      await store.send(\.toolBar.delegate.importFinished)
+      await store.receive(\.tagsList.importFinished)
+      await store.receive(\.soundFontsList.importFinished)
+      @FetchAll var soundFontInfos: [SoundFontInfo]
+      try await $soundFontInfos.load(SoundFontInfo.query(for: Tag.Ubiquitous.all.id))
+      #expect(soundFontInfos.count == 4)
+      await store.receive(\.soundFontsList.rowsSourceUpdated, soundFontInfos)
+    }
+  }
+
+  // MARK: - snapshots
 
   @Test(.snapshots(record: .failed))
   func showNoVolumeToast() async throws {

@@ -33,10 +33,16 @@ public struct ToolBar {
     }
   }
 
-  struct HelpInfoRestoration: Equatable {
-    let effectsPanelVisible: Bool
-    let tagsListVisible: Bool
-    let moreButtonsVisible: Bool
+  public struct HelpInfoRestoration: Equatable, Sendable {
+    public let effectsPanelVisible: Bool
+    public let tagsListVisible: Bool
+    public let moreButtonsVisible: Bool
+
+    public init(effectsPanelVisible: Bool, tagsListVisible: Bool, moreButtonsVisible: Bool) {
+      self.effectsPanelVisible = effectsPanelVisible
+      self.tagsListVisible = tagsListVisible
+      self.moreButtonsVisible = moreButtonsVisible
+    }
   }
 
   @ObservableState
@@ -56,7 +62,7 @@ public struct ToolBar {
     @Shared(.tagsListVisible) public var tagsListVisible
     public var hasMoreButton: Bool
     @ObservationStateIgnored
-    var helpInfoRestoration: HelpInfoRestoration?
+    public var helpInfoRestoration: HelpInfoRestoration?
 
     public init(
       activeVoiceCount: Int = 0,

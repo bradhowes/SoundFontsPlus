@@ -495,10 +495,9 @@ extension SoundFontsList {
     .run(priority: .utility, name: "soundFontsListUpdateFetchAllQuery") { [tagId = state.activeTagId] send in
       @FetchAll var soundFontInfos: [SoundFontInfo]
       try await $soundFontInfos.load(SoundFontInfo.query(for: tagId))
-      for try await source in $soundFontInfos.publisher.values {
+      for try await source in $soundFontInfos.publisher.values.removeDuplicates() {
         await send(.rowsSourceUpdated(source: source))
       }
-
     }.cancellable(id: CancelId.soundFontsListUpdateFetchAll, cancelInFlight: true)
   }
 }
