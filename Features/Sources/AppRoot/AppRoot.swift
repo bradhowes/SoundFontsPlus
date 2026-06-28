@@ -168,7 +168,6 @@ public struct AppRoot {
     case activePresetIdChanged(Preset.ID?)
     case appReview(AppReview.Action)
     case audioUnitCrashed
-    case beginHelpSpotlight
     case binding(BindingAction<State>)
     case deinitialize
     case delayEffect(DelayEffect.Action)
@@ -226,10 +225,6 @@ public struct AppRoot {
 
       case .audioUnitCrashed:
         log.error("*** audioUnit crashed")
-        return .none
-
-      case .beginHelpSpotlight:
-        state.helpInfoSelection = .fontsList
         return .none
 
       case .binding(\.helpInfoSelection):
