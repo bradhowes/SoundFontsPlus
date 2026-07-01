@@ -70,11 +70,98 @@ public struct AppRootView: View {
   }
 
   public var body: some View {
-
-    // let _ = Self._printChanges()
     VStack(spacing: 0) {
-      listViews
-      controlViews
+      SplitView(
+        store: store.scope(state: \.fontsAndPresetsSplit, action: \.fontsAndPresetsSplit),
+        primary: {
+          SplitView(
+            store: store.scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit),
+            primary: {
+              SoundFontsListView(store: store.scope(state: \.soundFontsList, action: \.soundFontsList))
+            },
+            divider: {
+              HandleDivider(
+                dividerColor: dividerBorderColor,
+                handleColor: dividerBorderColor,
+                dotColor: .mainAccentColor,
+                handleLength: 48,
+                handleWidth: 8.0,
+                paddingInsets: 4.0
+              )
+              .helpInfoViewTag(.fontsTagsDivider)
+            },
+            secondary: {
+              TagsListView(store: store.scope(state: \.tagsList, action: \.tagsList))
+                .helpInfoViewTag(.tagsList)
+            }
+          ).splitViewConfiguration(
+            .init(
+              orientation: .vertical,
+              draggableRange: .fixedLength(lowerSpan: 100.0, upperSpan: 100.0),
+              dragToHidePanes: .secondary,
+              doubleClickToClose: .secondary,
+              visibleDividerSpan: dividerSpan
+            )
+          )
+        },
+        divider: {
+          HandleDivider(
+            dividerColor: dividerBorderColor,
+            handleColor: dividerBorderColor,
+            dotColor: .mainAccentColor,
+            handleLength: 48,
+            handleWidth: 8.0,
+            paddingInsets: 4.0
+          )
+          .helpInfoViewTag(.fontsPresetsDivider)
+        },
+        secondary: {
+          PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
+        }
+      ).splitViewConfiguration(
+        .init(
+          orientation: .horizontal,
+          draggableRange: .fixedLength(lowerSpan: 140.0, upperSpan: 140.0),
+          visibleDividerSpan: dividerSpan
+        )
+      )
+
+      dividerBorderColor
+        .frame(height: dividerSpan)
+
+      VStack(alignment: .leading, spacing: 0) {
+        ScrollView(.horizontal) {
+          HStack(spacing: 0) {
+            ReverbEffectView(store: store.scope(state: \.reverbEffect, action: \.reverbEffect))
+            dividerBorderColor
+              .frame(width: dividerSpan)
+            DelayEffectView(store: store.scope(state: \.delayEffect, action: \.delayEffect))
+          }
+        }
+        .onScrollGeometryChange(for: CGFloat.self) { geometry in
+          max(0.0, (geometry.visibleRect.width - geometry.contentSize.width) / 2)
+        } action: { _, newValue in
+          effectsOffset = newValue
+        }
+        .scrollDisabled(effectsOffset > 0)
+        dividerBorderColor
+          .frame(height: dividerSpan)
+      }
+      .frame(height: effectsPanelVisible ? effectsViewHeight : 0.0)
+      .frame(maxWidth: .infinity)
+      .offset(y: effectsPanelVisible ? 0.0 : effectsViewHeight / 2 + dividerSpan * 2)
+      .opacity(effectsPanelVisible ? 1.0 : 0.0)
+      .knobValueEditor()
+      .auv3ControlsTheme(theme)
+      .helpInfoViewTag(.effectsPanel)
+
+      ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar), isAUv3: false)
+      dividerBorderColor
+        .frame(height: dividerSpan)
+      if !isTextInputKeyboardVisible {
+        KeyboardView(store: store.scope(state: \.keyboard, action: \.keyboard))
+          .transition(.scale.combined(with: .move(edge: .bottom)))
+      }
     }
     .padding(0)
     .animation(.smooth, value: effectsPanelVisible)
@@ -142,110 +229,6 @@ public struct AppRootView: View {
 #if os(iOS)
 extension AppRootView: KeyboardVisibilityPublisher {}
 #endif
-
-extension AppRootView {
-
-  fileprivate var listViews: some View {
-    SplitView(
-      store: store.scope(state: \.fontsAndPresetsSplit, action: \.fontsAndPresetsSplit),
-      primary: {
-        fontsAndTags
-      },
-      divider: {
-        handleDivider
-          .helpInfoViewTag(.fontsPresetsDivider)
-      },
-      secondary: {
-        PresetsListView(store: store.scope(state: \.presetsList, action: \.presetsList))
-      }
-    ).splitViewConfiguration(
-      .init(
-        orientation: .horizontal,
-        draggableRange: .fixedLength(lowerSpan: 140.0, upperSpan: 140.0),
-        visibleDividerSpan: dividerSpan
-      )
-    )
-  }
-
-  fileprivate var fontsAndTags: some View {
-    SplitView(
-      store: store.scope(state: \.fontsAndTagsSplit, action: \.fontsAndTagsSplit),
-      primary: {
-        SoundFontsListView(store: store.scope(state: \.soundFontsList, action: \.soundFontsList))
-      },
-      divider: {
-        handleDivider
-          .helpInfoViewTag(.fontsTagsDivider)
-      },
-      secondary: {
-        TagsListView(store: store.scope(state: \.tagsList, action: \.tagsList))
-          .helpInfoViewTag(.tagsList)
-      }
-    ).splitViewConfiguration(
-      .init(
-        orientation: .vertical,
-        draggableRange: .fixedLength(lowerSpan: 100.0, upperSpan: 100.0),
-        dragToHidePanes: .secondary,
-        doubleClickToClose: .secondary,
-        visibleDividerSpan: dividerSpan
-      )
-    )
-  }
-
-  fileprivate var handleDivider: some View {
-    HandleDivider(
-      dividerColor: dividerBorderColor,
-      handleColor: dividerBorderColor,
-      dotColor: .mainAccentColor,
-      handleLength: 48,
-      handleWidth: 8.0,
-      paddingInsets: 4.0
-    )
-  }
-
-  fileprivate var controlViews: some View {
-    VStack(spacing: 0) {
-      dividerBorderColor
-        .frame(height: dividerSpan)
-      effectsView
-        .knobValueEditor()
-        .auv3ControlsTheme(theme)
-        .helpInfoViewTag(.effectsPanel)
-      ToolBarView(store: store.scope(state: \.toolBar, action: \.toolBar), isAUv3: false)
-      dividerBorderColor
-        .frame(height: dividerSpan)
-      if !isTextInputKeyboardVisible {
-        KeyboardView(store: store.scope(state: \.keyboard, action: \.keyboard))
-          .transition(.scale.combined(with: .move(edge: .bottom)))
-      }
-    }
-  }
-
-  fileprivate var effectsView: some View {
-    VStack(alignment: .leading, spacing: 0) {
-      ScrollView(.horizontal) {
-        HStack(spacing: 0) {
-          ReverbEffectView(store: store.scope(state: \.reverbEffect, action: \.reverbEffect))
-          dividerBorderColor
-            .frame(width: dividerSpan)
-          DelayEffectView(store: store.scope(state: \.delayEffect, action: \.delayEffect))
-        }
-      }
-      .onScrollGeometryChange(for: CGFloat.self) { geometry in
-        max(0.0, (geometry.visibleRect.width - geometry.contentSize.width) / 2)
-      } action: { _, newValue in
-        effectsOffset = newValue
-      }
-      .scrollDisabled(effectsOffset > 0)
-      dividerBorderColor
-        .frame(height: dividerSpan)
-    }
-    .frame(height: effectsPanelVisible ? effectsViewHeight : 0.0)
-    .frame(maxWidth: .infinity)
-    .offset(y: effectsPanelVisible ? 0.0 : effectsViewHeight / 2 + dividerSpan * 2)
-    .opacity(effectsPanelVisible ? 1.0 : 0.0)
-  }
-}
 
 extension View {
 
