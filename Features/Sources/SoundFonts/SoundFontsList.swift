@@ -172,7 +172,7 @@ public struct SoundFontsList {
         return .none
 
       case .headerDoubleTapped:
-        guard state.rows.first(where: { $0.soundFontInfo.isInstalled }) != nil else { return .none }
+        guard state.rows.first(where: { !$0.soundFontInfo.isBuiltin }) != nil else { return .none }
         state.editingMode = .active
         state.rows.forEach {
           state.rows[id: $0.id]?.deleting = false
@@ -521,7 +521,29 @@ public struct SoundFontsListView: View {
   public var body: some View {
     VStack(spacing: 0) {
       if searching {
-        searchField
+        HStack {
+          TextField("Search", text: $store.searchText.sending(\.searchTextChanged))
+            .textFieldStyle(.roundedBorder)
+            .focused($focusedField, equals: .searchText)
+#if os(iOS)
+            .autocorrectionDisabled()
+            .autocapitalization(.none)
+#endif
+            .transition(.slide)
+            .bind($store.focusedField, to: $focusedField)
+            .clearButton {
+              store.send(.clearSearchTextField)
+            }
+          Spacer()
+          Button {
+            store.send(.cancelSearchButtonTapped)
+          } label: {
+            Image(systemName: .cancelButtonImageName)
+              .frame(width: 32, height: 32)
+              .contentShape(Rectangle())
+          }
+        }
+        .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
       }
       StyledList {
         Section {
@@ -535,7 +557,44 @@ public struct SoundFontsListView: View {
           }
         } header: {
           StyledHeader {
-            sectionHeader
+            ZStack(alignment: .leadingFirstTextBaseline) {
+              HStack {
+                Text("Files")
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .contentShape(Rectangle())
+                  .onTapGesture(count: 2) {
+                    store.send(.headerDoubleTapped)
+                  }
+                Spacer()
+                Button {
+                  store.send(.searchButtonTapped)
+                } label: {
+                  Image(systemName: .searchButtonImageName)
+                    .imageScale(.small)
+                    .contentShape(Rectangle())
+                }
+              }
+              .zIndex(1)
+              .opacity((store.editingMode == .active || searching) ? 0.0 : 1.0)
+              HStack(spacing: 16) {
+                Button {
+                  store.send(.deleteModeCancelButtonTapped)
+                } label: {
+                  Text("Cancel")
+                }
+                Button {
+                  store.send(.deleteModeDeleteButtonTapped)
+                } label: {
+                  Text("Delete")
+                    .foregroundStyle(.red)
+                }
+              }
+              .zIndex(2)
+              .opacity(store.editingMode == .active ? 1.0 : 0.0)
+              Text("Found \(store.rows.count)")
+                .zIndex(3)
+                .opacity(searching ? 1.0 : 0.0)
+            }
           }
         }
       }
@@ -553,73 +612,6 @@ public struct SoundFontsListView: View {
     store.activePresetSource == .active(soundFontId) ? .active :
     store.selectedPresetSource == .selected(soundFontId) ? .selected :
       .none
-  }
-
-  private var searchField: some View {
-    HStack {
-      TextField("Search", text: $store.searchText.sending(\.searchTextChanged))
-        .textFieldStyle(.roundedBorder)
-        .focused($focusedField, equals: .searchText)
-#if os(iOS)
-        .autocorrectionDisabled()
-        .autocapitalization(.none)
-#endif
-        .transition(.slide)
-        .bind($store.focusedField, to: $focusedField)
-        .clearButton {
-          store.send(.clearSearchTextField)
-        }
-      Spacer()
-      Button {
-        store.send(.cancelSearchButtonTapped)
-      } label: {
-        Image(systemName: .cancelButtonImageName)
-          .frame(width: 32, height: 32)
-          .contentShape(Rectangle())
-      }
-    }
-    .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
-  }
-
-  private var sectionHeader: some View {
-    ZStack(alignment: .leadingFirstTextBaseline) {
-      HStack {
-        Text("Files")
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .contentShape(Rectangle())
-          .onTapGesture(count: 2) {
-            store.send(.headerDoubleTapped)
-          }
-        Spacer()
-        Button {
-          store.send(.searchButtonTapped)
-        } label: {
-          Image(systemName: .searchButtonImageName)
-            .imageScale(.small)
-            .contentShape(Rectangle())
-        }
-      }
-      .zIndex(1)
-      .opacity((store.editingMode == .active || searching) ? 0.0 : 1.0)
-      HStack(spacing: 16) {
-        Button {
-          store.send(.deleteModeCancelButtonTapped)
-        } label: {
-          Text("Cancel")
-        }
-        Button {
-          store.send(.deleteModeDeleteButtonTapped)
-        } label: {
-          Text("Delete")
-            .foregroundStyle(.red)
-        }
-      }
-      .zIndex(2)
-      .opacity(store.editingMode == .active ? 1.0 : 0.0)
-      Text("Found \(store.rows.count)")
-        .zIndex(3)
-        .opacity(searching ? 1.0 : 0.0)
-    }
   }
 }
 
