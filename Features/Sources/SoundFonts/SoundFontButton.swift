@@ -166,7 +166,11 @@ struct SoundFontButtonView: View {
         Text(store.soundFontInfo.displayName)
           .font(.button)
         Spacer()
-        statusIndicator
+        StatusIndicator(
+          store: store,
+          statusInfo: store.statusInfoTag.statusInfo(store.soundFontInfo),
+          isDisabled: store.statusInfoTag == .internalFile
+        )
       }
       .indicator(inDeletingMode ? .none : indicatorModifierState)
       .contentShape(.interaction, Rectangle())
@@ -205,13 +209,19 @@ struct SoundFontButtonView: View {
   }
 }
 
-extension SoundFontButtonView {
+private struct StatusIndicator: View {
+  private let store: StoreOf<SoundFontButton>
+  private let statusInfo: SoundFontButtonStatusInfo
+  private let isDisabled: Bool
 
-  public var statusIndicator: some View {
-    let statusInfo = store.statusInfoTag.statusInfo(store.soundFontInfo)
-    let isDisabled = store.statusInfoTag == .internalFile
+  init(store: StoreOf<SoundFontButton>, statusInfo: SoundFontButtonStatusInfo, isDisabled: Bool) {
+    self.store = store
+    self.statusInfo = statusInfo
+    self.isDisabled = isDisabled
+  }
 
-    return Button {
+  var body: some View {
+    Button {
       store.send(statusInfo.action)
     } label: {
       Image(systemName: statusInfo.imageName)
