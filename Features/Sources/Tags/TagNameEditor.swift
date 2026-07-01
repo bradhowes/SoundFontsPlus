@@ -122,10 +122,6 @@ public struct TagNameEditorView: View {
   }
 
   public var body: some View {
-    toggleNameField
-  }
-
-  private var toggleNameField: some View {
     HStack {
       Toggle("", isOn: store.editing == .membership ? $store.membership : $store.visible)
         .toggleStyle(.circledCheckMarkNoLabel)
