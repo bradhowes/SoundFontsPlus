@@ -267,7 +267,6 @@ public struct KeyboardView: View {
   @Environment(\.maxKeyboardPanelHeight) private var maxKeyboardPanelHeight
   @Environment(\.verticalSizeClass) private var verticalSizeClass
 
-  private var activeColor: Color { store.muted ? .red : .green }
   private let whiteNotes: [Note] = .init(WhiteKeySequenceGenerator().makeIterator())
   private let blackNotes: [Note] = .init(BlackKeySequenceGenerator().makeIterator())
 
@@ -276,6 +275,10 @@ public struct KeyboardView: View {
   private let whiteKeySpacing: Double = 2.0
   private let whiteKeyInset: Double
   private let coordinateSpace = "keyboard"
+
+  private var blackKeyWidth: Double { store.keyWidth * 0.75 }
+  private var blackKeyOffset: Double { blackKeyWidth / 2.0 }
+  private var blackKeySpacing: Double { store.keyWidth + whiteKeySpacing - blackKeyWidth }
 
   @State private var visibleRect: CGRect = .zero
 
@@ -287,7 +290,37 @@ public struct KeyboardView: View {
   public var body: some View {
     ScrollViewReader { proxy in
       ScrollView(.horizontal) {
-        keys
+        HStack(alignment: .top, spacing: whiteKeySpacing) {
+          ForEach(0..<75) { noteIndex in
+            LabeledKey(store: store, note: whiteNotes[noteIndex])
+              .onGeometryChange(for: CGRect.self) {
+                $0.frame(in: .named(coordinateSpace))
+              } action: {
+                let note = whiteNotes[noteIndex]
+                if note.isValidMidiNote {
+                  frames[note.midiNoteValue] = $0.insetBy(dx: whiteKeyInset, dy: 0)
+                }
+              }
+          }
+        }
+        .overlay(alignment: .topLeading) {
+          HStack(alignment: .top, spacing: blackKeySpacing) {
+            Color(.clear)
+              .frame(width: blackKeyOffset)
+            ForEach(0..<74) { noteIndex in
+              Key(store: store, note: blackNotes[noteIndex])
+                .opacity(blackNotes[noteIndex].isValidMidiNote ? 1.0 : 0.0)
+                .onGeometryChange(for: CGRect.self) {
+                  $0.frame(in: .named(coordinateSpace))
+                } action: {
+                  let note = blackNotes[noteIndex]
+                  if note.isValidMidiNote {
+                    frames[note.midiNoteValue] = $0
+                  }
+                }
+            }
+          }
+        }
       }
       .coordinateSpace(name: coordinateSpace)
       .simultaneousGesture(spatialEventGesture)
@@ -335,13 +368,6 @@ public struct KeyboardView: View {
     }
   }
 
-  public var keys: some View {
-    whiteKeys
-      .overlay(alignment: .topLeading) {
-        blackKeys
-      }
-  }
-
   private var spatialEventGesture: some Gesture {
     SpatialEventGesture(coordinateSpace: .named(coordinateSpace))
       .onChanged { events in
@@ -356,75 +382,6 @@ public struct KeyboardView: View {
       .onEnded { events in
         for event in events {
           touchUp(for: event)
-        }
-      }
-  }
-
-  private var whiteKeys: some View {
-    HStack(alignment: .top, spacing: whiteKeySpacing) {
-      ForEach(0..<75) { noteIndex in
-        whiteKey(note: whiteNotes[noteIndex])
-      }
-    }
-  }
-
-  private func whiteKey(note: Note) -> some View {
-    labeledKey(note: note)
-      .onGeometryChange(for: CGRect.self) {
-        $0.frame(in: .named(coordinateSpace))
-      } action: {
-        if note.isValidMidiNote {
-          frames[note.midiNoteValue] = $0.insetBy(dx: whiteKeyInset, dy: 0)
-        }
-      }
-  }
-
-  private var blackKeys: some View {
-    let blackKeyWidth: Double = store.keyWidth * 0.75
-    let offset = blackKeyWidth / 2.0
-    let spacing = store.keyWidth + whiteKeySpacing - blackKeyWidth
-    return HStack(alignment: .top, spacing: spacing) {
-      Color(.clear)
-        .frame(width: offset)
-      ForEach(0..<74) { noteIndex in
-        blackKey(note: blackNotes[noteIndex])
-      }
-    }
-  }
-
-  private func blackKey(note: Note) -> some View {
-    key(note: note)
-      .opacity(note.isValidMidiNote ? 1.0 : 0.0)
-      .onGeometryChange(for: CGRect.self) {
-        $0.frame(in: .named(coordinateSpace))
-      } action: {
-        if note.isValidMidiNote {
-          frames[note.midiNoteValue] = $0
-        }
-      }
-  }
-
-  private func key(note: Note) -> some View {
-    let color: Color = note.accented ? .black : .white
-    let width: Double = note.accented ? store.keyWidth * 0.75 : store.keyWidth
-    let height: Double = maxKeyboardPanelHeight * (note.accented ? 0.6 : 1.0) * keyboardHeightScaling
-    let cornerRadius: Double = 8
-
-    return RoundedRectangle(cornerRadius: cornerRadius)
-      .fill(color)
-      .fill((note.isValidMidiNote && store.noteCounters[note.midiNoteValue] > 0) ? activeColor.opacity(0.3) : .clear)
-      .frame(width: width, height: height)
-      .offset(y: -cornerRadius / 2)
-      .id(note)
-  }
-
-  private func labeledKey(note: Note) -> some View {
-    key(note: note)
-      .overlay(alignment: .bottom) {
-        if (store.keyLabels.all && !note.accented) || (store.keyLabels.cOnly && note.noteIndex == 0) {
-          Text(note.description)
-            .foregroundStyle(.gray)
-            .offset(y: -12)
         }
       }
   }
@@ -447,15 +404,61 @@ public struct KeyboardView: View {
 
   private func touchUp(for event: Event) {
     print("touchUp:", event.location)
-    guard isValidTouchLocation(event.location) else {
-      print("*** ignored")
-      return
-    }
     store.send(.touchEnded(.wrap(event.id)))
   }
 
   private func isValidTouchLocation(_ location: CGPoint) -> Bool {
     location.x > 1.0e-8 && location.y < keyboardHeight
+  }
+}
+
+private struct Key: View {
+  private var store: StoreOf<Keyboard>
+  private let note: Note
+
+  init(store: StoreOf<Keyboard>, note: Note) {
+    self.store = store
+    self.note = note
+  }
+
+  @Environment(\.maxKeyboardPanelHeight) private var maxKeyboardPanelHeight
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+  private var keyboardHeightScaling: Double { verticalSizeClass == .compact ? 0.5 : 1.0 }
+  private var activeColor: Color { store.muted ? .red : .green }
+  private var color: Color { note.accented ? .black : .white }
+  private var width: Double { note.accented ? store.keyWidth * 0.75 : store.keyWidth }
+  private var height: Double { maxKeyboardPanelHeight * (note.accented ? 0.6 : 1.0) * keyboardHeightScaling }
+  private let cornerRadius: Double = 8
+
+  var body: some View {
+    RoundedRectangle(cornerRadius: cornerRadius)
+      .fill(color)
+      .fill((note.isValidMidiNote && store.noteCounters[note.midiNoteValue] > 0) ? activeColor.opacity(0.3) : .clear)
+      .frame(width: width, height: height)
+      .offset(y: -cornerRadius / 2)
+      .id(note)
+  }
+}
+
+private struct LabeledKey: View {
+  private var store: StoreOf<Keyboard>
+  private let note: Note
+
+  init(store: StoreOf<Keyboard>, note: Note) {
+    self.store = store
+    self.note = note
+  }
+
+  var body: some View {
+    Key(store: store, note: note)
+      .overlay(alignment: .bottom) {
+        if (store.keyLabels.all && !note.accented) || (store.keyLabels.cOnly && note.noteIndex == 0) {
+          Text(note.description)
+            .foregroundStyle(.gray)
+            .offset(y: -12)
+        }
+      }
   }
 }
 
