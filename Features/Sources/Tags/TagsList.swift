@@ -50,13 +50,13 @@ public struct TagsList {
     case initialize
     case tagInfoButtonTapped(TagInfo)
     case tagInfoDeleteTapped(TagInfo)
-    case tagInfoEditTapped(TagInfo)
+    case tagInfoEditTapped(TagInfo?)
     case updateFetchAllQuery
 
     @CasePathable
     public enum Delegate: Equatable {
       case activeTagIdChanged(Tag.ID)
-      case edit(focus: Int)
+      case edit(focus: Int?)
     }
   }
 
@@ -189,9 +189,9 @@ extension TagsList {
     return deleteTagConfirmed(&state, tagInfo: tagInfo)
   }
 
-  private func tagInfoEditTapped(_ state: inout State, tagInfo: TagInfo) -> Effect<Action> {
+  private func tagInfoEditTapped(_ state: inout State, tagInfo: TagInfo?) -> Effect<Action> {
     return .run { send in
-      await send(.delegate(.edit(focus: tagInfo.ordering)), animation: .smooth)
+      await send(.delegate(.edit(focus: tagInfo?.ordering)), animation: .smooth)
     }
   }
 
@@ -222,11 +222,16 @@ public struct TagsListView: View {
       Section {
         ForEach(store.rows) { row in
           StyledEntry {
-            tagButtonView(row: row)
+            TagButtonView(store: store, tagInfo: row, indicatorModifierState: indicatorState(for: row.id))
           }
         }
       } header: {
-        StyledHeader { Text("Tags") }
+        StyledHeader {
+          Text("Tags")
+            .onTapGesture(count: 2) {
+              store.send(.tagInfoEditTapped(nil))
+            }
+        }
       }
     }
     .animation(.smooth, value: store.rows)
@@ -237,15 +242,27 @@ public struct TagsListView: View {
   private func indicatorState(for tagId: Tag.ID) -> IndicatorModifier.State {
     tagId == store.activeTagId ? .active : .none
   }
+}
 
-  private func tagButtonView(row: TagInfo) -> some View {
-    let count = row.soundFontsCount > 0 ? "\(row.soundFontsCount)" : ""
-    let indicatorModifierState = indicatorState(for: row.id)
-    return Button {
-      store.send(.tagInfoButtonTapped(row))
+private struct TagButtonView: View {
+  private let store: StoreOf<TagsList>
+  private let tagInfo: TagInfo
+  private let indicatorModifierState: IndicatorModifier.State
+  private let count: String
+
+  init(store: StoreOf<TagsList>, tagInfo: TagInfo, indicatorModifierState: IndicatorModifier.State) {
+    self.store = store
+    self.tagInfo = tagInfo
+    self.indicatorModifierState = indicatorModifierState
+    self.count = tagInfo.soundFontsCount > 0 ? "\(tagInfo.soundFontsCount)" : ""
+  }
+
+  var body: some View {
+    Button {
+      store.send(.tagInfoButtonTapped(tagInfo))
     } label: {
       HStack {
-        Text(row.displayName)
+        Text(tagInfo.displayName)
           .font(.button)
           .opacity(count.isEmpty ? 0.75 : 1.0)
           .indicator(indicatorModifierState)
@@ -257,22 +274,22 @@ public struct TagsListView: View {
       .contentShape(.interaction, Rectangle())
       .simultaneousGesture(
         LongPressGesture(minimumDuration: 1.0)
-          .onEnded { _ in store.send(.tagInfoEditTapped(row)) }
+          .onEnded { _ in store.send(.tagInfoEditTapped(tagInfo)) }
       )
     }
     .disabled(count.isEmpty)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       Button {
-        store.send(.tagInfoEditTapped(row), animation: .default)
+        store.send(.tagInfoEditTapped(tagInfo), animation: .default)
       } label: {
         Image(systemName: .editButtonImageName)
           .tint(.cyan)
       }
     }
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-      if !row.isUbiquitous {
+      if !tagInfo.isUbiquitous {
         Button {
-          store.send(.tagInfoDeleteTapped(row), animation: .default)
+          store.send(.tagInfoDeleteTapped(tagInfo), animation: .default)
         } label: {
           Image(systemName: .deleteButtonImageName)
             .tint(.red)
