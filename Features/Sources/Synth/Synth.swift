@@ -351,41 +351,19 @@ extension Synth {
   private func sendLoadFileUsePreset(_ avAudioUnit: AVAudioUnitMIDIInstrument, presetInfo: PresetLoadingInfo) -> Bool {
     log.info("sendLoadFileUsePreset BEGIN - \(presetInfo, privacy: .public)")
 
-    guard
-      let location = try? SoundFontKind(
-        kind: presetInfo.kind,
-        location: presetInfo.location,
-        displayName: presetInfo.soundFontName,
-      )
-    else {
-      log.error("sendLoadFileUsePreset END - unexpected nil location for \(presetInfo, privacy: .public)")
+    let activeState: AUv3ActiveState = .init(
+      soundFontName: presetInfo.originalSoundFontName,
+      presetIndex: presetInfo.presetIndex,
+      tagName: Tag.Ubiquitous.all.displayName ?? ""
+    )
+
+    guard let fullState: FullState = try? .init(activeState: activeState) else {
+      log.error("sendLoadFileUsePreset END - failed to generate FullState")
       return false
     }
 
-    if case let .external(bookmark) = location {
-      guard let data = bookmark.bookmark else {
-        log.error("sendLoadFileUsePreset END - unexpected nil bookmark data for \(presetInfo, privacy: .public)")
-        return false
-      }
-
-      log.debug("sending bookmark data to synth - \(bookmark.url, privacy: .public)")
-
-      return avAudioUnit.sendLoadBookmarkUsePreset(
-        bookmark: data,
-        preset: presetInfo.presetIndex,
-        gain: presetInfo.gain,
-        pan: presetInfo.pan
-      )
-
-    } else {
-      log.debug("sending file path to synth - \(location.url, privacy: .public)")
-      return avAudioUnit.sendLoadFileUsePreset(
-        path: location.url.path(percentEncoded: false),
-        preset: presetInfo.presetIndex,
-        gain: presetInfo.gain,
-        pan: presetInfo.pan
-      )
-    }
+    avAudioUnit.auAudioUnit.fullState = fullState.state
+    return true
   }
 
   private func sendNoteOnOffSequence(_ state: State) -> Effect<Action> {
