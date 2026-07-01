@@ -148,13 +148,19 @@ public struct TutorialView: View {
   }
 }
 
-extension TutorialView {
+struct Page<Content: View>: View {
+  private let title: LocalizedStringKey
+  private let gist: LocalizedStringKey
+  private let rest: () -> Content
+  private let bottomSpacerMinLength: CGFloat = 24.0
 
-  private func page(
-    title: LocalizedStringKey,
-    gist: LocalizedStringKey,
-    @ViewBuilder rest: () -> some View
-  ) -> some View {
+  init(title: LocalizedStringKey, gist: LocalizedStringKey, @ViewBuilder rest: @escaping () -> Content) {
+    self.title = title
+    self.gist = gist
+    self.rest = rest
+  }
+
+  var body: some View {
     VStack(spacing: 18) {
       Text(title)
         .font(.tutorialTitle)
@@ -162,21 +168,17 @@ extension TutorialView {
       Text(gist)
         .font(.tutorialGist)
       rest()
-      bottomSpacer
+      Spacer(minLength: bottomSpacerMinLength)
     }
     .font(.tutorialBody)
     .foregroundStyle(.teal)
-  }
-
-  private var bottomSpacer: some View {
-    Spacer(minLength: bottomSpacerMinLength)
   }
 }
 
 extension TutorialView {
 
   private var intro: some View {
-    page(
+    Page(
       title: "Welcome to SoundFonts+",
       gist:
 """
@@ -192,7 +194,7 @@ The tutorial will not appear upon future launches of the app, but you can always
   }
 
   private var fonts: some View {
-    page(
+    Page(
       title: "Fonts",
       gist:
 """
@@ -247,14 +249,14 @@ to add new files from iCloud or an external disk.
   }
 
   private var presets: some View {
-    @Shared(.favoriteSymbolName) var symbolName
-    return page(
+    Page(
       title: "Presets",
       gist:
 """
 The list to the right of the fonts list shows the visible presets in the selected font file.
 """
     ) {
+      @Shared(.favoriteSymbolName) var symbolName
       HStack(alignment: .top, spacing: 16) {
         Image("PresetsList", bundle: Bundle.module)
           .resizable()
@@ -319,7 +321,7 @@ symbol (configurable). Next page talks more about them.
   }
 
   private var favorites: some View {
-    page(
+    Page(
       title: "Favorites",
       gist:
 """
@@ -349,7 +351,7 @@ They normally appear below the original preset, but you can change this in the \
   }
 
   private var tags: some View {
-    page(
+    Page(
       title: "Tags",
       gist:
 """
@@ -451,7 +453,7 @@ Tap the \(Image(systemName: .tagsListButtonImageName)) button to see the tag pan
   }
 
   private var toolBar1: some View {
-    page(
+    Page(
       title: "Toolbar",
       gist:
 """
@@ -506,7 +508,7 @@ parts of the application.
   }
 
   private var toolBar2: some View {
-    page(
+    Page(
       title: "More Controls",
       gist:
 """
@@ -540,14 +542,11 @@ Tap \(Image(systemName: .fixedKeyboardButtonImageName)) to toggle keyboard slidi
           Text("Hide these buttons (in narrow views)")
         }
       }
-      bottomSpacer
     }
-    // .navigationTitle("More Controls")
-    .foregroundStyle(.teal)
   }
 
   private var reverb: some View {
-    page(
+    Page(
       title: "Reverb Controls",
       gist:
 """
@@ -600,7 +599,7 @@ Swipe up/down to change room or adjust knob value.
   }
 
   private var delay: some View {
-    page(
+    Page(
       title: "Delay Controls",
       gist:
 """
@@ -662,7 +661,7 @@ tap on label to enter numeric value.
   }
 
   private var settings: some View {
-    page(
+    Page(
       title: "Finally…",
       gist: "Here are some additional features available to you:"
     ) {
