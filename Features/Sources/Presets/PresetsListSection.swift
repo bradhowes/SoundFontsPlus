@@ -130,10 +130,44 @@ public struct PresetsListSectionView: View {
 
   public var body: some View {
     Section {
-      buttonRows
+      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+        StyledEntry {
+          PresetButtonView(
+            store: rowStore,
+            indicatorModifierState: indicatorModifierState(for: rowStore.preset)
+          )
+        }
+      }
     } header: {
       StyledHeader {
-        sectionHeader
+        HStack {
+          SectionIndexTitleView(title: store.sectionText)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+          Spacer()
+          Button {
+            store.send(.delegate(.searchButtonTapped))
+          } label: {
+            HStack {
+              Image(systemName: .searchButtonImageName)
+                .imageScale(.small)
+                .contentShape(Rectangle())
+              // Here to keep from overlapping the section index overlay from the parent view
+              Color.clear
+                .frame(width: 16)
+            }
+          }
+          .opacity((showSearchButton || store.section == 0) && !searching && !editingVisibility ? 1.0 : 0.0)
+          .animation(.smooth(duration: 0.2), value: showSearchButton)
+        }
+        // Track vertical position of our header -- when it becomes pinned, show the search button
+        .onGeometryChange(for: Double.self) {
+          $0.frame(in: .global).origin.y
+        } action: {
+          // !!! Magic constant hack to signal if section header should have the search button. This works ok except on iPhone in
+          // landscape mode. Better to rely on some signal that the previous section header is going away.
+          showSearchButton = $0 < 74.0
+        }
       }
       .onTapGesture(count: 2) {
         store.send(.delegate(.headerTapped(section: store.id, count: 2)))
@@ -144,48 +178,6 @@ public struct PresetsListSectionView: View {
     }
     .id(store.sectionIndex)
     .animation(.smooth, value: store.rows)
-  }
-
-  private var sectionHeader: some View {
-    HStack {
-      PresetsListView.sectionIndexTitleView(for: store.sectionText)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(Rectangle())
-      Spacer()
-      Button {
-        store.send(.delegate(.searchButtonTapped))
-      } label: {
-        HStack {
-          Image(systemName: .searchButtonImageName)
-            .imageScale(.small)
-            .contentShape(Rectangle())
-          // Here to keep from overlapping the section index overlay from the parent view
-          Color.clear
-            .frame(width: 16)
-        }
-      }
-      .opacity((showSearchButton || store.section == 0) && !searching && !editingVisibility ? 1.0 : 0.0)
-      .animation(.smooth(duration: 0.2), value: showSearchButton)
-    }
-    // Track vertical position of our header -- when it becomes pinned, show the search button
-    .onGeometryChange(for: Double.self) {
-      $0.frame(in: .global).origin.y
-    } action: {
-      // !!! Magic constant hack to signal if section header should have the search button. This works ok except on iPhone in
-      // landscape mode. Better to rely on some signal that the previous section header is going away.
-      showSearchButton = $0 < 74.0
-    }
-  }
-
-  private var buttonRows: some View {
-    ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
-      StyledEntry {
-        PresetButtonView(
-          store: rowStore,
-          indicatorModifierState: indicatorModifierState(for: rowStore.preset)
-        )
-      }
-    }
   }
 
   private func indicatorModifierState(for preset: Preset) -> IndicatorModifier.State {

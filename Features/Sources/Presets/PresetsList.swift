@@ -476,7 +476,29 @@ public struct PresetsListView: View {
   public var body: some View {
     VStack(spacing: 0) {
       if store.isSearchFieldPresented {
-        searchField
+        HStack {
+          TextField("Search", text: $store.searchText.sending(\.searchTextChanged))
+            .textFieldStyle(.roundedBorder)
+            .focused($focusedField, equals: .searchText)
+#if os(iOS)
+            .autocorrectionDisabled()
+            .autocapitalization(.none)
+#endif
+            .transition(.slide)
+            .bind($store.focusedField, to: $focusedField)
+            .clearButton {
+              store.send(.clearSearchTextField)
+            }
+          Spacer()
+          Button {
+            store.send(.cancelSearchButtonTapped)
+          } label: {
+            Image(systemName: .cancelButtonImageName)
+              .frame(width: 32, height: 32)
+              .contentShape(Rectangle())
+          }
+        }
+        .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
       }
       ScrollViewReader { proxy in
         StyledList {
@@ -492,7 +514,34 @@ public struct PresetsListView: View {
         .helpInfoViewTag(.presetsList)
         .overlay(alignment: .trailing) {
           if showPresetIndexView {
-            sectionIndexTitlesOverlay
+            VStack {
+              ViewThatFits(in: [.vertical]) {
+                ForEach(1...4, id: \.self) { stride in
+                  VStack(spacing: 0) {
+                    if store.sections.count > 2 {
+                      ForEach(store.sections.map(\.sectionIndex).striding(by: stride), id: \.self) { title in
+                        SectionIndexTitleView(title: title)
+                          .font(.caption)
+                          .foregroundStyle(Color.gray)
+                          .padding([.leading, .trailing], 8)
+                          .containerShape(Rectangle())
+                          .clipShape(.rect)
+                          .background(dragObserver(title: title))
+                      }
+                    }
+                  }
+                  .gesture(
+                    DragGesture(minimumDistance: 0, coordinateSpace: .global)
+                      .updating($dragLocation) { value, state, _ in
+                        state = value.location
+                      }
+                  )
+                  .padding([.top, .bottom], 8)
+                  .background(Color.white.opacity(0.1), in: RoundedRectangle(cornerSize: .init(width: 12, height: 12), style: .continuous))
+                  .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+              }
+            }
           }
         }
         .onChange(of: store.scrollToTarget) {
@@ -514,50 +563,6 @@ public struct PresetsListView: View {
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
 
-  private var sectionIndexTitlesOverlay: some View {
-    VStack {
-      ViewThatFits(in: [.vertical]) {
-        ForEach(1...4, id: \.self) { stride in
-          sectionIndexTitles(stride: stride)
-        }
-      }
-    }
-  }
-
-  @ViewBuilder
-  public static func sectionIndexTitleView(for title: String) -> some View {
-    if title == "!" {
-      Image(systemName: .favoriteButtonImageName)
-    } else {
-      Text(title)
-    }
-  }
-
-  private func sectionIndexTitles(stride: Int) -> some View {
-    VStack(spacing: 0) {
-      if store.sections.count > 2 {
-        ForEach(store.sections.map(\.sectionIndex).striding(by: stride), id: \.self) { title in
-          Self.sectionIndexTitleView(for: title)
-            .font(.caption)
-            .foregroundStyle(Color.gray)
-            .padding([.leading, .trailing], 8)
-            .containerShape(Rectangle())
-            .clipShape(.rect)
-            .background(dragObserver(title: title))
-        }
-      }
-    }
-    .gesture(
-      DragGesture(minimumDistance: 0, coordinateSpace: .global)
-        .updating($dragLocation) { value, state, _ in
-          state = value.location
-        }
-    )
-    .padding([.top, .bottom], 8)
-    .background(Color.white.opacity(0.1), in: RoundedRectangle(cornerSize: .init(width: 12, height: 12), style: .continuous))
-    .frame(maxWidth: .infinity, alignment: .trailing)
-  }
-
   private func dragObserver(title: String) -> some View {
     GeometryReader { geometry in
       dragObserver(geometry: geometry, title: title)
@@ -571,32 +576,6 @@ public struct PresetsListView: View {
       }
     }
     return Rectangle().fill(Color.clear)
-  }
-
-  private var searchField: some View {
-    HStack {
-      TextField("Search", text: $store.searchText.sending(\.searchTextChanged))
-        .textFieldStyle(.roundedBorder)
-        .focused($focusedField, equals: .searchText)
-#if os(iOS)
-        .autocorrectionDisabled()
-        .autocapitalization(.none)
-#endif
-        .transition(.slide)
-        .bind($store.focusedField, to: $focusedField)
-        .clearButton {
-          store.send(.clearSearchTextField)
-        }
-      Spacer()
-      Button {
-        store.send(.cancelSearchButtonTapped)
-      } label: {
-        Image(systemName: .cancelButtonImageName)
-          .frame(width: 32, height: 32)
-          .contentShape(Rectangle())
-      }
-    }
-    .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
   }
 
   private func doScrollTo(proxy: ScrollViewProxy) {
@@ -613,6 +592,22 @@ public struct PresetsListView: View {
         }
       }
       store.send(.clearScrollToTarget)
+    }
+  }
+}
+
+struct SectionIndexTitleView: View {
+  private let title: String
+
+  init(title: String) {
+    self.title = title
+  }
+
+  var body: some View {
+    if title == "!" {
+      Image(systemName: .favoriteButtonImageName)
+    } else {
+      Text(title)
     }
   }
 }
