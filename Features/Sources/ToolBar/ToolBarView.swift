@@ -37,9 +37,76 @@ public struct ToolBarView: View {
   public var body: some View {
     GeometryReader { geometryProxy in
       if geometryProxy.size.width <= maxCompactBarWidth {
-        compactBar
+        VStack(alignment: .center, spacing: controlSpacing) {
+          HStack(alignment: .center, spacing: controlSpacing) {
+            if isApp {
+              addSoundFontButton
+              tagsButton
+              effectsButton
+              if showActiveVoiceCount || showMIDITrafficIndicator {
+                VoiceCountAndMIDITrafficIndicator(store: store)
+              }
+              Status(store: store)
+              helpButton
+              moreButton
+            } else {
+              tagsButton
+              if showActiveVoiceCount || showMIDITrafficIndicator {
+                VoiceCountAndMIDITrafficIndicator(store: store)
+              }
+              Status(store: store)
+              helpButton
+              moreButton
+            }
+          }
+          .padding([.horizontal], controlSpacing)
+          if store.showMoreButtons {
+            HStack(alignment: .center, spacing: controlSpacing) {
+              Spacer()
+              shiftDownButton
+              slidingKeyboardButton
+              shiftUpButton
+              editVisibilityButton
+              settingsButton
+            }
+            .padding([.horizontal], controlSpacing)
+            .animation(.smooth, value: store.lowestKey)
+            .animation(.smooth, value: store.highestKey)
+            .transition(.move(edge: .bottom))
+          }
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(0)
+        .task {
+          await store.send(.initialize(true)).finish()
+        }
       } else {
-        fullBar
+        HStack(alignment: .center, spacing: controlSpacing) {
+          if isApp {
+            addSoundFontButton
+            tagsButton
+            effectsButton
+            if showActiveVoiceCount || showMIDITrafficIndicator {
+              VoiceCountAndMIDITrafficIndicator(store: store)
+            }
+            Status(store: store)
+            shiftDownButton
+            slidingKeyboardButton
+            shiftUpButton
+            editVisibilityButton
+            settingsButton
+            helpButton
+          } else {
+            tagsButton
+            Status(store: store)
+            editVisibilityButton
+            settingsButton
+            helpButton
+          }
+        }
+        .task {
+          await store.send(.initialize(false)).finish()
+        }
       }
     }
     .imageScale(.large)
@@ -57,105 +124,22 @@ public struct ToolBarView: View {
   }
 }
 
-extension ToolBarView {
+struct Status: View {
+  private var store: StoreOf<ToolBar>
+  @Shared(.favoriteSymbolName) private var favoriteSymbolName
+  @Shared(.starFavoriteNames) private var starFavoriteNames
 
-  private var fullBar: some View {
-    HStack(alignment: .center, spacing: controlSpacing) {
-      if isApp {
-        fullBarApp
-      } else {
-        fullBarAUv3
-      }
-    }
-    .task {
-      await store.send(.initialize(false)).finish()
-    }
+  private var showingPresetSymbol: Bool { starFavoriteNames && store.preset?.kind == .favorite && store.temporaryStatus == nil }
+  private var statusTextValue: String { store.temporaryStatus?.text ?? store.preset?.displayName ?? "—" }
+  private var statusTextColor: Color {
+    (store.preset?.kind == .favorite || store.temporaryStatus != nil) ? .alternateAccentColor : .mainAccentColor
   }
 
-  @ViewBuilder
-  private var fullBarApp: some View {
-    addSoundFontButton
-    tagsButton
-    effectsButton
-    if showActiveVoiceCount || showMIDITrafficIndicator {
-      voiceCountAndMIDITrafficIndicator
-    }
-    status
-    shiftDownButton
-    slidingKeyboardButton
-    shiftUpButton
-    editVisibilityButton
-    settingsButton
-    helpButton
+  init(store: StoreOf<ToolBar>) {
+    self.store = store
   }
 
-  @ViewBuilder
-  private var fullBarAUv3: some View {
-    tagsButton
-    status
-    editVisibilityButton
-    settingsButton
-    helpButton
-  }
-
-  private var compactBar: some View {
-    VStack(alignment: .center, spacing: controlSpacing) {
-      compactBarRow1
-      if store.showMoreButtons {
-        compactBarRow2
-          .transition(.move(edge: .bottom))
-      }
-    }
-    .fixedSize(horizontal: false, vertical: true)
-    .padding(0)
-    .task {
-      await store.send(.initialize(true)).finish()
-    }
-  }
-
-  private var compactBarRow1: some View {
-    HStack(alignment: .center, spacing: controlSpacing) {
-      addSoundFontButton
-      tagsButton
-      effectsButton
-      if showActiveVoiceCount || showMIDITrafficIndicator {
-        voiceCountAndMIDITrafficIndicator
-      }
-      status
-      helpButton
-      moreButton
-    }
-    .padding([.horizontal], controlSpacing)
-  }
-
-  private var compactBarRow2: some View {
-    HStack(alignment: .center, spacing: controlSpacing) {
-      Spacer()
-      shiftDownButton
-      slidingKeyboardButton
-      shiftUpButton
-      editVisibilityButton
-      settingsButton
-    }
-    .padding([.horizontal], controlSpacing)
-    .animation(.smooth, value: store.lowestKey)
-    .animation(.smooth, value: store.highestKey)
-  }
-
-  @ViewBuilder
-  private var compactBarAUv3: some View {
-    tagsButton
-    editVisibilityButton
-    settingsButton
-    status
-  }
-
-  private var status: some View {
-    statusText
-      .helpInfoViewTag(.statusWindow)
-  }
-
-  private var statusText: some View {
+  var body: some View {
     HStack {
       if showingPresetSymbol {
         Image(systemName: favoriteSymbolName)
@@ -171,9 +155,20 @@ extension ToolBarView {
     .contentShape(Rectangle())
     .onTapGesture(count: 2) { store.send(.statusTextTapped(count: 2)) }
     .onTapGesture(count: 1) { store.send(.statusTextTapped(count: 1)) }
+    .helpInfoViewTag(.statusWindow)
+  }
+}
+
+struct VoiceCountAndMIDITrafficIndicator: View {
+  private var store: StoreOf<ToolBar>
+  @Shared(.showMIDITrafficIndicator) private var showMIDITrafficIndicator
+  @Shared(.showActiveVoiceCount) private var showActiveVoiceCount
+
+  init(store: StoreOf<ToolBar>) {
+    self.store = store
   }
 
-  private var voiceCountAndMIDITrafficIndicator: some View {
+  var body: some View {
     ZStack(alignment: .center) {
       MIDITrafficIndicatorView(store: store.scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator))
         .opacity(showMIDITrafficIndicator ? 1.0 : 0.0)
@@ -186,6 +181,9 @@ extension ToolBarView {
     }
     .frame(width: 16, alignment: .center)
   }
+}
+
+extension ToolBarView {
 
   private var addSoundFontButton: some View {
     Button {
@@ -208,8 +206,7 @@ extension ToolBarView {
   }
 
   private var effectsButton: some View {
-    print("effectsButton - \(store.effectsPanelVisible)")
-    return Button {
+    Button {
       store.send(.effectsVisibilityButtonTapped)
     } label: {
       Image(systemName: .effectsButtonImageName)
