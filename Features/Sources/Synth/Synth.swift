@@ -161,20 +161,7 @@ extension Synth {
     }
 
     state.activePresetId = presetId
-
-    guard state.loadedPresetIndex != presetInfo.presetIndex || state.loadedSoundFontId != presetInfo.soundFontId else {
-      log.info("activePresetIdChanged END - already loaded")
-      return sendNoteOnOffSequence(state)
-    }
-
-    let sentRequest: Bool
-    if presetInfo.soundFontId == state.loadedSoundFontId {
-      log.info("activePresetIdChanged - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      sentRequest = avAudioUnit.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
-    } else {
-      sentRequest = sendLoadFileUsePreset(avAudioUnit, presetInfo: presetInfo)
-    }
-
+    let sentRequest = sendLoadFileUsePreset(avAudioUnit, presetInfo: presetInfo)
     state.loadedPresetIndex = presetInfo.presetIndex
     state.loadedSoundFontId = presetInfo.soundFontId
 

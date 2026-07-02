@@ -72,12 +72,6 @@ struct SF2LibAUTests {
       let presetInfo: PresetLoadingInfo! = PresetLoadingInfo.for(id: 1)
       #expect(presetInfo != nil)
 
-      let location = try SoundFontKind(
-        kind: presetInfo.kind,
-        location: presetInfo.location,
-        displayName: presetInfo.originalSoundFontName,
-      )
-
       let activeState: AUv3ActiveState = .init(
         soundFontName: presetInfo.originalSoundFontName,
         presetIndex: presetInfo.presetIndex,
@@ -85,7 +79,7 @@ struct SF2LibAUTests {
       )
 
       let fullState = try FullState(activeState: activeState)
-      let state = au.auAudioUnit.fullState
+      au.auAudioUnit.fullState = fullState.state
     }
   }
 }

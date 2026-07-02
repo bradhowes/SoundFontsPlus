@@ -35,7 +35,6 @@ import Tutorial
     $0.reverbDevice = .liveValue
     $0.uuid = .incrementing
   },
-  .serialized // due to SF2LibAU creation
 )
 @MainActor
 struct AppRootTests {
@@ -171,6 +170,7 @@ struct AppRootTests {
   func activePresetIdChangedDifferent() async throws {
     try await initialized { store in
       #expect(store.state.readyForUse == true)
+
       await store.send(\.activePresetIdChanged, 2)
 
       await store.receive(\.appReview.ask)
