@@ -11,18 +11,21 @@ let useLocalHelpInfoSpotlightOverlay = false
 extension Package.Dependency {
 
   static var morkAndMIDI: PackageDescription.Package.Dependency {
-    useLocalMorkAndMIDI ? .package(name: "MorkAndMIDI", path: "/Users/howes/src/Mine/morkandmidi") :
-      .package(url: "https://github.com/bradhowes/morkandmidi", from: "5.1.0")
+    useLocalMorkAndMIDI ?
+      .package(name: "MorkAndMIDI", path: myLocal("morkandmidi")) :
+      .package(url: myRepo("morkandmidi"), from: "5.1.0")
   }
 
   static var sf2Lib: PackageDescription.Package.Dependency {
-    useLocalSF2Lib ? .package(name: "SF2Lib", path: "/Users/howes/src/Mine/SF2Lib") :
-      .package(url: "https://github.com/bradhowes/SF2Lib", from: "8.14.2")
+    useLocalSF2Lib ?
+      .package(name: "SF2Lib", path: myLocal("SF2Lib")) :
+      .package(url: myRepo("SF2Lib"), exact: "8.14.2")
   }
 
   static var helpInfoSpotlightOverlay: PackageDescription.Package.Dependency {
-    useLocalHelpInfoSpotlightOverlay ? .package(name: "HelpInfoSpotlightOverlay", path: "/Users/howes/src/Mine/HelpInfoSpotlightOverlay") :
-      .package(url: "https://github.com/bradhowes/HelpInfoSpotlightOverlay", from: "1.5.8")
+    useLocalHelpInfoSpotlightOverlay ?
+      .package(name: "HelpInfoSpotlightOverlay", path: myLocal("HelpInfoSpotlightOverlay")) :
+      .package(url: myRepo("HelpInfoSpotlightOverlay"), from: "1.5.8")
   }
 }
 
@@ -59,12 +62,12 @@ let package = Package(
   ],
 
   dependencies: [
-    .package(url: "https://github.com/bradhowes/AUv3Controls", from: "1.1.3"),
-    .package(url: "https://github.com/bradhowes/brh-splitview", from: "1.1.2"),
+    .package(url: myRepo("AUv3Controls"), from: "1.1.3"),
+    .package(url: myRepo("brh-splitview"), from: "1.1.2"),
     //
     .helpInfoSpotlightOverlay,
     //
-    .package(url: "https://github.com/bradhowes/typedfullstate", from: "1.1.1"),
+    .package(url: myRepo("typedfullstate"), from: "1.1.1"),
     //
     .morkAndMIDI,
     .sf2Lib,
@@ -301,6 +304,9 @@ extension PackageDescription.Target {
     .testTarget(name: name + "Tests", dependencies: dependencies + [.init(stringLiteral: name)], resources: resources)
   }
 }
+
+func myRepo(_ package: String) -> String { "https://github.com/bradhowes/\(package)" }
+func myLocal(_ package: String) -> String { "/Users/howes/src/Mine/\(package)" }
 
 @MainActor
 func setSwiftSettings() {
