@@ -10,10 +10,10 @@ import Models
 private let unsetAudioUnitShortName = "-"
 
 /**
- AUv3 component for SF2Lib engine. Wrapped in an ``AVAudioUnitMIDIInstrument`` when created via ``AVAudioUnit/instantiate``.
+ AUv3 component for SF2Lib engine. Wrapped in an `AVAudioUnitMIDIInstrument` when created via `AVAudioUnit/instantiate`.
 
- When created for use in the SoundFontsPlus app, it will have no UI. However, the ``SoundFontsPlusAU`` target does, created via the
- ``AUv3Root`` feature.
+ When created for use in the SoundFontsPlus app, it will have no UI. However, the `SoundFontsPlusAU` target does, created via the
+ `AUv3Root` feature.
 
  For proper AUv3 operation, we have to be careful how we interact with the rendering thread which begins with the function closure
  returned from ``internalRenderBlock``. The code there immediately calls into SF2Lib's Engine code.

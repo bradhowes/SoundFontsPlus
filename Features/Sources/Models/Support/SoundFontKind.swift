@@ -50,7 +50,7 @@ extension SoundFontKind: Equatable {}
 extension SoundFontKind {
 
   /**
-   Destructure the enum into a ``SoundFont.Kind`` value and a `Data` value that encodes the location of the SF2 file.
+   Destructure the enum into a `SoundFont.Kind` value and a `Data` value that encodes the location of the SF2 file.
 
    - returns 2-tuple value to be used when writing to the ``SoundFont`` database table.
    */
