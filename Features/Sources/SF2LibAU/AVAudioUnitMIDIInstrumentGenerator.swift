@@ -21,7 +21,7 @@ public struct AVAudioUnitMIDIInstrumentGenerator: Sendable {
    - returns: A generator that always returns the same value.
    */
   public static func constant() async -> Self {
-    let value = await SF2LibAU.create()
+    let value = await SF2LibAU.create(register: true)
     return Self.constant(value)
   }
 
