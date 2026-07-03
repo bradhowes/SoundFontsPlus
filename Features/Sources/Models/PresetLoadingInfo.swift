@@ -102,6 +102,7 @@ extension PresetLoadingInfo {
    - returns: the optional `PresetLoadingInfo` for the preset
    */
   public static func `for`(soundFontName: String, presetIndex: Int) -> PresetLoadingInfo? {
+    // NOTE: this is *only* used by the AUv3 component when it unpacks a fullState payload to set a preset.
     withDatabaseReader {
       try PresetLoadingInfo.query(for: soundFontName, presetIndex: presetIndex).fetchOne($0)
     } ?? nil

@@ -30,7 +30,7 @@ import TestSupport
     $0.uuid = .incrementing
   },
   .snapshots(record: .failed),
-  // .serialized // due to SF2LibAU creation
+  .serialized // due to SF2LibAU creation
 )
 @MainActor
 struct SynthTests {
@@ -92,7 +92,7 @@ struct SynthTests {
         $0.activePresetId = 2
       }
 
-      // await store.receive(\.lastPresetLoadFinished, timeout: .seconds(10))
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
 
       await store.send(\.activePresetIdChanged, 1) {
         $0.loadedSoundFontId = 1
@@ -100,7 +100,7 @@ struct SynthTests {
         $0.activePresetId = 1
       }
 
-      // await store.receive(\.lastPresetLoadFinished, timeout: .seconds(10))
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
     }
   }
 

@@ -236,13 +236,12 @@ extension SF2LibAU {
   }
 
   private func applyFullState(_ newValue: [String: Any]?) {
-    log.info("fullState SET")
-    willChangeValue(for: \.fullState)
-    defer { didChangeValue(for: \.fullState) }
+    log.info("applyFullState BEGIN")
 
     // Unlike in the getter, the base class throws an exception when given a value here.
     guard let state = newValue else {
       self.auv3ActiveState = nil
+      log.info("applyFullState END - nil newValue")
       return
     }
 
@@ -252,9 +251,12 @@ extension SF2LibAU {
     // However, the SoundFontsPlus app should *not* use this means to change the current preset since, in the app, the render
     // thread is always running.
     self.auv3ActiveState = FullState(state: state).activeState
-    guard let auv3ActiveState else { return }
+    guard let auv3ActiveState else {
+      log.info("applyFullState END - nil/invalid activeState fron newValue")
+      return
+    }
 
-    log.info("fullState - activeState: \(auv3ActiveState, privacy: .public)")
+    log.info("applyFullState - activeState: \(auv3ActiveState, privacy: .public)")
     guard
       let presetLoadingInfo = auv3ActiveState.presetLoadingInfo,
       let location = try? SoundFontKind(
@@ -263,15 +265,20 @@ extension SF2LibAU {
         displayName: presetLoadingInfo.soundFontName
       )
     else {
+      log.info("applyFullState END - failed to obtain valid location")
       return
     }
 
     if case let .external(bookmark) = location {
       if let data = bookmark.bookmark {
-        engine.loadBookmarkAndPreset(data, presetLoadingInfo.presetIndex)
+        log.info("applyFullState - calling engine.loadBookmarkAndPreset")
+        let sent = sendLoadBookmark(data: data, presetIndex: presetLoadingInfo.presetIndex)
+        log.info("applyFullState - sent: \(sent, privacy: .public)")
       }
     } else {
-      engine.loadFileAndPreset(std.string(location.url.path(percentEncoded: false)), presetLoadingInfo.presetIndex)
+      log.info("applyFullState - calling engine.loadFileAndPreset")
+      let sent = sendLoadURL(url: location.url, presetIndex: presetLoadingInfo.presetIndex)
+      log.info("applyFullState - sent: \(sent, privacy: .public)")
     }
 
     // For the associated AUAudioUnitPreset we use the name of the preset and the negative preset index value (non-negative integer
@@ -282,8 +289,31 @@ extension SF2LibAU {
     currentPreset = preset
 
     willChangeValue(for: \.audioUnitShortName)
+    log.info("applyFullState END - audioUnitShortName: \(presetLoadingInfo.presetName, privacy: .public)")
     _audioUnitShortName = presetLoadingInfo.presetName
     didChangeValue(for: \.audioUnitShortName)
+  }
+
+  private func sendLoadBookmark(data: Data, presetIndex: Int) -> Bool {
+    sendMIDI(
+      bytes: Array(
+        SF2Engine.createLoadBookmarkUsePresetPayload(
+          data,
+          presetIndex
+        )
+      )
+    )
+  }
+
+  private func sendLoadURL(url: URL, presetIndex: Int) -> Bool {
+    sendMIDI(
+      bytes: Array(
+        SF2Engine.createLoadFileUsePresetPayload(
+          std.string(url.path(percentEncoded: false)),
+          presetIndex
+        )
+      )
+    )
   }
 }
 
