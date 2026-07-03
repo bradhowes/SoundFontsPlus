@@ -162,23 +162,21 @@ extension Synth {
 
     state.activePresetId = presetId
 
-    guard state.loadedPresetIndex != presetInfo.presetIndex || state.loadedSoundFontId != presetInfo.soundFontId else {
-      log.info("activePresetIdChanged END - already loaded")
-      return sendNoteOnOffSequence(state)
+    let activeState = AUv3ActiveState(
+      soundFontName: presetInfo.originalSoundFontName,
+      presetIndex: presetInfo.presetIndex,
+      tagName: "All"
+    )
+    guard let fullState = try? FullState(activeState: activeState) else {
+      log.info("activePresetIdChanged END - failed to generate FullState from activeState")
+      return .none
     }
 
-    let sentRequest: Bool
-    if presetInfo.soundFontId == state.loadedSoundFontId {
-      log.info("activePresetIdChanged - loading preset \(presetInfo.presetIndex) \(presetInfo.presetName)")
-      sentRequest = avAudioUnit.sendUsePreset(preset: presetInfo.presetIndex, gain: 0.0, pan: 0.0)
-    } else {
-      sentRequest = sendLoadFileUsePreset(avAudioUnit, presetInfo: presetInfo)
-    }
-
+    avAudioUnit.auAudioUnit.fullState = fullState.state
     state.loadedPresetIndex = presetInfo.presetIndex
     state.loadedSoundFontId = presetInfo.soundFontId
 
-    log.info("activePresetIdChanged END - \(sentRequest)")
+    log.info("activePresetIdChanged END")
     return .none
   }
 
@@ -293,17 +291,15 @@ extension Synth {
       let stream: AsyncStream<AUValue>
       let observerToken: AUParameterObserverToken
       unsafe (observerToken, stream) = parameter.startObserving()
+      defer { unsafe parameter.removeParameterObserver(observerToken) }
 
-      defer {
-        unsafe parameter.removeParameterObserver(observerToken)
-        log.debug("monitorLastLoadFinished - stopped task")
-      }
-      if Task.isCancelled { return }
       for await _ in stream {
         if Task.isCancelled { break }
         log.info("monitorLastLoadFinished - detected")
         await send(.lastPresetLoadFinished)
       }
+
+      log.info("monitorLastLoadFinished END")
     }.cancellable(id: CancelId.synthMonitorLastLoadFinished, cancelInFlight: true)
   }
 
@@ -351,19 +347,41 @@ extension Synth {
   private func sendLoadFileUsePreset(_ avAudioUnit: AVAudioUnitMIDIInstrument, presetInfo: PresetLoadingInfo) -> Bool {
     log.info("sendLoadFileUsePreset BEGIN - \(presetInfo, privacy: .public)")
 
-    let activeState: AUv3ActiveState = .init(
-      soundFontName: presetInfo.originalSoundFontName,
-      presetIndex: presetInfo.presetIndex,
-      tagName: Tag.Ubiquitous.all.displayName ?? ""
-    )
-
-    guard let fullState: FullState = try? .init(activeState: activeState) else {
-      log.error("sendLoadFileUsePreset END - failed to generate FullState")
+    guard
+      let location = try? SoundFontKind(
+        kind: presetInfo.kind,
+        location: presetInfo.location,
+        displayName: presetInfo.soundFontName,
+      )
+    else {
+      log.error("sendLoadFileUsePreset END - unexpected nil location for \(presetInfo, privacy: .public)")
       return false
     }
 
-    avAudioUnit.auAudioUnit.fullState = fullState.state
-    return true
+    if case let .external(bookmark) = location {
+      guard let data = bookmark.bookmark else {
+        log.error("sendLoadFileUsePreset END - unexpected nil bookmark data for \(presetInfo, privacy: .public)")
+        return false
+      }
+
+      log.debug("sending bookmark data to synth - \(bookmark.url, privacy: .public)")
+
+      return avAudioUnit.sendLoadBookmarkUsePreset(
+        bookmark: data,
+        preset: presetInfo.presetIndex,
+        gain: presetInfo.gain,
+        pan: presetInfo.pan
+      )
+
+    } else {
+      log.debug("sending file path to synth - \(location.url, privacy: .public)")
+      return avAudioUnit.sendLoadFileUsePreset(
+        path: location.url.path(percentEncoded: false),
+        preset: presetInfo.presetIndex,
+        gain: presetInfo.gain,
+        pan: presetInfo.pan
+      )
+    }
   }
 
   private func sendNoteOnOffSequence(_ state: State) -> Effect<Action> {

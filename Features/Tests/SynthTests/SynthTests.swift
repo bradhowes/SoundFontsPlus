@@ -19,12 +19,15 @@ import TestSupport
 @Suite(
   .dependencies {
     $0.audioGraph = .liveValue
-    $0.audioSession = MockAudioSession().audioSession
+    $0.audioSession = .liveValue
     $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
     $0.continuousClock = TestClock<Duration>()
+    $0.date = .constant(.now)
     $0.defaultDatabase = TestSupport.testDatabase()
     $0.delayDevice = .liveValue
+    $0.fileManager = .liveValue
     $0.reverbDevice = .liveValue
+    $0.uuid = .incrementing
   },
   .snapshots(record: .failed),
   .serialized // due to SF2LibAU creation
@@ -89,7 +92,7 @@ struct SynthTests {
         $0.activePresetId = 2
       }
 
-      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(10))
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
 
       await store.send(\.activePresetIdChanged, 1) {
         $0.loadedSoundFontId = 1
@@ -97,7 +100,7 @@ struct SynthTests {
         $0.activePresetId = 1
       }
 
-      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(10))
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
     }
   }
 
