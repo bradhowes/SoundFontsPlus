@@ -16,7 +16,8 @@ private let log: Logger = .init(category: "appDatabase")
 public func appDatabase(
   fonts: [SF2ResourceTag] = SF2ResourceTag.allCases,
   loadAllPresets: Bool = true,
-  seeder: ((Database) throws -> Void)? = nil
+  seeder: ((Database) throws -> Void)? = nil,
+  readOnly: Bool = false
 ) throws -> any DatabaseWriter {
   @Dependency(\.context) var context
   @Dependency(\.fileManager) var fileManager
@@ -28,11 +29,9 @@ public func appDatabase(
   log.info("appDatabase BEGIN - fonts: \(fonts) loadAllPresets: \(loadAllPresets)")
 
   configuration.foreignKeysEnabled = true
-
-#if DEBUG
+  configuration.readonly = readOnly
 
   if !ProcessInfo.processInfo.isOnGithub {
-    print("isOnGithub is false")
 
     if context == .live {
       // Automatically handle any SQL access contention as long as it can be handled in `sqlContentionTimeout` seconds.
@@ -62,8 +61,6 @@ public func appDatabase(
     }
   }
 
-#endif // DEBUG
-
   if context == .live {
     let databaseURL: URL = fileManager.databaseFileURL()
     let coordinator = NSFileCoordinator(filePresenter: nil)
@@ -71,7 +68,7 @@ public func appDatabase(
     var coordinatorError: NSError?
     var dbError: Error?
 
-    if false { // FIXME: remove
+    if false { // TODO: remove when no longer needed during development
       try? fileManager.removeItem(databaseURL)
       try? fileManager.removeItem(fileManager.fontFilesDirectory())
       _ = fileManager.fontFilesDirectory()
@@ -106,6 +103,15 @@ public func appDatabase(
   )
 
   return database
+}
+
+public func previewDatabase(
+  fonts: [SF2ResourceTag] = [.fluidFont, .rolandNicePiano],
+  loadAllPresets: Bool = false,
+  seeder: ((Database) throws -> Void)? = nil
+) -> any DatabaseWriter {
+  // swiftlint:disable:next force_try
+  try! appDatabase(fonts: fonts, loadAllPresets: loadAllPresets, seeder: seeder)
 }
 
 private func performMigrations(
@@ -156,13 +162,4 @@ private func performMigrations(
       try seeder(db)
     }
   }
-}
-
-public func previewDatabase(
-  fonts: [SF2ResourceTag] = [.fluidFont, .rolandNicePiano],
-  loadAllPresets: Bool = false,
-  seeder: ((Database) throws -> Void)? = nil
-) -> any DatabaseWriter {
-  // swiftlint:disable:next force_try
-  try! appDatabase(fonts: fonts, loadAllPresets: loadAllPresets, seeder: seeder)
 }
