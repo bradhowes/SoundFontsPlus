@@ -78,6 +78,8 @@ let package = Package(
     .package(url: "https://github.com/athankefalas/swift-toasts", from: "0.9.3"),
     //
     .package(url: "https://github.com/pointfreeco/sqlite-data", from: "1.6.2"),
+    // ** Pinned becaue 0.33.0 lost some public Draft.init methods
+    .package(url: "https://github.com/pointfreeco/swift-structured-queries", exact: "0.32.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.7.3"),
     .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.25.5"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.12.0"),

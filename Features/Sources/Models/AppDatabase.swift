@@ -16,8 +16,8 @@ private let log: Logger = .init(category: "appDatabase")
 public func appDatabase(
   fonts: [SF2ResourceTag] = SF2ResourceTag.allCases,
   loadAllPresets: Bool = true,
-  seeder: ((Database) throws -> Void)? = nil,
-  readOnly: Bool = false
+  readOnly: Bool = false,
+  seeder: ((Database) throws -> Void)? = nil
 ) throws -> any DatabaseWriter {
   @Dependency(\.context) var context
   @Dependency(\.fileManager) var fileManager

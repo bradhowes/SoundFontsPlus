@@ -281,7 +281,7 @@ struct ReverbEffectTests {
 }
 
 private actor MockReverbDevice {
-  private var config: ReverbConfig.Draft = .init(presetId: -1)
+  private var config: ReverbConfig.Draft = .init(roomPreset: .largeRoom, wetDryMix: 0.5, enabled: true, presetId: -1)
   private var timesChanged: Int = 0
 
   func getTimesChanged() -> Int { timesChanged }

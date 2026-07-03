@@ -2,6 +2,8 @@
 
 import AUv3Controls
 import FeatureSupport
+import Models
+import SQLiteData
 
 @Reducer
 public struct DelayEffect {

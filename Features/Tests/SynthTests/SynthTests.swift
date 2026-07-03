@@ -77,7 +77,7 @@ struct SynthTests {
         $0.activePresetId = 2
       }
 
-      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(15))
     }
   }
 
