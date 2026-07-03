@@ -55,4 +55,6 @@ coverage_macOS/
 .dependencies/
 .workspace/
 SoundFontsPlus/SF2ResourceFiles/Resources/FluidR3_GM.sf2
+
 Features/Package.resolved
+SoundFontsPlus.xcworkspace/xcshareddata/swiftpm/Package.resolved
