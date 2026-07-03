@@ -364,7 +364,10 @@ struct ToolBarTests {
       $0.loadedPresetIndex = 1
       $0.activePresetId = 2
     }
-    await synth.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
+
+    await synth.receive(\.lastPresetLoadFinished, timeout: .seconds(5)) {
+      $0.firstTimeLoading = false
+    }
 
     let store = try await store()
 

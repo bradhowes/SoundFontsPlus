@@ -26,6 +26,7 @@ public struct Synth {
     public var loadedSoundFontId: SoundFont.ID?
     public var loadedPresetIndex: Int?
     public var activePresetId: Preset.ID?
+    public var firstTimeLoading = true
 
     @ObservationStateIgnored
     public var audioSessionActivated: Bool
@@ -271,8 +272,16 @@ extension Synth {
       unsafe panParameter?.setValue(audioConfig.pan.panGeneratorValue, originator: nil)
     }
 
+    let result: Effect<Action>
+    if state.firstTimeLoading {
+      state.firstTimeLoading = false
+      result = .none
+    } else {
+      result = sendNoteOnOffSequence(state)
+    }
+
     log.info("lastPresetLoadFinished END")
-    return sendNoteOnOffSequence(state)
+    return result
   }
 
   private func monitorLastLoadFinished(_ state: inout State) -> Effect<Action> {
