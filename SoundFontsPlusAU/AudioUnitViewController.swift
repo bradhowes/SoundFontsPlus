@@ -16,11 +16,13 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
   deinit {}
 
   public override func viewDidLoad() {
+    log.info("viewDidLoad BEGIN")
     installApplicationFont()
     super.viewDidLoad()
     if let audioUnit {
       installView(audioUnit: audioUnit)
     }
+    log.info("viewDidLoad END")
   }
 
   /**
@@ -30,9 +32,12 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
    - returns: new AUAudioUnit instance
    */
   nonisolated public func createAudioUnit(with componentDescription: AudioComponentDescription) throws -> AUAudioUnit {
+    log.info("createAudioUnit BEGIN")
     @Shared(.isAUv3) var isAUv3
     let firstTime = !isAUv3
     $isAUv3.withLock { $0 = true }
+
+    log.info("createAudioUnit - \(firstTime, privacy: .public)")
 
     if firstTime {
       prepareDependencies {
@@ -49,6 +54,8 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
       }
     }
 
+    log.info("createAudioUnit END")
+
     return try DispatchQueue.main.sync {
       let audioUnit = try SF2LibAU(componentDescription: componentDescription, options: [])
       DispatchQueue.main.async { [weak self] in
@@ -59,6 +66,7 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
   }
 
   private func installView(audioUnit: SF2LibAU) {
+    log.info("installView BEGIN")
     if let host = hostingController {
       host.removeFromParent()
       host.view.removeFromSuperview()
@@ -86,6 +94,7 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
     self.view.backgroundColor = .black
     self.view.bringSubviewToFront(host.view)
 #endif
+    log.info("installView END")
   }
 }
 
