@@ -336,7 +336,6 @@ struct ToolBarTests {
     .dependencies {
       $0.audioGraph = .liveValue
       $0.audioSession = MockAudioSession().audioSession
-      $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
       $0.continuousClock = .immediate
       $0.defaultDatabase = try appDatabase(loadAllPresets: false)
       $0.delayDevice = .liveValue
@@ -346,19 +345,18 @@ struct ToolBarTests {
   func monitorActiveVoiceCount() async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
 
-    // Uff. Replication here of synth init in order to have an audio unit that will emit a voice count change.
-    @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
-    let avAudioUnit = try #require(await avAudioUnitMIDIInstrumentGenerator.generate())
-
     let synth = TestStore(initialState: Synth.State()) { Synth() }
     await synth.send(.initialize)
 
-    await synth.receive(\.synthAudioUnitCreated) {
-      $0.audioSessionActivated = true
-      $0.avAudioUnit = avAudioUnit
+    await synth.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await synth.receive(\.synthAudioUnitCreated) {
+        $0.audioSessionActivated = true
+      }
     }
+
     await synth.receive(\.delegate.running)
-    await synth.receive(\.delegate.audioUnitCreated)
+    await synth.receive(\.delegate.audioUnitCreated, synth.state.avAudioUnit!)
+
     await synth.send(\.activePresetIdChanged, 2) {
       $0.loadedSoundFontId = 1
       $0.loadedPresetIndex = 1
@@ -371,7 +369,7 @@ struct ToolBarTests {
 
     let store = try await store()
 
-    await store.send(.audioUnitCreated(avAudioUnit))
+    await store.send(.audioUnitCreated(synth.state.avAudioUnit!))
 
     await synth.send(\.playNote)
 

@@ -28,7 +28,7 @@ AU_COMPONENT_MANUFACTURER = BRay
 AU_FACTORY_FUNCTION = SoundFontsPlusAU.ViewController
 
 /// The "build" version -- the `bumpVersions.py -b` option sets this to a date/time stamp
-CURRENT_PROJECT_VERSION = 20260703160125
+CURRENT_PROJECT_VERSION = 20260705153826
 
 /// The visible version (eg. 1.2.3)
 MARKETING_VERSION = 1.5.2

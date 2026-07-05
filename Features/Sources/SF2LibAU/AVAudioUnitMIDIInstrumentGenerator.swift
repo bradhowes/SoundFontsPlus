@@ -40,16 +40,31 @@ public struct AVAudioUnitMIDIInstrumentGenerator: Sendable {
   }
 }
 
+extension AVAudioUnitMIDIInstrumentGenerator: DependencyKey {
+
+  public static var liveValue: Self {
+    .init {
+      await SF2LibAU.create(register: true)
+    }
+  }
+
+  public static var previewValue: Self {
+    .init {
+      await SF2LibAU.create(register: true)
+    }
+  }
+
+  public static var testValue: Self {
+    .init {
+      unimplemented("generate", placeholder: nil)
+    }
+  }
+}
+
 extension DependencyValues {
 
   public var avAudioUnitMIDIInstrumentGenerator: AVAudioUnitMIDIInstrumentGenerator {
-    get { self[AVAudioUnitMIDIInstrumentGeneratorKey.self] }
-    set { self[AVAudioUnitMIDIInstrumentGeneratorKey.self] = newValue }
-  }
-
-  private enum AVAudioUnitMIDIInstrumentGeneratorKey: DependencyKey {
-    static let liveValue = AVAudioUnitMIDIInstrumentGenerator {
-      await SF2LibAU.create()
-    }
+    get { self[AVAudioUnitMIDIInstrumentGenerator.self] }
+    set { self[AVAudioUnitMIDIInstrumentGenerator.self] = newValue }
   }
 }

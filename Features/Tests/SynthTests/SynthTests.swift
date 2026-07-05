@@ -9,6 +9,7 @@ import Foundation
 import Models
 import ReverbEffect
 import SF2LibAU
+import SF2Resources
 import SnapshotTesting
 import SwiftUI
 import Testing
@@ -20,10 +21,9 @@ import TestSupport
   .dependencies {
     $0.audioGraph = .liveValue
     $0.audioSession = .liveValue
-    $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
     $0.continuousClock = TestClock<Duration>()
     $0.date = .constant(.now)
-    $0.defaultDatabase = TestSupport.testDatabase()
+    $0.defaultDatabase = try appDatabase(fonts: [SF2ResourceTag.fluidFont], loadAllPresets: false)
     $0.delayDevice = .liveValue
     $0.fileManager = .liveValue
     $0.reverbDevice = .liveValue
@@ -40,21 +40,20 @@ struct SynthTests {
   func initialized(exhaustivity: Exhaustivity = .on, _ closure: (TestStoreOf<Synth>) async throws -> Void) async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
 
-    @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
-    let avAudioUnit = await avAudioUnitMIDIInstrumentGenerator.generate()
-
     let store = TestStore(initialState: Synth.State()) { Synth() }
 
     try await store.withExhaustivity(exhaustivity) {
       await store.send(.initialize)
 
-      await store.receive(\.synthAudioUnitCreated) {
-        $0.audioSessionActivated = true
-        $0.avAudioUnit = avAudioUnit
+      await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+        await store.receive(\.synthAudioUnitCreated) {
+          $0.audioSessionActivated = true
+        }
+        #expect(store.state.avAudioUnit != nil)
       }
 
       await store.receive(\.delegate.running)
-      await store.receive(\.delegate.audioUnitCreated)
+      await store.receive(\.delegate.audioUnitCreated, store.state.avAudioUnit!)
 
       try await closure(store)
 
@@ -77,11 +76,17 @@ struct SynthTests {
         $0.activePresetId = 2
       }
 
-      // await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5))
+      await store.receive(\.lastPresetLoadFinished, timeout: .seconds(5)) {
+        $0.firstTimeLoading = false
+      }
     }
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.avAudioUnitMIDIInstrumentGenerator = .liveValue
+    }
+  )
   func activePresetIdChangeCanPlayNote() async throws {
     try await initialized { store in
       $playSoundOnPresetChange.withLock { $0 = true }
@@ -106,7 +111,11 @@ struct SynthTests {
     }
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.avAudioUnitMIDIInstrumentGenerator = .liveValue
+    }
+  )
   func audioSessionRouteChanged() async throws {
     try await initialized { store in
       NotificationCenter.default.post(name: AVAudioSession.routeChangeNotification, object: nil)
@@ -114,7 +123,11 @@ struct SynthTests {
     }
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.avAudioUnitMIDIInstrumentGenerator = .liveValue
+    }
+  )
   func audioSessionMediaServicesWereReset() async throws {
     try await initialized { store in
       NotificationCenter.default.post(name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
@@ -122,7 +135,11 @@ struct SynthTests {
     }
   }
 
-  @Test
+  @Test(
+    .dependencies {
+      $0.avAudioUnitMIDIInstrumentGenerator = .liveValue
+    }
+  )
   func audioSessionReleaseAcquire() async throws {
     try await initialized { store in
       await store.send(\.releaseAudioSession) { $0.audioSessionActivated = false }

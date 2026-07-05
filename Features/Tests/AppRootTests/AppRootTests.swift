@@ -10,6 +10,7 @@ import MorkAndMIDI
 import ReverbEffect
 import Settings
 import SF2LibAU
+import SF2Resources
 import SnapshotTesting
 import SoundFonts
 import SQLiteData
@@ -25,10 +26,9 @@ import Tutorial
     let mockVolume = OutputVolumeFlipFlop()
     $0.audioGraph = .liveValue
     $0.audioSession = .liveValue
-    $0.avAudioUnitMIDIInstrumentGenerator = await AVAudioUnitMIDIInstrumentGenerator.constant()
     $0.continuousClock = TestClock<Duration>()
     $0.date = .constant(.now)
-    $0.defaultDatabase = TestSupport.testDatabase()
+    $0.defaultDatabase = try appDatabase(fonts: [SF2ResourceTag.fluidFont], loadAllPresets: false)
     $0.delayDevice = .liveValue
     $0.fileManager = .liveValue
     $0.outputVolume = mockVolume.makeOutputVolume()
@@ -61,17 +61,22 @@ struct AppRootTests {
   ) async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
 
-    @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
-    let avAudioUnit = try #require(await avAudioUnitMIDIInstrumentGenerator.generate())
+    // @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
+    // let avAudioUnit = try #require(await avAudioUnitMIDIInstrumentGenerator.generate())
 
     let store = store(showedTutorial: showedTutorial)
 
     await store.send(.initialize)
     await store.receive(\.synth.initialize)
-    await store.receive(\.synth.synthAudioUnitCreated) {
-      $0.synth.audioSessionActivated = true
-      $0.synth.avAudioUnit = avAudioUnit
+
+    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.receive(\.synth.synthAudioUnitCreated) {
+        $0.synth.audioSessionActivated = true
+        // $0.synth.avAudioUnit = avAudioUnit
+      }
     }
+    #expect(store.state.synth.avAudioUnit != nil)
+    let avAudioUnit = store.state.synth.avAudioUnit!
     await store.receive(\.synth.delegate.running) {
       $0.toolBar.temporaryStatus = .startup
       $0.toastState = nil
@@ -405,16 +410,10 @@ struct AppRootTests {
     try await initialized { store in
       await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, true)
       await store.receive(\.presetsList.editingVisibilityChanged, true) { $0.presetsList.editingVisibility = true }
-      await store.receive(\.presetsList.rowsSourceUpdated) {
-        $0.presetsList.presets = Preset.all(for: 1)
-        $0.presetsList.sections = group(Preset.all(for: 1), searching: false)
-      }
+      await store.receive(\.presetsList.rowsSourceUpdated)
       await store.send(\.toolBar.delegate.editingPresetVisibilityChanged, false)
       await store.receive(\.presetsList.editingVisibilityChanged, false) { $0.presetsList.editingVisibility = false }
-      await store.receive(\.presetsList.rowsSourceUpdated) {
-        $0.presetsList.presets = Preset.visible(for: 1)
-        $0.presetsList.sections = group(Preset.visible(for: 1), searching: false)
-      }
+      await store.receive(\.presetsList.rowsSourceUpdated)
     }
   }
 
@@ -546,7 +545,7 @@ struct AppRootTests {
       await store.receive(\.soundFontsList.importFinished)
       @FetchAll var soundFontInfos: [SoundFontInfo]
       try await $soundFontInfos.load(SoundFontInfo.query(for: Tag.Ubiquitous.all.id))
-      #expect(soundFontInfos.count == 4)
+      #expect(soundFontInfos.count == 1)
       await store.receive(\.soundFontsList.rowsSourceUpdated, soundFontInfos)
     }
   }

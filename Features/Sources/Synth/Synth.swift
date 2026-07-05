@@ -73,9 +73,9 @@ public struct Synth {
 
   @Dependency(\.audioGraph) private var audioGraph
   @Dependency(\.audioSession) private var audioSession
-  @Dependency(\.defaultDatabase) private var database
-  @Dependency(\.avAudioUnitMIDIInstrumentGenerator) private var avAudioUnitGen
+  // @Dependency(\.avAudioUnitMIDIInstrumentGenerator) private var avAudioUnitGen
   @Dependency(\.continuousClock) var clock
+  @Dependency(\.defaultDatabase) private var database
 
   @Shared(.backgroundProcessing) private var backgroundProcessing
   @Shared(.playSoundOnPresetChange) private var playSoundOnPresetChange
@@ -173,6 +173,12 @@ extension Synth {
       return .none
     }
 
+    guard state.loadedPresetIndex != presetInfo.presetIndex || state.loadedSoundFontId != presetInfo.soundFontId else {
+      log.info("activePresetIdChanged END - no change")
+      return .none
+    }
+
+    log.info("soundFontId: \(presetInfo.soundFontId, privacy: .public) presetIndex: \(presetInfo.presetIndex, privacy: .public)")
     avAudioUnit.auAudioUnit.fullState = fullState.state
     state.loadedPresetIndex = presetInfo.presetIndex
     state.loadedSoundFontId = presetInfo.soundFontId
@@ -182,19 +188,19 @@ extension Synth {
   }
 
   private func audioSessionRouteChanged(_ state: inout State) -> Effect<Action> {
-    log.info("audioSessionRouteChanged - BEGIN")
+    log.info("audioSessionRouteChanged BEGIN")
     return restartAudioSession(&state)
   }
 
   private func acquireAudioSession(_ state: inout State) -> Effect<Action> {
-    log.info("acquireAudioSession - BEGIN")
+    log.info("acquireAudioSession BEGIN")
     startAudioSession(&state)
-    log.info("acquireAudioSession - END")
+    log.info("acquireAudioSession END")
     return .none
   }
 
   private func beginMonitoring(_ state: inout State) -> Effect<Action> {
-    log.info("beginMonitoring - BEGIN")
+    log.info("beginMonitoring BEGIN")
     var actions = [
       monitorLastLoadFinished(&state),
       .send(.delegate(.running))
@@ -213,9 +219,9 @@ extension Synth {
 
   private func createSynthAudioUnit(_ state: inout State) -> Effect<Action> {
     log.info("createSynth")
-    return .run(priority: .utility, name: "createSynthAudioUnit") { [avAudioUnitGen] send in
+    return .run(priority: .utility, name: "createSynthAudioUnit") { send in
       log.info("createSynth - instantiating audio unit")
-      if let avAudioUnit = await avAudioUnitGen.generate() {
+      if let avAudioUnit = await SF2LibAU.create(register: true) {
         log.debug("createSynth - synth: \(avAudioUnit.description)")
         await send(.synthAudioUnitCreated(avAudioUnit))
       } else {
@@ -302,10 +308,12 @@ extension Synth {
       unsafe (observerToken, stream) = parameter.startObserving()
       defer { unsafe parameter.removeParameterObserver(observerToken) }
 
-      for await _ in stream {
+      for await value in stream {
         if Task.isCancelled { break }
-        log.info("monitorLastLoadFinished - detected")
-        await send(.lastPresetLoadFinished)
+        log.info("monitorLastLoadFinished - detected \(value, privacy: .public)")
+        if value != 0.0 {
+          await send(.lastPresetLoadFinished)
+        }
       }
 
       log.info("monitorLastLoadFinished END")
