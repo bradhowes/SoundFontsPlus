@@ -130,7 +130,20 @@ extension ReverbConfig {
 
 extension ReverbConfig: Hashable, Identifiable, Sendable {}
 
-extension ReverbConfig.Draft: Equatable, Sendable {}
+extension ReverbConfig.Draft: Equatable, Sendable {
+
+  public init(
+    roomPreset: AVAudioUnitReverbPreset = .mediumHall,
+    wetDryMix: Double = 50.0,
+    enabled: Bool = false,
+    presetId: Preset.ID,
+  ) {
+    self.roomPreset = roomPreset
+    self.wetDryMix = wetDryMix
+    self.enabled = enabled
+    self.presetId = presetId
+  }
+}
 
 extension ReverbConfig.Draft: CustomStringConvertible {
   public var description: String {

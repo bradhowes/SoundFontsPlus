@@ -386,3 +386,27 @@ extension SoundFont.ID {
 extension SoundFont.Kind: Equatable, Hashable, QueryBindable, RawRepresentable, Sendable {}
 
 extension SoundFont: Hashable, Identifiable, Sendable {}
+
+extension SoundFont.Draft {
+  public init(
+    displayName: String,
+    kind: SoundFont.Kind,
+    location: Data,
+    originalName: String,
+    embeddedName: String,
+    embeddedComment: String,
+    embeddedAuthor: String,
+    embeddedCopyright: String,
+    notes: String
+  ) {
+    self.displayName = displayName
+    self.kind = kind
+    self.location = location
+    self.originalName = originalName
+    self.embeddedName = embeddedName
+    self.embeddedComment = embeddedComment
+    self.embeddedAuthor = embeddedAuthor
+    self.embeddedCopyright = embeddedCopyright
+    self.notes = notes
+  }
+}

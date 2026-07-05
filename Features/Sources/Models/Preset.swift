@@ -323,4 +323,27 @@ extension Preset.Kind: Hashable, QueryBindable, RawRepresentable, Sendable {}
 
 extension Preset: Hashable, Identifiable, Sendable {}
 
+extension Preset.Draft {
+
+  public init(
+    index: Int,
+    bank: Int,
+    program: Int,
+    originalName: String,
+    soundFontId: SoundFont.ID,
+    displayName: String,
+    notes: String,
+    kind: Preset.Kind
+  ) {
+    self.index = index
+    self.bank = bank
+    self.program = program
+    self.originalName = originalName
+    self.soundFontId = soundFontId
+    self.displayName = displayName
+    self.notes = notes
+    self.kind = kind
+  }
+}
+
 private let log: Logger = .init(category: "Preset")

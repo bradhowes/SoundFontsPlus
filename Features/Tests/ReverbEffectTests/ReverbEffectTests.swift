@@ -75,13 +75,13 @@ struct ReverbEffectTests {
       await testClock.advance(by: debounceDurations.effectsDisplayUpdates)
       await store.receive(\.updateDebounced)
 
-      let config = ReverbConfig.Draft(
-        id: 1,
+      var config = ReverbConfig.Draft(
         roomPreset: store.state.config.roomPreset,
         wetDryMix: store.state.config.wetDryMix,
         enabled: store.state.config.enabled,
         presetId: store.state.config.presetId
       )
+      config.id = 1
 
       await testClock.advance(by: debounceDurations.effectsConfigurationSaves)
       await store.receive(\.saveDebounced) {
@@ -112,13 +112,13 @@ struct ReverbEffectTests {
       await testClock.advance(by: debounceDurations.effectsDisplayUpdates)
       await store.receive(\.updateDebounced)
 
-      let config = ReverbConfig.Draft(
-        id: 1,
+      var config = ReverbConfig.Draft(
         roomPreset: store.state.config.roomPreset,
         wetDryMix: store.state.config.wetDryMix,
         enabled: store.state.config.enabled,
         presetId: store.state.config.presetId
       )
+      config.id = 1
 
       await testClock.advance(by: debounceDurations.effectsConfigurationSaves)
       await store.receive(\.saveDebounced) {
@@ -149,13 +149,13 @@ struct ReverbEffectTests {
       await testClock.advance(by: debounceDurations.effectsDisplayUpdates)
       await store.receive(\.updateDebounced)
 
-      let config2 = ReverbConfig.Draft(
-        id: 1,
+      var config2 = ReverbConfig.Draft(
         roomPreset: store.state.config.roomPreset,
         wetDryMix: store.state.config.wetDryMix,
         enabled: store.state.config.enabled,
         presetId: store.state.config.presetId
       )
+      config2.id = 1
 
       await testClock.advance(by: debounceDurations.effectsConfigurationSaves)
       await store.receive(\.saveDebounced) {
@@ -231,12 +231,12 @@ struct ReverbEffectTests {
       await store.send(\.activePresetIdChanged, 2) {
         $0.activePresetId = .init(2)
         $0.config =  .init(
-          id: 2,
           roomPreset: .cathedral,
           wetDryMix: 81.0,
           enabled: true,
           presetId: 2
         )
+        $0.config.id = 2
       }
 
       await store.receive(\.enabled.setValue, true)

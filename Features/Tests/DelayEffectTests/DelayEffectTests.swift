@@ -97,8 +97,7 @@ struct DelayEffectTests {
       await testClock.advance(by: debounceDurations.effectsDisplayUpdates)
       await store.receive(\.updateDebounced)
 
-      let config = DelayConfig.Draft(
-        id: 1,
+      var config = DelayConfig.Draft(
         time: store.state.config.time,
         feedback: store.state.config.feedback,
         cutoff: store.state.config.cutoff,
@@ -106,6 +105,7 @@ struct DelayEffectTests {
         enabled: false,
         presetId: store.state.config.presetId
       )
+      config.id = 1
 
       await testClock.advance(by: debounceDurations.effectsConfigurationSaves)
       await store.receive(\.saveDebounced) {
@@ -136,8 +136,7 @@ struct DelayEffectTests {
       await testClock.advance(by: debounceDurations.effectsDisplayUpdates)
       await store.receive(\.updateDebounced)
 
-      let config2 = DelayConfig.Draft(
-        id: 1,
+      var config2 = DelayConfig.Draft(
         time: store.state.config.time,
         feedback: store.state.config.feedback,
         cutoff: store.state.config.cutoff,
@@ -145,6 +144,7 @@ struct DelayEffectTests {
         enabled: true,
         presetId: store.state.config.presetId
       )
+      config2.id = 1
 
       await testClock.advance(by: debounceDurations.effectsConfigurationSaves)
       await store.receive(\.saveDebounced, timeout: .seconds(1)) {

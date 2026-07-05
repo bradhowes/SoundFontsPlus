@@ -49,3 +49,16 @@ extension MIDIConfig {
 }
 
 extension MIDIConfig: Hashable, Identifiable, Sendable {}
+
+extension MIDIConfig.Draft {
+
+  public init(
+    uniqueId: MIDIUniqueID,
+    autoConnect: Bool,
+    fixedVolume: Int
+  ) {
+    self.uniqueId = uniqueId
+    self.autoConnect = autoConnect
+    self.fixedVolume = fixedVolume
+  }
+}

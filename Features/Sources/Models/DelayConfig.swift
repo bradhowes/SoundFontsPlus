@@ -136,7 +136,24 @@ extension DelayConfig {
 
 extension DelayConfig: Hashable, Identifiable, Sendable {}
 
-extension DelayConfig.Draft: Equatable, Sendable {}
+extension DelayConfig.Draft: Equatable, Sendable {
+
+  public init(
+    time: Double = 0.5,
+    feedback: Double = 25.0,
+    cutoff: Double = 12_000.0,
+    wetDryMix: Double = 50.0,
+    enabled: Bool = false,
+    presetId: Preset.ID
+  ) {
+    self.time = time
+    self.feedback = feedback
+    self.cutoff = cutoff
+    self.wetDryMix = wetDryMix
+    self.enabled = enabled
+    self.presetId = presetId
+  }
+}
 
 extension DelayConfig.Draft: CustomStringConvertible {
   public var description: String {

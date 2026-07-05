@@ -124,7 +124,28 @@ extension AudioConfig {
 
 extension AudioConfig: Hashable, Identifiable, Sendable {}
 
-extension AudioConfig.Draft: Equatable, Sendable {}
+extension AudioConfig.Draft: Equatable, Sendable {
+
+  public init(
+    gain: Double = 0.0,
+    pan: Double = 0.0,
+    keyboardLowestNoteEnabled: Bool = false,
+    keyboardLowestNote: Note = .C4,
+    pitchBendRange: Int = 2,
+    customTuningEnabled: Bool = false,
+    customTuning: Double = 440.0,
+    presetId: Preset.ID
+  ) {
+    self.gain = gain
+    self.pan = pan
+    self.keyboardLowestNoteEnabled = keyboardLowestNoteEnabled
+    self.keyboardLowestNote = keyboardLowestNote
+    self.pitchBendRange = pitchBendRange
+    self.customTuningEnabled = customTuningEnabled
+    self.customTuning = customTuning
+    self.presetId = presetId
+  }
+}
 
 extension Double {
   // Map +12...-90 to initialAttenuation generator -120...900

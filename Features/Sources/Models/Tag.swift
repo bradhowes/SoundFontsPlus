@@ -244,7 +244,14 @@ extension Tag.Ubiquitous: RawRepresentable, QueryBindable, Sendable {}
 
 extension Tag: Hashable, Identifiable, Sendable {}
 
-extension Tag.Draft: Equatable, Sendable {}
+extension Tag.Draft: Equatable, Sendable {
+
+  public init(displayName: String, ordering: Int) {
+    self.displayName = displayName
+    self.ordering = ordering
+    self.visible = true
+  }
+}
 
 extension SF2ResourceTag: Identifiable {
   public var id: SoundFont.ID { .init(rawValue: Int64(self.rawValue)) }
