@@ -55,6 +55,8 @@ public struct AUv3Root {
       tagsList: TagsList.State? = nil,
       toolBar: ToolBar.State? = nil,
     ) {
+      log.info("State.init BEGIN")
+
       self.audioUnit = audioUnit
       self.fontsAndPresetsSplit = fontsAndPresetsSplit ?? Self.makeFontsAndPresetsSplitState()
       self.fontsAndTagsSplit = fontsAndTagsSplit ?? Self.makeFontsAndTagsSplitState()
@@ -62,6 +64,13 @@ public struct AUv3Root {
       self.soundFontsList = soundFontsList ?? .init()
       self.tagsList = tagsList ?? .init()
       self.toolBar = toolBar ?? .init()
+
+      for key in ProcessInfo.processInfo.environment.keys {
+        let value = ProcessInfo.processInfo.environment[key] ?? "???"
+        log.info("State.init - \(key, privacy: .public): \(value, privacy: .public)")
+      }
+
+      log.info("State.init END")
     }
 
     static public func makeFontsAndPresetsSplitState() -> SplitViewReducer.State {
@@ -204,6 +213,7 @@ extension AUv3Root {
    */
   @MainActor
   public static func make(audioUnit: SF2LibAU) -> StoreOf<AUv3Root> {
+    log.info("make BEGIN")
     return StoreOf<AUv3Root>(initialState: AUv3Root.State(audioUnit: audioUnit)) { AUv3Root() }
   }
 
