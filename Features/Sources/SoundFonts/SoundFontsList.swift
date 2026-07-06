@@ -419,6 +419,14 @@ extension SoundFontsList {
     }
   }
 
+  private func rowsSourceUpdated(_ state: inout State, source: [SoundFontInfo]) -> Effect<Action> {
+    let update = IdentifiedArrayOf<SoundFontButton.State>(uncheckedUniqueElements: source.map { .init(soundFontInfo: $0) })
+    if state.rows != update {
+      state.rows = update
+    }
+    return .none
+  }
+
   private func searchButtonTapped(_ state: inout State) -> Effect<Action> {
     state.searchSource = state.rows
     state.isSearchFieldPresented = true
@@ -470,24 +478,20 @@ extension SoundFontsList {
     return .none
   }
 
-  private func rowsSourceUpdated(_ state: inout State, source: [SoundFontInfo]) -> Effect<Action> {
-    let update = IdentifiedArrayOf<SoundFontButton.State>(uncheckedUniqueElements: source.map { .init(soundFontInfo: $0) })
-    if state.rows != update {
-      state.rows = update
-    }
-    return .none
-  }
-
   private func soundFontSelected(_ state: inout State, soundFontId: SoundFont.ID, available: Bool) -> Effect<Action> {
+    log.info("soundFontSelected BEGIN")
     if state.activePresetSource == .active(soundFontId) {
       if state.selectedPresetSource != nil {
         state.selectedPresetSource = nil
       }
+      log.info("soundFontSelected END - is active preset source")
       return .send(.delegate(.presetSourceChanged(available ? state.activePresetSource : nil)))
     } else if state.selectedPresetSource != .selected(soundFontId) {
       state.selectedPresetSource = .selected(soundFontId)
+      log.info("soundFontSelected END - is selected preset source")
       return .send(.delegate(.presetSourceChanged(available ? state.selectedPresetSource : nil)))
     }
+    log.info("soundFontSelected END - .none")
     return .none
   }
 
