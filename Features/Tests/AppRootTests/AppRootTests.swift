@@ -75,14 +75,15 @@ struct AppRootTests {
         // $0.synth.avAudioUnit = avAudioUnit
       }
     }
-    #expect(store.state.synth.avAudioUnit != nil)
-    let avAudioUnit = store.state.synth.avAudioUnit!
+
+    let avAudioUnit = try #require(store.state.synth.avAudioUnit)
+
     await store.receive(\.synth.delegate.running) {
       $0.toolBar.temporaryStatus = .startup
       $0.toastState = nil
       $0.readyForUse = true
     }
-    await store.receive(\.synth.delegate.audioUnitCreated) { $0.avAudioUnit = avAudioUnit }
+    await store.receive(\.synth.delegate.audioUnitCreated) { $0.avAudioUnit = store.state.synth.avAudioUnit }
     await store.receive(\.volumeMonitor.start) { $0.volumeMonitor.reason = .noActivePreset }
     await store.receive(\.appReview.ask)
     await store.receive(\.delayEffect.activePresetIdChanged, 1) { $0.delayEffect.activePresetId = 1 }
@@ -124,7 +125,7 @@ struct AppRootTests {
     await store.receive(\.delayEffect.cutoff.track.valueChanged, 12000.0)
     await store.receive(\.delayEffect.wetDryMix.track.valueChanged, 50.0)
     await store.receive(\.reverbEffect.wetDryMix.track.valueChanged, 50.0)
-    await store.receive(\.presetsList.presetSourceChanged, .active(1))
+    await store.receive(\.presetsList.presetSourceChanged, .active(1)) { $0.presetsList.scrollToTarget = .preset(1) }
     await store.receive(\.keyboard.outputVolumeStateChanged, .unmuted) { $0.keyboard.muted = false }
 
     try await store.withExhaustivity(exhaustivity) {
@@ -220,11 +221,7 @@ struct AppRootTests {
     AppRoot.disableIdleTimer()
   }
 
-  @Test(
-    .dependencies {
-      $0.continuousClock = TestClock<Duration>()
-    }
-  )
+  @Test
   func processKeyboardAction() async throws {
     @Dependency(\.continuousClock) var clock
     let testClock = clock as! TestClock<Duration>

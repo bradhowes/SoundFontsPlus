@@ -321,10 +321,9 @@ extension PresetsList {
   private func presetSourceChanged(_ state: inout State, presetSource: PresetSource?) -> Effect<Action> {
     guard state.presetSource != presetSource else {
       if let presetId = state.activePresetId {
-        return showPresetDelayed(&state, presetId: presetId)
-      } else {
-        return .none
+        state.scrollToTarget = .preset(presetId)
       }
+      return .none
     }
     state.presetSource = presetSource
     return updateFetchAllQuery(&state, showActive: true)
