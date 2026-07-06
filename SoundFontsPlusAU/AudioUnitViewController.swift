@@ -8,6 +8,11 @@ import Sharing
 import SwiftUI
 import SF2LibAU
 
+/**
+ Custom AUViewController for the SoundFontsPlus AUv3 component. The construction process for an AUv3 component always results in an
+ instance of this, including the AUv3 component that is instantiated by the app -- the AUv3RootView is ignored in that case as the
+ AppRootView controls the AUv3 component.
+ */
 @MainActor
 public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
   public var audioUnit: SF2LibAU?
@@ -26,7 +31,7 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
   }
 
   /**
-   Implementation of `AUAudioUnitFactory` method that creates a new `AUAudioUnit` for the view controller to manage.
+   Implementation of `AUAudioUnitFactory` method that creates a new `AUAudioUnit` for a view controller to manage.
 
    - parameter componentDescription: what AUv3 component to instantiate
    - returns: new AUAudioUnit instance
@@ -34,24 +39,19 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
   nonisolated public func createAudioUnit(with componentDescription: AudioComponentDescription) throws -> AUAudioUnit {
     log.info("createAudioUnit BEGIN")
     @Shared(.isAUv3) var isAUv3
-    let firstTime = !isAUv3
     $isAUv3.withLock { $0 = true }
 
-    log.info("createAudioUnit - \(firstTime, privacy: .public)")
-
-    if firstTime {
-      prepareDependencies {
-        if ProcessInfo.processInfo.environment["UITesting"] == "true" {
-          $0.defaultFileStorage = .inMemory
-        } else {
-          $0.defaultFileStorage = .fileSystem
-        }
-
-        // swiftlint:disable:next force_try
-        $0.defaultDatabase = try! appDatabase()
-
-        try? $0.fileManager.createDirectory($0.fileManager.fontFilesDirectory())
+    prepareDependencies {
+      if ProcessInfo.processInfo.environment["UITesting"] == "true" {
+        $0.defaultFileStorage = .inMemory
+      } else {
+        $0.defaultFileStorage = .fileSystem
       }
+
+      // swiftlint:disable:next force_try
+      $0.defaultDatabase = try! appDatabase()
+
+      try? $0.fileManager.createDirectory($0.fileManager.fontFilesDirectory())
     }
 
     log.info("createAudioUnit END")
