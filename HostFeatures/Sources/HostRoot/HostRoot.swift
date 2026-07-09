@@ -11,10 +11,10 @@ import SwiftUI
 import TypedFullState
 
 @Reducer
-public struct Root {
+public struct HostRoot {
 
   @MainActor
-  public static func makeWithDependencies(subtype: String, manufacturer: String) -> StoreOf<Root> {
+  public static func makeWithDependencies(subtype: String, manufacturer: String) -> StoreOf<HostRoot> {
     @Shared(.componentSubtype) var componentSubtype
     $componentSubtype.withLock { $0 = subtype }
     @Shared(.componentManufacturer) var componentManufacturer
@@ -25,7 +25,7 @@ public struct Root {
     }
 
     return .init(initialState: .init()) {
-      Root()
+      HostRoot()
     }
   }
 
@@ -98,7 +98,7 @@ public struct Root {
   }
 }
 
-extension Root {
+extension HostRoot {
 
   private func instanceCreated(_ state: inout State, instance: SynthInstance) -> Effect<Action> {
     log.info("instanceCreated BEGIN")
@@ -239,13 +239,13 @@ extension Root {
   }
 }
 
-extension Root.Destination.State: Equatable {}
+extension HostRoot.Destination.State: Equatable {}
 
-public struct RootView: View {
-  @Bindable private var store: StoreOf<Root>
+public struct HostRootView: View {
+  @Bindable private var store: StoreOf<HostRoot>
   @Shared(.activeAUv3) var activeAUv3
 
-  public init(store: StoreOf<Root>) {
+  public init(store: StoreOf<HostRoot>) {
     self.store = store
   }
 
@@ -299,12 +299,12 @@ public struct RootView: View {
 
 #if DEBUG
 
-extension RootView {
+extension HostRootView {
 
   static var preview: some View {
-    RootView(
+    HostRootView(
       store: Store(initialState: .init(instances: SynthsList.State(), presets: PresetsList.State())) {
-        Root()
+        HostRoot()
       }
     ).safeAreaPadding(16)
   }
@@ -316,9 +316,9 @@ extension RootView {
     $0.uuid = .incrementing
     $0.presetsStore = .previewValue
   }
-  RootView.preview
+  HostRootView.preview
 }
 
 #endif // DEBUG
 
-private let log = Logger(category: "Root")
+private let log = Logger(category: "HostRoot")
