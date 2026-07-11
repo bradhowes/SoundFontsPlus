@@ -10,6 +10,7 @@ import SF2LibAU
 import SQLiteData
 import Settings
 import SoundFonts
+import Synth
 import Tags
 import ToolBar
 
@@ -109,6 +110,7 @@ public struct AUv3Root {
 
   public init() {}
 
+  @Dependency(\.continuousClock) private var clock
   @Dependency(\.fileManager) private var fileManager
 
   @Shared(.auv3FontsAndPresetsSplitPosition) private var auv3FontsAndPresetsSplitPosition
@@ -153,7 +155,7 @@ public struct AUv3Root {
         return initialize(&state)
 
       case .lastPresetLoadFinished:
-        return .none
+        return sendNoteOnOffSequence(state)
 
       case .presetsList(.delegate(.activePresetIdChanged(let presetId))):
         return activePresetIdChanged(&state, presetId: presetId)
@@ -192,6 +194,7 @@ public struct AUv3Root {
     case auv3RootCreateCloudDocumentsDirectory
     case auv3RootMonitorFullState
     case auv3RootMonitorLastLoadFinished
+    case auv3RootPlayNote
   }
 }
 
@@ -269,7 +272,8 @@ extension AUv3Root {
     var effects: [Effect<Action>] = [
       .send(.tagsList(.fullStateChanged(tagId))),
       .send(.soundFontsList(.fullStateChanged(tagId, presetLoadingInfo.soundFontId))),
-      .send(.presetsList(.fullStateChanged(presetLoadingInfo.soundFontId, presetLoadingInfo.presetId)))
+      .send(.presetsList(.fullStateChanged(presetLoadingInfo.soundFontId, presetLoadingInfo.presetId))),
+      .send(.toolBar(.activePresetIdChanged(presetLoadingInfo.presetId)))
     ]
 
     log.info("fullStateChanged - fontsAndTagsSplit.position: \(activeState.fontsAndTagsSplitPosition, privacy: .public)")
@@ -439,8 +443,30 @@ extension AUv3Root {
     }
     return .none
   }
+
+  public static var playNoteDurationMilliseconds: Duration { Synth.playNoteDurationMilliseconds }
+
+  private func sendNoteOnOffSequence(_ state: State) -> Effect<Action> {
+    @Shared(.playSoundOnPresetChange) var playSoundOnPresetChange
+    log.debug("sendNoteOnOffSequence BEGIN - \(playSoundOnPresetChange, privacy: .public) ")
+
+    guard playSoundOnPresetChange else {
+      log.debug("sendNoteOnOffSequence END - !playSoundOnPresetChange")
+      return .none
+    }
+
+    let audioUnit = state.audioUnit
+    return .run(priority: .utility, name: "playNote") { [audioUnit, clock] _ in
+      log.debug("sending note on")
+      _ = audioUnit.sendMIDI(bytes: [0x90, 60, 127])
+      try? await clock.sleep(for: Self.playNoteDurationMilliseconds)
+      log.debug("sending note off")
+      _ = audioUnit.sendMIDI(bytes: [0x80, 60, 127])
+    }.cancellable(id: CancelId.auv3RootPlayNote, cancelInFlight: true)
+  }
 }
 
+extension SF2LibAU: @unchecked Sendable {}
 extension AUv3Root.Destination.State: Equatable {}
 
 private let log: Logger = .init(category: "AUv3Root", loggingSubsystemValue: .loggingSubsystemAUv3Value)
