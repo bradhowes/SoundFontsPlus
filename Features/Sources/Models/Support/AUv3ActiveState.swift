@@ -52,23 +52,7 @@ public struct AUv3ActiveState: Codable, Equatable {
   public func encode() throws -> Data { try JSONEncoder().encode(self) }
 
   public static func decode(data: Data) throws -> AUv3ActiveState {
-    let activeState = try JSONDecoder().decode(AUv3ActiveState.self, from: data)
-
-    @Shared(.auv3ActivePresetGain) var activePresetGain
-    @Shared(.auv3ActivePresetPan) var activePresetPan
-    @Shared(.auv3FontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
-    @Shared(.auv3FontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
-    @Shared(.auv3StarFavoriteNames) var starFavoriteNames
-    @Shared(.auv3TagsListVisible) var tagsListVisible
-
-    $activePresetGain.withLock { $0 = activePresetGain }
-    $activePresetPan.withLock { $0 = activePresetPan }
-    $fontsAndPresetsSplitPosition.withLock { $0 = fontsAndPresetsSplitPosition }
-    $fontsAndTagsSplitPosition.withLock { $0 = fontsAndTagsSplitPosition }
-    $starFavoriteNames.withLock { $0 = starFavoriteNames }
-    $tagsListVisible.withLock { $0 = tagsListVisible }
-
-    return activeState
+    try JSONDecoder().decode(AUv3ActiveState.self, from: data)
   }
 
   public var presetLoadingInfo: PresetLoadingInfo? {

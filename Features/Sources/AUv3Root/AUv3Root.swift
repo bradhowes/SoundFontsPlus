@@ -74,28 +74,26 @@ public struct AUv3Root {
     }
 
     static public func makeFontsAndPresetsSplitState() -> SplitViewReducer.State {
-      @Shared(.auv3FontsAndPresetsSplitPosition) var fontsAndPresetsSplitPosition
+      @Shared(.auv3FontsAndPresetsSplitPosition) var auv3FontsAndPresetsSplitPosition
       return .init(
         panesVisible: .both,
-        initialPosition: fontsAndPresetsSplitPosition
+        initialPosition: auv3FontsAndPresetsSplitPosition
       )
     }
 
     static public func makeFontsAndTagsSplitState() -> SplitViewReducer.State {
-      @Shared(.auv3FontsAndTagsSplitPosition) var fontsAndTagsSplitPosition
-      @Shared(.auv3TagsListVisible) var tagsListVisible
+      @Shared(.auv3FontsAndTagsSplitPosition) var auv3FontsAndTagsSplitPosition
+      @Shared(.auv3TagsListVisible) var auv3TagsListVisible
       return .init(
-        panesVisible: tagsListVisible ? .both : .primary,
-        initialPosition: fontsAndTagsSplitPosition
+        panesVisible: auv3TagsListVisible ? .both : .primary,
+        initialPosition: auv3FontsAndTagsSplitPosition
       )
     }
   }
 
   @frozen
   public enum Action: BindableAction {
-    case activePresetIdChanged(Preset.ID?)
     case binding(BindingAction<State>)
-    case currentPresetChanged
     case deinitialize
     case destination(PresentationAction<Destination.Action>)
     case fontsAndPresetsSplit(SplitViewReducer.Action)
@@ -113,9 +111,9 @@ public struct AUv3Root {
 
   @Dependency(\.fileManager) private var fileManager
 
-  @Shared(.auv3FontsAndPresetsSplitPosition) private var fontsAndPresetsSplitPosition
-  @Shared(.auv3FontsAndTagsSplitPosition) private var fontsAndTagsSplitPosition
-  @Shared(.auv3TagsListVisible) private var tagsListVisible
+  @Shared(.auv3FontsAndPresetsSplitPosition) private var auv3FontsAndPresetsSplitPosition
+  @Shared(.auv3FontsAndTagsSplitPosition) private var auv3FontsAndTagsSplitPosition
+  @Shared(.auv3TagsListVisible) private var auv3TagsListVisible
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -132,12 +130,6 @@ public struct AUv3Root {
       log.action("AUv3Root", action)
 
       switch action {
-
-      case .activePresetIdChanged(let presetId):
-        return activePresetIdChanged(&state, presetId: presetId)
-
-      case .currentPresetChanged:
-        return currentPresetChanged(&state)
 
       case .deinitialize:
         return deinitialize(&state)
@@ -198,7 +190,6 @@ public struct AUv3Root {
 
   private enum CancelId: String, CaseIterable {
     case auv3RootCreateCloudDocumentsDirectory
-    case auv3RootMonitorCurrentPreset
     case auv3RootMonitorFullState
     case auv3RootMonitorLastLoadFinished
   }
@@ -234,11 +225,6 @@ extension AUv3Root {
         log.error("iCloud documents directory is not available")
       }
     }.cancellable(id: CancelId.auv3RootCreateCloudDocumentsDirectory, cancelInFlight: true)
-  }
-
-  private func currentPresetChanged(_ state: inout State) -> Effect<Action> {
-    log.info("currentPresetChanged")
-    return .none
   }
 
   private func deinitialize(_ state: inout State) -> Effect<Action> {
@@ -286,11 +272,13 @@ extension AUv3Root {
       .send(.presetsList(.fullStateChanged(presetLoadingInfo.soundFontId, presetLoadingInfo.presetId)))
     ]
 
+    log.info("fullStateChanged - fontsAndTagsSplit.position: \(activeState.fontsAndTagsSplitPosition, privacy: .public)")
     state.fontsAndTagsSplit.position = activeState.fontsAndTagsSplitPosition
+    log.info("fullStateChanged - fontsAndPresetsSplit.position: \(activeState.fontsAndPresetsSplitPosition, privacy: .public)")
     state.fontsAndPresetsSplit.position = activeState.fontsAndPresetsSplitPosition
 
-    if tagsListVisible != activeState.tagsListVisible {
-      $tagsListVisible.withLock { $0 = activeState.tagsListVisible }
+    if auv3TagsListVisible != activeState.tagsListVisible {
+      $auv3TagsListVisible.withLock { $0 = activeState.tagsListVisible }
       log.info("fullStateChanged - setting tagsListVisible: \(activeState.tagsListVisible, privacy: .public)")
       let panes: SplitViewVisiblePanes = activeState.tagsListVisible ? .both : .primary
       effects.append(.run { send in
@@ -305,24 +293,9 @@ extension AUv3Root {
     .merge(
       createCloudDocumentsDirectory(),
       monitorLastLoadFinished(&state),
-      monitorCurrentPreset(&state),
       monitorFullState(&state),
       .send(.toolBar(.clearTemporaryStatus))
     )
-  }
-
-  private func monitorCurrentPreset(_ state: inout State) -> Effect<Action> {
-    let (stream, continuation) = AsyncStream<Bool>.makeStream()
-    let observerToken = state.audioUnit.observe(\.currentPreset, options: [.initial, .new]) { _, _ in continuation.yield(false) }
-    let silenceWarning: (NSKeyValueObservation) -> Void = { _ in }
-    silenceWarning(observerToken)
-    return .run { send in
-      for await value in stream {
-        log.info("monitorCurrentPreset detected - \(value, privacy: .public)")
-        if Task.isCancelled { break }
-        await send(.currentPresetChanged)
-      }
-    }.cancellable(id: CancelId.auv3RootMonitorCurrentPreset, cancelInFlight: true)
   }
 
   private func monitorFullState(_ state: inout State) -> Effect<Action> {
@@ -382,8 +355,9 @@ extension AUv3Root {
 
   private func processFontsAndPresetsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
     if case .stateChanged(_, let position) = action {
-      if position != fontsAndPresetsSplitPosition {
-        $fontsAndPresetsSplitPosition.withLock { $0 = position }
+      if position != auv3FontsAndPresetsSplitPosition {
+        log.info("processFontsAndPresetsSplitAction - position: \(position, privacy: .public)")
+        $auv3FontsAndPresetsSplitPosition.withLock { $0 = position }
       }
     }
     return .none
@@ -392,11 +366,12 @@ extension AUv3Root {
   private func processFontsAndTagsSplitAction(_ state: inout State, action: SplitViewReducer.Action.Delegate) -> Effect<Action> {
     if case .stateChanged(let panesVisible, let position) = action {
       let visible = panesVisible.contains(.bottom)
-      if visible != tagsListVisible {
-        $tagsListVisible.withLock { $0 = visible }
+      if visible != auv3TagsListVisible {
+        $auv3TagsListVisible.withLock { $0 = visible }
       }
-      if position != fontsAndTagsSplitPosition {
-        $fontsAndTagsSplitPosition.withLock { $0 = position }
+      if position != auv3FontsAndTagsSplitPosition {
+        $auv3FontsAndTagsSplitPosition.withLock { $0 = position }
+        log.info("processFontsAndTagsSplitAction - position: \(position, privacy: .public)")
       }
     }
     return .none
@@ -420,7 +395,7 @@ extension AUv3Root {
       return .none
 
     case .tagsListVisibilityChanged(let visible):
-      $tagsListVisible.withLock { $0 = visible }
+      $auv3TagsListVisible.withLock { $0 = visible }
       let panes: SplitViewVisiblePanes = visible ? .both : .primary
       return .send(.fontsAndTagsSplit(.updatePanesVisibility(panes)))
 

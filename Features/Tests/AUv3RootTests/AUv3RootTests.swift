@@ -51,7 +51,6 @@ struct AUv3RootTests {
     await store.send(\.initialize)
     await store.receive(\.toolBar.clearTemporaryStatus) { $0.toolBar.temporaryStatus = nil }
     await store.receive(\.fullStateChanged)
-    await store.receive(\.currentPresetChanged)
 
     try await store.withExhaustivity(exhaustivity) {
       try await closure(store)
