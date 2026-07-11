@@ -31,7 +31,10 @@ The app is getting close to feature-parity with the the original UIKit version:
 * supports cloning of presets (aka "favorites")
 * tagging fonts
 
-Focus now is finishing up the AUv3 component.
+Focus now is finishing up the AUv3 component:
+
+* AUv3 component now working in GarageBand and AUM.
+* Minor bugs still in restoring state from saved host files.
 
 Nearly all app data resides in SQLite database, though there are some `UserDefaults` settings and a file-based `@Shared`
 struct that holds:
