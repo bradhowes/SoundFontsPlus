@@ -232,6 +232,7 @@ struct AppRootTests {
       }
       await testClock.run()
       await store.receive(\.toolBar.clearTemporaryStatus) {
+        $0.synth.firstTimeLoading = false
         $0.toolBar.temporaryStatus = nil
       }
     }
