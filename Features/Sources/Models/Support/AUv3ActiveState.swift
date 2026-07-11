@@ -77,6 +77,10 @@ public struct AUv3ActiveState: Codable, Equatable {
       presetIndex: self.presetIndex
     )
   }
+
+  public var tagId: Tag.ID {
+    Tag.with(name: tagName)?.id ?? Tag.ID(rawValue: Tag.Ubiquitous.all.rawValue)
+  }
 }
 
 extension AUv3ActiveState: CustomStringConvertible {

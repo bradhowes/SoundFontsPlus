@@ -81,7 +81,6 @@ public struct PresetsList {
   }
 
   public enum Action: BindableAction, Equatable {
-    case activePresetChanged(presetId: Preset.ID, info: PresetLoadingInfo)
     case binding(BindingAction<State>)
     case cancelSearchButtonTapped
     case clearScrollToTarget
@@ -90,6 +89,7 @@ public struct PresetsList {
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case editingVisibilityChanged(Bool)
+    case fullStateChanged(SoundFont.ID, Preset.ID)
     case initialize
     case presetSourceChanged(PresetSource?)
     case rowsSourceUpdated(source: [Preset], showActive: Bool)
@@ -123,10 +123,6 @@ public struct PresetsList {
       log.action("PresetsList", action)
       switch action {
 
-        // From AUv3Root
-      case let .activePresetChanged(presetId: presetId, info: presetLoadingInfo):
-        return activePresetChanged(&state, presetId: presetId, info: presetLoadingInfo)
-
       case .cancelSearchButtonTapped:
         return dismissSearch(&state)
 
@@ -152,6 +148,9 @@ public struct PresetsList {
       case let .editingVisibilityChanged(editing):
         state.editingVisibility = editing
         return updateFetchAllQuery(&state, showActive: false)
+
+      case let .fullStateChanged(soundFontId, presetId):
+        return fullStateChanged(&state, soundFontId: soundFontId, presetId: presetId)
 
       case .initialize:
         return initialize(&state)
@@ -204,31 +203,6 @@ public struct PresetsList {
 
 extension PresetsList {
 
-  private func activePresetChanged(_ state: inout State, presetId: Preset.ID, info: PresetLoadingInfo) -> Effect<Action> {
-    guard
-      let kind = try? SoundFontKind(kind: info.kind, location: info.location, displayName: info.soundFontName),
-      kind.url.withSecurityScoping({ fileManager.fileExists($0) }) == true
-    else {
-      state.destination = .alert(
-        .missingFileForSelectedPreset(
-          action: .missingFileForSelectedPreset(info.soundFontId),
-          displayName: info.soundFontName
-        )
-      )
-      return .none
-    }
-
-    if state.activePresetId != presetId {
-      state.presetSource = state.presetSource?.activated
-      state.activePresetId = presetId
-      return .merge(
-        generatePresetSections(&state),
-        .send(.delegate(.activePresetIdChanged(presetId)))
-      )
-    }
-    return .none
-  }
-
   private func deleteFavoriteConfirmed(_ state: inout State, preset: Preset) -> Effect<Action> {
     precondition(preset.isFavorite)
     withDatabaseWriter { db in
@@ -250,6 +224,14 @@ extension PresetsList {
       generatePresetSections(&state),
       showPresetDelayed(&state, presetId: state.activePresetId ?? state.presets[0].id)
     )
+  }
+
+  private func fullStateChanged(_ state: inout State, soundFontId: SoundFont.ID, presetId: Preset.ID) -> Effect<Action> {
+    state.presetSource = .active(soundFontId)
+    state.activePresetId = presetId
+    state.isSearchFieldPresented = false
+    state.editingVisibility = false
+    return updateFetchAllQuery(&state, showActive: true)
   }
 
   @discardableResult

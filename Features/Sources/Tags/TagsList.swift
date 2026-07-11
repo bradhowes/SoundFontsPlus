@@ -41,11 +41,10 @@ public struct TagsList {
   }
 
   public enum Action {
-    case activeTagIdChanged(Tag.ID)
-    case activeTagNameChanged(String)
     case deinitialize
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
+    case fullStateChanged(Tag.ID)
     case importFinished
     case initialize
     case tagInfoButtonTapped(TagInfo)
@@ -73,12 +72,6 @@ public struct TagsList {
 
       switch action {
 
-      case .activeTagIdChanged(let tagId):
-        return activeTagIdChanged(&state, tagId: tagId)
-
-      case .activeTagNameChanged(let tagName):
-        return activeTagNameChanged(&state, tagName: tagName)
-
       case .deinitialize:
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
 
@@ -87,6 +80,9 @@ public struct TagsList {
 
       case .destination(.presented(.alert(.deleteTagConfirmed(let tagInfo)))):
         return deleteTagConfirmed(&state, tagInfo: tagInfo)
+
+      case .fullStateChanged(let tagId):
+        return fullStateChanged(&state, tagId: tagId)
 
       case .importFinished:
         if state.activeTagId != Tag.Ubiquitous.all.id && state.activeTagId != Tag.Ubiquitous.added.id {
@@ -125,17 +121,11 @@ public struct TagsList {
 
 extension TagsList {
 
-  private func activeTagIdChanged(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
-    state.activeTagId = tagId
-    return .none
-  }
-
-  private func activeTagNameChanged(_ state: inout State, tagName: String) -> Effect<Action> {
+  public static func tagNameToTagId(_ state: inout State, tagName: String) -> Tag.ID {
     for row in state.rows where row.displayName == tagName {
-      state.activeTagId = row.id
-      return .send(.delegate(.activeTagIdChanged(state.activeTagId)))
+      return row.id
     }
-    return .none
+    return Tag.Ubiquitous.all.id
   }
 
   private func confirmDeleteTag(_ state: inout State, tagInfo: TagInfo) -> Effect<Action> {
@@ -157,6 +147,11 @@ extension TagsList {
       return .send(.delegate(.activeTagIdChanged(state.activeTagId)))
     }
 
+    return .none
+  }
+
+  private func fullStateChanged(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
+    state.activeTagId = tagId
     return .none
   }
 

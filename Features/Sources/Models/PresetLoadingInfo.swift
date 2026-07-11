@@ -114,7 +114,6 @@ extension PresetLoadingInfo: CustomStringConvertible {
     """
     <PresetLoadingInfo
       id=\(soundFontId)
-      soundFontName="\(soundFontName)"
       presetIndex=\(presetIndex)
       kind="\(kind)"
       presetName="\(presetName)"

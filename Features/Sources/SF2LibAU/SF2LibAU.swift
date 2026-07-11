@@ -47,6 +47,8 @@ private let unsetAudioUnitShortName = "-"
     busses: [dryBus, reverbSendBus, chorusSendBus]
   )
 
+  public var fullStateChanged: () -> Void = {}
+
   public override var inputBusses: AUAudioUnitBusArray { return _inputBusses }
   public override var outputBusses: AUAudioUnitBusArray { return _outputBusses }
 
@@ -61,7 +63,10 @@ private let unsetAudioUnitShortName = "-"
    - parameter componentDescription: the definition used when locating the component to create
    - parameter options: instantiation options to apply
    */
-  public override init(componentDescription: AudioComponentDescription, options: AudioComponentInstantiationOptions = []) throws {
+  public override init(
+    componentDescription: AudioComponentDescription,
+    options: AudioComponentInstantiationOptions = []
+  ) throws {
     log.info(
 """
 init - flags: \(componentDescription.componentFlags, privacy: .public) \
@@ -250,15 +255,22 @@ extension SF2LibAU {
     //
     // However, the SoundFontsPlus app should *not* use this means to change the current preset since, in the app, the render
     // thread is always running.
-    self.auv3ActiveState = FullState(state: state).activeState
-    guard let auv3ActiveState else {
+    let newActiveState = FullState(state: state).activeState
+
+    guard newActiveState != self.auv3ActiveState else {
+      log.info("applyFullState END - unchanged auv3ActiveState")
+      return
+    }
+
+    self.auv3ActiveState = newActiveState
+    guard let newActiveState else {
       log.info("applyFullState END - nil/invalid activeState fron newValue")
       return
     }
 
-    log.info("applyFullState - activeState: \(auv3ActiveState, privacy: .public)")
+    log.info("applyFullState - activeState: \(newActiveState, privacy: .public)")
     guard
-      let presetLoadingInfo = auv3ActiveState.presetLoadingInfo,
+      let presetLoadingInfo = newActiveState.presetLoadingInfo,
       let location = try? SoundFontKind(
         kind: presetLoadingInfo.kind,
         location: presetLoadingInfo.location,
@@ -284,7 +296,7 @@ extension SF2LibAU {
     // For the associated AUAudioUnitPreset we use the name of the preset and the negative preset index value (non-negative integer
     // values are for factory presets). These are just unique placeholders, not actually used for addressing presets.
     let preset = AUAudioUnitPreset()
-    preset.number = -Int(auv3ActiveState.presetIndex)
+    preset.number = -Int(newActiveState.presetIndex)
     preset.name = presetLoadingInfo.presetName
     currentPreset = preset
 
@@ -292,6 +304,8 @@ extension SF2LibAU {
     log.info("applyFullState END - audioUnitShortName: \(presetLoadingInfo.presetName, privacy: .public)")
     _audioUnitShortName = presetLoadingInfo.presetName
     didChangeValue(for: \.audioUnitShortName)
+
+    self.fullStateChanged()
   }
 
   private func sendLoadBookmark(data: Data, presetIndex: Int) -> Bool {
@@ -336,4 +350,4 @@ private func getVoiceCount() -> UInt {
   return voiceCount
 }
 
-private let log: Logger = .init(category: "SF2LibAU")
+private let log: Logger = .init(category: "SF2LibAU", loggingSubsystemValue: .loggingSubsystemAUv3Value)

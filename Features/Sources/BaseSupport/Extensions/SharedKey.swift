@@ -43,6 +43,12 @@ extension SharedKey where Self == InMemoryKey<Double>.Default {
   public static var auv3FontsAndTagsSplitPosition: Self { Self[.inMemory(.auv3FontsAndTagsSplitPosition), default: 0.4] }
 }
 
+// MARK: - InMemory String settings
+
+extension SharedKey where Self == InMemoryKey<String>.Default {
+  public static var loggingSubsystem: Self { Self[.inMemory(.loggingSubsystem), default: String.loggingSubsystemAppValue] }
+}
+
 // MARK: Tags for AUv3 state elements
 
 extension String {
@@ -53,4 +59,8 @@ extension String {
   public static let auv3ShowOnlyFavorites = "auv3ShowOnlyFavorites"
   public static let auv3StarFavoriteNames = "auv3StarFavoriteNames"
   public static let auv3TagsListVisible = "auv3TagsListVisible"
+
+  public static let loggingSubsystem = "loggingSubsystem"
+  public static let loggingSubsystemAppValue = "com.braysoftware.SoundFontsPlus"
+  public static let loggingSubsystemAUv3Value = "com.braysoftware.SoundFontsPlus.SoundFontsPlusAU"
 }

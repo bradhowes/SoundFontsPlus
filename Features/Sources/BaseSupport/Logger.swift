@@ -1,13 +1,17 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import OSLog
+import Sharing
 
 private class BundleTag {}
 
 extension Logger {
 
-  public init(category: String) {
-    let subsystem = Bundle(for: BundleTag.self).bundleIdentifier?.lowercased() ?? "?"
+  public init(category: String, loggingSubsystemValue: String? = nil) {
+    @Shared(.loggingSubsystem) var subsystem
+    if let loggingSubsystemValue {
+      $subsystem.withLock { $0 = loggingSubsystemValue }
+    }
     self.init(subsystem: subsystem, category: category)
   }
 }

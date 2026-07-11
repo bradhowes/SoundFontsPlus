@@ -273,38 +273,41 @@ extension AUv3Root {
 
   private func fullStateChanged(_ state: inout State) -> Effect<Action> {
     log.info("fullStateChanged BEGIN")
-    var effects: [Effect<Action>] = []
-    if let activeState = state.audioUnit.auv3ActiveState, let presetLoadingInfo = activeState.presetLoadingInfo {
-      if activeState.tagName != state.tagsList.activeTagName {
-        effects.append(.send(.tagsList(.activeTagNameChanged(activeState.tagName))))
-      }
-      if presetLoadingInfo.soundFontId != state.soundFontsList.activePresetSource?.id {
-        effects.append(.send(.soundFontsList(.activeSoundFontIdChanged(presetLoadingInfo.soundFontId))))
-      }
-      if presetLoadingInfo.presetIndex != state.presetsList.activePresetIndex {
-        effects.append(.send(.presetsList(.activePresetChanged(presetId: presetLoadingInfo.presetId, info: presetLoadingInfo))))
-      }
-      if activeState.fontsAndTagsSplitPosition != state.fontsAndTagsSplit.position {
-        state.fontsAndTagsSplit.position = activeState.fontsAndTagsSplitPosition
-      }
-      if activeState.fontsAndPresetsSplitPosition != state.fontsAndPresetsSplit.position {
-        state.fontsAndPresetsSplit.position = activeState.fontsAndPresetsSplitPosition
-      }
-      if tagsListVisible != activeState.tagsListVisible {
-        $tagsListVisible.withLock { $0 = activeState.tagsListVisible }
-        let panes: SplitViewVisiblePanes = activeState.tagsListVisible ? .both : .primary
-        effects.append(.send(.fontsAndTagsSplit(.updatePanesVisibility(panes))))
-      }
+    guard let activeState = state.audioUnit.auv3ActiveState,
+          let presetLoadingInfo = activeState.presetLoadingInfo else {
+      return .none
     }
+
+    let tagId = activeState.tagId
+
+    var effects: [Effect<Action>] = [
+      .send(.tagsList(.fullStateChanged(tagId))),
+      .send(.soundFontsList(.fullStateChanged(tagId, presetLoadingInfo.soundFontId))),
+      .send(.presetsList(.fullStateChanged(presetLoadingInfo.soundFontId, presetLoadingInfo.presetId)))
+    ]
+
+    state.fontsAndTagsSplit.position = activeState.fontsAndTagsSplitPosition
+    state.fontsAndPresetsSplit.position = activeState.fontsAndPresetsSplitPosition
+
+    if tagsListVisible != activeState.tagsListVisible {
+      $tagsListVisible.withLock { $0 = activeState.tagsListVisible }
+      log.info("fullStateChanged - setting tagsListVisible: \(activeState.tagsListVisible, privacy: .public)")
+      let panes: SplitViewVisiblePanes = activeState.tagsListVisible ? .both : .primary
+      effects.append(.run { send in
+        await send(.fontsAndTagsSplit(.updatePanesVisibility(panes)))
+      })
+    }
+
     return .merge(effects)
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
       createCloudDocumentsDirectory(),
-      monitorFullState(&state),
+      monitorLastLoadFinished(&state),
       monitorCurrentPreset(&state),
-      monitorLastLoadFinished(&state)
+      monitorFullState(&state),
+      .send(.toolBar(.clearTemporaryStatus))
     )
   }
 
@@ -314,7 +317,8 @@ extension AUv3Root {
     let silenceWarning: (NSKeyValueObservation) -> Void = { _ in }
     silenceWarning(observerToken)
     return .run { send in
-      for await _ in stream {
+      for await value in stream {
+        log.info("monitorCurrentPreset detected - \(value, privacy: .public)")
         if Task.isCancelled { break }
         await send(.currentPresetChanged)
       }
@@ -327,7 +331,8 @@ extension AUv3Root {
     let silenceWarning: (NSKeyValueObservation) -> Void = { _ in }
     silenceWarning(observerToken)
     return .run { send in
-      for await _ in stream {
+      for await value in stream {
+        log.info("monitorFullState detected - \(value, privacy: .public)")
         if Task.isCancelled { break }
         await send(.fullStateChanged)
       }
@@ -357,8 +362,8 @@ extension AUv3Root {
       }
       if Task.isCancelled { return }
       for await _ in stream {
-        if Task.isCancelled { break }
         log.info("monitorLastLoadFinished - detected")
+        if Task.isCancelled { break }
         await send(.lastPresetLoadFinished)
       }
     }.cancellable(id: CancelId.auv3RootMonitorLastLoadFinished, cancelInFlight: true)
@@ -430,22 +435,27 @@ extension AUv3Root {
       let presetId = state.presetsList.activePresetId,
       let preset = Preset.with(id: presetId)
     else {
-      log.info("refreshFullState END")
+      log.info("refreshFullState END - no active preset")
       return
     }
 
-    let activeState: AUv3ActiveState = .init(
+    let newActiveState: AUv3ActiveState = .init(
       soundFontName: preset.soundFontName,
       presetIndex: preset.index,
       tagName: state.tagsList.activeTagName ?? "",
     )
-    log.info("refreshFullState - setting fullState with \(activeState, privacy: .public)")
+    guard newActiveState != state.audioUnit.auv3ActiveState else {
+      log.info("refreshFullState END - unchanged")
+      return
+    }
+
+    log.info("refreshFullState - setting fullState with \(newActiveState, privacy: .public)")
     do {
-      state.audioUnit.fullState = try FullState(activeState: activeState).state
+      state.audioUnit.fullState = try FullState(activeState: newActiveState).state
     } catch {
       log.error("refreshFullState - failed to make fullState: \(error.localizedDescription, privacy: .public)")
     }
-    log.info("refreshFullState BEGIN")
+    log.info("refreshFullState END")
   }
 
   private func soundFontEditorDismissed(_ state: inout State, editor: SoundFontEditor.State) -> Effect<Action> {
@@ -458,4 +468,4 @@ extension AUv3Root {
 
 extension AUv3Root.Destination.State: Equatable {}
 
-private let log: Logger = .init(category: "AUv3Root")
+private let log: Logger = .init(category: "AUv3Root", loggingSubsystemValue: .loggingSubsystemAUv3Value)

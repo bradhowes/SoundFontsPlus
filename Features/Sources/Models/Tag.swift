@@ -118,6 +118,16 @@ extension Tag {
     } ?? nil
   }
 
+  /**
+   Fetch the row for a given name.
+
+   - parameter name: the tag name to look for
+   - returns: the value found or `nil`.
+   */
+  public static func with(name: String) -> Tag? {
+    tags.first(where: { $0.displayName == name })
+  }
+
   public static func make(displayName: String) throws -> Tag {
     @Dependency(\.defaultDatabase) var database
     return try make(db: database, displayName: displayName)

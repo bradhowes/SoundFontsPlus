@@ -83,7 +83,6 @@ public struct SoundFontsList {
   }
 
   public enum Action: BindableAction {
-    case activeSoundFontIdChanged(SoundFont.ID)
     case activeTagIdChanged(Tag.ID)
     case binding(BindingAction<State>)
     case cancelSearchButtonTapped
@@ -93,6 +92,7 @@ public struct SoundFontsList {
     case deleteModeDeleteButtonTapped
     case deinitialize
     case destination(PresentationAction<Destination.Action>)
+    case fullStateChanged(Tag.ID, SoundFont.ID)
     case headerDoubleTapped
     case importFinished
     case initialize
@@ -125,9 +125,6 @@ public struct SoundFontsList {
       log.action("SoundFontsList", action)
 
       switch action {
-
-      case .activeSoundFontIdChanged(let soundFontId):
-        return activeSoundFontIdChanged(&state, soundFontId: soundFontId)
 
       case .activeTagIdChanged(let tagId):
         state.activeTagId = tagId
@@ -170,6 +167,9 @@ public struct SoundFontsList {
       case .destination(.dismiss):
         state.editingMode = .inactive
         return .none
+
+      case let .fullStateChanged(tagId, soundFontId):
+        return fullStateChanged(&state, tagId: tagId, soundFontId: soundFontId)
 
       case .headerDoubleTapped:
         guard state.rows.first(where: { !$0.soundFontInfo.isBuiltin }) != nil else { return .none }
@@ -226,13 +226,6 @@ public struct SoundFontsList {
 }
 
 extension SoundFontsList {
-
-  private func activeSoundFontIdChanged(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
-    guard state.activePresetSource != .active(soundFontId) || state.selectedPresetSource != nil else { return .none }
-    state.activePresetSource = .active(soundFontId)
-    state.selectedPresetSource = nil
-    return .send(.delegate(.presetSourceChanged(.active(soundFontId))))
-  }
 
   private func alertInvalidBookmark(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
     state.destination = .alert(.invalidBookmark(displayName: soundFontInfo.displayName))
@@ -368,6 +361,15 @@ extension SoundFontsList {
       return .send(.delegate(.edit(soundFont)))
     }
     return .none
+  }
+
+  private func fullStateChanged(_ state: inout State, tagId: Tag.ID, soundFontId: SoundFont.ID) -> Effect<Action> {
+    state.activePresetSource = .active(soundFontId)
+    state.selectedPresetSource = nil
+    state.activeTagId = tagId
+    state.editingMode = .inactive
+    state.isSearchFieldPresented = false
+    return updateFetchAllQuery(&state)
   }
 
   private func initialize(_ state: inout State) -> Effect<Action> {

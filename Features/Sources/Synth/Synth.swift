@@ -258,7 +258,8 @@ extension Synth {
   }
 
   private func lastPresetLoadFinished(_ state: inout State) -> Effect<Action> {
-    log.info("lastPresetLoadFinished BEGIN")
+    var firstTimeLoading = state.firstTimeLoading
+    log.info("lastPresetLoadFinished BEGIN - \(firstTimeLoading, privacy: .public)")
 
     guard
       let parameterTree = state.avAudioUnit?.parameterTree,
@@ -279,14 +280,15 @@ extension Synth {
     }
 
     let result: Effect<Action>
-    if state.firstTimeLoading {
-      state.firstTimeLoading = false
+    if firstTimeLoading {
+      firstTimeLoading = false
+      state.firstTimeLoading = firstTimeLoading
       result = .none
     } else {
       result = sendNoteOnOffSequence(state)
     }
 
-    log.info("lastPresetLoadFinished END")
+    log.info("lastPresetLoadFinished END - \(firstTimeLoading, privacy: .public)")
     return result
   }
 
@@ -311,9 +313,7 @@ extension Synth {
       for await value in stream {
         if Task.isCancelled { break }
         log.info("monitorLastLoadFinished - detected \(value, privacy: .public)")
-        if value != 0.0 {
-          await send(.lastPresetLoadFinished)
-        }
+        await send(.lastPresetLoadFinished)
       }
 
       log.info("monitorLastLoadFinished END")

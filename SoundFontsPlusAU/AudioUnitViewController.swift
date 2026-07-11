@@ -73,8 +73,15 @@ public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
     }
 
     // Entry point for AUv3 view
-    let content = AUv3RootView(store: AUv3Root.make(audioUnit: audioUnit))
+    let store = AUv3Root.make(audioUnit: audioUnit)
+    let content = AUv3RootView(store: store)
     let host = AUv3HostingController(rootView: content)
+
+    audioUnit.fullStateChanged = {
+      DispatchQueue.main.async {
+        store.send(.fullStateChanged)
+      }
+    }
 
     self.addChild(host)
     host.view.frame = self.view.bounds
@@ -108,7 +115,4 @@ public typealias AUv3HostingController = NSHostingController
 
 #endif
 
-private let log: Logger = .init(
-  subsystem: "com.braysoftware.SoundFontsPlus.SoundFontsPlusAU",
-  category: "AudioUnitViewController"
-)
+private let log: Logger = .init(category: "AudioUnitViewController", loggingSubsystemValue: .loggingSubsystemAUv3Value)

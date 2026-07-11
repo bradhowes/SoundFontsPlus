@@ -28,10 +28,10 @@ class PresetDocumentTests: XCTestCase {
     samplers[2].overallGain = 11.0
 
     let states = samplers.map { $0.auAudioUnit.fullState }
-    // print(states[0]!["data"]!)
-    // print(states[1]!["data"]!)
-    // print(states[2]!["data"]!)
-    // states.forEach { print($0!["gain"]!) }
+    print(states[0]!["data"]!)
+    print(states[1]!["data"]!)
+    print(states[2]!["data"]!)
+    states.forEach { print($0!["gain"]!) }
 
     samplers[0].overallGain = 0.0
     samplers[1].overallGain = 0.0

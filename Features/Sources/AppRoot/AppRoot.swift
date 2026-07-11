@@ -100,6 +100,7 @@ public struct AppRoot {
       toolBar: ToolBar.State? = nil,
       toastState: VolumeMonitor.Reason? = nil
     ) {
+      log.info("State BEGIN")
       @Dependency(\.appActiveState) var appActiveState
       @Shared(.isAUv3) var isAUv3 = false
 
@@ -131,6 +132,8 @@ public struct AppRoot {
       } else if Changes.shouldShow {
         showChanges()
       }
+
+      log.info("State END")
     }
 
     static public func makeFontsAndPresetsSplitState() -> SplitViewReducer.State {
@@ -288,6 +291,12 @@ public struct AppRoot {
 
       case .tagsList(.delegate(.edit(focus: let ordering))):
         state.destination = .tagsEditor(.init(focused: ordering))
+        return .none
+
+      case .toolBar(.clearTemporaryStatus):
+        // Hack: there is a race in the Synth reducer that fails to properly track the first time a preset is loaded so this bit of
+        // state does not get cleared out properly.
+        state.synth.firstTimeLoading = false
         return .none
 
       case .toolBar(.delegate(let action)):
@@ -632,4 +641,4 @@ extension AppRoot {
 extension AppRoot.Destination.State: Equatable {}
 extension AppRoot.Destination.Alert: Equatable {}
 
-private let log: Logger = .init(category: "AppRoot")
+private let log: Logger = .init(category: "AppRoot", loggingSubsystemValue: .loggingSubsystemAppValue)
