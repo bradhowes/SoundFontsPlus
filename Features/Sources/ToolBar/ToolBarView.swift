@@ -39,25 +39,17 @@ public struct ToolBarView: View {
       if geometryProxy.size.width <= maxCompactBarWidth {
         VStack(alignment: .center, spacing: controlSpacing) {
           HStack(alignment: .center, spacing: controlSpacing) {
+            addSoundFontButton
+            tagsButton
             if isApp {
-              addSoundFontButton
-              tagsButton
               effectsButton
-              if showActiveVoiceCount || showMIDITrafficIndicator {
-                VoiceCountAndMIDITrafficIndicator(store: store)
-              }
-              Status(store: store)
-              helpButton
-              moreButton
-            } else {
-              tagsButton
-              if showActiveVoiceCount || showMIDITrafficIndicator {
-                VoiceCountAndMIDITrafficIndicator(store: store)
-              }
-              Status(store: store)
-              helpButton
-              moreButton
             }
+            if showActiveVoiceCount || showMIDITrafficIndicator {
+                VoiceCountAndMIDITrafficIndicator(store: store)
+            }
+            Status(store: store)
+            helpButton
+            moreButton
           }
           .padding([.horizontal], controlSpacing)
           if store.showMoreButtons {
@@ -82,27 +74,23 @@ public struct ToolBarView: View {
         }
       } else {
         HStack(alignment: .center, spacing: controlSpacing) {
+          addSoundFontButton
+          tagsButton
           if isApp {
-            addSoundFontButton
-            tagsButton
             effectsButton
-            if showActiveVoiceCount || showMIDITrafficIndicator {
-              VoiceCountAndMIDITrafficIndicator(store: store)
-            }
-            Status(store: store)
+          }
+          if showActiveVoiceCount || showMIDITrafficIndicator {
+            VoiceCountAndMIDITrafficIndicator(store: store)
+          }
+          Status(store: store)
+          if isApp {
             shiftDownButton
             slidingKeyboardButton
             shiftUpButton
-            editVisibilityButton
-            settingsButton
-            helpButton
-          } else {
-            tagsButton
-            Status(store: store)
-            editVisibilityButton
-            settingsButton
-            helpButton
           }
+          editVisibilityButton
+          settingsButton
+          helpButton
         }
         .task {
           await store.send(.initialize(false)).finish()

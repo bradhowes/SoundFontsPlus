@@ -46,9 +46,7 @@ public struct SettingsView: View {
             }
           }
           tuningSection
-          if isApp {
-            appSection
-          }
+          appSection
           aboutSection
         }
         .coordinateSpace(name: Self.coordinateSpaceName)
