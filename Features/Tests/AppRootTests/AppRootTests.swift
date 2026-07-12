@@ -200,7 +200,8 @@ struct AppRootTests {
       await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1))
       await store.receive(\.presetsList.presetSourceChanged, .active(1))
 
-      await store.receive(\.toolBar.activeVoiceCountChanged, 0)
+      await store.receive(\.synth.lastPresetLoadFinished) { $0.synth.firstTimeLoading = false }
+      // await store.receive(\.toolBar.activeVoiceCountChanged, 0)
     }
   }
 

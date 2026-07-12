@@ -188,7 +188,7 @@ extension SoundFont {
     db: Database,
     displayName: String,
     insertion: Insert<SoundFont, SoundFont>,
-    fileInfo: SF2FileInfo,
+    fileInfo: borrowing SF2FileInfo,
     tagIds: [Tag.ID],
     limitedLoading: Bool
   ) throws -> SoundFont {
@@ -241,7 +241,7 @@ extension SoundFont {
 
   private static func makePresets(
     soundFontId: SoundFont.ID,
-    fileInfo: SF2FileInfo,
+    fileInfo: borrowing SF2FileInfo,
     limit: Int
   ) -> [Preset.Draft] {
     (0..<limit)
