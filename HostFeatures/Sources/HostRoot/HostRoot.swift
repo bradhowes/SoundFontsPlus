@@ -265,7 +265,6 @@ public struct HostRootView: View {
             Text(store.songPlaying ? "Stop Notes" : "Play Notes")
           }
           .disabled(store.synthsList.rows.isEmpty)
-
           Button {
             store.send(.noteButtonTapped)
           } label: {
