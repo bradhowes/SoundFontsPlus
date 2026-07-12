@@ -15,6 +15,14 @@ import SwiftUI
 
 private let log: Logger = .init(category: "Synth")
 
+#if canImport(UIKit)
+import UIKit
+public typealias ViewController = UIViewController
+#else
+import AppKit
+public typealias ViewController = NSViewController
+#endif
+
 /**
  Manages the audio session and synth creation for the app. Not used by the AUv3 extension.
  */
@@ -32,6 +40,8 @@ public struct Synth {
     public var audioSessionActivated: Bool
     @ObservationStateIgnored
     public var avAudioUnit: AVAudioUnitMIDIInstrument?
+    @ObservationStateIgnored
+    public var viewController: ViewController?
 
     public init(
       loadedSoundFontId: SoundFont.ID? = nil,
@@ -55,7 +65,7 @@ public struct Synth {
     case mediaServicesWereReset
     case playNote
     case releaseAudioSession
-    case synthAudioUnitCreated(AVAudioUnitMIDIInstrument)
+    case synthAudioUnitCreated(AVAudioUnitMIDIInstrument, ViewController)
     case synthAudioUnitCreationFailed
 
     @CasePathable
@@ -104,7 +114,7 @@ public struct Synth {
         return .none
 
       case .initialize:
-        return createSynthAudioUnit(&state)
+        return synthAudioUnitCreate(&state)
 
       case .lastPresetLoadFinished:
         return lastPresetLoadFinished(&state)
@@ -118,8 +128,8 @@ public struct Synth {
       case .releaseAudioSession:
         return releaseAudioSession(&state)
 
-      case .synthAudioUnitCreated(let avAudioUnit):
-        return createSynthAudioUnitDone(&state, avAudioUnit: avAudioUnit)
+      case let .synthAudioUnitCreated(avAudioUnit, viewController):
+        return synthAudioUnitCreated(&state, avAudioUnit: avAudioUnit, viewController: viewController)
 
       case .synthAudioUnitCreationFailed:
         log.error("Failed to create AVAudioUnit")
@@ -129,7 +139,7 @@ public struct Synth {
   }
 
   private enum CancelId: String, CaseIterable {
-    case synthCreateSynth
+    case synthCreateAudioUnit
     case synthMonitorLastLoadFinished
     case synthMonitorMediaServices
     case synthMonitorRouteChanged
@@ -217,24 +227,36 @@ extension Synth {
     return .merge(actions)
   }
 
-  private func createSynthAudioUnit(_ state: inout State) -> Effect<Action> {
-    log.info("createSynth")
+  private func synthAudioUnitCreate(_ state: inout State) -> Effect<Action> {
+    log.info("synthAudioUnitCreate BEGIN")
     return .run(priority: .utility, name: "createSynthAudioUnit") { send in
-      log.info("createSynth - instantiating audio unit")
-      if let avAudioUnit = await SF2LibAU.create(register: true) {
-        log.debug("createSynth - synth: \(avAudioUnit.description)")
-        await send(.synthAudioUnitCreated(avAudioUnit))
-      } else {
-        log.debug("failed to cast AVAudioUnit to AVAudioUnitMIDIInstrument")
+      log.info("synthAudioUnitCreate - instantiating audio unit")
+      guard let avAudioUnit = await SF2LibAU.create(register: true) else {
+        log.error("synthAudioUnitCreate - failed to create SF2LibAU instance")
         await send(.synthAudioUnitCreationFailed)
+        return
       }
-    }.cancellable(id: CancelId.synthCreateSynth, cancelInFlight: true)
+
+      log.debug("synthAudioUnitCreate - synth: \(avAudioUnit.description)")
+      guard let viewController = await avAudioUnit.auAudioUnit.requestViewController() else {
+        log.error("synthAudioUnitCreate - failed to get AVAudioUnit view controller")
+        await send(.synthAudioUnitCreationFailed)
+        return
+      }
+
+      await send(.synthAudioUnitCreated(avAudioUnit, viewController))
+    }.cancellable(id: CancelId.synthCreateAudioUnit, cancelInFlight: true)
   }
 
-  private func createSynthAudioUnitDone(_ state: inout State, avAudioUnit: AVAudioUnitMIDIInstrument) -> Effect<Action> {
-    log.info("createSynthAudioUnitDone BEGIN")
+  private func synthAudioUnitCreated(
+    _ state: inout State,
+    avAudioUnit: AVAudioUnitMIDIInstrument,
+    viewController: ViewController
+  ) -> Effect<Action> {
+    log.info("synthAudioUnitCreated BEGIN")
 
     state.avAudioUnit = avAudioUnit
+    state.viewController = viewController
 
     if state.audioSessionActivated {
       startEngine(&state)
@@ -242,7 +264,7 @@ extension Synth {
       startAudioSession(&state)
     }
 
-    log.info("createSynthAudioUnitDone END")
+    log.info("synthAudioUnitCreated END")
     return .merge(
       beginMonitoring(&state),
       .send(.delegate(.audioUnitCreated(avAudioUnit)))
