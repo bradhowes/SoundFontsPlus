@@ -9,6 +9,9 @@ import OSLog
 import SwiftUI
 import TypedFullState
 
+/**
+ A button that represents an AUv3 synth instance.
+ */
 @Reducer
 public struct SynthButton {
 
