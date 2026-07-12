@@ -1,9 +1,9 @@
-// Copyright © 2025 Brad Howes. All rights reserved.
+// Copyright © 2026 Brad Howes. All rights reserved.
 
 import SwiftUI
 
 /**
- Provide for async running of a task for generating model data.
+ Provide for async running of a task for generating model data. NOTE: only used in previews.
 
  Lifted from https://stackoverflow.com/a/77920319/629836
  */
