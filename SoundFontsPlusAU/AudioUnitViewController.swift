@@ -10,13 +10,12 @@ import SF2LibAU
 
 /**
  Custom AUViewController for the SoundFontsPlus AUv3 component. The construction process for an AUv3 component always results in an
- instance of this, including the AUv3 component that is instantiated by the app -- the AUv3RootView is ignored in that case as the
- AppRootView controls the AUv3 component.
+ instance of this, including the AUv3 component that is instantiated by the app.
  */
 @MainActor
 public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
-  public var audioUnit: SF2LibAU?
-  public var hostingController: AUv3HostingController<AUv3RootView>?
+  private var audioUnit: SF2LibAU?
+  private var hostingController: AUv3HostingController<AUv3RootView>?
 
   deinit {}
 
