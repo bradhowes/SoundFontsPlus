@@ -155,7 +155,7 @@ public struct AUv3Root {
         return initialize(&state)
 
       case .lastPresetLoadFinished:
-        return sendNoteOnOffSequence(state)
+        return .none // sendNoteOnOffSequence(state)
 
       case .presetsList(.delegate(.activePresetIdChanged(let presetId))):
         return activePresetIdChanged(&state, presetId: presetId)
