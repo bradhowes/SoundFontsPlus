@@ -199,6 +199,8 @@ struct AppRootTests {
       }
       await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1))
       await store.receive(\.presetsList.presetSourceChanged, .active(1))
+
+      await store.receive(\.toolBar.activeVoiceCountChanged, 0)
     }
   }
 
