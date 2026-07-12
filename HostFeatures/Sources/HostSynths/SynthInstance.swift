@@ -45,7 +45,7 @@ public struct SynthInstance: Equatable, Identifiable {
 
   public static func make(component: AudioComponentDescription) async throws -> SynthInstance {
     log.info("make: \(component.description)")
-    let audioUnit = try await AVAudioUnit.instantiate(with: component)
+    let audioUnit = try await AVAudioUnit.instantiate(with: component, options: [.loadOutOfProcess])
     log.info("created audio unit")
 
     let viewController = try await makeUI(audioUnit: audioUnit)
