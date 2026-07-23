@@ -38,7 +38,7 @@ public extension String {
   static var saveButtonImageName: String { "checkmark" }
   static var searchButtonImageName: String { "magnifyingglass" }
   static var settingsButtonImageName: String { "gear" }
-  static var slidingKeyboardButtonImageName: String { "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right.fill" }
+  static var slidingKeyboardButtonImageName: String { "arrow.left.and.right" }
   static var tagsListButtonImageName: String { "tag" }
   static var tapImageName: String { "hand.tap" }
   static var textFieldClearButtonImageName: String { "multiply.circle.fill" }

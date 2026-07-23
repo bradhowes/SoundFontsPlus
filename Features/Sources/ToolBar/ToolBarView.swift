@@ -12,9 +12,11 @@ public struct ToolBarView: View {
   @Shared(.showMIDITrafficIndicator) private var showMIDITrafficIndicator
   @Shared(.starFavoriteNames) private var starFavoriteNames
   @Environment(\.colorScheme) private var colorScheme
-  @Environment(\.controlSpacing) var controlSpacing
+  @Environment(\.controlSpacing) private var controlSpacing
 
-  private let maxCompactBarWidth: CGFloat = 400
+  private var keyboardControlSpacing: CGFloat { controlSpacing - 2 }
+  private var keyboardShiftButtonWidth: CGFloat { 28 }
+  private let maxCompactBarWidth: CGFloat = 440 // iPhone 17 Pro Max
   private let rowHeight: CGFloat = 28
   private let isAUv3: Bool
   private var isApp: Bool { !isAUv3 }
@@ -38,29 +40,31 @@ public struct ToolBarView: View {
     GeometryReader { geometryProxy in
       if geometryProxy.size.width <= maxCompactBarWidth {
         HStack(alignment: .center, spacing: controlSpacing) {
-          if !store.showMoreButtons {
-            addSoundFontButton
-            tagsButton
-            if isApp {
-              effectsButton
-            }
-          }
-          if showActiveVoiceCount || showMIDITrafficIndicator {
-            VoiceCountAndMIDITrafficIndicator(store: store)
-          }
           Status(store: store)
           if !store.showMoreButtons {
-            helpButton
-              .opacity(store.showMoreButtons ? 0 : 1)
+            Group {
+              if showActiveVoiceCount || showMIDITrafficIndicator {
+                VoiceCountAndMIDITrafficIndicator(store: store)
+              }
+              addSoundFontButton
+              tagsButton
+              if isApp {
+                effectsButton
+              }
+              helpButton
+            }
           } else {
             Group {
-              shiftDownButton
-              slidingKeyboardButton
-              shiftUpButton
+              HStack(alignment: .center, spacing: keyboardControlSpacing) {
+                shiftDownButton
+                  .frame(width: keyboardShiftButtonWidth)
+                slidingKeyboardButton
+                shiftUpButton
+                  .frame(width: keyboardShiftButtonWidth)
+              }
               editVisibilityButton
               settingsButton
             }
-            .opacity(store.showMoreButtons ? 1 : 0)
           }
           moreButton
         }
@@ -237,6 +241,7 @@ extension ToolBarView {
     } label: {
       Text(.shiftKeyboardLeftIndicator + store.lowestKey.label)
         .tint(.mainAccentColor)
+        .font(.infoBarNoteLabel)
     }
     .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
     .helpInfoViewTag(.shiftDownButton)
@@ -248,6 +253,7 @@ extension ToolBarView {
     } label: {
       Text(store.highestKey.label + .shiftKeyboardRightIndicator)
         .tint(.mainAccentColor)
+        .font(.infoBarNoteLabel)
     }
     .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
     .helpInfoViewTag(.shiftUpButton)
@@ -257,13 +263,10 @@ extension ToolBarView {
     Button {
       store.send(.slidingKeyboardButtonTapped)
     } label: {
-      Image(
-        systemName: store.keyboardSlides
-        ? .slidingKeyboardButtonImageName
-        : .fixedKeyboardButtonImageName
-      )
+      Image(systemName: .slidingKeyboardButtonImageName)
       .tint(if: store.keyboardSlides)
     }
+    .controlSize(.small)
     .helpInfoViewTag(.slideToggle)
   }
 
@@ -309,7 +312,6 @@ extension ToolBarView {
           ToolBarView(store: store, isAUv3: false)
           KeyboardView(store: Store(initialState: .init()) { Keyboard() })
         }
-        .animation(.smooth, value: store.state.showMoreButtons)
       }
     }
 

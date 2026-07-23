@@ -11,6 +11,7 @@ extension CGFloat {
   public static var effectsControlFontSize: Self { 15 }
   public static var effectsTitleFontSize: Self { 15 }
   public static var footerFontSize: Self { 15 }
+  public static var infoBarNoteLabelSize: Self { 16 }
   public static var infoBarStatusSize: Self { 20 }
   public static var navigationTitleFontSize: Self { 48 }
   public static var presetEditorFontSize: Self { 18 }
@@ -44,6 +45,7 @@ extension Font {
   public static var effectsControl: Font { CGFloat.effectsControlFontSize.appFont }
   public static var effectsTitle: Font { CGFloat.effectsTitleFontSize.appFont }
   public static var footer: Font { CGFloat.footerFontSize.appFont }
+  public static var infoBarNoteLabel: Font { CGFloat.infoBarNoteLabelSize.appFont }
   public static var navigationTitle: Font { CGFloat.navigationTitleFontSize.appFont }
   public static var presetEditor: Font { CGFloat.presetEditorFontSize.appFont }
   public static var settings: Font { CGFloat.settingsControlFontSize.appFont }
