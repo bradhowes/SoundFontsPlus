@@ -25,7 +25,7 @@ public struct ToolBarView: View {
     (store.preset?.kind == .favorite || store.temporaryStatus != nil) ? .alternateAccentColor : .mainAccentColor
   }
 
-  private var height: CGFloat { store.showMoreButtons ? rowHeight * 2 + controlSpacing - 5 : rowHeight }
+  private var height: CGFloat { rowHeight }
 
   @State private var animationState: AnimationState = .init()
 
@@ -37,37 +37,36 @@ public struct ToolBarView: View {
   public var body: some View {
     GeometryReader { geometryProxy in
       if geometryProxy.size.width <= maxCompactBarWidth {
-        VStack(alignment: .center, spacing: controlSpacing) {
-          HStack(alignment: .center, spacing: controlSpacing) {
+        HStack(alignment: .center, spacing: controlSpacing) {
+          if !store.showMoreButtons {
             addSoundFontButton
             tagsButton
             if isApp {
               effectsButton
             }
-            if showActiveVoiceCount || showMIDITrafficIndicator {
-                VoiceCountAndMIDITrafficIndicator(store: store)
-            }
-            Status(store: store)
-            helpButton
-            moreButton
           }
-          .padding([.horizontal], controlSpacing)
-          if store.showMoreButtons {
-            HStack(alignment: .center, spacing: controlSpacing) {
-              Spacer()
+          if showActiveVoiceCount || showMIDITrafficIndicator {
+            VoiceCountAndMIDITrafficIndicator(store: store)
+          }
+          Status(store: store)
+          if !store.showMoreButtons {
+            helpButton
+              .opacity(store.showMoreButtons ? 0 : 1)
+          } else {
+            Group {
               shiftDownButton
               slidingKeyboardButton
               shiftUpButton
               editVisibilityButton
               settingsButton
             }
-            .padding([.horizontal], controlSpacing)
-            .animation(.smooth, value: store.lowestKey)
-            .animation(.smooth, value: store.highestKey)
-            .transition(.move(edge: .bottom))
+            .opacity(store.showMoreButtons ? 1 : 0)
           }
+          moreButton
         }
-        .fixedSize(horizontal: false, vertical: true)
+        .animation(.smooth, value: store.lowestKey)
+        .animation(.smooth, value: store.highestKey)
+        .padding([.horizontal], controlSpacing)
         .padding(0)
         .task {
           await store.send(.initialize(true)).finish()
@@ -138,8 +137,8 @@ struct Status: View {
     }
     .font(.status)
     .foregroundStyle(statusTextColor)
-    .contentTransition(.interpolate)
     .animation(.smooth, value: statusTextValue)
+    .animation(.smooth, value: store.showMoreButtons)
     .contentShape(Rectangle())
     .onTapGesture(count: 2) { store.send(.statusTextTapped(count: 2)) }
     .onTapGesture(count: 1) { store.send(.statusTextTapped(count: 1)) }
@@ -218,15 +217,6 @@ extension ToolBarView {
     } label: {
       Image(systemName: .moreButtonImageName)
         .tint(if: store.showMoreButtons)
-        .keyframeAnimator(initialValue: animationState, trigger: store.showMoreButtons) { content, value in
-          content
-            .rotationEffect(value.angle)
-        } keyframes: { _ in
-          KeyframeTrack(\.angle) {
-            CubicKeyframe(.degrees(store.showMoreButtons ? -90 : 0), duration: 0.28)
-          }
-        }
-        .animation(.smooth, value: store.showMoreButtons)
     }
     .helpInfoViewTag(.moreButton)
   }
