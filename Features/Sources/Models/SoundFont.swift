@@ -25,6 +25,10 @@ nonisolated public struct SoundFont {
    - builtin -- the file resides in the application bundle
    - installed -- the file resides in an app group folder
    - external -- the file resides elsewhere and requires special effort to access
+
+   We could define this using a @Selection macro on an enum, but they all three share the same internal BLOB representation so we
+   are sticking with this approach for now. The modeling is sound, though the coupling between the `Kind` value and the BLOB
+   representation is not nearly as strong as it could be. Howver, we have only one BLOB location column instead of three, so...
    */
   public struct Kind {
     public let rawValue: Int
