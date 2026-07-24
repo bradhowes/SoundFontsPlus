@@ -300,7 +300,7 @@ extension ToolBarView {
             program: 1,
             originalName: "Foo",
             soundFontId: 0,
-            displayName: "Foo"
+            displayName: "This is a really long name"
           )
         )
       ) {
@@ -311,6 +311,9 @@ extension ToolBarView {
         VStack(spacing: 0) {
           ToolBarView(store: store, isAUv3: false)
           KeyboardView(store: Store(initialState: .init()) { Keyboard() })
+        }
+        .task {
+          await store.send(.clearTemporaryStatus).finish()
         }
       }
     }
