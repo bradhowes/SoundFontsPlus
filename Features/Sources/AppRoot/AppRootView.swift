@@ -261,24 +261,26 @@ extension View {
 extension AppRootView {
 
   static var preview: some View {
-    @Shared(.colorSchemeBehavior) var colorSchemeBehavior
-
-    return ZStack {
-      colorSchemeBehavior.rootBackgroundColor
-        .ignoresSafeArea()
-      AppRootView(store: StoreOf<AppRoot>(initialState: AppRoot.State()) { AppRoot() })
-    }
-    .tint(.mainAccentColor)
-    .environment(\.font, FeatureSupport.Font.body)
-    .useColorScheme()
+    let store = StoreOf<AppRoot>(initialState: AppRoot.State()) { AppRoot() }
+    return AppRootView(store: store)
+      .tint(.mainAccentColor)
+      .environment(\.font, FeatureSupport.Font.body)
+      .useColorScheme()
+      .task {
+        await store.send(.toolBar(.clearTemporaryStatus)).finish()
+      }
   }
 }
 
 #Preview {
+  let showChanges = false
+  let showTutorial = false
   // swiftlint:disable:next redundant_discardable_let
   let _ = prepareDependencies {
     installApplicationFont()
     @Shared(.isAUv3) var isAUv3 = false
+    @Shared(.showedTutorial) var showedTutorial = !showTutorial
+    @Shared(.lastShowedChangesVersion) var lastShowedChangesVersion = showChanges ? "-" : ""
 
     // swiftlint:disable:next force_try
     $0.defaultDatabase = try! appDatabase()
