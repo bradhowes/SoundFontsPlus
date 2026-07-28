@@ -33,7 +33,7 @@ public struct VolumeMonitor {
     case stop
     case volumeChanged(Float)
 
-  @CasePathable
+    @CasePathable
     public enum Delegate: Equatable {
       case reasonChanged(Reason?)
     }

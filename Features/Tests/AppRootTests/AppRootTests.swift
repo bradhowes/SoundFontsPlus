@@ -61,9 +61,6 @@ struct AppRootTests {
   ) async throws {
     guard !ProcessInfo.processInfo.isOnGithub else { return }
 
-    // @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
-    // let avAudioUnit = try #require(await avAudioUnitMIDIInstrumentGenerator.generate())
-
     let store = store(showedTutorial: showedTutorial)
 
     await store.send(.initialize)

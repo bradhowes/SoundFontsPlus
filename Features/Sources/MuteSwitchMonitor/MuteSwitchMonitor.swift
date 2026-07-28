@@ -32,7 +32,7 @@ public struct MuteSwitchMonitor {
     case finishedPlaying(TimeInterval)
     case initialize
 
-  @CasePathable
+    @CasePathable
     public enum Delegate: Equatable {
       case muteChanged(Bool)
     }

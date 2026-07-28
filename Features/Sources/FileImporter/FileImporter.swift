@@ -50,6 +50,7 @@ public struct FileImporter {
     case importNextFile
     case showFileImporter
 
+    @CasePathable
     public enum Delegate {
       case importFinished
     }
