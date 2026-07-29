@@ -643,22 +643,12 @@ extension SoundFontsListView {
     }
 
     return VStack {
-      Toggle(
-        "Hide empty tags",
-        isOn: Binding(
-          get: { hideEmptyTags },
-          set: { newValue in $hideEmptyTags.withLock { $0 = newValue }}
-        )
-      )
-      .padding([.leading, .trailing], 16)
-      Toggle(
-        "Hide built-in fonts",
-        isOn: Binding(
-          get: { hideBuiltinFonts },
-          set: { newValue in $hideBuiltinFonts.withLock { $0 = newValue }}
-        )
-      )
-      .padding([.leading, .trailing], 16)
+      @Binding($hideEmptyTags) var hideEmptyTags
+      Toggle("Hide empty tags", isOn: $hideEmptyTags)
+        .padding([.leading, .trailing], 16)
+      @Binding($hideBuiltinFonts) var hideBuiltinFonts
+      Toggle("Hide built-in fonts", isOn: $hideBuiltinFonts)
+        .padding([.leading, .trailing], 16)
       SoundFontsListView(store: Store(initialState: .init()) { SoundFontsList() })
       TagsListView(store: Store(initialState: .init(activeTagId: nil)) { TagsList() })
     }

@@ -204,11 +204,20 @@ public struct Settings {
 
   public init() {}
 
-  @Dependency(\.dismiss) var dismiss
-  @Dependency(\.midiProvider) var midiProvider
+  @Dependency(\.audioSession) private var audioSession
+  @Dependency(\.dismiss) private var dismiss
+  @Dependency(\.midiProvider) private var midiProvider
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
+      .onChange(of: \.mixWithOtherApps) { _, _ in
+        _ = audioSession.restart()
+        return .none
+      }
+      .onChange(of: \.duckOtherApps) { _, _ in
+        _ = audioSession.restart()
+        return .none
+      }
 
     Scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator) { MIDITrafficIndicator() }
     Scope(state: \.tuning, action: \.tuning) { Tuning() }
