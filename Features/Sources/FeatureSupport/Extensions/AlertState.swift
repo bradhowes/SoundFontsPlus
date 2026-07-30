@@ -221,6 +221,26 @@ Deleting the tag cannot be undone.
       )
     }
   }
+
+  static public func newTagsHidden(disableAlert: Action, disableOption: Action) -> Self {
+    Self {
+      TextState("Hidden Tags")
+    } actions: {
+      ButtonState(role: .cancel) { TextState("OK") }
+      ButtonState(action: disableOption) { TextState("Show Hidden Tags") }
+      ButtonState(action: disableAlert) { TextState("Disable Alert") }
+    } message: {
+      TextState(
+"""
+Due to the "Hide tags with no sound fonts" setting, one or more tags will not appear in the tags list. \
+They will appear once associated with a sound font or when the setting is cleared.
+
+Tap "Show Hidden Tags" to clear the setting.
+Tap "Disable Alert" to stop showing this alert.
+"""
+      )
+    }
+  }
 }
 
 extension AlertState {
