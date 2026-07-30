@@ -61,9 +61,6 @@ public struct TagsList {
 
   public init() {}
 
-  @Shared(.hideBuiltinFonts) public var hideBuiltinFonts
-  @Shared(.hideEmptyTags) public var hideEmptyTags
-
   public var body: some ReducerOf<Self> {
 
     Reduce<State, Action> { state, action in
@@ -162,7 +159,9 @@ extension TagsList {
   }
 
   private func monitorFetchAllQueryOptions(_ state: inout State) -> Effect<Action> {
-    return .run { [$hideEmptyTags, $hideBuiltinFonts] send in
+    .run { send in
+      @Shared(.hideBuiltinFonts) var hideBuiltinFonts
+      @Shared(.hideEmptyTags) var hideEmptyTags
       var stateMonitor = StateMonitor { [$hideEmptyTags.wrappedValue, $hideBuiltinFonts.wrappedValue] }
       for await _ in $hideEmptyTags.publisher.merge(with: $hideBuiltinFonts.publisher).values where stateMonitor.changed() {
         // We could do the update here directly, but the additional reducer activity allows us to easily test that the monitoring
