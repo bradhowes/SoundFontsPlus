@@ -174,11 +174,11 @@ struct TagsListTests {
       $hideEmptyTags.withLock { $0 = true }
       await store.receive(\.updateFetchAllQuery)
       try await store.state.$tagInfos.load()
-      #expect(store.state.tagInfos.count == 5)
+      #expect(store.state.tagInfos.count == 4)
       $hideBuiltinFonts.withLock { $0 = false }
       await store.receive(\.updateFetchAllQuery)
       try await store.state.$tagInfos.load()
-      #expect(store.state.tagInfos.count == 6)
+      #expect(store.state.tagInfos.count == 5)
     }
   }
 

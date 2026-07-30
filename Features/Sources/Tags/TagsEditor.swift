@@ -49,7 +49,8 @@ public struct TagsEditor {
 
     @CasePathable
     public enum Alert {
-      case showedHideEmptyTagsNotice
+      case disableHideEmptyTags
+      case disableNewTagIsHiddenAlert
     }
   }
 
@@ -63,6 +64,7 @@ public struct TagsEditor {
     public let soundFontId: SoundFont.ID?
     public var helpInfoSelection: TagsEditorHelpInfo?
     @Presents public var destination: Destination.State?
+    public var hasNewTags: Bool { !rows.elements.compactMap(\.tagId).isEmpty }
 
     /**
      Define initial state of the feature for tag editing from main tag view.
@@ -75,8 +77,14 @@ public struct TagsEditor {
       editModeActive: Bool = false
     ) {
       self.mode = .tagEditing
-      self.rows = .init(uniqueElements: Tag.tags .map {
-        .init(tagId: $0.id, draft: .init($0), membership: nil, visible: $0.visible)
+      self.rows = .init(
+        uniqueElements: Tag.tags .map {
+          .init(
+            tagId: $0.id,
+            draft: .init($0),
+            membership: nil,
+            visible: $0.visible
+          )
       })
       self.editModeActive = editModeActive
       self.soundFontId = nil
@@ -129,22 +137,27 @@ public struct TagsEditor {
     case cancelButtonTapped
     case deleteButtonTapped(at: IndexSet)
     case destination(PresentationAction<Destination.Action>)
+    case editModeActiveChanged(Bool)
     case finalizeDeleteTag(rowId: Int)
     case helpInfoButtonTapped
     case rows(IdentifiedActionOf<TagNameEditor>)
     case saveButtonTapped
-    case editModeActiveChanged(Bool)
     case tagMoved(at: IndexSet, to: Int)
     case toggleEditModeActive
   }
 
   @Dependency(\.defaultDatabase) private var database
-  @Dependency(\.dismiss) var dismiss
+  @Dependency(\.dismiss) private var dismiss
+
+  @Shared(.disableNewTagIsHiddenAlert) private var disableNewTagIsHiddenAlert
   @Shared(.hideEmptyTags) private var hideEmptyTags
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
+
+      log.action("TagsEditor", action)
+
       switch action {
 
       case .addButtonTapped:
@@ -156,7 +169,18 @@ public struct TagsEditor {
       case .deleteButtonTapped(let indices):
         return deleteTag(&state, indices: indices)
 
-        // TODO: add test
+      case .destination(.dismiss):
+        return dismiss(&state, save: true)
+
+      case .destination(.presented(.alert(.disableHideEmptyTags))):
+        $hideEmptyTags.withLock { $0 = false }
+        return dismiss(&state, save: true)
+
+      case .destination(.presented(.alert(.disableNewTagIsHiddenAlert))):
+        @Shared(.disableNewTagIsHiddenAlert) var disableNewTagIsHiddenAlert
+        $disableNewTagIsHiddenAlert.withLock { $0 = true }
+        return dismiss(&state, save: true)
+
       case .editModeActiveChanged(let value):
         state.editModeActive = value
         return .none
@@ -172,6 +196,15 @@ public struct TagsEditor {
         return deleteTag(&state, rowId: id)
 
       case .saveButtonTapped:
+        if state.hasNewTags && hideEmptyTags && !disableNewTagIsHiddenAlert {
+          state.destination = .alert(
+            .newTagsHidden(
+              disableAlert: Destination.Alert.disableNewTagIsHiddenAlert,
+              disableOption: Destination.Alert.disableHideEmptyTags
+            )
+          )
+          return .none
+        }
         return dismiss(&state, save: true)
 
       case let .tagMoved(indices, offset):
