@@ -41,7 +41,7 @@ public struct Settings {
     public var label: String {
       switch self {
       case .presets: return "Presets"
-      case .fonts: return "Fonts"
+      case .fonts: return "Fonts/Tags"
       case .keys: return "Keys"
       case .midi: return "MIDI"
       case .tuning: return "Tuning"
