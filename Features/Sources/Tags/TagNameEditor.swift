@@ -34,6 +34,7 @@ public struct TagNameEditor {
     public let originalVisibility: Bool?
 
     public var isUbiquitous: Bool { tagId?.isUbiquitous ?? false }
+    public var isNew: Bool { tagId == nil }
 
     public init(tagId: Tag.ID? = nil, draft: Tag.Draft, membership: Bool? = nil, visible: Bool = true) {
       self.editing = membership != nil ? .membership : .visibility
