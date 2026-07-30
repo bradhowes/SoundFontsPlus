@@ -389,7 +389,8 @@ Disable to link directly to files in iCloud or on external drives.
         Toggle(isOn: $hideEmptyTags) {
           toggleInfo("Hide tags with no sound fonts") {
 """
-Enable to reduce clutter in the main tags view. Your tags will always appear regardless of content.
+Enable to reduce clutter in the main tags view. You can also change tag visibility in the tags editor (slide-right or long-press on
+any tag.
 """
           }
         }
