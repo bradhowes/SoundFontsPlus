@@ -24,8 +24,6 @@ extension TagInfo {
   public static var query: Select<TagInfo.Columns.QueryValue, Tag, (TaggedSoundFont?, SoundFont?)> {
     @Shared(.hideBuiltinFonts) var hideBuiltinFonts
     @Shared(.hideEmptyTags) var hideEmptyTags
-    // User tags are always non-negative.
-    let firstUserTagId = Tag.ID(0)
     // The minimum font count to hide empty tags if enabled.
     let minFontCountToShow = hideEmptyTags ? 1 : 0
     // The minimum 'kind' to show
@@ -43,8 +41,7 @@ extension TagInfo {
         soundFont.id
           .count(filter: (soundFont.kind ?? SoundFont.Kind.installed).gte(filteredKind))
           .gte(minFontCountToShow) ||
-        tag.id.eq(Tag.Ubiquitous.all.id) ||
-        tag.id.gte(firstUserTagId)
+        tag.id.eq(Tag.Ubiquitous.all.id)
       }
       .select { tag, _, soundFont in
         TagInfo.Columns(
