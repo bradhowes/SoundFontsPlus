@@ -13,6 +13,7 @@ extension SharedKey where Self == AppStorageKey<Bool>.Default {
   public static var copyFileWhenInstalling: Self { Self[.appStorage("copyFileWhenInstalling"), default: true] }
   public static var delayLockEnabled: Self { Self[.appStorage("delayLockEnabled"), default: false] }
   public static var disableIdleTimer: Self { Self[.appStorage("disableIdleTimer"), default: false]}
+  public static var disableNewTagIsHiddenAlert: Self { self[.appStorage("disableNewTagIsHiddenAlert"), default: false] }
   public static var effectsPanelVisible: Self { Self[.appStorage("effectsPanelVisible"), default: false] }
   public static var keyboardSlides: Self { Self[.appStorage("keyboardSlides"), default: false] }
   public static var midiAutoConnect: Self { Self[.appStorage("midiAutoConnect"), default: true] }
