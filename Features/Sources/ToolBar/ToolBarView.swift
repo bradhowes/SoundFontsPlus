@@ -40,33 +40,35 @@ public struct ToolBarView: View {
     GeometryReader { geometryProxy in
       if geometryProxy.size.width <= maxCompactBarWidth {
         HStack(alignment: .center, spacing: controlSpacing) {
+          AddSoundFontButton(store: store)
+          TagsButton(store: store)
+          if isApp {
+            EffectsButton(store: store)
+          }
           Status(store: store)
           if !store.showMoreButtons {
             Group {
               if showActiveVoiceCount || showMIDITrafficIndicator {
                 VoiceCountAndMIDITrafficIndicator(store: store)
               }
-              addSoundFontButton
-              tagsButton
-              if isApp {
-                effectsButton
-              }
-              helpButton
+              HelpButton(store: store)
             }
           } else {
             Group {
-              HStack(alignment: .center, spacing: keyboardControlSpacing) {
-                shiftDownButton
-                  .frame(width: keyboardShiftButtonWidth)
-                slidingKeyboardButton
-                shiftUpButton
-                  .frame(width: keyboardShiftButtonWidth)
+              if isApp {
+                HStack(alignment: .center, spacing: keyboardControlSpacing) {
+                  ShiftDownButton(store: store)
+                    .frame(width: keyboardShiftButtonWidth)
+                  SlidingKeyboardButton(store: store)
+                  ShiftUpButton(store: store)
+                    .frame(width: keyboardShiftButtonWidth)
+                }
               }
-              editVisibilityButton
-              settingsButton
+              EditVisibilityButton(store: store)
+              SettingsButton(store: store)
             }
           }
-          moreButton
+          MoreButton(store: store)
         }
         .animation(.smooth, value: store.lowestKey)
         .animation(.smooth, value: store.highestKey)
@@ -77,24 +79,32 @@ public struct ToolBarView: View {
         }
       } else {
         HStack(alignment: .center, spacing: controlSpacing) {
-          addSoundFontButton
-          tagsButton
+          AddSoundFontButton(store: store)
+          TagsButton(store: store)
           if isApp {
-            effectsButton
+            EffectsButton(store: store)
           }
+          Status(store: store)
           if showActiveVoiceCount || showMIDITrafficIndicator {
             VoiceCountAndMIDITrafficIndicator(store: store)
           }
-          Status(store: store)
           if isApp {
-            shiftDownButton
-            slidingKeyboardButton
-            shiftUpButton
+            HStack(alignment: .center, spacing: keyboardControlSpacing) {
+              ShiftDownButton(store: store)
+                .frame(width: keyboardShiftButtonWidth)
+              SlidingKeyboardButton(store: store)
+              ShiftUpButton(store: store)
+                .frame(width: keyboardShiftButtonWidth)
+            }
           }
-          editVisibilityButton
-          settingsButton
-          helpButton
+          EditVisibilityButton(store: store)
+          SettingsButton(store: store)
+          HelpButton(store: store)
         }
+        .animation(.smooth, value: store.lowestKey)
+        .animation(.smooth, value: store.highestKey)
+        .padding([.horizontal], controlSpacing)
+        .padding(0)
         .task {
           await store.send(.initialize(false)).finish()
         }
@@ -174,9 +184,10 @@ struct VoiceCountAndMIDITrafficIndicator: View {
   }
 }
 
-extension ToolBarView {
+private struct AddSoundFontButton: View {
+  var store: StoreOf<ToolBar>
 
-  private var addSoundFontButton: some View {
+  var body: some View {
     Button {
       store.send(.addSoundFontButtonTapped)
     } label: {
@@ -185,8 +196,12 @@ extension ToolBarView {
     }
     .helpInfoViewTag(RootHelpInfo.addButton)
   }
+}
 
-  private var editVisibilityButton: some View {
+private struct EditVisibilityButton: View {
+  var store: StoreOf<ToolBar>
+
+  var body: some View {
     Button {
       store.send(.presetsVisibilityButtonTapped)
     } label: {
@@ -195,8 +210,12 @@ extension ToolBarView {
     }
     .helpInfoViewTag(.editVisibilityButton)
   }
+}
 
-  private var effectsButton: some View {
+private struct EffectsButton: View {
+  var store: StoreOf<ToolBar>
+
+  var body: some View {
     Button {
       store.send(.effectsVisibilityButtonTapped)
     } label: {
@@ -205,8 +224,12 @@ extension ToolBarView {
     }
     .helpInfoViewTag(.effectsButton)
   }
+}
 
-  private var helpButton: some View {
+private struct HelpButton: View {
+  var store: StoreOf<ToolBar>
+
+  var body: some View {
     Button {
       store.send(.helpInfoButtonTapped)
     } label: {
@@ -214,8 +237,12 @@ extension ToolBarView {
         .tint(Color.mainAccentColor)
     }
   }
+}
 
-  private var moreButton: some View {
+private struct MoreButton: View {
+  var store: StoreOf<ToolBar>
+
+  var body: some View {
     Button {
       store.send(.showMoreButtonTapped)
     } label: {
@@ -224,8 +251,12 @@ extension ToolBarView {
     }
     .helpInfoViewTag(.moreButton)
   }
+}
 
-  private var settingsButton: some View {
+private struct SettingsButton: View {
+  var store: StoreOf<ToolBar>
+
+  var body: some View {
     Button {
       store.send(.settingsButtonTapped)
     } label: {
@@ -234,8 +265,12 @@ extension ToolBarView {
     }
     .helpInfoViewTag(.settingsButton)
   }
+}
 
-  private var shiftDownButton: some View {
+private struct ShiftDownButton: View {
+  var store: StoreOf<ToolBar>
+
+  var body: some View {
     Button {
       store.send(.shiftKeyboardDownButtonTapped)
     } label: {
@@ -246,8 +281,12 @@ extension ToolBarView {
     .disabled(self.store.lowestKey.midiNoteValue == Note.midiRange.lowerBound)
     .helpInfoViewTag(.shiftDownButton)
   }
+}
 
-  private var shiftUpButton: some View {
+private struct ShiftUpButton: View {
+  var store: StoreOf<ToolBar>
+
+  var body: some View {
     Button {
       store.send(.shiftKeyboardUpButtonTapped)
     } label: {
@@ -258,19 +297,27 @@ extension ToolBarView {
     .disabled(self.store.highestKey.midiNoteValue == Note.midiRange.upperBound)
     .helpInfoViewTag(.shiftUpButton)
   }
+}
 
-  private var slidingKeyboardButton: some View {
+private struct SlidingKeyboardButton: View {
+  var store: StoreOf<ToolBar>
+
+  var body: some View {
     Button {
       store.send(.slidingKeyboardButtonTapped)
     } label: {
       Image(systemName: .slidingKeyboardButtonImageName)
-      .tint(if: store.keyboardSlides)
+        .tint(if: store.keyboardSlides)
     }
     .controlSize(.small)
     .helpInfoViewTag(.slideToggle)
   }
+}
 
- private var tagsButton: some View {
+private struct TagsButton: View {
+  var store: StoreOf<ToolBar>
+
+  var body: some View {
     Button {
       store.send(.tagsListVisibilityButtonTapped)
     } label: {
