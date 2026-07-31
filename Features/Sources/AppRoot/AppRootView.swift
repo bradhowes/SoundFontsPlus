@@ -23,26 +23,23 @@ import VolumeMonitor
 
 public struct AppRootView: View {
   @Bindable private var store: StoreOf<AppRoot>
-
-  private let dividerBorderColor: Color = .splitViewHandleBackgroundColor
-  private let dividerSpan: CGFloat = 2
-  private let effectsHeight: CGFloat = 110.0
-  private var effectsViewHeight: CGFloat { effectsHeight + dividerSpan * 4 }
-
   @State private var isTextInputKeyboardVisible = false
   @State private var effectsOffset: CGFloat = 0.0
 
   @Shared(.effectsPanelVisible) private var effectsPanelVisible
 
-  @Environment(\.scenePhase) var scenePhase
   @Environment(\.colorScheme) private var colorScheme
-  @Environment(\.maxKeyboardPanelHeight) private var maxKeyboardPanelHeight
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.maxKeyboardPanelHeight) private var maxKeyboardPanelHeight
+  @Environment(\.scenePhase) private var scenePhase
   @Environment(\.verticalSizeClass) private var verticalSizeClass
 
-  private var showFakeKeyboard: Bool {
-    horizontalSizeClass == .compact || verticalSizeClass == .compact
-  }
+  private let dividerBorderColor: Color = .splitViewHandleBackgroundColor
+  private let dividerSpan: CGFloat = 2
+  private let effectsHeight: CGFloat = 110.0
+  private var effectsViewHeight: CGFloat { effectsHeight + dividerSpan * 4 }
+  private var showFakeKeyboard: Bool { horizontalSizeClass == .compact || verticalSizeClass == .compact }
+  private var backgroundColor: Color { colorScheme == .dark ? .black : .white }
 
   private var keyboardHeight: CGFloat {
     isTextInputKeyboardVisible
@@ -137,6 +134,7 @@ public struct AppRootView: View {
               .frame(width: dividerSpan)
             DelayEffectView(store: store.scope(state: \.delayEffect, action: \.delayEffect))
           }
+          .background(backgroundColor)
         }
         .onScrollGeometryChange(for: CGFloat.self) { geometry in
           max(0.0, (geometry.visibleRect.width - geometry.contentSize.width) / 2)
@@ -150,7 +148,6 @@ public struct AppRootView: View {
       .frame(height: effectsPanelVisible ? effectsViewHeight : 0.0)
       .frame(maxWidth: .infinity)
       .offset(y: effectsPanelVisible ? 0.0 : effectsViewHeight / 2 + dividerSpan * 2)
-      .opacity(effectsPanelVisible ? 1.0 : 0.0)
       .knobValueEditor()
       .auv3ControlsTheme(theme)
       .helpInfoViewTag(.effectsPanel)
