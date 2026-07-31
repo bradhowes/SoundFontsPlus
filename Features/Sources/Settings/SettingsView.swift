@@ -36,17 +36,17 @@ public struct SettingsView: View {
     NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
       ScrollViewReader { scrollViewProxy in
         Form {
-          presetsSection
-          fontsSection
+          PresetsSection(store: store, isApp: isApp)
+          FontsSection(store: store, isApp: isApp)
           if isApp {
-            keyboardSection
+            KeyboardSection(store: store, showFakeKeyboard: showFakeKeyboard)
             if midiProvider.midi() != nil {
-              midiSection
+              MIDISection(store: store)
             }
           }
-          tuningSection
-          appSection
-          aboutSection
+          TuningSection(store: store)
+          AppSection(store: store, isApp: isApp)
+          AboutSection(store: store, isApp: isApp)
         }
         .coordinateSpace(name: Self.coordinateSpaceName)
         .font(.settings)
@@ -132,17 +132,19 @@ private struct SettingsSection<Content: View>: View {
   }
 }
 
-extension SettingsView {
-
-  private func toggleInfo(_ name: LocalizedStringKey, _ description: () -> LocalizedStringKey) -> some View {
-    VStack(alignment: .leading, spacing: 8) {
-      Text(name)
-      Text(description())
+private func toggleInfo(_ name: LocalizedStringKey, _ description: () -> LocalizedStringKey) -> some View {
+  VStack(alignment: .leading, spacing: 8) {
+    Text(name)
+    Text(description())
       .font(.settingsDescription)
-    }
   }
+}
 
-  private var presetsSection: some View {
+private struct PresetsSection: View {
+  @State var store: StoreOf<Settings>
+  let isApp: Bool
+
+  var body: some View {
     SettingsSection(id: .presets) {
       @Binding(store.$favoritesOnTop) var favoritesOnTop
       Toggle(isOn: $favoritesOnTop) {
@@ -194,8 +196,14 @@ When enabled, overlay the presets list with a compact list of section indices fo
       }
     }
   }
+}
 
-  private var keyboardSection: some View {
+private struct KeyboardSection: View {
+  @State var store: StoreOf<Settings>
+  @State var changingKeyWidth: Bool = false
+  let showFakeKeyboard: Bool
+
+  var body: some View {
     SettingsSection(id: .keys) {
       @Binding(store.$keyLabels) var keyLabels
       VStack(alignment: .leading) {
@@ -255,8 +263,12 @@ Controlled by the \(Image(systemName: .fixedKeyboardButtonImageName)) button in 
       }
     }
   }
+}
 
-  private var midiSection: some View {
+private struct MIDISection: View {
+  @State var store: StoreOf<Settings>
+
+  var body: some View {
     SettingsSection(id: .midi) {
       VStack(alignment: .leading, spacing: 8) {
         HStack {
@@ -344,7 +356,7 @@ The range of the pitch wheel messages received by the synthesizer. Default is 2 
 as 2 octaves (24 semitones).
 """
         )
-          .font(.settingsDescription)
+        .font(.settingsDescription)
       }
       HStack {
         Spacer()
@@ -365,14 +377,23 @@ as 2 octaves (24 semitones).
     }
     .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
   }
+}
 
-  private var tuningSection: some View {
+private struct TuningSection: View {
+  @State var store: StoreOf<Settings>
+
+  var body: some View {
     SettingsSection(id: .tuning) {
       TuningView(store: store.scope(state: \.tuning, action: \.tuning))
     }
   }
+}
 
-  private var fontsSection: some View {
+private struct FontsSection: View {
+  @State var store: StoreOf<Settings>
+  let isApp: Bool
+
+  var body: some View {
     SettingsSection(id: .fonts) {
       Group {
         if isApp {
@@ -405,8 +426,13 @@ Do not show the pre-installed sound fonts when the "All" tag is active.
       }
     }
   }
+}
 
-  private var appSection: some View {
+private struct AppSection: View {
+  @State var store: StoreOf<Settings>
+  let isApp: Bool
+
+  var body: some View {
     SettingsSection(id: .app) {
       Group {
         VStack(alignment: .leading, spacing: 8) {
@@ -496,8 +522,13 @@ Removes all installed SF2 files and any customizations — same as reinstalling 
       }
     }
   }
+}
 
-  private var aboutSection: some View {
+private struct AboutSection: View {
+  @State var store: StoreOf<Settings>
+  let isApp: Bool
+
+  var body: some View {
     SettingsSection(id: .about) {
       Group {
         if isApp {
@@ -521,7 +552,7 @@ Removes all installed SF2 files and any customizations — same as reinstalling 
           }
         }
         HStack {
-          Text("Version \(bundle.releaseVersionNumber)")
+          Text("Version \(Bundle.main.releaseVersionNumber)")
           Spacer()
           if isApp {
             Button {
