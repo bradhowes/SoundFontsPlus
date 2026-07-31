@@ -299,7 +299,7 @@ public struct ReverbEffectView: View {
               Text(room.name)
                 .tag(room)
                 .font(theme.font)
-                .foregroundStyle(theme.textColor)
+                // .foregroundStyle(theme.controlForegroundColor)
                 .fixedSize()
             }
           }
@@ -307,7 +307,7 @@ public struct ReverbEffectView: View {
           .helpInfoViewTag(.reverbRoom)
 #if os(iOS)
           .pickerStyle(.menu)
-          .tint(.alternateAccentColor)
+          // .tint(.alternateAccentColor)
           .frame(width: pickerWidth)
 #endif
           Text("Environment")
