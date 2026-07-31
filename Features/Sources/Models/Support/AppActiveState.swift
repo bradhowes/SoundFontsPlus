@@ -10,7 +10,8 @@ import Sharing
 
  Use `@Dependency(\.appActiveState)` to access the right environmental collection.
 
- Note that this is **not** used by the AUv3 component.
+ Note that this is **not** used by the AUv3 component. Rather, the audio unit host sets the `fullState` attribute of the AUv3
+ component which holds encoded values for the active soundfont ID, preset ID, and tag ID state values (as well as others).
  */
 public struct AppActiveState: Sendable {
 

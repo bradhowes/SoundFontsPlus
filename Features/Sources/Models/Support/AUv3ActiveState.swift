@@ -11,7 +11,8 @@ import Sharing
  */
 public struct AUv3ActiveState: Codable, Equatable {
 
-  /// The name of the sound font that is currently active. This is the _original_ name of the sound font.
+  /// The name of the sound font that is currently active. This is the _original_ name of the sound font since the user can change
+  /// the display name at any time.
   public let soundFontName: String
   /// The index of the sound font preset that is currently active.
   public let presetIndex: Int
