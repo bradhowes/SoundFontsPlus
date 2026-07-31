@@ -5,9 +5,14 @@ import BaseSupport
 import Dependencies
 import DependenciesMacros
 
+/**
+ A DelayDevice provides a dependency interface for the delay effect. The only requirement of the interface is
+ that it support a `setConfig` method which must call the `setConfig` method defined on the `AVAudioUnitDelay`.
+ */
 public struct DelayDevice: Sendable {
   public let effect: AVAudioUnitDelay?
-  public var setConfig: @Sendable (AVAudioUnitDelay?, DelayConfig.Draft) -> Void
+  @usableFromInline
+  var setConfig: @Sendable (AVAudioUnitDelay?, DelayConfig.Draft) -> Void
 
   public init(
     effect: AVAudioUnitDelay?,
@@ -16,9 +21,14 @@ public struct DelayDevice: Sendable {
     self.effect = effect
     self.setConfig = setConfig
   }
+
+  @inlinable
+  public func setConfig(_ config: DelayConfig.Draft) {
+    setConfig(effect, config)
+  }
 }
 
-extension DelayDevice: DependencyKey {
+extension DelayDevice: TestDependencyKey {
 
   public static var liveValue: Self {
     return .init(
@@ -30,9 +40,8 @@ extension DelayDevice: DependencyKey {
     )
   }
 
-  // TODO: use mocks for these to speed up tests
-  public static let previewValue: Self = .init(effect: nil, setConfig: { _, _ in })
-  public static let testValue: Self = .init(effect: nil, setConfig: { _, _ in })
+  public static var previewValue: Self { .init(effect: nil, setConfig: { _, _ in }) }
+  public static var testValue: Self { .init(effect: nil, setConfig: { _, _ in }) }
 }
 
 private let log: Logger = .init(category: "DelayDevice")

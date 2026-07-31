@@ -66,7 +66,7 @@ public struct DelayEffect {
       self.activePresetId = activePresetId
 
       @Dependency(\.delayDevice) var delayDevice
-      delayDevice.setConfig(delayDevice.effect, config)
+      delayDevice.setConfig(config)
     }
   }
 
@@ -210,7 +210,7 @@ extension DelayEffect {
 
     if changed {
       state.config = new
-      delayDevice.setConfig(delayDevice.effect, new)
+      delayDevice.setConfig(new)
     }
 
     defer { state.activePresetId = presetId }
@@ -305,7 +305,7 @@ extension DelayEffect {
 
   private func updateDebounced(_ state: inout State) -> Effect<Action> {
     log.info("updateDebounced BEGIN")
-    delayDevice.setConfig(delayDevice.effect, state.config)
+    delayDevice.setConfig(state.config)
     log.info("updateDebounced END")
     return .none
   }
@@ -319,7 +319,7 @@ extension DelayEffect {
     localConfig.wetDryMix = state.config.wetDryMix
     localConfig.enabled = state.config.enabled
     state.config = localConfig
-    delayDevice.setConfig(delayDevice.effect, state.config)
+    delayDevice.setConfig(state.config)
     return saveDebounced(&state)
   }
 

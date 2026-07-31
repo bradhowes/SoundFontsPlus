@@ -41,7 +41,7 @@ public struct ReverbEffect {
       self.activePresetId = activePresetId
 
       @Dependency(\.reverbDevice) var reverbDevice
-      reverbDevice.setConfig(reverbDevice.effect, config)
+      reverbDevice.setConfig(config)
     }
   }
 
@@ -168,7 +168,7 @@ extension ReverbEffect {
 
     if changed {
       state.config = new
-      reverbDevice.setConfig(reverbDevice.effect, new)
+      reverbDevice.setConfig(new)
     }
 
     defer { state.activePresetId = presetId }
@@ -250,7 +250,7 @@ extension ReverbEffect {
   }
 
   private func updateDebounced(_ state: inout State) -> Effect<Action> {
-    reverbDevice.setConfig(reverbDevice.effect, state.config)
+    reverbDevice.setConfig(state.config)
     return .none
   }
 
@@ -261,7 +261,7 @@ extension ReverbEffect {
     localConfig.wetDryMix = state.config.wetDryMix
     localConfig.enabled = state.config.enabled
     state.config = localConfig
-    reverbDevice.setConfig(reverbDevice.effect, state.config)
+    reverbDevice.setConfig(state.config)
     return saveDebounced(&state)
   }
 
