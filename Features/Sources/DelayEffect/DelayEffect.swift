@@ -342,18 +342,11 @@ public struct DelayEffectView: View {
   }
 
   public var body: some View {
-    let onOff = ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
-      .helpInfoViewTag(.delayOn)
-    let globalLock = ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
-      Image(systemName: .effectsLockButtonImageName)
-    }
-      .helpInfoViewTag(.delayLock)
-
-    return NamedKnobCollectionContainer(
+    NamedKnobCollectionContainer(
       enabled: store.enabled.isOn,
       title: "Delay",
-      onOff: onOff,
-      globalLock: globalLock
+      onOff: OnOff(store: store),
+      globalLock: GlobalLock(store: store)
     ) {
       HStack(alignment: .center, spacing: controlSpacing) {
         KnobView(store: store.scope(state: \.time, action: \.time))
@@ -366,6 +359,26 @@ public struct DelayEffectView: View {
           .helpInfoViewTag(.delayAmount)
       }
     }
+  }
+}
+
+private struct OnOff: View {
+  @State var store: StoreOf<DelayEffect>
+
+  var body: some View {
+    ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
+      .helpInfoViewTag(.delayOn)
+  }
+}
+
+private struct GlobalLock: View {
+  @State var store: StoreOf<DelayEffect>
+
+  var body: some View {
+    ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
+      Image(systemName: .effectsLockButtonImageName)
+    }
+    .helpInfoViewTag(.delayLock)
   }
 }
 
