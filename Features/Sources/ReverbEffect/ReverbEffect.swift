@@ -286,17 +286,11 @@ public struct ReverbEffectView: View {
   }
 
   public var body: some View {
-    let onOff = ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
-      .helpInfoViewTag(.reverbOn)
-    let globalLock = ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
-      Image(systemName: .effectsLockButtonImageName)
-    }
-      .helpInfoViewTag(.reverbLock)
-    return NamedKnobCollectionContainer(
+    NamedKnobCollectionContainer(
       enabled: store.enabled.isOn,
       title: "Reverb",
-      onOff: onOff,
-      globalLock: globalLock
+      onOff: OnOff(store: store),
+      globalLock: GlobalLock(store: store)
     ) {
       HStack(alignment: .center, spacing: controlSpacing) {
         VStack {
@@ -324,6 +318,26 @@ public struct ReverbEffectView: View {
           .helpInfoViewTag(.reverbAmount)
       }
     }
+  }
+}
+
+private struct OnOff: View {
+  @State var store: StoreOf<ReverbEffect>
+
+  var body: some View {
+    ToggleView(store: store.scope(state: \.enabled, action: \.enabled))
+      .helpInfoViewTag(.reverbOn)
+  }
+}
+
+private struct GlobalLock: View {
+  @State var store: StoreOf<ReverbEffect>
+
+  var body: some View {
+    ToggleView(store: store.scope(state: \.locked, action: \.locked)) {
+      Image(systemName: .effectsLockButtonImageName)
+    }
+    .helpInfoViewTag(.reverbLock)
   }
 }
 
