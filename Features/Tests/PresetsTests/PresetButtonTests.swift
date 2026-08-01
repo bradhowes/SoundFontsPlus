@@ -26,7 +26,14 @@ struct PresetButtonTests {
       notes: "",
       kind: .preset
     )
-    return TestStore(initialState: PresetButton.State(preset: preset, symbolPrefix: "star.circle.fill")) {
+    return TestStore(
+      initialState: PresetButton.State(
+        id: preset.id,
+        displayName: preset.displayName,
+        kind: preset.kind,
+        symbolPrefix: "star.circle.fill"
+      )
+    ) {
       PresetButton()
     }
   }
@@ -39,7 +46,7 @@ struct PresetButtonTests {
   func toggleVisibility() async throws {
     let store = store()
     await store.send(\.toggleVisibility) {
-      $0.preset.kind = .hidden
+      $0.kind = .hidden
     }
   }
 

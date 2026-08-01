@@ -12,7 +12,7 @@ public struct PresetButton {
   public struct State: Equatable, Identifiable {
     public let id: Preset.ID
     public var displayName: String
-    public let kind: Preset.Kind
+    public var kind: Preset.Kind
     public let symbolPrefix: String?
 
     public init(id: Preset.ID, displayName: String, kind: Preset.Kind, symbolPrefix: String?) {
@@ -46,6 +46,7 @@ public struct PresetButton {
       case .toggleVisibility:
         if var preset = Preset.with(id: state.id) {
           preset.toggleVisibility()
+          state.kind = preset.kind
         }
         return .none
 
