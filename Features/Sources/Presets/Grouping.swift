@@ -35,10 +35,10 @@ internal func group(
 private func emptySection(title: String) -> IdentifiedArrayOf<PresetsListSection.State> {
   .init(
     uniqueElements: [
-      PresetsListSection.State(
-        section: 0,
-        sectionText: title,
-        sectionIndex: "",
+      .init(
+        id: 0,
+        title: title,
+        indexKey: "",
         presets: []
       )
     ]
@@ -55,9 +55,9 @@ private func groupByCount(
   } else {
     .init(
       uniqueElements: presets.indices.chunks(ofCount: count).map {
-        PresetsListSection.State(
-          section: $0.lowerBound / count,
-          sectionText: {
+        .init(
+          id: $0.lowerBound / count,
+          title: {
             if searching {
               "Found \(presets.count)"
             } else if $0.lowerBound == 0 {
@@ -66,7 +66,7 @@ private func groupByCount(
               "\($0.lowerBound)"
             }
           }($0),
-          sectionIndex: numericSectionIndex(from: $0.lowerBound / count),
+          indexKey: numericSectionIndex(from: $0.lowerBound / count),
           presets: presets[$0]
         )
       }
@@ -104,13 +104,13 @@ private func groupByName(
         .sorted(by: {$0.0 < $1.0})
         .enumerated()
         .map { (index, group) in
-          PresetsListSection.State(
-          section: index,
-          sectionText: group.0,
-          sectionIndex: group.0,
-          presets: group.1[...]
-        )
-      }
+            .init(
+              id: index,
+              title: group.0,
+              indexKey: group.0,
+              presets: group.1[...]
+            )
+        }
     )
   }
 }

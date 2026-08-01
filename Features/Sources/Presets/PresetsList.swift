@@ -408,7 +408,7 @@ extension PresetsList {
 
   private func sectionHeaderIndexTapped(_ state: inout State, title: String) -> Effect<Action> {
     log.info("sectionHeaderIndexTapped BEGIN - title: \(title)")
-    if let index = state.sections.firstIndex(where: { $0.sectionIndex == title }) {
+    if let index = state.sections.firstIndex(where: { $0.sectionIndexKey == title }) {
       log.info("sectionHeaderIndexTapped section index: \(index)")
       state.scrollToTarget = .section(title)
     }
@@ -420,7 +420,7 @@ extension PresetsList {
     if count == 2 {
       state.scrollToTarget = .preset(state.presets[0].id)
     } else if count == 1 {
-      let index = sectionId.rawValue
+      let index = sectionId
       if index > 0 {
         let previous = index - 1
         state.scrollToTarget = .preset(state.sections[previous].rows[0].preset.id)
@@ -528,7 +528,7 @@ public struct PresetsListView: View {
                 ForEach(1...4, id: \.self) { stride in
                   VStack(spacing: 0) {
                     if store.sections.count > 2 {
-                      ForEach(store.sections.map(\.sectionIndex).striding(by: stride), id: \.self) { title in
+                      ForEach(store.sections.map(\.sectionIndexKey).striding(by: stride), id: \.self) { title in
                         SectionIndexTitleView(title: title)
                           .font(.caption)
                           .foregroundStyle(Color.gray)
@@ -546,7 +546,10 @@ public struct PresetsListView: View {
                       }
                   )
                   .padding([.top, .bottom], 8)
-                  .background(Color.white.opacity(0.1), in: RoundedRectangle(cornerSize: .init(width: 12, height: 12), style: .continuous))
+                  .background(
+                    Color.white.opacity(0.1),
+                    in: RoundedRectangle(cornerSize: .init(width: 12, height: 12), style: .continuous)
+                  )
                   .frame(maxWidth: .infinity, alignment: .trailing)
                 }
               }

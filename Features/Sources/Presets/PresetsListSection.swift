@@ -1,7 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import FeatureSupport
-import Tagged
 
 /**
  Minor feature that represents section of presets where each section has N preset buttons in it.
@@ -18,28 +17,31 @@ public struct PresetsListSection {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    public typealias ID = Tagged<Self, Int>
-
-    public let id: ID
-    public let section: Int // 0 is first section, 1 second, etc.
-    public let sectionText: String
-    public let sectionIndex: String
+    public let id: Int // 0 is first section, 1 second, etc.
+    public let sectionTitle: String
+    public let sectionIndexKey: String
     public var rows: IdentifiedArrayOf<PresetButton.State>
 
+    /**
+     Create new state for a section.
+
+     - parameter id: the numeric ID for the section (0 is first, 1 second, etc.)
+     - parameter title: the full title of the section, usually shown in a list header
+     - parameter indexKey: the unique index key for the section. Shown on the side of the preset list for quick scrolling
+     */
     public init(
-      section: Int,
-      sectionText: String,
-      sectionIndex: String,
+      id: Int,
+      title: String,
+      indexKey: String,
       presets: ArraySlice<Preset>,
     ) {
       @Shared(.favoriteSymbolName) var symbolName
       @Shared(.starFavoriteNames) var starFavoriteNames
       let symbolPrefix = starFavoriteNames ? symbolName : nil
 
-      self.id = .init(rawValue: section)
-      self.section = section
-      self.sectionText = sectionText
-      self.sectionIndex = sectionIndex
+      self.id = id
+      self.sectionTitle = title
+      self.sectionIndexKey = indexKey
       self.rows = .init(
         uniqueElements: presets.map {
           .init(
@@ -141,7 +143,7 @@ public struct PresetsListSectionView: View {
     } header: {
       StyledHeader {
         HStack {
-          SectionIndexTitleView(title: store.sectionText)
+          SectionIndexTitleView(title: store.sectionTitle)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
           Spacer()
@@ -157,7 +159,7 @@ public struct PresetsListSectionView: View {
                 .frame(width: 16)
             }
           }
-          .opacity((showSearchButton || store.section == 0) && !searching && !editingVisibility ? 1.0 : 0.0)
+          .opacity((showSearchButton || store.id == 0) && !searching && !editingVisibility ? 1.0 : 0.0)
           .animation(.smooth(duration: 0.2), value: showSearchButton)
         }
         // Track vertical position of our header -- when it becomes pinned, show the search button
@@ -176,7 +178,7 @@ public struct PresetsListSectionView: View {
         store.send(.delegate(.headerTapped(section: store.id, count: 1)))
       }
     }
-    .id(store.sectionIndex)
+    .id(store.sectionIndexKey) // Use this value since it is what is used when scrolling via the index view
     .animation(.smooth, value: store.rows)
   }
 

@@ -20,10 +20,10 @@ struct PresetsListSectionTests {
   func setup() throws -> TestStoreOf<PresetsListSection> {
     let presets = Preset.visible(for: 1)
     let store = TestStore(
-      initialState: PresetsListSection.State(
-        section: 4,
-        sectionText: "Blah",
-        sectionIndex: "B",
+      initialState: .init(
+        id: 4,
+        title: "Blah",
+        indexKey: "B",
         presets: presets[...]
       )
     ) {

@@ -98,9 +98,9 @@ struct PresetsListTests {
         $0.presets = presets
         $0.sections = [
           .init(
-            section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
+            id: 0,
+            title: "Presets",
+            indexKey: "0",
             presets: presets[...]
           )
         ]
@@ -141,9 +141,9 @@ struct PresetsListTests {
         $0.scrollToTarget = nil
         $0.sections = [
           .init(
-            section: 0,
-            sectionText: "Found 0",
-            sectionIndex: "",
+            id: 0,
+            title: "Found 0",
+            indexKey: "",
             presets: []
           )
         ]
@@ -155,9 +155,9 @@ struct PresetsListTests {
         $0.searchText = "arp"
         $0.sections = [
           .init(
-            section: 0,
-            sectionText: "Found 3",
-            sectionIndex: "0",
+            id: 0,
+            title: "Found 3",
+            indexKey: "0",
             presets: presets.filter({$0.displayName.contains("arp")})[...]
           )
         ]
@@ -167,9 +167,9 @@ struct PresetsListTests {
         $0.searchText = ""
         $0.sections = [
           .init(
-            section: 0,
-            sectionText: "Found 0",
-            sectionIndex: "",
+            id: 0,
+            title: "Found 0",
+            indexKey: "",
             presets: []
           )
         ]
@@ -197,9 +197,9 @@ struct PresetsListTests {
         $0.scrollToTarget = nil
         $0.sections = [
           .init(
-            section: 0,
-            sectionText: "Found 0",
-            sectionIndex: "",
+            id: 0,
+            title: "Found 0",
+            indexKey: "",
             presets: []
           )
         ]
@@ -211,9 +211,9 @@ struct PresetsListTests {
         $0.searchText = "arp"
         $0.sections = [
           .init(
-            section: 0,
-            sectionText: "Found 3",
-            sectionIndex: "0",
+            id: 0,
+            title: "Found 3",
+            indexKey: "0",
             presets: presets.filter({$0.displayName.contains("arp")})[...]
           )
         ]
@@ -250,9 +250,9 @@ struct PresetsListTests {
         $0.presets = presets
         $0.sections = [
           .init(
-            section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
+            id: 0,
+            title: "Presets",
+            indexKey: "0",
             presets: presets[...]
           )
         ]
@@ -323,9 +323,9 @@ struct PresetsListTests {
         $0.presets = presets
         $0.sections = [
           .init(
-            section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
+            id: 0,
+            title: "Presets",
+            indexKey: "0",
             presets: presets[...]
           )
         ]
@@ -390,9 +390,9 @@ struct PresetsListTests {
         $0.presets = presets
         $0.sections = [
           .init(
-            section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
+            id: 0,
+            title: "Presets",
+            indexKey: "0",
             presets: presets[...]
           )
         ]
@@ -440,9 +440,9 @@ struct PresetsListTests {
         $0.presets = updated
         $0.sections = [
           .init(
-            section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
+            id: 0,
+            title: "Presets",
+            indexKey: "0",
             presets: updated[...]
           )
         ]
@@ -533,9 +533,9 @@ struct PresetsListTests {
         $0.destination = nil
         $0.sections = [
           .init(
-            section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
+            id: 0,
+            title: "Presets",
+            indexKey: "0",
             presets: updated[...]
           )
         ]
@@ -546,9 +546,9 @@ struct PresetsListTests {
         $0.presets = updated
         $0.sections = [
           .init(
-            section: 0,
-            sectionText: "Presets",
-            sectionIndex: "0",
+            id: 0,
+            title: "Presets",
+            indexKey: "0",
             presets: updated[...]
           )
         ]
@@ -575,9 +575,9 @@ struct PresetsListTests {
       $0.presets = all
       $0.sections = [
         .init(
-          section: 0,
-          sectionText: "Presets",
-          sectionIndex: "0",
+          id: 0,
+          title: "Presets",
+          indexKey: "0",
           presets: all[...]
         )
       ]
@@ -593,9 +593,9 @@ struct PresetsListTests {
       $0.presets = visible
       $0.sections = [
         .init(
-          section: 0,
-          sectionText: "Presets",
-          sectionIndex: "0",
+          id: 0,
+          title: "Presets",
+          indexKey: "0",
           presets: visible[...]
         )
       ]
