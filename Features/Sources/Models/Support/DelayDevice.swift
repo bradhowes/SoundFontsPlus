@@ -28,20 +28,18 @@ public struct DelayDevice: Sendable {
   }
 }
 
-extension DelayDevice: TestDependencyKey {
+extension DelayDevice: DependencyKey {
 
-  public static var liveValue: Self {
-    return .init(
-      effect: AVAudioUnitDelay(),
-      setConfig: {
-        log.info("setConfig - \($1, privacy: .public)")
-        $0?.setConfig($1)
-      }
-    )
-  }
+  public static let liveValue: Self = .init(
+    effect: AVAudioUnitDelay(),
+    setConfig: {
+      log.info("setConfig - \($1, privacy: .public)")
+      $0?.setConfig($1)
+    }
+  )
 
-  public static var previewValue: Self { .init(effect: nil, setConfig: { _, _ in }) }
-  public static var testValue: Self { .init(effect: nil, setConfig: { _, _ in }) }
+  public static let previewValue: Self = .init(effect: nil, setConfig: { _, _ in })
+  public static let testValue: Self = .init(effect: nil, setConfig: { _, _ in })
 }
 
 private let log: Logger = .init(category: "DelayDevice")
