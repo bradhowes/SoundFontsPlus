@@ -38,6 +38,8 @@ nonisolated public struct Preset {
       self.rawValue = rawValue
     }
 
+    // NOTE: numerical ordering is important here. A 'favorite' must order higher than a 'preset'. A 'hidden' entry is just s
+    // flagged 'preset' since a favorite cannot be hidden.
     public static let preset = Self(rawValue: 0)
     public static let favorite = Self(rawValue: 1)
     public static let hidden = Self(rawValue: -1)
@@ -152,12 +154,14 @@ extension Preset {
 extension Preset {
 
   /**
-   Create a duplicate of the Preset, cloning the associated AudioConfig, DelayConfig and ReverbConfig rows if they exist.
+   Create a duplicate of the Preset, cloning the associated AudioConfig, DelayConfig and ReverbConfig rows if they exist. A clone
+   has its own unique ID, but it holds the same index value as the original preset (among other values) so selecting a favorite
+   will use the original preset entry in the sound font.
 
    - returns: cloned instance
    */
   @discardableResult
-  public func clone() -> Self? {
+  public func cloneFavorite() -> Self? {
     let dupe = Draft(
       index: self.index,
       bank: self.bank,
@@ -240,48 +244,45 @@ extension Preset {
 
   /**
    Obtain a query that returns the set of presets to show (unordered) for a given sound font ID. Honors the `showOnlyFavorites`
-   setting.
+   setting and omits any hidden presets.
+
+   NOTE: this is the basis for the `visibleQuery` query below.
 
    - parameter soundFontId: the sound font to query for
    - returns: a query showing the appropriate contents
    */
-  public static func presetsQuery(for soundFontId: SoundFont.ID) -> Where<Self> {
+  private static func presetsQuery(for soundFontId: SoundFont.ID) -> Where<Self> {
     @Shared(.showOnlyFavorites) var showOnlyFavorites
-    return Preset.all.where { $0.soundFontId.eq(soundFontId) } && (
-      showOnlyFavorites
-      ? .where { $0.kind.eq(Kind.favorite) }
-      : .where { $0.kind.neq(Kind.hidden) }
-    )
+    return Self
+      .all
+      .where { $0.soundFontId.eq(soundFontId) } && (
+        // Favorites cannot be hidden, so either show only favorites or those not hidden.
+        showOnlyFavorites
+        ? .where { $0.kind.eq(Kind.favorite) }
+        : .where { $0.kind.neq(Kind.hidden) }
+      )
   }
 
   /**
    Obtain a query that returns an ordered collection of presets to show for a given sound font ID. Honors the `favoritesOnTop` and
-   `sortPresetsByName` settings which affect the ordering.
+   `sortPresetsByName` settings which affect the ordering. These two options offer 4 unique orderings of the presets:
+
+   - false / false -- ordered by preset index with favorites appearing immediately after their source preset
+   - false / true -- ordered by entry name with favorites appearing after presets with the same name
+   - true / false -- favorites appear first as a group, then presets with both ordered by their preset index
+   - true / true -- favorites appears first as a group, then presets with both ordered by their display name
 
    - parameter soundFontId: the sound font to query for
    - returns: the select query
    */
   public static func visibleQuery(for soundFontId: SoundFont.ID) -> Select<(), Self, ()> {
-    @Shared(.showOnlyFavorites) var showOnlyFavorites
     @Shared(.favoritesOnTop) var favoritesOnTop
     @Shared(.sortPresetsByName) var sortPresetsByName
     let query = presetsQuery(for: soundFontId)
     if sortPresetsByName {
-      return favoritesOnTop
-      ? query
-        .order { $0.kind.desc() }
-        .order { $0.displayName }
-      : query
-        .order { $0.displayName }
-        .order { $0.kind }
+      return favoritesOnTop ? query.order { ($0.kind.desc(), $0.displayName) } : query.order { ($0.displayName, $0.kind) }
     } else {
-      return favoritesOnTop
-      ? query
-        .order { $0.kind.desc() }
-        .order { $0.index }
-      : query
-        .order { $0.index }
-        .order { $0.kind }
+      return favoritesOnTop ? query.order { ($0.kind.desc(), $0.index) } : query.order { ($0.index, $0.kind) }
     }
   }
 
@@ -301,10 +302,10 @@ extension Preset {
   public static func allQuery(for soundFontId: SoundFont.ID) -> Select<(), Self, ()> {
     Self
       .all
-      .where { $0.soundFontId.eq(soundFontId) }
-      .where { $0.kind.neq(Kind.favorite) }
+      .where { $0.soundFontId.eq(soundFontId) && $0.kind.neq(Kind.favorite) }
       .order(by: \.index)
   }
+
   /**
    Obtain the collection of presets for a given sound font ID. Does not perform any filtering of hidden presets. Used when editing
    preset visibility.
