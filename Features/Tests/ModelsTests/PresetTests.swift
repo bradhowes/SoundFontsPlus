@@ -51,11 +51,11 @@ struct PresetTests {
     #expect(presets.count == 10)
 
     let preset3Name = presets[3].displayName
-    let clone3 = presets[3].clone()
+    let clone3 = presets[3].cloneFavorite()
     #expect(clone3?.displayName == preset3Name + " copy")
 
     let preset5Name = presets[5].displayName
-    let clone5 = presets[5].clone()
+    let clone5 = presets[5].cloneFavorite()
     #expect(clone5?.displayName == preset5Name + " copy")
 
     presets = Preset.visible(for: .fluidFont)
@@ -131,8 +131,8 @@ struct PresetTests {
   func uniqueName() async throws {
     let presets = Preset.visible(for: 1)
     #expect(presets[0].uniqueName == "Font 1 Preset 1 copy")
-    let clone1 = presets[0].clone()
-    _ = presets[0].clone()
+    let clone1 = presets[0].cloneFavorite()
+    _ = presets[0].cloneFavorite()
     #expect(presets[0].uniqueName == "Font 1 Preset 1 copy 2")
 
     withDatabaseWriter { db in
@@ -142,7 +142,7 @@ struct PresetTests {
     }
 
     #expect(presets[0].uniqueName == "Font 1 Preset 1 copy")
-    _ = presets[0].clone()
+    _ = presets[0].cloneFavorite()
     #expect(presets[0].uniqueName == "Font 1 Preset 1 copy 2")
   }
 
@@ -150,7 +150,7 @@ struct PresetTests {
   func clone() async throws {
     let presets = Preset.visible(for: 1)
 
-    let clone1 = presets[0].clone()
+    let clone1 = presets[0].cloneFavorite()
     #expect(clone1 != nil)
     #expect(clone1?.audioConfig == nil)
     #expect(clone1?.delayConfig == nil)
@@ -160,7 +160,7 @@ struct PresetTests {
     DelayConfig.save(config: presets[0].delayConfigDraft)
     ReverbConfig.save(config: presets[0].reverbConfigDraft)
 
-    let clone2 = presets[0].clone()
+    let clone2 = presets[0].cloneFavorite()
     #expect(clone2 != nil)
     #expect(clone2?.audioConfig != nil)
     #expect(clone2?.delayConfig != nil)

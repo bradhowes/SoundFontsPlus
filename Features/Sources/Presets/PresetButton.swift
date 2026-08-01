@@ -10,12 +10,15 @@ public struct PresetButton {
 
   @ObservableState
   public struct State: Equatable, Identifiable {
-    public var id: Preset.ID { preset.id }
-    public var preset: Preset
+    public let id: Preset.ID
+    public var displayName: String
+    public let kind: Preset.Kind
     public let symbolPrefix: String?
 
-    public init(preset: Preset, symbolPrefix: String?) {
-      self.preset = preset
+    public init(id: Preset.ID, displayName: String, kind: Preset.Kind, symbolPrefix: String?) {
+      self.id = id
+      self.displayName = displayName
+      self.kind = kind
       self.symbolPrefix = symbolPrefix
     }
   }
@@ -26,11 +29,11 @@ public struct PresetButton {
 
     @CasePathable
     public enum Delegate: Equatable {
-      case createFavoriteTapped(Preset)
-      case deleteFavoriteTapped(Preset)
-      case editPresetTapped(Preset)
-      case hidePresetTapped(Preset)
-      case presetButtonTapped(Preset)
+      case createFavoriteTapped(Preset.ID)
+      case deleteFavoriteTapped(Preset.ID)
+      case editPresetTapped(Preset.ID)
+      case hidePresetTapped(Preset.ID)
+      case presetButtonTapped(Preset.ID)
     }
   }
 
@@ -41,7 +44,9 @@ public struct PresetButton {
       switch action {
 
       case .toggleVisibility:
-        state.preset.toggleVisibility()
+        if var preset = Preset.with(id: state.id) {
+          preset.toggleVisibility()
+        }
         return .none
 
       default:
@@ -56,8 +61,8 @@ public struct PresetButtonView: View {
   @Environment(\.editMode) private var editingMode
 
   private var editingVisibility: Bool { (editingMode?.wrappedValue ?? .inactive) == .active }
-  private var isFavorite: Bool { store.preset.kind == .favorite }
-  private var isHidden: Bool { store.preset.kind == .hidden }
+  private var isFavorite: Bool { store.kind == .favorite }
+  private var isHidden: Bool { store.kind == .hidden }
   private let indicatorModifierState: IndicatorModifier.State
 
   public init(store: StoreOf<PresetButton>, indicatorModifierState: IndicatorModifier.State) {
@@ -67,7 +72,7 @@ public struct PresetButtonView: View {
 
   public var body: some View {
     Button {
-      store.send(editingVisibility ? .toggleVisibility : .delegate(.presetButtonTapped(store.preset)), animation: .default)
+      store.send(editingVisibility ? .toggleVisibility : .delegate(.presetButtonTapped(store.id)), animation: .default)
     } label: {
       HStack {
         if editingVisibility {
@@ -75,12 +80,12 @@ public struct PresetButtonView: View {
           Image(systemName: isHidden ? .toggleCircleOffImageName : .toggleCircleOnImageName)
             .foregroundStyle(Color.alternateAccentColor)
             .frame(width: 24)
-            .animation(.smooth, value: store.preset.kind) // animate the visibiliity toggle image
+            .animation(.smooth, value: store.kind) // animate the visibiliity toggle image
         }
         if let symbolPrefix = store.symbolPrefix {
           Image(systemName: symbolPrefix)
         }
-        Text(store.preset.displayName)
+        Text(store.displayName)
           .font(.button)
         Spacer()
       }
@@ -88,39 +93,39 @@ public struct PresetButtonView: View {
       .contentShape(.interaction, Rectangle())
       .simultaneousGesture(
         LongPressGesture(minimumDuration: 1.0)
-          .onEnded { _ in store.send(.delegate(.editPresetTapped(store.preset))) }
+          .onEnded { _ in store.send(.delegate(.editPresetTapped(store.id))) }
       )
     }
-    .id(store.preset.id)
+    .id(store.id)
     .swipeActions(edge: .leading, allowsFullSwipe: false) {
       if !editingVisibility {
         Button {
-          store.send(.delegate(.editPresetTapped(store.preset)), animation: .default)
+          store.send(.delegate(.editPresetTapped(store.id)), animation: .default)
         } label: {
           Image(systemName: .editButtonImageName)
             .tint(.cyan)
         }
         Button {
-          store.send(.delegate(.createFavoriteTapped(store.preset)), animation: .default)
+          store.send(.delegate(.createFavoriteTapped(store.id)), animation: .default)
         } label: {
-          Image(systemName: store.preset.isFavorite ? .duplicateFavoriteButtonName : .favoriteButtonImageName)
+          Image(systemName: isFavorite ? .duplicateFavoriteButtonName : .favoriteButtonImageName)
             .tint(Color.alternateAccentColor)
         }
       }
     }
-    .animation(.smooth, value: store.preset.displayName)
+    .animation(.smooth, value: store.displayName)
     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
       if !editingVisibility {
-        if store.preset.isFavorite {
+        if isFavorite {
           Button {
-            store.send(.delegate(.deleteFavoriteTapped(store.preset)), animation: .default)
+            store.send(.delegate(.deleteFavoriteTapped(store.id)), animation: .default)
           } label: {
             Image(systemName: .deleteButtonImageName)
               .tint(.red)
           }
         } else {
           Button {
-            store.send(.delegate(.hidePresetTapped(store.preset)), animation: .default)
+            store.send(.delegate(.hidePresetTapped(store.id)), animation: .default)
           } label: {
             Image(systemName: .hidePresetButtonImageName)
               .tint(.purple)
@@ -138,31 +143,99 @@ extension PresetButtonView {
     let presets: [Preset] = {
       var presets = Preset.all(for: 1)
       // swiftlint:disable:next force_unwrapping
-      presets.append(presets.last!.clone()!)
+      presets.append(presets.last!.cloneFavorite()!)
       return presets
     }()
     return VStack {
       Text("Normal")
       List {
-        PresetButtonView(store: Store(initialState: .init(preset: presets[0], symbolPrefix: nil)) { PresetButton() },
-                         indicatorModifierState: .active)
-        PresetButtonView(store: Store(initialState: .init(preset: presets[1], symbolPrefix: nil)) { PresetButton() },
-                         indicatorModifierState: .favorite)
-        // swiftlint:disable:next force_unwrapping
-        PresetButtonView(store: Store(initialState: .init(preset: presets.last!, symbolPrefix: "ℹ️")) { PresetButton() },
-                         indicatorModifierState: .none)
+        PresetButtonView(
+          store: Store(
+            initialState: .init(
+              id: presets[0].id,
+              displayName: presets[0].displayName,
+              kind: presets[0].kind,
+              symbolPrefix: nil
+            )
+          ) {
+            PresetButton()
+          },
+          indicatorModifierState: .active
+        )
+        PresetButtonView(
+          store: Store(
+            initialState: .init(
+              id: presets[1].id,
+              displayName: presets[1].displayName,
+              kind: presets[1].kind,
+              symbolPrefix: nil
+            )
+          ) {
+            PresetButton()
+          },
+          indicatorModifierState: .favorite
+        )
+        PresetButtonView(
+          store: Store(
+            initialState: .init(
+              // swiftlint:disable:next force_unwrapping
+              id: presets.last!.id,
+              // swiftlint:disable:next force_unwrapping
+              displayName: presets.last!.displayName,
+              // swiftlint:disable:next force_unwrapping
+              kind: presets.last!.kind,
+              symbolPrefix: "ℹ️"
+            )
+          ) {
+            PresetButton()
+          },
+          indicatorModifierState: .none
+        )
       }
       .listStyle(.plain)
       .environment(\.editMode, .constant(.inactive))
 
       Text("Edit Mode")
       List {
-        PresetButtonView(store: Store(initialState: .init(preset: presets[0], symbolPrefix: nil)) { PresetButton() },
-                         indicatorModifierState: .active)
-        PresetButtonView(store: Store(initialState: .init(preset: presets[1], symbolPrefix: nil)) { PresetButton() },
-                         indicatorModifierState: .favorite)
-        PresetButtonView(store: Store(initialState: .init(preset: presets[2], symbolPrefix: "ℹ️")) { PresetButton() },
-                         indicatorModifierState: .none)
+        PresetButtonView(
+          store: Store(
+            initialState: .init(
+              id: presets[0].id,
+              displayName: presets[0].displayName,
+              kind: presets[0].kind,
+              symbolPrefix: nil
+            )
+          ) {
+            PresetButton()
+          },
+          indicatorModifierState: .active
+        )
+        PresetButtonView(
+          store: Store(
+            initialState: .init(
+              id: presets[1].id,
+              displayName: presets[1].displayName,
+              kind: presets[1].kind,
+              symbolPrefix: nil
+            )
+          ) {
+            PresetButton()
+          },
+          indicatorModifierState: .favorite
+        )
+        PresetButtonView(
+          store: Store(
+            initialState: .init(
+              id: presets[2].id,
+              displayName: presets[2].displayName,
+              kind: presets[2].kind,
+              symbolPrefix: "ℹ️"
+            )
+          ) {
+            PresetButton()
+          },
+          indicatorModifierState: .none
+        )
       }
       .listStyle(.plain)
       .environment(\.editMode, .constant(.active))

@@ -30,7 +30,7 @@ struct IndicatorModifierTests {
     } operation: {
       withSnapshotTesting(record: .failed) {
         var presets = Preset.visible(for: 1)
-        if let clone = presets.last!.clone() {
+        if let clone = presets.last!.cloneFavorite() {
           presets.append(clone)
         }
 
@@ -64,7 +64,7 @@ struct IndicatorModifierTests {
     } operation: {
       withSnapshotTesting(record: .failed) {
         var presets = Preset.visible(for: 1)
-        if let clone = presets.last!.clone() {
+        if let clone = presets.last!.cloneFavorite() {
           presets.append(clone)
         }
 
@@ -99,7 +99,7 @@ struct IndicatorModifierTests {
     } operation: {
       withSnapshotTesting(record: .failed) {
         var presets = Preset.visible(for: 1)
-        if let clone = presets.last!.clone() {
+        if let clone = presets.last!.cloneFavorite() {
           presets.append(clone)
         }
 
@@ -133,7 +133,7 @@ struct IndicatorModifierTests {
     } operation: {
       withSnapshotTesting(record: .failed) {
         var presets = Preset.visible(for: 1)
-        if let clone = presets.last!.clone() {
+        if let clone = presets.last!.cloneFavorite() {
           presets.append(clone)
         }
 

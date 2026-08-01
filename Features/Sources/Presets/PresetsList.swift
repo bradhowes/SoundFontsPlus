@@ -35,6 +35,7 @@ public struct PresetsList {
   @ObservableState
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
+    @ObservationStateIgnored
     public var presets: [Preset]
     public var sections: IdentifiedArrayOf<PresetsListSection.State> = .init()
     public var searchText: String
@@ -348,34 +349,52 @@ extension PresetsList {
     sectionId: PresetsListSection.State.ID,
     action: PresetsListSection.Action.Delegate
   ) -> Effect<Action> {
-    switch action {
 
-    case .createFavoriteTapped(let preset):
-      if let favorite = preset.clone() {
-        return .send(.showPresetDelayed(favorite.id))
+    func withPreset(_ presetId: Preset.ID, closure: (inout State, Preset) -> Effect<Action>) -> Effect<Action> {
+      if let preset = Preset.with(id: presetId) {
+        return closure(&state, preset)
       }
       return .none
+    }
 
-    case .deleteFavoriteTapped(let preset):
-      state.destination = .alert(
-        .confirmDeleteFavorite(action: .deleteFavoriteConfirmed(preset), displayName: preset.displayName)
-      )
-      return .none
+    switch action {
 
-    case .editPresetTapped(let preset):
-      return .send(.delegate(.edit(sectionId: sectionId, preset: preset)))
+    case .createFavoriteTapped(let presetId):
+      return withPreset(presetId) { _, preset in
+        if let favorite = preset.cloneFavorite() {
+          return .send(.showPresetDelayed(favorite.id))
+        }
+        return .none
+      }
+
+    case .deleteFavoriteTapped(let presetId):
+      return withPreset(presetId) { state, preset in
+        state.destination = .alert(
+          .confirmDeleteFavorite(action: .deleteFavoriteConfirmed(preset), displayName: preset.displayName)
+        )
+        return .none
+      }
+
+    case .editPresetTapped(let presetId):
+      return withPreset(presetId) { _, preset in
+        .send(.delegate(.edit(sectionId: sectionId, preset: preset)))
+      }
 
     case let .headerTapped(sectionId, count):
       return sectionHeaderTapped(&state, sectionId: sectionId, count: count)
 
-    case .hidePresetTapped(let preset):
-      return hidePreset(&state, preset: preset)
+    case .hidePresetTapped(let presetId):
+      return withPreset(presetId) { state, preset in
+        hidePreset(&state, preset: preset)
+      }
 
     case .searchButtonTapped:
       return searchButtonTapped(&state)
 
-    case .presetButtonTapped(let preset):
-      return presetButtonTapped(&state, preset: preset)
+    case .presetButtonTapped(let presetId):
+      return withPreset(presetId) { state, preset in
+        presetButtonTapped(&state, preset: preset)
+      }
     }
   }
 
@@ -408,7 +427,7 @@ extension PresetsList {
 
   private func sectionHeaderIndexTapped(_ state: inout State, title: String) -> Effect<Action> {
     log.info("sectionHeaderIndexTapped BEGIN - title: \(title)")
-    if let index = state.sections.firstIndex(where: { $0.sectionIndexKey == title }) {
+    if let index = state.sections.firstIndex(where: { $0.indexKey == title }) {
       log.info("sectionHeaderIndexTapped section index: \(index)")
       state.scrollToTarget = .section(title)
     }
@@ -423,7 +442,7 @@ extension PresetsList {
       let index = sectionId
       if index > 0 {
         let previous = index - 1
-        state.scrollToTarget = .preset(state.sections[previous].rows[0].preset.id)
+        state.scrollToTarget = .preset(state.sections[previous].rows[0].id)
       }
     }
     return .none
@@ -528,7 +547,7 @@ public struct PresetsListView: View {
                 ForEach(1...4, id: \.self) { stride in
                   VStack(spacing: 0) {
                     if store.sections.count > 2 {
-                      ForEach(store.sections.map(\.sectionIndexKey).striding(by: stride), id: \.self) { title in
+                      ForEach(store.sections.map(\.indexKey).striding(by: stride), id: \.self) { title in
                         SectionIndexTitleView(title: title)
                           .font(.caption)
                           .foregroundStyle(Color.gray)

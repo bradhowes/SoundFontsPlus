@@ -18,8 +18,8 @@ public struct PresetsListSection {
   @ObservableState
   public struct State: Equatable, Identifiable {
     public let id: Int // 0 is first section, 1 second, etc.
-    public let sectionTitle: String
-    public let sectionIndexKey: String
+    public let title: String
+    public let indexKey: String
     public var rows: IdentifiedArrayOf<PresetButton.State>
 
     /**
@@ -40,12 +40,14 @@ public struct PresetsListSection {
       let symbolPrefix = starFavoriteNames ? symbolName : nil
 
       self.id = id
-      self.sectionTitle = title
-      self.sectionIndexKey = indexKey
+      self.title = title
+      self.indexKey = indexKey
       self.rows = .init(
         uniqueElements: presets.map {
           .init(
-            preset: $0,
+            id: $0.id,
+            displayName: $0.displayName,
+            kind: $0.kind,
             symbolPrefix: $0.isFavorite ? symbolPrefix : nil
           )
         }
@@ -60,7 +62,7 @@ public struct PresetsListSection {
      */
     public mutating func update(presetId: Preset.ID, displayName: String) {
       guard let index = rows.firstIndex(where: { $0.id == presetId }) else { return }
-      rows[index].preset.displayName = displayName
+      rows[index].displayName = displayName
     }
   }
 
@@ -70,13 +72,13 @@ public struct PresetsListSection {
 
     @CasePathable
     public enum Delegate: Equatable {
-      case createFavoriteTapped(Preset)
-      case deleteFavoriteTapped(Preset)
-      case editPresetTapped(Preset)
+      case createFavoriteTapped(Preset.ID)
+      case deleteFavoriteTapped(Preset.ID)
+      case editPresetTapped(Preset.ID)
       case headerTapped(section: PresetsListSection.State.ID, count: Int)
-      case hidePresetTapped(Preset)
+      case hidePresetTapped(Preset.ID)
       case searchButtonTapped
-      case presetButtonTapped(Preset)
+      case presetButtonTapped(Preset.ID)
     }
   }
 
@@ -100,11 +102,11 @@ public struct PresetsListSection {
 
   private func processRowAction(_ state: inout State, action: PresetButton.Action.Delegate) -> Effect<Action> {
     switch action {
-    case let .createFavoriteTapped(preset): return .send(.delegate(.createFavoriteTapped(preset)))
-    case let .deleteFavoriteTapped(preset): return .send(.delegate(.deleteFavoriteTapped(preset)))
-    case let .editPresetTapped(preset): return .send(.delegate(.editPresetTapped(preset)))
-    case let .hidePresetTapped(preset): return .send(.delegate(.hidePresetTapped(preset)))
-    case let .presetButtonTapped(preset): return .send(.delegate(.presetButtonTapped(preset)))
+    case let .createFavoriteTapped(presetId): return .send(.delegate(.createFavoriteTapped(presetId)))
+    case let .deleteFavoriteTapped(presetId): return .send(.delegate(.deleteFavoriteTapped(presetId)))
+    case let .editPresetTapped(presetId): return .send(.delegate(.editPresetTapped(presetId)))
+    case let .hidePresetTapped(presetId): return .send(.delegate(.hidePresetTapped(presetId)))
+    case let .presetButtonTapped(presetId): return .send(.delegate(.presetButtonTapped(presetId)))
     }
   }
 }
@@ -132,18 +134,18 @@ public struct PresetsListSectionView: View {
 
   public var body: some View {
     Section {
-      ForEach(store.scope(state: \.rows, action: \.rows)) { rowStore in
+      ForEach(store.scope(\.rows, action: \.rows), id: \.state.id) { rowStore in
         StyledEntry {
           PresetButtonView(
             store: rowStore,
-            indicatorModifierState: indicatorModifierState(for: rowStore.preset)
+            indicatorModifierState: indicatorModifierState(for: rowStore.state)
           )
         }
       }
     } header: {
       StyledHeader {
         HStack {
-          SectionIndexTitleView(title: store.sectionTitle)
+          SectionIndexTitleView(title: store.title)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
           Spacer()
@@ -178,17 +180,16 @@ public struct PresetsListSectionView: View {
         store.send(.delegate(.headerTapped(section: store.id, count: 1)))
       }
     }
-    .id(store.sectionIndexKey) // Use this value since it is what is used when scrolling via the index view
+    .id(store.indexKey) // Use this value since it is what is used when scrolling via the index view
     .animation(.smooth, value: store.rows)
   }
 
-  private func indicatorModifierState(for preset: Preset) -> IndicatorModifier.State {
+  private func indicatorModifierState(for state: PresetButton.State) -> IndicatorModifier.State {
     if presetSource?.isActive ?? false,
-       presetSource?.id == preset.soundFontId,
-       activePresetId == preset.id {
-      return preset.isFavorite ? .activeFavorite : .active
+       activePresetId == state.id {
+      return state.kind == .favorite ? .activeFavorite : .active
     }
-    return preset.isFavorite ? .favorite : .none
+    return state.kind == .favorite ? .favorite : .none
   }
 }
 
