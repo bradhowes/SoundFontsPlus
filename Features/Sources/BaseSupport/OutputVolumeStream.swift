@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVKit
+public import AVFAudio
 import Foundation
 
 private let log: Logger = .init(category: "OutputVolumeStream")

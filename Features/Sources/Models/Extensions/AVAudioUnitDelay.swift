@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFAudio.AVAudioUnitDelay
+public import AVFAudio.AVAudioUnitDelay
 import Numerics
 
 extension AVAudioUnitDelay {

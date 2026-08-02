@@ -1,7 +1,12 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import FeatureSupport
+public import CasePaths
+public import ComposableArchitecture
+public import FeatureSupport
 import HelpInfoSpotlightOverlay
+import SQLiteData
+import StructuredQueries
+public import SwiftUI
 
 private let log: Logger = .init(category: "TagsEditor")
 

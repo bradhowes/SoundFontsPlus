@@ -1,9 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFAudio
+public import AVFAudio.AVAudioUnitMIDIInstrument
 import BaseSupport
+public import Combine
+public import CoreMIDI
 import Models
-import MorkAndMIDI
+public import MorkAndMIDI
 import os
 import Sharing
 import SQLiteData

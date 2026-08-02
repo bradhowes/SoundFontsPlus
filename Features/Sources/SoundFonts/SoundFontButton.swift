@@ -1,8 +1,14 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+public import CasePaths
 import Clocks
+public import ComposableArchitecture
 import Dependencies
 import FeatureSupport
+public import Models
+import SQLiteData
+import SwiftUI
+public import Tagged
 
 /**
  Feature that handles activity for SoundFont buttons shown in the list of fonts.

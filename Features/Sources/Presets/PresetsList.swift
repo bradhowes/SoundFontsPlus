@@ -1,9 +1,16 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import Algorithms // for `chunks` addition to collections
+import AsyncAlgorithms
+public import CasePaths
+import Combine
+public import ComposableArchitecture
 import FeatureSupport
+public import Models
 import Sharing
 import SQLiteData
+public import SwiftUI
+public import Tagged
 
 /**
  List of presets for the selected soundfont. Contains a collection of `PresetsListSection` entities that group

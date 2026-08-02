@@ -1,10 +1,14 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+public import CasePaths
+public import ComposableArchitecture
 import FeatureSupport
-import Models
-import SQLiteData
+public import Models
+public import SQLiteData
 import StructuredQueries
-import Tags
+public import SwiftUI
+public import Tags
+public import Tagged
 
 @Reducer
 public struct SoundFontEditor {
@@ -53,7 +57,7 @@ public struct SoundFontEditor {
       (self.presetCount, self.favoriteCount, self.hiddenCount) = soundFont.elementCounts
     }
 
-    public mutating func save(database: DatabaseWriter) {
+    public mutating func save(database: any DatabaseWriter) {
       displayName = displayName.trimmed(or: soundFont.displayName)
       notes = notes.trimmed(or: soundFont.notes)
       try? database.write { db in

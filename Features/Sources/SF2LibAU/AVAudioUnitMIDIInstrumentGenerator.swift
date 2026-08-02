@@ -1,5 +1,5 @@
-import AVFAudio
-import Dependencies
+public import AVFAudio.AVAudioUnitMIDIInstrument
+public import Dependencies
 import Foundation
 
 public struct AVAudioUnitMIDIInstrumentGenerator: Sendable {

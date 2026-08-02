@@ -1,7 +1,12 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+public import CasePaths
+public import ComposableArchitecture
 import FeatureSupport
-import SQLiteData
+public import Models
+public import SQLiteData
+public import SwiftUI
+public import Tagged
 
 private let log: Logger = .init(category: "TagNameEditor")
 

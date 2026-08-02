@@ -1,9 +1,9 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Foundation
+public import Foundation
 import Sharing
-import SQLiteData
-import Tagged
+public import SQLiteData
+public import Tagged
 
 /**
  Subset of SoundFont table columns used to show the list of available soundfont files and the kind of font file so that the view

@@ -2,7 +2,7 @@
 
 import AVFAudio
 import Foundation
-import Sharing
+public import Sharing
 
 // MARK: - AppStorage Bool settings
 

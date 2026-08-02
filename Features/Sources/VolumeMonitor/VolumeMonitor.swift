@@ -1,6 +1,8 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import FeatureSupport
+public import CasePaths
+public import ComposableArchitecture
+public import FeatureSupport
 
 /**
  Monitor the volume setting for the active audio session. When the volume setting is zero or the active preset ID is

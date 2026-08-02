@@ -2,7 +2,7 @@
 
 import AVFAudio.AVAudioSession
 import Dependencies
-import MorkAndMIDI
+public import MorkAndMIDI
 import Sharing
 
 /**

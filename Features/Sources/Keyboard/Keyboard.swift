@@ -2,7 +2,12 @@
 
 import AsyncAlgorithms
 import AVFAudio.AVAudioUnit
-import FeatureSupport
+public import AVFAudio.AVAudioUnitMIDIInstrument
+public import CasePaths
+import Combine
+public import ComposableArchitecture
+public import FeatureSupport
+import SQLiteData
 import SwiftUI
 
 private let log: Logger = .init(category: "Keyboard")

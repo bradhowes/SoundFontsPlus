@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Sharing
+public import Sharing
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {
 

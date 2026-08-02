@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import ComposableArchitecture
-import UniformTypeIdentifiers
+public import UniformTypeIdentifiers
 import SwiftUI
 
 /**
@@ -64,7 +64,7 @@ public struct FilePicker {
   @frozen
   public enum Action {
     case cancelled
-    case picked(Result<[URL], Error>)
+    case picked(Result<[URL], any Error>)
   }
 
   public init() {}

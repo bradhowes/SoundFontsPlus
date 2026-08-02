@@ -6,9 +6,10 @@ import Foundation
 import GRDB
 import OSLog
 import Sharing
-import SF2Resources
+public import SF2Resources
 import SQLite3
-import SQLiteData
+public import SQLiteData
+import Tagged
 
 private let log: Logger = .init(category: "appDatabase")
 
@@ -66,7 +67,7 @@ public func appDatabase(
     let coordinator = NSFileCoordinator(filePresenter: nil)
     var dbPool: DatabasePool?
     var coordinatorError: NSError?
-    var dbError: Error?
+    var dbError: (any Error)?
 
     if false { // TODO: remove when no longer needed during development
       try? fileManager.removeItem(databaseURL)
@@ -115,7 +116,7 @@ public func previewDatabase(
 }
 
 private func performMigrations(
-  _ database: DatabaseWriter,
+  _ database: any DatabaseWriter,
   fonts: [SF2ResourceTag],
   limitedLoading: Bool,
   seeder: (

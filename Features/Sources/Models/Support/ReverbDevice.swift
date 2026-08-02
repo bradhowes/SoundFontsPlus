@@ -1,8 +1,8 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFAudio
+public import AVFAudio
 import BaseSupport
-import Dependencies
+public import Dependencies
 import DependenciesMacros
 
 /**

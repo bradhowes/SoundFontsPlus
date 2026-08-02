@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFAudio.AVAudioUnitMIDIInstrument
+public import AVFAudio.AVAudioUnitMIDIInstrument
 
 extension AVAudioUnit {
   public var midiInstrument: AVAudioUnitMIDIInstrument? { self as? AVAudioUnitMIDIInstrument }

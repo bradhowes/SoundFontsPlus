@@ -1,8 +1,8 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Foundation
-import SQLiteData
-import Tagged
+public import Foundation
+public import SQLiteData
+public import Tagged
 
 /**
  Attributes from Preset and SoundFont columns used to load the preset into the synth.

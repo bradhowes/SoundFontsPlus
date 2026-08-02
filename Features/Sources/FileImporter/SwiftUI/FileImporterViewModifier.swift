@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import ComposableArchitecture
-import SwiftUI
+public import ComposableArchitecture
+public import SwiftUI
 
 public struct FileImporterViewModifier: ViewModifier {
   @Bindable private var store: StoreOf<FileImporter>

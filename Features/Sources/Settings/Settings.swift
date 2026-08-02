@@ -1,14 +1,17 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import FeatureSupport
+public import CasePaths
+import Combine
+public import ComposableArchitecture
+public import FeatureSupport
 import FileImporter
 import Keyboard
-import MIDIAssignments
-import MIDIConnections
-import MIDIControllers
-import MIDITrafficIndicator
+public import MIDIAssignments
+public import MIDIConnections
+public import MIDIControllers
+public import MIDITrafficIndicator
 import MorkAndMIDI
-import Tuning
+public import Tuning
 
 @Reducer
 public struct Settings {

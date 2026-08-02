@@ -1,8 +1,8 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import Sharing
-import SQLiteData
-import Tagged
+public import SQLiteData
+public import Tagged
 
 /**
  View of the `Tag` table that is used to populate the list of available tags. It holds the `soundFontsCount` of the

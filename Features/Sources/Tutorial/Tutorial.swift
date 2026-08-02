@@ -1,6 +1,9 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+public import CasePaths
+public import ComposableArchitecture
 import FeatureSupport
+public import SwiftUI
 
 #if os(iOS)
 

@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import StructuredQueries
+public import StructuredQueries
 
 /**
  Definition of a MIDI v1 note where the MIDI value is in range [0-127].

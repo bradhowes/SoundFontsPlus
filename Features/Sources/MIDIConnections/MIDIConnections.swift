@@ -1,10 +1,14 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFAudio.AVAudioUnitSampler
-import CoreMIDI
-import FeatureSupport
-import MIDITrafficIndicator
-@preconcurrency @unsafe import MorkAndMIDI
+public import CasePaths
+import Combine
+public import ComposableArchitecture
+public import CoreMIDI
+public import FeatureSupport
+public import MIDITrafficIndicator
+@preconcurrency @unsafe public import MorkAndMIDI
+import SQLiteData
 
 /**
  Manages MIDI connections between external devices and the MIDI input port for the app.

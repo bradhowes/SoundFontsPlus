@@ -1,6 +1,12 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import FeatureSupport
+public import CasePaths
+public import ComposableArchitecture
+public import FeatureSupport
+public import Models
+import SQLiteData
+public import SwiftUI
+public import Tagged
 
 /**
  Minor feature that represents section of presets where each section has N preset buttons in it.

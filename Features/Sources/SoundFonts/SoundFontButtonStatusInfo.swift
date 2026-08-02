@@ -1,8 +1,9 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import BaseSupport
+import FeatureSupport
 import Models
-import SwiftUI
+public import SwiftUI
 
 /**
  Attributes that affect the "accessory" button of a ``SoundFontButton``
@@ -29,7 +30,7 @@ public enum SoundFontButtonStatusInfoTag: Equatable {
   case cloudIsDownloading
   case cloudIsMissing
 
-  static func value(for bookmark: Bookmarker?) -> Self {
+  static func value(for bookmark: (any Bookmarker)?) -> Self {
     guard let bookmark else { return .invalidBookmark }
     let cloudState = bookmark.cloudState
     switch cloudState {

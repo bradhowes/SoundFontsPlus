@@ -4,8 +4,9 @@ import AppReview
 import AUv3Controls
 import BRHSplitView
 import Changes
+public import ComposableArchitecture
 import DelayEffect
-import FeatureSupport
+public import FeatureSupport
 import HelpInfoSpotlightOverlay
 import Keyboard
 import MorkAndMIDI
@@ -14,8 +15,9 @@ import ReverbEffect
 import Settings
 import Sharing
 import SoundFonts
+import SQLiteData
 import SwiftToasts
-import SwiftUI
+public import SwiftUI
 import Tags
 import ToolBar
 import Tutorial

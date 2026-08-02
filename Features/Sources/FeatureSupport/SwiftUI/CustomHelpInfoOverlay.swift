@@ -1,4 +1,4 @@
-import HelpInfoSpotlightOverlay
+public import HelpInfoSpotlightOverlay
 import SwiftUI
 
 /**
@@ -11,7 +11,7 @@ import SwiftUI
  */
 @MainActor
 public func customHelpInfoOverlay(
-  for helpItem: HelpInfoProvider,
+  for helpItem: any HelpInfoProvider,
   actions: HelpInfoSpotlightOverlayActions,
   colorScheme: ColorScheme
 ) -> some View {

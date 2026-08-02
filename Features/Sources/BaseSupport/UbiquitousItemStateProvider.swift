@@ -1,5 +1,5 @@
-import Foundation
-import Dependencies
+public import Foundation
+public import Dependencies
 
 /**
  Collection of 'ubiquitous' (i.e. iCloud) state values for a URL.

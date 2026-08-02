@@ -2,7 +2,7 @@
 
 import BaseSupport
 import Foundation
-import Sharing
+public import Sharing
 import Tagged
 
 extension SharedKey where Self == AppStorageKey<Bool>.Default {

@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Foundation
+public import Foundation
 
 public enum SF2ResourceError: Error, Equatable {
   case notFound(name: String)

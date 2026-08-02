@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AVFAudio.AVAudioSession
-import Dependencies
+public import Dependencies
 
 extension DependencyValues {
 

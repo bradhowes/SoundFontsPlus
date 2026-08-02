@@ -2,7 +2,7 @@
 
 #if os(iOS)
 
-import Combine
+public import Combine
 import SwiftUI
 import UIKit
 

@@ -2,18 +2,18 @@
 
 // Export the following packages for others to have at hand when this package is imported
 
-@_exported import Foundation
-@_exported import ComposableArchitecture
+@_exported public import Foundation
+@_exported public import ComposableArchitecture
 
 // @_exported import SQLiteData -- disabled due to conflict with CircledCheckMarkToggleStyle/ToggleStyle
 
-@_exported import Sharing
-@_exported import SwiftUI
-@_exported import Tagged // this will go away with switch to UUID
+@_exported public import Sharing
+@_exported public import SwiftUI
+@_exported public import Tagged // this will go away with switch to UUID
 
 // Support packages used by nearly all features
 
-@_exported import BaseSupport
-@_exported import Models
-@_exported import SF2Resources
-@_exported import Synth
+@_exported public import BaseSupport
+@_exported public import Models
+@_exported public import SF2Resources
+@_exported public import Synth

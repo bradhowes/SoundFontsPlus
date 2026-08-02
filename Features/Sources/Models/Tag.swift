@@ -1,9 +1,9 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import BaseSupport
-import SF2Resources
-import SQLiteData
-import Tagged
+public import SF2Resources
+public import SQLiteData
+public import Tagged
 
 /// A tag is used to group or categorize a collection of SoundFont entries. There are four predefined (ubiquitous) tags:
 ///
@@ -133,7 +133,7 @@ extension Tag {
     return try make(db: database, displayName: displayName)
   }
 
-  public static func make(db: DatabaseWriter, displayName: String) throws -> Tag {
+  public static func make(db: any DatabaseWriter, displayName: String) throws -> Tag {
     let base = displayName.trimmedOfWhitespaces
     if base.isEmpty {
       throw ModelError.emptyTagName

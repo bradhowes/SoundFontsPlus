@@ -1,7 +1,10 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+public import CasePaths
+public import ComposableArchitecture
 import FeatureSupport
 import StoreKit
+public import SwiftUI
 
 private let log: Logger = .init(category: "AppReview")
 

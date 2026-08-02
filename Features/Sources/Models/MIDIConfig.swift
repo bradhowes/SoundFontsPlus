@@ -1,8 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import CoreMIDI
-import SQLiteData
-import Tagged
+public import CoreMIDI
+public import SQLiteData
 
 /**
  Table that holds customizations associated with a `MIDIUniqueID`. Since this is unique by definition, the table uses

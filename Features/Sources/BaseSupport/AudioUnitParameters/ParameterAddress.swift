@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AudioUnit.AUParameters
+public import AudioUnit.AUParameters
 
 /**
  Enumeration of the AUParameterAddress values for parameters in the AUParameterTree of the main app. The parameter space

@@ -1,9 +1,9 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFAudio.AVAudioEngine
+public import AVFAudio.AVAudioEngine
 import BaseSupport
-import Dependencies
-import DependenciesMacros
+public import Dependencies
+public import DependenciesMacros
 import Sharing
 
 /**

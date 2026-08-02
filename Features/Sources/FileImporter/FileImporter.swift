@@ -1,8 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+public import CasePaths
+public import ComposableArchitecture
 import Engine
-import FeatureSupport
-import UniformTypeIdentifiers
+public import FeatureSupport
+public import UniformTypeIdentifiers
+public import SwiftUI
 
 /**
  Feature that imports an SF2 file for use in the synth.
@@ -46,7 +49,7 @@ public struct FileImporter {
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case fileImporterDismissed
-    case filesPicked(Result<[URL], Error>)
+    case filesPicked(Result<[URL], any Error>)
     case importNextFile
     case showFileImporter
 
@@ -163,7 +166,7 @@ extension FileImporter {
     }
   }
 
-  private func filesPicked(_ state: inout State, result: Result<[URL], Error>) -> Effect<Action> {
+  private func filesPicked(_ state: inout State, result: Result<[URL], any Error>) -> Effect<Action> {
     log.debug("filePicked - \(String(describing: result), privacy: .public)")
     switch result {
 

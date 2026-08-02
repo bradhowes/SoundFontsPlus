@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import StructuredQueriesCore
-import Tagged
+public import StructuredQueriesCore
+public import Tagged
 
 extension Tagged: @retroactive QueryBindable where RawValue: QueryBindable {}
 

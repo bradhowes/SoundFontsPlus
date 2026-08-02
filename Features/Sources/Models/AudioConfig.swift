@@ -1,9 +1,9 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFoundation
-import BaseSupport
-import SQLiteData
-import Tagged
+public import AVFoundation
+public import BaseSupport
+public import SQLiteData
+public import Tagged
 
 @Table
 nonisolated public struct AudioConfig {

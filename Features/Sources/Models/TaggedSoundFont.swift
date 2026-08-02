@@ -1,7 +1,8 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import SQLiteData
-import Tagged
+public import SQLiteData
+import StructuredQueries
+public import Tagged
 
 /**
  The mapping of tags to SoundFont ids. If a SoundFont is a member of a tag, then there will be a `TaggedSoundFont`

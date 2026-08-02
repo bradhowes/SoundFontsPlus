@@ -314,13 +314,18 @@ func setSwiftSettings() {
 
   let globalSwiftSettings: [SwiftSetting] = [
     .defaultIsolation(nil),
-    .enableExperimentalFeature("NonisolatedNonsendingByDefault"),
+    // .enableExperimentalFeature("NonisolatedNonsendingByDefault"),
     .enableExperimentalFeature("StrictConcurrency"),
+    .enableUpcomingFeature("ExistentialAny"),
+    .enableUpcomingFeature("ImmutableWeakCaptures"),
+    .enableUpcomingFeature("InferIsolatedConformances"),
+    .enableUpcomingFeature("InternalImportsByDefault"),
+    .enableUpcomingFeature("MemberImportVisibility"),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
     .interoperabilityMode(.Cxx),
     .strictMemorySafety(),
     .swiftLanguageMode(.v6)
   ]
-
   for target in package.targets {
     switch target.type {
       // normal targets

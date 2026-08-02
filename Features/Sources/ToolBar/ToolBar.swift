@@ -1,12 +1,18 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AsyncAlgorithms
 import AUv3Controls
-import Engine
-import FeatureSupport
+public import CasePaths
+public import ComposableArchitecture
+public import Engine
+public import FeatureSupport
 import Keyboard
-import FileImporter
-import MIDITrafficIndicator
+public import FileImporter
+public import MIDITrafficIndicator
+public import Models
 import Settings
+import SQLiteData
+public import Tagged
 
 private let log: Logger = .init(category: "ToolBar")
 

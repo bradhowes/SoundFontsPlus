@@ -1,7 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+public import CasePaths
+public import ComposableArchitecture
 import CoreMIDI
 import FeatureSupport
+public import SwiftUI
+import SQLiteData
 
 @Reducer
 public struct MIDIAssignments {

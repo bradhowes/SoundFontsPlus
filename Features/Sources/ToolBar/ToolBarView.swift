@@ -1,9 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+public import ComposableArchitecture
 import FeatureSupport
+import FileImporter
 import Keyboard
 import MIDITrafficIndicator
-import SwiftUI
+public import SwiftUI
 
 public struct ToolBarView: View {
   private var store: StoreOf<ToolBar>

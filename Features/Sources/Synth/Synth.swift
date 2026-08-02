@@ -3,23 +3,26 @@
 import AudioToolbox
 import AUv3Controls
 import BaseSupport
-import ComposableArchitecture
+public import CasePaths
+public import ComposableArchitecture
 import CoreAudioKit
 import Dependencies
-import Engine
-import Models
+public import Engine
+public import Models
 import os
 import SF2LibAU
 import Sharing
+import SQLiteData
 import SwiftUI
+public import Tagged
 
 private let log: Logger = .init(category: "Synth")
 
 #if canImport(UIKit)
-import UIKit
+public import UIKit
 public typealias ViewController = UIViewController
 #else
-import AppKit
+public import AppKit
 public typealias ViewController = NSViewController
 #endif
 

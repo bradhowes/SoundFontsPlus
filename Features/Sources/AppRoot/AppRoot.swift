@@ -2,27 +2,29 @@
 
 import AUv3Controls
 import AVFoundation
-import AppReview
+public import AppReview
 import AudioUnit.AUParameters
-import BRHSplitView
-import Changes
-import DelayEffect
-import Engine
-import FeatureSupport
-import Keyboard
+public import BRHSplitView
+public import CasePaths
+public import Changes
+public import ComposableArchitecture
+public import DelayEffect
+public import Engine
+public import FeatureSupport
+public import Keyboard
 import MorkAndMIDI
-import Presets
-import ReverbEffect
+public import Presets
+public import ReverbEffect
 import SF2LibAU
 import SQLiteData
-import Settings
-import SoundFonts
+public import Settings
+public import SoundFonts
 import SwiftToasts
-import Synth
-import Tags
-import ToolBar
-import Tutorial
-import VolumeMonitor
+public import Synth
+public import Tags
+public import ToolBar
+public import Tutorial
+public import VolumeMonitor
 
 /**
  The top-level feature of the application.

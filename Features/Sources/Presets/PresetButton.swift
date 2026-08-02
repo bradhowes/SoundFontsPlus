@@ -1,6 +1,12 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import FeatureSupport
+public import CasePaths
+public import ComposableArchitecture
+public import FeatureSupport
+public import Models
+import SQLiteData
+public import SwiftUI
+public import Tagged
 
 /**
  A custom button for a given preset. Tapping the button activates the preset in the synth.

@@ -280,7 +280,7 @@ All customizations have been removed.
 
 extension AlertState {
 
-  public static func failedToPick(error: Error) -> Self {
+  public static func failedToPick(error: any Error) -> Self {
     Self {
       TextState("Failed to Pick")
     } actions: {

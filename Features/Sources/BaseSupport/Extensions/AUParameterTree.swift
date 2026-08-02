@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AudioUnit.AUParameters
+public import AudioUnit.AUParameters
 import CasePathsCore
 import Dependencies
 

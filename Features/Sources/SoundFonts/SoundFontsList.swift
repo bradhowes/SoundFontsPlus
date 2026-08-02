@@ -1,8 +1,15 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AsyncAlgorithms
+public import CasePaths
+import Combine
+public import ComposableArchitecture
 import FeatureSupport
+public import Models
 import SQLiteData
 import Tags
+public import Tagged
+public import SwiftUI
 
 /**
  Feature that manages a list of sound fonts, each entry of which is a `SoundFontButton` feature.

@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Brad Howes. All rights reserved.
 
-import Foundation
+public import Foundation
 
 /// Types of file import failures
 public struct FileImportFailure: Error, Equatable {

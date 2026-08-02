@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Foundation
-import Dependencies
+public import Foundation
+public import Dependencies
 
 /**
  Collection of FileManager dependencies to allow for mocking and controlling in tests.

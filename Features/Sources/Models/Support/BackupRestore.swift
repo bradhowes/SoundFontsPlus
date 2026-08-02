@@ -2,10 +2,12 @@
 
 import BaseSupport
 import Dependencies
-import Foundation
+public import Foundation
 import GRDB
 import Sharing
+import SQLiteData
 import StructuredQueries
+import Tagged
 
 // Based off of code in https://github.com/groue/GRDB.swift/discussions/1798#discussioncomment-13926896
 public enum BackupManager {
@@ -280,12 +282,12 @@ extension BackupManager {
 
 public enum BackupError: Error {
   case noCloudDirectory
-  case backupCreationFailed(Error)
-  case databaseBackupFailed(Error)
+  case backupCreationFailed(any Error)
+  case databaseBackupFailed(any Error)
   case databaseIntegrityCheckFailed
   case databaseForeignKeyCheckFailed
-  case fontFilesCopyFailed(Error)
-  case moveItemFailed(Error)
+  case fontFilesCopyFailed(any Error)
+  case moveItemFailed(any Error)
 
   public var description: String {
     switch self {
@@ -310,17 +312,17 @@ public enum BackupError: Error {
 
 public enum RestoreError: Error {
   case notBackupDirectory
-  case cannotReadDirectory(Error)
+  case cannotReadDirectory(any Error)
   case missingFontFiles
   case missingBackupFile
   case multipleBackupFiles
   case invalidVersionTag
   case unsupportedVersion
-  case databaseBackupFailed(Error)
+  case databaseBackupFailed(any Error)
   case databaseIntegrityCheckFailed
   case databaseForeignKeyCheckFailed
-  case fontFilesCopyFailed(Error)
-  case moveItemFailed(Error)
+  case fontFilesCopyFailed(any Error)
+  case moveItemFailed(any Error)
 
   public var description: String {
     switch self {

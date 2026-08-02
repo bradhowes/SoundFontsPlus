@@ -1,9 +1,9 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Combine
-import CoreMIDI
+public import Combine
+public import CoreMIDI
 import Foundation
-import MorkAndMIDI
+public import MorkAndMIDI
 
 extension MIDI: @unchecked @retroactive Sendable {}
 

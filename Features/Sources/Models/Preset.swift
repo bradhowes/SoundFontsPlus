@@ -3,8 +3,8 @@
 import BaseSupport
 import Dependencies
 import Sharing
-import SQLiteData
-import Tagged
+public import SQLiteData
+public import Tagged
 
 /**
  Defines a sound font preset. Most of the read-only attributes come from the SF2 loaded into the application. A preset can be

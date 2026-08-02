@@ -1,11 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AudioToolbox
+public import AudioToolbox
 import BaseSupport
 import CoreAudioKit
 import Dependencies
-import Engine
-import Models
+public import Engine
+public import Models
 
 private let unsetAudioUnitShortName = "-"
 

@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Foundation
+public import Foundation
 import SF2Resources
 
 public enum ModelError: Error, Equatable {

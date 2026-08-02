@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFAudio.AVAudioUnitMIDIInstrument
+public import AVFAudio.AVAudioUnitMIDIInstrument
+public import Foundation
 import Engine
 
 extension AVAudioUnitMIDIInstrument {

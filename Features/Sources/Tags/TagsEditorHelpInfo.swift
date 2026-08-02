@@ -1,7 +1,8 @@
 // Copyright © 2026 Brad Howes. All rights reserved.
 
-import HelpInfoSpotlightOverlay
-import SwiftUI
+import FeatureSupport
+public import HelpInfoSpotlightOverlay
+public import SwiftUI
 
 /**
  Collection of unique IDs for views that can show help information. Used in tandom with the `HelpInfoSpotlightOverlay` view

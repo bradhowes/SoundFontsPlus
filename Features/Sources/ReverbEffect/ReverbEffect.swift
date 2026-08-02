@@ -1,8 +1,14 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFAudio.AVAudioUnitReverb
-import AUv3Controls
+public import AVFAudio.AVAudioUnitReverb
+public import AUv3Controls
+public import CasePaths
+public import ComposableArchitecture
 import FeatureSupport
+public import Models
+import SQLiteData
+public import SwiftUI
+public import Tagged
 
 @Reducer
 public struct ReverbEffect {

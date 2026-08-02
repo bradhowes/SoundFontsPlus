@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AudioToolbox.AudioComponent
-import Foundation
+public import AudioToolbox.AudioComponent
+public import Foundation
 
 private class BundleTag: NSObject {}
 

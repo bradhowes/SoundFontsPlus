@@ -1,3 +1,5 @@
+import CasePaths
+public import ComposableArchitecture
 import Dependencies
 import FeatureSupport
 import Keyboard
@@ -7,7 +9,8 @@ import MIDIControllers
 import MIDITrafficIndicator
 import MorkAndMIDI
 import Sharing
-import SwiftUI
+import SQLiteData
+public import SwiftUI
 import Tuning
 
 public struct SettingsView: View {

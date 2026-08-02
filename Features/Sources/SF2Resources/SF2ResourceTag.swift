@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Foundation
-import Engine
+public import Foundation
+public import Engine
 
 /**
  Collection of unique tags for each SF2 file in the bundle

@@ -1,9 +1,13 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AUv3Controls
+public import AUv3Controls
+public import CasePaths
+public import ComposableArchitecture
 import FeatureSupport
-import Models
+public import Models
 import SQLiteData
+public import SwiftUI
+public import Tagged
 
 @Reducer
 public struct DelayEffect {

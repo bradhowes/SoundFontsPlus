@@ -1,8 +1,10 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AudioToolbox.AudioUnitProperties
-import Foundation
+import BaseSupport
+public import Foundation
 import Sharing
+public import Tagged
 
 /**
  Collection of attributes that define the active state of an SF2LibAU instance. There can be more than one instance of an SF2LibAU

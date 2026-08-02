@@ -1,10 +1,15 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFoundation
+public import AVFoundation
+public import CasePaths
+public import ComposableArchitecture
 import Engine
 import FeatureSupport
+public import Models
+import SQLiteData
 import StructuredQueries
-import Tuning
+public import SwiftUI
+public import Tuning
 
 private let log: Logger = .init(category: "PresetEditor")
 

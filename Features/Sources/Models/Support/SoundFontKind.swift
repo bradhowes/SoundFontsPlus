@@ -1,11 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import BaseSupport
+public import BaseSupport
 import Dependencies
-import Engine
-import Foundation
+public import Engine
+public import Foundation
 import os
-import SF2Resources
+public import SF2Resources
 
 /**
  Indicators for the various types of SoundFont file locations. These mirror the values found in `SoundFont.Kind`, and the 1-1

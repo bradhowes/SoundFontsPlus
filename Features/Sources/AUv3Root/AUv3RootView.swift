@@ -2,13 +2,14 @@
 
 import AVFAudio
 import BRHSplitView
+public import ComposableArchitecture
 import FeatureSupport
 import Presets
 import Settings
 import SF2LibAU
 import Sharing
 import SoundFonts
-import SwiftUI
+public import SwiftUI
 import Tags
 import ToolBar
 

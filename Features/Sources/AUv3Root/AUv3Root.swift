@@ -1,18 +1,21 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AUv3Controls
 import AVFoundation
 import AudioUnit.AUParameters
-import BRHSplitView
+public import BRHSplitView
+public import CasePaths
+public import ComposableArchitecture
 import Engine
 import FeatureSupport
-import Presets
-import SF2LibAU
+public import Presets
+public import SF2LibAU
 import SQLiteData
-import Settings
-import SoundFonts
+public import Settings
+public import SoundFonts
 import Synth
-import Tags
-import ToolBar
+public import Tags
+public import ToolBar
 
 /**
  The top-level feature of the AUv3 interface.

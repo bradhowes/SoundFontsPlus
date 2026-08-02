@@ -2,7 +2,7 @@
 
 import Clocks
 import Dependencies
-import Foundation
+public import Foundation
 
 public protocol Bookmarker {
   var cloudState: Bookmark.CloudState {get}
@@ -55,7 +55,7 @@ public final class Bookmark: Codable, Bookmarker {
    - parameter decoder: the container to read from
    - throws exception if unable to decode from container
    */
-  public init(from decoder: Decoder) throws {
+  public init(from decoder: any Decoder) throws {
     let values = try decoder.container(keyedBy: CodingKeys.self)
     name = try values.decode(String.self, forKey: .name)
     original = try values.decode(URL.self, forKey: .original)

@@ -2,10 +2,10 @@
 
 import Dependencies
 import Engine
-import Foundation
-import SF2Resources
-import SQLiteData
-import Tagged
+public import Foundation
+public import SF2Resources
+public import SQLiteData
+public import Tagged
 
 /**
  Definition of a soundfont table that holds various pieces of information regarding soundfont files.

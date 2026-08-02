@@ -1,9 +1,10 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import BaseSupport
-import Dependencies
+public import BaseSupport
+public import Dependencies
 import Foundation
-import Sharing
+public import Sharing
+public import Tagged
 
 /**
  Getters and setters for active soundfont ID, preset ID, and tag ID state values for the app.

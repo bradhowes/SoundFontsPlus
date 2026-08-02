@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AudioUnit.AUParameters
+public import AudioUnit.AUParameters
 
 /**
  Attributes that will be used for an AUParameter in an AUParameterTree.

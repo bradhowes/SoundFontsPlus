@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Dependencies
+public import Dependencies
 import Foundation
 
 public struct DebounceDurations {

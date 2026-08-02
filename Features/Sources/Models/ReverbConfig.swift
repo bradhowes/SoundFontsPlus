@@ -1,10 +1,10 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFoundation
+public import AVFoundation
 import BaseSupport
 import Sharing
-import SQLiteData
-import Tagged
+public import SQLiteData
+public import Tagged
 
 /**
  Configurations for the reverb effect. A ``Preset`` may have one associated with it such that when the preset is active, the

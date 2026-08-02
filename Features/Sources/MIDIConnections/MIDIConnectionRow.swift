@@ -1,8 +1,9 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import CoreMIDI
+public import CoreMIDI
 import Models
 import Sharing
+import SQLiteData
 
 public struct MIDIConnectionRow {
   public static var unknownChannel: UInt8 { 255 }

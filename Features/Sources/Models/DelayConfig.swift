@@ -3,8 +3,8 @@
 import AVFoundation
 import BaseSupport
 import Sharing
-import SQLiteData
-import Tagged
+public import SQLiteData
+public import Tagged
 
 /**
  Configurations for the delay effect. A ``Preset`` may have one associated with it such that when the preset is active, the

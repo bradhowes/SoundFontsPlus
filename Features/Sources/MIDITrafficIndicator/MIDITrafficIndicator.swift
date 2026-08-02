@@ -1,8 +1,11 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import AsyncAlgorithms
 import BaseSupport
-import Combine
-import FeatureSupport
+public import CasePaths
+public import Combine
+public import ComposableArchitecture
+public import FeatureSupport
 
 @Reducer
 public struct MIDITrafficIndicator {
