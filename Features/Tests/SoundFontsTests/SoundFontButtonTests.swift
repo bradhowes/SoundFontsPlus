@@ -3,6 +3,7 @@
 import DependenciesTestSupport
 import FeatureSupport
 import SnapshotTesting
+import SQLiteData
 import Testing
 import TestSupport
 

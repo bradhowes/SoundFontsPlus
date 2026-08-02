@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import AUv3Controls
+import AVFAudio
 import DependenciesTestSupport
 import FeatureSupport
 import Numerics

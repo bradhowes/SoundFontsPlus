@@ -5,10 +5,12 @@ import DependenciesTestSupport
 import FeatureSupport
 import Models
 import SnapshotTesting
+import SQLiteData
+import Tagged
 import Testing
 import TestSupport
 
-@testable import SoundFonts
+@testable public import SoundFonts
 
 @Suite(
   .snapshots(record: .failed)

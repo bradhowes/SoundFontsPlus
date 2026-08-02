@@ -2,6 +2,7 @@
 
 import DependenciesTestSupport
 import Foundation
+import System
 import Testing
 
 @testable import BaseSupport

@@ -4,9 +4,9 @@ import FeatureSupport
 import Foundation
 import Models
 import SF2Resources
-import SQLiteData
+public import SQLiteData
 import SnapshotTesting
-import SwiftUI
+public import SwiftUI
 import Testing
 
 #if canImport(UIKit)
@@ -223,7 +223,7 @@ extension TestSupport.SnapshotConfig {
 
 #if os(iOS)
 
-  private func sharedTraits(_ mutations: inout UIMutableTraits) {
+  private func sharedTraits(_ mutations: inout any UIMutableTraits) {
     mutations.layoutDirection = .leftToRight
     mutations.preferredContentSizeCategory = .medium
     mutations.userInterfaceIdiom = .phone

@@ -4,6 +4,8 @@ import DependenciesTestSupport
 import FeatureSupport
 import Numerics
 import SnapshotTesting
+import SQLiteData
+import Tagged
 import Testing
 import TestSupport
 

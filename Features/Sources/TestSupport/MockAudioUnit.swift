@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import AVFAudio.AVAudioUnit
-import BaseSupport
+public import AVFAudio.AVAudioUnit
+public import BaseSupport
 
 public final class MockAudioUnit: AVAudioUnitSampler, @unchecked Sendable {
   // swiftlint:disable:next large_tuple

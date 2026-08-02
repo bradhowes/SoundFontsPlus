@@ -3,13 +3,18 @@
 import BRHSplitView
 import DependenciesTestSupport
 import FeatureSupport
+import MIDITrafficIndicator
 import Models
 import Settings
 import SF2LibAU
 import SnapshotTesting
 import SoundFonts
+import SQLiteData
+import Tagged
+import Tags
 import Testing
 import TestSupport
+import ToolBar
 
 @testable import Presets
 @testable import AUv3Root

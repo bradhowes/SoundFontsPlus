@@ -1,6 +1,6 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import BaseSupport
+public import BaseSupport
 import Foundation
 
 /// A mock of AVAudioSession.outputVolume that toggles between 1.0 and 0.0

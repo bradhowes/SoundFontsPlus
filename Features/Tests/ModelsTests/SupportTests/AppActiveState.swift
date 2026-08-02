@@ -3,6 +3,8 @@
 import AudioToolbox.AudioUnitProperties
 import DependenciesTestSupport
 import Sharing
+import SQLiteData
+import Tagged
 import TestSupport
 import Testing
 

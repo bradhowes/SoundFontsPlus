@@ -1,8 +1,11 @@
 // Copyright © 2026 Brad Howes. All rights reserved.
 
 import AudioToolbox.AudioUnitProperties
+import BaseSupport
 import DependenciesTestSupport
 import Sharing
+import SQLiteData
+import Tagged
 import TestSupport
 import Testing
 

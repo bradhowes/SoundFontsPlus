@@ -3,6 +3,7 @@ import DependenciesTestSupport
 import SwiftUI
 import Testing
 import TestSupport
+import UniformTypeIdentifiers
 
 @testable import FeatureSupport
 
@@ -72,7 +73,7 @@ struct FilePickerTests {
     await store.send(\.chooseFileTapped) {
       $0.destination = .picker(.init(types: [.folder], allowsMultipleSelection: false))
     }
-    let result: Result<[URL], Error> = .success([])
+    let result: Result<[URL], any Error> = .success([])
     await store.send(\.destination.picker, .picked(result))
   }
 }

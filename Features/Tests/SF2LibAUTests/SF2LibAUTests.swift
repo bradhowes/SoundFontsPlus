@@ -7,6 +7,8 @@ import DependenciesTestSupport
 import Engine
 import Foundation
 import Models
+import SQLiteData
+import Tagged
 import Testing
 import TestSupport
 

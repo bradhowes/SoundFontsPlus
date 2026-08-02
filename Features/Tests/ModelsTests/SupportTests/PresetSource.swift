@@ -3,6 +3,8 @@
 import AVFAudio.AVAudioSession
 import DependenciesTestSupport
 import Foundation
+import SQLiteData
+import Tagged
 import Testing
 
 @testable import Models

@@ -3,6 +3,7 @@
 import DependenciesTestSupport
 import Foundation
 import SQLiteData
+import Tagged
 import Testing
 import TestSupport
 

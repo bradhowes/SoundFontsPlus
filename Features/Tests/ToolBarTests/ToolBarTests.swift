@@ -3,9 +3,12 @@
 import AVFAudio
 import DependenciesTestSupport
 import FeatureSupport
+import MIDITrafficIndicator
 import SnapshotTesting
 import SF2LibAU
 import SF2Resources
+import SQLiteData
+import Tagged
 import Testing
 import TestSupport
 

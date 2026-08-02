@@ -1,6 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
 import DependenciesTestSupport
+import StructuredQueries
 import Testing
 
 @testable import BaseSupport

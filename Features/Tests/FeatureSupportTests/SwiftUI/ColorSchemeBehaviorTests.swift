@@ -1,6 +1,7 @@
 import Testing
 
 @testable import FeatureSupport
+import SnapshotTesting
 
 @Suite(
   .snapshots(record: .failed)

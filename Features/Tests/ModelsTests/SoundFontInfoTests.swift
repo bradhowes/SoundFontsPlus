@@ -4,6 +4,7 @@ import DependenciesTestSupport
 import Foundation
 import Sharing
 import SQLiteData
+import Tagged
 import Testing
 import TestSupport
 

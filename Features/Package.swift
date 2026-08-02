@@ -314,7 +314,6 @@ func setSwiftSettings() {
 
   let globalSwiftSettings: [SwiftSetting] = [
     .defaultIsolation(nil),
-    // .enableExperimentalFeature("NonisolatedNonsendingByDefault"),
     .enableExperimentalFeature("StrictConcurrency"),
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("ImmutableWeakCaptures"),

@@ -4,6 +4,8 @@ import DependenciesTestSupport
 import FeatureSupport
 import SF2Resources
 import SnapshotTesting
+import SQLiteData
+import Tagged
 import Testing
 import TestSupport
 

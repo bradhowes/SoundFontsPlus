@@ -4,6 +4,8 @@ import AVFAudio.AVAudioUnit
 import DependenciesTestSupport
 import MorkAndMIDI
 import SnapshotTesting
+import SQLiteData
+import Tagged
 import Testing
 import TestSupport
 

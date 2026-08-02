@@ -1,7 +1,7 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
-import Models
-import Sharing
+public import Models
+public import Sharing
 
 public final class MockAudioSession: @unchecked Sendable {
   public var active: Bool = false
