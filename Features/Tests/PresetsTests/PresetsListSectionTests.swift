@@ -20,7 +20,7 @@ import TestSupport
 struct PresetsListSectionTests {
 
   func setup() throws -> TestStoreOf<PresetsListSection> {
-    let presets = Preset.visible(for: 1)
+    let presets = PresetInfo.visible(for: 1)
     let store = TestStore(
       initialState: .init(
         id: 4,

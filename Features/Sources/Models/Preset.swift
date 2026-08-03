@@ -286,18 +286,6 @@ extension Preset {
     }
   }
 
-  /**
-   Execute a query to obtain the presets for a given sound font ID.
-
-   - parameter soundFontId: the sound font to query for
-   - returns: the collection of presets
-   */
-  public static func visible(for soundFontId: SoundFont.ID) -> [Preset] {
-    return withDatabaseReader {
-      try visibleQuery(for: soundFontId).fetchAll($0)
-    } ?? []
-  }
-
   /// - returns: query for all presets (no favorites).
   public static func allQuery(for soundFontId: SoundFont.ID) -> Select<(), Self, ()> {
     Self

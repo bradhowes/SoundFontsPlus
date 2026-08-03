@@ -31,12 +31,13 @@ struct PresetEditorTests {
     $sortPresetsByName.withLock { $0 = false }
   }
 
-  func setup(isActive: Bool = false) throws -> (Preset, TestStoreOf<PresetEditor>) {
-    let presets = Preset.visible(for: 1)
-    let store = TestStore(initialState: PresetEditor.State(sectionId: 123, preset: presets[0], isActive: isActive)) {
+  func setup(isActive: Bool = false) throws -> (PresetInfo, TestStoreOf<PresetEditor>) {
+    let presetInfos = PresetInfo.visible(for: 1)
+    let preset = Preset.with(id: presetInfos[0].id)!
+    let store = TestStore(initialState: PresetEditor.State(sectionId: 123, preset: preset, isActive: isActive)) {
       PresetEditor()
     }
-    return (presets[0], store)
+    return (presetInfos[0], store)
   }
 
   @Test

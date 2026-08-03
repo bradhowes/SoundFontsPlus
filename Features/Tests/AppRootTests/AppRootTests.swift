@@ -391,7 +391,7 @@ struct AppRootTests {
       await store.receive(\.appReview.ask)
       await store.receive(\.presetsList.updateFetchAllQuery)
       await store.receive(\.toolBar.activePresetIdChanged, 1)
-      await store.receive(\.presetsList, .rowsSourceUpdated(source: Preset.visible(for: 1), showActive: false))
+      await store.receive(\.presetsList, .rowsSourceUpdated(source: PresetInfo.visible(for: 1), showActive: false))
     }
   }
 

@@ -16,7 +16,7 @@ import Sharing
  - returns: IdentifiedArray of PresetListSection.State entities referencing the presets
  */
 internal func group(
-  _ presets: [Preset],
+  _ presets: [PresetInfo],
   searching: Bool
 ) -> IdentifiedArrayOf<PresetsListSection.State> {
   let grouping = searching ? PresetsList.searchGroupingSize : PresetsList.groupingSize
@@ -48,7 +48,7 @@ private func emptySection(title: String) -> IdentifiedArrayOf<PresetsListSection
 }
 
 private func groupByCount(
-  _ presets: [Preset],
+  _ presets: [PresetInfo],
   count: Int,
   searching: Bool
 ) -> IdentifiedArrayOf<PresetsListSection.State> {
@@ -95,7 +95,7 @@ private func sectionGroupingKey(for displayName: String, kind: Preset.Kind) -> S
 }
 
 private func groupByName(
-  _ presets: [Preset],
+  _ presets: [PresetInfo],
 ) -> IdentifiedArrayOf<PresetsListSection.State> {
   if presets.isEmpty {
     emptySection(title: "Presets")

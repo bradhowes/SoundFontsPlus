@@ -39,7 +39,7 @@ public struct PresetsListSection {
       id: Int,
       title: String,
       indexKey: String,
-      presets: ArraySlice<Preset>,
+      presets: ArraySlice<PresetInfo>,
     ) {
       @Shared(.favoriteSymbolName) var symbolName
       @Shared(.starFavoriteNames) var starFavoriteNames

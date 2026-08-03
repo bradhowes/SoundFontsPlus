@@ -28,8 +28,8 @@ public struct PresetsList {
 
     @CasePathable
     public enum Alert: Equatable {
-      case deleteFavoriteConfirmed(Preset)
-      case hidePresetConfirmed(Preset)
+      case deleteFavoriteConfirmed(Preset.ID)
+      case hidePresetConfirmed(Preset.ID)
       case missingFileForSelectedPreset(SoundFont.ID)
     }
   }
@@ -43,7 +43,7 @@ public struct PresetsList {
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
     @ObservationStateIgnored
-    public var presets: [Preset]
+    public var presets: [PresetInfo]
     public var sections: IdentifiedArrayOf<PresetsListSection.State> = .init()
     public var searchText: String
     public var isSearchFieldPresented: Bool
@@ -79,7 +79,7 @@ public struct PresetsList {
       self.editingVisibility = editingVisibility
 
       if let soundFontId = presetSource?.id {
-        self.presets = editingVisibility ? Preset.all(for: soundFontId) : Preset.visible(for: soundFontId)
+        self.presets = editingVisibility ? PresetInfo.all(for: soundFontId) : PresetInfo.visible(for: soundFontId)
       } else {
         self.presets = []
       }
@@ -100,7 +100,7 @@ public struct PresetsList {
     case fullStateChanged(SoundFont.ID, Preset.ID)
     case initialize
     case presetSourceChanged(PresetSource?)
-    case rowsSourceUpdated(source: [Preset], showActive: Bool)
+    case rowsSourceUpdated(source: [PresetInfo], showActive: Bool)
     case searchTextChanged(String)
     case sections(IdentifiedActionOf<PresetsListSection>)
     case sectionHeaderIndexTapped(String)
@@ -144,11 +144,11 @@ public struct PresetsList {
       case .deinitialize:
         return .merge(CancelId.allCases.map { .cancel(id: $0) })
 
-      case .destination(.presented(.alert(.deleteFavoriteConfirmed(let preset)))):
-        return deleteFavoriteConfirmed(&state, preset: preset)
+      case .destination(.presented(.alert(.deleteFavoriteConfirmed(let presetId)))):
+        return deleteFavoriteConfirmed(&state, presetId: presetId)
 
-      case .destination(.presented(.alert(.hidePresetConfirmed(let preset)))):
-        return hidePresetConfirmed(&state, preset: preset)
+      case .destination(.presented(.alert(.hidePresetConfirmed(let presetId)))):
+        return hidePresetConfirmed(&state, presetId: presetId)
 
       case .destination(.presented(.alert(.missingFileForSelectedPreset(let soundFontId)))):
         return .send(.delegate(.missingSoundFontDetected(soundFontId)))
@@ -207,14 +207,15 @@ public struct PresetsList {
 
 extension PresetsList {
 
-  private func deleteFavoriteConfirmed(_ state: inout State, preset: Preset) -> Effect<Action> {
+  private func deleteFavoriteConfirmed(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
+    guard let preset = Preset.with(id: presetId) else { return .none }
     precondition(preset.isFavorite)
     withDatabaseWriter { db in
       try Preset.delete(preset)
         .execute(db)
     }
 
-    if preset.id == state.activePresetId {
+    if presetId == state.activePresetId {
       return .send(.delegate(.activePresetIdChanged(nil)))
     }
     return .none
@@ -260,23 +261,23 @@ extension PresetsList {
     return .none
   }
 
-  private func hidePreset(_ state: inout State, preset: Preset) -> Effect<Action> {
+  private func hidePresetTapped(_ state: inout State, preset: Preset) -> Effect<Action> {
     @Shared(.confirmPresetHiding) var confirmPresetHiding
     if confirmPresetHiding {
       state.destination = .alert(
-        .confirmHidePreset(action: .hidePresetConfirmed(preset), displayName: preset.displayName)
+        .confirmHidePreset(action: .hidePresetConfirmed(preset.id), displayName: preset.displayName)
       )
       return .none
     }
-    return hidePresetConfirmed(&state, preset: preset)
+    return hidePresetConfirmed(&state, presetId: preset.id)
   }
 
-  private func hidePresetConfirmed(_ state: inout State, preset: Preset) -> Effect<Action> {
-    precondition(!preset.isFavorite)
+  private func hidePresetConfirmed(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
     @Shared(.confirmPresetHiding) var confirmPresetHiding
     $confirmPresetHiding.withLock { $0 = false }
-    var preset = preset
-    preset.toggleVisibility()
+    if var preset = Preset.with(id: presetId) {
+      preset.toggleVisibility()
+    }
     return .none
   }
 
@@ -377,7 +378,7 @@ extension PresetsList {
     case .deleteFavoriteTapped(let presetId):
       return withPreset(presetId) { state, preset in
         state.destination = .alert(
-          .confirmDeleteFavorite(action: .deleteFavoriteConfirmed(preset), displayName: preset.displayName)
+          .confirmDeleteFavorite(action: .deleteFavoriteConfirmed(preset.id), displayName: preset.displayName)
         )
         return .none
       }
@@ -392,7 +393,7 @@ extension PresetsList {
 
     case .hidePresetTapped(let presetId):
       return withPreset(presetId) { state, preset in
-        hidePreset(&state, preset: preset)
+        hidePresetTapped(&state, preset: preset)
       }
 
     case .searchButtonTapped:
@@ -405,7 +406,7 @@ extension PresetsList {
     }
   }
 
-  private func rowsSourceUpdated(_ state: inout State, presets: [Preset], showActive: Bool) -> Effect<Action> {
+  private func rowsSourceUpdated(_ state: inout State, presets: [PresetInfo], showActive: Bool) -> Effect<Action> {
     log.info("rowsSourceUpdated BEGIN - presets.count: \(presets.count, privacy: .public) showActive: \(showActive, privacy: .public)")
     state.presets = presets
     if showActive, let activePresetId = state.activePresetId {
@@ -468,7 +469,7 @@ extension PresetsList {
   private func updateFetchAllQuery(_ state: inout State, showActive: Bool) -> Effect<Action> {
     log.info("updateFetchAllQuery BEGIN")
     let soundFontId = state.presetSource?.id ?? -1
-    let query = state.editingVisibility ? Preset.allQuery(for: soundFontId) : Preset.visibleQuery(for: soundFontId)
+    let query = state.editingVisibility ? PresetInfo.allQuery(for: soundFontId) : PresetInfo.visibleQuery(for: soundFontId)
 
     return .run(priority: .utility, name: CancelId.presetsListUpdateFetchAllQuery.rawValue) { [showActive] send in
       log.info("updateFetchAllQuery - begin task")
@@ -476,7 +477,7 @@ extension PresetsList {
       var showActive = showActive
 
       // Update the query and then monitor for value changes
-      @FetchAll var presets: [Preset]
+      @FetchAll var presets: [PresetInfo]
       try await $presets.load(query, animation: .smooth)
       log.info("updateFetchAllQuery - updated query")
       if Task.isCancelled { return }
@@ -596,7 +597,7 @@ public struct PresetsListView: View {
     )
     .animation(.smooth, value: store.isSearchFieldPresented)
     .animation(.smooth, value: store.editingVisibility)
-    .animation(.smooth, value: store.presets)
+    .animation(.smooth, value: store.sections)
     .task { await store.send(.initialize).finish() }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }

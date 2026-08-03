@@ -25,17 +25,21 @@ struct IndicatorModifierTests {
     $showOnlyFavorites.withLock { $0 = false }
   }
 
+  func seedFavorite() {
+    var presets = Preset.all(for: 1)
+    if let clone = presets.last!.cloneFavorite() {
+      presets.append(clone)
+    }
+  }
+
   @Test
   func renderingNormalSelected() async throws {
     withDependencies {
       $0.defaultDatabase = previewDatabase()
     } operation: {
       withSnapshotTesting(record: .failed) {
-        var presets = Preset.visible(for: 1)
-        if let clone = presets.last!.cloneFavorite() {
-          presets.append(clone)
-        }
-
+        seedFavorite()
+        let presets = PresetInfo.visible(for: 1)
         let view = VStack {
           List {
             PresetButtonView(
@@ -95,11 +99,8 @@ struct IndicatorModifierTests {
       $0.defaultDatabase = previewDatabase()
     } operation: {
       withSnapshotTesting(record: .failed) {
-        var presets = Preset.visible(for: 1)
-        if let clone = presets.last!.cloneFavorite() {
-          presets.append(clone)
-        }
-
+        seedFavorite()
+        let presets = PresetInfo.visible(for: 1)
         let view = VStack {
           List {
             PresetButtonView(
@@ -157,10 +158,8 @@ struct IndicatorModifierTests {
       $0.defaultDatabase = previewDatabase()
     } operation: {
       withSnapshotTesting(record: .failed) {
-        var presets = Preset.visible(for: 1)
-        if let clone = presets.last!.cloneFavorite() {
-          presets.append(clone)
-        }
+        seedFavorite()
+        let presets = PresetInfo.visible(for: 1)
 
         let view = VStack {
           List {
@@ -218,10 +217,8 @@ struct IndicatorModifierTests {
       $0.defaultDatabase = previewDatabase()
     } operation: {
       withSnapshotTesting(record: .failed) {
-        var presets = Preset.visible(for: 1)
-        if let clone = presets.last!.cloneFavorite() {
-          presets.append(clone)
-        }
+        seedFavorite()
+        let presets = PresetInfo.visible(for: 1)
 
         let view = VStack {
           List {

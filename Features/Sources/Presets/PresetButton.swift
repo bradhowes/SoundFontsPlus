@@ -64,7 +64,7 @@ public struct PresetButton {
 }
 
 public struct PresetButtonView: View {
-  private var store: StoreOf<PresetButton>
+  @State private var store: StoreOf<PresetButton>
   @Environment(\.editMode) private var editingMode
 
   private var editingVisibility: Bool { (editingMode?.wrappedValue ?? .inactive) == .active }
@@ -89,7 +89,7 @@ public struct PresetButtonView: View {
             .frame(width: 24)
             .animation(.smooth, value: store.kind) // animate the visibiliity toggle image
         }
-        if let symbolPrefix = store.symbolPrefix {
+        if let symbolPrefix = store.symbolPrefix, isFavorite {
           Image(systemName: symbolPrefix)
         }
         Text(store.displayName)
@@ -147,11 +147,12 @@ public struct PresetButtonView: View {
 
 extension PresetButtonView {
   static var preview: some View {
-    let presets: [Preset] = {
+    @Shared(.favoriteSymbolName) var favoriteSymbolName
+    let presets: [PresetInfo] = {
       var presets = Preset.all(for: 1)
       // swiftlint:disable:next force_unwrapping
       presets.append(presets.last!.cloneFavorite()!)
-      return presets
+      return PresetInfo.all(for: 1)
     }()
     return VStack {
       Text("Normal")
@@ -162,7 +163,7 @@ extension PresetButtonView {
               id: presets[0].id,
               displayName: presets[0].displayName,
               kind: presets[0].kind,
-              symbolPrefix: nil
+              symbolPrefix: favoriteSymbolName
             )
           ) {
             PresetButton()
@@ -174,8 +175,8 @@ extension PresetButtonView {
             initialState: .init(
               id: presets[1].id,
               displayName: presets[1].displayName,
-              kind: presets[1].kind,
-              symbolPrefix: nil
+              kind: .favorite,
+              symbolPrefix: favoriteSymbolName
             )
           ) {
             PresetButton()
@@ -191,7 +192,7 @@ extension PresetButtonView {
               displayName: presets.last!.displayName,
               // swiftlint:disable:next force_unwrapping
               kind: presets.last!.kind,
-              symbolPrefix: "ℹ️"
+              symbolPrefix: favoriteSymbolName
             )
           ) {
             PresetButton()
@@ -210,7 +211,7 @@ extension PresetButtonView {
               id: presets[0].id,
               displayName: presets[0].displayName,
               kind: presets[0].kind,
-              symbolPrefix: nil
+              symbolPrefix: favoriteSymbolName
             )
           ) {
             PresetButton()
@@ -223,7 +224,7 @@ extension PresetButtonView {
               id: presets[1].id,
               displayName: presets[1].displayName,
               kind: presets[1].kind,
-              symbolPrefix: nil
+              symbolPrefix: favoriteSymbolName
             )
           ) {
             PresetButton()
@@ -236,7 +237,7 @@ extension PresetButtonView {
               id: presets[2].id,
               displayName: presets[2].displayName,
               kind: presets[2].kind,
-              symbolPrefix: "ℹ️"
+              symbolPrefix: favoriteSymbolName
             )
           ) {
             PresetButton()
