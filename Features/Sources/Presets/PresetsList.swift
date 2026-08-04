@@ -42,7 +42,7 @@ public struct PresetsList {
   @ObservableState
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
-    @ObservationStateIgnored
+    // @ObservationStateIgnored
     public var presets: [PresetInfo]
     public var sections: IdentifiedArrayOf<PresetsListSection.State> = .init()
     public var searchText: String
@@ -597,7 +597,7 @@ public struct PresetsListView: View {
     )
     .animation(.smooth, value: store.isSearchFieldPresented)
     .animation(.smooth, value: store.editingVisibility)
-    .animation(.smooth, value: store.sections)
+    .animation(.smooth, value: store.presets)
     .task { await store.send(.initialize).finish() }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
   }
