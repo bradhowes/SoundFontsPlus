@@ -382,6 +382,10 @@ public struct PresetEditorView: View {
         Text("-90 db")
       } maximumValueLabel: {
         Text("+12 db")
+      } onEditingChanged: { editing in
+        if !editing {
+          print("gainSlider finished")
+        }
       }
       HStack {
         LabeledContent("Pan", value: "\(formattedLeftPanValue)/\(formattedRightPanValue)")
@@ -396,6 +400,10 @@ public struct PresetEditorView: View {
         Text("L")
       } maximumValueLabel: {
         Text("R")
+      } onEditingChanged: { editing in
+        if !editing {
+          print("panSlider finished")
+        }
       }
     }
   }

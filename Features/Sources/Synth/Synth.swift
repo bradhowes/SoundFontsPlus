@@ -276,8 +276,8 @@ extension Synth {
 
   private func destroyAudioGraph(_ state: inout State) {
     log.info("destroyAudioGraph BEGIN")
-    if let midiInstrument = state.avAudioUnit?.midiInstrument {
-      audioGraph.stop(audioGraph.engine, midiInstrument)
+    if let avAudioUnit = state.avAudioUnit {
+      audioGraph.stop(audioGraph.engine, avAudioUnit)
     }
     log.info("destroyAudioGraph END")
   }
@@ -463,12 +463,12 @@ extension Synth {
 
   private func startEngine(_ state: inout State) {
     log.info("startEngine BEGIN")
-    guard let midiInstrument = state.avAudioUnit?.midiInstrument else {
+    guard let avAudioUnit = state.avAudioUnit else {
       log.info("startEngine END - no midi instrument")
       return
     }
 
-    let started = audioGraph.start(audioGraph.engine, midiInstrument)
+    let started = audioGraph.start(audioGraph.engine, avAudioUnit)
     log.info("startEngine END - \(started)")
   }
 

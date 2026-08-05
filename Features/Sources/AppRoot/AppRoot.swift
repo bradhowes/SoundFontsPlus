@@ -81,7 +81,7 @@ public struct AppRoot {
     public var readyForUse = false
     public var audioUnitCrashed = false
     public var toastState: VolumeMonitor.Reason?
-    public var avAudioUnit: AVAudioUnit?
+    public var avAudioUnit: AVAudioUnitMIDIInstrument?
     public var helpInfoSelection: RootHelpInfo?
 
     /**
@@ -357,12 +357,9 @@ extension AppRoot {
       .send(.volumeMonitor(.activePresetIdChanged(presetId))))
   }
 
-  private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnit) -> Effect<Action> {
+  private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnitMIDIInstrument) -> Effect<Action> {
     state.avAudioUnit = avAudioUnit
-    if let midiInstrument = avAudioUnit.midiInstrument {
-      installMIDIMonitor(midiInstrument: midiInstrument)
-    }
-
+    installMIDIMonitor(midiInstrument: avAudioUnit)
     return .merge(
       .send(.toolBar(.audioUnitCreated(avAudioUnit))),
       .send(.keyboard(.midiInstrumentCreated(avAudioUnit)))

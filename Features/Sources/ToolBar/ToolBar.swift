@@ -145,7 +145,7 @@ public struct ToolBar {
     case activePresetIdChanged(Preset.ID?)
     case activeVoiceCountChanged(Int)
     case addSoundFontButtonTapped
-    case audioUnitCreated(AVAudioUnit)
+    case audioUnitCreated(AVAudioUnitMIDIInstrument)
     case clearTemporaryStatus
     case deinitialize
     case delegate(Delegate)
@@ -290,7 +290,7 @@ extension ToolBar {
     return clearTemporaryStatus(&state)
   }
 
-  private func audioUnitCreated(_ state: inout State, audioUnit: AVAudioUnit) -> Effect<Action> {
+  private func audioUnitCreated(_ state: inout State, audioUnit: AVAudioUnitMIDIInstrument) -> Effect<Action> {
     .merge(
       monitorActiveVoiceCount(&state, audioUnit: audioUnit),
       .send(.midiTrafficIndicator(.initialize)),
@@ -323,7 +323,7 @@ extension ToolBar {
     return clearTemporaryStatusTask(&state)
   }
 
-  private func monitorActiveVoiceCount(_ state: inout State, audioUnit: AVAudioUnit) -> Effect<Action> {
+  private func monitorActiveVoiceCount(_ state: inout State, audioUnit: AVAudioUnitMIDIInstrument) -> Effect<Action> {
     guard
       let parameterTree = audioUnit.parameterTree,
       let parameter = parameterTree.parameter(withAddress: SF2.Render.Engine.ParameterAddress.activeVoiceCount.rawValue)
