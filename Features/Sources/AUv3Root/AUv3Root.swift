@@ -257,7 +257,8 @@ extension AUv3Root {
       .init(
         sectionId: sectionId,
         preset: preset,
-        isActive: preset.id == state.presetsList.activePresetId
+        isActive: preset.id == state.presetsList.activePresetId,
+        audioUnit: state.audioUnit
       )
     )
     return .none

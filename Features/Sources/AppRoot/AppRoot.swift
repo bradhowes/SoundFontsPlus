@@ -429,7 +429,8 @@ extension AppRoot {
       .init(
         sectionId: sectionId,
         preset: preset,
-        isActive: preset.id == state.presetsList.activePresetId
+        isActive: preset.id == state.presetsList.activePresetId,
+        audioUnit: state.avAudioUnit?.auAudioUnit
       )
     )
     return .none

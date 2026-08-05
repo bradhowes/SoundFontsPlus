@@ -415,19 +415,6 @@ public struct PresetEditorView: View {
   }
 }
 
-extension AVAudioUnitReverbPreset: @retroactive Strideable {
-  public func distance(to other: AVAudioUnitReverbPreset) -> Int {
-    other.rawValue - self.rawValue
-  }
-
-  public func advanced(by distance: Int) -> AVAudioUnitReverbPreset {
-    // swiftlint:disable:next force_unwrapping
-    .init(rawValue: self.rawValue + distance)!
-  }
-
-  public typealias Stride = Int
-}
-
 extension View {
 
   public func presetEditorSheet(_ store: Binding<StoreOf<PresetEditor>?>) -> some View {
@@ -443,7 +430,15 @@ extension View {
 extension PresetEditorView {
   static var preview: some View {
     let presets = Preset.all(for: 1)
-    return PresetEditorView(store: Store(initialState: .init(sectionId: .init(0), preset: presets[0], isActive: false)) {
+    return PresetEditorView(
+      store: Store(
+        initialState: .init(
+          sectionId: .init(0),
+          preset: presets[0],
+          isActive: false,
+          audioUnit: nil
+        )
+      ) {
       PresetEditor()
     })
   }
