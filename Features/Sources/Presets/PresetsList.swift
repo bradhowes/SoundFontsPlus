@@ -42,7 +42,6 @@ public struct PresetsList {
   @ObservableState
   public struct State: Equatable {
     @Presents public var destination: Destination.State?
-    // @ObservationStateIgnored
     public var presets: [PresetInfo]
     public var sections: IdentifiedArrayOf<PresetsListSection.State> = .init()
     public var searchText: String

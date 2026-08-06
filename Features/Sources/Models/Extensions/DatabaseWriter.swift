@@ -14,7 +14,7 @@ extension DatabaseWriter {
   }
 
   public func withWriter<T>(_ closure: (Database) throws -> T) -> T? {
-    return withErrorReporting {
+    withErrorReporting {
       try self.write { db in
         try closure(db)
       }
@@ -22,7 +22,7 @@ extension DatabaseWriter {
   }
 
   public func withReader<T>(_ closure: (Database) throws -> T) -> T? {
-    return withErrorReporting {
+    withErrorReporting {
       try self.read { db in
         try closure(db)
       }
