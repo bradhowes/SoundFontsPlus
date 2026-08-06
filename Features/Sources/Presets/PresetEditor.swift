@@ -51,7 +51,12 @@ public struct PresetEditor {
 
     public let audioUnit: AUAudioUnit?
 
-    public init(sectionId: PresetsListSection.State.ID, preset: Preset, isActive: Bool, audioUnit: AUAudioUnit? = nil) {
+    public init(
+      sectionId: PresetsListSection.State.ID,
+      preset: Preset,
+      isActive: Bool,
+      audioUnit: AUAudioUnit?
+    ) {
       self.sectionId = sectionId
       self.preset = preset
       self.isActive = isActive

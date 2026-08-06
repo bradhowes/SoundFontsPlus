@@ -15,7 +15,6 @@ import Tuning
   .dependencies {
     $0.defaultDatabase = TestSupport.testDatabase()
   },
-  //  .snapshots(record: .failed)
 )
 @MainActor
 struct PresetEditorTests {
@@ -34,7 +33,14 @@ struct PresetEditorTests {
   func setup(isActive: Bool = false) throws -> (PresetInfo, TestStoreOf<PresetEditor>) {
     let presetInfos = PresetInfo.visible(for: 1)
     let preset = Preset.with(id: presetInfos[0].id)!
-    let store = TestStore(initialState: PresetEditor.State(sectionId: 123, preset: preset, isActive: isActive)) {
+    let store = TestStore(
+      initialState: PresetEditor.State(
+        sectionId: 123,
+        preset: preset,
+        isActive: isActive,
+        audioUnit: nil
+      )
+    ) {
       PresetEditor()
     }
     return (presetInfos[0], store)

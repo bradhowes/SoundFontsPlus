@@ -58,9 +58,7 @@ struct SF2LibAUTests {
       #expect(
         au.sendLoadFileUsePreset(
           path: location.url.path(percentEncoded: false),
-          preset: presetInfo.presetIndex,
-          gain: presetInfo.gain,
-          pan: presetInfo.pan
+          preset: presetInfo.presetIndex
         ) == true
       )
 

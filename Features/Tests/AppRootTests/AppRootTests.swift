@@ -379,7 +379,8 @@ struct AppRootTests {
           .init(
             sectionId: section.id,
             preset: preset,
-            isActive: true
+            isActive: true,
+            audioUnit: $0.avAudioUnit?.auAudioUnit
           )
         )
       }

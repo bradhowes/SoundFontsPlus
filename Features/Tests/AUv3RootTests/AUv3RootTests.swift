@@ -149,7 +149,8 @@ struct AUv3RootTests {
           .init(
             sectionId: section.id,
             preset: preset,
-            isActive: false
+            isActive: false,
+            audioUnit: $0.audioUnit
           )
         )
       }
