@@ -20,9 +20,9 @@ nonisolated public struct AudioConfig {
 
   public let id: ID
   /// Initial attenuation of audio samples for this preset. [-90.0, +12.0]
-  public var gain: Double = 0.0
+  public var gain: Double = Self.defaultGain
   /// Initial pan/balance of audio samples for this preset. [-100.0, +100.0]
-  public var pan: Double = 0.0
+  public var pan: Double = Self.defaultPan
 
   public var keyboardLowestNoteEnabled: Bool = false
   public var keyboardLowestNote: Note = .C4
@@ -127,8 +127,8 @@ extension AudioConfig: Hashable, Identifiable, Sendable {}
 extension AudioConfig.Draft: Equatable, Sendable {
 
   public init(
-    gain: Double = 0.0,
-    pan: Double = 0.0,
+    gain: Double = AudioConfig.defaultGain,
+    pan: Double = AudioConfig.defaultPan,
     keyboardLowestNoteEnabled: Bool = false,
     keyboardLowestNote: Note = .C4,
     pitchBendRange: Int = 2,
