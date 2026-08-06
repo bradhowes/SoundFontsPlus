@@ -59,8 +59,8 @@ struct PresetEditorTests {
     await store.send(\.binding.visible, false) {
       $0.visible = false
     }
-    await store.send(\.binding.gainSlider, 0.5) {
-      $0.gainSlider = 0.5
+    await store.send(\.binding.gainSlider, 0.25) {
+      $0.gainSlider = 0.25
     }
     await store.send(\.tuning.scientificTuningApplyPressed) {
       $0.tuning.frequency = 432.0
@@ -80,7 +80,7 @@ struct PresetEditorTests {
     }
 
     await store.send(\.saveButtonTapped) {
-      $0.pendingAudioConfig.gain = 0.5
+      $0.pendingAudioConfig.gain = 0.25
       $0.pendingAudioConfig.customTuning = 432.0
       $0.pendingAudioConfig.customTuningEnabled = true
     }
@@ -91,7 +91,7 @@ struct PresetEditorTests {
     #expect(changed.kind == .hidden)
 
     let audioConfig = changed.audioConfig!
-    #expect(audioConfig.gain == 0.5)
+    #expect(audioConfig.gain == 0.25)
     #expect(audioConfig.customTuning == 432.0)
     #expect(audioConfig.customTuningEnabled)
   }
@@ -109,6 +109,20 @@ struct PresetEditorTests {
     await store.send(\.binding.visible, false) {
       $0.visible = false
     }
+    await store.send(\.binding.gainSlider, 0.35) {
+      $0.gainSlider = 0.35
+    }
+    await store.send(\.gainChanged) {
+      $0.pendingAudioConfig.gain = 0.35
+    }
+    await store.receive(\.delegate.audioConfigChanged)
+    await store.send(\.binding.panSlider, 0.35) {
+      $0.panSlider = 0.35
+    }
+    await store.send(\.panChanged) {
+      $0.pendingAudioConfig.pan = 0.35
+    }
+    await store.receive(\.delegate.audioConfigChanged)
 
     await store.send(\.cancelButtonTapped)
 
@@ -134,25 +148,27 @@ struct PresetEditorTests {
   @Test
   func resetGainTapped() async throws {
     let (_, store) = try setup()
-
-    await store.send(\.binding.gainSlider, 0.5) {
-      $0.gainSlider = 0.5
-    }
+    await store.send(\.binding.gainSlider, 0.75) { $0.gainSlider = 0.75 }
+    await store.send(\.gainChanged) { $0.pendingAudioConfig.gain = 0.75 }
+    await store.receive(\.delegate.audioConfigChanged)
     await store.send(\.resetGainTapped) {
       $0.gainSlider = 0.0
+      $0.pendingAudioConfig.gain = 0.0
     }
+    await store.receive(\.delegate.audioConfigChanged)
   }
 
   @Test
   func resetPanTapped() async throws {
     let (_, store) = try setup()
-
-    await store.send(\.binding.panSlider, 0.75) {
-      $0.panSlider = 0.75
-    }
+    await store.send(\.binding.panSlider, 0.75) { $0.panSlider = 0.75 }
+    await store.send(\.panChanged) { $0.pendingAudioConfig.pan = 0.75 }
+    await store.receive(\.delegate.audioConfigChanged)
     await store.send(\.resetPanTapped) {
       $0.panSlider = 0.0
+      $0.pendingAudioConfig.pan = 0.0
     }
+    await store.receive(\.delegate.audioConfigChanged)
   }
 
   @Test
