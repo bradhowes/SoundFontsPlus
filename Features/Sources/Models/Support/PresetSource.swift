@@ -8,19 +8,30 @@ public enum PresetSource: Codable, Equatable, Sendable {
   case active(SoundFont.ID)
   case selected(SoundFont.ID)
 
+  /**
+   Create an `active` source using the given sound font ID.
+
+   - parameter soundFontId: the sound font being activated
+   - returns: the `active` source
+   */
   public static func makeActive(_ soundFontId: SoundFont.ID?) -> PresetSource? {
     guard let soundFontId else { return nil }
     return .active(soundFontId)
   }
 
+  /// - returns `true` if instance is an `active` case
   public var isActive: Bool {
     guard case .active = self else { return false }
     return true
   }
 
+  /// - returns `true` if instance is an `selected` case
   public var isSelected: Bool { !isActive }
+
+  /// - returns an active case with the current sound font ID.
   public var activated: PresetSource { .active(id) }
 
+  /// - returns the embedded sound font ID
   public var id: SoundFont.ID {
     switch self {
     case .active(let soundFontId): return soundFontId
