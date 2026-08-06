@@ -78,40 +78,16 @@ public struct ReverbEffect {
 
     Reduce { state, action in
       log.action("ReverbEffect", action)
-
-      switch action {
-
-      case .activePresetIdChanged(let presetId):
-        return activePresetIdChanged(&state, presetId: presetId)
-
-      case .applyConfigForPreset(let presetId):
-        return applyConfigForPreset(&state, presetId: presetId)
-
-      case .deinitialize:
-        if state.dirty {
-          _ = saveDebounced(&state)
-        }
-        return .merge(
-          CancelId.allCases.map { .cancel(id: $0) }
-        )
-
-      case .enabled:
-        return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
-
-      case .locked:
-        return updateLocked(&state)
-
-      case let .roomPresetChanged(value):
-        return updateAndSave(&state, path: \.roomPreset, value: value)
-
-      case .saveDebounced:
-        return saveDebounced(&state)
-
-      case .updateDebounced:
-        return updateDebounced(&state)
-
-      case .wetDryMix:
-        return updateAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
+      return switch action {
+      case .activePresetIdChanged(let presetId): activePresetIdChanged(&state, presetId: presetId)
+      case .applyConfigForPreset(let presetId): applyConfigForPreset(&state, presetId: presetId)
+      case .deinitialize: deinitialize(&state)
+      case .enabled: updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
+      case .locked: updateLocked(&state)
+      case .roomPresetChanged(let value): updateAndSave(&state, path: \.roomPreset, value: value)
+      case .saveDebounced: saveDebounced(&state)
+      case .updateDebounced: updateDebounced(&state)
+      case .wetDryMix: updateAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
       }
     }
   }
@@ -194,6 +170,11 @@ extension ReverbEffect {
     return .none
   }
 
+  private func deinitialize(_ state: inout State) -> Effect<Action> {
+    if state.dirty { saveDebounced(&state) }
+    return .merge(CancelId.allCases.map { .cancel(id: $0) })
+  }
+
   private func runDebouncers(_ state: inout State) -> Effect<Action> {
     state.dirty = true
     let debounceDurations = self.debounceDurations
@@ -209,6 +190,7 @@ extension ReverbEffect {
     )
   }
 
+  @discardableResult
   private func saveDebounced(_ state: inout State) -> Effect<Action> {
     state.dirty = false
     if let presetId = state.activePresetId,

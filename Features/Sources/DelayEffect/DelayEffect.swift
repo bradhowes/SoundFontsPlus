@@ -213,9 +213,7 @@ extension DelayEffect {
   }
 
   private func deinitialize(_ state: inout State) -> Effect<Action> {
-    if state.dirty {
-      _ = saveDebounced(&state)
-    }
+    if state.dirty { saveDebounced(&state) }
     return .merge(CancelId.allCases.map { .cancel(id: $0) })
   }
 
@@ -238,6 +236,7 @@ extension DelayEffect {
     )
   }
 
+  @discardableResult
   private func saveDebounced(_ state: inout State) -> Effect<Action> {
     log.info("saveDebounced BEGIN")
     state.dirty = false
