@@ -70,47 +70,19 @@ public struct TagsList {
   public var body: some ReducerOf<Self> {
 
     Reduce<State, Action> { state, action in
-
       log.action("TagsList", action)
-
-      switch action {
-
-      case .deinitialize:
-        return .merge(CancelId.allCases.map { .cancel(id: $0) })
-
-      case .delegate:
-        return .none
-
-      case .destination(.presented(.alert(.deleteTagConfirmed(let tagInfo)))):
-        return deleteTagConfirmed(&state, tagInfo: tagInfo)
-
-      case .fullStateChanged(let tagId):
-        return fullStateChanged(&state, tagId: tagId)
-
-      case .importFinished:
-        if state.activeTagId != Tag.Ubiquitous.all.id && state.activeTagId != Tag.Ubiquitous.added.id {
-          state.activeTagId = Tag.Ubiquitous.added.id
-          return .send(.delegate(.activeTagIdChanged(state.activeTagId)))
-        }
-        return .none
-
-      case .initialize:
-        return initialize(&state)
-
-      case .tagInfoButtonTapped(let tagInfo):
-        return tagInfoButtonTapped(&state, tagInfo: tagInfo)
-
-      case .tagInfoDeleteTapped(let tagInfo):
-        return tagInfoDeleteTapped(&state, tagInfo: tagInfo)
-
-      case .tagInfoEditTapped(let tagInfo):
-        return tagInfoEditTapped(&state, tagInfo: tagInfo)
-
-      case .updateFetchAllQuery:
-        return updateFetchAllQuery(&state)
-
-      default:
-        return .none
+      return switch action {
+      case .deinitialize: .merge(CancelId.allCases.map { .cancel(id: $0) })
+      case .delegate: .none
+      case .destination(.dismiss): .none
+      case .destination(.presented(.alert(.deleteTagConfirmed(let tagInfo)))): deleteTagConfirmed(&state, tagInfo: tagInfo)
+      case .fullStateChanged(let tagId): fullStateChanged(&state, tagId: tagId)
+      case .importFinished: importFinished(&state)
+      case .initialize: initialize(&state)
+      case .tagInfoButtonTapped(let tagInfo): tagInfoButtonTapped(&state, tagInfo: tagInfo)
+      case .tagInfoDeleteTapped(let tagInfo): tagInfoDeleteTapped(&state, tagInfo: tagInfo)
+      case .tagInfoEditTapped(let tagInfo): tagInfoEditTapped(&state, tagInfo: tagInfo)
+      case .updateFetchAllQuery: updateFetchAllQuery(&state)
       }
     }
     .ifLet(\.destination, action: \.destination)
@@ -155,6 +127,14 @@ extension TagsList {
 
   private func fullStateChanged(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
     state.activeTagId = tagId
+    return .none
+  }
+
+  private func importFinished(_ state: inout State) -> Effect<Action> {
+    if state.activeTagId != Tag.Ubiquitous.all.id && state.activeTagId != Tag.Ubiquitous.added.id {
+      state.activeTagId = Tag.Ubiquitous.added.id
+      return .send(.delegate(.activeTagIdChanged(state.activeTagId)))
+    }
     return .none
   }
 

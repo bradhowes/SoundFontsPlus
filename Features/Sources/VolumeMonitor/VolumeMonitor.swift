@@ -48,26 +48,13 @@ public struct VolumeMonitor {
   public var body: some Reducer<State, Action> {
 
     Reduce { state, action in
-
       log.action("VolumeMonitor", action)
-
-      switch action {
-
-      case .activePresetIdChanged(let presetId):
-        return presetChanged(&state, presetId: presetId)
-
-      case .stop:
-        log.info("stop")
-        return .cancel(id: CancelId.volumeMonitorMonitorSessionVolume)
-
-      case .delegate:
-        return .none
-
-      case .start:
-        return start(&state)
-
-      case .volumeChanged(let volume):
-        return volumeChanged(&state, volume: volume)
+      return switch action {
+      case .activePresetIdChanged(let presetId): presetChanged(&state, presetId: presetId)
+      case .delegate: .none
+      case .start: start(&state)
+      case .stop: .cancel(id: CancelId.volumeMonitorMonitorSessionVolume)
+      case .volumeChanged(let volume): volumeChanged(&state, volume: volume)
       }
     }
   }

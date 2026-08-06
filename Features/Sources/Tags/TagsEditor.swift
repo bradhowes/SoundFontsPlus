@@ -160,66 +160,23 @@ public struct TagsEditor {
   public var body: some ReducerOf<Self> {
     BindingReducer()
     Reduce { state, action in
-
       log.action("TagsEditor", action)
-
-      switch action {
-
-      case .addButtonTapped:
-        return addTag(&state)
-
-      case .cancelButtonTapped:
-        return dismiss(&state, save: false)
-
-      case .deleteButtonTapped(let indices):
-        return deleteTag(&state, indices: indices)
-
-      case .destination(.dismiss):
-        return dismiss(&state, save: true)
-
-      case .destination(.presented(.alert(.disableHideEmptyTags))):
-        $hideEmptyTags.withLock { $0 = false }
-        return dismiss(&state, save: true)
-
-      case .destination(.presented(.alert(.disableNewTagIsHiddenAlert))):
-        @Shared(.disableNewTagIsHiddenAlert) var disableNewTagIsHiddenAlert
-        $disableNewTagIsHiddenAlert.withLock { $0 = true }
-        return dismiss(&state, save: true)
-
-      case .editModeActiveChanged(let value):
-        state.editModeActive = value
-        return .none
-
-      case .finalizeDeleteTag(let rowId):
-        return finalizeDeleteTag(&state, rowId: rowId)
-
-      case .helpInfoButtonTapped:
-        state.helpInfoSelection = state.mode == .fontEditing ? .tagsListMembership : .tagsListVisibility
-        return .none
-
-      case let .rows(.element(id: id, action: \.delegate.tagSwipedToDelete)):
-        return deleteTag(&state, rowId: id)
-
-      case .saveButtonTapped:
-        if state.hasNewTags && hideEmptyTags && !disableNewTagIsHiddenAlert {
-          state.destination = .alert(
-            .newTagsHidden(
-              disableAlert: Destination.Alert.disableNewTagIsHiddenAlert,
-              disableOption: Destination.Alert.disableHideEmptyTags
-            )
-          )
-          return .none
-        }
-        return dismiss(&state, save: true)
-
-      case let .tagMoved(indices, offset):
-        return moveTag(&state, at: indices, to: offset)
-
-      case .toggleEditModeActive:
-        return toggleEditModeActive(&state)
-
-      default:
-        return .none
+      return switch action {
+      case .addButtonTapped: addTag(&state)
+      case .binding: .none
+      case .cancelButtonTapped: dismiss(&state, save: false)
+      case .deleteButtonTapped(let indices): deleteTag(&state, indices: indices)
+      case .destination(.dismiss): dismiss(&state, save: true)
+      case .destination(.presented(.alert(.disableHideEmptyTags))): disableHideEmptyTagsConfirmed(&state)
+      case .destination(.presented(.alert(.disableNewTagIsHiddenAlert))): disableNewTagIsHiddenConfirmed(&state)
+      case .editModeActiveChanged(let value): editModeActiveChanged(&state, active: value)
+      case .finalizeDeleteTag(let rowId): finalizeDeleteTag(&state, rowId: rowId)
+      case .helpInfoButtonTapped: helpInfoButtonTapped(&state)
+      case let .rows(.element(id: id, action: \.delegate.tagSwipedToDelete)): deleteTag(&state, rowId: id)
+      case .rows: .none
+      case .saveButtonTapped: saveButtonTapped(&state)
+      case let .tagMoved(indices, offset): moveTag(&state, at: indices, to: offset)
+      case .toggleEditModeActive: toggleEditModeActive(&state)
       }
     }
     .forEach(\.rows, action: \.rows) {
@@ -284,11 +241,27 @@ private extension TagsEditor {
     return .none
   }
 
+  private func disableHideEmptyTagsConfirmed(_ state: inout State) -> Effect<Action> {
+    $hideEmptyTags.withLock { $0 = false }
+    return dismiss(&state, save: true)
+  }
+
+  private func disableNewTagIsHiddenConfirmed(_ state: inout State) -> Effect<Action> {
+    @Shared(.disableNewTagIsHiddenAlert) var disableNewTagIsHiddenAlert
+    $disableNewTagIsHiddenAlert.withLock { $0 = true }
+    return dismiss(&state, save: true)
+  }
+
   func dismiss(_ state: inout State, save: Bool) -> Effect<Action> {
     if save {
       state.save()
     }
     return .run { [dismiss] _ in await dismiss() }
+  }
+
+  func editModeActiveChanged(_ state: inout State, active: Bool) -> Effect<Action> {
+    state.editModeActive = active
+    return .none
   }
 
   func finalizeDeleteTag(_ state: inout State, rowId: Int) -> Effect<Action> {
@@ -305,11 +278,29 @@ private extension TagsEditor {
     return .none
   }
 
+  func helpInfoButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.helpInfoSelection = state.mode == .fontEditing ? .tagsListMembership : .tagsListVisibility
+    return .none
+  }
+
   func moveTag(_ state: inout State, at indices: IndexSet, to offset: Int) -> Effect<Action> {
     withAnimation(.smooth) {
       state.rows.move(fromOffsets: indices, toOffset: offset)
     }
     return .none
+  }
+
+  func saveButtonTapped(_ state: inout State) -> Effect<Action> {
+    if state.hasNewTags && hideEmptyTags && !disableNewTagIsHiddenAlert {
+      state.destination = .alert(
+        .newTagsHidden(
+          disableAlert: Destination.Alert.disableNewTagIsHiddenAlert,
+          disableOption: Destination.Alert.disableHideEmptyTags
+        )
+      )
+      return .none
+    }
+    return dismiss(&state, save: true)
   }
 
   func toggleEditModeActive(_ state: inout State) -> Effect<Action> {

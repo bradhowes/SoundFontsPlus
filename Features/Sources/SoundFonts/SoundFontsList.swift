@@ -218,7 +218,6 @@ extension SoundFontsList {
     return .none
   }
 
-
   private func deleteSoundFontCollection(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Destination.State? {
     state.editingMode = .inactive
     var errors: [String] = []
@@ -358,7 +357,6 @@ extension SoundFontsList {
     }
     return .none
   }
-
 
   private func initialize(_ state: inout State) -> Effect<Action> {
     .merge(
