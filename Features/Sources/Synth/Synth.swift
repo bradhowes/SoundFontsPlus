@@ -73,9 +73,8 @@ public struct Synth {
 
     @CasePathable
     public enum Delegate: Equatable {
-      case audioUnitCreated(AVAudioUnitMIDIInstrument)
       case missingPresetInfo(Preset.ID)
-      case running
+      case running(AVAudioUnitMIDIInstrument)
       case stopped
     }
   }
@@ -86,7 +85,6 @@ public struct Synth {
 
   @Dependency(\.audioGraph) private var audioGraph
   @Dependency(\.audioSession) private var audioSession
-  // @Dependency(\.avAudioUnitMIDIInstrumentGenerator) private var avAudioUnitGen
   @Dependency(\.continuousClock) var clock
   @Dependency(\.defaultDatabase) private var database
 
@@ -96,47 +94,21 @@ public struct Synth {
   public var body: some ReducerOf<Self> {
 
     Reduce { state, action in
-
       log.action("Synth", action)
-
-      switch action {
-
-      case .acquireAudioSession:
-        return acquireAudioSession(&state)
-
-      case .activePresetIdChanged(let presetId):
-        return activePresetIdChanged(&state, presetId: presetId)
-
-      case .audioSessionRouteChanged:
-        return audioSessionRouteChanged(&state)
-
-      case .deinitialize:
-        return .merge(CancelId.allCases.map { .cancel(id: $0) })
-
-      case .delegate:
-        return .none
-
-      case .initialize:
-        return synthAudioUnitCreate(&state)
-
-      case .lastPresetLoadFinished:
-        return lastPresetLoadFinished(&state)
-
-      case .mediaServicesWereReset:
-        return restartAudioSession(&state)
-
-      case .playNote:
-        return sendNoteOnOffSequence(state)
-
-      case .releaseAudioSession:
-        return releaseAudioSession(&state)
-
+      return switch action {
+      case .acquireAudioSession: acquireAudioSession(&state)
+      case .activePresetIdChanged(let presetId): activePresetIdChanged(&state, presetId: presetId)
+      case .audioSessionRouteChanged: audioSessionRouteChanged(&state)
+      case .deinitialize: .merge(CancelId.allCases.map { .cancel(id: $0) })
+      case .delegate: .none
+      case .initialize: synthAudioUnitCreate(&state)
+      case .lastPresetLoadFinished: lastPresetLoadFinished(&state)
+      case .mediaServicesWereReset: restartAudioSession(&state)
+      case .playNote: sendNoteOnOffSequence(state)
+      case .releaseAudioSession: releaseAudioSession(&state)
       case let .synthAudioUnitCreated(avAudioUnit, viewController):
-        return synthAudioUnitCreated(&state, avAudioUnit: avAudioUnit, viewController: viewController)
-
-      case .synthAudioUnitCreationFailed:
-        log.error("Failed to create AVAudioUnit")
-        return .none
+        synthAudioUnitCreated(&state, avAudioUnit: avAudioUnit, viewController: viewController)
+      case .synthAudioUnitCreationFailed: synthAudioUnitCreationFailed()
       }
     }
   }
@@ -215,8 +187,7 @@ extension Synth {
   private func beginMonitoring(_ state: inout State) -> Effect<Action> {
     log.info("beginMonitoring BEGIN")
     var actions = [
-      monitorLastLoadFinished(&state),
-      .send(.delegate(.running))
+      monitorLastLoadFinished(&state)
     ]
 
 #if os(iOS)
@@ -234,7 +205,8 @@ extension Synth {
     log.info("synthAudioUnitCreate BEGIN")
     return .run { send in
       log.info("synthAudioUnitCreate - instantiating audio unit")
-      guard let avAudioUnit = await SF2LibAU.create(register: true) else {
+      @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitGen
+      guard let avAudioUnit = await avAudioUnitGen.generate() else {
         log.error("synthAudioUnitCreate - failed to create SF2LibAU instance")
         await send(.synthAudioUnitCreationFailed)
         return
@@ -268,10 +240,7 @@ extension Synth {
     }
 
     log.info("synthAudioUnitCreated END")
-    return .merge(
-      beginMonitoring(&state),
-      .send(.delegate(.audioUnitCreated(avAudioUnit)))
-    )
+    return beginMonitoring(&state)
   }
 
   private func destroyAudioGraph(_ state: inout State) {
@@ -329,11 +298,21 @@ extension Synth {
       fatalError("monitorLastLoadFinished - did not find lastLoadFinished parameter")
     }
 
+    guard
+      let avAudioUnit = state.avAudioUnit
+    else {
+      fatalError("monitorLastLoadFinished - unexpected nil avAudioUnit")
+    }
+
     return .run(priority: .utility, name: "monitorLastLoadFinished") { send in
       let stream: AsyncStream<AUValue>
       let observerToken: AUParameterObserverToken
       unsafe (observerToken, stream) = parameter.startObserving()
       defer { unsafe parameter.removeParameterObserver(observerToken) }
+
+      // NOTE: putting this here on purpose so that we receive a notification when the initial preset loading is done.
+      // Otherwise, there is a race and the code in `lastPresetLoadFinished` is not run at app start.
+      await send(.delegate(.running(avAudioUnit)))
 
       for await value in stream {
         if Task.isCancelled { break }
@@ -473,5 +452,10 @@ extension Synth {
     audioSession.stop()
     state.audioSessionActivated = false
     log.info("stopAudioSession END")
+  }
+
+  private func synthAudioUnitCreationFailed() -> Effect<Action> {
+    log.error("Failed to create AVAudioUnit")
+    return .none
   }
 }

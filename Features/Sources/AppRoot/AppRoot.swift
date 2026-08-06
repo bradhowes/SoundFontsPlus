@@ -281,11 +281,11 @@ public struct AppRoot {
         state.destination = .soundFontEditor(.init(soundFont: soundFont))
         return .none
 
-      case .synth(.delegate(.audioUnitCreated(let avAudioUnit))):
-        return audioUnitCreated(&state, avAudioUnit: avAudioUnit)
-
-      case .synth(.delegate(.running)):
-        return audioChainActive(&state)
+      case .synth(.delegate(.running(let avAudioUnit))):
+        return .merge(
+          audioUnitCreated(&state, avAudioUnit: avAudioUnit),
+          audioChainActive(&state)
+        )
 
       case .synth(.delegate(.stopped)):
         return audioChainInactive(&state)

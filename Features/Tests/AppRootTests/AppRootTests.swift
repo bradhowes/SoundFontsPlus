@@ -34,6 +34,7 @@ import VolumeMonitor
     let mockVolume = OutputVolumeFlipFlop()
     $0.audioGraph = .liveValue
     $0.audioSession = .liveValue
+    $0.avAudioUnitMIDIInstrumentGenerator = .liveValue
     $0.continuousClock = TestClock<Duration>()
     $0.date = .constant(.now)
     $0.defaultDatabase = try appDatabase(fonts: [SF2ResourceTag.fluidFont], loadAllPresets: false)
@@ -83,12 +84,16 @@ struct AppRootTests {
 
     let avAudioUnit = try #require(store.state.synth.avAudioUnit)
 
-    await store.receive(\.synth.delegate.running) {
+    await store.receive(\.synth.delegate.running, avAudioUnit) {
       $0.toolBar.temporaryStatus = .startup
       $0.toastState = nil
       $0.readyForUse = true
+      $0.avAudioUnit = avAudioUnit
     }
-    await store.receive(\.synth.delegate.audioUnitCreated) { $0.avAudioUnit = store.state.synth.avAudioUnit }
+
+    await store.receive(\.toolBar.audioUnitCreated, avAudioUnit)
+    await store.receive(\.keyboard.midiInstrumentCreated, avAudioUnit) { $0.keyboard.midiInstrument = avAudioUnit }
+
     await store.receive(\.volumeMonitor.start) { $0.volumeMonitor.reason = .noActivePreset }
     await store.receive(\.appReview.ask)
     await store.receive(\.delayEffect.activePresetIdChanged, 1) { $0.delayEffect.activePresetId = 1 }
@@ -108,8 +113,7 @@ struct AppRootTests {
       $0.volumeMonitor.activePresetId = 1
       $0.volumeMonitor.reason = nil
     }
-    await store.receive(\.toolBar.audioUnitCreated, avAudioUnit)
-    await store.receive(\.keyboard.midiInstrumentCreated, avAudioUnit) { $0.keyboard.midiInstrument = avAudioUnit }
+    await store.receive(\.toolBar.midiTrafficIndicator.initialize)
     await store.receive(\.volumeMonitor.delegate.reasonChanged, .noActivePreset) {
       $0.keyboard.muted = false
       $0.toastState = .noActivePreset
@@ -123,7 +127,6 @@ struct AppRootTests {
     await store.receive(\.reverbEffect.wetDryMix.setValueSilently, 50.0)
     await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1))
     await store.receive(\.volumeMonitor.delegate.reasonChanged, nil) { $0.toastState = nil }
-    await store.receive(\.toolBar.midiTrafficIndicator.initialize)
     await store.receive(\.keyboard.outputVolumeStateChanged, .muted) { $0.keyboard.muted = true }
     await store.receive(\.delayEffect.time.track.valueChanged, 0.5)
     await store.receive(\.delayEffect.feedback.track.valueChanged, 25.0)
@@ -132,6 +135,7 @@ struct AppRootTests {
     await store.receive(\.reverbEffect.wetDryMix.track.valueChanged, 50.0)
     await store.receive(\.presetsList.presetSourceChanged, .active(1)) { $0.presetsList.scrollToTarget = .preset(1) }
     await store.receive(\.keyboard.outputVolumeStateChanged, .unmuted) { $0.keyboard.muted = false }
+    await store.receive(\.synth.lastPresetLoadFinished) { $0.synth.firstTimeLoading = false }
 
     try await store.withExhaustivity(exhaustivity) {
       try await closure(store)
@@ -205,8 +209,7 @@ struct AppRootTests {
       await store.receive(\.soundFontsList.delegate.presetSourceChanged, .active(1))
       await store.receive(\.presetsList.presetSourceChanged, .active(1))
 
-      await store.receive(\.synth.lastPresetLoadFinished) { $0.synth.firstTimeLoading = false }
-      // await store.receive(\.toolBar.activeVoiceCountChanged, 0)
+      await store.receive(\.synth.lastPresetLoadFinished)
     }
   }
 

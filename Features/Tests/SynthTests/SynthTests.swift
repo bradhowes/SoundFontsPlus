@@ -23,6 +23,7 @@ import TestSupport
   .dependencies {
     $0.audioGraph = .liveValue
     $0.audioSession = .liveValue
+    $0.avAudioUnitMIDIInstrumentGenerator = .liveValue
     $0.continuousClock = TestClock<Duration>()
     $0.date = .constant(.now)
     $0.defaultDatabase = try appDatabase(fonts: [SF2ResourceTag.fluidFont], loadAllPresets: false)
@@ -54,8 +55,7 @@ struct SynthTests {
         #expect(store.state.avAudioUnit != nil)
       }
 
-      await store.receive(\.delegate.running)
-      await store.receive(\.delegate.audioUnitCreated, store.state.avAudioUnit!)
+      await store.receive(\.delegate.running, store.state.avAudioUnit!)
 
       try await closure(store)
 

@@ -339,6 +339,7 @@ struct ToolBarTests {
     .dependencies {
       $0.audioGraph = .liveValue
       $0.audioSession = MockAudioSession().audioSession
+      $0.avAudioUnitMIDIInstrumentGenerator = .liveValue
       $0.continuousClock = .immediate
       $0.defaultDatabase = try appDatabase(loadAllPresets: false)
       $0.delayDevice = .liveValue
@@ -357,8 +358,7 @@ struct ToolBarTests {
       }
     }
 
-    await synth.receive(\.delegate.running)
-    await synth.receive(\.delegate.audioUnitCreated, synth.state.avAudioUnit!)
+    await synth.receive(\.delegate.running, synth.state.avAudioUnit!)
 
     await synth.send(\.activePresetIdChanged, 2) {
       $0.loadedSoundFontId = 1
