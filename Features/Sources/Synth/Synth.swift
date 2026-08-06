@@ -232,7 +232,7 @@ extension Synth {
 
   private func synthAudioUnitCreate(_ state: inout State) -> Effect<Action> {
     log.info("synthAudioUnitCreate BEGIN")
-    return .run(priority: .utility, name: "createSynthAudioUnit") { send in
+    return .run { send in
       log.info("synthAudioUnitCreate - instantiating audio unit")
       guard let avAudioUnit = await SF2LibAU.create(register: true) else {
         log.error("synthAudioUnitCreate - failed to create SF2LibAU instance")
@@ -295,13 +295,13 @@ extension Synth {
     }
 
     if let audioConfig = AudioConfig.with(presetId: presetId) {
-      let gainAddress = AUParameterAddress(SF2.Entity.Generator.Index.initialAttenuation.rawValue)
-      let gainParameter = parameterTree.parameter(withAddress: gainAddress)
-      unsafe gainParameter?.setValue(audioConfig.gain.gainGeneratorValue, originator: nil)
+      if let gainParameter = parameterTree[SF2.Entity.Generator.Index.initialAttenuation] {
+        unsafe gainParameter.setValue(audioConfig.gain.gainGeneratorValue, originator: nil)
+      }
 
-      let panAddress = AUParameterAddress(SF2.Entity.Generator.Index.pan.rawValue)
-      let panParameter = parameterTree.parameter(withAddress: panAddress)
-      unsafe panParameter?.setValue(audioConfig.pan.panGeneratorValue, originator: nil)
+      if let panParameter = parameterTree[SF2.Entity.Generator.Index.pan] {
+        unsafe panParameter.setValue(audioConfig.pan.panGeneratorValue, originator: nil)
+      }
     }
 
     let result: Effect<Action>
