@@ -27,7 +27,8 @@ public typealias ViewController = NSViewController
 #endif
 
 /**
- Manages the audio session and synth creation for the app. Not used by the AUv3 extension.
+ Manages the audio session and synth creation for the app. Not used by the AUv3 extension, which instead relies on the AUv3
+ factory mechanism to create the component and inject it into a UIKit view controller.
  */
 @Reducer
 public struct Synth {
