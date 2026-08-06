@@ -55,32 +55,36 @@ public struct Tutorial {
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
-
     Reduce { state, action in
       switch action {
-
-      case .binding:
-        return .none
-
-      case .dismissButtonTapped:
-        return .run { [dismiss] _ in await dismiss() }
-
-      case .next:
-        state.page = state.page.next
-        return .none
-
-      case .page(let value):
-        state.page = value
-        return .none
-
-      case .prev:
-        state.page = state.page.prev
-        return .none
+      case .binding: .none
+      case .dismissButtonTapped: .run { [dismiss] _ in await dismiss() }
+      case .next: nextButtonTapped(&state)
+      case .page(let value): pageTapped(&state, page: value)
+      case .prev: previousButtonTapped(&state)
       }
     }
   }
 }
 
+extension Tutorial {
+
+  private func nextButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.page = state.page.next
+    return .none
+  }
+
+  private func pageTapped(_ state: inout State, page: Page) -> Effect<Action> {
+    state.page = page
+    return .none
+  }
+
+ private func previousButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.page = state.page.prev
+    return .none
+  }
+
+}
 public struct TutorialView: View {
   @Bindable private var store: StoreOf<Tutorial>
   private let bottomSpacerMinLength: CGFloat = 24.0

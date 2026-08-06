@@ -35,9 +35,9 @@ public struct MIDITrafficIndicator {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-      case .deinitialize: return .merge(CancelId.allCases.map { .cancel(id: $0) })
-      case .initialize: return initialize(&state)
-      case .showMIDITraffic(let traffic): return showMIDITraffic(&state, value: traffic)
+      case .deinitialize: .merge(CancelId.allCases.map { .cancel(id: $0) })
+      case .initialize: initialize(&state)
+      case .showMIDITraffic(let traffic): showMIDITraffic(&state, value: traffic)
       }
     }
   }

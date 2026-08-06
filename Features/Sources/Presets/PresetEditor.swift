@@ -138,49 +138,22 @@ public struct PresetEditor {
     Scope(state: \.tuning, action: \.tuning) { Tuning() }
 
     Reduce { state, action in
-
       log.action("PresetEditor", action)
-
-      switch action {
-
-      case .binding(\.visible):
-        if !state.visible {
-          return confirmHidePreset(&state)
-        }
-        return .none
-
-      case .cancelButtonTapped:
-        return dismiss(&state, save: false)
-
-      case .destination(.presented(.alert(.hidePresetConfirmed))):
-        return hidePresetConfirmed(&state)
-
-      case .gainChanged:
-        return gainSliderChanged(&state)
-
-      case .panChanged:
-        return panSliderChanged(&state)
-
-      case .resetGainTapped:
-        state.gainSlider = AudioConfig.defaultGain
-        return gainSliderChanged(&state)
-
-      case .resetPanTapped:
-        state.panSlider = AudioConfig.defaultPan
-        return panSliderChanged(&state)
-
-      case .saveButtonTapped:
-        return dismiss(&state, save: true)
-
-      case .useLowestKeyTapped:
-        return useLowestKey(&state)
-
-      case .useOriginalNameTapped:
-        state.displayName = state.preset.originalName
-        return .none
-
-      default:
-        return .none
+      return switch action {
+      case .binding(\.visible): visibleToggled(&state)
+      case .binding: .none
+      case .cancelButtonTapped: dismiss(&state, save: false)
+      case .delegate: .none
+      case .destination(.presented(.alert(.hidePresetConfirmed))): hidePresetConfirmed(&state)
+      case .destination(.dismiss): .none
+      case .gainChanged: gainSliderChanged(&state)
+      case .panChanged: panSliderChanged(&state)
+      case .resetGainTapped: resetGainTapped(&state)
+      case .resetPanTapped: resetPanTapped(&state)
+      case .saveButtonTapped: dismiss(&state, save: true)
+      case .tuning: .none
+      case .useLowestKeyTapped: useLowestKey(&state)
+      case .useOriginalNameTapped: useOriginalNameTapped(&state)
       }
     }
     .ifLet(\.destination, action: \.destination)
@@ -275,11 +248,34 @@ extension PresetEditor {
     return .send(.delegate(.audioConfigChanged))
   }
 
+  private func resetGainTapped(_ state: inout State) -> Effect<Action> {
+    state.gainSlider = AudioConfig.defaultGain
+    return gainSliderChanged(&state)
+  }
+
+  private func resetPanTapped(_ state: inout State) -> Effect<Action> {
+    state.panSlider = AudioConfig.defaultPan
+    return panSliderChanged(&state)
+  }
+
   private func useLowestKey(_ state: inout State) -> Effect<Action> {
     @Shared(.firstVisibleKey) var lowestKey
     state.pendingAudioConfig.keyboardLowestNote = lowestKey
     return .none
   }
+
+  private func useOriginalNameTapped(_ state: inout State) -> Effect<Action> {
+    state.displayName = state.preset.originalName
+    return .none
+  }
+
+  private func visibleToggled(_ state: inout State) -> Effect<Action> {
+    if !state.visible {
+      return confirmHidePreset(&state)
+    }
+    return .none
+  }
+
 }
 
 extension PresetEditor.Destination.State: Equatable {}

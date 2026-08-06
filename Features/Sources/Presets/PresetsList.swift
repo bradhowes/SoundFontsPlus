@@ -128,67 +128,33 @@ public struct PresetsList {
     BindingReducer()
     Reduce<State, Action> { state, action in
       log.action("PresetsList", action)
-      switch action {
-
-      case .cancelSearchButtonTapped:
-        return dismissSearch(&state)
-
-      case .clearSearchTextField:
-        return searchTextChanged(&state, searchText: "")
-
-      case .clearScrollToTarget:
-        state.scrollToTarget = nil
-        return .none
-
-      case .deinitialize:
-        return .merge(CancelId.allCases.map { .cancel(id: $0) })
-
+      return switch action {
+      case .binding: .none
+      case .cancelSearchButtonTapped: dismissSearch(&state)
+      case .clearSearchTextField: searchTextChanged(&state, searchText: "")
+      case .clearScrollToTarget: clearScrollToTarget(&state)
+      case .deinitialize: .merge(CancelId.allCases.map { .cancel(id: $0) })
+      case .delegate: .none
+      case .destination(.dismiss): .none
       case .destination(.presented(.alert(.deleteFavoriteConfirmed(let presetId)))):
-        return deleteFavoriteConfirmed(&state, presetId: presetId)
-
-      case .destination(.presented(.alert(.hidePresetConfirmed(let presetId)))):
-        return hidePresetConfirmed(&state, presetId: presetId)
-
+        deleteFavoriteConfirmed(&state, presetId: presetId)
+      case .destination(.presented(.alert(.hidePresetConfirmed(let presetId)))): hidePresetConfirmed(&state, presetId: presetId)
       case .destination(.presented(.alert(.missingFileForSelectedPreset(let soundFontId)))):
-        return .send(.delegate(.missingSoundFontDetected(soundFontId)))
-
-      case let .editingVisibilityChanged(editing):
-        state.editingVisibility = editing
-        return updateFetchAllQuery(&state, showActive: false)
-
-      case let .fullStateChanged(soundFontId, presetId):
-        return fullStateChanged(&state, soundFontId: soundFontId, presetId: presetId)
-
-      case .initialize:
-        return initialize(&state)
-
-      case .presetSourceChanged(let presetSource):
-        return presetSourceChanged(&state, presetSource: presetSource)
-
+        .send(.delegate(.missingSoundFontDetected(soundFontId)))
+      case .editingVisibilityChanged(let editing): editingVisibilityChanged(&state, editing: editing)
+      case let .fullStateChanged(soundFontId, presetId): fullStateChanged(&state, soundFontId: soundFontId, presetId: presetId)
+      case .initialize: initialize(&state)
+      case .presetSourceChanged(let presetSource): presetSourceChanged(&state, presetSource: presetSource)
       case let .rowsSourceUpdated(source: presets, showActive: showActive):
-        return rowsSourceUpdated(&state, presets: presets, showActive: showActive)
-
-      case .searchTextChanged(let value):
-        return searchTextChanged(&state, searchText: value)
-
+        rowsSourceUpdated(&state, presets: presets, showActive: showActive)
+      case .searchTextChanged(let value): searchTextChanged(&state, searchText: value)
       case let .sections(.element(id: sectionId, action: .delegate(action))):
-        return processSectionAction(&state, sectionId: sectionId, action: action)
-
-      case .sectionHeaderIndexTapped(let title):
-        return sectionHeaderIndexTapped(&state, title: title)
-
-      case .showPresetDelayed(let presetId):
-        return showPresetDelayed(&state, presetId: presetId)
-
-      case .showPresetNow(let presetId):
-        state.scrollToTarget = .preset(presetId)
-        return .none
-
-      case .updateFetchAllQuery:
-        return updateFetchAllQuery(&state, showActive: false)
-
-      default:
-        return .none
+        processSectionAction(&state, sectionId: sectionId, action: action)
+      case .sections(.element(id: _, action: .rows)): .none
+      case .sectionHeaderIndexTapped(let title): sectionHeaderIndexTapped(&state, title: title)
+      case .showPresetDelayed(let presetId): showPresetDelayed(&state, presetId: presetId)
+      case .showPresetNow(let presetId): showPresetNow(&state, presetId: presetId)
+      case .updateFetchAllQuery: updateFetchAllQuery(&state, showActive: false)
       }
     }
     .forEach(\.sections, action: \.sections) {
@@ -205,6 +171,11 @@ public struct PresetsList {
 }
 
 extension PresetsList {
+
+  private func clearScrollToTarget(_ state: inout State) -> Effect<Action> {
+    state.scrollToTarget = nil
+    return .none
+  }
 
   private func deleteFavoriteConfirmed(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
     guard let preset = Preset.with(id: presetId) else { return .none }
@@ -228,6 +199,11 @@ extension PresetsList {
       generatePresetSections(&state),
       showPresetDelayed(&state, presetId: state.activePresetId ?? state.presets[0].id)
     )
+  }
+
+  private func editingVisibilityChanged(_ state: inout State, editing: Bool) -> Effect<Action> {
+    state.editingVisibility = editing
+    return updateFetchAllQuery(&state, showActive: false)
   }
 
   private func fullStateChanged(_ state: inout State, soundFontId: SoundFont.ID, presetId: Preset.ID) -> Effect<Action> {
@@ -463,6 +439,11 @@ extension PresetsList {
         await send(.showPresetNow(presetId))
       }
     }.cancellable(id: CancelId.presetsListShowPresetNow, cancelInFlight: true)
+  }
+
+  private func showPresetNow(_ state: inout State, presetId: Preset.ID) -> Effect<Action> {
+    state.scrollToTarget = .preset(presetId)
+    return .none
   }
 
   private func updateFetchAllQuery(_ state: inout State, showActive: Bool) -> Effect<Action> {

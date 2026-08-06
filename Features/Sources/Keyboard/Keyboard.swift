@@ -105,48 +105,19 @@ public struct Keyboard {
 
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
-
       log.action("Keyboard", action)
-
-      switch action {
-
-      case let .activePresetIdChanged(presetId):
-        return activePresetIdChanged(&state, presetId: presetId)
-
-      case .allOff:
-        state.eventNoteMap.removeAll()
-        state.noteCounters = .init(repeating: 0, count: state.noteCounters.count)
-        return .none
-
-      case .deinitialize:
-        return .merge(CancelId.allCases.map { .cancel(id: $0) })
-
-      case .delegate:
-        return .none
-
-      case .midiInstrumentCreated(let audioUnit):
-        state.midiInstrument = audioUnit
-        return monitorMIDINotes(&state)
-
-      case .outputVolumeStateChanged(let value):
-        state.muted = value == .muted
-        return .none
-
-      case let .scrollTo(key):
-        state.scrollTo = key
-        return .none
-
-      case let .touchBegan(event, note):
-        return touchBegan(&state, event: event, note: note)
-
-      case let .touchEnded(event):
-        return touchEnded(&state, event: event)
-
-      case let .updateVisibleKeys(lowest, highest):
-        return updateVisibleKeys(&state, lowest: lowest, highest: highest)
-
-      case let .visualizeMIDINote(note):
-        return visualizeMIDINote(&state, note: note)
+      return switch action {
+      case .activePresetIdChanged(let presetId): activePresetIdChanged(&state, presetId: presetId)
+      case .allOff: allOff(&state)
+      case .deinitialize: .merge(CancelId.allCases.map { .cancel(id: $0) })
+      case .delegate: .none
+      case .midiInstrumentCreated(let audioUnit): midiInstrumentCreated(&state, audioUnit: audioUnit)
+      case .outputVolumeStateChanged(let volumeState): outputVolumeStateChanged(&state, volumeState: volumeState)
+      case .scrollTo(let note): scrollTo(&state, note: note)
+      case let .touchBegan(event, note): touchBegan(&state, event: event, note: note)
+      case .touchEnded(let event): touchEnded(&state, event: event)
+      case let .updateVisibleKeys(lowest, highest): updateVisibleKeys(&state, lowest: lowest, highest: highest)
+      case .visualizeMIDINote(let note): visualizeMIDINote(&state, note: note)
       }
     }
   }
@@ -188,6 +159,17 @@ extension Keyboard {
     }.cancellable(id: CancelId.keyboardScrollTo)
   }
 
+  private func allOff(_ state: inout State) -> Effect<Action> {
+    state.eventNoteMap.removeAll()
+    state.noteCounters = .init(repeating: 0, count: state.noteCounters.count)
+    return .none
+  }
+
+  private func midiInstrumentCreated(_ state: inout State, audioUnit: AVAudioUnitMIDIInstrument) -> Effect<Action> {
+    state.midiInstrument = audioUnit
+    return monitorMIDINotes(&state)
+  }
+
   private func monitorMIDINotes(_ state: inout State) -> Effect<Action> {
     @Shared(.midiMonitor) var midiMonitor
     guard let midiMonitor else { return .none }
@@ -198,12 +180,22 @@ extension Keyboard {
     }.cancellable(id: CancelId.keyboardMonitorMIDINotes)
   }
 
+  private func outputVolumeStateChanged(_ state: inout State, volumeState: OutputVolumeState) -> Effect<Action> {
+    state.muted = volumeState == .muted
+    return .none
+  }
+
   private func reduceNoteCount(_ state: inout State, note: Note) -> Bool {
     let count = state.noteCounters[note.midiNoteValue]
     if count >= 1 {
       state.noteCounters[note.midiNoteValue] = count - 1
     }
     return count == 1
+  }
+
+  private func scrollTo(_ state: inout State, note: Note?) -> Effect<Action> {
+    state.scrollTo = note
+    return .none
   }
 
   private func touchBegan(_ state: inout State, event: State.EventId, note: Note) -> Effect<Action> {

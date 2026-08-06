@@ -93,12 +93,9 @@ public struct PresetsListSection {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-
-      case let .rows(.element(id: _, action: .delegate(action))):
-        return processRowAction(&state, action: action)
-
-      default:
-        return .none
+      case .delegate: .none
+      case let .rows(.element(id: _, action: .delegate(action))): processRowAction(&state, action: action)
+      case .rows: .none
       }
     }
     .forEach(\.rows, action: \.rows) {

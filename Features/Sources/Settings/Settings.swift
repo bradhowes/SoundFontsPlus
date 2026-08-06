@@ -65,14 +65,12 @@ public struct Settings {
   @frozen
   public enum Destination {
     case alert(AlertState<Alert>)
-    case backupPicker(FilePicker)
 
     @CasePathable
     @frozen
     public enum Alert {
       case disableCopyFileConfirmed
       case disableIdleTimerConfirmed
-      case restoreConfirmed
     }
   }
 
@@ -183,7 +181,6 @@ public struct Settings {
     case contactDeveloperTapped
     case currentSectionSelected(SectionId)
     case currentSectionVisible(SectionId)
-    case createBackupTapped
     case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
     case dismissButtonTapped
@@ -226,88 +223,32 @@ public struct Settings {
     Scope(state: \.tuning, action: \.tuning) { Tuning() }
 
     Reduce { state, action in
-
       log.action("Settiings", action)
-
-      switch action {
-
-      case .binding(\.copyFileWhenInstalling):
-        if !state.copyFileWhenInstalling {
-          // Undo change until confirmed.
-          state.copyFileWhenInstalling = true
-          state.destination = .alert(.confirmDisableCopyFile(action: .disableCopyFileConfirmed))
-        }
-        return .none
-
-      case .binding(\.disableIdleTimer):
-        if state.disableIdleTimer {
-          // Undo change until confirmed.
-          state.disableIdleTimer = false
-          state.destination = .alert(.confirmDisableIdleTimer(action: .disableIdleTimerConfirmed))
-        }
-        return .none
-
-      case .binding(\.keyWidth):
-        return updateKeyWidth(&state)
-
-      case .currentSectionSelected(let sectionId):
-        state.currentSection = sectionId
-        state.scrollTo = sectionId
-        return .none
-
-      case .currentSectionVisible(let sectionId):
-        state.currentSection = sectionId
-        return .none
-
-      case .destination(.presented(.alert(.disableCopyFileConfirmed))):
-        @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
-        $copyFileWhenInstalling.withLock { $0 = false }
-        state.copyFileWhenInstalling = false
-        return .none
-
-      case .destination(.presented(.alert(.disableIdleTimerConfirmed))):
-        @Shared(.disableIdleTimer) var disableIdleTimer
-        $disableIdleTimer.withLock { $0 = true }
-        state.disableIdleTimer = true
-        return .none
-
-      case .dismissButtonTapped:
-        return dismissButtonTapped(&state)
-
-      case .initialize:
-        return initialize(&state)
-
-      case .midiAssignmentsButtonTapped:
-        state.path.append(.midiAssignments(MIDIAssignments.State()))
-        return .none
-
-      case .midiConnectionsButtonTapped:
-        state.path.append(.midiConnections(MIDIConnections.State()))
-        return .none
-
-      case .midiConnectionsChanged:
-        if let midi = midiProvider.midi() {
-          updateMIDIInfo(&state, midi: midi)
-        }
-        return .none
-
-      case .midiControllersButtonTapped:
-        state.path.append(.midiControllers(MIDIControllers.State()))
-        return .none
-
-      case .path(.popFrom(let id)):
-        let midi = midiProvider.midi()
-        if case .midiConnections = state.path[id: id],
-           let midi {
-          updateMIDIInfo(&state, midi: midi)
-        }
-        return .none
-
-      case let .tuning(.delegate(.tuningChanged(enabled, frequency))):
-        return tuningChanged(&state, enabled: enabled, frequency: frequency)
-
-      default:
-        return .none
+      return switch action {
+      case .binding(\.copyFileWhenInstalling): copyFileWhenInstallingChanged(&state)
+      case .binding(\.disableIdleTimer): disableIdleTimerChanged(&state)
+      case .binding(\.keyWidth): updateKeyWidth(&state)
+      case .binding: .none
+      case .bluetoothMIDILocateButtonTapped: .none
+      case .contactDeveloperTapped: .none
+      case .currentSectionSelected(let sectionId): currentSectionSelected(&state, sectionId: sectionId)
+      case .currentSectionVisible(let sectionId): currentSectionVisible(&state, sectionId: sectionId)
+      case .delegate: .none
+      case .destination(.dismiss): .none
+      case .destination(.presented(.alert(.disableCopyFileConfirmed))): disableCopyFileConfirmed(&state)
+      case .destination(.presented(.alert(.disableIdleTimerConfirmed))): disableIdleTimerConfirmed(&state)
+      case .dismissButtonTapped: dismissButtonTapped(&state)
+      case .initialize: initialize(&state)
+      case .midiAssignmentsButtonTapped: midiAssignmentsButtonTapped(&state)
+      case .midiConnectionsButtonTapped: midiConnectionsButtonTapped(&state)
+      case .midiConnectionsChanged: midiConnectionsChanged(&state)
+      case .midiControllersButtonTapped: midiControllersButtonTapped(&state)
+      case .midiTrafficIndicator: .none
+      case .path(.popFrom(let id)): pathPopFrom(&state, id: id)
+      case .path: .none
+      case .reviewAppTapped: .none
+      case let .tuning(.delegate(.tuningChanged(enabled, frequency))): tuningChanged(&state, enabled: enabled, frequency: frequency)
+      case .tuning: .none
       }
     }
     .forEach(\.path, action: \.path)
@@ -321,6 +262,49 @@ public struct Settings {
 
 extension Settings {
 
+  private func copyFileWhenInstallingChanged(_ state: inout State) -> Effect<Action> {
+    if !state.copyFileWhenInstalling {
+      // Undo change until confirmed.
+      state.copyFileWhenInstalling = true
+      state.destination = .alert(.confirmDisableCopyFile(action: .disableCopyFileConfirmed))
+    }
+    return .none
+  }
+
+  private func currentSectionSelected(_ state: inout State, sectionId: SectionId) -> Effect<Action> {
+    state.currentSection = sectionId
+    state.scrollTo = sectionId
+    return .none
+  }
+
+  private func currentSectionVisible(_ state: inout State, sectionId: SectionId) -> Effect<Action> {
+    state.currentSection = sectionId
+    return .none
+  }
+
+  private func disableCopyFileConfirmed(_ state: inout State) -> Effect<Action> {
+    @Shared(.copyFileWhenInstalling) var copyFileWhenInstalling
+    $copyFileWhenInstalling.withLock { $0 = false }
+    state.copyFileWhenInstalling = false
+    return .none
+  }
+
+  private func disableIdleTimerConfirmed(_ state: inout State) -> Effect<Action> {
+    @Shared(.disableIdleTimer) var disableIdleTimer
+    $disableIdleTimer.withLock { $0 = true }
+    state.disableIdleTimer = true
+    return .none
+  }
+
+  private func disableIdleTimerChanged(_ state: inout State) -> Effect<Action> {
+    if state.disableIdleTimer {
+      // Undo change until confirmed.
+      state.disableIdleTimer = false
+      state.destination = .alert(.confirmDisableIdleTimer(action: .disableIdleTimerConfirmed))
+    }
+    return .none
+  }
+
   private func dismissButtonTapped(_ state: inout State) -> Effect<Action> {
     .run { [dismiss] _ in await dismiss() }
   }
@@ -332,6 +316,28 @@ extension Settings {
     )
   }
 
+  private func midiAssignmentsButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.path.append(.midiAssignments(MIDIAssignments.State()))
+    return .none
+  }
+
+  private func midiConnectionsButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.path.append(.midiConnections(MIDIConnections.State()))
+    return .none
+  }
+
+  private func midiConnectionsChanged(_ state: inout State) -> Effect<Action> {
+    if let midi = midiProvider.midi() {
+      updateMIDIInfo(&state, midi: midi)
+    }
+    return .none
+  }
+
+  private func midiControllersButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.path.append(.midiControllers(MIDIControllers.State()))
+    return .none
+  }
+
   private func monitorMIDIConnections(_ state: inout State) -> Effect<Action> {
     @Shared(.midiMonitor) var midiMonitor
     guard let midiMonitor else { return .none }
@@ -340,6 +346,15 @@ extension Settings {
         await send(.midiConnectionsChanged)
       }
     }.cancellable(id: CancelId.settingsMonitorMIDIConnections)
+  }
+
+  private func pathPopFrom(_ state: inout State, id: StackElementID) -> Effect<Action> {
+    let midi = midiProvider.midi()
+    if case .midiConnections = state.path[id: id],
+       let midi {
+      updateMIDIInfo(&state, midi: midi)
+    }
+    return .none
   }
 
   private func tuningChanged(_ state: inout State, enabled: Bool, frequency: Double) -> Effect<Action> {

@@ -104,38 +104,18 @@ public struct SoundFontEditor {
 
     Reduce { state, action in
       switch action {
-
-      case .cancelButtonTapped:
-        return dismiss(&state, save: false)
-
-      case .changeTagsButtonTapped:
-        return editTags(&state)
-
-      case .destination(.presented(.alert(.showHiddenPresetsConfirmed))):
-        return unhidePresets(&state)
-
-      case .path(.popFrom):
-        let tags = state.soundFont.tags
-        state.tagsList = State.generateTagsList(from: tags)
-        return .none
-
-      case .saveButtonTapped:
-        return dismiss(&state, save: true)
-
-      case .unhideAllButtonTapped:
-        state.destination = .alert(.confirmShowHiddenPresets(action: .showHiddenPresetsConfirmed))
-        return .none
-
-      case .useEmbeddedNameTapped:
-        state.displayName = state.soundFont.embeddedName
-        return .none
-
-      case .useOriginalNameTapped:
-        state.displayName = state.soundFont.originalName
-        return .none
-
-      default:
-        return .none
+      case .binding: .none
+      case .cancelButtonTapped: dismiss(&state, save: false)
+      case .changeTagsButtonTapped: editTags(&state)
+      case .delegate: .none
+      case .destination(.presented(.alert(.showHiddenPresetsConfirmed))): unhidePresets(&state)
+      case .destination(.dismiss): .none
+      case .path(.popFrom): pathPopFrom(&state)
+      case .path: .none
+      case .saveButtonTapped: dismiss(&state, save: true)
+      case .unhideAllButtonTapped: unhideAllButtonTapped(&state)
+      case .useEmbeddedNameTapped: useEmbeddedNameTapped(&state)
+      case .useOriginalNameTapped: useOriginalNameTapped(&state)
       }
     }
     .forEach(\.path, action: \.path)
@@ -167,6 +147,17 @@ extension SoundFontEditor {
     return .none
   }
 
+  private func pathPopFrom(_ state: inout State) -> Effect<Action> {
+    let tags = state.soundFont.tags
+    state.tagsList = State.generateTagsList(from: tags)
+    return .none
+  }
+
+  private func unhideAllButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.destination = .alert(.confirmShowHiddenPresets(action: .showHiddenPresetsConfirmed))
+    return .none
+  }
+
   func unhidePresets(_ state: inout State) -> Effect<Action> {
     withDatabaseWriter { db in
       try Preset.update {
@@ -179,6 +170,17 @@ extension SoundFontEditor {
     state.hiddenCount = 0
     return .send(.delegate(.refreshPresets))
   }
+
+  private func useEmbeddedNameTapped(_ state: inout State) -> Effect<Action> {
+    state.displayName = state.soundFont.embeddedName
+    return .none
+  }
+
+  private func useOriginalNameTapped(_ state: inout State) -> Effect<Action> {
+    state.displayName = state.soundFont.originalName
+    return .none
+  }
+
 }
 
 public struct SoundFontEditorView: View {

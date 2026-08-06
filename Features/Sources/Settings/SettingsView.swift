@@ -103,7 +103,6 @@ public struct SettingsView: View {
       }
     }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
-    .filePicker($store.scope(state: \.destination?.backupPicker, action: \.destination.backupPicker))
     .useColorScheme() // TODO: find better approach for updating colorScheme when colorSchemeBehavior changes
   }
 }

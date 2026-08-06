@@ -94,32 +94,16 @@ public struct Tuning {
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
-
     Reduce { state, action in
       switch action {
-
-      case .binding(\.cents):
-        return setCents(&state, cents: state.cents)
-
-      case .binding(\.enabled):
-        return .send(.delegate(.tuningChanged(enabled: state.enabled, frequency: state.frequency)))
-
-      case .binding(\.frequency):
-        return setFrequency(&state, frequency: state.frequency)
-
-      case .centsSubmitted:
-        return setCents(&state, cents: state.cents)
-
-      case .frequencySubmitted:
-        return setFrequency(&state, frequency: state.frequency)
-
-      case .scientificTuningApplyPressed:
-        return setFrequency(&state, frequency: 432.0)
-
-      case .standardTuningApplyPressed:
-        return setFrequency(&state, frequency: 440.0)
-
-      default: return .none
+      case .binding(\.cents): setCents(&state, cents: state.cents)
+      case .binding(\.enabled): .send(.delegate(.tuningChanged(enabled: state.enabled, frequency: state.frequency)))
+      case .binding(\.frequency): setFrequency(&state, frequency: state.frequency)
+      case .centsSubmitted: setCents(&state, cents: state.cents)
+      case .frequencySubmitted: setFrequency(&state, frequency: state.frequency)
+      case .scientificTuningApplyPressed: setFrequency(&state, frequency: 432.0)
+      case .standardTuningApplyPressed: setFrequency(&state, frequency: 440.0)
+      default: .none
       }
     }
   }

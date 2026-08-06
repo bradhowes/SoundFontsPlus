@@ -130,94 +130,33 @@ public struct SoundFontsList {
 
     Reduce { state, action in
       log.action("SoundFontsList", action)
-
-      switch action {
-
-      case .activeTagIdChanged(let tagId):
-        state.activeTagId = tagId
-        return updateFetchAllQuery(&state)
-
-      case .cancelSearchButtonTapped:
-        return dismissSearch(&state)
-
-      case .clearSearchTextField:
-        return searchTextChanged(&state, searchText: "")
-
-      case .deinitialize:
-        return .merge(CancelId.allCases.map { .cancel(id: $0) })
-
-      case .deleteModeCancelButtonTapped:
-        state.editingMode = .inactive
-        return .none
-
-      case .deleteModeDeleteButtonTapped:
-        let selected = state.rows
-          .filter(\.deleting)
-          .map(\.soundFontInfo)
-        if !selected.isEmpty {
-          state.destination = .alert(.confirmDeleteSoundFontCollection(
-            action: .deleteSoundFontCollectionConfirmed(selected),
-            count: selected.count
-          ))
-        } else {
-          state.editingMode = .inactive
-        }
-        return .none
-
+      return switch action {
+      case .activeTagIdChanged(let tagId): activeTagIdChanged(&state, tagId: tagId)
+      case .binding: .none
+      case .cancelSearchButtonTapped: dismissSearch(&state)
+      case .clearSearchTextField: searchTextChanged(&state, searchText: "")
+      case .deinitialize: .merge(CancelId.allCases.map { .cancel(id: $0) })
+      case .delegate: .none
+      case .deleteModeCancelButtonTapped: deleteModeCancelButtonTapped(&state)
+      case .deleteModeDeleteButtonTapped: deleteModeDeleteButtonTapped(&state)
       case .destination(.presented(.alert(.deleteSoundFontConfirmed(let soundFontInfo)))):
-        return deleteSoundFontConfirmed(&state, soundFontInfo: soundFontInfo)
-
+        deleteSoundFontConfirmed(&state, soundFontInfo: soundFontInfo)
       case .destination(.presented(.alert(.deleteSoundFontCollectionConfirmed(let soundFontInfos)))):
-        state.editingMode = .inactive
-        return deleteSoundFontCollectionConfirmed(&state, soundFontInfos: soundFontInfos)
-
-      case .destination(.dismiss):
-        state.editingMode = .inactive
-        return .none
-
-      case let .fullStateChanged(tagId, soundFontId):
-        return fullStateChanged(&state, tagId: tagId, soundFontId: soundFontId)
-
-      case .headerDoubleTapped:
-        guard state.rows.first(where: { !$0.soundFontInfo.isBuiltin }) != nil else { return .none }
-        state.editingMode = .active
-        state.rows.forEach {
-          state.rows[id: $0.id]?.deleting = false
-        }
-        return .none
-
-      case .importFinished:
-        return updateFetchAllQuery(&state)
-
-      case .initialize:
-        return initialize(&state)
-
-      case .missingSoundFontDetected(let soundFontId):
-        return missingSoundFontDetected(&state, soundFontId: soundFontId)
-
-      case .rows(.element(_, .delegate(let action))):
-        return processRowAction(&state, action: action)
-
-      case .rowsSourceUpdated(source: let soundFontInfos):
-        return rowsSourceUpdated(&state, source: soundFontInfos)
-
-      case .searchButtonTapped:
-        return searchButtonTapped(&state)
-
-      case .searchTextChanged(let value):
-        return searchTextChanged(&state, searchText: value)
-
-      case .selectedIsNowActivated:
-        return selectedIsNowActivated(&state)
-
-      case .showActiveSoundFont:
-        return showActiveSoundFont(&state)
-
-      case .updateFetchAllQuery:
-        return updateFetchAllQuery(&state)
-
-      default:
-        return .none
+        deleteSoundFontCollectionConfirmed(&state, soundFontInfos: soundFontInfos)
+      case .destination(.dismiss): dismiss(&state)
+      case let .fullStateChanged(tagId, soundFontId): fullStateChanged(&state, tagId: tagId, soundFontId: soundFontId)
+      case .headerDoubleTapped: headerDoubleTapped(&state)
+      case .importFinished: updateFetchAllQuery(&state)
+      case .initialize: initialize(&state)
+      case .missingSoundFontDetected(let soundFontId): missingSoundFontDetected(&state, soundFontId: soundFontId)
+      case .rows(.element(_, .delegate(let action))): processRowAction(&state, action: action)
+      case .rowsSourceUpdated(source: let soundFontInfos): rowsSourceUpdated(&state, source: soundFontInfos)
+      case .rows: .none
+      case .searchButtonTapped: searchButtonTapped(&state)
+      case .searchTextChanged(let value): searchTextChanged(&state, searchText: value)
+      case .selectedIsNowActivated: selectedIsNowActivated(&state)
+      case .showActiveSoundFont: showActiveSoundFont(&state)
+      case .updateFetchAllQuery: updateFetchAllQuery(&state)
       }
     }
     .forEach(\.rows, action: \.rows) {
@@ -233,6 +172,11 @@ public struct SoundFontsList {
 }
 
 extension SoundFontsList {
+
+  private func activeTagIdChanged(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
+    state.activeTagId = tagId
+    return updateFetchAllQuery(&state)
+  }
 
   private func alertInvalidBookmark(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
     state.destination = .alert(.invalidBookmark(displayName: soundFontInfo.displayName))
@@ -253,6 +197,27 @@ extension SoundFontsList {
     )
     return .none
   }
+
+  private func deleteModeCancelButtonTapped(_ state: inout State) -> Effect<Action> {
+    state.editingMode = .inactive
+    return .none
+  }
+
+  private func deleteModeDeleteButtonTapped(_ state: inout State) -> Effect<Action> {
+    let selected = state.rows
+      .filter(\.deleting)
+      .map(\.soundFontInfo)
+    if !selected.isEmpty {
+      state.destination = .alert(.confirmDeleteSoundFontCollection(
+        action: .deleteSoundFontCollectionConfirmed(selected),
+        count: selected.count
+      ))
+    } else {
+      state.editingMode = .inactive
+    }
+    return .none
+  }
+
 
   private func deleteSoundFontCollection(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Destination.State? {
     state.editingMode = .inactive
@@ -293,6 +258,7 @@ extension SoundFontsList {
   }
 
   private func deleteSoundFontCollectionConfirmed(_ state: inout State, soundFontInfos: [SoundFontInfo]) -> Effect<Action> {
+    state.editingMode = .inactive
     state.destination = deleteSoundFontCollection(&state, soundFontInfos: soundFontInfos)
     return .merge(
       soundFontsDeleted(&state, soundFontIds: soundFontInfos.map(\.id)),
@@ -353,6 +319,11 @@ extension SoundFontsList {
     )
   }
 
+  private func dismiss(_ state: inout State) -> Effect<Action> {
+    state.editingMode = .inactive
+    return .none
+  }
+
   private func dismissSearch(_ state: inout State) -> Effect<Action> {
     state.rows = state.searchSource
     state.searchSource = []
@@ -378,6 +349,16 @@ extension SoundFontsList {
     state.isSearchFieldPresented = false
     return updateFetchAllQuery(&state)
   }
+
+  private func headerDoubleTapped(_ state: inout State) -> Effect<Action> {
+    guard state.rows.first(where: { !$0.soundFontInfo.isBuiltin }) != nil else { return .none }
+    state.editingMode = .active
+    state.rows.forEach {
+      state.rows[id: $0.id]?.deleting = false
+    }
+    return .none
+  }
+
 
   private func initialize(_ state: inout State) -> Effect<Action> {
     .merge(

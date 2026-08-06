@@ -48,21 +48,22 @@ public struct PresetButton {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-
-      case .toggleVisibility:
-        if var preset = Preset.with(id: state.id) {
-          preset.toggleVisibility()
-          state.kind = preset.kind
-        }
-        return .none
-
-      default:
-        return .none
+      case .delegate: .none
+      case .toggleVisibility: toggleVisibility(&state)
       }
     }
   }
 }
 
+extension PresetButton {
+  private func toggleVisibility(_ state: inout State) -> Effect<Action> {
+    if var preset = Preset.with(id: state.id) {
+      preset.toggleVisibility()
+      state.kind = preset.kind
+    }
+    return .none
+  }
+}
 public struct PresetButtonView: View {
   @State private var store: StoreOf<PresetButton>
   @Environment(\.editMode) private var editingMode

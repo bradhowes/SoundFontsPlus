@@ -131,63 +131,34 @@ public struct AUv3Root {
     Scope(state: \.toolBar, action: \.toolBar) { ToolBar() }
 
     Reduce { state, action in
-
       log.action("AUv3Root", action)
-
-      switch action {
-
-      case .deinitialize:
-        return deinitialize(&state)
-
-      case .destination(.presented(.settings(.delegate(let action)))):
-        return processSettingsAction(&state, action: action)
-
-      case .destination(.dismiss):
-        return destinationDismissed(&state)
-
-      case .fontsAndPresetsSplit(.delegate(let action)):
-        return processFontsAndPresetsSplitAction(&state, action: action)
-
-      case .fontsAndTagsSplit(.delegate(let action)):
-        return processFontsAndTagsSplitAction(&state, action: action)
-
-      case .fullStateChanged:
-        return fullStateChanged(&state)
-
-      case .initialize:
-        return initialize(&state)
-
-      case .lastPresetLoadFinished:
-        return .none // sendNoteOnOffSequence(state)
-
-      case .presetsList(.delegate(.activePresetIdChanged(let presetId))):
-        return activePresetIdChanged(&state, presetId: presetId)
-
-      case .presetsList(.delegate(.edit(let sectionId, let preset))):
-        return editPreset(&state, sectionId: sectionId, preset: preset)
-
+      return switch action {
+      case .binding: .none
+      case .deinitialize: deinitialize(&state)
+      case .destination(.presented(.settings(.delegate(let action)))): processSettingsAction(&state, action: action)
+      case .destination(.dismiss): destinationDismissed(&state)
+      case .destination: .none
+      case .fontsAndPresetsSplit(.delegate(let action)): processFontsAndPresetsSplitAction(&state, action: action)
+      case .fontsAndPresetsSplit: .none
+      case .fontsAndTagsSplit(.delegate(let action)): processFontsAndTagsSplitAction(&state, action: action)
+      case .fontsAndTagsSplit: .none
+      case .fullStateChanged: fullStateChanged(&state)
+      case .initialize: initialize(&state)
+      case .lastPresetLoadFinished: .none
+      case .presetsList(.delegate(.activePresetIdChanged(let presetId))): activePresetIdChanged(&state, presetId: presetId)
+      case .presetsList(.delegate(.edit(let sectionId, let preset))): editPreset(&state, sectionId: sectionId, preset: preset)
       case .presetsList(.delegate(.missingSoundFontDetected(let soundFontId))):
-        return .send(.soundFontsList(.missingSoundFontDetected(soundFontId)))
-
+          .send(.soundFontsList(.missingSoundFontDetected(soundFontId)))
+      case .presetsList: .none
       case .soundFontsList(.delegate(.presetSourceChanged(let presetSource))):
-        return presetSourceChanged(&state, presetSource: presetSource)
-
-      case .soundFontsList(.delegate(.edit(let soundFont))):
-        state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
-        return .none
-
-      case .tagsList(.delegate(.activeTagIdChanged(let tagId))):
-        return .send(.soundFontsList(.activeTagIdChanged(tagId)))
-
-      case .tagsList(.delegate(.edit(focus: let ordering))):
-        state.destination = .tagsEditor(TagsEditor.State(focused: ordering))
-        return .none
-
-      case .toolBar(.delegate(let action)):
-        return processToolBarAction(&state, action: action)
-
-      default:
-        return .none
+        presetSourceChanged(&state, presetSource: presetSource)
+      case .soundFontsList(.delegate(.edit(let soundFont))): showSoundFontEditor(&state, soundFont: soundFont)
+      case .soundFontsList: .none
+      case .tagsList(.delegate(.activeTagIdChanged(let tagId))): .send(.soundFontsList(.activeTagIdChanged(tagId)))
+      case .tagsList(.delegate(.edit(focus: let ordering))): showTagEditor(&state, focus: ordering)
+      case .tagsList: .none
+      case .toolBar(.delegate(let action)): processToolBarAction(&state, action: action)
+      case .toolBar: .none
       }
     }
     .ifLet(\.$destination, action: \.destination)
@@ -467,6 +438,16 @@ extension AUv3Root {
       log.debug("sending note off")
       _ = audioUnit.sendMIDI(bytes: [0x80, 60, 127])
     }.cancellable(id: CancelId.auv3RootPlayNote, cancelInFlight: true)
+  }
+
+  private func showSoundFontEditor(_ state: inout State, soundFont: SoundFont) -> Effect<Action> {
+    state.destination = .soundFontEditor(SoundFontEditor.State(soundFont: soundFont))
+    return .none
+  }
+
+  private func showTagEditor(_ state: inout State, focus: Int?) -> Effect<Action> {
+    state.destination = .tagsEditor(TagsEditor.State(focused: focus))
+    return .none
   }
 }
 

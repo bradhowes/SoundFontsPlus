@@ -66,43 +66,16 @@ public struct FileImporter {
 
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
-
       log.action("FileImporter", action)
-
-      switch action {
-
-      case .destination(.presented(.alert(.multipleImportsConfirmed))):
-        return importNextFile(&state)
-
-      case .destination(.presented(.alert(.replaceDuplicateFileConfirmed))):
-        return importFile(&state, overwrite: true)
-
-      case .destination(.dismiss):
-        if let actions = state.destination?.alert?.buttons.map(\.action.action),
-           actions.contains(.replaceDuplicateFileConfirmed),
-           let url = state.filesPending.popLast() {
-          state.failures.append(.init(url, reason: .duplicateFile))
-          return importNextFile(&state)
-        }
-        return .none
-
-      case .fileImporterDismissed:
-        state.showPicker = false
-        return .none
-
-      case .filesPicked(let result):
-        state.showPicker = false
-        return filesPicked(&state, result: result)
-
-      case .importNextFile:
-        return importNextFile(&state)
-
-      case .showFileImporter:
-        state.showPicker = true
-        return .none
-
-      default:
-        return .none
+      return switch action {
+      case .delegate: .none
+      case .destination(.presented(.alert(.multipleImportsConfirmed))): importNextFile(&state)
+      case .destination(.presented(.alert(.replaceDuplicateFileConfirmed))): importFile(&state, overwrite: true)
+      case .destination(.dismiss): dismiss(&state)
+      case .fileImporterDismissed: fileImporterDismissed(&state)
+      case .filesPicked(let result): filesPicked(&state, result: result)
+      case .importNextFile: importNextFile(&state)
+      case .showFileImporter: showFileImporter(&state)
       }
     }
     .ifLet(\.destination, action: \.destination)
@@ -166,8 +139,24 @@ extension FileImporter {
     }
   }
 
+  private func dismiss(_ state: inout State) -> Effect<Action> {
+    if let actions = state.destination?.alert?.buttons.map(\.action.action),
+       actions.contains(.replaceDuplicateFileConfirmed),
+       let url = state.filesPending.popLast() {
+      state.failures.append(.init(url, reason: .duplicateFile))
+      return importNextFile(&state)
+    }
+    return .none
+  }
+
+  private func fileImporterDismissed(_ state: inout State) -> Effect<Action> {
+    state.showPicker = false
+    return .none
+  }
+
   private func filesPicked(_ state: inout State, result: Result<[URL], any Error>) -> Effect<Action> {
     log.debug("filePicked - \(String(describing: result), privacy: .public)")
+    state.showPicker = false
     switch result {
 
     case .success(let urls):
@@ -254,6 +243,11 @@ extension FileImporter {
   private func recordSuccess(_ state: inout State, _ url: URL) -> Effect<Action> {
     state.successes.append(url)
     return .send(.importNextFile)
+  }
+
+  private func showFileImporter(_ state: inout State) -> Effect<Action> {
+    state.showPicker = true
+    return .none
   }
 
   private func validateSoundFont(url: URL) -> Bool {

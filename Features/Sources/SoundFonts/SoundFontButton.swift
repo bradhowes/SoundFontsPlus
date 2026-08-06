@@ -76,30 +76,13 @@ public struct SoundFontButton {
   public var body: some ReducerOf<Self> {
     Reduce<State, Action> { state, action in
       switch action {
-
-      case .bookmarkMonitorStart:
-        return bookmarkMonitorStart(&state)
-
-      case .bookmarkMonitorStop:
-        return .cancel(id: state.bookmarkMonitorTaskId)
-
-      case .delegate:
-        return .none
-
-      case .downloadFileButtonTapped:
-        return downloadFile(&state)
-
-      case .resetDeleting:
-        Self.resetDeleting(&state)
-        return .none
-
-      case .statusInfoChanged(let statusInfoTag):
-        state.statusInfoTag = statusInfoTag
-        return .none
-
-      case .toggleDeleting:
-        state.deleting.toggle()
-        return .none
+      case .bookmarkMonitorStart: bookmarkMonitorStart(&state)
+      case .bookmarkMonitorStop: .cancel(id: state.bookmarkMonitorTaskId)
+      case .delegate: .none
+      case .downloadFileButtonTapped: downloadFile(&state)
+      case .resetDeleting: resetDeleting(&state)
+      case .statusInfoChanged(let statusInfoTag): statusInfoChanged(&state, tag: statusInfoTag)
+      case .toggleDeleting: toggleDeleting(&state)
       }
     }
   }
@@ -135,6 +118,21 @@ extension SoundFontButton {
     bookmark.url.withSecurityScoping { url in
       try FileManager.default.startDownloadingUbiquitousItem(at: url)
     }
+    return .none
+  }
+
+  private func resetDeleting(_ state: inout State) -> Effect<Action> {
+    Self.resetDeleting(&state)
+    return .none
+  }
+
+  private func statusInfoChanged(_ state: inout State, tag: SoundFontButtonStatusInfoTag) -> Effect<Action> {
+    state.statusInfoTag = tag
+    return .none
+  }
+
+  private func toggleDeleting(_ state: inout State) -> Effect<Action> {
+    state.deleting.toggle()
     return .none
   }
 }
