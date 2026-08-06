@@ -111,13 +111,21 @@ public struct PresetEditor {
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     case cancelButtonTapped
+    case delegate(Delegate)
     case destination(PresentationAction<Destination.Action>)
+    case gainChanged
+    case panChanged
     case resetGainTapped
     case resetPanTapped
     case saveButtonTapped
     case tuning(Tuning.Action)
     case useLowestKeyTapped
     case useOriginalNameTapped
+
+    @CasePathable
+    public enum Delegate: Equatable {
+      case audioConfigChanged
+    }
   }
 
   public init() {}
@@ -135,12 +143,6 @@ public struct PresetEditor {
 
       switch action {
 
-      case .binding(\.gainSlider):
-        return gainSliderChanged(&state)
-
-      case .binding(\.panSlider):
-        return panSliderChanged(&state)
-
       case .binding(\.visible):
         if !state.visible {
           return confirmHidePreset(&state)
@@ -153,13 +155,19 @@ public struct PresetEditor {
       case .destination(.presented(.alert(.hidePresetConfirmed))):
         return hidePresetConfirmed(&state)
 
+      case .gainChanged:
+        return gainSliderChanged(&state)
+
+      case .panChanged:
+        return panSliderChanged(&state)
+
       case .resetGainTapped:
         state.gainSlider = AudioConfig.defaultGain
-        return.none
+        return gainSliderChanged(&state)
 
       case .resetPanTapped:
         state.panSlider = AudioConfig.defaultPan
-        return.none
+        return panSliderChanged(&state)
 
       case .saveButtonTapped:
         return dismiss(&state, save: true)
@@ -195,18 +203,40 @@ extension PresetEditor {
   private func dismiss(_ state: inout State, save: Bool) -> Effect<Action> {
     if save {
       state.save()
+    } else {
+
+      // Cancelling changes -- restore gain/pan if changed
+      if state.originalAudioConfig.gain != state.pendingAudioConfig.gain {
+        paramChanged(
+          &state,
+          getKey: \.originalAudioConfig.gain,
+          setKey: nil,
+          index: SF2.Entity.Generator.Index.initialAttenuation,
+          transform: \.gainGeneratorValue
+        )
+      }
+
+      if state.originalAudioConfig.pan != state.pendingAudioConfig.pan {
+        paramChanged(
+          &state,
+          getKey: \.originalAudioConfig.pan,
+          setKey: nil,
+          index: SF2.Entity.Generator.Index.pan,
+          transform: \.panGeneratorValue
+        )
+      }
     }
     return .run { [dismiss] _ in await dismiss() }
   }
 
   private func gainSliderChanged(_ state: inout State) -> Effect<Action> {
-    guard state.isActive else { return .none }
-    guard let parameterTree = state.audioUnit?.parameterTree else { return .none }
-    state.pendingAudioConfig.gain = state.gainSlider
-    let gainAddress = AUParameterAddress(SF2.Entity.Generator.Index.initialAttenuation.rawValue)
-    let parameter = parameterTree.parameter(withAddress: gainAddress)
-    unsafe parameter?.setValue(state.pendingAudioConfig.gain.gainGeneratorValue, originator: nil)
-    return .none
+    paramChanged(
+      &state,
+      getKey: \.gainSlider,
+      setKey: \.pendingAudioConfig.gain,
+      index: SF2.Entity.Generator.Index.initialAttenuation,
+      transform: \.gainGeneratorValue
+    )
   }
 
   private func hidePresetConfirmed(_ state: inout State) -> Effect<Action> {
@@ -216,13 +246,33 @@ extension PresetEditor {
   }
 
   private func panSliderChanged(_ state: inout State) -> Effect<Action> {
-    guard state.isActive else { return .none }
-    state.pendingAudioConfig.gain = state.gainSlider
-    guard let parameterTree = state.audioUnit?.parameterTree else { return .none }
-    let panAddress = AUParameterAddress(SF2.Entity.Generator.Index.pan.rawValue)
-    let parameter = parameterTree.parameter(withAddress: panAddress)
-    unsafe parameter?.setValue(state.pendingAudioConfig.pan.panGeneratorValue, originator: nil)
-    return .none
+    paramChanged(
+      &state,
+      getKey: \.panSlider,
+      setKey: \.pendingAudioConfig.pan,
+      index: SF2.Entity.Generator.Index.pan,
+      transform: \.panGeneratorValue
+    )
+  }
+
+  @discardableResult
+  private func paramChanged(
+    _ state: inout State,
+    getKey: KeyPath<State, Double>,
+    setKey: WritableKeyPath<State, Double>? = nil,
+    index: SF2.Entity.Generator.Index,
+    transform: KeyPath<Double, AUValue>
+  ) -> Effect<Action> {
+    let value = state[keyPath: getKey]
+    if let setKey {
+      state[keyPath: setKey] = value
+    }
+    if state.isActive,
+       let parameterTree = state.audioUnit?.parameterTree,
+       let parameter = parameterTree[index] {
+      unsafe parameter.setValue(state[keyPath: getKey.appending(path: transform)], originator: nil)
+    }
+    return .send(.delegate(.audioConfigChanged))
   }
 
   private func useLowestKey(_ state: inout State) -> Effect<Action> {
@@ -382,6 +432,8 @@ public struct PresetEditorView: View {
           Text("Reset")
         }
       }
+      // NOTE: although we are using the binding here, we are *not* processing live updates in the reducer, only once the touch
+      // event ends via the `onEdtingChanged` closure below.
       Slider(value: $store.gainSlider, in: AudioConfig.minGain...AudioConfig.maxGain) {
       } minimumValueLabel: {
         Text("-90 db")
@@ -389,7 +441,7 @@ public struct PresetEditorView: View {
         Text("+12 db")
       } onEditingChanged: { editing in
         if !editing {
-          print("gainSlider finished")
+          store.send(.gainChanged)
         }
       }
       HStack {
@@ -400,6 +452,8 @@ public struct PresetEditorView: View {
           Text("Reset")
         }
       }
+      // NOTE: although we are using the binding here, we are *not* processing live updates in the reducer, only once the touch
+      // event ends via the `onEdtingChanged` closure below.
       Slider(value: $store.panSlider, in: AudioConfig.minPan...AudioConfig.maxPan) {
       } minimumValueLabel: {
         Text("L")
@@ -407,7 +461,7 @@ public struct PresetEditorView: View {
         Text("R")
       } onEditingChanged: { editing in
         if !editing {
-          print("panSlider finished")
+          store.send(.panChanged)
         }
       }
     }

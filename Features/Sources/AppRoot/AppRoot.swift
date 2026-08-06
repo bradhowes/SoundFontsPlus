@@ -241,6 +241,9 @@ public struct AppRoot {
       case .destination(.presented(.alert(.reinitializeConfirmed))):
         return reinitializeConfirmed(&state)
 
+      case .destination(.presented(.presetEditor(.delegate(.audioConfigChanged)))):
+        return .send(.synth(.playNote))
+
       case .destination(.presented(.settings(.delegate(let action)))):
         return processSettingsAction(&state, action: action)
 
