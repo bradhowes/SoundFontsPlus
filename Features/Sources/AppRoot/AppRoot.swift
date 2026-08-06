@@ -220,98 +220,36 @@ public struct AppRoot {
     Scope(state: \.volumeMonitor, action: \.volumeMonitor) { VolumeMonitor() }
 
     Reduce { state, action in
-
       log.action("AppRoot", action)
-
-      switch action {
-
-      case .activePresetIdChanged(let presetId):
-        return activePresetIdChanged(&state, presetId: presetId)
-
-      case .audioUnitCrashed:
-        log.error("*** audioUnit crashed")
-        return .none
-
-      case .binding(\.helpInfoSelection):
-        return helpInfoSelectionChanged(&state)
-
-      case .deinitialize:
-        return deinitialize(&state)
-
-      case .destination(.presented(.alert(.reinitializeConfirmed))):
-        return reinitializeConfirmed(&state)
-
-      case .destination(.presented(.presetEditor(.delegate(.audioConfigChanged)))):
-        return .send(.synth(.playNote))
-
-      case .destination(.presented(.settings(.delegate(let action)))):
-        return processSettingsAction(&state, action: action)
-
-      case .destination(.dismiss):
-        return destinationDismissed(&state)
-
-      case .fontsAndPresetsSplit(.delegate(let action)):
-        return processFontsAndPresetsSplitAction(&state, action: action)
-
-      case .fontsAndTagsSplit(.delegate(let action)):
-        return processFontsAndTagsSplitAction(&state, action: action)
-
-      case .initialize:
-        return initialize(&state)
-
-      case .keyboard(.delegate(let action)):
-        return processKeyboardAction(&state, action: action)
-
-      case .presetsList(.delegate(.activePresetIdChanged(let presetId))):
-        return activePresetIdChanged(&state, presetId: presetId)
-
-      case let .presetsList(.delegate(.edit(sectionId, preset))):
-        return editPreset(&state, sectionId: sectionId, preset: preset)
-
+      return switch action {
+      case .activePresetIdChanged(let presetId): activePresetIdChanged(&state, presetId: presetId)
+      case .audioUnitCrashed: .none
+      case .binding(\.helpInfoSelection): helpInfoSelectionChanged(&state)
+      case .deinitialize: deinitialize(&state)
+      case .destination(.presented(.alert(.reinitializeConfirmed))): reinitializeConfirmed(&state)
+      case .destination(.presented(.presetEditor(.delegate(.audioConfigChanged)))): .send(.synth(.playNote))
+      case .destination(.presented(.settings(.delegate(let action)))): processSettingsAction(&state, action: action)
+      case .destination(.dismiss): destinationDismissed(&state)
+      case .fontsAndPresetsSplit(.delegate(let action)): processFontsAndPresetsSplitAction(&state, action: action)
+      case .fontsAndTagsSplit(.delegate(let action)): processFontsAndTagsSplitAction(&state, action: action)
+      case .initialize: initialize(&state)
+      case .keyboard(.delegate(let action)): processKeyboardAction(&state, action: action)
+      case .presetsList(.delegate(.activePresetIdChanged(let presetId))): activePresetIdChanged(&state, presetId: presetId)
+      case let .presetsList(.delegate(.edit(sectionId, preset))): editPreset(&state, sectionId: sectionId, preset: preset)
       case .presetsList(.delegate(.missingSoundFontDetected(let soundFontId))):
-        return .send(.soundFontsList(.missingSoundFontDetected(soundFontId)))
-
-      case .scenePhaseChanged(let phase):
-        return scenePhaseChanged(&state, phase: phase)
-
+        missingSoundFontDetected(&state, soundFontId: soundFontId)
+      case .scenePhaseChanged(let phase): scenePhaseChanged(&state, phase: phase)
       case .soundFontsList(.delegate(.presetSourceChanged(let presetSource))):
-        return presetSourceChanged(&state, presetSource: presetSource)
-
-      case .soundFontsList(.delegate(.edit(let soundFont))):
-        state.destination = .soundFontEditor(.init(soundFont: soundFont))
-        return .none
-
+        presetSourceChanged(&state, presetSource: presetSource)
+      case .soundFontsList(.delegate(.edit(let soundFont))): showSoundFontEditor(&state, soundFont: soundFont)
       case .synth(.delegate(.running(let avAudioUnit))):
-        return .merge(
-          audioUnitCreated(&state, avAudioUnit: avAudioUnit),
-          audioChainActive(&state)
-        )
-
-      case .synth(.delegate(.stopped)):
-        return audioChainInactive(&state)
-
-      case .tagsList(.delegate(.activeTagIdChanged(let tagId))):
-        appActiveState.setActiveTagId(tagId)
-        return .send(.soundFontsList(.activeTagIdChanged(tagId)))
-
-      case .tagsList(.delegate(.edit(focus: let ordering))):
-        state.destination = .tagsEditor(.init(focused: ordering))
-        return .none
-
-      case .toolBar(.clearTemporaryStatus):
-        // Hack: there is a race in the Synth reducer that fails to properly track the first time a preset is loaded so this bit of
-        // state does not get cleared out properly.
-        state.synth.firstTimeLoading = false
-        return .none
-
-      case .toolBar(.delegate(let action)):
-        return processToolBarAction(&state, action: action)
-
-      case .volumeMonitor(.delegate(.reasonChanged(let reason))):
-        return volumeMonitorReasonChanged(&state, reason: reason)
-
-      default:
-        return .none
+          .merge(audioUnitCreated(&state, avAudioUnit: avAudioUnit), audioChainActive(&state))
+      case .synth(.delegate(.stopped)): audioChainInactive(&state)
+      case .tagsList(.delegate(.activeTagIdChanged(let tagId))): activeTagIdChanged(&state, tagId: tagId)
+      case .tagsList(.delegate(.edit(focus: let ordering))): showTagEditor(&state, focusOn: ordering)
+      case .toolBar(.delegate(let action)): processToolBarAction(&state, action: action)
+      case .volumeMonitor(.delegate(.reasonChanged(let reason))): volumeMonitorReasonChanged(&state, reason: reason)
+      default: .none
       }
     }
     .ifLet(\.$destination, action: \.destination)
@@ -358,6 +296,11 @@ extension AppRoot {
       .send(.synth(.activePresetIdChanged(presetId))),
       .send(.toolBar(.activePresetIdChanged(presetId))),
       .send(.volumeMonitor(.activePresetIdChanged(presetId))))
+  }
+
+  private func activeTagIdChanged(_ state: inout State, tagId: Tag.ID) -> Effect<Action> {
+    appActiveState.setActiveTagId(tagId)
+    return .send(.soundFontsList(.activeTagIdChanged(tagId)))
   }
 
   private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnitMIDIInstrument) -> Effect<Action> {
@@ -476,6 +419,10 @@ extension AppRoot {
 
     midi.receiver = monitor
     midi.monitor = monitor
+  }
+
+  private func missingSoundFontDetected(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
+    .send(.soundFontsList(.missingSoundFontDetected(soundFontId)))
   }
 
   private func monitorInvalidationNotification(_ state: inout State) -> Effect<Action> {
@@ -625,6 +572,16 @@ extension AppRoot {
     @unknown default:
       fatalError("Unhandled ScenePhase \(phase):")
     }
+  }
+
+  private func showSoundFontEditor(_ state: inout State, soundFont: SoundFont) -> Effect<Action> {
+    state.destination = .soundFontEditor(.init(soundFont: soundFont))
+    return .none
+  }
+
+  private func showTagEditor(_ state: inout State, focusOn: Int?) -> Effect<Action> {
+    state.destination = .tagsEditor(.init(focused: focusOn))
+    return .none
   }
 
   private func volumeMonitorReasonChanged(_ state: inout State, reason: VolumeMonitor.Reason?) -> Effect<Action> {

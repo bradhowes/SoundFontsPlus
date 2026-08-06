@@ -192,82 +192,32 @@ public struct ToolBar {
     Scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator) { MIDITrafficIndicator() }
 
     Reduce<State, Action> { state, action in
-
       log.action("ToolBar", action)
-
-      switch action {
-
-      case .activePresetIdChanged(let presetId):
-        return activePresetIdChanged(&state, presetId: presetId)
-
-      case .activeVoiceCountChanged(let count):
-        state.activeVoiceCount = count
-        return .none
-
-      case .addSoundFontButtonTapped:
-        return .send(.fileImporter(.showFileImporter))
-
-      case .audioUnitCreated(let audioUnit):
-        return audioUnitCreated(&state, audioUnit: audioUnit)
-
-      case .clearTemporaryStatus:
-        return clearTemporaryStatus(&state)
-
-      case .deinitialize:
-        return .merge(
-          .send(.midiTrafficIndicator(.deinitialize)),
-          .merge(CancelId.allCases.map({ .cancel(id: $0) }))
-        )
-
-      case .effectsVisibilityButtonTapped:
-        return toggleEffectsVisibility(&state)
-
-      case .fileImporter(.delegate(.importFinished)):
-        return .send(.delegate(.importFinished))
-
-      case .helpInfoButtonTapped:
-        return helpInfoButtonTapped(&state)
-
-      case .helpInfoFinished:
-        return helpInfoFinished(&state)
-
-      case .initialize(let hasMoreButton):
-        state.hasMoreButton = hasMoreButton
-        state.showMoreButtons = false
-        return .none
-
-      case .lastPlayedKeyChanged(let key):
-        return lastPlayedKeyChanged(&state, key: key)
-
-      case .presetsVisibilityButtonTapped:
-        return editPresetVisibility(&state)
-
-      case .shiftKeyboardDownButtonTapped:
-        return shiftKeyboardDownButtonTapped(&state)
-
-      case .shiftKeyboardUpButtonTapped:
-        return shiftKeyboardUpButtonTapped(&state)
-
-      case .settingsButtonTapped:
-        return settingsButtonTapped(&state)
-
-      case let .setVisibleKeyRange(lowest, highest):
-        return setVisibleKeyRange(&state, lowest: lowest, highest: highest)
-
-      case .showMoreButtonTapped:
-        return state.hasMoreButton ? toggleShowMoreButtons(&state) : .none
-
-      case .slidingKeyboardButtonTapped:
-        return slidingKeyboardButtonTapped(&state)
-
-      case .statusTextTapped(let count):
-        return statusTextTapped(&state, count: count)
-
-      case .tagsListVisibilityButtonTapped:
-        return toggleTagsListVisibility(&state)
-
-      default:
-        return .none
+      return switch action {
+      case .activePresetIdChanged(let presetId): activePresetIdChanged(&state, presetId: presetId)
+      case .activeVoiceCountChanged(let count): activeVoiceCountChanged(&state, count: count)
+      case .addSoundFontButtonTapped: .send(.fileImporter(.showFileImporter))
+      case .audioUnitCreated(let audioUnit): audioUnitCreated(&state, audioUnit: audioUnit)
+      case .clearTemporaryStatus: clearTemporaryStatus(&state)
+      case .deinitialize: deinitialize(&state)
+      case .delegate: .none
+      case .effectsVisibilityButtonTapped: toggleEffectsVisibility(&state)
+      case .fileImporter(.delegate(.importFinished)): .send(.delegate(.importFinished))
+      case .fileImporter: .none
+      case .helpInfoButtonTapped: helpInfoButtonTapped(&state)
+      case .helpInfoFinished: helpInfoFinished(&state)
+      case .initialize(let hasMoreButton): initialize(&state, hasMoreButton: hasMoreButton)
+      case .lastPlayedKeyChanged(let key): lastPlayedKeyChanged(&state, key: key)
+      case .midiTrafficIndicator: .none
+      case .presetsVisibilityButtonTapped: editPresetVisibility(&state)
+      case .shiftKeyboardDownButtonTapped: shiftKeyboardDownButtonTapped(&state)
+      case .shiftKeyboardUpButtonTapped: shiftKeyboardUpButtonTapped(&state)
+      case .settingsButtonTapped: settingsButtonTapped(&state)
+      case let .setVisibleKeyRange(lowest, highest): setVisibleKeyRange(&state, lowest: lowest, highest: highest)
+      case .showMoreButtonTapped: state.hasMoreButton ? toggleShowMoreButtons(&state) : .none
+      case .slidingKeyboardButtonTapped: slidingKeyboardButtonTapped(&state)
+      case .statusTextTapped(let count): statusTextTapped(&state, count: count)
+      case .tagsListVisibilityButtonTapped: toggleTagsListVisibility(&state)
       }
     }
   }
@@ -288,6 +238,11 @@ extension ToolBar {
       state.preset = nil
     }
     return clearTemporaryStatus(&state)
+  }
+
+  private func activeVoiceCountChanged(_ state: inout State, count: Int) -> Effect<Action> {
+    state.activeVoiceCount = count
+    return .none
   }
 
   private func audioUnitCreated(_ state: inout State, audioUnit: AVAudioUnitMIDIInstrument) -> Effect<Action> {
@@ -311,9 +266,68 @@ extension ToolBar {
     }.cancellable(id: CancelId.toolBarClearTemporaryStatus, cancelInFlight: true)
   }
 
+  private func deinitialize(_ state: inout State) -> Effect<Action> {
+    return .merge(
+      .send(.midiTrafficIndicator(.deinitialize)),
+      .merge(CancelId.allCases.map({ .cancel(id: $0) }))
+    )
+  }
+
   private func editPresetVisibility(_ state: inout State) -> Effect<Action> {
     state.editingPresetVisibility.toggle()
     return .send(.delegate(.editingPresetVisibilityChanged(state.editingPresetVisibility)))
+  }
+
+  private func helpInfoButtonTapped(_ state: inout State) -> Effect<Action> {
+    let helpInfoRestoration: HelpInfoRestoration = .init(
+      effectsPanelVisible: state.isAUv3 ? true : state.effectsPanelVisible,
+      tagsListVisible: state.tagsListVisible,
+      moreButtonsVisible: state.showMoreButtons
+    )
+
+    state.helpInfoRestoration = helpInfoRestoration
+
+    return .run { [hasMoreButton = state.hasMoreButton] send in
+      if hasMoreButton && !helpInfoRestoration.moreButtonsVisible {
+        await send(.showMoreButtonTapped)
+      }
+
+      if !helpInfoRestoration.effectsPanelVisible {
+        await send(.effectsVisibilityButtonTapped)
+      }
+
+      if !helpInfoRestoration.tagsListVisible {
+        await send(.tagsListVisibilityButtonTapped)
+      }
+
+      try? await Task.sleep(nanoseconds: 400_000_000) // TODO: remove magic constant
+      await send(.delegate(.helpInfoButtonTapped))
+    }
+  }
+
+  private func helpInfoFinished(_ state: inout State) -> Effect<Action> {
+    guard let helpInfoRestoration = state.helpInfoRestoration else { return .none }
+    state.helpInfoRestoration = nil
+
+    return .run { [hasMoreButton = state.hasMoreButton] send in
+      if hasMoreButton && !helpInfoRestoration.moreButtonsVisible {
+        await send(.showMoreButtonTapped)
+      }
+
+      if !helpInfoRestoration.effectsPanelVisible {
+        await send(.effectsVisibilityButtonTapped)
+      }
+
+      if !helpInfoRestoration.tagsListVisible {
+        await send(.tagsListVisibilityButtonTapped)
+      }
+    }
+  }
+
+  private func initialize(_ state: inout State, hasMoreButton: Bool) -> Effect<Action> {
+    state.hasMoreButton = hasMoreButton
+    state.showMoreButtons = false
+    return .none
   }
 
   private func lastPlayedKeyChanged(_ state: inout State, key: Note) -> Effect<Action> {
@@ -380,52 +394,6 @@ extension ToolBar {
     state.lowestKey = newLow
     state.highestKey = newHigh
     return .send(.delegate(.visibleKeyRangeChanged(lowest: newLow, highest: newHigh)))
-  }
-
-  private func helpInfoButtonTapped(_ state: inout State) -> Effect<Action> {
-    let helpInfoRestoration: HelpInfoRestoration = .init(
-      effectsPanelVisible: state.isAUv3 ? true : state.effectsPanelVisible,
-      tagsListVisible: state.tagsListVisible,
-      moreButtonsVisible: state.showMoreButtons
-    )
-
-    state.helpInfoRestoration = helpInfoRestoration
-
-    return .run { [hasMoreButton = state.hasMoreButton] send in
-      if hasMoreButton && !helpInfoRestoration.moreButtonsVisible {
-        await send(.showMoreButtonTapped)
-      }
-
-      if !helpInfoRestoration.effectsPanelVisible {
-        await send(.effectsVisibilityButtonTapped)
-      }
-
-      if !helpInfoRestoration.tagsListVisible {
-        await send(.tagsListVisibilityButtonTapped)
-      }
-
-      try? await Task.sleep(nanoseconds: 400_000_000) // TODO: remove magic constant
-      await send(.delegate(.helpInfoButtonTapped))
-    }
-  }
-
-  private func helpInfoFinished(_ state: inout State) -> Effect<Action> {
-    guard let helpInfoRestoration = state.helpInfoRestoration else { return .none }
-    state.helpInfoRestoration = nil
-
-    return .run { [hasMoreButton = state.hasMoreButton] send in
-      if hasMoreButton && !helpInfoRestoration.moreButtonsVisible {
-        await send(.showMoreButtonTapped)
-      }
-
-      if !helpInfoRestoration.effectsPanelVisible {
-        await send(.effectsVisibilityButtonTapped)
-      }
-
-      if !helpInfoRestoration.tagsListVisible {
-        await send(.tagsListVisibilityButtonTapped)
-      }
-    }
   }
 
   private func showPanicStatus(_ state: inout State) -> Effect<Action> {
