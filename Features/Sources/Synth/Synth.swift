@@ -410,18 +410,14 @@ extension Synth {
 
       return avAudioUnit.sendLoadBookmarkUsePreset(
         bookmark: data,
-        preset: presetInfo.presetIndex,
-        gain: presetInfo.gain,
-        pan: presetInfo.pan
+        preset: presetInfo.presetIndex
       )
 
     } else {
       log.debug("sending file path to synth - \(location.url, privacy: .public)")
       return avAudioUnit.sendLoadFileUsePreset(
         path: location.url.path(percentEncoded: false),
-        preset: presetInfo.presetIndex,
-        gain: presetInfo.gain,
-        pan: presetInfo.pan
+        preset: presetInfo.presetIndex
       )
     }
   }

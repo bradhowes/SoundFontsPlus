@@ -11,11 +11,9 @@ extension AVAudioUnitMIDIInstrument {
 
    - parameter path: the path to the SF2 file to load
    - parameter preset: the index of the preset to activate
-   - parameter gain: the custom gain to apply (not used)
-   - parameter pan: the custom panning to apply (not used)
    - returns: `true` if successfully sent message
    */
-  public func sendLoadFileUsePreset(path: String, preset: Int, gain: Double, pan: Double) -> Bool {
+  public func sendLoadFileUsePreset(path: String, preset: Int) -> Bool {
     sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload(std.string(path), preset)))
   }
 
@@ -25,11 +23,9 @@ extension AVAudioUnitMIDIInstrument {
 
    - parameter bookmark: the bookmark pointing to the SF2 file to load
    - parameter preset: the index of the preset to activate
-   - parameter gain: the custom gain to apply (not used)
-   - parameter pan: the custom panning to apply (not used)
    - returns: `true` if successfully sent message
    */
-  public func sendLoadBookmarkUsePreset(bookmark: Data, preset: Int, gain: Double, pan: Double) -> Bool {
+  public func sendLoadBookmarkUsePreset(bookmark: Data, preset: Int) -> Bool {
     sendMIDI(bytes: Array(SF2Engine.createLoadBookmarkUsePresetPayload(bookmark, preset)))
   }
 
@@ -37,11 +33,9 @@ extension AVAudioUnitMIDIInstrument {
    Create a custom SysEx message to change the active preset of an already-loaded SF2 file. Send it to the SF2LibAU autio unit.
 
    - parameter preset: the index of the preset to activate
-   - parameter gain: the custom gain to apply (not used)
-   - parameter pan: the custom panning to apply (not used)
    - returns: `true` if successfully sent message
    */
-  public func sendUsePreset(preset: Int, gain: Double, pan: Double) -> Bool {
+  public func sendUsePreset(preset: Int) -> Bool {
     sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload("", preset)))
   }
 
