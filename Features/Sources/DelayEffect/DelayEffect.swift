@@ -105,47 +105,19 @@ public struct DelayEffect {
     Scope(state: \.wetDryMix, action: \.wetDryMix) { KnobFeature() }
 
     Reduce { state, action in
-
       log.action("DelayEffect", action)
-
-      switch action {
-
-      case .activePresetIdChanged(let presetId):
-        return activePresetIdChanged(&state, presetId: presetId)
-
-      case .applyConfigForPreset(let presetId):
-        return applyConfigForPreset(&state, presetId: presetId)
-
-      case .cutoff:
-        return updateAndSave(&state, path: \.cutoff, value: state.cutoff.value)
-
-      case .deinitialize:
-        log.info("deinitialize")
-        if state.dirty {
-          _ = saveDebounced(&state)
-        }
-        return .merge(CancelId.allCases.map { .cancel(id: $0) })
-
-      case .enabled:
-        return updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
-
-      case .feedback:
-        return updateAndSave(&state, path: \.feedback, value: state.feedback.value)
-
-      case .locked:
-        return updateLocked(&state)
-
-      case .saveDebounced:
-        return saveDebounced(&state)
-
-      case .time:
-        return updateAndSave(&state, path: \.time, value: state.time.value)
-
-      case .updateDebounced:
-        return updateDebounced(&state)
-
-      case .wetDryMix:
-        return updateAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
+      return switch action {
+      case .activePresetIdChanged(let presetId): activePresetIdChanged(&state, presetId: presetId)
+      case .applyConfigForPreset(let presetId): applyConfigForPreset(&state, presetId: presetId)
+      case .cutoff: updateAndSave(&state, path: \.cutoff, value: state.cutoff.value)
+      case .deinitialize: deinitialize(&state)
+      case .enabled: updateAndSave(&state, path: \.enabled, value: state.enabled.isOn)
+      case .feedback: updateAndSave(&state, path: \.feedback, value: state.feedback.value)
+      case .locked: updateLocked(&state)
+      case .saveDebounced: saveDebounced(&state)
+      case .time: updateAndSave(&state, path: \.time, value: state.time.value)
+      case .updateDebounced: updateDebounced(&state)
+      case .wetDryMix: updateAndSave(&state, path: \.wetDryMix, value: state.wetDryMix.value)
       }
     }
   }
@@ -238,6 +210,13 @@ extension DelayEffect {
     }
 
     return .none
+  }
+
+  private func deinitialize(_ state: inout State) -> Effect<Action> {
+    if state.dirty {
+      _ = saveDebounced(&state)
+    }
+    return .merge(CancelId.allCases.map { .cancel(id: $0) })
   }
 
   private func runDebouncers(_ state: inout State) -> Effect<Action> {
