@@ -14,6 +14,10 @@ jobs:
   build:
     runs-on: macos-15
     steps:
+    - name: Clean Derived Data
+      run: |
+        rm -rf ~/Library/Developer/Xcode/DerivedData/*
+        rm -rf .DerivedData-iOS      
     - name: Checkout
       uses: actions/checkout@v4
     - name: Select Xcode Xcode_26.2.0
