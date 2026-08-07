@@ -63,12 +63,18 @@ public struct ToolBar {
     public var temporaryStatus: TemporaryStatus?
     public var lowestKey: Note
     public var midiTrafficIndicator: MIDITrafficIndicator.State
-    public var preset: Preset?
+    public var displayName: String
+    public var isFavorite: Bool
     public var showMoreButtons: Bool
     public var hasMoreButton: Bool
     @ObservationStateIgnored
     public var helpInfoRestoration: HelpInfoRestoration?
     public let isAUv3: Bool
+
+    @Shared(.starFavoriteNames) public var starFavoriteNames
+    public var showingPresetSymbol: Bool { starFavoriteNames && isFavorite && temporaryStatus == nil }
+    public var statusTextValue: String { temporaryStatus?.text ?? displayName }
+    public var statusTextColor: Color { (isFavorite || temporaryStatus != nil) ? .alternateAccentColor : .mainAccentColor }
 
     public init(
       activeVoiceCount: Int = 0,
@@ -80,7 +86,8 @@ public struct ToolBar {
       temporaryStatus: TemporaryStatus? = nil,
       lowestKey: Note? = nil,
       midiTrafficIndicator: MIDITrafficIndicator.State? = nil,
-      preset: Preset? = nil,
+      displayName: String = "",
+      isFavorite: Bool = false,
       showMoreButtons: Bool = false,
       tagsListVisible: Bool? = nil,
     ) {
@@ -94,7 +101,8 @@ public struct ToolBar {
       self.temporaryStatus = temporaryStatus
       self.lowestKey = lowestKey ?? savedLowestKey
       self.midiTrafficIndicator = midiTrafficIndicator ?? .init(tag: "ToolBar")
-      self.preset = preset
+      self.displayName = displayName
+      self.isFavorite = isFavorite
       self.showMoreButtons = showMoreButtons
       self.temporaryStatus = .startup
 
@@ -233,9 +241,11 @@ extension ToolBar {
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     if let presetId = presetId,
        let preset = Preset.with(id: presetId) {
-      state.preset = preset
+      state.displayName = preset.displayName
+      state.isFavorite = preset.isFavorite
     } else {
-      state.preset = nil
+      state.displayName = "-"
+      state.isFavorite = false
     }
     return clearTemporaryStatus(&state)
   }
@@ -246,10 +256,10 @@ extension ToolBar {
   }
 
   private func audioUnitCreated(_ state: inout State, audioUnit: AVAudioUnitMIDIInstrument) -> Effect<Action> {
-    .merge(
+    return .merge(
+      clearTemporaryStatus(&state),
       monitorActiveVoiceCount(&state, audioUnit: audioUnit),
       .send(.midiTrafficIndicator(.initialize)),
-      clearTemporaryStatusTask(&state)
     )
   }
 

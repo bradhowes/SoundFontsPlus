@@ -12,7 +12,7 @@ public struct ToolBarView: View {
   @Shared(.favoriteSymbolName) private var favoriteSymbolName
   @Shared(.showActiveVoiceCount) private var showActiveVoiceCount
   @Shared(.showMIDITrafficIndicator) private var showMIDITrafficIndicator
-  @Shared(.starFavoriteNames) private var starFavoriteNames
+
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.controlSpacing) private var controlSpacing
 
@@ -21,14 +21,8 @@ public struct ToolBarView: View {
   private let maxCompactBarWidth: CGFloat = 440 // iPhone 17 Pro Max
   private let rowHeight: CGFloat = 28
   private let isAUv3: Bool
+
   private var isApp: Bool { !isAUv3 }
-
-  private var showingPresetSymbol: Bool { starFavoriteNames && store.preset?.kind == .favorite && store.temporaryStatus == nil }
-  private var statusTextValue: String { store.temporaryStatus?.text ?? store.preset?.displayName ?? "—" }
-  private var statusTextColor: Color {
-    (store.preset?.kind == .favorite || store.temporaryStatus != nil) ? .alternateAccentColor : .mainAccentColor
-  }
-
   private var height: CGFloat { rowHeight }
 
   @State private var animationState: AnimationState = .init()
@@ -119,7 +113,7 @@ public struct ToolBarView: View {
     .background(.windowBackground)
     .animation(.smooth, value: showActiveVoiceCount)
     .animation(.smooth, value: showMIDITrafficIndicator)
-    .animation(.smooth, value: starFavoriteNames)
+    .animation(.smooth, value: store.starFavoriteNames)
     .animation(.smooth, value: store.showMoreButtons)
     .animation(.smooth, value: height)
     .animation(.smooth, value: store.activeVoiceCount)
@@ -130,13 +124,6 @@ public struct ToolBarView: View {
 struct Status: View {
   private var store: StoreOf<ToolBar>
   @Shared(.favoriteSymbolName) private var favoriteSymbolName
-  @Shared(.starFavoriteNames) private var starFavoriteNames
-
-  private var showingPresetSymbol: Bool { starFavoriteNames && store.preset?.kind == .favorite && store.temporaryStatus == nil }
-  private var statusTextValue: String { store.temporaryStatus?.text ?? store.preset?.displayName ?? "—" }
-  private var statusTextColor: Color {
-    (store.preset?.kind == .favorite || store.temporaryStatus != nil) ? .alternateAccentColor : .mainAccentColor
-  }
 
   init(store: StoreOf<ToolBar>) {
     self.store = store
@@ -144,16 +131,16 @@ struct Status: View {
 
   var body: some View {
     HStack {
-      if showingPresetSymbol {
+      if store.showingPresetSymbol {
         Image(systemName: favoriteSymbolName)
           .imageScale(.medium)
       }
-      Text(statusTextValue)
+      Text(store.statusTextValue)
       Spacer()
     }
     .font(.status)
-    .foregroundStyle(statusTextColor)
-    .animation(.smooth, value: statusTextValue)
+    .foregroundStyle(store.statusTextColor)
+    .animation(.smooth, value: store.statusTextValue)
     .animation(.smooth, value: store.showMoreButtons)
     .contentShape(Rectangle())
     .onTapGesture(count: 2) { store.send(.statusTextTapped(count: 2)) }
@@ -342,15 +329,8 @@ extension ToolBarView {
     struct Preview: View {
       let store = Store(
         initialState: .init(
-          preset: Preset(
-            id: 0,
-            index: 0,
-            bank: 1,
-            program: 1,
-            originalName: "Foo",
-            soundFontId: 0,
-            displayName: "This is a really long name"
-          )
+          displayName: "Foo",
+          isFavorite: false
         )
       ) {
         ToolBar()
