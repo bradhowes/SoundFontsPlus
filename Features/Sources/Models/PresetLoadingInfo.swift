@@ -17,8 +17,6 @@ nonisolated public struct PresetLoadingInfo {
   public let presetName: String
   public let originalSoundFontName: String
   public let soundFontName: String
-  public let gain: Double
-  public let pan: Double
 }
 
 extension PresetLoadingInfo {
@@ -26,7 +24,7 @@ extension PresetLoadingInfo {
   static func query(
     for originalSoundFontName: String,
     presetIndex: Int
-  ) -> Select<Self.Columns.QueryValue, SoundFont, (Preset, AudioConfig?)> {
+  ) -> Select<Self.Columns.QueryValue, SoundFont, Preset> {
     SoundFont
       .where {
         // NOTE: this column should match the one that is used when creating the index on SoundFont to lookup by name.
@@ -35,9 +33,6 @@ extension PresetLoadingInfo {
       .join(Preset.all) {
         $1.index.eq(presetIndex) &&
         $0.id.eq($1.soundFontId)
-      }
-      .leftJoin(AudioConfig.all) {
-        $1.id.eq($2.presetId)
       }
       .select {
         Columns(
@@ -48,9 +43,7 @@ extension PresetLoadingInfo {
           location: $0.location,
           presetName: $1.displayName,
           originalSoundFontName: $0.originalName,
-          soundFontName: $0.displayName,
-          gain: $2.gain ?? 0.0,
-          pan: $2.pan ?? 0.0
+          soundFontName: $0.displayName
         )
       }
   }
@@ -67,16 +60,13 @@ extension PresetLoadingInfo {
     } ?? nil
   }
 
-  static func query(for id: Preset.ID) -> Select<Self.Columns.QueryValue, Preset, (SoundFont, AudioConfig?)> {
+  static func query(for id: Preset.ID) -> Select<Self.Columns.QueryValue, Preset, SoundFont> {
     Preset
       .where {
         $0.id.eq(id)
       }
       .join(SoundFont.all) {
         $0.soundFontId.eq($1.id)
-      }
-      .leftJoin(AudioConfig.all) {
-        $0.id.eq($2.presetId)
       }
       .select {
         Columns(
@@ -87,9 +77,7 @@ extension PresetLoadingInfo {
           location: $1.location,
           presetName: $0.displayName,
           originalSoundFontName: $1.originalName,
-          soundFontName: $1.displayName,
-          gain: $2.gain ?? 0.0,
-          pan: $2.pan ?? 0.0
+          soundFontName: $1.displayName
         )
       }
   }
@@ -118,8 +106,6 @@ extension PresetLoadingInfo: CustomStringConvertible {
       kind="\(kind)"
       presetName="\(presetName)"
       originalSoundFontName="\(originalSoundFontName)"
-      gain=\(gain)
-      pan=\(pan)
     />
     """
   }
