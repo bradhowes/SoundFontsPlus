@@ -51,18 +51,33 @@ extension SoundFontInfo {
 
    - parameter tagId: the tag to look for. If `nil` then use the value found in `ActiveState`. If that is also `nil` then
    return rows for all ``SoundFont`` entries.
-   - returns: a query that produces a row for each associated ``SoundFont``
+   - parameter search: optional search term to apply
+   - returns: a query that produces a row for each associated ``SoundFontInfo``
    */
-  public static func query(for tagId: Tag.ID) -> Select<Columns.QueryValue, TaggedSoundFont, SoundFont> {
-    @Shared(.hideBuiltinFonts) var hideBuiltinFonts
-    return TaggedSoundFont
-      .join(hideBuiltinFonts ? (SoundFont.all.where { $0.kind.neq(SoundFont.Kind.builtin) }) : SoundFont.all) {
-        $0.tagId.eq(tagId) && $0.soundFontId.eq($1.id)
-      }
-      .select {
-        Columns(id: $1.id, displayName: $1.displayName, kind: $1.kind, location: $1.location)
-      }
-      .order { $1.displayName }
+  public static func query(for tagId: Tag.ID, search: String? = nil) -> any Statement<Columns.QueryValue> {
+    if let search {
+      return SoundFontText
+        .where {
+          if !search.isEmpty {
+            $0.match(search)
+          }
+        }
+        .order { $0.rank }
+        .join(SoundFont.all) { $0.soundFontId.eq($1.id) }
+        .select {
+          Columns(id: $1.id, displayName: $1.displayName, kind: $1.kind, location: $1.location)
+        }
+    } else {
+      @Shared(.hideBuiltinFonts) var hideBuiltinFonts
+      return TaggedSoundFont
+        .join(hideBuiltinFonts ? (SoundFont.all.where { $0.kind.neq(SoundFont.Kind.builtin) }) : SoundFont.all) {
+          $0.tagId.eq(tagId) && $0.soundFontId.eq($1.id)
+        }
+        .select {
+          Columns(id: $1.id, displayName: $1.displayName, kind: $1.kind, location: $1.location)
+        }
+        .order { $1.displayName }
+    }
   }
 }
 

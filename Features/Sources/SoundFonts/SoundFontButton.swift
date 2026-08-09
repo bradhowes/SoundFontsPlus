@@ -244,7 +244,7 @@ private let log: Logger = .init(category: "SoundFontButton")
 extension SoundFontButtonView {
   static var preview: some View {
     let soundFontInfos = withDatabaseReader {
-      try SoundFontInfo.query(for: Tag.Ubiquitous.all.id).fetchAll($0)
+      try SoundFontInfo.query(for: Tag.Ubiquitous.all.id, search: nil).fetchAll($0)
     } ?? []
     return VStack {
       Section {

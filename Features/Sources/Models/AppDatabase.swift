@@ -159,8 +159,6 @@ private func performMigrations(
 
   try migrator.migrate(database)
 
-  try SoundFontText.installTriggers(database)
-
   if let seeder {
     try database.write { db in
       try seeder(db)

@@ -46,10 +46,8 @@ public struct SoundFontsList {
     public var selectedPresetSource: PresetSource?
     public var editingMode: EditMode
 
-    @ObservationStateIgnored
-    public var searchSource: IdentifiedArrayOf<SoundFontButton.State>
-    public var searchText: String
-    public var isSearchFieldPresented: Bool
+    public var searchText: String = ""
+    public var isSearchFieldPresented: Bool = false
     public var focusedField: Field?
 
     @ObservationStateIgnored
@@ -73,12 +71,8 @@ public struct SoundFontsList {
 
       self.editingMode = editingMode
 
-      self.searchSource = []
-      self.searchText = ""
-      self.isSearchFieldPresented = false
-
       let soundFontInfos: [SoundFontInfo] = withDatabaseReader { db in
-        try SoundFontInfo.query(for: activeTagId).fetchAll(db)
+        try SoundFontInfo.query(for: activeTagId, search: nil).fetchAll(db)
       } ?? []
 
       Self.setRows(&self, soundFontInfos: soundFontInfos)
@@ -324,13 +318,11 @@ extension SoundFontsList {
   }
 
   private func dismissSearch(_ state: inout State) -> Effect<Action> {
-    state.rows = state.searchSource
-    state.searchSource = []
     state.isSearchFieldPresented = false
     state.focusedField = nil
     state.lastSearchText = state.searchText
     state.searchText = ""
-    return .none
+    return updateFetchAllQuery(&state)
   }
 
   private func edit(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
@@ -416,20 +408,16 @@ extension SoundFontsList {
   }
 
   private func searchButtonTapped(_ state: inout State) -> Effect<Action> {
-    state.searchSource = state.rows
     state.isSearchFieldPresented = true
     state.focusedField = .searchText
     state.searchText = ""
-    state.rows = []
     return searchTextChanged(&state, searchText: state.lastSearchText ?? "")
   }
 
   private func searchTextChanged(_ state: inout State, searchText: String) -> Effect<Action> {
     if searchText != state.searchText {
       state.searchText = searchText
-      state.rows = state.searchSource.filter {
-        $0.soundFontInfo.displayName.localizedCaseInsensitiveContains(searchText.lowercased())
-      }
+      return updateFetchAllQuery(&state)
     }
     return .none
   }
@@ -484,9 +472,12 @@ extension SoundFontsList {
   }
 
   private func updateFetchAllQuery(_ state: inout State) -> Effect<Action> {
-    .run(priority: .utility, name: "soundFontsListUpdateFetchAllQuery") { [tagId = state.activeTagId] send in
+    .run(
+      priority: .utility,
+      name: "soundFontsListUpdateFetchAllQuery"
+    ) { [tagId = state.activeTagId, searchText = state.searchText] send in
       @FetchAll var soundFontInfos: [SoundFontInfo]
-      try await $soundFontInfos.load(SoundFontInfo.query(for: tagId))
+      try await $soundFontInfos.load(SoundFontInfo.query(for: tagId, search: searchText))
       for try await source in $soundFontInfos.publisher.values.removeDuplicates() {
         await send(.rowsSourceUpdated(source: source))
       }
@@ -504,7 +495,6 @@ extension SoundFontsList.Destination.State: _EphemeralState {
 public struct SoundFontsListView: View {
   @Bindable private var store: StoreOf<SoundFontsList>
   @FocusState private var focusedField: SoundFontsList.State.Field?
-  private var searching: Bool { store.isSearchFieldPresented }
 
   public init(store: StoreOf<SoundFontsList>) {
     self.store = store
@@ -512,7 +502,7 @@ public struct SoundFontsListView: View {
 
   public var body: some View {
     VStack(spacing: 0) {
-      if searching {
+      if store.isSearchFieldPresented {
         HStack {
           TextField("Search", text: $store.searchText.sending(\.searchTextChanged))
             .textFieldStyle(.roundedBorder)
@@ -567,7 +557,7 @@ public struct SoundFontsListView: View {
                 }
               }
               .zIndex(1)
-              .opacity((store.editingMode == .active || searching) ? 0.0 : 1.0)
+              .opacity((store.editingMode == .active || store.isSearchFieldPresented) ? 0.0 : 1.0)
               HStack(spacing: 16) {
                 Button {
                   store.send(.deleteModeCancelButtonTapped)
@@ -585,7 +575,7 @@ public struct SoundFontsListView: View {
               .opacity(store.editingMode == .active ? 1.0 : 0.0)
               Text("Found \(store.rows.count)")
                 .zIndex(3)
-                .opacity(searching ? 1.0 : 0.0)
+                .opacity(store.isSearchFieldPresented ? 1.0 : 0.0)
             }
           }
         }
@@ -649,17 +639,6 @@ extension SoundFontsListView {
     $0.fileManager.fontFilePath = {
       SF2ResourceTag.rolandNicePiano.url.deletingLastPathComponent().appendingPathComponent($0, isDirectory: false)
     }
-//    $0.defaultDatabase = previewDatabase { db in
-//      let mine = try SoundFont.add(
-//        db: db,
-//        displayName: "Mine",
-//        soundFontKind: .installed(filename: SF2Resource.resources[2].absoluteString)
-//      )
-//
-//      if let tag = try? Tag.make(displayName: "My Tag") {
-//        SoundFont.link(soundFontId: mine.id, to: tag.id)
-//      }
-//    }
   }
 
   @Shared(.hideBuiltinFonts) var hideBuiltinFonts = false

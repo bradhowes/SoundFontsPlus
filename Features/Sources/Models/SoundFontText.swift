@@ -35,14 +35,8 @@ extension SoundFontText: FTS5 {
         """
       )
       .execute(db)
-    }
-  }
-}
 
-extension SoundFontText {
-
-  static func installTriggers(_ database: any DatabaseWriter) throws {
-    try database.write { db in
+      // Add trigger to insert text seach tokens when sound font inserted
       try SoundFont.createTemporaryTrigger(after: .insert { new in
         SoundFontText.insert {
           ($0.soundFontId, $0.displayName, $0.originalName, $0.embeddedName, $0.embeddedComment, $0.embeddedAuthor,
@@ -57,6 +51,7 @@ extension SoundFontText {
         }
       }).execute(db)
 
+      // Add trigger to update text seach tokens when sound font meta data changes
       try SoundFont.createTemporaryTrigger(after: .update {
         ($0.displayName, $0.notes)
       } forEachRow: { _, new in
@@ -68,6 +63,7 @@ extension SoundFontText {
           }
       }).execute(db)
 
+      // Add trigger to delete text seach tokens when sound font deleted
       try SoundFont.createTemporaryTrigger(after: .delete { old in
         SoundFontText
           .where { $0.soundFontId.eq(old.id) }
