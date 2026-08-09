@@ -240,9 +240,9 @@ extension ToolBar {
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     if let presetId = presetId,
-       let preset = Preset.with(id: presetId) {
-      state.displayName = preset.displayName
-      state.isFavorite = preset.isFavorite
+       let presetInfo = PresetInfo.with(id: presetId) {
+      state.displayName = presetInfo.displayName
+      state.isFavorite = presetInfo.kind == .favorite
     } else {
       state.displayName = "-"
       state.isFavorite = false

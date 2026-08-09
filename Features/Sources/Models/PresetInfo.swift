@@ -93,6 +93,25 @@ extension PresetInfo {
       try allQuery(for: soundFontId).fetchAll($0)
     } ?? []
   }
+
+  /**
+   Obtain a `PresetInfo` instance for the given preset ID.
+
+   - parameter id: the `Preset.ID` to fetch
+   - returns: the found instance
+   */
+  public static func with(id: Preset.ID) -> PresetInfo? {
+    withDatabaseReader { db in
+      try Preset.all
+        .where {
+          $0.id.eq(id)
+        }
+        .select {
+          Columns(id: $0.id, displayName: $0.displayName, kind: $0.kind, index: $0.index)
+        }
+        .fetchOne(db)
+    } ?? nil
+  }
 }
 
 extension PresetInfo: Equatable, Identifiable, Sendable {}
