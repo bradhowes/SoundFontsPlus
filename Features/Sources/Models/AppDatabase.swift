@@ -132,6 +132,7 @@ private func performMigrations(
 
   // NOTE: order is important here.
   SoundFont.migrate(&migrator)
+  SoundFontText.migrate(&migrator)
   Preset.migrate(&migrator)
   AudioConfig.migrate(&migrator)
   DelayConfig.migrate(&migrator)
@@ -157,6 +158,8 @@ private func performMigrations(
   }
 
   try migrator.migrate(database)
+
+  try SoundFontText.installTriggers(database)
 
   if let seeder {
     try database.write { db in
