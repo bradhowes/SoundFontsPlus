@@ -21,7 +21,7 @@ public import SwiftUI
  - Swiping right offers a button to edit the meta data associated with the font, including its display name.
  - Swiping left on user-installed fonts offers a button to delete the font.
  - Double-tapping on the "Files" header
- - Tap magnifying glass in "Files" header to search font display names
+ - Tap magnifying glass in "Files" header to search font names and meta data.
  */
 @Reducer
 public struct SoundFontsList {
