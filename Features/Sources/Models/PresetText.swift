@@ -3,22 +3,18 @@
 public import SQLiteData
 
 /**
- Table definition to add FTS5 full-text searching to sound font meta data.
+ Table definition to add FTS5 full-text searching to preset meta data.
  */
 @Table
-nonisolated public struct SoundFontText {
-  public let soundFontId: SoundFont.ID
+nonisolated public struct PresetText {
+  public let presetId: Preset.ID
   public var displayName: String
   public let originalName: String
   public let embeddedName: String
-  public let embeddedComment: String
-  public let embeddedAuthor: String
-  public let embeddedCopyright: String
   public var notes: String
-  public var tags: String
 }
 
-extension SoundFontText: FTS5 {
+extension PresetText: FTS5 {
 
   static let tokenizer = "trigram"
 
@@ -27,13 +23,9 @@ extension SoundFontText: FTS5 {
       try #sql(
         """
         CREATE VIRTUAL TABLE "\(raw: Self.tableName)" USING FTS5 (
-          "soundFontId" UNINDEXED,
+          "presetId" UNINDEXED,
           "displayName",
           "originalName",
-          "embeddedName",
-          "embeddedComment",
-          "embeddedAuthor",
-          "embeddedCopyright",
           "notes",
           tokenize = '\(raw: Self.tokenizer)'
         )
@@ -42,26 +34,24 @@ extension SoundFontText: FTS5 {
       .execute(db)
 
       // Add trigger to insert text seach tokens when sound font inserted
-      try SoundFont.createTemporaryTrigger(after: .insert { new in
-        SoundFontText.insert {
-          ($0.soundFontId, $0.displayName, $0.originalName, $0.embeddedName, $0.embeddedComment, $0.embeddedAuthor,
-           $0.embeddedCopyright, $0.notes)
+      try Preset.createTemporaryTrigger(after: .insert { new in
+        PresetText.insert {
+          ($0.presetId, $0.displayName, $0.originalName, $0.notes)
         } select: {
-          SoundFont
+          Preset
             .find(new.id)
             .select {
-              ($0.id, $0.displayName, $0.originalName, $0.embeddedName, $0.embeddedComment, $0.embeddedAuthor,
-               $0.embeddedCopyright, $0.notes)
+              ($0.id, $0.displayName, $0.originalName, $0.notes)
             }
         }
       }).execute(db)
 
       // Add trigger to update text seach tokens when sound font meta data changes
-      try SoundFont.createTemporaryTrigger(after: .update {
+      try Preset.createTemporaryTrigger(after: .update {
         ($0.displayName, $0.notes)
       } forEachRow: { _, new in
-        SoundFontText
-          .where { $0.soundFontId.eq(new.id) }
+        PresetText
+          .where { $0.presetId.eq(new.id) }
           .update {
             $0.displayName = new.displayName
             $0.notes = new.notes
@@ -69,9 +59,9 @@ extension SoundFontText: FTS5 {
       }).execute(db)
 
       // Add trigger to delete text seach tokens when sound font deleted
-      try SoundFont.createTemporaryTrigger(after: .delete { old in
-        SoundFontText
-          .where { $0.soundFontId.eq(old.id) }
+      try Preset.createTemporaryTrigger(after: .delete { old in
+        PresetText
+          .where { $0.presetId.eq(old.id) }
           .delete()
       }).execute(db)
     }
