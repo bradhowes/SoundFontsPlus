@@ -2,6 +2,7 @@
 
 import AVFAudio
 import DependenciesTestSupport
+import Dependencies
 import FeatureSupport
 import MIDITrafficIndicator
 import SnapshotTesting
@@ -64,21 +65,13 @@ struct ToolBarTests {
 
     await store.send(.activePresetIdChanged(2)) {
       $0.temporaryStatus = nil
-      $0.preset = .init(
-        id: Tagged(rawValue: 2),
-        index: 1,
-        bank: 0,
-        program: 1,
-        originalName: "Original Preset 2",
-        soundFontId: Tagged(rawValue: 1),
-        displayName: "Font 1 Preset 2",
-        notes: "",
-        kind: .preset
-      )
+      $0.displayName = "Font 1 Preset 2"
+      $0.isFavorite = false
     }
 
     await store.send(.activePresetIdChanged(nil)) {
-      $0.preset = nil
+      $0.displayName = "-"
+      $0.isFavorite = false
     }
 
     await store.send(.deinitialize)
@@ -339,7 +332,7 @@ struct ToolBarTests {
     .dependencies {
       $0.audioGraph = .liveValue
       $0.audioSession = MockAudioSession().audioSession
-      $0.avAudioUnitMIDIInstrumentGenerator = .liveValue
+      $0.avAudioUnitMIDIInstrumentGenerator = await .constant()
       $0.continuousClock = .immediate
       $0.defaultDatabase = try appDatabase(loadAllPresets: false)
       $0.delayDevice = .liveValue
@@ -358,7 +351,8 @@ struct ToolBarTests {
       }
     }
 
-    await synth.receive(\.delegate.running, synth.state.avAudioUnit!)
+    @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitMIDIInstrumentGenerator
+    await synth.receive(\.delegate.running, avAudioUnitMIDIInstrumentGenerator.generate()!)
 
     await synth.send(\.activePresetIdChanged, 2) {
       $0.loadedSoundFontId = 1
@@ -372,7 +366,9 @@ struct ToolBarTests {
 
     let store = try await store()
 
-    await store.send(.audioUnitCreated(synth.state.avAudioUnit!))
+    await store.send(.audioUnitCreated(synth.state.avAudioUnit!)) {
+      $0.temporaryStatus = nil
+    }
 
     await synth.send(\.playNote)
 
@@ -583,15 +579,6 @@ struct ToolBarTests {
         let view = ToolBarView(
           store: Store(
             initialState: .init(
-              preset: Preset(
-                id: 0,
-                index: 0,
-                bank: 1,
-                program: 1,
-                originalName: "Foo",
-                soundFontId: 0,
-                displayName: "Foo"
-              ),
               showMoreButtons: true
             )
           ) {
@@ -614,15 +601,6 @@ struct ToolBarTests {
         let view = ToolBarView(
           store: Store(
             initialState: .init(
-              preset: Preset(
-                id: 0,
-                index: 0,
-                bank: 1,
-                program: 1,
-                originalName: "Foo",
-                soundFontId: 0,
-                displayName: "Foo"
-              ),
               showMoreButtons: true
             )
           ) {

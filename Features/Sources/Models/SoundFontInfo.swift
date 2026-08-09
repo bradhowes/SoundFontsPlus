@@ -54,8 +54,9 @@ extension SoundFontInfo {
    - parameter search: optional search term to apply
    - returns: a query that produces a row for each associated ``SoundFontInfo``
    */
-  public static func query(for tagId: Tag.ID, search: String? = nil) -> any Statement<Columns.QueryValue> {
-    if let search {
+  public static func query(for tagId: Tag.ID, search: String? = nil) -> any PartialSelectStatement<Columns.QueryValue> {
+
+    if let search, !search.isEmpty {
       return SoundFontText
         .where {
           if !search.isEmpty {
@@ -78,6 +79,12 @@ extension SoundFontInfo {
         }
         .order { $1.displayName }
     }
+  }
+
+  public static func all(for tagId: Tag.ID, search: String? = nil) -> [SoundFontInfo] {
+    withDatabaseReader {
+      try query(for: tagId, search: search).fetchAll($0)
+    } ?? []
   }
 }
 

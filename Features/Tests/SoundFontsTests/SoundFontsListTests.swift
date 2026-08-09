@@ -83,13 +83,8 @@ struct SoundFontsListTests {
   @Test
   func deleteModeDeleteButtonTapped() async throws {
     try await initialized { store in
-
-      await store.send(\.headerDoubleTapped) {
-        $0.editingMode = .active
-      }
-      await store.send(\.deleteModeCancelButtonTapped) {
-        $0.editingMode = .inactive
-      }
+      await store.send(\.headerDoubleTapped) { $0.editingMode = .active }
+      await store.send(\.deleteModeCancelButtonTapped) { $0.editingMode = .inactive }
     }
   }
 
@@ -97,14 +92,15 @@ struct SoundFontsListTests {
   func activeTagIdChanged() async throws {
 
     try await initialized { store in
+      let allRows = SoundFontInfo.all(for: Tag.Ubiquitous.all.id)
       await store.send(\.activeTagIdChanged, Tag.Ubiquitous.all.id)
-      await store.receive(\.rowsSourceUpdated)
-      await store.send(\.activeTagIdChanged, Tag.Ubiquitous.external.id) {
-        $0.activeTagId = -5
+      await store.receive(\.rowsSourceUpdated, allRows)
+      await store.send(\.activeTagIdChanged, Tag.Ubiquitous.external.id) { $0.activeTagId = -5 }
+      let externalRows = SoundFontInfo.all(for: Tag.Ubiquitous.external.id)
+      await store.receive(\.rowsSourceUpdated, externalRows) {
+        $0.rows = IdentifiedArrayOf<SoundFontButton.State>(uncheckedUniqueElements: externalRows.map { .init(soundFontInfo: $0) })
       }
-      await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-        await store.receive(\.rowsSourceUpdated)
-      }
+
       #expect(store.state.rows.count == 1)
     }
   }
@@ -323,19 +319,9 @@ struct SoundFontsListTests {
   @Test
   func deleteModeCancel() async throws {
     try await initialized { store in
-
-      await store.send(\.headerDoubleTapped) {
-        $0.editingMode = .active
-      }
-
-      await store.send(.rows(.element(id: 4, action: .toggleDeleting))) {
-        $0.rows[3].deleting = true
-      }
-
-      await store.send(\.deleteModeCancelButtonTapped) {
-        $0.editingMode = .inactive
-      }
-
+      await store.send(\.headerDoubleTapped) { $0.editingMode = .active }
+      await store.send(.rows(.element(id: 4, action: .toggleDeleting))) { $0.rows[3].deleting = true }
+      await store.send(\.deleteModeCancelButtonTapped) { $0.editingMode = .inactive }
       await store.send(\.headerDoubleTapped) {
         $0.editingMode = .active
         $0.rows[3].deleting = false
@@ -346,38 +332,20 @@ struct SoundFontsListTests {
   @Test
   func deleteModeConfirmEmpty() async throws {
     try await initialized { store in
-
-      await store.send(\.headerDoubleTapped) {
-        $0.editingMode = .active
-      }
-
-      await store.send(\.deleteModeDeleteButtonTapped) {
-        $0.editingMode = .inactive
-      }
+      await store.send(\.headerDoubleTapped) { $0.editingMode = .active }
+      await store.send(\.deleteModeDeleteButtonTapped) { $0.editingMode = .inactive }
     }
   }
 
   @Test
   func deleteModeConfirm() async throws {
     try await initialized { store in
-
-      await store.send(\.headerDoubleTapped) {
-        $0.editingMode = .active
-      }
-
+      await store.send(\.headerDoubleTapped) { $0.editingMode = .active }
       let idx3 = store.state.rows.index(id: 3)!
       let idx4 = store.state.rows.index(id: 4)!
-
-      await store.send(.rows(.element(id: 3, action: .toggleDeleting))) {
-        $0.rows[idx3].deleting = true
-      }
-
-      await store.send(.rows(.element(id: 4, action: .toggleDeleting))) {
-        $0.rows[idx4].deleting = true
-      }
-
+      await store.send(.rows(.element(id: 3, action: .toggleDeleting))) { $0.rows[idx3].deleting = true }
+      await store.send(.rows(.element(id: 4, action: .toggleDeleting))) { $0.rows[idx4].deleting = true }
       let selected = store.state.rows.filter(\.deleting).map(\.soundFontInfo)
-
       await store.send(\.deleteModeDeleteButtonTapped) {
         $0.destination = .alert(
           .confirmDeleteSoundFontCollection(
@@ -406,26 +374,22 @@ struct SoundFontsListTests {
       await store.send(\.searchButtonTapped) {
         $0.isSearchFieldPresented = true
         $0.focusedField = .searchText
-        $0.searchSource = rows
-        $0.rows = []
       }
+      await store.receive(\.rowsSourceUpdated)
 
-      await store.send(.searchTextChanged("no")) {
-        $0.searchText = "no"
-      }
+      await store.send(.searchTextChanged("no")) { $0.searchText = "no" }
+      await store.receive(\.rowsSourceUpdated) { $0.rows = [] }
 
-      await store.send(.clearSearchTextField) {
-        $0.searchText = ""
-        $0.rows = []
-      }
+      await store.send(.clearSearchTextField) { $0.searchText = "" }
+      await store.receive(\.rowsSourceUpdated) { $0.rows = rows }
 
       await store.send(.cancelSearchButtonTapped) {
-        $0.searchSource = []
         $0.isSearchFieldPresented = false
         $0.focusedField = nil
         $0.lastSearchText = ""
-        $0.rows = rows
       }
+
+      await store.receive(\.rowsSourceUpdated)
     }
   }
 
@@ -444,14 +408,12 @@ struct SoundFontsListTests {
       await store.send(\.searchButtonTapped) {
         $0.isSearchFieldPresented = true
         $0.focusedField = .searchText
-        $0.searchSource = rows
-        $0.rows = []
+        $0.rows = rows
       }
 
-      await store.send(.searchTextChanged("land")) {
-        $0.searchText = "land"
-        $0.rows = [land]
-      }
+      await store.receive(\.rowsSourceUpdated)
+      await store.send(.searchTextChanged("land")) { $0.searchText = "land" }
+      await store.receive(\.rowsSourceUpdated) { $0.rows = [land] }
 
       await store.send(\.rows[id: 4].delegate, .select(land.soundFontInfo, available: true)) {
         $0.selectedPresetSource = .selected(4)
@@ -460,13 +422,14 @@ struct SoundFontsListTests {
       await store.receive(\.delegate.presetSourceChanged, .selected(4))
 
       await store.send(\.cancelSearchButtonTapped) {
-        $0.rows = rows
-        $0.searchSource = []
+        $0.rows = [land]
         $0.isSearchFieldPresented = false
         $0.lastSearchText = "land"
         $0.searchText = ""
         $0.focusedField = nil
       }
+
+      await store.receive(\.rowsSourceUpdated) { $0.rows = rows }
     }
   }
 

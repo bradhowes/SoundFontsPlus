@@ -51,7 +51,7 @@ public struct SoundFontsList {
     public var focusedField: Field?
 
     @ObservationStateIgnored
-    public var lastSearchText: String?
+    public var lastSearchText: String = ""
 
     public enum Field: String, Hashable {
       case searchText
@@ -410,8 +410,8 @@ extension SoundFontsList {
   private func searchButtonTapped(_ state: inout State) -> Effect<Action> {
     state.isSearchFieldPresented = true
     state.focusedField = .searchText
-    state.searchText = ""
-    return searchTextChanged(&state, searchText: state.lastSearchText ?? "")
+    state.searchText = state.lastSearchText
+    return updateFetchAllQuery(&state)
   }
 
   private func searchTextChanged(_ state: inout State, searchText: String) -> Effect<Action> {

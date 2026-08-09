@@ -91,7 +91,9 @@ struct AppRootTests {
       $0.avAudioUnit = avAudioUnit
     }
 
-    await store.receive(\.toolBar.audioUnitCreated, avAudioUnit)
+    await store.receive(\.toolBar.audioUnitCreated, avAudioUnit) {
+      $0.toolBar.temporaryStatus = nil
+    }
     await store.receive(\.keyboard.midiInstrumentCreated, avAudioUnit) { $0.keyboard.midiInstrument = avAudioUnit }
 
     await store.receive(\.volumeMonitor.start) { $0.volumeMonitor.reason = .noActivePreset }
@@ -105,9 +107,11 @@ struct AppRootTests {
       $0.synth.loadedPresetIndex = 0
       $0.synth.loadedSoundFontId = 1
     }
+    let preset = Preset.with(id: 1)
     await store.receive(\.toolBar.activePresetIdChanged, 1) {
       $0.toolBar.temporaryStatus = nil
-      $0.toolBar.preset = Preset.with(id: 1)
+      $0.toolBar.displayName = preset?.displayName ?? ""
+      $0.toolBar.isFavorite = preset?.isFavorite ?? false
     }
     await store.receive(\.volumeMonitor.activePresetIdChanged, 1) {
       $0.volumeMonitor.activePresetId = 1
@@ -198,9 +202,11 @@ struct AppRootTests {
         $0.synth.loadedPresetIndex = 1
         $0.synth.loadedSoundFontId = 1
       }
+      let preset = Preset.with(id: 2)
       await store.receive(\.toolBar.activePresetIdChanged, 2) {
         $0.toolBar.temporaryStatus = nil
-        $0.toolBar.preset = Preset.with(id: 2)
+        $0.toolBar.displayName = preset?.displayName ?? ""
+        $0.toolBar.isFavorite = preset?.isFavorite ?? false
       }
       await store.receive(\.volumeMonitor.activePresetIdChanged, 2) {
         $0.volumeMonitor.activePresetId = 2

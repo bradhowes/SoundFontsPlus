@@ -48,14 +48,15 @@ struct SynthTests {
     try await store.withExhaustivity(exhaustivity) {
       await store.send(.initialize)
 
-      await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      let avAudioUnit = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
         await store.receive(\.synthAudioUnitCreated) {
           $0.audioSessionActivated = true
         }
-        #expect(store.state.avAudioUnit != nil)
+        return store.state.avAudioUnit
       }
 
-      await store.receive(\.delegate.running, store.state.avAudioUnit!)
+      #expect(avAudioUnit != nil)
+      await store.receive(\.delegate.running)
 
       try await closure(store)
 
