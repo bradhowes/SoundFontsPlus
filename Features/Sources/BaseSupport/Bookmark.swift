@@ -4,17 +4,12 @@ import Clocks
 import Dependencies
 public import Foundation
 
-public protocol Bookmarker {
-  var cloudState: Bookmark.CloudState {get}
-  var isAvailable: Bool {get}
-}
-
 /**
  A bookmark represents a file located outside of the app's sandboxed storage space or that of an app group. It is used to reference
  sound font files without making a copy of them. However there are risks involved, namely that the bookmark may not resolve to a
  real file.
  */
-public final class Bookmark: Codable, Bookmarker {
+public final class Bookmark: Codable {
   public enum CodingKeys: CodingKey {
     case name
     case bookmark
@@ -32,8 +27,34 @@ public final class Bookmark: Codable, Bookmarker {
 
   /// Cache of the last restored URL. Used to reduce churn due to UI updates.
   private var lastRestoredUrl: URL?
-  private var lastRestoredWhen: CFTimeInterval
+  private var lastRestoredWhen: CFTimeInterval = 0
 
+  /// Determine the availability state for a bookmarked URL.
+  public var isAvailable: Bool {
+    url.withSecurityScoping { url in
+      do {
+        return try url.checkResourceIsReachable()
+      } catch CocoaError.fileReadNoSuchFile {
+        log.error("Bookmark.isAvaible - file does not exist")
+        return false
+      }
+    } ?? false
+  }
+
+  /// Determine if the file is located in an iCloud container
+  public var isUbiquitous: Bool {
+    url.withSecurityScoping { url in
+      @Dependency(\.fileManager.isUbiquitousItem) var isUbiquitousItem
+      return isUbiquitousItem(url)
+    } ?? false
+  }
+
+  public var urlState: URLState {
+    url.withSecurityScoping { url in
+      @Dependency(\.urlStateProvider) var urlStateProvider
+      return urlStateProvider(url)
+    }
+  }
   /**
    Construct a new bookmark.
 
@@ -45,8 +66,6 @@ public final class Bookmark: Codable, Bookmarker {
     self.name = name
     original = url
     bookmark = url.secureBookmarkData
-    lastRestoredUrl = nil
-    lastRestoredWhen = 0
   }
 
   /**
@@ -60,8 +79,6 @@ public final class Bookmark: Codable, Bookmarker {
     name = try values.decode(String.self, forKey: .name)
     original = try values.decode(URL.self, forKey: .original)
     bookmark = try values.decode(Data.self, forKey: .bookmark)
-    lastRestoredUrl = nil
-    lastRestoredWhen = 0
   }
 }
 
@@ -88,87 +105,40 @@ extension Bookmark {
     return try encoder.encode(self)
   }
 
-  /// Determine the availability state for a bookmarked URL.
-  public var isAvailable: Bool {
-    url.withSecurityScoping { url in
-      do {
-        return try url.checkResourceIsReachable()
-      } catch CocoaError.fileReadNoSuchFile {
-        log.error("file does not exist")
-        return false
-      }
-    } ?? false
-  }
-
-  /// Determine if the file is located in an iCloud container
-  public var isUbiquitous: Bool {
-    url.withSecurityScoping { url in
-      @Dependency(\.fileManager.isUbiquitousItem) var isUbiquitousItem
-      return isUbiquitousItem(url)
-    } ?? false
-  }
-
-  /// The various iCloud states a bookmark item may be in.
-  public enum CloudState: String {
-    /// Item is local and not synced to iCloud.
-    case local
-    /// Item is on iCloud but not available locally.
-    case inCloud
-    /// Item is currently being downloaded to the device.
-    case downloading
-    /// Item has been downloaded and is available locally.
-    case downloaded
-    /// Problem downloading the file from iCloud.
-    case downloadError
-    /// Unknown state.
-    case unknown
-  }
-
-  /// Obtain the current iCloud state of the bookmark item
-  public var cloudState: CloudState {
-    url.withSecurityScoping { url in
-      @Dependency(\.ubiquitousItemState) var ubiquitousItemState
-      return Self.cloudState(for: ubiquitousItemState(url))
-    } ?? .unknown
-  }
-
-  public static func cloudState(for state: UbiquitousItemState?) -> CloudState {
-    guard let state else { return .unknown }
-    guard let isUbiquitous = state.isUbiquitousItem else { return .unknown }
-    if !isUbiquitous {
-      return .local
-    } else if state.ubiquitousItemIsDownloading == true {
-      return .downloading
-    } else if state.ubiquitousItemDownloadingError != nil {
-      return .downloadError
-    } else {
-      switch state.ubiquitousItemDownloadingStatus {
-      case .current, .downloaded: return .downloaded
-      default: return .inCloud
-      }
-    }
-  }
 }
 
 extension Bookmark {
 
+  static let lastRestoreAgeLimit = 2.0
+
   private func restore() -> URL {
+    @Dependency(\.fileManager) var fileManager
     let now = CFAbsoluteTimeGetCurrent()
     if let lastRestoredUrl = self.lastRestoredUrl,
-       (now - lastRestoredWhen) < 1 {
+       (now - lastRestoredWhen) < Self.lastRestoreAgeLimit,
+       fileManager.fileExists(lastRestoredUrl) {
       return lastRestoredUrl
     }
 
-    let resolved = Self.resolve(from: self.bookmark)
-    if resolved.stale {
-      self.bookmark = resolved.url?.secureBookmarkData
-      // NotificationCenter.default.post(name: .bookmarkChanged, object: nil)
+    let (resolved, stale) = Self.resolve(from: self.bookmark)
+    if let resolved {
+      if stale {
+        self.bookmark = resolved.secureBookmarkData
+      }
+      self.lastRestoredUrl = resolved
+      self.lastRestoredWhen = CFAbsoluteTimeGetCurrent()
+    } else if fileManager.fileExists(original) {
+      // This is probably wrong, but trying anyway.
+      let (resolved, _) = Self.resolve(from: self.original.secureBookmarkData)
+      if let resolved {
+        self.bookmark = resolved.secureBookmarkData
+      }
+      self.lastRestoredUrl = resolved
+      self.lastRestoredWhen = CFAbsoluteTimeGetCurrent()
     }
 
-    self.lastRestoredUrl = resolved.url
-    self.lastRestoredWhen = now
-
-    return resolved.url ?? original
+    // Last-ditch attempt when restoring fails is to just return the original URL obtained by the picker.
+    return resolved ?? original
   }
 
   private static func resolve(from data: Data?) -> (url: URL?, stale: Bool) {
@@ -198,10 +168,6 @@ extension Bookmark: Equatable {
    - returns: true if they are the same
    */
   public static func == (lhs: Bookmark, rhs: Bookmark) -> Bool { lhs.bookmark == rhs.bookmark }
-}
-
-extension Bookmark.CloudState: CustomStringConvertible {
-  public var description: String { rawValue }
 }
 
 private let log: Logger = .init(category: "Bookmark")

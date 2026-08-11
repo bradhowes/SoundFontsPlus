@@ -45,17 +45,16 @@ extension SoundFontInfo {
 extension SoundFontInfo {
 
   /**
-   Obtain a query to get ``SoundFontInfo`` rows for each ``SoundFont`` associated with the given tagId. The query honors the
+   Obtain a query to get `SoundFontInfo` rows for each `SoundFont` associated with the given tagId. The query honors the
    `hideBuiltinFonts` app setting such that when enabled, there will be no entries for the built-in sound fonts in the
    query output.
 
    - parameter tagId: the tag to look for. If `nil` then use the value found in `ActiveState`. If that is also `nil` then
-   return rows for all ``SoundFont`` entries.
+   return rows for all `SoundFont` entries.
    - parameter search: optional search term to apply
-   - returns: a query that produces a row for each associated ``SoundFontInfo``
+   - returns: a query that produces a row for each associated `SoundFontInfo`
    */
   public static func query(for tagId: Tag.ID, search: String? = nil) -> any PartialSelectStatement<Columns.QueryValue> {
-
     if let search, !search.isEmpty {
       return SoundFontText
         .where {
@@ -81,10 +80,35 @@ extension SoundFontInfo {
     }
   }
 
+  /**
+   Execute the `query` above and return the found `SoundFontInfo` instances.
+
+   - parameter tagId: the tag to look for. If `nil` then use the value found in `ActiveState`. If that is also `nil` then
+   return rows for all `SoundFont` entries.
+   - parameter search: optional search term to apply
+   - returns: array of found `SoundFontInfo` values.
+   */
   public static func all(for tagId: Tag.ID, search: String? = nil) -> [SoundFontInfo] {
     withDatabaseReader {
       try query(for: tagId, search: search).fetchAll($0)
     } ?? []
+  }
+
+  /**
+   Obtain the `SoundFontInfo` for a given `SoundFont` ID.
+
+   - parameter id: the ID to look for
+   - returns: optional `SoundFontInfo` entity
+   */
+  public static func with(id: SoundFont.ID) -> SoundFontInfo? {
+    withDatabaseReader { db in
+      try SoundFont
+        .find(id)
+        .select {
+          Columns(id: $0.id, displayName: $0.displayName, kind: $0.kind, location: $0.location)
+        }
+        .fetchOne(db)
+    } ?? nil
   }
 }
 

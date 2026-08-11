@@ -275,7 +275,7 @@ extension Preset {
    - parameter soundFontId: the sound font to query for
    - returns: the select query
    */
-  public static func visibleQuery(for soundFontId: SoundFont.ID) -> Select<(), Self, ()> {
+  public static func visibleQuery(for soundFontId: SoundFont.ID) -> SelectOf<Self> {
     @Shared(.favoritesOnTop) var favoritesOnTop
     @Shared(.sortPresetsByName) var sortPresetsByName
     let query = presetsQuery(for: soundFontId)
@@ -287,7 +287,7 @@ extension Preset {
   }
 
   /// - returns: query for all presets (no favorites).
-  public static func allQuery(for soundFontId: SoundFont.ID) -> Select<(), Self, ()> {
+  public static func allQuery(for soundFontId: SoundFont.ID) -> SelectOf<Self> {
     Self
       .all
       .where { $0.soundFontId.eq(soundFontId) && $0.kind.neq(Kind.favorite) }

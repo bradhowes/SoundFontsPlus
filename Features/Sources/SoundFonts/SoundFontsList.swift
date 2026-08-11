@@ -133,11 +133,11 @@ public struct SoundFontsList {
       case .delegate: .none
       case .deleteModeCancelButtonTapped: deleteModeCancelButtonTapped(&state)
       case .deleteModeDeleteButtonTapped: deleteModeDeleteButtonTapped(&state)
+      case .destination(.dismiss): dismiss(&state)
       case .destination(.presented(.alert(.deleteSoundFontConfirmed(let soundFontInfo)))):
         deleteSoundFontConfirmed(&state, soundFontInfo: soundFontInfo)
       case .destination(.presented(.alert(.deleteSoundFontCollectionConfirmed(let soundFontInfos)))):
         deleteSoundFontCollectionConfirmed(&state, soundFontInfos: soundFontInfos)
-      case .destination(.dismiss): dismiss(&state)
       case let .fullStateChanged(tagId, soundFontId): fullStateChanged(&state, tagId: tagId, soundFontId: soundFontId)
       case .headerDoubleTapped: headerDoubleTapped(&state)
       case .importFinished: updateFetchAllQuery(&state)
@@ -173,12 +173,17 @@ extension SoundFontsList {
   }
 
   private func alertInvalidBookmark(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
-    state.destination = .alert(.invalidBookmark(displayName: soundFontInfo.displayName))
+    state.destination = .alert(
+      .invalidBookmark(
+        action: .deleteSoundFontConfirmed(soundFontInfo),
+        displayName: soundFontInfo.displayName
+      )
+    )
     return .none
   }
 
   private func alertMissingFile(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
-    state.destination = .alert(.missingFile(displayName: soundFontInfo.displayName))
+    state.destination = .alert(.missingExternalFile(displayName: soundFontInfo.displayName))
     return .none
   }
 
@@ -358,13 +363,13 @@ extension SoundFontsList {
   }
 
   private func missingSoundFontDetected(_ state: inout State, soundFontId: SoundFont.ID) -> Effect<Action> {
-    SoundFont.delete(id: soundFontId)
-    if state.activePresetSource == .active(soundFontId) {
-      state.activePresetSource = nil
-    }
-    if state.selectedPresetSource == .selected(soundFontId) {
-      state.selectedPresetSource = nil
-    }
+    guard let soundFontInfo = SoundFontInfo.with(id: soundFontId) else { return .none }
+    state.destination = .alert(
+      .missingFileForSelectedPreset(
+        action: .deleteSoundFontConfirmed(soundFontInfo),
+        displayName: soundFontInfo.displayName
+      )
+    )
     return .none
   }
 

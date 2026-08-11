@@ -4,19 +4,22 @@ public import Dependencies
 /**
  Collection of 'ubiquitous' (i.e. iCloud) state values for a URL.
  */
-public struct UbiquitousItemState: Sendable {
+public struct URLState: Sendable {
 
-  public let isUbiquitousItem: Bool?
+  public let fileExists: Bool
+  public let isUbiquitousItem: Bool
   public let ubiquitousItemDownloadingStatus: URLUbiquitousItemDownloadingStatus?
   public let ubiquitousItemIsDownloading: Bool?
   public let ubiquitousItemDownloadingError: NSError?
 
   public init(
-    isUbiquitousItem: Bool?,
+    fileExists: Bool,
+    isUbiquitousItem: Bool,
     ubiquitousItemDownloadingStatus: URLUbiquitousItemDownloadingStatus?,
     ubiquitousItemIsDownloading: Bool?,
     ubiquitousItemDownloadingError: NSError?
   ) {
+    self.fileExists = fileExists
     self.isUbiquitousItem = isUbiquitousItem
     self.ubiquitousItemDownloadingStatus = ubiquitousItemDownloadingStatus
     self.ubiquitousItemIsDownloading = ubiquitousItemIsDownloading
@@ -25,9 +28,9 @@ public struct UbiquitousItemState: Sendable {
 }
 
 /**
- A provider of ``UbiquitousItemState`` values for a URL.
+ A provider of ``URLState`` values for a URL.
  */
-public struct UbiquitousItemStateProvider: Sendable {
+public struct URLStateProvider: Sendable {
   public static let resourceKeys = Set<URLResourceKey>([
     .isUbiquitousItemKey,
     .ubiquitousItemDownloadingStatusKey,
@@ -35,14 +38,14 @@ public struct UbiquitousItemStateProvider: Sendable {
     .ubiquitousItemDownloadingErrorKey
   ])
 
-  private var generate: @Sendable (URL) -> UbiquitousItemState?
+  private var generate: @Sendable (URL) -> URLState
 
   /**
    Create a provider that invokes the given closure to provide the ``UbiquitousItemState`` value.
 
    - parameter generate: the closure to call
    */
-  public init(_ generate: @escaping @Sendable (URL) -> UbiquitousItemState?) {
+  public init(_ generate: @escaping @Sendable (URL) -> URLState) {
     self.generate = generate
   }
 
@@ -52,7 +55,7 @@ public struct UbiquitousItemStateProvider: Sendable {
    - parameter state: the constant value to use
    - returns: new instance
    */
-  public static func constant(_ state: UbiquitousItemState) -> Self {
+  public static func constant(_ state: URLState) -> Self {
     Self { _ in state }
   }
 
@@ -62,7 +65,7 @@ public struct UbiquitousItemStateProvider: Sendable {
    - parameter url: the URL to act on
    - returns: ``UbiquitousItemState`` value for the URL
    */
-  public func callAsFunction(_ url: URL) -> UbiquitousItemState? {
+  public func callAsFunction(_ url: URL) -> URLState {
     self.generate(url)
   }
 }
@@ -72,25 +75,28 @@ extension DependencyValues {
   /**
    A dependency that returns the current ``UbiquitousItemState`` for a URL.
    */
-  public var ubiquitousItemState: UbiquitousItemStateProvider {
-    get { self[UbiquitousItemStateProviderKey.self] }
-    set { self[UbiquitousItemStateProviderKey.self] = newValue }
+  public var urlStateProvider: URLStateProvider {
+    get { self[URLStateProviderKey.self] }
+    set { self[URLStateProviderKey.self] = newValue }
   }
 
-  private enum UbiquitousItemStateProviderKey: DependencyKey {
+  private enum URLStateProviderKey: DependencyKey {
 
-    static let liveValue = UbiquitousItemStateProvider {
-      let values = try? $0.resourceValues(forKeys: UbiquitousItemStateProvider.resourceKeys)
+    static let liveValue = URLStateProvider { url in
+      @Dependency(\.fileManager) var fileManager
+      let values = try? url.resourceValues(forKeys: URLStateProvider.resourceKeys)
       return .init(
-        isUbiquitousItem: values?.isUbiquitousItem,
+        fileExists: fileManager.fileExists(url),
+        isUbiquitousItem: values?.isUbiquitousItem ?? false,
         ubiquitousItemDownloadingStatus: values?.ubiquitousItemDownloadingStatus,
         ubiquitousItemIsDownloading: values?.ubiquitousItemIsDownloading,
         ubiquitousItemDownloadingError: values?.ubiquitousItemDownloadingError
       )
     }
 
-    static let previewValue = UbiquitousItemStateProvider { _ in
+    static let previewValue = URLStateProvider { _ in
       return .init(
+        fileExists: false,
         isUbiquitousItem: false,
         ubiquitousItemDownloadingStatus: nil,
         ubiquitousItemIsDownloading: nil,
@@ -98,8 +104,9 @@ extension DependencyValues {
       )
     }
 
-    static let testValue = UbiquitousItemStateProvider { _ in
+    static let testValue = URLStateProvider { _ in
       return .init(
+        fileExists: false,
         isUbiquitousItem: false,
         ubiquitousItemDownloadingStatus: nil,
         ubiquitousItemIsDownloading: nil,

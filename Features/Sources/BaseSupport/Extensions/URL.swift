@@ -47,6 +47,18 @@ extension URL {
   }
 
   /**
+   Execute a closure for accessing a security-scoped resource. Captures and logs any exceptions raised in the closure.
+   - Parameters:
+   - closure: code block to execute
+   - Returns: the result from the closure, or nil if the closure raised an exception.
+   */
+  public func withSecurityScoping<T>(_ closure: (URL) -> T) -> T {
+    let secured = self.startAccessingSecurityScopedResource()
+    defer { if secured { self.stopAccessingSecurityScopedResource() } }
+    return closure(self)
+  }
+
+  /**
    Execute a closure for accessing a security-scoped resource.
    - Parameters:
    - closure: code block to execute

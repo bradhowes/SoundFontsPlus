@@ -130,22 +130,22 @@ This cannot be undone.
     }
   }
 
-  static public func invalidBookmark(displayName: String) -> Self {
+  static public func invalidBookmark(action: Action, displayName: String) -> Self {
     Self {
       TextState("Invalid Bookmark for '\(displayName)'")
     } actions: {
-      ButtonState(role: .cancel) { TextState("OK") }
+      ButtonState(role: .cancel) { TextState("Ignore") }
+      ButtonState(role: .destructive, action: action) { TextState("Delete") }
     } message: {
       TextState(
 """
-Unable to resolve the bookmark for the sound font '\(displayName)' due to an internal error. \
-Please delete the sound font and then add it back.
+Unable to resolve the bookmark for the sound font '\(displayName)'. It may have been deleted.
 """
       )
     }
   }
 
-  static public func missingFile(displayName: String) -> Self {
+  static public func missingExternalFile(displayName: String) -> Self {
     Self {
       TextState("Missing File for '\(displayName)'")
     } actions: {

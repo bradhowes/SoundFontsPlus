@@ -22,25 +22,37 @@ public struct SoundFontButtonStatusInfo {
 
 @frozen
 public enum SoundFontButtonStatusInfoTag: Equatable {
+  /// Represents a file in the app sandbox (app documents as well as the app bundle). Everything else is
+  /// an `Bookmark` which wraps a URL in a security context which grants the user permission to access the
+  /// file outside of the app sandbox.
   case internalFile
-  case invalidBookmark
+
   case localIsAvailable
   case localIsMissing
+
+  case invalidBookmark
+
   case cloudIsDownloaded
   case cloudIsDownloading
   case cloudIsMissing
 
-  static func value(for bookmark: (any Bookmarker)?) -> Self {
+  static func value(for bookmark: Bookmark?) -> Self {
     guard let bookmark else { return .invalidBookmark }
-    let cloudState = bookmark.cloudState
-    switch cloudState {
-    case .local: return bookmark.isAvailable ? .localIsAvailable : .localIsMissing
-      /// Item is on iCloud but not available locally.
-    case .inCloud: return .cloudIsMissing
-    case .downloading: return .cloudIsDownloading
-    case .downloaded: return .cloudIsDownloaded
-    case .downloadError: return .invalidBookmark
-    case .unknown: return .invalidBookmark
+
+    let urlState = bookmark.urlState
+    if !urlState.isUbiquitousItem {
+      return bookmark.isAvailable ? .localIsAvailable : .invalidBookmark
+    }
+
+    if urlState.ubiquitousItemIsDownloading == true {
+      return .cloudIsDownloading
+    } else if urlState.ubiquitousItemDownloadingError != nil {
+      return .invalidBookmark
+    } else {
+      switch urlState.ubiquitousItemDownloadingStatus {
+      case .current, .downloaded: return .cloudIsDownloaded
+      default: return .cloudIsMissing
+      }
     }
   }
 

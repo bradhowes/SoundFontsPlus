@@ -24,13 +24,12 @@ public struct PresetsList {
 
   @Reducer
   public enum Destination {
-    case alert(AlertState<Alert>)
+    case alert(AlertState<AlertAction>)
 
     @CasePathable
-    public enum Alert: Equatable {
+    public enum AlertAction: Equatable {
       case deleteFavoriteConfirmed(Preset.ID)
       case hidePresetConfirmed(Preset.ID)
-      case missingFileForSelectedPreset(SoundFont.ID)
     }
   }
 
@@ -139,8 +138,6 @@ public struct PresetsList {
       case .destination(.presented(.alert(.deleteFavoriteConfirmed(let presetId)))):
         deleteFavoriteConfirmed(&state, presetId: presetId)
       case .destination(.presented(.alert(.hidePresetConfirmed(let presetId)))): hidePresetConfirmed(&state, presetId: presetId)
-      case .destination(.presented(.alert(.missingFileForSelectedPreset(let soundFontId)))):
-        .send(.delegate(.missingSoundFontDetected(soundFontId)))
       case .editingVisibilityChanged(let editing): editingVisibilityChanged(&state, editing: editing)
       case let .fullStateChanged(soundFontId, presetId): fullStateChanged(&state, soundFontId: soundFontId, presetId: presetId)
       case .initialize: initialize(&state)
@@ -292,13 +289,7 @@ extension PresetsList {
       let kind = try? SoundFontKind(kind: info.kind, location: info.location, displayName: info.soundFontName),
       kind.url.withSecurityScoping({ fileManager.fileExists($0) }) == true
     else {
-      state.destination = .alert(
-        .missingFileForSelectedPreset(
-          action: .missingFileForSelectedPreset(info.soundFontId),
-          displayName: info.soundFontName
-        )
-      )
-      return .none
+      return .send(.delegate(.missingSoundFontDetected(info.soundFontId)))
     }
 
     if state.activePresetId != preset.id {
