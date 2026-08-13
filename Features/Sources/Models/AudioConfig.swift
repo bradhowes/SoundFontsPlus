@@ -18,6 +18,7 @@ nonisolated public struct AudioConfig {
 
   public typealias ID = Tagged<Self, Int64>
 
+  /// Unique ID for this audio configuration.
   public let id: ID
   /// Initial attenuation of audio samples for this preset. [-90.0, +12.0]
   public var gain: Double = Self.defaultGain
