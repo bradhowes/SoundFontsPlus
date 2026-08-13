@@ -202,48 +202,6 @@ extension Synth {
     return .merge(actions)
   }
 
-  private func synthAudioUnitCreate(_ state: inout State) -> Effect<Action> {
-    log.info("synthAudioUnitCreate BEGIN")
-    return .run { send in
-      log.info("synthAudioUnitCreate - instantiating audio unit")
-      @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitGen
-      guard let avAudioUnit = await avAudioUnitGen.generate() else {
-        log.error("synthAudioUnitCreate - failed to create SF2LibAU instance")
-        await send(.synthAudioUnitCreationFailed)
-        return
-      }
-
-      log.debug("synthAudioUnitCreate - synth: \(avAudioUnit.description)")
-      guard let viewController = await avAudioUnit.auAudioUnit.requestViewController() else {
-        log.error("synthAudioUnitCreate - failed to get AVAudioUnit view controller")
-        await send(.synthAudioUnitCreationFailed)
-        return
-      }
-
-      await send(.synthAudioUnitCreated(avAudioUnit, viewController))
-    }.cancellable(id: CancelId.synthCreateAudioUnit, cancelInFlight: true)
-  }
-
-  private func synthAudioUnitCreated(
-    _ state: inout State,
-    avAudioUnit: AVAudioUnitMIDIInstrument,
-    viewController: ViewController
-  ) -> Effect<Action> {
-    log.info("synthAudioUnitCreated BEGIN")
-
-    state.avAudioUnit = avAudioUnit
-    state.viewController = viewController
-
-    if state.audioSessionActivated {
-      startEngine(&state)
-    } else {
-      startAudioSession(&state)
-    }
-
-    log.info("synthAudioUnitCreated END")
-    return beginMonitoring(&state)
-  }
-
   private func destroyAudioGraph(_ state: inout State) {
     log.info("destroyAudioGraph BEGIN")
     if let avAudioUnit = state.avAudioUnit {
@@ -453,6 +411,48 @@ extension Synth {
     audioSession.stop()
     state.audioSessionActivated = false
     log.info("stopAudioSession END")
+  }
+
+  private func synthAudioUnitCreate(_ state: inout State) -> Effect<Action> {
+    log.info("synthAudioUnitCreate BEGIN")
+    return .run { send in
+      log.info("synthAudioUnitCreate - instantiating audio unit")
+      @Dependency(\.avAudioUnitMIDIInstrumentGenerator) var avAudioUnitGen
+      guard let avAudioUnit = await avAudioUnitGen.generate() else {
+        log.error("synthAudioUnitCreate - failed to create SF2LibAU instance")
+        await send(.synthAudioUnitCreationFailed)
+        return
+      }
+
+      log.debug("synthAudioUnitCreate - synth: \(avAudioUnit.description)")
+      guard let viewController = await avAudioUnit.auAudioUnit.requestViewController() else {
+        log.error("synthAudioUnitCreate - failed to get AVAudioUnit view controller")
+        await send(.synthAudioUnitCreationFailed)
+        return
+      }
+
+      await send(.synthAudioUnitCreated(avAudioUnit, viewController))
+    }.cancellable(id: CancelId.synthCreateAudioUnit, cancelInFlight: true)
+  }
+
+  private func synthAudioUnitCreated(
+    _ state: inout State,
+    avAudioUnit: AVAudioUnitMIDIInstrument,
+    viewController: ViewController
+  ) -> Effect<Action> {
+    log.info("synthAudioUnitCreated BEGIN")
+
+    state.avAudioUnit = avAudioUnit
+    state.viewController = viewController
+
+    if state.audioSessionActivated {
+      startEngine(&state)
+    } else {
+      startAudioSession(&state)
+    }
+
+    log.info("synthAudioUnitCreated END")
+    return beginMonitoring(&state)
   }
 
   private func synthAudioUnitCreationFailed() -> Effect<Action> {
