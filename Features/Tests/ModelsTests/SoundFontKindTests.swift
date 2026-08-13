@@ -16,6 +16,7 @@ import Testing
     $0.fileManager.fontFilePath = {
       SF2ResourceTag.freeFont.url.deletingLastPathComponent().appendingPathComponent($0, isDirectory: false)
     }
+    $0.fileManager.fileExists = { FileManager.default.fileExists(atPath: $0.absoluteString) }
   }
 )
 @MainActor

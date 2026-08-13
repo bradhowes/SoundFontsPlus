@@ -183,7 +183,12 @@ extension SoundFontsList {
   }
 
   private func alertMissingFile(_ state: inout State, soundFontInfo: SoundFontInfo) -> Effect<Action> {
-    state.destination = .alert(.missingExternalFile(displayName: soundFontInfo.displayName))
+    state.destination = .alert(
+      .missingExternalFile(
+        action: .deleteSoundFontConfirmed(soundFontInfo),
+        displayName: soundFontInfo.displayName
+      )
+    )
     return .none
   }
 

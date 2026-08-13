@@ -41,7 +41,7 @@ public enum SoundFontButtonStatusInfoTag: Equatable {
 
     let urlState = bookmark.urlState
     if !urlState.isUbiquitousItem {
-      return bookmark.isAvailable ? .localIsAvailable : .invalidBookmark
+      return urlState.fileExists ? .localIsAvailable : .localIsMissing
     }
 
     if urlState.ubiquitousItemIsDownloading == true {

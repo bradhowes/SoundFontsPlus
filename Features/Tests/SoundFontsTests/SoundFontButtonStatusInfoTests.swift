@@ -18,74 +18,123 @@ import TestSupport
 @MainActor
 struct SoundFontButtonStatusInfoTests {
 
-  struct MockBookmark: Bookmarker {
-    var cloudState: Bookmark.CloudState
-    var isAvailable: Bool
-  }
-
-  @Test
+  @Test(
+    .dependencies {
+      $0.urlStateProvider = .constant(
+        .init(
+          fileExists: false,
+          isUbiquitousItem: false,
+          ubiquitousItemDownloadingStatus: nil,
+          ubiquitousItemIsDownloading: nil,
+          ubiquitousItemDownloadingError: nil
+        )
+      )
+    }
+  )
   func tagValue() throws {
     #expect(SoundFontButtonStatusInfoTag.value(for: nil) == .invalidBookmark)
-    #expect(
-      SoundFontButtonStatusInfoTag.value(
-        for: MockBookmark(cloudState: .local, isAvailable: true)
-      ) == .localIsAvailable
-    )
-    #expect(
-      SoundFontButtonStatusInfoTag.value(
-        for: MockBookmark(cloudState: .local, isAvailable: false)
-      ) == .localIsMissing
-    )
-    #expect(
-      SoundFontButtonStatusInfoTag.value(
-        for: MockBookmark(cloudState: .inCloud, isAvailable: false)
-      ) == .cloudIsMissing
-    )
-    #expect(
-      SoundFontButtonStatusInfoTag.value(
-        for: MockBookmark(cloudState: .inCloud, isAvailable: true)
-      ) == .cloudIsMissing
-    )
-    #expect(
-      SoundFontButtonStatusInfoTag.value(
-        for: MockBookmark(cloudState: .downloading, isAvailable: false)
-      ) == .cloudIsDownloading
-    )
-    #expect(
-      SoundFontButtonStatusInfoTag.value(
-        for: MockBookmark(cloudState: .downloading, isAvailable: true)
-      ) == .cloudIsDownloading
-    )
-    #expect(
-      SoundFontButtonStatusInfoTag.value(
-        for: MockBookmark(cloudState: .downloaded, isAvailable: false)
-      ) == .cloudIsDownloaded
-    )
-    #expect(
-      SoundFontButtonStatusInfoTag.value(
-        for: MockBookmark(cloudState: .downloaded, isAvailable: true)
-      ) == .cloudIsDownloaded
-    )
-    #expect(
-      SoundFontButtonStatusInfoTag.value(
-        for: MockBookmark(cloudState: .downloadError, isAvailable: false)
-      ) == .invalidBookmark
-    )
-    #expect(
-      SoundFontButtonStatusInfoTag.value(
-        for: MockBookmark(cloudState: .downloadError, isAvailable: true)
-      ) == .invalidBookmark
-    )
-    #expect(
-      SoundFontButtonStatusInfoTag.value(
-        for: MockBookmark(cloudState: .unknown, isAvailable: false)
-      ) == .invalidBookmark
-    )
-    #expect(
-      SoundFontButtonStatusInfoTag.value(
-        for: MockBookmark(cloudState: .unknown, isAvailable: true)
-      ) == .invalidBookmark
-    )
+  }
+
+  @Test(
+    .dependencies {
+      $0.urlStateProvider = .constant(
+        .init(
+          fileExists: false,
+          isUbiquitousItem: false,
+          ubiquitousItemDownloadingStatus: nil,
+          ubiquitousItemIsDownloading: nil,
+          ubiquitousItemDownloadingError: nil
+        )
+      )
+    }
+  )
+  func localIsMissing() throws {
+    #expect(SoundFontButtonStatusInfoTag.value(for: Bookmark(url: SF2ResourceTag.museScore.url, name: "Foo")) == .localIsMissing)
+  }
+
+  @Test(
+    .dependencies {
+      $0.urlStateProvider = .constant(
+        .init(
+          fileExists: true,
+          isUbiquitousItem: false,
+          ubiquitousItemDownloadingStatus: nil,
+          ubiquitousItemIsDownloading: nil,
+          ubiquitousItemDownloadingError: nil
+        )
+      )
+    }
+  )
+  func localIsAvailable() throws {
+    #expect(SoundFontButtonStatusInfoTag.value(for: Bookmark(url: SF2ResourceTag.museScore.url, name: "Foo")) == .localIsAvailable)
+  }
+
+  @Test(
+    .dependencies {
+      $0.urlStateProvider = .constant(
+        .init(
+          fileExists: true,
+          isUbiquitousItem: true,
+          ubiquitousItemDownloadingStatus: .current,
+          ubiquitousItemIsDownloading: nil,
+          ubiquitousItemDownloadingError: nil
+        )
+      )
+    }
+  )
+  func cloudIsDownloadedCurrent() throws {
+    #expect(SoundFontButtonStatusInfoTag.value(for: Bookmark(url: SF2ResourceTag.museScore.url, name: "Foo")) == .cloudIsDownloaded)
+  }
+
+  @Test(
+    .dependencies {
+      $0.urlStateProvider = .constant(
+        .init(
+          fileExists: true,
+          isUbiquitousItem: true,
+          ubiquitousItemDownloadingStatus: .downloaded,
+          ubiquitousItemIsDownloading: nil,
+          ubiquitousItemDownloadingError: nil
+        )
+      )
+    }
+  )
+  func cloudIsDownloadedDownloaded() throws {
+    #expect(SoundFontButtonStatusInfoTag.value(for: Bookmark(url: SF2ResourceTag.museScore.url, name: "Foo")) == .cloudIsDownloaded)
+  }
+
+  @Test(
+    .dependencies {
+      $0.urlStateProvider = .constant(
+        .init(
+          fileExists: true,
+          isUbiquitousItem: true,
+          ubiquitousItemDownloadingStatus: .notDownloaded,
+          ubiquitousItemIsDownloading: true,
+          ubiquitousItemDownloadingError: nil
+        )
+      )
+    }
+  )
+  func cloudIsDownloading() throws {
+    #expect(SoundFontButtonStatusInfoTag.value(for: Bookmark(url: SF2ResourceTag.museScore.url, name: "Foo")) == .cloudIsDownloading)
+  }
+
+  @Test(
+    .dependencies {
+      $0.urlStateProvider = .constant(
+        .init(
+          fileExists: true,
+          isUbiquitousItem: true,
+          ubiquitousItemDownloadingStatus: .notDownloaded,
+          ubiquitousItemIsDownloading: nil,
+          ubiquitousItemDownloadingError: .init()
+        )
+      )
+    }
+  )
+  func cloudDownloadFailed() throws {
+    #expect(SoundFontButtonStatusInfoTag.value(for: Bookmark(url: SF2ResourceTag.museScore.url, name: "Foo")) == .invalidBookmark)
   }
 
   @Test

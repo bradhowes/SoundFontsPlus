@@ -65,7 +65,7 @@ struct SoundFontsListTests {
     try await initialized { store in
       let info = store.state.rows[id: 3]!.soundFontInfo
       await store.send(\.rows[id: 3].delegate.alertInvalidBookmark, info) {
-        $0.destination = .alert(.invalidBookmark(displayName: info.displayName))
+        $0.destination = .alert(.invalidBookmark(action: .deleteSoundFontConfirmed(info), displayName: info.displayName))
       }
     }
   }
@@ -75,7 +75,7 @@ struct SoundFontsListTests {
     try await initialized { store in
       let info = store.state.rows[id: 3]!.soundFontInfo
       await store.send(\.rows[id: 3].delegate.alertMissingFile, info) {
-        $0.destination = .alert(.missingFile(displayName: info.displayName))
+        $0.destination = .alert(.missingExternalFile(action: .deleteSoundFontConfirmed(info), displayName: info.displayName))
       }
     }
   }

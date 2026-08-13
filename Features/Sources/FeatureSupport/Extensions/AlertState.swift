@@ -145,11 +145,12 @@ Unable to resolve the bookmark for the sound font '\(displayName)'. It may have 
     }
   }
 
-  static public func missingExternalFile(displayName: String) -> Self {
+  static public func missingExternalFile(action: Action, displayName: String) -> Self {
     Self {
       TextState("Missing File for '\(displayName)'")
     } actions: {
-      ButtonState(role: .cancel) { TextState("OK") }
+      ButtonState(role: .cancel) { TextState("Ignore") }
+      ButtonState(role: .destructive, action: action) { TextState("Delete") }
     } message: {
       TextState(
 """
@@ -164,8 +165,8 @@ Connect the external drive containing the file to resolve this issue.
     Self {
       TextState("File for '\(displayName)' Missing")
     } actions: {
-      ButtonState(role: .destructive, action: action) { TextState("Remove") }
-      ButtonState(role: .cancel) { TextState("Cancel") }
+      ButtonState(role: .cancel) { TextState("Ignore") }
+      ButtonState(role: .destructive, action: action) { TextState("Delete") }
     } message: {
       TextState(
 """

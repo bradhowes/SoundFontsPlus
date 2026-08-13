@@ -297,9 +297,8 @@ struct PresetsListTests {
           action: .rows(.element(id: presets[1].id, action: .delegate(.presetButtonTapped(presets[1].id))))
          )
       )
-      await store.receive(\.sections[id: store.state.sections[0].id].delegate.presetButtonTapped, presets[1].id) {
-        $0.destination = .alert(.missingFileForSelectedPreset(action: .missingFileForSelectedPreset(1), displayName: "Font 1"))
-      }
+      await store.receive(\.sections[id: store.state.sections[0].id].delegate.presetButtonTapped, presets[1].id)
+      await store.receive(\.delegate.missingSoundFontDetected, Tagged(rawValue: 1))
     }
   }
 

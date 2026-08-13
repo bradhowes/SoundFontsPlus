@@ -44,6 +44,7 @@ import VolumeMonitor
     $0.reverbDevice = .liveValue
     $0.uuid = .incrementing
   },
+  .serialized // due to SF2LibAU creation
 )
 @MainActor
 struct AppRootTests {

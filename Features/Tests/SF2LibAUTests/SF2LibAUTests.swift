@@ -19,8 +19,8 @@ import TestSupport
     $0.audioGraph = .liveValue
     $0.audioSession = AudioSession.liveValue
     $0.defaultDatabase = TestSupport.testDatabase()
-  }
-  // .serialized // due to SF2LibAU creation
+  },
+  .serialized // due to SF2LibAU creation
 )
 @MainActor
 struct SF2LibAUTests {
