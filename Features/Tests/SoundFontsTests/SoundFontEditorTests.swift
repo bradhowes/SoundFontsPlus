@@ -139,7 +139,7 @@ struct SoundFontEditorTests {
       $0.displayName = "blah"
     }
     await store.send(.useEmbeddedNameTapped) {
-      $0.displayName = "Embedded Font 1"
+      $0.displayName = ""
     }
   }
 
@@ -150,7 +150,7 @@ struct SoundFontEditorTests {
       $0.displayName = "blah"
     }
     await store.send(.useOriginalNameTapped) {
-      $0.displayName = "Original Font 1"
+      $0.displayName = "Original"
     }
   }
 

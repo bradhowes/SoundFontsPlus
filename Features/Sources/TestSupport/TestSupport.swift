@@ -40,12 +40,12 @@ extension TestSupport {
           displayName: "Font \(index + 1)",
           kind: font.0,
           location: font.1,
-          originalName: "Original Font \(index + 1)",
-          embeddedName: "Embedded Font \(index + 1)",
-          embeddedComment: "",
-          embeddedAuthor: "",
-          embeddedCopyright: "",
-          notes: ""
+          originalName: index == 0 ? "Original" : "",
+          embeddedName: index == 1 ? "Embedded" : "",
+          embeddedComment: index == 2 ? "Comment" : "",
+          embeddedAuthor: index == 3 ? "Author" : "",
+          embeddedCopyright: (index == 0 || index == 2) ? "Copyright" : "",
+          notes: (index == 1 || index == 3)  ? "Notes" : ""
         )
       }
     }.execute(db)
@@ -62,7 +62,7 @@ extension TestSupport {
             originalName: "Original Preset \(presetIndex + 1)",
             soundFontId: .init(Int64(fontIndex + 1)),
             displayName: "Font \(fontIndex + 1) Preset \(presetIndex + 1)",
-            notes: "",
+            notes: "Notes Font-\(fontIndex + 1)/Preset-\(presetIndex + 1)",
             kind: kind
           )
         }
