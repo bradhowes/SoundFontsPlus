@@ -130,8 +130,8 @@ extension Preset {
   public var delayConfig: DelayConfig? { DelayConfig.with(presetId: self.id) }
 
   /**
-   Obtain the `DelayConfig.Draft` value associated with this config/preset. If one does not exist, then return one with default
-   values. Goal is to only save an entry when there is a deviation from the default values.
+   Obtain a `DelayConfig.Draft` value associated with this config/preset. If one does not exist, then return one with default
+   values.
    */
   public var delayConfigDraft: DelayConfig.Draft {
     guard let delayConfig = self.delayConfig else { return .init(presetId: self.id) }
@@ -142,8 +142,8 @@ extension Preset {
   public var reverbConfig: ReverbConfig? { ReverbConfig.with(presetId: self.id) }
 
   /**
-   Obtain the `ReverbConfig.Draft` value associated with this config/preset. If one does not exist, then return one with default
-   values. Goal is to only save an entry when there is a deviation from the default values.
+   Obtain a `ReverbConfig.Draft` value associated with this config/preset. If one does not exist, then return one with default
+   values.
    */
   public var reverbConfigDraft: ReverbConfig.Draft {
     guard let reverbConfig = self.reverbConfig else { return .init(presetId: self.id) }
