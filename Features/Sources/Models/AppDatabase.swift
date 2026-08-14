@@ -134,6 +134,7 @@ private func performMigrations(
   SoundFont.migrate(&migrator)
   SoundFontText.migrate(&migrator)
   Preset.migrate(&migrator)
+  PresetConfig.migrate(&migrator)
   AudioConfig.migrate(&migrator)
   DelayConfig.migrate(&migrator)
   ReverbConfig.migrate(&migrator)

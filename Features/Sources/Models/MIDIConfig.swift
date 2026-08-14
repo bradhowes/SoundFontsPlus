@@ -28,7 +28,7 @@ extension MIDIConfig {
         "uniqueId" INTEGER PRIMARY KEY NOT NULL,
         "autoConnect" INTEGER NOT NULL CHECK ("autoConnect" in (0, 1)),
         "fixedVolume" INTEGER NOT NULL
-      ) STRICT
+      ) STRICT, WITHOUT ROWID
       """
       )
       .execute(db)

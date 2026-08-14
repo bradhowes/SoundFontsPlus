@@ -31,11 +31,10 @@ extension TaggedSoundFont {
       CREATE TABLE "\(raw: Self.tableName)" (
         "soundFontId" INTEGER NOT NULL,
         "tagId" INTEGER NOT NULL,
-
-        PRIMARY KEY("soundFontId", "tagId")
+        PRIMARY KEY("soundFontId", "tagId"),
         FOREIGN KEY("soundFontId") REFERENCES "\(raw: SoundFont.tableName)"("id") ON DELETE CASCADE,
         FOREIGN KEY("tagId") REFERENCES "\(raw: Tag.tableName)"("id") ON DELETE CASCADE
-      ) STRICT
+      ) STRICT, WITHOUT ROWID
       """
       )
       .execute(db)

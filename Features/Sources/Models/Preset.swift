@@ -149,6 +149,8 @@ extension Preset {
     guard let reverbConfig = self.reverbConfig else { return .init(presetId: self.id) }
     return .init(reverbConfig)
   }
+
+  public var presetConfigs: [PresetConfig] { PresetConfig.with(presetId: self.id) }
 }
 
 extension Preset {
@@ -185,6 +187,7 @@ extension Preset {
       audioConfig?.clone(presetId: clone.id)
       delayConfig?.clone(presetId: clone.id)
       reverbConfig?.clone(presetId: clone.id)
+      _ = presetConfigs.map { $0.clone(presetId: clone.id) }
     }
 
     return clone
