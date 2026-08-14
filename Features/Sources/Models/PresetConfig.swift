@@ -51,7 +51,9 @@ extension PresetConfig {
       try Self.all
         .where {
           $0.id.presetId.eq(presetId)
-        }.fetchAll(db)
+        }
+        .order(by: \.id.generatorId)
+        .fetchAll(db)
     } ?? []
   }
 
