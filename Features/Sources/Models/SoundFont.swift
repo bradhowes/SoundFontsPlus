@@ -351,20 +351,10 @@ extension SoundFont {
 
   public static func link(soundFontId: SoundFont.ID, to tagId: Tag.ID) {
     guard !tagId.isUbiquitous else { return }
-
-    let existing = withDatabaseReader { db in
-      try TaggedSoundFont
-        .where { $0.soundFontId.eq(soundFontId) }
-        .where { $0.tagId.eq(tagId) }
-        .fetchCount(db)
-    } ?? 0
-
-    guard existing == 0 else { return }
-
     withDatabaseWriter { db in
       try TaggedSoundFont.insert {
         .init(soundFontId: soundFontId, tagId: tagId)
-      }
+      } onConflictDoUpdate: { _ in }
       .execute(db)
     }
   }

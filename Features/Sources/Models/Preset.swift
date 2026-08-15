@@ -311,6 +311,22 @@ extension Preset {
   }
 }
 
+extension Preset {
+
+  public var tags: [PresetTag] {
+    withDatabaseReader { db in
+      try TaggedPreset
+        .join(PresetTag.all) {
+          $0.presetId.eq(id) && $0.tagId.eq($1.id)
+        }
+        .select {
+          $1
+        }
+        .fetchAll(db)
+    } ?? []
+  }
+}
+
 extension Preset.Kind: Hashable, QueryBindable, RawRepresentable, Sendable {}
 
 extension Preset: Hashable, Identifiable, Sendable {}

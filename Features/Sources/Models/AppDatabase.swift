@@ -135,10 +135,12 @@ private func performMigrations(
   SoundFontText.migrate(&migrator)
   Preset.migrate(&migrator)
   PresetConfig.migrate(&migrator)
+  PresetTag.migrate(&migrator)
   AudioConfig.migrate(&migrator)
   DelayConfig.migrate(&migrator)
   ReverbConfig.migrate(&migrator)
   Tag.migrate(&migrator)
+  TaggedPreset.migrate(&migrator)
   TaggedSoundFont.migrate(&migrator)
   MIDIConfig.migrate(&migrator)
 

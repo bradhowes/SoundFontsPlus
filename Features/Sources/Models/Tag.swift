@@ -61,12 +61,17 @@ nonisolated public struct Tag {
     public var id: ID { .init(rawValue: rawValue) }
   }
 
+  /// The unique ID associated with the tag
   public let id: ID
+  /// The name shown for the tag
   public var displayName: String
+  /// The ordering of the tag in relation to other tags
   public var ordering: Int
+  /// If `false` the tag is not shown in the list of tags
   public var visible: Bool = true
-
+  /// - returns true if the tag is one of the predefined ones.
   public var isUbiquitous: Bool { id.isUbiquitous }
+  /// - returns true if the tag is user-defined.
   public var isUserDefined: Bool { id.isUserDefined }
 
   public init(id: ID, displayName: String, ordering: Int, visible: Bool) {
