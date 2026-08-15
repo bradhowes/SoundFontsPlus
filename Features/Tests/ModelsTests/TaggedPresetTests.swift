@@ -48,4 +48,26 @@ struct TaggedPresetTests {
     #expect(preset.tags.isEmpty)
     TaggedPreset.unlink(presetId: preset.id, from: tag2.id)
   }
+
+  @Test
+  func presetDeletionCascades() async throws {
+    let preset = Preset.with(id: 1)!
+    let displayName = "tag"
+    let tag = try PresetTag.make(displayName: displayName)
+    TaggedPreset.link(presetId: preset.id, to: tag.id)
+    TaggedPreset.link(presetId: preset.id, to: tag.id)
+    withDatabaseWriter { db in
+      try Preset.all
+        .where { $0.id.eq(preset.id) }
+        .delete()
+        .execute(db)
+    }
+
+    let tagged = withDatabaseReader { db in
+      try TaggedPreset.all
+        .where { $0.presetId.eq(preset.id) }
+        .fetchAll(db)
+    } ?? []
+    #expect(tagged.isEmpty)
+  }
 }

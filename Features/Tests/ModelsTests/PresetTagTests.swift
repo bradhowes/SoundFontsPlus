@@ -20,46 +20,33 @@ struct PresetTagTests {
 
   @Test
   func migration() async throws {
-    @FetchAll(PresetTag.all) var tags
-    try await $tags.load()
-
-    #expect(tags.isEmpty)
-
-    @FetchAll(TaggedPreset.all) var taggedPresets
-    try await $taggedPresets.load()
+    #expect(PresetTag.all.isEmpty)
+    let taggedPresets = withDatabaseReader { try TaggedPreset.all.fetchAll($0) } ?? []
     #expect(taggedPresets.isEmpty)
   }
 
   @Test
   func create() async throws {
-    @FetchAll(PresetTag.all) var tags
     let displayName = "tag"
     let tag = try PresetTag.make(displayName: displayName)
     #expect(tag.displayName == displayName)
-    try await $tags.load()
-    #expect(tags.count == 1)
+    #expect(PresetTag.all.count == 1)
   }
 
   @Test
   func delete() async throws {
-    @FetchAll(PresetTag.all) var tags
     let displayName = "deleteMe"
     let tag = try PresetTag.make(displayName: displayName)
-    try await $tags.load()
-    #expect(tags.count == 1)
+    #expect(PresetTag.all.count == 1)
     try tag.delete()
-    try await $tags.load()
-    #expect(tags.isEmpty)
-    #expect(!tags.map(\.id).contains(tag.id))
+    #expect(PresetTag.all.isEmpty)
   }
 
   @Test
   func renameToBlank() async throws {
-    @FetchAll(PresetTag.all) var tags
     let displayName = "renameMe"
     let tag = try PresetTag.make(displayName: displayName)
-    try await $tags.load()
-    #expect(tags.count == 1)
+    #expect(PresetTag.all.count == 1)
 
     #expect(throws: ModelError.emptyTagName) {
       try tag.rename(new: "")
@@ -72,20 +59,16 @@ struct PresetTagTests {
 
   @Test
   func rename() async throws {
-    @FetchAll(PresetTag.all) var tags
     let displayName = "renameMe"
     let tag = try PresetTag.make(displayName: displayName)
-    try await $tags.load()
-    #expect(tags.count == 1)
+    #expect(PresetTag.all.count == 1)
 
     try tag.rename(new: "another name")
-    try await $tags.load()
-    #expect(tags.last?.displayName == "another name")
+    #expect(PresetTag.all.last?.displayName == "another name")
   }
 
   @Test
   func createWithInvalidName() async throws {
-    @FetchAll(PresetTag.all) var tags
     #expect(throws: ModelError.emptyTagName) {
       try PresetTag.make(displayName: "")
     }
@@ -99,5 +82,6 @@ struct PresetTagTests {
     let tag = try PresetTag.make(displayName: "new")
     let newTag = try PresetTag.make(displayName: "new")
     #expect(newTag.displayName == tag.displayName + " 1")
+    #expect(PresetTag.all.count == 2)
   }
 }

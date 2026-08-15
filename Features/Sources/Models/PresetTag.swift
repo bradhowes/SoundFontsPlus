@@ -39,6 +39,15 @@ extension PresetTag {
 
 extension PresetTag {
 
+  /// - returns all existing `PresetTag` instances.
+  public static var all: [PresetTag] {
+    withDatabaseReader {
+      try PresetTag.all
+        .order(by: \.displayName)
+        .fetchAll($0)
+    } ?? []
+  }
+
   /**
    Fetch the row for a given ID.
 
