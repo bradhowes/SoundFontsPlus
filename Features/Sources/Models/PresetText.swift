@@ -10,8 +10,8 @@ nonisolated public struct PresetText {
   public let presetId: Preset.ID
   public var displayName: String
   public let originalName: String
-  public let embeddedName: String
   public var notes: String
+  public var tags: String
 }
 
 extension PresetText: FTS5 {
@@ -27,6 +27,7 @@ extension PresetText: FTS5 {
           "displayName",
           "originalName",
           "notes",
+          "tags",
           tokenize = '\(raw: Self.tokenizer)'
         )
         """
@@ -34,17 +35,18 @@ extension PresetText: FTS5 {
       .execute(db)
 
       // Add trigger to insert text seach tokens when sound font inserted
-      try Preset.createTemporaryTrigger(after: .insert { new in
-        PresetText.insert {
-          ($0.presetId, $0.displayName, $0.originalName, $0.notes)
-        } select: {
-          Preset
-            .find(new.id)
-            .select {
-              ($0.id, $0.displayName, $0.originalName, $0.notes)
-            }
-        }
-      }).execute(db)
+      try Preset.createTemporaryTrigger(
+        after: .insert { new in
+          PresetText.insert {
+            PresetText.Columns(
+              presetId: new.id,
+              displayName: new.displayName,
+              originalName: new.originalName,
+              notes: new.notes.replace("\n", " "),
+              tags: ""
+            )
+          }
+        }).execute(db)
 
       // Add trigger to update text seach tokens when sound font meta data changes
       try Preset.createTemporaryTrigger(after: .update {
@@ -54,7 +56,7 @@ extension PresetText: FTS5 {
           .where { $0.presetId.eq(new.id) }
           .update {
             $0.displayName = new.displayName
-            $0.notes = new.notes
+            $0.notes = new.notes.replace("\n", " ")
           }
       }).execute(db)
 

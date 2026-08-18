@@ -97,7 +97,31 @@ extension Tag {
         """
       )
       .execute(db)
+
+      try registerTagUpdateTrigger(db)
     }
+  }
+
+  private static func registerTagUpdateTrigger(_ db: Database) throws {
+//    try Tag.createTemporaryTrigger(
+//      after: .update {
+//        $0.displayName
+//      } forEachRow: { _, new in
+//        let soundFontIds = withDatabaseReader { db in
+//          TaggedSoundFont
+//            .where {
+//              $0.tagId.eq(new.id)
+//            }
+//            .join(SoundFont.all) {
+//              $1.id.eq($0.soundFontId)
+//            }
+//            .fetchAll(db)
+//        } ?? []
+//        for soundFontId in soundFontIds {
+//          TaggedSoundFont.updateTagsText(for: soundFontId)
+//        }
+//      } when: { $0.displayName.neq($1.displayName) }
+//    ).execute(db)
   }
 }
 
@@ -180,8 +204,7 @@ extension Tag {
   }
 
   static func reorder(tagIds: [Tag.ID]) throws {
-    @Dependency(\.defaultDatabase) var database
-    try database.write { db in
+    withDatabaseWriter { db in
       for tagId in tagIds.enumerated() {
         try Tag
           .find(tagId.1)
@@ -211,22 +234,14 @@ extension Tag {
   }
 
   public var soundFonts: [SoundFont] {
-    let query =
-      TaggedSoundFont
-      .join(SoundFont.all) {
-        $0.soundFontId.eq($1.id) && $0.tagId.eq(self.id)
-      }
-      .select {
-        $1
-      }
-
-    @Dependency(\.defaultDatabase) var database
-    let found =
-      (try? database.read { db in
-        try query.fetchAll(db)
-      }) ?? []
-
-    return found
+    withDatabaseReader { db in
+      try TaggedSoundFont.all
+        .join(SoundFont.all) {
+          $0.soundFontId.eq($1.id) && $0.tagId.eq(self.id)
+        }
+        .select { $1 }
+        .fetchAll(db)
+    } ?? []
   }
 
   public static func soundFontIds(for tagId: Tag.ID) -> [SoundFont.ID] {
