@@ -20,8 +20,8 @@ jobs:
         rm -rf .DerivedData-iOS      
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Select Xcode Xcode_26.2.0
-      run: ls -l /Applications && sudo xcode-select -s /Applications/Xcode_26.2.0.app
+    - name: Select Xcode Xcode_26.3.0
+      run: ls -l /Applications && sudo xcode-select -s /Applications/Xcode_26.3.0.app
     - name: Show ENV
       run: env
     - name: Build, test, and code coverage
