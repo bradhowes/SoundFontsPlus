@@ -279,7 +279,7 @@ extension Synth {
         await send(.lastPresetLoadFinished)
       }
 
-      log.info("monitorLastLoadFinished END")
+      log.info("monitorLastLoadFinished END - canceled")
     }.cancellable(id: CancelId.synthMonitorLastLoadFinished, cancelInFlight: true)
   }
 
