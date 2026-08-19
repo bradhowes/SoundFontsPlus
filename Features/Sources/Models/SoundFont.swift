@@ -1,7 +1,9 @@
 // Copyright © 2025 Brad Howes. All rights reserved.
 
+import CxxStdlib
 import Dependencies
 import Engine
+
 public import Foundation
 public import SF2Resources
 public import SQLiteData
@@ -216,6 +218,10 @@ extension SoundFont {
 
     return soundFont
   }
+
+//  private static func string<Bytes: Collection>(from bytes: Bytes) -> String where Bytes.Element == CChar {
+//    String(bytes: bytes.lazy.map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? ""
+//  }
 
   private static func makeInsertion(
     soundFontKind: SoundFontKind,
