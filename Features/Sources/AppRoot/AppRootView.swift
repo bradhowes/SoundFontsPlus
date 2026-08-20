@@ -190,7 +190,7 @@ public struct AppRootView: View {
     .toast(item: $store.toastState, alignment: .top) { reason in
       volumeMonitorToast(reason)
     }
-    .toastStyle(.plain)
+    .toastStyle(.material)
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
     .helpInfoSpotlightOverlay(
       selection: $store.helpInfoSelection,

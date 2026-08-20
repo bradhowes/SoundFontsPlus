@@ -231,7 +231,7 @@ extension SoundFontsList {
     do {
       try database.write { db in
         try SoundFont.delete()
-          .where { ids.contains($0.id) }
+          .where { $0.id.in(ids) }
           .execute(db)
       }
     } catch {

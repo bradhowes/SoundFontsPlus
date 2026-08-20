@@ -219,9 +219,9 @@ extension SoundFont {
     return soundFont
   }
 
-//  private static func string<Bytes: Collection>(from bytes: Bytes) -> String where Bytes.Element == CChar {
-//    String(bytes: bytes.lazy.map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? ""
-//  }
+  private static func string<Bytes: Collection>(from bytes: Bytes) -> String where Bytes.Element == CChar {
+    String(bytes: bytes.lazy.map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? ""
+  }
 
   private static func makeInsertion(
     soundFontKind: SoundFontKind,
@@ -230,10 +230,10 @@ extension SoundFont {
   ) throws -> Insert<SoundFont, SoundFont> {
     let (kind, location) = try soundFontKind.data()
     let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()
-    let embeddedName = String(fileInfo.embeddedName())
-    let embeddedComment = String(fileInfo.embeddedComment())
-    let embeddedAuthor = String(fileInfo.embeddedAuthor())
-    let embeddedCopyright = String(fileInfo.embeddedCopyright())
+    let embeddedName = string(from: fileInfo.embeddedName())
+    let embeddedComment = string(from: fileInfo.embeddedComment())
+    let embeddedAuthor = string(from: fileInfo.embeddedAuthor())
+    let embeddedCopyright = string(from: fileInfo.embeddedCopyright())
     return SoundFont.insert {
       SoundFont.Draft(
         displayName: name,
@@ -257,7 +257,7 @@ extension SoundFont {
     (0..<limit)
       .map { presetIndex in
         let presetInfo = fileInfo[presetIndex]
-        let name = String(presetInfo.name())
+        let name = string(from: presetInfo.name())
         return .init(
             index: presetIndex,
             bank: Int(presetInfo.bank()),

@@ -19,7 +19,7 @@ extension Package.Dependency {
   static var sf2Lib: PackageDescription.Package.Dependency {
     useLocalSF2Lib ?
       .package(name: "SF2Lib", path: myLocal("SF2Lib")) :
-      .package(url: myRepo("SF2Lib"), exact: "8.14.4")
+      .package(url: myRepo("SF2Lib"), exact: "8.14.5")
   }
 
   static var helpInfoSpotlightOverlay: PackageDescription.Package.Dependency {
