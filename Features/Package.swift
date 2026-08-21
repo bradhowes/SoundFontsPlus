@@ -84,7 +84,7 @@ let package = Package(
     .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.12.0"),
     .package(url: "https://github.com/pointfreeco/swift-sharing", from: "2.8.0"),
     .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.19.2"),
-    .package(url: "https://github.com/pointfreeco/swift-tagged", from: "0.10.0"),
+    .package(url: "https://github.com/pointfreeco/swift-tagged", from: "0.10.0")
   ],
 
   targets: [

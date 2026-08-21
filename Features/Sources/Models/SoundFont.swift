@@ -219,9 +219,12 @@ extension SoundFont {
     return soundFont
   }
 
-  private static func string<Bytes: Collection>(from bytes: Bytes) -> String where Bytes.Element == CChar {
-    String(bytes: bytes.lazy.map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? ""
-  }
+  // NOTE: this should not be necessary
+//  private static func string<Bytes: Collection>(from bytes: Bytes) -> String where Bytes.Element == CChar {
+//    String(bytes: bytes.lazy.map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? ""
+//  }
+
+  private static func string(from: std.string) -> String { String(from) }
 
   private static func makeInsertion(
     soundFontKind: SoundFontKind,
