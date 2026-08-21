@@ -225,8 +225,6 @@ extension SoundFont {
     String(bytes: bytes.lazy.map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? ""
   }
 
-  private static func string(from: std.string) -> String { String(from) }
-
   private static func makeInsertion(
     soundFontKind: SoundFontKind,
     name: String,
