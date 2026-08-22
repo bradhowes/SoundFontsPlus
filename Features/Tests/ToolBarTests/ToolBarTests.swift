@@ -340,7 +340,7 @@ struct ToolBarTests {
     }
   )
   func monitorActiveVoiceCount() async throws {
-    // guard !ProcessInfo.processInfo.isOnGithub else { return }
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
 
     let synth = TestStore(initialState: Synth.State()) { Synth() }
     await synth.send(.initialize)

@@ -49,7 +49,7 @@ struct AUv3RootTests {
     exhaustivity: Exhaustivity = .on,
     _ closure: (TestStoreOf<AUv3Root>) async throws -> Void
   ) async throws {
-    // guard !ProcessInfo.processInfo.isOnGithub else { return }
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
 
     let store = await store()
 

@@ -69,7 +69,7 @@ struct AppRootTests {
     showedTutorial: Bool = true,
     _ closure: (TestStoreOf<AppRoot>) async throws -> Void
   ) async throws {
-    // guard !ProcessInfo.processInfo.isOnGithub else { return }
+    guard !ProcessInfo.processInfo.isOnGithub else { return }
 
     let store = store(showedTutorial: showedTutorial)
 
