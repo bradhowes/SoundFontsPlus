@@ -34,7 +34,7 @@ import VolumeMonitor
     let mockVolume = OutputVolumeFlipFlop()
     $0.audioGraph = .liveValue
     $0.audioSession = .liveValue
-    $0.avAudioUnitMIDIInstrumentGenerator = .liveValue
+    $0.avAudioUnitMIDIInstrumentGenerator = await .constant()
     $0.continuousClock = TestClock<Duration>()
     $0.date = .constant(.now)
     $0.defaultDatabase = try appDatabase(fonts: [SF2ResourceTag.fluidFont], loadAllPresets: false)
@@ -69,7 +69,7 @@ struct AppRootTests {
     showedTutorial: Bool = true,
     _ closure: (TestStoreOf<AppRoot>) async throws -> Void
   ) async throws {
-    guard !ProcessInfo.processInfo.isOnGithub else { return }
+    // guard !ProcessInfo.processInfo.isOnGithub else { return }
 
     let store = store(showedTutorial: showedTutorial)
 
@@ -77,7 +77,7 @@ struct AppRootTests {
     await store.receive(\.synth.initialize)
 
     await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.receive(\.synth.synthAudioUnitCreated) {
+      await store.receive(\.synth.synthAudioUnitCreated, timeout: .seconds(5)) {
         $0.synth.audioSessionActivated = true
         // $0.synth.avAudioUnit = avAudioUnit
       }

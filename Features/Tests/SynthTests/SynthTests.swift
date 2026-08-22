@@ -41,7 +41,7 @@ struct SynthTests {
   @Shared(.backgroundProcessing) var backgroundProcessing = false
 
   func initialized(exhaustivity: Exhaustivity = .on, _ closure: (TestStoreOf<Synth>) async throws -> Void) async throws {
-    guard !ProcessInfo.processInfo.isOnGithub else { return }
+    // guard !ProcessInfo.processInfo.isOnGithub else { return }
 
     let store = TestStore(initialState: Synth.State()) { Synth() }
 
