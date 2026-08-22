@@ -232,20 +232,16 @@ extension SoundFont {
   ) throws -> Insert<SoundFont, SoundFont> {
     let (kind, location) = try soundFontKind.data()
     let fileInfo: SF2FileInfo = try soundFontKind.fileInfo()
-    let embeddedName = string(from: fileInfo.embeddedName())
-    let embeddedComment = string(from: fileInfo.embeddedComment())
-    let embeddedAuthor = string(from: fileInfo.embeddedAuthor())
-    let embeddedCopyright = string(from: fileInfo.embeddedCopyright())
     return SoundFont.insert {
       SoundFont.Draft(
         displayName: name,
         kind: kind,
         location: location,
         originalName: name,
-        embeddedName: embeddedName,
-        embeddedComment: embeddedComment,
-        embeddedAuthor: embeddedAuthor,
-        embeddedCopyright: embeddedCopyright,
+        embeddedName: string(from: fileInfo.embeddedName()),
+        embeddedComment: string(from: fileInfo.embeddedComment()),
+        embeddedAuthor: string(from: fileInfo.embeddedAuthor()),
+        embeddedCopyright: string(from: fileInfo.embeddedCopyright()),
         notes: ""
       )
     }.returning(\.self)
