@@ -1,4 +1,3 @@
-PATH = /usr/bin:/bin:/usr/sbin:/sbin
 PLATFORM_IOS = iOS Simulator,name=iPad mini (A17 Pro)
 IOS_SIM = 8C8C409E-EDE8-4AC3-969D-449731DC9DA1
 PLATFORM_MACOS = macOS
@@ -10,12 +9,7 @@ BUILD_FLAGS = -skipMacroValidation \
               -scheme $(SCHEME) \
 			  -clonedSourcePackagesDirPath "$(WORKSPACE)"
 WORKSPACE = $(PWD)/.workspace
-
-ifeq ($(GITHUB_ENV),)
 XCB = | xcbeautify --renderer github-actions
-endif
-
-XCB =
 
 default: report
 
