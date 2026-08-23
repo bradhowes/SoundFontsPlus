@@ -84,14 +84,14 @@ List of available soundfont files.
 """
     case .presetsList:
       return """
-The list of presets and favorites for the selected soundfont.
+The list of visible presets and favorites for the selected soundfont. \
+See options in \(Image(systemName: .settingsButtonImageName)) Settings panel to change preset ordering.
 • Tap to activate.
 • Swipe right to edit or make favorite/duplicate.
-• Swipe left to hide or delete.
+• Swipe left to hide preset or delete favorite.
 • Tap on section header to show previous section header.
 • Double-tap to show first section.
 • Tap on \(Image(systemName: .searchButtonImageName)) to search preset names.
-See options in \(Image(systemName: .settingsButtonImageName)) Settings panel to change preset ordering.
 """
     case .tagsList:
       return """
@@ -126,13 +126,13 @@ Presents a file browser for selecting one or more files or an entire folder.
       return "Show or hide the effects panel."
     case .statusWindow:
       return """
-Shows the active preset.
+Shows the active preset and (optionally) last note played, solfége tag, active voice counter, or MIDI traffic indicator.
 • Tap once to show the active preset.
 • Double-tap to stop all notes, including any from a MIDI controller (aka PANIC).
 """
     case .shiftDownButton:
       return """
-Shows the name of the first visible key. Tap to shift the keyboard down to show lower notes values.
+Shows the name of the first visible key. Tap to shift the keyboard down to show lower note values.
 """
     case .slideToggle:
       return """
@@ -146,7 +146,7 @@ Shows the name of the last visible key. Tap to shift the keyboard up to show hig
 """
     case .editVisibilityButton:
       return """
-Show the presets of the active soundfont with toggle buttons to change the preset visibility.
+Show the presets of the active soundfont with toggle buttons to toggle preset visibility in the list.
 """
     case .settingsButton:
       return "Show the \(Image(systemName: .settingsButtonImageName)) Settings panel."
