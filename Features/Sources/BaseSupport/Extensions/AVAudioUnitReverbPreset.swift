@@ -5,6 +5,15 @@ public import AVFAudio
 extension AVAudioUnitReverbPreset: @retroactive Identifiable {
   public var id: Int { rawValue }
 
+  public static let extraCasesV27: [AVAudioUnitReverbPreset] =
+  if #available(macOS 27, iOS 27, *) {
+    [
+      .outdoorGeneral // 24 (!)
+    ]
+  } else {
+    []
+  }
+
   // NOTE: order here is *not* the same as the numeric ordering of the enum integer values.
   // This ordering is how they appear in SwiftUI -- it seems sane if somewhat arbitrary.
   public static let allCases: [AVAudioUnitReverbPreset] = [
@@ -21,7 +30,7 @@ extension AVAudioUnitReverbPreset: @retroactive Identifiable {
     .largeChamber, // 7
     .cathedral, // 8
     .plate // 5
-  ]
+  ] + extraCasesV27
 
   public static let range: ClosedRange<Int> = 0...(allCases.count - 1)
 
@@ -40,6 +49,7 @@ extension AVAudioUnitReverbPreset: @retroactive Identifiable {
     case .mediumHall2: return "Hall 2"
     case .mediumHall3: return "Hall 3"
     case .largeHall2: return "Hall 5"
+    case .outdoorGeneral: return "Outdoor"
     @unknown default: fatalError()
     }
   }
