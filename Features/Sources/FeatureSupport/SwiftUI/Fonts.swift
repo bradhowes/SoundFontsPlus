@@ -75,4 +75,20 @@ extension Color {
   public static var presetsHeaderForeground: Color { Color.gray.mix(with: .black, by: 0.30) }
 
   public static var buttonActive: Color { .teal }
+
+  public static func tutorialTitle(_ colorScheme: ColorScheme) -> Color {
+    if colorScheme == .dark {
+      return .alternateAccentColor
+    } else {
+      return .alternateAccentColor
+    }
+  }
+
+  public static func tutorialText(_ colorScheme: ColorScheme) -> Color {
+    if colorScheme == .dark {
+      return .teal
+    } else {
+      return .primary
+    }
+  }
 }
