@@ -39,8 +39,10 @@ public struct SettingsView: View {
     NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
       ScrollViewReader { scrollViewProxy in
         Form {
-          PresetsSection(store: store, isApp: isApp)
+          AboutSection(store: store, isApp: isApp)
+          AppSection(store: store, isApp: isApp)
           FontsSection(store: store, isApp: isApp)
+          PresetsSection(store: store, isApp: isApp)
           if isApp {
             KeyboardSection(store: store, showFakeKeyboard: showFakeKeyboard)
             if midiProvider.midi() != nil {
@@ -48,8 +50,6 @@ public struct SettingsView: View {
             }
           }
           TuningSection(store: store)
-          AppSection(store: store, isApp: isApp)
-          AboutSection(store: store, isApp: isApp)
         }
         .coordinateSpace(name: Self.coordinateSpaceName)
         .font(.settings)
