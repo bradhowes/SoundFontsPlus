@@ -12,15 +12,7 @@ The panel on the left-hand side shows names of the installed soundfont files.
 """
     ) {
       HStack(alignment: .top, spacing: 16) {
-        Image("FontsList", bundle: Bundle.module)
-          .resizable()
-          .scaledToFit()
-          .frame(width: 140)
-          .shadow(
-            color: .black,
-            radius: CGFloat(6.0),
-            x: CGFloat(0), y: CGFloat(0))
-
+        PageViewImage(name: "FontsList", width: 140)
         VStack(alignment: .leading, spacing: 24) {
           Grid(verticalSpacing: 12) {
             GridRow {

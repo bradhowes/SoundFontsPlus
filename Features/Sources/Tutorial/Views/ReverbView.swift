@@ -13,14 +13,7 @@ Tap the \(Image(systemName: .effectsButtonImageName)) toolbar button to show. \
 Swipe up/down to change room or adjust knob value.
 """
     ) {
-      Image("Reverb", bundle: Bundle.module)
-        .resizable()
-        .scaledToFit()
-        .frame(width: 340)
-        .shadow(
-          color: .black,
-          radius: CGFloat(6.0),
-          x: CGFloat(0), y: CGFloat(0))
+      PageViewImage(name: "Reverb", width: 340)
       Text("Controls")
         .foregroundStyle(Color.alternateAccentColor)
       Grid(verticalSpacing: 12) {

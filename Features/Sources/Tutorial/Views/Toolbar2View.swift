@@ -13,11 +13,7 @@ You can have a preset/favorite adjust the keyboard when it becomes active. \
 Tap \(Image(systemName: .fixedKeyboardButtonImageName)) to toggle keyboard sliding during playing.
 """
     ) {
-      Image("ToolBar2", bundle: Bundle.module)
-        .shadow(
-          color: .black,
-          radius: CGFloat(6.0),
-          x: CGFloat(0), y: CGFloat(0))
+      PageViewImage(name: "ToolBar2", height: 60)
       Grid(verticalSpacing: 12) {
         GridRow {
           Image(systemName: .settingsButtonImageName)
@@ -35,7 +31,7 @@ Tap \(Image(systemName: .fixedKeyboardButtonImageName)) to toggle keyboard slidi
         GridRow {
           Image(systemName: .moreButtonImageName)
             .foregroundStyle(Color.alternateAccentColor)
-          Text("Hide these buttons (in narrow views)")
+          Text("Show/hide these buttons in narrow views")
         }
       }
     }

@@ -12,14 +12,7 @@ You can also add a delay effect to a preset's audio output. Swipe up/down on kno
 tap on label to enter numeric value.
 """
     ) {
-      Image("Delay", bundle: Bundle.module)
-        .resizable()
-        .scaledToFit()
-        .frame(width: 340)
-        .shadow(
-          color: .black,
-          radius: CGFloat(6.0),
-          x: CGFloat(0), y: CGFloat(0))
+      PageViewImage(name: "Delay", width: 340)
       Text("Controls")
         .foregroundStyle(Color.alternateAccentColor)
       Grid(verticalSpacing: 12) {

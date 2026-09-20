@@ -38,7 +38,7 @@ The list to the right of the fonts list shows the visible presets in the selecte
       }
       Text("Swipe Actions")
         .foregroundStyle(Color.alternateAccentColor)
-      HStack(spacing: 18) {
+      HStack(spacing: 22) {
         Grid {
           GridRow {
             Image(systemName: .editButtonImageName)

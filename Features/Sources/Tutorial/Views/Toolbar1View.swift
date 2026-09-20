@@ -12,13 +12,7 @@ Shows the active preset name, MIDI activity indicator, active voice count, and v
 parts of the application.
 """
     ) {
-      Image("ToolBar1", bundle: Bundle.module)
-        .resizable()
-        .scaledToFit()
-        .shadow(
-          color: .black,
-          radius: CGFloat(6.0),
-          x: CGFloat(0), y: CGFloat(0))
+      PageViewImage(name: "ToolBar1", height: 60)
       Grid(verticalSpacing: 12) {
         GridRow {
           Image(systemName: .addSoundFontButtonImageName)

@@ -14,14 +14,7 @@ to be easily found in the presets list.
 """
     ) {
       VStack(spacing: 18) {
-        Image("PresetsList", bundle: Bundle.module)
-          .resizable()
-          .scaledToFit()
-          .frame(width: 220)
-          .shadow(
-            color: .black,
-            radius: CGFloat(6.0),
-            x: CGFloat(0), y: CGFloat(0))
+        PageViewImage(name: "PresetsList", width: 220)
         Text(
 """
 A preset can have multiple copies, each with their own name and settings. \

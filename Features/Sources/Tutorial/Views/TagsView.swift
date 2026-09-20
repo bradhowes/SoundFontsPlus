@@ -13,15 +13,8 @@ Tags help organize your font collection as it grows, filtering which fonts are v
 \(Image(systemName: .tagsListButtonImageName)) button controls their visibility.
 """
     ) {
-      HStack(alignment: .top) {
-        Image("TagsList", bundle: Bundle.module)
-          .resizable()
-          .scaledToFit()
-          .frame(width: 160)
-          .shadow(
-            color: .black,
-            radius: CGFloat(6.0),
-            x: CGFloat(0), y: CGFloat(0))
+      HStack(alignment: .top, spacing: 16) {
+        PageViewImage(name: "TagsList", width: 160)
         VStack(alignment: .leading, spacing: 24) {
           Grid(verticalSpacing: 12) {
             GridRow {
@@ -60,37 +53,13 @@ Tags help organize your font collection as it grows, filtering which fonts are v
                 .foregroundStyle(.gray)
               Text("On iCloud or external disk")
             }
-          }
-          if horizontalSizeClass != .compact {
             Text("Swipe Actions")
               .foregroundStyle(Color.alternateAccentColor)
-            Grid {
-              GridRow {
-                Image(systemName: .editButtonImageName)
-                Text("Edit tags")
-                  .gridColumnAlignment(.leading)
-              }
-              GridRow {
-                Image(systemName: .deleteButtonImageName)
-                  .foregroundStyle(.red)
-                Text("Remove user tag")
-              }
-            }
-          }
-        }
-      }
-      if horizontalSizeClass == .compact {
-        Text("Swipe Actions")
-          .foregroundStyle(Color.alternateAccentColor)
-        HStack(spacing: 18) {
-          Grid {
             GridRow {
               Image(systemName: .editButtonImageName)
               Text("Edit tags")
                 .gridColumnAlignment(.leading)
             }
-          }
-          Grid {
             GridRow {
               Image(systemName: .deleteButtonImageName)
                 .foregroundStyle(.red)

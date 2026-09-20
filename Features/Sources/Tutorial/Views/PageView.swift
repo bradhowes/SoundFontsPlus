@@ -32,6 +32,48 @@ struct PageView<Content: View>: View {
   }
 }
 
+struct PageViewImage: View {
+  private let name: String
+  private let width: CGFloat?
+  private let height: CGFloat?
+
+  init(name: String, width: CGFloat? = nil, height: CGFloat? = nil) {
+    self.name = name
+    self.width = width
+    self.height = height
+  }
+
+  var body: some View {
+    if let width {
+      Image(name, bundle: Bundle.module)
+        .resizable()
+        .scaledToFit()
+        .frame(width: width)
+        .shadow(
+          color: .black,
+          radius: CGFloat(6.0),
+          x: CGFloat(0), y: CGFloat(0))
+    } else if let height {
+      Image(name, bundle: Bundle.module)
+        .resizable()
+        .scaledToFit()
+        .frame(height: height)
+        .shadow(
+          color: .black,
+          radius: CGFloat(6.0),
+          x: CGFloat(0), y: CGFloat(0))
+    } else {
+      Image(name, bundle: Bundle.module)
+        .resizable()
+        .scaledToFit()
+        .shadow(
+          color: .black,
+          radius: CGFloat(6.0),
+          x: CGFloat(0), y: CGFloat(0))
+    }
+  }
+}
+
 #if DEBUG
 
 struct Preview: View {
