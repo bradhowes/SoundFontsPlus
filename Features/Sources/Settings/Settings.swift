@@ -208,13 +208,15 @@ public struct Settings {
 
   public var body: some ReducerOf<Self> {
     BindingReducer()
-      .onChange(of: \.mixWithOtherApps) { _, _ in
-        _ = audioSession.restart()
-        return .none
+      .onChange(of: \.mixWithOtherApps) { [audioSession] _, _ in
+        return .run { _ in
+          _ = await audioSession.restart()
+        }
       }
-      .onChange(of: \.duckOtherApps) { _, _ in
-        _ = audioSession.restart()
-        return .none
+      .onChange(of: \.duckOtherApps) { [audioSession] _, _ in
+        return .run { _ in
+          _ = await audioSession.restart()
+        }
       }
 
     Scope(state: \.midiTrafficIndicator, action: \.midiTrafficIndicator) { MIDITrafficIndicator() }

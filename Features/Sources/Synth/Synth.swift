@@ -60,6 +60,7 @@ public struct Synth {
 
   public enum Action {
     case acquireAudioSession
+    case audioSessionActivationFinished(Bool)
     case activePresetIdChanged(Preset.ID?)
     case audioSessionRouteChanged
     case deinitialize
@@ -98,6 +99,7 @@ public struct Synth {
       log.action("Synth", action)
       return switch action {
       case .acquireAudioSession: acquireAudioSession(&state)
+      case .audioSessionActivationFinished(let activated): audioSessionActivationFinished(&state, activated: activated)
       case .activePresetIdChanged(let presetId): activePresetIdChanged(&state, presetId: presetId)
       case .audioSessionRouteChanged: audioSessionRouteChanged(&state)
       case .deinitialize: .merge(CancelId.allCases.map { .cancel(id: $0) })
@@ -120,6 +122,7 @@ public struct Synth {
     case synthMonitorMediaServices
     case synthMonitorRouteChanged
     case synthPlayNote
+    case synthAudioSession
   }
 }
 
@@ -180,9 +183,9 @@ extension Synth {
 
   private func acquireAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("acquireAudioSession BEGIN")
-    startAudioSession(&state)
+    let effect = startAudioSession(&state)
     log.info("acquireAudioSession END")
-    return .none
+    return effect
   }
 
   private func beginMonitoring(_ state: inout State) -> Effect<Action> {
@@ -309,16 +312,22 @@ extension Synth {
 
   private func restartAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("restartAudioSession - BEGIN")
-    stopAudioSession(&state)
-    startAudioSession(&state)
+    state.audioSessionActivated = false
     log.info("restartAudioSession - END")
-    return .none
+    let session = audioSession
+    return .run { send in
+      await send(.audioSessionActivationFinished(await session.restart()))
+    }.cancellable(id: CancelId.synthAudioSession, cancelInFlight: true)
   }
 
   private func releaseAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("releaseAudioSession - BEGIN")
     if !backgroundProcessing {
-      stopAudioSession(&state)
+      state.audioSessionActivated = false
+      let session = audioSession
+      return .run { _ in
+        await session.stop()
+      }.cancellable(id: CancelId.synthAudioSession, cancelInFlight: true)
     }
     log.info("releaseAudioSession - END")
     return .none
@@ -382,17 +391,14 @@ extension Synth {
     }.cancellable(id: CancelId.synthPlayNote, cancelInFlight: true)
   }
 
-  private func startAudioSession(_ state: inout State) {
-    var audioSessionActivated = state.audioSessionActivated
-    log.info("startAudioSession BEGIN - \(audioSessionActivated)")
-    if !audioSessionActivated {
-      audioSessionActivated = audioSession.start()
-      state.audioSessionActivated = audioSessionActivated
-      if audioSessionActivated {
-        startEngine(&state)
-      }
-    }
-    log.info("startAudioSession END - \(audioSessionActivated)")
+  private func startAudioSession(_ state: inout State) -> Effect<Action> {
+    guard !state.audioSessionActivated else { return .none }
+
+    log.info("startAudioSession BEGIN")
+    let session = audioSession
+    return .run { send in
+      await send(.audioSessionActivationFinished(await session.start()))
+    }.cancellable(id: CancelId.synthAudioSession, cancelInFlight: true)
   }
 
   private func startEngine(_ state: inout State) {
@@ -406,11 +412,13 @@ extension Synth {
     log.info("startEngine END - \(started)")
   }
 
-  private func stopAudioSession(_ state: inout State) {
-    log.info("stopAudioSession BEGIN")
-    audioSession.stop()
-    state.audioSessionActivated = false
-    log.info("stopAudioSession END")
+  private func audioSessionActivationFinished(_ state: inout State, activated: Bool) -> Effect<Action> {
+    state.audioSessionActivated = activated
+    log.info("startAudioSession END - \(activated)")
+    if activated {
+      startEngine(&state)
+    }
+    return .none
   }
 
   private func synthAudioUnitCreate(_ state: inout State) -> Effect<Action> {
@@ -448,7 +456,7 @@ extension Synth {
     if state.audioSessionActivated {
       startEngine(&state)
     } else {
-      startAudioSession(&state)
+      return .merge(beginMonitoring(&state), startAudioSession(&state))
     }
 
     log.info("synthAudioUnitCreated END")

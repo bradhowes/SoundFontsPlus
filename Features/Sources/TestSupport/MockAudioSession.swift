@@ -10,12 +10,12 @@ public final class MockAudioSession: @unchecked Sendable {
     @Shared(.mockAudioSession) var mock = self
   }
 
-  public func start() -> Bool {
+  public func start() async -> Bool {
     active = true
     return active
   }
 
-  public func stop() {
+  public func stop() async {
     active = false
   }
 }
@@ -23,7 +23,7 @@ public final class MockAudioSession: @unchecked Sendable {
 extension MockAudioSession {
 
   public var audioSession: AudioSession {
-    .init(start: { self.start() }, stop: { self.stop() })
+    .init(start: { await self.start() }, stop: { await self.stop() })
   }
 }
 
