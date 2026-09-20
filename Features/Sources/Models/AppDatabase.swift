@@ -52,7 +52,7 @@ public func appDatabase(
 
       if context == .live && db.configuration.readonly == false {
         var flag: CInt = 1
-        let code = unsafe withUnsafeMutablePointer(to: &flag) { flagP in
+        let code = withUnsafeMutablePointer(to: &flag) { flagP in
           unsafe sqlite3_file_control(db.sqliteConnection, nil, SQLITE_FCNTL_PERSIST_WAL, flagP)
         }
         guard code == SQLITE_OK else {
