@@ -1,4 +1,4 @@
-// Copyright © 2025 Brad Howes. All rights reserved.
+// Copyright © 2025, 2026 Brad Howes. All rights reserved.
 
 import CxxStdlib
 import Dependencies
@@ -219,12 +219,6 @@ extension SoundFont {
     return soundFont
   }
 
-  // NOTE: this should not be necessary, but doing the simpler `String(value)` where value is a `std.string` fails to build
-  // on Github (but not in Xcode on my laptop)
-  private static func string<Bytes: Collection>(from bytes: Bytes) -> String where Bytes.Element == CChar {
-    String(bytes: bytes.lazy.map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? ""
-  }
-
   private static func makeInsertion(
     soundFontKind: SoundFontKind,
     name: String,
@@ -238,10 +232,10 @@ extension SoundFont {
         kind: kind,
         location: location,
         originalName: name,
-        embeddedName: string(from: fileInfo.embeddedName()),
-        embeddedComment: string(from: fileInfo.embeddedComment()),
-        embeddedAuthor: string(from: fileInfo.embeddedAuthor()),
-        embeddedCopyright: string(from: fileInfo.embeddedCopyright()),
+        embeddedName: String(fileInfo.embeddedName()),
+        embeddedComment: String(fileInfo.embeddedComment()),
+        embeddedAuthor: String(fileInfo.embeddedAuthor()),
+        embeddedCopyright: String(fileInfo.embeddedCopyright()),
         notes: ""
       )
     }.returning(\.self)
@@ -255,7 +249,7 @@ extension SoundFont {
     (0..<limit)
       .map { presetIndex in
         let presetInfo = fileInfo[presetIndex]
-        let name = string(from: presetInfo.name())
+        let name = String(presetInfo.name())
         return .init(
             index: presetIndex,
             bank: Int(presetInfo.bank()),
