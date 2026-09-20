@@ -57,10 +57,6 @@ extension SharedKey where Self == AppStorageKey<Int>.Default {
   public static var pitchBendRange: Self { Self[.appStorage("pitchBendRange"), default: 2] }
 }
 
-extension SharedKey where Self == AppStorageKey<ColorSchemeBehavior>.Default {
-  public static var colorSchemeBehavior: Self { Self[.appStorage("colorSchemeBehavior"), default: .dark] }
-}
-
 extension SharedKey where Self == AppStorageKey<String>.Default {
   public static var favoriteSymbolName: Self { unsafe Self[.appStorage("favoriteSymbolName", store: .group), default: "star.circle.fill"] }
 }

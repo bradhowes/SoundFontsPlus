@@ -103,7 +103,6 @@ public struct SettingsView: View {
       }
     }
     .alert($store.scope(state: \.destination?.alert, action: \.destination.alert))
-    .useColorScheme() // TODO: find better approach for updating colorScheme when colorSchemeBehavior changes
   }
 }
 
@@ -437,27 +436,6 @@ private struct AppSection: View {
   var body: some View {
     SettingsSection(id: .app) {
       Group {
-        VStack(alignment: .leading, spacing: 8) {
-          HStack {
-            Text("Color scheme")
-            Spacer()
-            @Binding(store.$colorSchemeBehavior) var colorSchemeBehavior
-            Picker(selection: $colorSchemeBehavior) {
-              ForEach(ColorSchemeBehavior.allCases) { kind in
-                Text(kind.rawValue)
-              }
-            } label: {
-              Text("")
-            }
-            .pickerStyle(.segmented)
-          }
-          Text(
-"""
-The color scheme can track the device's setting, or it can be fixed to a constant scheme.
-"""
-          )
-          .font(.settingsDescription)
-        }
         @Binding(store.$showActiveVoiceCount) var showActiveVoiceCount
         Toggle(isOn: $showActiveVoiceCount) {
           toggleInfo("Show active voice counter") {

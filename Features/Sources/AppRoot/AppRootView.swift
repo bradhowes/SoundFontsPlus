@@ -264,7 +264,6 @@ extension AppRootView {
     return AppRootView(store: store)
       .tint(.mainAccentColor)
       .environment(\.font, FeatureSupport.Font.body)
-      .useColorScheme()
       .task {
         await store.send(.toolBar(.clearTemporaryStatus)).finish()
       }

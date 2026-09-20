@@ -92,8 +92,6 @@ public struct Settings {
     @ObservationStateIgnored
     @Shared(.backgroundProcessing) public var backgroundProcessing
     @ObservationStateIgnored
-    @Shared(.colorSchemeBehavior) public var colorSchemeBehavior
-    @ObservationStateIgnored
     @Shared(.duckOtherApps) public var duckOtherApps
     @ObservationStateIgnored
     @Shared(.favoritesOnTop) public var favoritesOnTop
