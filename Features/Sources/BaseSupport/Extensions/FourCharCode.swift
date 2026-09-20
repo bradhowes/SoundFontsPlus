@@ -41,7 +41,7 @@ extension FourCharCode {
 
   /// Obtain a 4-character string from our value - based on https://stackoverflow.com/a/60367676/629836
   public var stringValue: String {
-    unsafe withUnsafePointer(to: bigEndian) { pointer in
+    withUnsafePointer(to: bigEndian) { pointer in
       unsafe pointer.withMemoryRebound(to: UInt8.self, capacity: Self.bytesSizeForStringValue) { bytes in
         // swiftlint:disable:next force_unwrapping
         unsafe String(bytes: UnsafeBufferPointer(start: bytes, count: Self.bytesSizeForStringValue), encoding: .utf8)!
