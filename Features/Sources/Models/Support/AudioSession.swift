@@ -53,6 +53,13 @@ extension AudioSession: DependencyKey {
     )
   }
 
+  public static var testValue: AudioSession {
+    .init(
+      start: { true },
+      stop: { }
+    )
+  }
+
   public static var previewValue: AudioSession {
     .init(
       start: { false },
@@ -62,7 +69,7 @@ extension AudioSession: DependencyKey {
 }
 
 private func startAudioSession() async -> Bool {
-  log.info("startAudioSession BEGIN")
+  log.info("AudioSession.start BEGIN")
 
 #if os(iOS)
   let audioSession = AVAudioSession.sharedInstance()
@@ -73,13 +80,13 @@ private func startAudioSession() async -> Bool {
 
   audioSession.currentRoute.dump()
 
-  log.info("startAudioSession - making audio session active")
+  log.info("AudioSession.start - making audio session active")
   let activated: Bool
   if #available(iOS 27.0, *) {
     activated = await withCheckedContinuation { continuation in
       audioSession.activate { activated, error in
         if let error {
-          log.error("startAudioSession - failed to set active - \(error.localizedDescription)")
+          log.error("AudioSession.start - failed to set active - \(error.localizedDescription)")
         }
         continuation.resume(returning: activated)
       }
@@ -91,14 +98,14 @@ private func startAudioSession() async -> Bool {
           try audioSession.setActive(true)
           continuation.resume(returning: true)
         } catch {
-          log.error("startAudioSession - failed to set active - \(error.localizedDescription)")
+          log.error("AudioSession.start - failed to set active - \(error.localizedDescription)")
           continuation.resume(returning: false)
         }
       }
     }
   }
 
-  log.info("startAudioSession END - \(activated)")
+  log.info("AudioSession.start END - \(activated)")
 
   return activated
 
@@ -108,16 +115,16 @@ private func startAudioSession() async -> Bool {
 }
 
 private func stopAudioSession() async {
-  log.info("stopAudioSession BEGIN")
+  log.info("AudioSession.stop BEGIN")
 #if os(iOS)
-  log.info("stopAudioSession - deactivating AudioSession")
+  log.info("AudioSession.stop - deactivating AudioSession")
   if #available(iOS 27.0, *) {
     await withCheckedContinuation { continuation in
       AVAudioSession.sharedInstance().deactivate(options: [.notifyOthersOnDeactivation]) { deactivated, error in
         if let error {
-          log.error("stopAudioSession - failed to deactivate: \(error.localizedDescription)")
+          log.error("AudioSession.stop - failed to deactivate: \(error.localizedDescription)")
         } else if deactivated {
-          log.info("stopAudioSession - done")
+          log.info("AudioSession.stop - done")
         }
         continuation.resume()
       }
@@ -127,16 +134,16 @@ private func stopAudioSession() async {
       DispatchQueue.global(qos: .userInitiated).async {
         do {
           try AVAudioSession.sharedInstance().setActive(false, options: [.notifyOthersOnDeactivation])
-          log.info("stopAudioSession - done")
+          log.info("AudioSession.stop - done")
         } catch {
-          log.error("stopAudioSession - failed to deactivate: \(error.localizedDescription)")
+          log.error("AudioSession.stop - failed to deactivate: \(error.localizedDescription)")
         }
         continuation.resume()
       }
     }
   }
 #endif // os(iOS)
-  log.info("stopAudioSession END")
+  log.info("AudioSession.stop END")
 }
 
 #if os(iOS)
