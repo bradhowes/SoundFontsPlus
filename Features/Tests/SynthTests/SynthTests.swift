@@ -49,18 +49,18 @@ struct SynthTests {
       await store.send(.initialize)
 
       let avAudioUnit = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-        await store.receive(\.synthAudioUnitCreated) {
-          $0.audioSessionActivated = true
-        }
+        await store.receive(\.synthAudioUnitCreated, timeout: .seconds(5))
         return store.state.avAudioUnit
       }
 
       #expect(avAudioUnit != nil)
-      await store.receive(\.delegate.running)
+      await store.receive(\.startAudioSessionFinished, true) { $0.audioSessionActivated = true }
+      await store.receive(\.delegate.running, avAudioUnit! as AVAudioUnitMIDIInstrument)
 
       try await closure(store)
 
       await store.send(.deinitialize)
+      await store.skipReceivedActions()
     }
   }
 
@@ -122,7 +122,8 @@ struct SynthTests {
   func audioSessionRouteChanged() async throws {
     try await initialized { store in
       NotificationCenter.default.post(name: AVAudioSession.routeChangeNotification, object: nil)
-      await store.receive(\.audioSessionRouteChanged)
+      await store.receive(\.audioSessionRouteChanged) { $0.audioSessionActivated = false }
+      await store.receive(\.startAudioSessionFinished, true) { $0.audioSessionActivated = true }
     }
   }
 
@@ -134,7 +135,7 @@ struct SynthTests {
   func audioSessionMediaServicesWereReset() async throws {
     try await initialized { store in
       NotificationCenter.default.post(name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
-      await store.receive(\.mediaServicesWereReset)
+      await store.receive(\.mediaServicesWereReset) { $0.audioSessionActivated = false }
     }
   }
 

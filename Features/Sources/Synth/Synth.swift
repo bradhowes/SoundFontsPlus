@@ -29,6 +29,8 @@ public typealias ViewController = NSViewController
 /**
  Manages the audio session and synth creation for the app. Not used by the AUv3 extension, which instead relies on the AUv3
  factory mechanism to create the component and inject it into a UIKit view controller.
+
+ NOTE: there is too much AVAudioSession management here -- should be it its own reducer.
  */
 @Reducer
 public struct Synth {
@@ -59,17 +61,21 @@ public struct Synth {
   }
 
   public enum Action {
+    // Sent by AppRoot when app enters foreground mode
     case acquireAudioSession
-    case audioSessionActivationFinished(Bool)
     case activePresetIdChanged(Preset.ID?)
+    // Sent by monitorRouteChanged due to AVAudioSession.routeChangeNotification
     case audioSessionRouteChanged
     case deinitialize
     case delegate(Delegate)
     case initialize
     case lastPresetLoadFinished
+    // Sent by monitorMediaServices due to AVAudioSession.mediaServicesWereResetNotification
     case mediaServicesWereReset
     case playNote
+    // Sent by AppRoot when app enters background mode
     case releaseAudioSession
+    case startAudioSessionFinished(Bool)
     case synthAudioUnitCreated(AVAudioUnitMIDIInstrument, ViewController)
     case synthAudioUnitCreationFailed
 
@@ -99,7 +105,6 @@ public struct Synth {
       log.action("Synth", action)
       return switch action {
       case .acquireAudioSession: acquireAudioSession(&state)
-      case .audioSessionActivationFinished(let activated): audioSessionActivationFinished(&state, activated: activated)
       case .activePresetIdChanged(let presetId): activePresetIdChanged(&state, presetId: presetId)
       case .audioSessionRouteChanged: audioSessionRouteChanged(&state)
       case .deinitialize: .merge(CancelId.allCases.map { .cancel(id: $0) })
@@ -109,6 +114,7 @@ public struct Synth {
       case .mediaServicesWereReset: restartAudioSession(&state)
       case .playNote: sendNoteOnOffSequence(state)
       case .releaseAudioSession: releaseAudioSession(&state)
+      case .startAudioSessionFinished(let result): startAudioSessionFinished(&state, result: result)
       case let .synthAudioUnitCreated(avAudioUnit, viewController):
         synthAudioUnitCreated(&state, avAudioUnit: avAudioUnit, viewController: viewController)
       case .synthAudioUnitCreationFailed: synthAudioUnitCreationFailed()
@@ -122,11 +128,23 @@ public struct Synth {
     case synthMonitorMediaServices
     case synthMonitorRouteChanged
     case synthPlayNote
-    case synthAudioSession
+    case synthStartAudioSession
+    case synthStopAudioSession
   }
 }
 
 extension Synth {
+
+  private func acquireAudioSession(_ state: inout State) -> Effect<Action> {
+    guard state.avAudioUnit != nil else {
+      log.info("acquireAudioSession END - no synth yet")
+      return .none
+    }
+    log.info("acquireAudioSession BEGIN")
+    let effect = startAudioSession(&state)
+    log.info("acquireAudioSession END")
+    return effect
+  }
 
   private func activePresetIdChanged(_ state: inout State, presetId: Preset.ID?) -> Effect<Action> {
     log.info("activePresetIdChanged BEGIN - presetId: \(presetId ?? -1)")
@@ -179,13 +197,6 @@ extension Synth {
   private func audioSessionRouteChanged(_ state: inout State) -> Effect<Action> {
     log.info("audioSessionRouteChanged BEGIN")
     return restartAudioSession(&state)
-  }
-
-  private func acquireAudioSession(_ state: inout State) -> Effect<Action> {
-    log.info("acquireAudioSession BEGIN")
-    let effect = startAudioSession(&state)
-    log.info("acquireAudioSession END")
-    return effect
   }
 
   private func beginMonitoring(_ state: inout State) -> Effect<Action> {
@@ -310,27 +321,25 @@ extension Synth {
 
 #endif // os(iOS)
 
-  private func restartAudioSession(_ state: inout State) -> Effect<Action> {
-    log.info("restartAudioSession - BEGIN")
-    state.audioSessionActivated = false
-    log.info("restartAudioSession - END")
-    let session = audioSession
-    return .run { send in
-      await send(.audioSessionActivationFinished(await session.restart()))
-    }.cancellable(id: CancelId.synthAudioSession, cancelInFlight: true)
-  }
-
   private func releaseAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("releaseAudioSession - BEGIN")
+    // App is moving to background state -- only release audio session if background process is not enabled.
     if !backgroundProcessing {
       state.audioSessionActivated = false
       let session = audioSession
       return .run { _ in
         await session.stop()
-      }.cancellable(id: CancelId.synthAudioSession, cancelInFlight: true)
+      }.cancellable(id: CancelId.synthStopAudioSession, cancelInFlight: true)
     }
     log.info("releaseAudioSession - END")
     return .none
+  }
+
+  private func restartAudioSession(_ state: inout State) -> Effect<Action> {
+    log.info("restartAudioSession - BEGIN")
+    state.audioSessionActivated = false
+    log.info("restartAudioSession - END")
+    return startAudioSession(&state)
   }
 
   private func sendLoadFileUsePreset(_ avAudioUnit: AVAudioUnitMIDIInstrument, presetInfo: PresetLoadingInfo) -> Bool {
@@ -393,12 +402,23 @@ extension Synth {
 
   private func startAudioSession(_ state: inout State) -> Effect<Action> {
     guard !state.audioSessionActivated else { return .none }
-
     log.info("startAudioSession BEGIN")
     let session = audioSession
     return .run { send in
-      await send(.audioSessionActivationFinished(await session.start()))
-    }.cancellable(id: CancelId.synthAudioSession, cancelInFlight: true)
+      let result = await session.start()
+      log.info("startAudioSession END - \(result)")
+      await send(.startAudioSessionFinished(result))
+    }.cancellable(id: CancelId.synthStartAudioSession, cancelInFlight: true)
+  }
+
+  private func startAudioSessionFinished(_ state: inout State, result: Bool) -> Effect<Action> {
+    log.info("startAudioSessionFinished BEGIN - \(result)")
+    state.audioSessionActivated = result
+    if result {
+      startEngine(&state)
+      return beginMonitoring(&state)
+    }
+    return .none
   }
 
   private func startEngine(_ state: inout State) {
@@ -410,15 +430,6 @@ extension Synth {
 
     let started = audioGraph.start(audioGraph.engine, avAudioUnit)
     log.info("startEngine END - \(started)")
-  }
-
-  private func audioSessionActivationFinished(_ state: inout State, activated: Bool) -> Effect<Action> {
-    state.audioSessionActivated = activated
-    log.info("startAudioSession END - \(activated)")
-    if activated {
-      startEngine(&state)
-    }
-    return .none
   }
 
   private func synthAudioUnitCreate(_ state: inout State) -> Effect<Action> {
@@ -454,13 +465,10 @@ extension Synth {
     state.viewController = viewController
 
     if state.audioSessionActivated {
-      startEngine(&state)
+      return startAudioSessionFinished(&state, result: true)
     } else {
-      return .merge(beginMonitoring(&state), startAudioSession(&state))
+      return startAudioSession(&state)
     }
-
-    log.info("synthAudioUnitCreated END")
-    return beginMonitoring(&state)
   }
 
   private func synthAudioUnitCreationFailed() -> Effect<Action> {

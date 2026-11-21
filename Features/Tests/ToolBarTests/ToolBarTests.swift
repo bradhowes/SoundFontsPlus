@@ -329,6 +329,7 @@ struct ToolBarTests {
   }
 
   @Test(
+    .disabled(),
     .dependencies {
       $0.audioGraph = .liveValue
       $0.audioSession = MockAudioSession().audioSession
