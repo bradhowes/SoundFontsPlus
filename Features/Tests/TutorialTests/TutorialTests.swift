@@ -72,29 +72,29 @@ struct TutorialTests {
     let store = makeStore(page: .tags)
     await store.send(.prev) { $0.page = .favorites }
     await store.send(.next) { $0.page = .tags }
-    await store.send(.next) { $0.page = .toolBar1 }
+    await store.send(.next) { $0.page = .toolbar1 }
   }
 
   @Test
   func toolBar1ChangePage() async throws {
-    let store = makeStore(page: .toolBar1)
+    let store = makeStore(page: .toolbar1)
     await store.send(.prev) { $0.page = .tags }
-    await store.send(.next) { $0.page = .toolBar1 }
-    await store.send(.next) { $0.page = .toolBar2 }
+    await store.send(.next) { $0.page = .toolbar1 }
+    await store.send(.next) { $0.page = .toolbar2 }
   }
 
   @Test
   func toolBar2ChangePage() async throws {
-    let store = makeStore(page: .toolBar2)
-    await store.send(.prev) { $0.page = .toolBar1 }
-    await store.send(.next) { $0.page = .toolBar2 }
+    let store = makeStore(page: .toolbar2)
+    await store.send(.prev) { $0.page = .toolbar1 }
+    await store.send(.next) { $0.page = .toolbar2 }
     await store.send(.next) { $0.page = .reverb }
   }
 
   @Test
   func reverbChangePage() async throws {
     let store = makeStore(page: .reverb)
-    await store.send(.prev) { $0.page = .toolBar2 }
+    await store.send(.prev) { $0.page = .toolbar2 }
     await store.send(.next) { $0.page = .reverb }
     await store.send(.next) { $0.page = .delay }
   }
@@ -153,9 +153,9 @@ struct TutorialTests {
   @Test
   func tagsPage() throws { try snapshotPage(.tags) }
   @Test
-  func toolBar1Page() throws { try snapshotPage(.toolBar1) }
+  func toolBar1Page() throws { try snapshotPage(.toolbar1) }
   @Test
-  func toolBar2Page() throws { try snapshotPage(.toolBar2) }
+  func toolBar2Page() throws { try snapshotPage(.toolbar2) }
   @Test
   func reverbPage() throws { try snapshotPage(.reverb) }
   @Test
