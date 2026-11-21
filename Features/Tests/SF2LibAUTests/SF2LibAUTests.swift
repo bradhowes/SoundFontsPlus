@@ -32,7 +32,7 @@ struct SF2LibAUTests {
     #expect(au != nil)
     #expect(au.parameterTree != nil)
 
-    #expect(audioSession.start() == true)
+    #expect(await audioSession.start() == true)
     #expect(audioGraph.start(audioGraph.engine, au) == true)
 
     try await closure(au)
