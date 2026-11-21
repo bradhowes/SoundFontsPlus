@@ -11,13 +11,13 @@ import Testing
 struct AudioSessionTests {
 
   @Test
-  func liveClient() throws {
+  func liveClient() async throws {
     let uat = AudioSession.liveValue
-    #expect(throws: Never.self) {
-      uat.start()
+    await #expect(throws: Never.self) {
+      await uat.start()
     }
-    #expect(throws: Never.self) {
-      uat.stop()
+    await #expect(throws: Never.self) {
+      await uat.stop()
     }
   }
 }
