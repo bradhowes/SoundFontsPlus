@@ -76,26 +76,29 @@ struct AppRootTests {
     await store.send(.initialize)
     await store.receive(\.synth.initialize)
 
-    await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.receive(\.synth.synthAudioUnitCreated, timeout: .seconds(5)) {
-        $0.synth.audioSessionActivated = true
-        // $0.synth.avAudioUnit = avAudioUnit
-      }
+    let avAudioUnit = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
+      await store.receive(\.synth.synthAudioUnitCreated, timeout: .seconds(5))
+      return store.state.synth.avAudioUnit
     }
 
-    let avAudioUnit = try #require(store.state.synth.avAudioUnit)
+    #expect(avAudioUnit != nil )
+    let instrument = avAudioUnit! as AVAudioUnitMIDIInstrument
 
-    await store.receive(\.synth.delegate.running, avAudioUnit) {
+    await store.receive(\.synth.startAudioSessionFinished, true) {
+      $0.synth.audioSessionActivated = true
+    }
+
+    await store.receive(\.synth.delegate.running, instrument) {
       $0.toolBar.temporaryStatus = .startup
       $0.toastState = nil
       $0.readyForUse = true
       $0.avAudioUnit = avAudioUnit
     }
 
-    await store.receive(\.toolBar.audioUnitCreated, avAudioUnit) {
+    await store.receive(\.toolBar.audioUnitCreated, instrument) {
       $0.toolBar.temporaryStatus = nil
     }
-    await store.receive(\.keyboard.midiInstrumentCreated, avAudioUnit) { $0.keyboard.midiInstrument = avAudioUnit }
+    await store.receive(\.keyboard.midiInstrumentCreated, instrument) { $0.keyboard.midiInstrument = instrument }
 
     await store.receive(\.volumeMonitor.start) { $0.volumeMonitor.reason = .noActivePreset }
     await store.receive(\.appReview.ask)

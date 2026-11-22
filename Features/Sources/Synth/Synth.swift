@@ -323,7 +323,7 @@ extension Synth {
 
   private func releaseAudioSession(_ state: inout State) -> Effect<Action> {
     log.info("releaseAudioSession - BEGIN")
-    // App is moving to background state -- only release audio session if background process is not enabled.
+    // App is moving to background state -- only release audio session if background processing is not enabled.
     if !backgroundProcessing {
       state.audioSessionActivated = false
       let session = audioSession

@@ -48,19 +48,20 @@ struct SynthTests {
     try await store.withExhaustivity(exhaustivity) {
       await store.send(.initialize)
 
+      // Disable exhaustivity because we do not have mocks for avAudioUnit and viewController
       let avAudioUnit = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
         await store.receive(\.synthAudioUnitCreated, timeout: .seconds(5))
         return store.state.avAudioUnit
       }
 
       #expect(avAudioUnit != nil)
+
       await store.receive(\.startAudioSessionFinished, true) { $0.audioSessionActivated = true }
       await store.receive(\.delegate.running, avAudioUnit! as AVAudioUnitMIDIInstrument)
 
       try await closure(store)
 
       await store.send(.deinitialize)
-      await store.skipReceivedActions()
     }
   }
 
@@ -122,8 +123,10 @@ struct SynthTests {
   func audioSessionRouteChanged() async throws {
     try await initialized { store in
       NotificationCenter.default.post(name: AVAudioSession.routeChangeNotification, object: nil)
-      await store.receive(\.audioSessionRouteChanged) { $0.audioSessionActivated = false }
+      await store.receive(\.audioSessionRouteChanged, timeout: .seconds(5)) { $0.audioSessionActivated = false }
       await store.receive(\.startAudioSessionFinished, true) { $0.audioSessionActivated = true }
+      let avAudioUnit = store.state.avAudioUnit
+      await store.receive(\.delegate.running, avAudioUnit! as AVAudioUnitMIDIInstrument)
     }
   }
 
@@ -136,6 +139,9 @@ struct SynthTests {
     try await initialized { store in
       NotificationCenter.default.post(name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
       await store.receive(\.mediaServicesWereReset) { $0.audioSessionActivated = false }
+      await store.receive(\.startAudioSessionFinished, true) { $0.audioSessionActivated = true }
+      let avAudioUnit = store.state.avAudioUnit
+      await store.receive(\.delegate.running, avAudioUnit! as AVAudioUnitMIDIInstrument)
     }
   }
 
@@ -145,11 +151,18 @@ struct SynthTests {
     }
   )
   func audioSessionReleaseAcquire() async throws {
+    @Shared(.backgroundProcessing) var backgroundProcessing
+    $backgroundProcessing.withLock { $0 = false }
     try await initialized { store in
       await store.send(\.releaseAudioSession) { $0.audioSessionActivated = false }
-      await store.send(\.acquireAudioSession) { $0.audioSessionActivated = true }
+      await store.send(\.acquireAudioSession) //  { $0.audioSessionActivated = true }
+      await store.receive(\.startAudioSessionFinished, true) { $0.audioSessionActivated = true }
+      let avAudioUnit = store.state.avAudioUnit
+      await store.receive(\.delegate.running, avAudioUnit! as AVAudioUnitMIDIInstrument)
       await store.send(\.releaseAudioSession) { $0.audioSessionActivated = false }
-      await store.send(\.acquireAudioSession) { $0.audioSessionActivated = true }
+      await store.send(\.acquireAudioSession)
+      await store.receive(\.startAudioSessionFinished, true) { $0.audioSessionActivated = true }
+      await store.receive(\.delegate.running, avAudioUnit! as AVAudioUnitMIDIInstrument)
     }
   }
 }
