@@ -92,7 +92,6 @@ struct AppRootTests {
       $0.toolBar.temporaryStatus = .startup
       $0.toastState = nil
       $0.readyForUse = true
-      $0.avAudioUnit = avAudioUnit
     }
 
     await store.receive(\.toolBar.audioUnitCreated, instrument) {
@@ -393,7 +392,7 @@ struct AppRootTests {
             sectionId: section.id,
             preset: preset,
             isActive: true,
-            audioUnit: $0.avAudioUnit?.auAudioUnit
+            audioUnit: $0.synth.avAudioUnit?.auAudioUnit
           )
         )
       }

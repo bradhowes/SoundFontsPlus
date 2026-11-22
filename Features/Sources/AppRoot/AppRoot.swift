@@ -9,7 +9,6 @@ public import CasePaths
 public import Changes
 public import ComposableArchitecture
 public import DelayEffect
-public import Engine
 public import FeatureSupport
 public import Keyboard
 import MorkAndMIDI
@@ -81,7 +80,6 @@ public struct AppRoot {
     public var readyForUse = false
     public var audioUnitCrashed = false
     public var toastState: VolumeMonitor.Reason?
-    public var avAudioUnit: AVAudioUnitMIDIInstrument?
     public var helpInfoSelection: RootHelpInfo?
 
     /**
@@ -304,7 +302,6 @@ extension AppRoot {
   }
 
   private func audioUnitCreated(_ state: inout State, avAudioUnit: AVAudioUnitMIDIInstrument) -> Effect<Action> {
-    state.avAudioUnit = avAudioUnit
     installMIDIMonitor(midiInstrument: avAudioUnit)
     return .merge(
       .send(.toolBar(.audioUnitCreated(avAudioUnit))),
@@ -376,7 +373,7 @@ extension AppRoot {
         sectionId: sectionId,
         preset: preset,
         isActive: preset.id == state.presetsList.activePresetId,
-        audioUnit: state.avAudioUnit?.auAudioUnit
+        audioUnit: state.synth.avAudioUnit?.auAudioUnit
       )
     )
     return .none
