@@ -30,13 +30,18 @@ public struct ReverbDevice: Sendable {
 
 extension ReverbDevice: DependencyKey {
 
-  public static let liveValue: Self = .init(
-    effect: AVAudioUnitReverb(),
-    setConfig: {
-      log.info("setConfig - \($1, privacy: .public)")
-      $0?.setConfig($1)
-    }
-  )
+  // NOTE: computed so that each access creates a new AVAudioUnitReverb. An AVAudioNode can only be attached to one
+  // AVAudioEngine at a time, and AudioGraph.liveValue creates a new engine on each access. The dependency system caches
+  // the live value, so the app still sees just one instance.
+  public static var liveValue: Self {
+    .init(
+      effect: AVAudioUnitReverb(),
+      setConfig: {
+        log.info("setConfig - \($1, privacy: .public)")
+        $0?.setConfig($1)
+      }
+    )
+  }
 
   public static let previewValue: Self = .init(effect: nil) { _, _ in }
   public static let testValue: Self = .init(effect: nil) { _, _ in }

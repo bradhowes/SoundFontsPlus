@@ -107,7 +107,7 @@ public struct Synth {
       case .acquireAudioSession: acquireAudioSession(&state)
       case .activePresetIdChanged(let presetId): activePresetIdChanged(&state, presetId: presetId)
       case .audioSessionRouteChanged: audioSessionRouteChanged(&state)
-      case .deinitialize: .merge(CancelId.allCases.map { .cancel(id: $0) })
+      case .deinitialize: deinitialize(&state)
       case .delegate: .none
       case .initialize: synthAudioUnitCreate(&state)
       case .lastPresetLoadFinished: lastPresetLoadFinished(&state)
@@ -214,6 +214,14 @@ extension Synth {
 
     // Start up the monitors now that we have a synth and signal Root that it is running
     return .merge(actions)
+  }
+
+  private func deinitialize(_ state: inout State) -> Effect<Action> {
+    log.info("deinitialize BEGIN")
+    // Stop the engine and detach all nodes so that nothing remains attached to the engine after we are done.
+    destroyAudioGraph(&state)
+    log.info("deinitialize END")
+    return .merge(CancelId.allCases.map { .cancel(id: $0) })
   }
 
   private func destroyAudioGraph(_ state: inout State) {

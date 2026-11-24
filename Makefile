@@ -5,9 +5,10 @@ SCHEME = SoundFontsPlus
 BUILD_FLAGS = -skipMacroValidation \
               -skipPackagePluginValidation \
               -enableCodeCoverage YES \
-			  -workspace SoundFontsPlus.xcworkspace \
+	      -collect-test-diagnostics never \
+	      -workspace SoundFontsPlus.xcworkspace \
               -scheme $(SCHEME) \
-			  -clonedSourcePackagesDirPath "$(WORKSPACE)"
+	      -clonedSourcePackagesDirPath "$(WORKSPACE)"
 WORKSPACE = $(PWD)/.workspace
 XCB = | xcbeautify --renderer github-actions
 

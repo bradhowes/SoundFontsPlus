@@ -112,29 +112,30 @@ private func stopGraph(_ engine: AVAudioEngine?, synth: AVAudioUnitMIDIInstrumen
 
   synth.reset()
 
-  guard engine.isRunning else {
-    log.info("stopGraph END - already stopped")
-    return
-  }
-
   @Dependency(\.delayDevice) var delayDevice
   @Dependency(\.reverbDevice) var reverbDevice
 
-  log.info("stopGraph - stopping engine")
-  engine.stop()
+  if engine.isRunning {
+    log.info("stopGraph - stopping engine")
+    engine.stop()
+  }
 
-  if let delay = delayDevice.effect {
+  // NOTE: always detach, even if the engine was not running (it could have been stopped by the system). Only detach
+  // nodes that are attached to this engine, since detaching a node owned by another engine is an error.
+  if let delay = delayDevice.effect, delay.engine === engine {
     log.info("stopGraph - detaching delay")
     engine.detach(delay)
   }
 
-  if let reverb = reverbDevice.effect {
+  if let reverb = reverbDevice.effect, reverb.engine === engine {
     log.info("stopGraph - detaching reverb")
     engine.detach(reverb)
   }
 
-  log.info("stopGraph - detaching synth")
-  engine.detach(synth)
+  if synth.engine === engine {
+    log.info("stopGraph - detaching synth")
+    engine.detach(synth)
+  }
 
   log.info("stopGraph END")
 }
