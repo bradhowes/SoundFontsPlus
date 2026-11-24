@@ -7,7 +7,7 @@ import Testing
 
 @testable import BaseSupport
 
-@Suite(.serialized)
+@Suite
 struct FileManagerTests {
 
   @Test

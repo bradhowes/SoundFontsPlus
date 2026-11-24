@@ -27,8 +27,7 @@ import ToolBar
     $0.fileManager = .liveValue
     $0.mainQueue = .main
     $0.uuid = .incrementing
-  },
-  .serialized // due to SF2LibAU creation
+  }
 )
 @MainActor
 struct AUv3RootTests {
