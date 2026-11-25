@@ -26,7 +26,7 @@ private let unsetAudioUnitShortName = "-"
 @objc public final class SF2LibAU: AUAudioUnit {
 
   private var _audioUnitShortName: String = unsetAudioUnitShortName
-  public private(set) var engine: SF2Engine = SF2Engine()
+  public private(set) var engine: SF2Engine?
   public private(set) var auv3ActiveState: AUv3ActiveState?
 
   private var dryBus: AUAudioUnitBus
@@ -85,7 +85,8 @@ sub: \(componentDescription.componentSubType.stringValue, privacy: .public)
       throw Failure.invalidFormat
     }
 
-    engine.create(format.sampleRate, getVoiceCount())
+    let engine = SF2Engine(format.sampleRate, Int(getVoiceCount()))
+    self.engine = engine
     dryBus = try Self.createBus(name: "dry", format: format)
     reverbSendBus = try Self.createBus(name: "reverbSend", format: format)
     chorusSendBus = try Self.createBus(name: "chorusSend", format: format)
@@ -178,7 +179,7 @@ extension SF2LibAU {
 
     // Adjust the engine to use the given format. The engine is sensitive to the sample rate and channel count. The host
     // has set the `maximumFramesToRender` so we also forward that along.
-    engine.setRenderingFormat(3, format, maximumFramesToRender)
+    engine?.setRenderingFormat(3, format, maximumFramesToRender)
 
     // NOTE: not sure this is correct behavior.
     for index in 0..<outputBusses.count {
@@ -205,7 +206,8 @@ extension SF2LibAU {
   /// Provide a block that asks the internal SF2 `engine` to render samples.
   public override var internalRenderBlock: AUInternalRenderBlock {
     log.info("internalRenderBlock BEGIN")
-    return unsafe engine.getRenderBlock()
+    // swiftlint:disable:next force_unwrapping
+    return unsafe engine!.getRenderBlock()
   }
 }
 

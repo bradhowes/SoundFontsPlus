@@ -253,7 +253,7 @@ extension FileImporter {
   private func validateSoundFont(url: URL) -> Bool {
     url.withSecurityScoping { url in
       var fileInfo = SF2FileInfo(std.string(url.path(percentEncoded: false)))
-      return fileInfo.load()
+      return fileInfo.load() == SF2.IO.LoadResponse.ok
     } ?? false
   }
 }

@@ -120,7 +120,7 @@ extension SoundFontKind {
   /// - returns a `SF2FileInfo` instance that can return meta data associated with the SF2 file.
   public func fileInfo() throws -> SF2FileInfo {
     var fileInfo = SF2FileInfo(std.string(url.path(percentEncoded: false)))
-    guard fileInfo.load() else { throw ModelError.loadFailure(url: url) }
+    guard fileInfo.load() == SF2.IO.LoadResponse.ok else { throw ModelError.loadFailure(url: url) }
     return fileInfo
   }
 }

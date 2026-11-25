@@ -65,19 +65,19 @@ struct SF2ResourcesTests {
     #expect(fileInfo.embeddedCopyright() == "")
 
     #expect(fileInfo.size() == 235)
-    var presetInfo = fileInfo[0]
+    var presetInfo = try #require(fileInfo[0].value)
     #expect(presetInfo.name() == "Piano 1")
     #expect(presetInfo.bank() == 0)
     #expect(presetInfo.program() == 0)
-    presetInfo = fileInfo[1]
+    presetInfo = try #require(fileInfo[1].value)
     #expect(presetInfo.name() == "Piano 2")
     #expect(presetInfo.bank() == 0)
     #expect(presetInfo.program() == 1)
-    presetInfo = fileInfo[2]
+    presetInfo = try #require(fileInfo[2].value)
     #expect(presetInfo.name() == "Piano 3")
     #expect(presetInfo.bank() == 0)
     #expect(presetInfo.program() == 2)
-    presetInfo = fileInfo[fileInfo.size() - 1]
+    presetInfo = try #require(fileInfo[fileInfo.size() - 1].value)
     #expect(presetInfo.name() == "SFX")
     #expect(presetInfo.bank() == 128)
     #expect(presetInfo.program() == 56)
@@ -92,7 +92,7 @@ struct SF2ResourcesTests {
     #expect(fileInfo.embeddedCopyright() == "Copyright Information Not Present")
 
     #expect(fileInfo.size() == 1)
-    let presetInfo = fileInfo[0]
+    let presetInfo = try #require(fileInfo[0].value)
     #expect(presetInfo.name() == "Nice Piano")
     #expect(presetInfo.bank() == 0)
     #expect(presetInfo.program() == 1)
@@ -107,19 +107,19 @@ struct SF2ResourcesTests {
     #expect(fileInfo.embeddedCopyright() == "2012 by S. Christian Collins")
 
     #expect(fileInfo.size() == 270)
-    var presetInfo = fileInfo[0]
+    var presetInfo = try #require(fileInfo[0].value)
     #expect(presetInfo.name() == "Stereo Grand")
     #expect(presetInfo.bank() == 0)
     #expect(presetInfo.program() == 0)
-    presetInfo = fileInfo[1]
+    presetInfo = try #require(fileInfo[1].value)
     #expect(presetInfo.name() == "Bright Grand")
     #expect(presetInfo.bank() == 0)
     #expect(presetInfo.program() == 1)
-    presetInfo = fileInfo[2]
+    presetInfo = try #require(fileInfo[2].value)
     #expect(presetInfo.name() == "Electric Grand")
     #expect(presetInfo.bank() == 0)
     #expect(presetInfo.program() == 2)
-    presetInfo = fileInfo[fileInfo.size() - 1]
+    presetInfo = try #require(fileInfo[fileInfo.size() - 1].value)
     #expect(presetInfo.name() == "SFX")
     #expect(presetInfo.bank() == 128)
     #expect(presetInfo.program() == 56)

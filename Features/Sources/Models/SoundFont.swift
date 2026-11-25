@@ -247,10 +247,10 @@ extension SoundFont {
     limit: Int
   ) -> [Preset.Draft] {
     (0..<limit)
-      .map { presetIndex in
-        let presetInfo = fileInfo[presetIndex]
+      .compactMap { presetIndex -> Preset.Draft? in
+        guard let presetInfo = fileInfo[presetIndex].value else { return nil }
         let name = String(presetInfo.name())
-        return .init(
+        return Preset.Draft(
             index: presetIndex,
             bank: Int(presetInfo.bank()),
             program: Int(presetInfo.program()),
