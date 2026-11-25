@@ -12,18 +12,22 @@ env:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: xcode-27
     steps:
     - name: Clean Derived Data
       run: |
         rm -rf ~/Library/Developer/Xcode/DerivedData/*
-        rm -rf .DerivedData-iOS      
+        rm -rf .DerivedData-iOS
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Select Xcode Xcode_26.3.0
-      run: ls -l /Applications # && sudo xcode-select -s /Applications/Xcode_26.3.0.app
-    - name: Show ENV
-      run: env
+    - name: Select Xcode
+      run: ls -l /Applications && sudo xcode-select -s /Applications/Xcode_27.2.app
+    - name: Show simctl devices
+      run: xcrun simctl list devices
+    - name: Download iOS
+      run: xcodebuild -downloadPlatform iOS
+    - name: Start sim
+      run: xcrun simctl boot 4DF1AA75-A2F8-4E1A-AF15-154F8671CBBC || echo "already booted"
     - name: Build, test, and code coverage
       run: make
     - name: Archive test snapshot artifacts

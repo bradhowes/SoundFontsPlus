@@ -1,5 +1,5 @@
-PLATFORM_IOS = iOS Simulator,name=iPad mini (A17 Pro)
-IOS_SIM = 8C8C409E-EDE8-4AC3-969D-449731DC9DA1
+PLATFORM_IOS = iOS Simulator,name=iPad mini (A20 Pro)
+IOS_SIM = 4DF1AA75-A2F8-4E1A-AF15-154F8671CBBC
 PLATFORM_MACOS = macOS
 SCHEME = SoundFontsPlus
 BUILD_FLAGS = -skipMacroValidation \
@@ -16,7 +16,7 @@ default: report
 
 report: coverage-iOS # percentage-macOS
 	@if [[ -n "$$GITHUB_ENV" ]]; then \
-		echo "PERCENTAGE=$$(< coverage_iOS/percentage.txt)" >> $$GITHUB_ENV; \
+	  echo "PERCENTAGE=$$(< coverage_iOS/percentage.txt)" >> $$GITHUB_ENV; \
 	fi
 
 coverage-iOS: test-iOS

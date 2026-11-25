@@ -78,7 +78,7 @@ struct AppRootTests {
     await store.receive(\.synth.initialize)
 
     let avAudioUnit = await store.withExhaustivity(.off(showSkippedAssertions: false)) {
-      await store.receive(\.synth.synthAudioUnitCreated, timeout: .seconds(5))
+      await store.receive(\.synth.synthAudioUnitCreated, timeout: .seconds(15))
       return store.state.synth.avAudioUnit
     }
 
