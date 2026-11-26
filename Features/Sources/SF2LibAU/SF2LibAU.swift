@@ -85,8 +85,12 @@ sub: \(componentDescription.componentSubType.stringValue, privacy: .public)
       throw Failure.invalidFormat
     }
 
-    let engine = SF2Engine(format.sampleRate, Int(getVoiceCount()))
+    let engine = SF2Engine()
+    engine.setMinimumNoteDuration(10)
+    engine.setRenderingTimeBudgetScaling(0.85)
+
     self.engine = engine
+
     dryBus = try Self.createBus(name: "dry", format: format)
     reverbSendBus = try Self.createBus(name: "reverbSend", format: format)
     chorusSendBus = try Self.createBus(name: "chorusSend", format: format)
@@ -315,7 +319,8 @@ extension SF2LibAU {
       bytes: Array(
         SF2Engine.createLoadBookmarkUsePresetPayload(
           data,
-          presetIndex
+          presetIndex,
+          []
         )
       )
     )
@@ -326,7 +331,8 @@ extension SF2LibAU {
       bytes: Array(
         SF2Engine.createLoadFileUsePresetPayload(
           std.string(url.path(percentEncoded: false)),
-          presetIndex
+          presetIndex,
+          []
         )
       )
     )

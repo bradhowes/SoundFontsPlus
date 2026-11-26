@@ -14,7 +14,7 @@ extension AVAudioUnitMIDIInstrument {
    - returns: `true` if successfully sent message
    */
   public func sendLoadFileUsePreset(path: String, preset: Int) -> Bool {
-    sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload(std.string(path), preset)))
+    sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload(std.string(path), preset, [])))
   }
 
   /**
@@ -26,7 +26,7 @@ extension AVAudioUnitMIDIInstrument {
    - returns: `true` if successfully sent message
    */
   public func sendLoadBookmarkUsePreset(bookmark: Data, preset: Int) -> Bool {
-    sendMIDI(bytes: Array(SF2Engine.createLoadBookmarkUsePresetPayload(bookmark, preset)))
+    sendMIDI(bytes: Array(SF2Engine.createLoadBookmarkUsePresetPayload(bookmark, preset, [])))
   }
 
   /**
@@ -36,7 +36,7 @@ extension AVAudioUnitMIDIInstrument {
    - returns: `true` if successfully sent message
    */
   public func sendUsePreset(preset: Int) -> Bool {
-    sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload("", preset)))
+    sendMIDI(bytes: Array(SF2Engine.createLoadFileUsePresetPayload("", preset, [])))
   }
 
   /**
